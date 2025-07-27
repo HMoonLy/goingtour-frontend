@@ -1,0 +1,29 @@
+{
+    "name": "goingtour-frontend",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview",
+        "lint": "eslint . --ext .vue,.js,.jsx --fix"
+    },
+    "dependencies": {
+        "axios": "^1.6.0",
+        "element-plus": "^2.10.4",
+        "@element-plus/icons-vue": "^2.3.1",
+        "html2canvas": "^1.4.1",
+        "leaflet": "^1.9.4",
+        "pinia": "^3.0.3",
+        "vue": "^3.5.17",
+        "vue-router": "^4.5.1"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-vue": "^6.0.0",
+        "@vue/eslint-config-prettier": "^9.0.0",
+        "eslint": "^8.57.0",
+        "eslint-plugin-vue": "^9.20.0",
+        "vite": "^7.0.4"
+    }
+}
