@@ -10,23 +10,43 @@ const request = axios.create({
     }
 })
 
+/**
+ * 发起HTTP请求前的处理函数
+ * @param {object} config - 请求配置
+ * @returns {object} 处理后的请求配置
+ */
+const requestHandler = (config) => {
+    // 添加时间戳防止缓存
+    const timestamp = Date.now();
+
+    // 根据请求方法设置参数
+    if (config.method === 'get') {
+        config.params = {
+            ...config.params,
+            _t: timestamp
+        };
+    }
+
+    // 打印API请求信息（避免显示API密钥）
+    let logParams = {...config.params };
+
+    // 隐藏敏感信息
+    if (logParams && logParams.key) {
+        logParams.key = '***隐藏***';
+    }
+
+    console.log(`🚀 API Request: ${config.method.toUpperCase()} ${config.url}`, logParams);
+
+    return config;
+};
+
 // 请求拦截器
 request.interceptors.request.use(
     (config) => {
-        // 在发送请求之前做些什么
-
         // 添加token（如果存在）
         const token = localStorage.getItem('goingtour_token')
         if (token) {
             config.headers.Authorization = `Bearer ${token}`
-        }
-
-        // 添加时间戳防止缓存（GET请求）
-        if (config.method === 'get') {
-            config.params = {
-                ...config.params,
-                _t: Date.now()
-            }
         }
 
         // 显示loading（可选，根据配置决定）
@@ -35,9 +55,8 @@ request.interceptors.request.use(
             // store.commit('setGlobalLoading', true)
         }
 
-        console.log('🚀 API Request:', config.method?.toUpperCase(), config.url, config.data || config.params)
-
-        return config
+        // 使用请求处理函数处理请求
+        return requestHandler(config);
     },
     (error) => {
         // 对请求错误做些什么
@@ -98,7 +117,7 @@ request.interceptors.response.use(
 
             switch (status) {
                 case 400:
-                    errorMessage = data?.msg || '请求参数错误'
+                    errorMessage = data && data.msg ? data.msg : '请求参数错误'
                     ElMessage.error(errorMessage)
                     break
                 case 401:
@@ -122,7 +141,7 @@ request.interceptors.response.use(
                     ElMessage.error(errorMessage)
                     break
                 default:
-                    errorMessage = data?.msg || `请求失败 (${status})`
+                    errorMessage = data && data.msg ? data.msg : `请求失败 (${status})`
                     ElMessage.error(errorMessage)
             }
         } else if (error.request) {
@@ -147,7 +166,7 @@ export const http = {
      * @param {object} params 请求参数
      * @param {object} config 额外配置
      */
-    get(url, params = {}, config = {}) {
+    get(url, params , config = {}) {
         return request({
             method: 'get',
             url,

@@ -162,7 +162,7 @@ export default {
   display: flex;
   flex-direction: column;
   background-color: #f7fafc;
-  overflow-x: hidden; /* 防止水平滚动条 */
+  overflow: hidden; /* 防止水平滚动条 */
 }
 
 /* 顶部导航栏 */

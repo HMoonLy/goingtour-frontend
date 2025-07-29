@@ -318,12 +318,27 @@
           <div class="food-category">
             <h4>饮食限制</h4>
             <el-checkbox-group v-model="preferences.dietaryRestrictions" class="restriction-group">
-              <el-checkbox value="vegetarian">素食主义</el-checkbox>
-              <el-checkbox value="halal">清真食品</el-checkbox>
-              <el-checkbox value="no-seafood">不吃海鲜</el-checkbox>
-              <el-checkbox value="no-alcohol">不饮酒</el-checkbox>
-              <el-checkbox value="gluten-free">无麸质</el-checkbox>
+              <el-checkbox value="halal">清真饮食</el-checkbox>
+              <el-checkbox value="vegetarian">素食</el-checkbox>
+              <el-checkbox value="vegan">纯素食（全素）</el-checkbox>
+              <el-checkbox value="no_pork">不吃猪肉</el-checkbox>
+              <el-checkbox value="no_beef">不吃牛肉</el-checkbox>
+              <el-checkbox value="no_seafood">不吃海鲜</el-checkbox>
+              <el-checkbox value="no_spicy">不吃辣</el-checkbox>
+              <el-checkbox value="gluten_free">无麸质</el-checkbox>
+              <el-checkbox value="no_alcohol">不饮酒</el-checkbox>
             </el-checkbox-group>
+          </div>
+          
+          <!-- 其他饮食禁忌或特殊需求 -->
+          <div class="food-category">
+            <h4>其他饮食需求</h4>
+            <el-input
+              v-model="preferences.customDietaryNotes"
+              type="textarea"
+              :rows="2"
+              placeholder="请输入其他饮食禁忌或特殊需求，如宗教禁忌、过敏原等"
+            ></el-input>
           </div>
         </div>
       </div>
@@ -509,7 +524,8 @@ export default {
       includeShopping: true,
       preferPublicTransport: true,
       includeKidsActivities: false,
-      needAccessibility: false
+      needAccessibility: false,
+      customDietaryNotes: '' // 新增：用于存储其他饮食需求
     })
 
     // MBTI性格类型选择
@@ -815,6 +831,11 @@ export default {
           if (parsed.dietaryRestrictions && Array.isArray(parsed.dietaryRestrictions)) {
             preferences.dietaryRestrictions = [...parsed.dietaryRestrictions]
           }
+
+          // 加载其他饮食需求
+          if (parsed.customDietaryNotes) {
+            preferences.customDietaryNotes = parsed.customDietaryNotes
+          }
           
           // 加载活动时间偏好
           if (parsed.preferredTimes && Array.isArray(parsed.preferredTimes)) {
@@ -884,6 +905,7 @@ export default {
             includeKidsActivities: preferences.includeKidsActivities,
             needAccessibility: preferences.needAccessibility
           },
+          customDietaryNotes: preferences.customDietaryNotes, // 新增：保存其他饮食需求
           isCompleted: true
         }
 
