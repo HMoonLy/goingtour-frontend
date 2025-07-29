@@ -18,27 +18,16 @@
               <!-- 目的地选择 -->
               <el-col :span="12">
                 <el-form-item label="目的地" prop="destination">
-                  <el-select
-                    v-model="tripForm.destination"
+                  <el-input
+                    v-model="tripForm.destinationName"
                     placeholder="选择你想去的城市"
                     size="large"
                     style="width: 100%"
-                    filterable
+                     disabled
                   >
-                    <el-option
-                      v-for="city in availableCities"
-                      :key="city.code"
-                      :label="city.name"
-                      :value="city.code"
-                    >
-                      <div class="city-option">
-                        <span>{{ city.name }}</span>
-                        <span class="city-desc">{{ city.description }}</span>
-                      </div>
-                    </el-option>
-                  </el-select>
-                  <div v-if="tripForm.destination && getSelectedCityName()" class="selected-city-info">
-                    <el-tag type="success">已选择: {{ getSelectedCityName() }}</el-tag>
+                  </el-input>
+                  <div class="selected-city-info">
+                    <el-tag type="success">已选择: {{ tripForm.destinationName}}</el-tag>
                   </div>
             
                 </el-form-item>
@@ -237,7 +226,7 @@ import {
   Setting,
   ArrowRight
 } from "@element-plus/icons-vue";
-import { dataApi } from "@/api/data.js";
+
 
 export default {
   name: "TripBaseInfo",
@@ -340,9 +329,6 @@ export default {
     
     // 表单验证规则
     const tripRules = {
-      destination: [
-        { required: true, message: "请选择目的地", trigger: "change" },
-      ],
       days: [{ required: true, message: "请选择日期范围以计算天数", trigger: "change" }],
       dateRange: [
         { required: true, message: "请选择出行日期", trigger: "change" },
@@ -415,48 +401,6 @@ export default {
       return false;
     };
 
-    // 加载城市列表
-    const loadAvailableCities = async () => {
-      try {
-        loadingCities.value = true;
-        const response = await dataApi.getAllCities();
-
-        if (response && response.data) {
-          availableCities.value = response.data.map((city) => ({
-            code: city.code,
-            name: city.name,
-            description: city.description || city.province,
-          }));
-          console.log(
-            "✅ 加载城市列表成功:",
-            availableCities.value.length,
-            "个城市"
-          );
-        } else {
-          throw new Error("城市数据格式异常");
-        }
-      } catch (error) {
-        console.error("❌ 加载城市列表失败:", error);
-        ElMessage.error("加载城市列表失败");
-
-        // 使用备用数据
-        availableCities.value = [
-          {
-            code: "beijing",
-            name: "北京",
-            description: "千年古都，文化底蕴深厚",
-          },
-          {
-            code: "shanghai",
-            name: "上海",
-            description: "国际化大都市，东西文化交汇",
-          },
-        ];
-      } finally {
-        loadingCities.value = false;
-      }
-    };
-
     // 处理日期变化
     const handleDateChange = (newDateRange) => {
       console.log("日期范围变化:", newDateRange);
@@ -467,7 +411,7 @@ export default {
       
       try {
         // 输出调试信息
-        console.log("日期字符串格式:", typeof newDateRange[0], newDateRange[0], typeof newDateRange[1], newDateRange[1]);
+        // console.log("日期字符串格式:", typeof newDateRange[0], newDateRange[0], typeof newDateRange[1], newDateRange[1]);
         
         // 确保是有效的Date对象
         const startDate = new Date(newDateRange[0]);
@@ -480,11 +424,11 @@ export default {
           return;
         }
         
-        console.log("有效的日期对象:", startDate, endDate);
-        console.log("有效的日期范围:", formatDate(startDate), "至", formatDate(endDate));
+        // console.log("有效的日期对象:", startDate, endDate);
+        // console.log("有效的日期范围:", formatDate(startDate), "至", formatDate(endDate));
         
         const actualDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-        console.log(`计算得出实际天数: ${actualDays}天`);
+        // console.log(`计算得出实际天数: ${actualDays}天`);
 
         // 根据日期范围自动设置天数
         tripForm.value.days = actualDays;
@@ -507,8 +451,6 @@ export default {
         return "未设置";
       }
       try {
-        console.log("格式化日期范围:", tripForm.value.dateRange);
-        
         const startDate = new Date(tripForm.value.dateRange[0]);
         const endDate = new Date(tripForm.value.dateRange[1]);
         
@@ -649,9 +591,7 @@ export default {
 
     // 组件加载时初始化
     onMounted(async () => {
-      console.log("🚀 TripBaseInfo组件挂载", props.baseForm);
-      await loadAvailableCities();
-      
+      console.log("🚀 TripBaseInfo组件挂载", props.baseForm);    
       // 处理从父组件传递的目的地信息
       if (props.baseForm.destination && props.baseForm.destinationName) {
         console.log(`接收到父组件的目的地信息: ${props.baseForm.destinationName}(${props.baseForm.destination})`);
@@ -659,15 +599,6 @@ export default {
         // 确保本地表单数据同步
         tripForm.value.destination = props.baseForm.destination;
         tripForm.value.destinationName = props.baseForm.destinationName;
-        
-        // 如果城市列表还没有加载完，添加一个临时选项
-        if (!availableCities.value.find(city => city.code === props.baseForm.destination)) {
-          availableCities.value.push({
-            code: props.baseForm.destination,
-            name: props.baseForm.destinationName,
-            description: "从URL获取的城市"
-          });
-        }
       }
       
       validateForm(); // 初始验证表单
@@ -712,13 +643,6 @@ export default {
       }
     };
     
-    // 获取选中的城市名称
-    const getSelectedCityName = () => {
-      const selectedCity = availableCities.value.find(
-        (city) => city.code === tripForm.value.destination
-      );
-      return selectedCity ? selectedCity.name : "未选择";
-    };
 
     return {
       tripForm,
@@ -741,7 +665,7 @@ export default {
       goToNextStep,
       formatDayDate,
       dateRangeError,
-      getSelectedCityName
+   
     };
   }
 };

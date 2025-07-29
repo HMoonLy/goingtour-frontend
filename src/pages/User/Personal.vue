@@ -577,15 +577,16 @@ export default {
       const labels = {
         vegetarian: '素食主义',
         halal: '清真食品',
-        'no-seafood': '不吃海鲜',
-        'no-alcohol': '不饮酒',
-        'gluten-free': '无麸质',
+        no_seafood: '不吃海鲜',
+        no_alcohol: '不饮酒',
+        gluten_free: '无麸质',
         // 可能的其他值
         vegan: '纯素食',
         kosher: '犹太洁食',
-        'no-pork': '不吃猪肉',
-        'no-beef': '不吃牛肉',
-        'dairy-free': '无乳制品'
+        no_pork: '不吃猪肉',
+        no_beef: '不吃牛肉',
+        dairy_free: '无乳制品',
+        no_spicy:'不吃辣'
       }
       return restrictions.map(restriction => labels[restriction] || restriction).join('、')
     }

@@ -1,6 +1,5 @@
 <template>
   <div class="step-content">
-    <!-- 城市推荐卡片（使用高德地图API） -->
     <div class="city-guide-container">
       <div class="guide-section">
         <!-- 景点推荐卡片 -->
@@ -322,130 +321,6 @@
     <!-- 个性化偏好设置卡片 -->
     <el-card class="preferences-card" shadow="hover">
       <div class="preferences-content">
-        <!-- 当前偏好设置显示 -->
-        <div
-          v-if="userPreferences && selectedPreferenceTags.length > 0"
-          class="current-preferences"
-        >
-          <div class="preferences-header">
-            <h3>
-              <el-icon><User /></el-icon>
-              您的旅行偏好档案
-            </h3>
-            <el-button type="primary" link @click="openPreferences">
-              <el-icon><Edit /></el-icon>
-              修改偏好
-            </el-button>
-          </div>
-
-          <!-- 偏好详情展示 -->
-          <div class="preference-details">
-            <div class="preference-row">
-              <div class="preference-item">
-                <span class="preference-label">旅行类型：</span>
-                <div class="preference-values">
-                  <el-tag
-                    v-for="tag in selectedPreferenceTags.slice(0, 4)"
-                    :key="tag"
-                    size="small"
-                    class="preference-tag"
-                  >
-                    {{ tag }}
-                  </el-tag>
-                  <el-tag
-                    v-if="selectedPreferenceTags.length > 4"
-                    size="small"
-                    class="more-tag"
-                  >
-                    +{{ selectedPreferenceTags.length - 4 }}项
-                  </el-tag>
-                </div>
-              </div>
-            </div>
-
-            <div class="preference-row" v-if="userPreferences.budget">
-              <div class="preference-item">
-                <span class="preference-label">预算偏好：</span>
-                <div class="preference-values">
-                  <el-tag size="small" type="warning"
-                    >¥{{ userPreferences.budget }}/天</el-tag
-                  >
-                </div>
-              </div>
-            </div>
-
-            <div class="preference-row" v-if="userPreferences.travelPace">
-              <div class="preference-item">
-                <span class="preference-label">旅行节奏：</span>
-                <div class="preference-values">
-                  <el-tag size="small" type="info">{{
-                    tagMapping[userPreferences.travelPace] ||
-                    userPreferences.travelPace
-                  }}</el-tag>
-                </div>
-              </div>
-            </div>
-
-            <div
-              class="preference-row"
-              v-if="userPreferences.accommodationType"
-            >
-              <div class="preference-item">
-                <span class="preference-label">住宿偏好：</span>
-                <div class="preference-values">
-                  <el-tag size="small" type="primary">{{
-                    tagMapping[userPreferences.accommodationType] ||
-                    userPreferences.accommodationType
-                  }}</el-tag>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="preference-impact">
-            <el-icon><MagicStick /></el-icon>
-            <span>基于以上偏好，系统已为您智能推荐相关选项</span>
-          </div>
-        </div>
-
-        <!-- 没有偏好设置时的提示 -->
-        <div v-else class="no-preferences">
-          <div class="empty-state-enhanced">
-            <div class="empty-icon">
-              <el-icon size="64" color="#f59e0b"><Setting /></el-icon>
-            </div>
-            <h4>完善偏好设置，获得更精准的行程推荐</h4>
-            <p>设置您的旅行偏好后，系统将：</p>
-            <ul class="benefits-list">
-              <li>
-                <el-icon><Check /></el-icon>自动推荐合适的预算范围
-              </li>
-              <li>
-                <el-icon><Check /></el-icon>智能选择体验重点和活动
-              </li>
-              <li>
-                <el-icon><Check /></el-icon>根据您的喜好定制行程风格
-              </li>
-              <li>
-                <el-icon><Check /></el-icon>提供个性化的景点和餐厅推荐
-              </li>
-            </ul>
-            <div class="action-buttons">
-              <el-button
-                type="primary"
-                size="large"
-                @click="openPreferences"
-              >
-                <el-icon><Setting /></el-icon>
-                立即设置偏好
-              </el-button>
-              <el-button type="link" @click="skipPreferences">
-                暂时跳过
-              </el-button>
-            </div>
-          </div>
-        </div>
-
         <!-- 简化的个性化问题 -->
         <div class="personalization-section">
           <h3>
@@ -453,9 +328,7 @@
             本次行程个性化
           </h3>
           <p class="section-desc">
-            基于您的基础偏好和{{
-              getSelectedCityName()
-            }}的特色，为本次行程做进一步定制
+            基于您的基础偏好的特色，为本次行程做进一步定制
             <span
               v-if="userPreferences && selectedPreferenceTags.length > 0"
               class="preference-hint"
@@ -667,7 +540,7 @@ import {
   KnifeFork
 } from "@element-plus/icons-vue";
 import { getRecommendedAttractions, getRecommendedRestaurants } from "@/api/amap.js";
-
+import baseForm from '../../pages/Trip/TripCreate.vue'
 export default {
   name: "TripPreferences",
   components: {
@@ -1084,8 +957,12 @@ export default {
     };
 
     // 加载城市信息和推荐
-    const loadCityInfo = async (cityCode) => {
-      if (!cityCode) {
+    const loadCityInfo = async (city) => {
+      console.log("加载城市信息和推荐");
+      
+      console.log(city);
+      
+      if (!city) {
         cityInfo.value = null;
         recommendedAttractions.value = [];
         recommendedRestaurants.value = [];
@@ -1095,139 +972,140 @@ export default {
       try {
         loadingCityInfo.value = true;
         apiError.value = null;
-
-        // 1. 首先从本地数据库获取城市基本信息
-        if (cityInfoDatabase[cityCode]) {
-          cityInfo.value = cityInfoDatabase[cityCode];
-          console.log("✅ 从本地数据库加载城市信息:", cityCode);
-        } else {
-          // 如果本地没有，使用默认信息
-          console.log("⚠️ 城市信息暂未收录:", cityCode);
-          cityInfo.value = {
-            name: getSelectedCityName(),
-            description: "精彩城市，等待您的探索",
-            highlights: ["热门景点", "特色体验"],
-            specialties: ["当地美食", "特色小吃"],
-            bestSeasons: ["全年适宜"],
-            tips: ["提前规划行程", "注意天气变化"],
-          };
-        }
-
+        console.log("🔍 开始加载城市信息和推荐:", city);
+          console.log(city.destinationName);
+          
         // 2. 获取推荐景点 - 使用城市名称而不是cityCode
         loadingAttractions.value = true;
         attractionsPage.value = 1; // 重置页码
         noMoreAttractions.value = false;
 
         // 获取城市的中文名称
-        const cityName =
-          cityInfo.value?.name || getSelectedCityName() || cityCode;
+        const cityName =city.destinationName
         console.log("使用城市名称获取推荐:", cityName);
 
-        getRecommendedAttractions(
-          cityName,
-          attractionsPage.value,
-          attractionsPageSize
-        )
-          .then((response) => {
-            console.log("高德API景点响应:", response);
-            if (response && response.pois && response.pois.length > 0) {
-              const attractions = response.pois.map((poi) => ({
-                id: poi.id,
-                name: poi.name,
-                address: poi.address,
-                rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
-                photos: poi.photos || [],
-                type: poi.type.split(";")[0] || "景点",
-                distance: poi.distance || null,
-                tags: extractTags(poi),
-                tag: poi.tag, // 保存原始tag字段，用于提取特色标签
-                matchScore: 0, // 初始匹配分数
-              }));
+        try {
+          console.log("🔄 调用高德API获取景点数据...");
+          console.log("请求参数:", {
+            city: city.destinationName,
+            page: attractionsPage.value,
+            pageSize: attractionsPageSize
+          });
+          
+          const attractionsResponse = await getRecommendedAttractions(
+            cityName,
+            attractionsPage.value,
+            attractionsPageSize
+          );
+          
+          console.log("🔄 高德API景点响应:", attractionsResponse);
+          
+          if (attractionsResponse && attractionsResponse.pois && attractionsResponse.pois.length > 0) {
+            console.log("✅ 成功获取景点数据，共", attractionsResponse.pois.length, "条");
+            const attractions = attractionsResponse.pois.map((poi) => ({
+              id: poi.id,
+              name: poi.name,
+              address: poi.address,
+              rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
+              photos: poi.photos || [],
+              type: poi.type.split(";")[0] || "景点",
+              distance: poi.distance || null,
+              tags: extractTags(poi),
+              tag: poi.tag, // 保存原始tag字段，用于提取特色标签
+              matchScore: 0, // 初始匹配分数
+            }));
 
-              // 根据用户偏好计算匹配分数
-              calculateAttractionMatchScores(attractions);
+            // 根据用户偏好计算匹配分数
+            calculateAttractionMatchScores(attractions);
 
-              // 按匹配分数排序
-              recommendedAttractions.value = sortByRelevance(attractions);
+            // 按匹配分数排序
+            recommendedAttractions.value = sortByRelevance(attractions);
 
-              // 检查是否还有更多数据
-              if (
-                response.pois.length < attractionsPageSize ||
-                !response.count ||
-                Number(response.count) <= attractionsPageSize
-              ) {
-                noMoreAttractions.value = true;
-              }
-            } else {
-              recommendedAttractions.value = [];
+            // 检查是否还有更多数据
+            if (
+              attractionsResponse.pois.length < attractionsPageSize ||
+              !attractionsResponse.count ||
+              Number(attractionsResponse.count) <= attractionsPageSize
+            ) {
               noMoreAttractions.value = true;
             }
-          })
-          .catch((error) => {
-            console.error("获取推荐景点失败:", error);
-            apiError.value = "获取推荐景点失败，请稍后再试";
+          } else {
+            console.log("⚠️ 景点数据为空");
             recommendedAttractions.value = [];
-          })
-          .finally(() => {
-            loadingAttractions.value = false;
-          });
+            noMoreAttractions.value = true;
+          }
+        } catch (error) {
+          console.error("❌ 获取推荐景点失败:", error);
+          apiError.value = "获取推荐景点失败，请稍后再试";
+          recommendedAttractions.value = [];
+        } finally {
+          loadingAttractions.value = false;
+        }
 
         // 3. 获取推荐餐厅 - 使用城市名称而不是cityCode
         loadingRestaurants.value = true;
         restaurantsPage.value = 1; // 重置页码
         noMoreRestaurants.value = false;
 
-        // 使用与景点相同的城市名称
-        getRecommendedRestaurants(
-          cityName,
-          restaurantsPage.value,
-          restaurantsPageSize
-        )
-          .then((response) => {
-            console.log("高德API餐厅响应:", response);
-            if (response && response.pois && response.pois.length > 0) {
-              const restaurants = response.pois.map((poi) => ({
-                id: poi.id,
-                name: poi.name,
-                address: poi.address,
-                rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
-                photos: poi.photos || [],
-                type: poi.type.split(";")[0] || "餐厅",
-                price: (poi.biz_ext && poi.biz_ext.cost) || "¥¥",
-                tags: extractTags(poi),
-                tag: poi.tag, // 保存原始tag字段，用于提取招牌菜
-                matchScore: 0, // 初始匹配分数
-              }));
+        try {
+          console.log("🔄 调用高德API获取餐厅数据...");
+          console.log("请求参数:", {
+            city: cityName,
+            page: restaurantsPage.value,
+            pageSize: restaurantsPageSize
+          });
+          
+          const restaurantsResponse = await getRecommendedRestaurants(
+            cityName,
+            restaurantsPage.value,
+            restaurantsPageSize
+          );
+          
+          console.log("🔄 高德API餐厅响应:", restaurantsResponse);
+          
+          if (restaurantsResponse && restaurantsResponse.pois && restaurantsResponse.pois.length > 0) {
+            console.log("✅ 成功获取餐厅数据，共", restaurantsResponse.pois.length, "条");
+            const restaurants = restaurantsResponse.pois.map((poi) => ({
+              id: poi.id,
+              name: poi.name,
+              address: poi.address,
+              rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
+              photos: poi.photos || [],
+              type: poi.type.split(";")[0] || "餐厅",
+              price: (poi.biz_ext && poi.biz_ext.cost) || "¥¥",
+              tags: extractTags(poi),
+              tag: poi.tag, // 保存原始tag字段，用于提取招牌菜
+              matchScore: 0, // 初始匹配分数
+            }));
 
-              // 根据用户偏好计算匹配分数
-              calculateRestaurantMatchScores(restaurants);
+            // 根据用户偏好计算匹配分数
+            calculateRestaurantMatchScores(restaurants);
 
-              // 按匹配分数排序
-              recommendedRestaurants.value = sortByRelevance(restaurants);
+            // 按匹配分数排序
+            recommendedRestaurants.value = sortByRelevance(restaurants);
 
-              // 检查是否还有更多数据
-              if (
-                response.pois.length < restaurantsPageSize ||
-                !response.count ||
-                Number(response.count) <= restaurantsPageSize
-              ) {
-                noMoreRestaurants.value = true;
-              }
-            } else {
-              recommendedRestaurants.value = [];
+            // 检查是否还有更多数据
+            if (
+              restaurantsResponse.pois.length < restaurantsPageSize ||
+              !restaurantsResponse.count ||
+              Number(restaurantsResponse.count) <= restaurantsPageSize
+            ) {
               noMoreRestaurants.value = true;
             }
-          })
-          .catch((error) => {
-            console.error("获取推荐餐厅失败:", error);
-            if (!apiError.value) {
-              apiError.value = "获取推荐餐厅失败，请稍后再试";
-            }
+          } else {
+            console.log("⚠️ 餐厅数据为空");
             recommendedRestaurants.value = [];
-          })
-          .finally(() => {
-            loadingRestaurants.value = false;
-          });
+            noMoreRestaurants.value = true;
+          }
+        } catch (error) {
+          console.error("❌ 获取推荐餐厅失败:", error);
+          if (!apiError.value) {
+            apiError.value = "获取推荐餐厅失败，请稍后再试";
+          }
+          recommendedRestaurants.value = [];
+        } finally {
+          loadingRestaurants.value = false;
+        }
       } catch (error) {
         console.error("❌ 加载城市信息失败:", error);
         cityInfo.value = null;
@@ -1422,159 +1300,136 @@ export default {
       },
     };
 
-    // 获取城市名称
-    const getSelectedCityName = () => {
-      if (!props.baseForm || !props.baseForm.destinationCity) {
-        return "未选择";
-      }
-      
-      const cityCode = props.baseForm.destinationCity;
-      
-      // 从cityInfoDatabase获取城市名称
-      if (cityInfoDatabase[cityCode]) {
-        return cityInfoDatabase[cityCode].name;
-      }
-      
-      // 没有找到城市信息，返回城市代码
-      return cityCode;
-    };
 
     // 加载更多景点数据
     const loadMoreAttractions = async () => {
       try {
-        loadingAttractions.value = true;
+        loadingMoreAttractions.value = true;
         
-        // 调用API获取更多推荐景点
-        const result = await getRecommendedAttractions(props.baseForm.destinationCity);
+        // 使用城市名称而不是cityCode
+        const cityName = props.baseForm.destinationName
+        console.log("加载更多景点，城市名称:", cityName);
+
+        // 增加页码并调用API
+        attractionsPage.value += 1;
         
-        if (result && result.data) {
-          recommendedAttractions.value = result.data;
-          ElMessage.success(`已加载${result.data.length}个推荐景点`);
-        } else {
-          // 如果API返回为空，使用默认数据
+        const response = await getRecommendedAttractions(
+          cityName,
+          attractionsPage.value,
+          attractionsPageSize
+        );
+        
+        console.log("加载更多景点响应:", response);
+        
+        if (response && response.pois && response.pois.length > 0) {
+          const newAttractions = response.pois.map((poi) => ({
+            id: poi.id,
+            name: poi.name,
+            address: poi.address,
+            rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
+            photos: poi.photos || [],
+            type: poi.type.split(";")[0] || "景点",
+            distance: poi.distance || null,
+            tags: extractTags(poi),
+            tag: poi.tag, // 保存原始tag字段，用于提取特色标签
+            matchScore: 0, // 初始匹配分数
+          }));
+
+          // 根据用户偏好计算匹配分数
+          calculateAttractionMatchScores(newAttractions);
+
+          // 添加新景点到现有列表
           recommendedAttractions.value = [
-            {
-              id: "1",
-              name: "故宫博物院",
-              description: "中国明清两代的皇家宫殿，世界上现存规模最大、保存最为完整的木质结构古建筑之一。",
-              address: "北京市东城区景山前街4号",
-              rating: 4.8,
-              imageUrl: "",
-              tags: ["历史古迹", "博物馆", "世界遗产"]
-            },
-            {
-              id: "2",
-              name: "长城",
-              description: "中国古代的伟大防御工程，是中华民族的象征之一。",
-              address: "北京市延庆区八达岭长城",
-              rating: 4.9,
-              imageUrl: "",
-              tags: ["历史古迹", "自然风光", "世界遗产"]
-            },
-            {
-              id: "3",
-              name: "颐和园",
-              description: "中国清朝时期的皇家园林，以昆明湖、万寿山为基址，以杭州西湖为蓝本。",
-              address: "北京市海淀区新建宫门路19号",
-              rating: 4.7,
-              imageUrl: "",
-              tags: ["园林", "湖泊", "历史景点"]
-            }
+            ...recommendedAttractions.value,
+            ...newAttractions
           ];
-          console.log("⚠️ 使用默认景点数据");
+
+          ElMessage.success(`已加载${newAttractions.length}个新推荐景点`);
+          
+          // 检查是否还有更多数据
+          if (
+            response.pois.length < attractionsPageSize ||
+            !response.count ||
+            Number(response.count) <= attractionsPageSize * attractionsPage.value
+          ) {
+            noMoreAttractions.value = true;
+            ElMessage.info("已加载全部推荐景点");
+          }
+        } else {
+          noMoreAttractions.value = true;
+          ElMessage.info("没有更多推荐景点了");
         }
       } catch (error) {
         console.error("❌ 加载更多景点失败:", error);
-        ElMessage.error("加载推荐景点失败");
-        
-        // 使用默认数据
-        recommendedAttractions.value = [
-          {
-            id: "1",
-            name: "故宫博物院",
-            description: "中国明清两代的皇家宫殿，世界上现存规模最大、保存最为完整的木质结构古建筑之一。",
-            address: "北京市东城区景山前街4号",
-            rating: 4.8,
-            imageUrl: "",
-            tags: ["历史古迹", "博物馆", "世界遗产"]
-          },
-          {
-            id: "2",
-            name: "长城",
-            description: "中国古代的伟大防御工程，是中华民族的象征之一。",
-            address: "北京市延庆区八达岭长城",
-            rating: 4.9,
-            imageUrl: "",
-            tags: ["历史古迹", "自然风光", "世界遗产"]
-          }
-        ];
+        ElMessage.error("加载推荐景点失败，请稍后再试");
       } finally {
-        loadingAttractions.value = false;
+        loadingMoreAttractions.value = false;
       }
     };
     
     // 加载更多餐厅数据
     const loadMoreRestaurants = async () => {
       try {
-        loadingRestaurants.value = true;
+        loadingMoreRestaurants.value = true;
         
-        // 调用API获取更多推荐餐厅
-        const result = await getRecommendedRestaurants(props.baseForm.destinationCity);
+        // 使用城市名称而不是cityCode
+        const cityName = cityInfo.value?.name || getSelectedCityName() || props.baseForm.destinationCity;
+        console.log("加载更多餐厅，城市名称:", cityName);
+
+        // 增加页码并调用API
+        restaurantsPage.value += 1;
         
-        if (result && result.data) {
-          recommendedRestaurants.value = result.data;
-          ElMessage.success(`已加载${result.data.length}个推荐餐厅`);
-        } else {
-          // 如果API返回为空，使用默认数据
+        const response = await getRecommendedRestaurants(
+          cityName,
+          restaurantsPage.value,
+          restaurantsPageSize
+        );
+        
+        console.log("加载更多餐厅响应:", response);
+        
+        if (response && response.pois && response.pois.length > 0) {
+          const newRestaurants = response.pois.map((poi) => ({
+            id: poi.id,
+            name: poi.name,
+            address: poi.address,
+            rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
+            photos: poi.photos || [],
+            type: poi.type.split(";")[0] || "餐厅",
+            price: (poi.biz_ext && poi.biz_ext.cost) || "¥¥",
+            tags: extractTags(poi),
+            tag: poi.tag, // 保存原始tag字段，用于提取招牌菜
+            matchScore: 0, // 初始匹配分数
+          }));
+
+          // 根据用户偏好计算匹配分数
+          calculateRestaurantMatchScores(newRestaurants);
+
+          // 添加新餐厅到现有列表
           recommendedRestaurants.value = [
-            {
-              id: "1",
-              name: "全聚德烤鸭店",
-              description: "北京著名的烤鸭老字号，以其独特的挂炉烤鸭而闻名。",
-              address: "北京市前门大街30号",
-              rating: 4.6,
-              imageUrl: "",
-              tags: ["中餐", "烤鸭", "老字号"]
-            },
-            {
-              id: "2",
-              name: "南锣鼓巷小吃街",
-              description: "汇集了众多北京传统小吃的美食街区。",
-              address: "北京市东城区南锣鼓巷",
-              rating: 4.5,
-              imageUrl: "",
-              tags: ["小吃", "传统美食", "街区"]
-            }
+            ...recommendedRestaurants.value,
+            ...newRestaurants
           ];
-          console.log("⚠️ 使用默认餐厅数据");
+
+          ElMessage.success(`已加载${newRestaurants.length}个新推荐餐厅`);
+          
+          // 检查是否还有更多数据
+          if (
+            response.pois.length < restaurantsPageSize ||
+            !response.count ||
+            Number(response.count) <= restaurantsPageSize * restaurantsPage.value
+          ) {
+            noMoreRestaurants.value = true;
+            ElMessage.info("已加载全部推荐餐厅");
+          }
+        } else {
+          noMoreRestaurants.value = true;
+          ElMessage.info("没有更多推荐餐厅了");
         }
       } catch (error) {
         console.error("❌ 加载更多餐厅失败:", error);
-        ElMessage.error("加载推荐餐厅失败");
-        
-        // 使用默认数据
-        recommendedRestaurants.value = [
-          {
-            id: "1",
-            name: "全聚德烤鸭店",
-            description: "北京著名的烤鸭老字号，以其独特的挂炉烤鸭而闻名。",
-            address: "北京市前门大街30号",
-            rating: 4.6,
-            imageUrl: "",
-            tags: ["中餐", "烤鸭", "老字号"]
-          },
-          {
-            id: "2",
-            name: "南锣鼓巷小吃街",
-            description: "汇集了众多北京传统小吃的美食街区。",
-            address: "北京市东城区南锣鼓巷",
-            rating: 4.5,
-            imageUrl: "",
-            tags: ["小吃", "传统美食", "街区"]
-          }
-        ];
+        ElMessage.error("加载推荐餐厅失败，请稍后再试");
       } finally {
-        loadingRestaurants.value = false;
+        loadingMoreRestaurants.value = false;
       }
     };
 
@@ -1663,71 +1518,24 @@ export default {
       }
     };
 
-    // 组件加载时初始化
-    onMounted(async () => {
-      console.log("🚀 TripPreferences组件挂载");
-      
+
+      // 组件加载时初始化
+    onMounted( () => {
+      console.log("🚀 TripPreferences组件挂载");           
       // 如果有目的地，加载相关信息
-      if (props.baseForm && props.baseForm.destinationCity) {
-        loadCityInfo(props.baseForm.destinationCity);
+     if (props.baseForm) {
+        console.log('pre 高德')
+        setTimeout(async () => {
+           await loadCityInfo(props.baseForm);
+        }, 1000);
+       
       }
-      
-      // 初始化默认景点数据
-      recommendedAttractions.value = [
-        {
-          id: "1",
-          name: "故宫博物院",
-          description: "中国明清两代的皇家宫殿，世界上现存规模最大、保存最为完整的木质结构古建筑之一。",
-          address: "北京市东城区景山前街4号",
-          rating: 4.8,
-          imageUrl: "",
-          tags: ["历史古迹", "博物馆", "世界遗产"]
-        },
-        {
-          id: "2",
-          name: "长城",
-          description: "中国古代的伟大防御工程，是中华民族的象征之一。",
-          address: "北京市延庆区八达岭长城",
-          rating: 4.9,
-          imageUrl: "",
-          tags: ["历史古迹", "自然风光", "世界遗产"]
-        },
-        {
-          id: "3",
-          name: "颐和园",
-          description: "中国清朝时期的皇家园林，以昆明湖、万寿山为基址，以杭州西湖为蓝本。",
-          address: "北京市海淀区新建宫门路19号",
-          rating: 4.7,
-          imageUrl: "",
-          tags: ["园林", "湖泊", "历史景点"]
-        }
-      ];
-      
-      // 初始化默认餐厅数据
-      recommendedRestaurants.value = [
-        {
-          id: "1",
-          name: "全聚德烤鸭店",
-          description: "北京著名的烤鸭老字号，以其独特的挂炉烤鸭而闻名。",
-          address: "北京市前门大街30号",
-          rating: 4.6,
-          imageUrl: "",
-          tags: ["中餐", "烤鸭", "老字号"]
-        },
-        {
-          id: "2",
-          name: "南锣鼓巷小吃街",
-          description: "汇集了众多北京传统小吃的美食街区。",
-          address: "北京市东城区南锣鼓巷",
-          rating: 4.5,
-          imageUrl: "",
-          tags: ["小吃", "传统美食", "街区"]
-        }
-      ];
       
       // 应用推荐的行程风格和强度（只在用户未设置时）
       applySmartRecommendations();
     });
+
+    
 
     return {
       localPreferenceForm,
@@ -1754,7 +1562,6 @@ export default {
       extractTags,
       extractAttractionTags,
       extractSignatureDishes,
-      getSelectedCityName,
       isAttractionSelected,
       addAttractionToPlan,
       removeAttractionFromPlan,
