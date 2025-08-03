@@ -15,7 +15,8 @@
           >
             <el-icon><Location /></el-icon>
             <span>{{ cityInfo.destinationName }}推荐景点</span>
-            <el-tag size="small" type="success"> 高德地图数据 </el-tag>
+            <el-tag
+size="small" type="success"> 高德地图数据 </el-tag>
           </div>
           <div
             class="tab-item"
@@ -27,7 +28,8 @@
           >
             <el-icon><Food /></el-icon>
             <span>{{ cityInfo.destinationName }}美食推荐</span>
-            <el-tag size="small" type="warning"> 高德地图数据 </el-tag>
+            <el-tag
+size="small" type="warning"> 高德地图数据 </el-tag>
           </div>
         </div>
 
@@ -63,15 +65,19 @@
               size="small"
               style="width: 120px"
             >
-              <el-option label="默认排序" value="default" />
-              <el-option label="评分最高" value="rating" />
-              <el-option label="距离最近" value="distance" />
+              <el-option label="默认排序"
+value="default" />
+              <el-option label="评分最高"
+value="rating" />
+              <el-option label="距离最近"
+value="distance" />
             </el-select>
           </div>
         </div>
 
         <!-- 景点推荐内容 -->
-        <div v-show="SisShow" class="recommendation-content" v-if="SisShow">
+        <div v-show="SisShow"
+class="recommendation-content" v-if="SisShow">
           <!-- 搜索模式提示 -->
           <div
             v-if="isSearchMode && searchResults.length > 0"
@@ -84,14 +90,17 @@
               show-icon
             />
             <div style="margin-top: 8px">
-              <el-button size="small" @click="handleClearSearch">
+              <el-button size="small"
+@click="handleClearSearch">
                 返回推荐
               </el-button>
             </div>
           </div>
 
-          <div v-if="loadingAttractions" class="loading-state">
-            <el-skeleton :rows="3" animated />
+          <div v-if="loadingAttractions"
+class="loading-state">
+            <el-skeleton :rows="3"
+animated />
           </div>
 
           <div
@@ -101,7 +110,8 @@
             <el-empty description="暂无推荐景点" />
           </div>
 
-          <div v-else if="apiError" class="error-state">
+          <div v-else
+if="apiError" class="error-state">
             <el-alert
               :title="apiError"
               type="error"
@@ -110,7 +120,8 @@
             />
           </div>
 
-          <div v-else class="recommendation-list">
+          <div v-else
+class="recommendation-list">
             <div
               v-for="attraction in isSearchMode
                 ? searchResults.filter((item) => item.isAttraction)
@@ -129,12 +140,14 @@
                         'https://via.placeholder.com/300x200?text=景点')
                   "
                 />
-                <div v-else class="no-image">
+                <div v-else
+class="no-image">
                   <el-icon><Picture /></el-icon>
                 </div>
               </div>
               <div class="recommendation-content">
-                <h4 :title="attraction.name" class="full-width-name">
+                <h4 :title="attraction.name"
+class="full-width-name">
                   {{ attraction.name }}
                 </h4>
                 <div class="recommendation-rating rating-with-number">
@@ -146,10 +159,12 @@
                   <span class="rating-value">{{ attraction.rating }}</span>
                 </div>
                 <div class="recommendation-tags">
-                  <el-tag size="small" type="success" class="category-tag">
+                  <el-tag size="small"
+type="success" class="category-tag">
                     风景名胜
                   </el-tag>
-                  <el-tag size="small" class="tag-item">
+                  <el-tag size="small"
+class="tag-item">
                     {{ attraction.type }}
                   </el-tag>
                 </div>
@@ -166,7 +181,7 @@
                   >
                     <el-tag
                       v-for="(tag, index) in extractAttractionTags(
-                        attraction
+                        attraction,
                       ).slice(0, 3)"
                       :key="index"
                       size="small"
@@ -177,7 +192,8 @@
                       {{ tag }}
                     </el-tag>
                   </div>
-                  <div v-else class="feature-tags">
+                  <div v-else
+class="feature-tags">
                     <el-tag
                       size="small"
                       effect="plain"
@@ -239,7 +255,8 @@
         </div>
 
         <!-- 餐厅推荐内容 -->
-        <div v-show="RisShow" class="recommendation-content" v-if="RisShow">
+        <div v-show="RisShow"
+class="recommendation-content" v-if="RisShow">
           <!-- 搜索模式提示 -->
           <div
             v-if="isSearchMode && searchResults.length > 0"
@@ -252,14 +269,17 @@
               show-icon
             />
             <div style="margin-top: 8px">
-              <el-button size="small" @click="handleClearSearch">
+              <el-button size="small"
+@click="handleClearSearch">
                 返回推荐
               </el-button>
             </div>
           </div>
 
-          <div v-if="loadingRestaurants" class="loading-state">
-            <el-skeleton :rows="3" animated />
+          <div v-if="loadingRestaurants"
+class="loading-state">
+            <el-skeleton :rows="3"
+animated />
           </div>
 
           <div
@@ -281,7 +301,8 @@
             />
           </div>
 
-          <div v-else class="recommendation-list">
+          <div v-else
+class="recommendation-list">
             <div
               v-for="restaurant in isSearchMode
                 ? searchResults.filter((item) => !item.isAttraction)
@@ -300,12 +321,14 @@
                         'https://via.placeholder.com/300x200?text=美食')
                   "
                 />
-                <div v-else class="no-image">
+                <div v-else
+class="no-image">
                   <el-icon><Food /></el-icon>
                 </div>
               </div>
               <div class="recommendation-content">
-                <h4 :title="restaurant.name" class="full-width-name">
+                <h4 :title="restaurant.name"
+class="full-width-name">
                   {{ restaurant.name }}
                 </h4>
                 <div class="recommendation-rating rating-with-number">
@@ -317,13 +340,16 @@
                   <span class="rating-value">{{ restaurant.rating }}</span>
                 </div>
                 <div class="recommendation-tags">
-                  <el-tag size="small" type="danger" class="price-tag">
+                  <el-tag size="small"
+type="danger" class="price-tag">
                     人均￥{{ restaurant.price }}
                   </el-tag>
-                  <el-tag size="small" type="warning" class="category-tag">
+                  <el-tag size="small"
+type="warning" class="category-tag">
                     餐饮服务
                   </el-tag>
-                  <el-tag size="small" class="tag-item">
+                  <el-tag size="small"
+class="tag-item">
                     {{ restaurant.type }}
                   </el-tag>
                 </div>
@@ -340,7 +366,7 @@
                   >
                     <el-tag
                       v-for="(dish, index) in extractSignatureDishes(
-                        restaurant
+                        restaurant,
                       ).slice(0, 3)"
                       :key="index"
                       size="small"
@@ -351,7 +377,8 @@
                       {{ dish }}
                     </el-tag>
                   </div>
-                  <div v-else class="dish-tags">
+                  <div v-else
+class="dish-tags">
                     <el-tag
                       size="small"
                       effect="plain"
@@ -416,7 +443,8 @@
 
     <!-- 个性化偏好设置 -->
     <div class="preferences-section">
-      <el-card class="preferences-card" shadow="hover">
+      <el-card class="preferences-card"
+shadow="hover">
         <template #header>
           <div class="preferences-header">
             <div class="header-left">
@@ -505,10 +533,16 @@
                   }"
                   @click="localPreferenceForm.pacePreference = pace.value"
                 >
-                  <div class="pace-icon">{{ pace.icon }}</div>
+                  <div class="pace-icon">
+                    {{ pace.icon }}
+                  </div>
                   <div class="pace-content">
-                    <div class="pace-title">{{ pace.title }}</div>
-                    <div class="pace-desc">{{ pace.desc }}</div>
+                    <div class="pace-title">
+                      {{ pace.title }}
+                    </div>
+                    <div class="pace-desc">
+                      {{ pace.desc }}
+                    </div>
                   </div>
                   <div
                     v-if="localPreferenceForm.pacePreference === pace.value"
@@ -547,7 +581,7 @@
                   class="experience-tag"
                   :class="{
                     active: localPreferenceForm.focusAreas.includes(
-                      option.value
+                      option.value,
                     ),
                     recommended: isRecommendedFocusArea(option.value),
                     disabled:
@@ -693,7 +727,8 @@
                 <div class="group-info">
                   <h4 class="group-title">
                     饮食禁忌
-                    <el-tag type="danger" size="small">重要</el-tag>
+                    <el-tag
+type="danger" size="small"> 重要 </el-tag>
                   </h4>
                   <p class="group-desc">
                     请告知我们您的饮食限制，确保为您推荐合适的餐厅
@@ -707,7 +742,7 @@
                   class="dietary-tag"
                   :class="{
                     active: localPreferenceForm.dietaryRestrictions.includes(
-                      restriction.value
+                      restriction.value,
                     ),
                   }"
                   @click="toggleDietaryRestriction(restriction.value)"
@@ -716,7 +751,7 @@
                   <el-icon
                     v-if="
                       localPreferenceForm.dietaryRestrictions.includes(
-                        restriction.value
+                        restriction.value,
                       )
                     "
                     class="dietary-check"
@@ -766,11 +801,13 @@
 
       <!-- 步骤操作按钮 -->
       <div class="step-actions">
-        <el-button size="large" @click="$emit('prev-step')">
+        <el-button size="large"
+@click="$emit('prev-step')">
           <el-icon><ArrowLeft /></el-icon>
           上一步
         </el-button>
-        <el-button type="primary" size="large" @click="$emit('next-step')">
+        <el-button type="primary"
+size="large" @click="$emit('next-step')">
           下一步
           <el-icon><ArrowRight /></el-icon>
         </el-button>
@@ -879,7 +916,10 @@ export default {
 
     // 应用用户偏好默认值 - 更新为新的字段结构
     const applyUserPreferences = () => {
-      if (props.userPreferences) {
+      if (
+        props.userPreferences &&
+        Object.keys(props.userPreferences).length > 0
+      ) {
         console.log("🎯 开始应用用户偏好到个性化设置:", props.userPreferences);
 
         // 应用行程节奏偏好（基于旅行节奏和MBTI）
@@ -923,7 +963,7 @@ export default {
             "✅ 基于MBTI推荐行程目标:",
             mbti,
             "-> 目标:",
-            suggestedGoals
+            suggestedGoals,
           );
         }
 
@@ -954,7 +994,7 @@ export default {
             .map((tag) => newTagMapping[tag])
             .filter(
               (exp) =>
-                exp && !localPreferenceForm.value.focusAreas.includes(exp)
+                exp && !localPreferenceForm.value.focusAreas.includes(exp),
             );
 
           localPreferenceForm.value.focusAreas.push(...mappedExperiences);
@@ -975,7 +1015,7 @@ export default {
             "✅ 基于MBTI应用社交偏好:",
             mbti,
             "-> 偏好:",
-            localPreferenceForm.value.socialPreference
+            localPreferenceForm.value.socialPreference,
           );
         }
 
@@ -985,14 +1025,14 @@ export default {
           !localPreferenceForm.value.photoPreference
         ) {
           const hasPhotoTags = props.userPreferences.selectedTags.some((tag) =>
-            ["photography", "urban", "modern"].includes(tag)
+            ["photography", "urban", "modern"].includes(tag),
           );
           localPreferenceForm.value.photoPreference = hasPhotoTags
             ? "essential"
             : "casual";
           console.log(
             "✅ 应用拍照偏好:",
-            hasPhotoTags ? "essential" : "casual"
+            hasPhotoTags ? "essential" : "casual",
           );
         }
 
@@ -1021,11 +1061,11 @@ export default {
             .filter(
               (res) =>
                 res &&
-                !localPreferenceForm.value.dietaryRestrictions.includes(res)
+                !localPreferenceForm.value.dietaryRestrictions.includes(res),
             );
 
           localPreferenceForm.value.dietaryRestrictions.push(
-            ...mappedRestrictions
+            ...mappedRestrictions,
           );
           console.log("✅ 应用饮食禁忌偏好:", mappedRestrictions);
         }
@@ -1039,7 +1079,7 @@ export default {
             props.userPreferences.customDietaryNotes;
           console.log(
             "✅ 应用其他饮食需求:",
-            props.userPreferences.customDietaryNotes
+            props.userPreferences.customDietaryNotes,
           );
         }
       }
@@ -1051,7 +1091,7 @@ export default {
       (newVal) => {
         emit("update:preferenceForm", newVal);
       },
-      { deep: true }
+      { deep: true },
     );
 
     // 监听props.preferenceForm的变化，同步到本地
@@ -1064,7 +1104,7 @@ export default {
           localPreferenceForm.value = { ...newVal };
         }
       },
-      { deep: true }
+      { deep: true },
     );
 
     //人均提示词
@@ -1354,7 +1394,7 @@ export default {
             "historical",
             "cultural",
             "traditional",
-          ].includes(tag)
+          ].includes(tag),
         )
       ) {
         return "cultural";
@@ -1363,7 +1403,7 @@ export default {
       // 冒险相关标签
       if (
         tags.some((tag) =>
-          ["adventure", "sports", "outdoor", "extreme_sports"].includes(tag)
+          ["adventure", "sports", "outdoor", "extreme_sports"].includes(tag),
         )
       ) {
         return "adventure";
@@ -1372,7 +1412,7 @@ export default {
       // 休闲相关标签
       if (
         tags.some((tag) =>
-          ["relaxation", "wellness", "peaceful", "beaches"].includes(tag)
+          ["relaxation", "wellness", "peaceful", "beaches"].includes(tag),
         )
       ) {
         return "relaxation";
@@ -1391,7 +1431,7 @@ export default {
 
       if (
         tags.some((tag) =>
-          ["culture", "history", "art", "historical", "cultural"].includes(tag)
+          ["culture", "history", "art", "historical", "cultural"].includes(tag),
         )
       ) {
         recommendations.push("local_culture", "historical_sites");
@@ -1399,7 +1439,7 @@ export default {
 
       if (
         tags.some((tag) =>
-          ["food", "local_cuisine", "street_food"].includes(tag)
+          ["food", "local_cuisine", "street_food"].includes(tag),
         )
       ) {
         recommendations.push("food_experience");
@@ -1407,7 +1447,7 @@ export default {
 
       if (
         tags.some((tag) =>
-          ["nature", "mountains", "scenic", "outdoor"].includes(tag)
+          ["nature", "mountains", "scenic", "outdoor"].includes(tag),
         )
       ) {
         recommendations.push("natural_scenery");
@@ -1415,7 +1455,7 @@ export default {
 
       if (
         tags.some((tag) =>
-          ["cities", "urban", "modern", "shopping"].includes(tag)
+          ["cities", "urban", "modern", "shopping"].includes(tag),
         )
       ) {
         recommendations.push("urban_life", "modern_attractions");
@@ -1528,7 +1568,7 @@ export default {
           const attractionsResponse = await getRecommendedAttractions(
             cityName,
             attractionsPage.value,
-            attractionsPageSize
+            attractionsPageSize,
           );
 
           console.log("🔄 高德API景点响应:", attractionsResponse);
@@ -1541,7 +1581,7 @@ export default {
             console.log(
               "✅ 成功获取景点数据，共",
               attractionsResponse.pois.length,
-              "条"
+              "条",
             );
             const attractions = attractionsResponse.pois.map((poi) => ({
               id: poi.id,
@@ -1593,7 +1633,7 @@ export default {
           const restaurantsResponse = await getRecommendedRestaurants(
             cityName,
             restaurantsPage.value,
-            restaurantsPageSize
+            restaurantsPageSize,
           );
 
           console.log("🔄 高德API餐厅响应:", restaurantsResponse);
@@ -1606,7 +1646,7 @@ export default {
             console.log(
               "✅ 成功获取餐厅数据，共",
               restaurantsResponse.pois.length,
-              "条"
+              "条",
             );
             const restaurants = restaurantsResponse.pois.map((poi) => ({
               id: poi.id,
@@ -1774,7 +1814,7 @@ export default {
         if (trimmedToken.length > 1) {
           // 检查是否包含特色关键词
           const isFeature = featureKeywords.some((keyword) =>
-            trimmedToken.includes(keyword)
+            trimmedToken.includes(keyword),
           );
 
           // 排除一些明显不是特色的标签
@@ -1866,7 +1906,7 @@ export default {
         if (trimmedToken.length > 1) {
           // 检查是否包含菜品关键词
           const isDish = dishKeywords.some((keyword) =>
-            trimmedToken.includes(keyword)
+            trimmedToken.includes(keyword),
           );
 
           // 排除一些明显不是菜品的标签
@@ -1907,7 +1947,7 @@ export default {
         const response = await getRecommendedAttractions(
           cityName,
           attractionsPage.value,
-          attractionsPageSize
+          attractionsPageSize,
         );
 
         console.log("加载更多景点响应:", response);
@@ -2049,7 +2089,7 @@ export default {
       switch (sortType) {
         case "rating":
           return sorted.sort(
-            (a, b) => parseFloat(b.rating) - parseFloat(a.rating)
+            (a, b) => parseFloat(b.rating) - parseFloat(a.rating),
           );
         case "distance":
           return sorted.sort((a, b) => {
@@ -2076,7 +2116,7 @@ export default {
         const response = await getRecommendedRestaurants(
           cityName,
           restaurantsPage.value,
-          restaurantsPageSize
+          restaurantsPageSize,
         );
 
         console.log("加载更多餐厅响应:", response);
@@ -2143,7 +2183,7 @@ export default {
 
     const removeAttractionFromPlan = (attraction) => {
       const index = props.selectedAttractions.findIndex(
-        (a) => a.id === attraction.id
+        (a) => a.id === attraction.id,
       );
       if (index !== -1) {
         const updatedAttractions = [...props.selectedAttractions];
@@ -2167,7 +2207,7 @@ export default {
 
     const removeRestaurantFromPlan = (restaurant) => {
       const index = props.selectedRestaurants.findIndex(
-        (r) => r.id === restaurant.id
+        (r) => r.id === restaurant.id,
       );
       if (index !== -1) {
         const updatedRestaurants = [...props.selectedRestaurants];
@@ -2185,7 +2225,7 @@ export default {
           loadCityInfo(newDestination);
         }
       },
-      { immediate: true }
+      { immediate: true },
     );
 
     // 应用智能推荐 - 更新为新的字段结构
@@ -2237,6 +2277,21 @@ export default {
         restrictions.push(restrictionValue);
       }
     };
+
+    // 监听用户偏好变化，动态应用默认值
+    watch(
+      () => props.userPreferences,
+      (newPreferences) => {
+        if (newPreferences && Object.keys(newPreferences).length > 0) {
+          console.log(
+            "🔄 检测到用户偏好数据变化，重新应用默认值:",
+            newPreferences,
+          );
+          applyUserPreferences();
+        }
+      },
+      { deep: true, immediate: true },
+    );
 
     // 组件加载时初始化
     onMounted(() => {

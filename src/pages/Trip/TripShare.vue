@@ -6,7 +6,8 @@
     </div>
 
     <div class="coming-soon-card">
-      <el-icon size="64" color="#409EFF">
+      <el-icon size="64"
+color="#409EFF">
         <Share />
       </el-icon>
       <h3>行程分享功能开发中</h3>

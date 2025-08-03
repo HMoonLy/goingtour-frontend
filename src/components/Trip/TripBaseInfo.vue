@@ -1,7 +1,8 @@
 <template>
   <div class="step-content">
-    <el-card class="info-card"
-shadow="hover">
+    <el-card
+class="info-card" shadow="hover"
+>
       <template #header>
         <div class="card-header">
           <el-icon><MapLocation /></el-icon>
@@ -18,8 +19,9 @@ shadow="hover">
         <el-row :gutter="24">
           <!-- 目的地选择 -->
           <el-col :span="12">
-            <el-form-item label="目的地"
-prop="destination">
+            <el-form-item
+label="目的地" prop="destination"
+>
               <el-input
                 v-model="tripForm.destinationName"
                 placeholder="选择你想去的城市"
@@ -37,8 +39,9 @@ prop="destination">
 
           <!-- 出行天数 -->
           <el-col :span="12">
-            <el-form-item label="出行天数"
-prop="days">
+            <el-form-item
+label="出行天数" prop="days"
+>
               <div class="days-input-container">
                 <el-input-number
                   v-model="tripForm.days"
@@ -50,7 +53,8 @@ prop="days">
                   disabled
                 />
                 <!-- 天数描述 -->
-                <div v-if="tripForm.days" class="days-description">
+                <div v-if="tripForm.days"
+class="days-description">
                   <span class="days-text">{{ getDaysDescription() }}</span>
                 </div>
                 <div class="form-tip">天数将根据您选择的日期范围自动计算</div>
@@ -99,8 +103,9 @@ prop="days">
 
           <!-- 出行人数 -->
           <el-col :span="12">
-            <el-form-item label="出行人数"
-prop="travelers">
+            <el-form-item
+label="出行人数" prop="travelers"
+>
               <el-input-number
                 v-model="tripForm.travelers"
                 :min="1"
@@ -116,8 +121,9 @@ prop="travelers">
         <el-row>
           <!-- 预算范围 -->
           <el-col>
-            <el-form-item label="预算范围（每人每天）"
-prop="budget">
+            <el-form-item
+label="预算范围（每人每天）" prop="budget"
+>
               <div
                 v-if="userPreferences && userPreferences.budget"
                 class="preference-hint-banner"
@@ -206,8 +212,10 @@ prop="budget">
 
       <!-- 下一步按钮 -->
       <div class="next-step-container">
-        <el-button type="primary"
-size="large" @click="goToNextStep">
+        <el-button
+type="primary" size="large"
+@click="goToNextStep"
+>
           下一步
           <el-icon><ArrowRight /></el-icon>
         </el-button>

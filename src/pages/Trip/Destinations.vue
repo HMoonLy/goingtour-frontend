@@ -23,27 +23,33 @@
     <!-- 城市展示区域 -->
     <div class="cities-content-wrapper">
       <!-- 滚动指示器 -->
-      <div class="scroll-indicator"
-:class="{ visible: showScrollIndicator }">
+      <div
+class="scroll-indicator" :class="{ visible: showScrollIndicator }"
+>
         {{ activeLetter }}
       </div>
 
-      <div ref="citiesContent" class="cities-content" @scroll="handleScroll">
+      <div ref="citiesContent"
+class="cities-content" @scroll="handleScroll">
         <!-- 加载状态 -->
-        <div v-if="loading"
-class="loading-container">
-          <el-skeleton :rows="10"
-animated />
+        <div
+v-if="loading" class="loading-container"
+>
+          <el-skeleton
+:rows="10" animated
+/>
         </div>
 
         <!-- 搜索结果 -->
-        <div v-else-if="isSearchMode"
-class="search-results">
+        <div
+v-else-if="isSearchMode" class="search-results"
+>
           <h2 v-if="searchResults.length > 0">
             搜索结果 ({{ searchResults.length }})
           </h2>
-          <el-empty v-else
-description="未找到匹配的城市，请尝试其他关键词" />
+          <el-empty
+v-else description="未找到匹配的城市，请尝试其他关键词"
+/>
 
           <div class="city-grid">
             <div
@@ -67,7 +73,8 @@ description="未找到匹配的城市，请尝试其他关键词" />
         <!-- 常规展示模式 -->
         <template v-else>
           <!-- 热门城市 -->
-          <div id="hot-cities" class="city-section hot-city-section">
+          <div id="hot-cities"
+class="city-section hot-city-section">
             <h2><i class="hot-icon">🔥</i> 热门城市</h2>
             <div class="city-grid">
               <div
@@ -114,8 +121,10 @@ description="未找到匹配的城市，请尝试其他关键词" />
 
         <!-- 导航辅助按钮组 -->
         <div class="nav-assist-buttons">
-          <el-tooltip content="热门城市"
-placement="left" :offset="10">
+          <el-tooltip
+content="热门城市" placement="left"
+:offset="10"
+>
             <el-button
               class="nav-button hot-button"
               circle
@@ -126,15 +135,19 @@ placement="left" :offset="10">
             </el-button>
           </el-tooltip>
 
-          <el-backtop target=".cities-content"
-:right="50" :bottom="100">
+          <el-backtop
+target=".cities-content" :right="50"
+:bottom="100"
+>
             <div class="back-top">
               <el-icon><Top /></el-icon>
             </div>
           </el-backtop>
 
-          <el-tooltip content="跳至Z"
-placement="left" :offset="10">
+          <el-tooltip
+content="跳至Z" placement="left"
+:offset="10"
+>
             <el-button
               class="nav-button z-button"
               circle

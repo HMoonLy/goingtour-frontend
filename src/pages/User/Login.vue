@@ -6,7 +6,8 @@
         <!-- Logo和品牌名 -->
         <div class="brand-header">
           <div class="brand-logo">
-            <el-icon size="60" color="#ffffff">
+            <el-icon size="60"
+color="#ffffff">
               <MapLocation />
             </el-icon>
           </div>
@@ -18,7 +19,8 @@
         <div class="features">
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32" color="#ffffff">
+              <el-icon size="32"
+color="#ffffff">
                 <Location />
               </el-icon>
             </div>
@@ -30,7 +32,8 @@
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32" color="#ffffff">
+              <el-icon size="32"
+color="#ffffff">
                 <DataAnalysis />
               </el-icon>
             </div>
@@ -42,7 +45,8 @@
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32" color="#ffffff">
+              <el-icon size="32"
+color="#ffffff">
                 <Share />
               </el-icon>
             </div>
@@ -79,7 +83,8 @@
           @submit.prevent="handleLogin"
         >
           <!-- 手机号输入 -->
-          <el-form-item prop="phone" class="form-item">
+          <el-form-item prop="phone"
+class="form-item">
             <label class="form-label">手机号</label>
             <el-input
               v-model="loginForm.phone"
@@ -96,7 +101,8 @@
           </el-form-item>
 
           <!-- 验证码输入 -->
-          <el-form-item prop="code" class="form-item">
+          <el-form-item prop="code"
+class="form-item">
             <label class="form-label">验证码</label>
             <div class="code-input-group">
               <el-input
@@ -192,9 +198,11 @@
         <div class="agreement">
           <p>
             登录即表示同意
-            <el-link type="primary" :underline="false"> 《用户协议》 </el-link>
+            <el-link
+type="primary" :underline="false"> 《用户协议》 </el-link>
             和
-            <el-link type="primary" :underline="false"> 《隐私政策》 </el-link>
+            <el-link
+type="primary" :underline="false"> 《隐私政策》 </el-link>
           </p>
         </div>
       </div>

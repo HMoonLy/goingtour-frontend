@@ -6,8 +6,9 @@
     </div>
 
     <div class="coming-soon-card">
-      <el-icon size="64"
-color="#409EFF">
+      <el-icon
+size="64" color="#409EFF"
+>
         <Camera />
       </el-icon>
       <h3>景点详情功能开发中</h3>

@@ -1,14 +1,8 @@
 <template>
   <div class="preferences-page">
     <!-- 加载提示 -->
-    <div
-      v-if="loading"
-      class="loading-section"
-    >
-      <el-skeleton
-        animated
-        :loading="true"
-      >
+    <div v-if="loading" class="loading-section">
+      <el-skeleton animated :loading="true">
         <template #template>
           <div class="preferences-container">
             <el-skeleton-item
@@ -51,10 +45,7 @@
     </div>
 
     <!-- 主要内容 -->
-    <div
-      v-else
-      class="preferences-container"
-    >
+    <div v-else class="preferences-container">
       <div class="page-header">
         <h1>偏好设置</h1>
         <p>设置您的旅行偏好，为您推荐更合适的景点和行程</p>
@@ -67,8 +58,8 @@
           旅行类型偏好
         </h3>
         <p class="section-desc">
-          选择您感兴趣的旅行类型，可多选
-        </p>
+选择您感兴趣的旅行类型，可多选
+</p>
 
         <div class="tags-grid">
           <el-check-tag
@@ -105,37 +96,25 @@
             @change="handleMbtiChange"
           >
             <el-option-group label="分析家 (NT)">
-              <el-option
-                label="INTJ - 建筑师"
-                value="INTJ"
-              >
+              <el-option label="INTJ - 建筑师" value="INTJ">
                 <div class="mbti-option">
                   <span class="mbti-code">INTJ</span>
                   <span class="mbti-name">建筑师</span>
                 </div>
               </el-option>
-              <el-option
-                label="INTP - 逻辑学家"
-                value="INTP"
-              >
+              <el-option label="INTP - 逻辑学家" value="INTP">
                 <div class="mbti-option">
                   <span class="mbti-code">INTP</span>
                   <span class="mbti-name">逻辑学家</span>
                 </div>
               </el-option>
-              <el-option
-                label="ENTJ - 指挥官"
-                value="ENTJ"
-              >
+              <el-option label="ENTJ - 指挥官" value="ENTJ">
                 <div class="mbti-option">
                   <span class="mbti-code">ENTJ</span>
                   <span class="mbti-name">指挥官</span>
                 </div>
               </el-option>
-              <el-option
-                label="ENTP - 辩论家"
-                value="ENTP"
-              >
+              <el-option label="ENTP - 辩论家" value="ENTP">
                 <div class="mbti-option">
                   <span class="mbti-code">ENTP</span>
                   <span class="mbti-name">辩论家</span>
@@ -144,37 +123,25 @@
             </el-option-group>
 
             <el-option-group label="外交家 (NF)">
-              <el-option
-                label="INFJ - 提倡者"
-                value="INFJ"
-              >
+              <el-option label="INFJ - 提倡者" value="INFJ">
                 <div class="mbti-option">
                   <span class="mbti-code">INFJ</span>
                   <span class="mbti-name">提倡者</span>
                 </div>
               </el-option>
-              <el-option
-                label="INFP - 调停者"
-                value="INFP"
-              >
+              <el-option label="INFP - 调停者" value="INFP">
                 <div class="mbti-option">
                   <span class="mbti-code">INFP</span>
                   <span class="mbti-name">调停者</span>
                 </div>
               </el-option>
-              <el-option
-                label="ENFJ - 主人公"
-                value="ENFJ"
-              >
+              <el-option label="ENFJ - 主人公" value="ENFJ">
                 <div class="mbti-option">
                   <span class="mbti-code">ENFJ</span>
                   <span class="mbti-name">主人公</span>
                 </div>
               </el-option>
-              <el-option
-                label="ENFP - 活动家"
-                value="ENFP"
-              >
+              <el-option label="ENFP - 活动家" value="ENFP">
                 <div class="mbti-option">
                   <span class="mbti-code">ENFP</span>
                   <span class="mbti-name">活动家</span>
@@ -183,37 +150,25 @@
             </el-option-group>
 
             <el-option-group label="守护者 (SJ)">
-              <el-option
-                label="ISTJ - 物流师"
-                value="ISTJ"
-              >
+              <el-option label="ISTJ - 物流师" value="ISTJ">
                 <div class="mbti-option">
                   <span class="mbti-code">ISTJ</span>
                   <span class="mbti-name">物流师</span>
                 </div>
               </el-option>
-              <el-option
-                label="ISFJ - 守护者"
-                value="ISFJ"
-              >
+              <el-option label="ISFJ - 守护者" value="ISFJ">
                 <div class="mbti-option">
                   <span class="mbti-code">ISFJ</span>
                   <span class="mbti-name">守护者</span>
                 </div>
               </el-option>
-              <el-option
-                label="ESTJ - 总经理"
-                value="ESTJ"
-              >
+              <el-option label="ESTJ - 总经理" value="ESTJ">
                 <div class="mbti-option">
                   <span class="mbti-code">ESTJ</span>
                   <span class="mbti-name">总经理</span>
                 </div>
               </el-option>
-              <el-option
-                label="ESFJ - 执政官"
-                value="ESFJ"
-              >
+              <el-option label="ESFJ - 执政官" value="ESFJ">
                 <div class="mbti-option">
                   <span class="mbti-code">ESFJ</span>
                   <span class="mbti-name">执政官</span>
@@ -222,37 +177,25 @@
             </el-option-group>
 
             <el-option-group label="探险家 (SP)">
-              <el-option
-                label="ISTP - 鉴赏家"
-                value="ISTP"
-              >
+              <el-option label="ISTP - 鉴赏家" value="ISTP">
                 <div class="mbti-option">
                   <span class="mbti-code">ISTP</span>
                   <span class="mbti-name">鉴赏家</span>
                 </div>
               </el-option>
-              <el-option
-                label="ISFP - 探险家"
-                value="ISFP"
-              >
+              <el-option label="ISFP - 探险家" value="ISFP">
                 <div class="mbti-option">
                   <span class="mbti-code">ISFP</span>
                   <span class="mbti-name">探险家</span>
                 </div>
               </el-option>
-              <el-option
-                label="ESTP - 企业家"
-                value="ESTP"
-              >
+              <el-option label="ESTP - 企业家" value="ESTP">
                 <div class="mbti-option">
                   <span class="mbti-code">ESTP</span>
                   <span class="mbti-name">企业家</span>
                 </div>
               </el-option>
-              <el-option
-                label="ESFP - 娱乐家"
-                value="ESFP"
-              >
+              <el-option label="ESFP - 娱乐家" value="ESFP">
                 <div class="mbti-option">
                   <span class="mbti-code">ESFP</span>
                   <span class="mbti-name">娱乐家</span>
@@ -261,15 +204,11 @@
             </el-option-group>
           </el-select>
 
-          <div
-            v-if="mbtiType"
-            class="mbti-preview"
-          >
+          <div v-if="mbtiType" class="mbti-preview">
             <div class="mbti-avatar">
-              <img
-                :src="`/images/mbti/${mbtiType}.png`"
-                :alt="mbtiType"
-              >
+              <img :src="`/images/mbti/${mbtiType}.png`"
+:alt="mbtiType"
+/>
             </div>
             <div class="mbti-info">
               <h4>{{ getMbtiName(mbtiType) }}</h4>
@@ -286,8 +225,8 @@
           日均预算
         </h3>
         <p class="section-desc">
-          设置您的日均旅行预算（人民币）
-        </p>
+设置您的日均旅行预算（人民币）
+</p>
 
         <div class="budget-container">
           <div class="budget-display">
@@ -318,8 +257,8 @@
           出行方式偏好
         </h3>
         <p class="section-desc">
-          选择您偏爱的交通和出行方式
-        </p>
+选择您偏爱的交通和出行方式
+</p>
 
         <div class="transport-grid">
           <div
@@ -331,10 +270,7 @@
             }"
             @click="toggleTransport(transport.value)"
           >
-            <component
-              :is="transport.icon"
-              class="transport-icon"
-            />
+            <component :is="transport.icon" class="transport-icon" />
             <span class="transport-label">{{ transport.label }}</span>
             <span class="transport-desc">{{ transport.desc }}</span>
           </div>
@@ -348,8 +284,8 @@
           住宿类型偏好
         </h3>
         <p class="section-desc">
-          选择您喜欢的住宿类型
-        </p>
+选择您喜欢的住宿类型
+</p>
 
         <div class="accommodation-options">
           <div class="accommodation-grid">
@@ -419,8 +355,8 @@
           饮食偏好
         </h3>
         <p class="section-desc">
-          告诉我们您的饮食习惯和偏好
-        </p>
+告诉我们您的饮食习惯和偏好
+</p>
 
         <div class="food-preferences">
           <div class="food-category">
@@ -430,20 +366,20 @@
               class="taste-group"
             >
               <el-checkbox value="spicy">
-                辣味
-              </el-checkbox>
+辣味
+</el-checkbox>
               <el-checkbox value="sweet">
-                甜味
-              </el-checkbox>
+甜味
+</el-checkbox>
               <el-checkbox value="sour">
-                酸味
-              </el-checkbox>
+酸味
+</el-checkbox>
               <el-checkbox value="light">
-                清淡
-              </el-checkbox>
+清淡
+</el-checkbox>
               <el-checkbox value="heavy">
-                重口味
-              </el-checkbox>
+重口味
+</el-checkbox>
             </el-checkbox-group>
           </div>
 
@@ -454,32 +390,32 @@
               class="restriction-group"
             >
               <el-checkbox value="halal">
-                清真饮食
-              </el-checkbox>
+清真饮食
+</el-checkbox>
               <el-checkbox value="vegetarian">
-                素食
-              </el-checkbox>
+素食
+</el-checkbox>
               <el-checkbox value="vegan">
-                纯素食（全素）
-              </el-checkbox>
+纯素食（全素）
+</el-checkbox>
               <el-checkbox value="no_pork">
-                不吃猪肉
-              </el-checkbox>
+不吃猪肉
+</el-checkbox>
               <el-checkbox value="no_beef">
-                不吃牛肉
-              </el-checkbox>
+不吃牛肉
+</el-checkbox>
               <el-checkbox value="no_seafood">
-                不吃海鲜
-              </el-checkbox>
+不吃海鲜
+</el-checkbox>
               <el-checkbox value="no_spicy">
-                不吃辣
-              </el-checkbox>
+不吃辣
+</el-checkbox>
               <el-checkbox value="gluten_free">
-                无麸质
-              </el-checkbox>
+无麸质
+</el-checkbox>
               <el-checkbox value="no_alcohol">
-                不饮酒
-              </el-checkbox>
+不饮酒
+</el-checkbox>
             </el-checkbox-group>
           </div>
 
@@ -503,12 +439,12 @@
           活动时间偏好
         </h3>
         <p class="section-desc">
-          选择您喜欢的活动时间安排
-        </p>
+选择您喜欢的活动时间安排
+</p>
 
         <div class="time-preferences">
           <div
-            class="time-slot" 
+            class="time-slot"
             :class="{
               'is-active': preferences.preferredTimes.includes('morning'),
             }"
@@ -558,8 +494,8 @@
           旅行节奏
         </h3>
         <p class="section-desc">
-          选择适合您的旅行节奏
-        </p>
+选择适合您的旅行节奏
+</p>
 
         <div class="pace-selector">
           <div class="pace-labels">

@@ -6,8 +6,9 @@
     </div>
 
     <div class="coming-soon-card">
-      <el-icon size="64"
-color="#409EFF">
+      <el-icon
+size="64" color="#409EFF"
+>
         <Food />
       </el-icon>
       <h3>餐厅推荐功能开发中</h3>

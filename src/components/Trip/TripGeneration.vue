@@ -1,7 +1,8 @@
 <template>
   <div class="step-content">
     <!-- AI提示词预览面板 -->
-    <el-card class="ai-prompt-card" shadow="hover">
+    <el-card class="ai-prompt-card"
+shadow="hover">
       <template #header>
         <div class="ai-prompt-header">
           <div class="header-left">
@@ -9,13 +10,16 @@
               <MagicStick />
             </el-icon>
             <span>AI提示词预览</span>
-            <el-tag size="small" :type="getPromptCompletionClass()">
+            <el-tag size="small"
+:type="getPromptCompletionClass()">
               {{ getPromptCompletionText() }}
             </el-tag>
           </div>
           <div class="header-right">
-            <el-tooltip content="查看完整提示词" placement="top">
-              <el-button type="info" link @click="previewFullPrompt">
+            <el-tooltip content="查看完整提示词"
+placement="top">
+              <el-button type="info"
+link @click="previewFullPrompt">
                 <el-icon><View /></el-icon>
               </el-button>
             </el-tooltip>
@@ -26,7 +30,8 @@
       <div class="ai-prompt-content">
         <div v-if="!generating && !generatedTrip">
           <div class="generation-intro">
-            <el-icon size="48" color="#409EFF">
+            <el-icon size="48"
+color="#409EFF">
               <MagicStick />
             </el-icon>
             <h3>准备生成您的专属行程</h3>
@@ -56,7 +61,8 @@
                 }}</span
                 >。
               </div>
-              <div v-else class="prompt-placeholder">
+              <div v-else
+class="prompt-placeholder">
                 请填写基本信息（目的地、天数、日期等）
               </div>
             </div>
@@ -100,7 +106,8 @@
                   >。
                 </template>
               </div>
-              <div v-else class="prompt-placeholder">
+              <div v-else
+class="prompt-placeholder">
                 未设置个人偏好，可以在"个人中心-偏好设置"中设置
               </div>
             </div>
@@ -158,7 +165,8 @@
                   }}</span>
                 </template>
               </div>
-              <div v-else class="prompt-placeholder">
+              <div v-else
+class="prompt-placeholder">
                 请在"个性化偏好"步骤中设置本次行程偏好
               </div>
             </div>
@@ -185,7 +193,7 @@
                   class="highlight"
                   >{{
                     getDietaryRestrictionsText(
-                      preferenceForm.dietaryRestrictions
+                      preferenceForm.dietaryRestrictions,
                     )
                   }}</span
                 >
@@ -206,7 +214,8 @@
             </div>
 
             <!-- 季节性建议部分 -->
-            <div v-if="getSeasonalSuggestions" class="prompt-section">
+            <div v-if="getSeasonalSuggestions"
+class="prompt-section">
               <div class="section-header">
                 <el-icon><Calendar /></el-icon>
                 <h4>季节性建议</h4>
@@ -253,7 +262,8 @@
             </div>
 
             <!-- 替换为天气建议部分 -->
-            <div v-if="weatherSuggestion" class="prompt-section">
+            <div v-if="weatherSuggestion"
+class="prompt-section">
               <div class="section-header">
                 <el-icon><Sunny /></el-icon>
                 <h4>天气建议</h4>
@@ -310,7 +320,8 @@
             </div>
 
             <!-- 天气加载状态 -->
-            <div v-else-if="loadingWeather" class="prompt-section">
+            <div v-else-if="loadingWeather"
+class="prompt-section">
               <div class="section-header">
                 <el-icon><Loading /></el-icon>
                 <h4>天气建议</h4>
@@ -321,7 +332,8 @@
             </div>
 
             <!-- 天气错误状态 -->
-            <div v-else-if="weatherError" class="prompt-section">
+            <div v-else-if="weatherError"
+class="prompt-section">
               <div class="section-header">
                 <el-icon><Warning /></el-icon>
                 <h4>天气建议</h4>
@@ -336,12 +348,14 @@
                 <el-icon><Location /></el-icon>
                 <h4>必去景点</h4>
               </div>
-              <div v-if="selectedAttractions.length > 0" class="prompt-text">
+              <div v-if="selectedAttractions.length > 0"
+class="prompt-text">
                 必去景点：<span class="highlight">{{
                   selectedAttractions.map((a) => a.name).join("、")
                 }}</span>
               </div>
-              <div v-else class="prompt-placeholder">
+              <div v-else
+class="prompt-placeholder">
                 未选择必去景点，可以从推荐景点中添加
               </div>
             </div>
@@ -351,12 +365,14 @@
                 <el-icon><Shop /></el-icon>
                 <h4>必去餐厅</h4>
               </div>
-              <div v-if="selectedRestaurants.length > 0" class="prompt-text">
+              <div v-if="selectedRestaurants.length > 0"
+class="prompt-text">
                 必去餐厅：<span class="highlight">{{
                   selectedRestaurants.map((r) => r.name).join("、")
                 }}</span>
               </div>
-              <div v-else class="prompt-placeholder">
+              <div v-else
+class="prompt-placeholder">
                 未选择必去餐厅，可以从推荐餐厅中添加
               </div>
             </div>
@@ -375,17 +391,22 @@
           </div>
         </div>
 
-        <div v-if="generating" class="generating">
-          <el-icon size="64" color="#409EFF" class="rotating">
+        <div v-if="generating"
+class="generating">
+          <el-icon size="64"
+color="#409EFF" class="rotating">
             <Loading />
           </el-icon>
           <h3>AI正在为您生成行程...</h3>
           <p>{{ generationProgress }}</p>
-          <el-progress :percentage="progressPercent" :stroke-width="8" />
+          <el-progress :percentage="progressPercent"
+:stroke-width="8" />
         </div>
 
-        <div v-if="generatedTrip && !generating" class="generation-complete">
-          <el-icon size="48" color="#67C23A">
+        <div v-if="generatedTrip && !generating"
+class="generation-complete">
+          <el-icon size="48"
+color="#67C23A">
             <Check />
           </el-icon>
           <h3>行程生成完成！</h3>
@@ -393,7 +414,8 @@
             为您推荐了 {{ generatedTrip?.attractions?.length || 0 }} 个景点和
             {{ generatedTrip?.restaurants?.length || 0 }} 家餐厅
           </p>
-          <el-button type="primary" size="large" @click="$emit('next-step')">
+          <el-button type="primary"
+size="large" @click="$emit('next-step')">
             查看行程详情
             <el-icon><ArrowRight /></el-icon>
           </el-button>
@@ -402,8 +424,10 @@
     </el-card>
 
     <!-- 步骤操作按钮 -->
-    <div v-if="!generating && !generatedTrip" class="step-actions">
-      <el-button size="large" @click="$emit('prev-step')">
+    <div v-if="!generating && !generatedTrip"
+class="step-actions">
+      <el-button size="large"
+@click="$emit('prev-step')">
         <el-icon><ArrowLeft /></el-icon>
         上一步
       </el-button>
@@ -1038,7 +1062,7 @@ export default {
           props.preferenceForm.dietaryRestrictions.length > 0
         ) {
           prompt += getDietaryRestrictionsText(
-            props.preferenceForm.dietaryRestrictions
+            props.preferenceForm.dietaryRestrictions,
           );
         }
         if (props.preferenceForm.customDietaryNotes) {

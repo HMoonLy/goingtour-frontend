@@ -60,11 +60,13 @@
     <div class="quick-actions">
       <h3 class="section-title">快捷功能</h3>
       <div class="action-grid">
-        <div class="action-card"
-@click="createTrip">
+        <div
+class="action-card" @click="createTrip"
+>
           <div class="action-icon">
-            <el-icon size="32"
-color="#667eea">
+            <el-icon
+size="32" color="#667eea"
+>
               <MapLocation />
             </el-icon>
           </div>
@@ -72,11 +74,13 @@ color="#667eea">
           <p>开始规划您的下一次旅行</p>
         </div>
 
-        <div class="action-card"
-@click="goToPreferences">
+        <div
+class="action-card" @click="goToPreferences"
+>
           <div class="action-icon">
-            <el-icon size="32"
-color="#07C160">
+            <el-icon
+size="32" color="#07C160"
+>
               <Setting />
             </el-icon>
           </div>
@@ -84,11 +88,13 @@ color="#07C160">
           <p>个性化您的旅行推荐</p>
         </div>
 
-        <div class="action-card"
-@click="viewTrips">
+        <div
+class="action-card" @click="viewTrips"
+>
           <div class="action-icon">
-            <el-icon size="32"
-color="#FF6B35">
+            <el-icon
+size="32" color="#FF6B35"
+>
               <Tickets />
             </el-icon>
           </div>
@@ -96,11 +102,13 @@ color="#FF6B35">
           <p>查看和管理历史行程</p>
         </div>
 
-        <div class="action-card"
-@click="accountSettings">
+        <div
+class="action-card" @click="accountSettings"
+>
           <div class="action-icon">
-            <el-icon size="32"
-color="#8B5CF6">
+            <el-icon
+size="32" color="#8B5CF6"
+>
               <Tools />
             </el-icon>
           </div>
@@ -126,7 +134,8 @@ color="#8B5CF6">
         </el-button>
       </div>
 
-      <div v-if="savedTrips.length > 0" class="trips-grid">
+      <div v-if="savedTrips.length > 0"
+class="trips-grid">
         <div
           v-for="trip in savedTrips"
           :key="trip.id"
@@ -186,10 +195,12 @@ color="#8B5CF6">
         </div>
       </div>
 
-      <div v-else
-class="no-trips">
-        <el-icon size="48"
-color="#C0C4CC">
+      <div
+v-else class="no-trips"
+>
+        <el-icon
+size="48" color="#C0C4CC"
+>
           <DocumentCopy />
         </el-icon>
         <p>还没有创建任何行程</p>
@@ -217,8 +228,9 @@ color="#C0C4CC">
         </el-button>
       </div>
 
-      <div v-if="hasPreferences"
-class="preferences-grid">
+      <div
+v-if="hasPreferences" class="preferences-grid"
+>
         <!-- 旅行类型偏好 -->
         <div
           v-if="
@@ -248,7 +260,8 @@ class="preferences-grid">
         </div>
 
         <!-- 日均预算 -->
-        <div v-if="parsedPreferences.budget" class="preference-card">
+        <div v-if="parsedPreferences.budget"
+class="preference-card">
           <div class="card-header">
             <el-icon class="card-icon">
               <Tools />
@@ -264,7 +277,8 @@ class="preferences-grid">
         </div>
 
         <!-- MBTI性格类型 -->
-        <div v-if="parsedPreferences.mbtiType" class="preference-card">
+        <div v-if="parsedPreferences.mbtiType"
+class="preference-card">
           <div class="card-header">
             <el-icon class="card-icon">
               <User />
@@ -324,7 +338,8 @@ class="preferences-grid">
         </div>
 
         <!-- 住宿偏好 -->
-        <div v-if="parsedPreferences.accommodationType" class="preference-card">
+        <div v-if="parsedPreferences.accommodationType"
+class="preference-card">
           <div class="card-header">
             <el-icon class="card-icon">
               <UserFilled />
@@ -341,7 +356,8 @@ class="preferences-grid">
         </div>
 
         <!-- 饮食偏好 -->
-        <div v-if="hasFoodPreferences" class="preference-card">
+        <div v-if="hasFoodPreferences"
+class="preference-card">
           <div class="card-header">
             <el-icon class="card-icon">
               <Calendar />
@@ -408,7 +424,8 @@ class="preferences-grid">
         </div>
 
         <!-- 旅行节奏 -->
-        <div v-if="parsedPreferences.travelPace" class="preference-card">
+        <div v-if="parsedPreferences.travelPace"
+class="preference-card">
           <div class="card-header">
             <el-icon class="card-icon">
               <Tools />
@@ -425,7 +442,8 @@ class="preferences-grid">
         </div>
 
         <!-- 其他偏好 -->
-        <div v-if="hasOtherPreferences" class="preference-card">
+        <div v-if="hasOtherPreferences"
+class="preference-card">
           <div class="card-header">
             <el-icon class="card-icon">
               <Setting />
@@ -449,15 +467,18 @@ class="preferences-grid">
       </div>
 
       <!-- 无偏好数据时的提示 -->
-      <div v-else
-class="no-preferences">
-        <el-icon size="48"
-color="#C0C4CC">
+      <div
+v-else class="no-preferences"
+>
+        <el-icon
+size="48" color="#C0C4CC"
+>
           <Setting />
         </el-icon>
         <p>还没有设置偏好信息</p>
-        <el-button type="primary"
-@click="goToPreferences">
+        <el-button
+type="primary" @click="goToPreferences"
+>
           立即设置
         </el-button>
       </div>
@@ -479,8 +500,9 @@ color="#C0C4CC">
             class="preset-avatar"
             @click="selectAvatar(avatar)"
           >
-            <el-avatar :size="60"
-:src="avatar" />
+            <el-avatar
+:size="60" :src="avatar"
+/>
           </div>
         </div>
       </div>

@@ -3,7 +3,8 @@
     <!-- 页面头部 -->
     <div class="page-header">
       <div class="header-left">
-        <el-button type="text" @click="goBack" class="back-btn">
+        <el-button type="text"
+@click="goBack" class="back-btn">
           <el-icon><ArrowLeft /></el-icon>
           返回行程列表
         </el-button>
@@ -27,12 +28,14 @@ type="primary" @click="saveChanges"> 保存修改 </el-button>
     </div>
 
     <!-- 行程概览卡片 -->
-    <el-card class="trip-overview-card"
-shadow="hover">
+    <el-card
+class="trip-overview-card" shadow="hover"
+>
       <div class="trip-header">
         <div class="trip-title-section">
-          <h1 v-if="!isEditing"
-class="trip-title">
+          <h1
+v-if="!isEditing" class="trip-title"
+>
             {{ tripData.title }}
           </h1>
           <el-input
@@ -72,8 +75,9 @@ class="trip-title">
                 <el-dropdown-item command="template">
                   保存为模板
                 </el-dropdown-item>
-                <el-dropdown-item command="delete"
-divided>
+                <el-dropdown-item
+command="delete" divided
+>
                   删除行程
                 </el-dropdown-item>
               </el-dropdown-menu>
@@ -213,8 +217,9 @@ v-if="activity.price" class="activity-price"
                 </div>
 
                 <!-- 编辑模式下的操作按钮 -->
-                <div v-if="isEditing"
-class="activity-actions">
+                <div
+v-if="isEditing" class="activity-actions"
+>
                   <el-button
                     size="small"
                     @click="editActivity(dayIndex, actIndex)"
@@ -242,10 +247,12 @@ class="activity-actions">
             </div>
 
             <!-- 添加活动按钮（编辑模式） -->
-            <div v-if="isEditing"
-class="add-activity">
-              <el-button type="dashed"
-@click="addActivity(dayIndex)">
+            <div
+v-if="isEditing" class="add-activity"
+>
+              <el-button
+type="dashed" @click="addActivity(dayIndex)"
+>
                 <el-icon><Plus /></el-icon>
                 添加活动
               </el-button>
@@ -256,8 +263,9 @@ class="add-activity">
     </div>
 
     <!-- 行程偏好设置 -->
-    <el-card class="preferences-card"
-shadow="hover">
+    <el-card
+class="preferences-card" shadow="hover"
+>
       <template #header>
         <div class="card-header">
           <h3>
