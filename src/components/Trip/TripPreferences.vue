@@ -46,16 +46,6 @@
           </div>
           <div class="search-filters">
             <el-select 
-              v-model="searchType" 
-              placeholder="搜索类型"
-              size="small"
-              style="width: 120px;"
-            >
-              <el-option label="全部" value="all" />
-              <el-option label="景点" value="attraction" />
-              <el-option label="餐厅" value="restaurant" />
-            </el-select>
-            <el-select 
               v-model="sortBy" 
               placeholder="排序方式"
               size="small"
@@ -721,7 +711,6 @@ export default {
 
     // 搜索相关状态
     const searchKeyword = ref('');
-    const searchType = ref('all');
     const sortBy = ref('default');
     const searching = ref(false);
     const searchResults = ref([]);
@@ -1554,10 +1543,10 @@ export default {
           page: 1,
         };
 
-        // 根据搜索类型添加类型过滤
-        if (searchType.value === 'attraction') {
+        // 根据当前标签页自动添加类型过滤
+        if (SisShow.value) {
           searchParams.types = '110000'; // 风景名胜
-        } else if (searchType.value === 'restaurant') {
+        } else if (RisShow.value) {
           searchParams.types = '050000'; // 餐饮服务
         }
 
@@ -1836,7 +1825,6 @@ export default {
       RisShow,
       // 搜索相关
       searchKeyword,
-      searchType,
       sortBy,
       searching,
       searchResults,
