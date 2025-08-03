@@ -23,14 +23,14 @@
 </template>
 
 <script>
-import { Share } from '@element-plus/icons-vue'
+import { Share } from "@element-plus/icons-vue";
 
 export default {
-  name: 'TripShare',
+  name: "TripShare",
   components: {
-    Share
-  }
-}
+    Share,
+  },
+};
 </script>
 
 <style scoped>
@@ -92,7 +92,7 @@ export default {
 }
 
 .stay-tuned {
-  color: #409EFF;
+  color: #409eff;
   font-weight: 500;
   font-size: 16px;
 }
@@ -101,13 +101,13 @@ export default {
   .trip-share-page {
     padding: 16px;
   }
-  
+
   .page-header h1 {
     font-size: 24px;
   }
-  
+
   .coming-soon-card {
     padding: 32px 20px;
   }
 }
-</style> 
+</style>

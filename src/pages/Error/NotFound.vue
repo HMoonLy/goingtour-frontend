@@ -3,7 +3,8 @@
     <div class="not-found-content">
       <!-- 404图标 -->
       <div class="error-icon">
-        <el-icon size="120" color="#E6A23C">
+        <el-icon size="120"
+color="#E6A23C">
           <Warning />
         </el-icon>
       </div>
@@ -14,28 +15,24 @@
         <h2 class="error-title">页面不存在</h2>
         <p class="error-description">
           抱歉，您访问的页面不存在或已被移除。
-          <br>
+          <br />
           请检查网址是否正确，或返回首页继续浏览。
         </p>
       </div>
 
       <!-- 操作按钮 -->
       <div class="error-actions">
-        <el-button 
-          type="primary" 
+        <el-button
+          type="primary"
           size="large"
-          @click="goHome"
           class="action-btn"
+          @click="goHome"
         >
           <el-icon><House /></el-icon>
           返回首页
         </el-button>
-        
-        <el-button 
-          size="large"
-          @click="goBack"
-          class="action-btn"
-        >
+
+        <el-button size="large" @click="goBack" class="action-btn">
           <el-icon><Back /></el-icon>
           返回上页
         </el-button>
@@ -45,24 +42,24 @@
       <div class="suggestions">
         <p class="suggestions-title">您可能在寻找：</p>
         <div class="suggestions-links">
-          <el-link 
-            type="primary" 
-            @click="$router.push('/login')"
+          <el-link
+            type="primary"
             :underline="false"
+            @click="$router.push('/login')"
           >
             登录页面
           </el-link>
-          <el-link 
-            type="primary" 
-            @click="$router.push('/destinations')"
+          <el-link
+            type="primary"
             :underline="false"
+            @click="$router.push('/destinations')"
           >
             选择目的地
           </el-link>
-          <el-link 
-            type="primary" 
-            @click="$router.push('/personal')"
+          <el-link
+            type="primary"
             :underline="false"
+            @click="$router.push('/personal')"
           >
             个人中心
           </el-link>
@@ -73,37 +70,37 @@
 </template>
 
 <script>
-import { useRouter } from 'vue-router'
-import { Warning, House, Back } from '@element-plus/icons-vue'
+import { useRouter } from "vue-router";
+import { Warning, House, Back } from "@element-plus/icons-vue";
 
 export default {
-  name: 'NotFound',
+  name: "NotFound",
   components: {
     Warning,
     House,
-    Back
+    Back,
   },
   setup() {
-    const router = useRouter()
+    const router = useRouter();
 
     const goHome = () => {
-      router.push('/')
-    }
+      router.push("/");
+    };
 
     const goBack = () => {
       if (window.history.length > 1) {
-        router.go(-1)
+        router.go(-1);
       } else {
-        router.push('/')
+        router.push("/");
       }
-    }
+    };
 
     return {
       goHome,
-      goBack
-    }
-  }
-}
+      goBack,
+    };
+  },
+};
 </script>
 
 <style scoped>
@@ -139,7 +136,7 @@ export default {
 .error-code {
   font-size: 72px;
   font-weight: 700;
-  color: #E6A23C;
+  color: #e6a23c;
   margin: 0 0 16px 0;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -173,7 +170,7 @@ export default {
 }
 
 .suggestions {
-  border-top: 1px solid #EBEEF5;
+  border-top: 1px solid #ebeef5;
   padding-top: 24px;
 }
 
@@ -246,4 +243,4 @@ export default {
     font-size: 20px;
   }
 }
-</style> 
+</style>

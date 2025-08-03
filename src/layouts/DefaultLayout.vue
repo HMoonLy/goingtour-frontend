@@ -3,22 +3,23 @@
     <!-- 顶部导航栏 -->
     <header class="layout-header">
       <div class="header-container">
-        <div class="header-logo" @click="$router.push('/destinations')">
+        <div class="header-logo"
+@click="$router.push('/destinations')">
           <h2>GoingTour</h2>
         </div>
-        
+
         <nav class="header-nav">
           <div class="nav-menu">
-            <div 
-              class="nav-item" 
+            <div
+              class="nav-item"
               :class="{ 'is-active': activeMenu === '/destinations' }"
               @click="$router.push('/destinations')"
             >
               <el-icon><MapLocation /></el-icon>
               <span>目的地</span>
             </div>
-            <div 
-              class="nav-item" 
+            <div
+              class="nav-item"
               :class="{ 'is-active': activeMenu === '/trip/create' }"
               @click="$router.push('/trip/create')"
             >
@@ -27,15 +28,19 @@
             </div>
           </div>
         </nav>
-        
+
         <div class="header-user">
           <el-dropdown @command="handleUserCommand">
             <div class="user-info">
-              <el-avatar :src="userStore.avatar" :size="32">
-                <img src="../assets/images/default-avatar.jpg" alt="avatar" />
+              <el-avatar :src="userStore.avatar"
+:size="32">
+                <img
+src="../assets/images/default-avatar.jpg" alt="avatar" />
               </el-avatar>
               <span class="username">{{ userStore.nickname }}</span>
-              <el-icon class="dropdown-icon"><ArrowDown /></el-icon>
+              <el-icon class="dropdown-icon">
+                <ArrowDown />
+              </el-icon>
             </div>
             <template #dropdown>
               <el-dropdown-menu>
@@ -45,7 +50,8 @@
                 <el-dropdown-item command="preferences">
                   <el-icon><Setting /></el-icon>偏好设置
                 </el-dropdown-item>
-                <el-dropdown-item divided command="logout">
+                <el-dropdown-item divided
+command="logout">
                   <el-icon><SwitchButton /></el-icon>退出登录
                 </el-dropdown-item>
               </el-dropdown-menu>
@@ -54,10 +60,16 @@
         </div>
       </div>
     </header>
-    
+
     <!-- 主要内容区域 -->
-    <main class="layout-main" :class="{ 'trip-detail-layout': isTripDetailPage }">
-      <div class="main-container" :class="{ 'trip-detail-container': isTripDetailPage }">
+    <main
+      class="layout-main"
+      :class="{ 'trip-detail-layout': isTripDetailPage }"
+    >
+      <div
+        class="main-container"
+        :class="{ 'trip-detail-container': isTripDetailPage }"
+      >
         <router-view />
       </div>
     </main>
@@ -65,95 +77,91 @@
 </template>
 
 <script>
-import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useUserStore } from '@/store/user.js'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useUserStore } from "@/store/user.js";
+import { ElMessage, ElMessageBox } from "element-plus";
 import {
   MapLocation,
   Calendar,
   User,
   Setting,
   SwitchButton,
-  ArrowDown
-} from '@element-plus/icons-vue'
+  ArrowDown,
+} from "@element-plus/icons-vue";
 
 export default {
-  name: 'DefaultLayout',
+  name: "DefaultLayout",
   components: {
     MapLocation,
     Calendar,
     User,
     Setting,
     SwitchButton,
-    ArrowDown
+    ArrowDown,
   },
   setup() {
-    const route = useRoute()
-    const router = useRouter()
-    const userStore = useUserStore()
-    
+    const route = useRoute();
+    const router = useRouter();
+    const userStore = useUserStore();
+
     // 当前激活的菜单项
     const activeMenu = computed(() => {
-      const path = route.path
-      if (path.startsWith('/destinations')) return '/destinations'
-      if (path.startsWith('/trip/create')) return '/trip/create'
+      const path = route.path;
+      if (path.startsWith("/destinations")) return "/destinations";
+      if (path.startsWith("/trip/create")) return "/trip/create";
       // 其他页面不激活任何主导航菜单项
-      return ''
-    })
-    
+      return "";
+    });
+
     // 是否显示页脚
     const showFooter = computed(() => {
       // 在某些页面可能不需要显示页脚
-      const hideFooterRoutes = ['/trip/create']
-      return !hideFooterRoutes.includes(route.path)
-    })
-    
+      const hideFooterRoutes = ["/trip/create"];
+      return !hideFooterRoutes.includes(route.path);
+    });
+
     // 检查是否是TripDetail页面
     const isTripDetailPage = computed(() => {
-      return route.path.includes('/trip/') && route.params.id
-    })
-    
+      return route.path.includes("/trip/") && route.params.id;
+    });
+
     // 处理用户命令
     const handleUserCommand = async (command) => {
-      if (command === 'logout') {
+      if (command === "logout") {
         try {
-          await ElMessageBox.confirm(
-            '确定要退出登录吗？',
-            '提示',
-            {
-              confirmButtonText: '确定',
-              cancelButtonText: '取消',
-              type: 'warning'
-            }
-          )
-          
+          await ElMessageBox.confirm("确定要退出登录吗？", "提示", {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning",
+          });
+
           // 执行退出登录
-          userStore.logout()
-          ElMessage.success('退出登录成功')
-          
+          userStore.logout();
+          ElMessage.success("退出登录成功");
+
           // 跳转到登录页
-          router.push('/login')
+          router.push("/login");
         } catch (error) {
           // 用户取消退出
-          console.log('用户取消退出登录')
+          console.log("用户取消退出登录");
         }
-      } else if (command === 'personal') {
-        router.push('/personal')
-      } else if (command === 'preferences') {
-        router.push('/preferences')
+      } else if (command === "personal") {
+        router.push("/personal");
+      } else if (command === "preferences") {
+        router.push("/preferences");
       }
-    }
+    };
 
     return {
       activeMenu,
       showFooter,
       userStore,
       handleUserCommand,
-      isTripDetailPage
-    }
-  }
-}
+      isTripDetailPage,
+    };
+  },
+};
 </script>
 
 <style scoped>
@@ -178,7 +186,7 @@ export default {
 .header-container {
   width: 100%;
   max-width: none;
-  padding: 0 24px;  /* 减少左右padding，给菜单更多空间 */
+  padding: 0 24px; /* 减少左右padding，给菜单更多空间 */
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -189,7 +197,7 @@ export default {
 .header-logo {
   cursor: pointer;
   transition: transform 0.2s;
-  flex-shrink: 0;  /* 防止logo被压缩 */
+  flex-shrink: 0; /* 防止logo被压缩 */
   z-index: 1; /* 确保logo在最上层 */
 }
 
@@ -212,8 +220,8 @@ export default {
   display: flex;
   justify-content: center;
   min-width: 0;
-  max-width: 600px;  /* 限制最大宽度，避免过度拉伸 */
-  margin: 0 20px;    /* 左右给一些边距 */
+  max-width: 600px; /* 限制最大宽度，避免过度拉伸 */
+  margin: 0 20px; /* 左右给一些边距 */
 }
 
 .nav-menu {
@@ -221,7 +229,7 @@ export default {
   justify-content: center;
   align-items: center;
   width: 100%;
-  gap: 16px;  /* 菜单项之间的间距 */
+  gap: 16px; /* 菜单项之间的间距 */
 }
 
 .nav-item {
@@ -257,8 +265,8 @@ export default {
 .header-user {
   display: flex;
   align-items: center;
-  flex-shrink: 0;  /* 防止用户区域被压缩 */
-  min-width: 120px;  /* 确保最小宽度 */
+  flex-shrink: 0; /* 防止用户区域被压缩 */
+  min-width: 120px; /* 确保最小宽度 */
 }
 
 .user-info {
@@ -351,11 +359,11 @@ export default {
 /* 响应式设计 */
 @media (min-width: 1200px) {
   .header-container {
-    padding: 0 40px;  /* 大屏幕上给更多空间 */
+    padding: 0 40px; /* 大屏幕上给更多空间 */
   }
-  
+
   .header-nav {
-    max-width: 800px;  /* 大屏幕上允许更宽的菜单 */
+    max-width: 800px; /* 大屏幕上允许更宽的菜单 */
   }
 }
 
@@ -363,29 +371,29 @@ export default {
   .header-container {
     padding: 0 16px;
   }
-  
+
   .header-nav {
     margin: 0 10px;
   }
-  
+
   .nav-item {
     padding: 8px 12px;
     font-size: 13px;
   }
-  
+
   .layout-main {
     min-height: calc(100vh - 56px); /* 移动端导航栏可能更矮 */
   }
-  
+
   .main-container {
     padding: 15px;
   }
-  
+
   /* 全宽布局在移动端保持全宽 */
   .main-container.full-width {
     padding: 0;
   }
-  
+
   .username {
     display: none; /* 移动端隐藏用户名，节省空间 */
   }
@@ -396,35 +404,35 @@ export default {
     height: 56px;
     padding: 0 12px;
   }
-  
+
   .header-logo h2 {
     font-size: 1.3rem;
   }
-  
+
   .header-nav {
     margin: 0 6px;
   }
-  
+
   .nav-item {
     padding: 6px 10px;
     font-size: 12px;
   }
-  
+
   .nav-item span {
     display: none; /* 超小屏幕只显示图标 */
   }
-  
+
   .layout-main {
     min-height: calc(100vh - 56px); /* 超小屏幕的导航栏高度 */
   }
-  
+
   .main-container {
     padding: 10px;
   }
-  
+
   /* 全宽布局在超小屏幕也保持全宽 */
   .main-container.full-width {
     padding: 0;
   }
 }
-</style> 
+</style>

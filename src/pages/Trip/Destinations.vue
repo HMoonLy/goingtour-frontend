@@ -4,120 +4,140 @@
     <div class="search-section">
       <div class="search-container">
         <h1>去哪里旅行</h1>
-      <el-input
-        v-model="searchKeyword"
+        <el-input
+          v-model="searchKeyword"
           placeholder="搜索城市、地区..."
-        size="large"
-        class="search-input"
-        clearable
-        @input="debouncedSearch"
+          size="large"
+          class="search-input"
+          clearable
+          @input="debouncedSearch"
           @clear="clearSearch"
-      >
-        <template #prefix>
-          <el-icon><Search /></el-icon>
-        </template>
-      </el-input>
+        >
+          <template #prefix>
+            <el-icon><Search /></el-icon>
+          </template>
+        </el-input>
       </div>
     </div>
-    
+
     <!-- 城市展示区域 -->
     <div class="cities-content-wrapper">
       <!-- 滚动指示器 -->
-      <div class="scroll-indicator" :class="{ visible: showScrollIndicator }">
+      <div class="scroll-indicator"
+:class="{ visible: showScrollIndicator }">
         {{ activeLetter }}
       </div>
-      
-      <div class="cities-content" ref="citiesContent" @scroll="handleScroll">
+
+      <div ref="citiesContent" class="cities-content" @scroll="handleScroll">
         <!-- 加载状态 -->
-      <div v-if="loading" class="loading-container">
-          <el-skeleton :rows="10" animated />
-      </div>
-      
+        <div v-if="loading"
+class="loading-container">
+          <el-skeleton :rows="10"
+animated />
+        </div>
+
         <!-- 搜索结果 -->
-        <div v-else-if="isSearchMode" class="search-results">
-          <h2 v-if="searchResults.length > 0">搜索结果 ({{ searchResults.length }})</h2>
-          <el-empty v-else description="未找到匹配的城市，请尝试其他关键词" />
-          
+        <div v-else-if="isSearchMode"
+class="search-results">
+          <h2 v-if="searchResults.length > 0">
+            搜索结果 ({{ searchResults.length }})
+          </h2>
+          <el-empty v-else
+description="未找到匹配的城市，请尝试其他关键词" />
+
           <div class="city-grid">
-            <div 
-              v-for="city in searchResults" 
+            <div
+              v-for="city in searchResults"
               :key="city.adcode"
-          class="city-item"
-          @click="selectCity(city)"
-        >
+              class="city-item"
+              @click="selectCity(city)"
+            >
               <div class="city-card">
-                <div class="city-name">{{ city.中文名 }}</div>
-                <div class="city-info">{{ getProvinceName(city) }}</div>
+                <div class="city-name">
+                  {{ city.中文名 }}
+                </div>
+                <div class="city-info">
+                  {{ getProvinceName(city) }}
+                </div>
               </div>
             </div>
           </div>
         </div>
-        
+
         <!-- 常规展示模式 -->
         <template v-else>
           <!-- 热门城市 -->
-          <div class="city-section hot-city-section" id="hot-cities">
+          <div id="hot-cities" class="city-section hot-city-section">
             <h2><i class="hot-icon">🔥</i> 热门城市</h2>
             <div class="city-grid">
-              <div 
-                v-for="city in hotCities" 
+              <div
+                v-for="city in hotCities"
                 :key="city.adcode"
                 class="city-item"
                 @click="selectCity(city)"
               >
                 <div class="city-card hot-city-card">
-                  <div class="city-name">{{ city.中文名 }}</div>
-                  <div class="city-info">{{ getProvinceName(city) }}</div>
+                  <div class="city-name">
+                    {{ city.中文名 }}
+                  </div>
+                  <div class="city-info">
+                    {{ getProvinceName(city) }}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          
+
           <!-- 按省份分组的城市 -->
-          <div 
-            v-for="(group, index) in cityGroups" 
-            :key="index"
+          <div
+            v-for="(group, index) in cityGroups"
             :id="'letter-' + group.letter"
-            class="city-section"
+            :key="index"
             ref="letterSections"
+            class="city-section"
           >
-            <h2><i class="letter-icon">{{ group.letter }}</i></h2>
+            <h2>
+              <i class="letter-icon">{{ group.letter }}</i>
+            </h2>
             <div class="cities-list">
-              <div 
-                v-for="city in group.cities" 
+              <div
+                v-for="city in group.cities"
                 :key="city.adcode"
                 class="city-tag"
                 @click="selectCity(city)"
               >
                 {{ city.中文名 }}
-          </div>
+              </div>
             </div>
           </div>
         </template>
-        
+
         <!-- 导航辅助按钮组 -->
         <div class="nav-assist-buttons">
-          <el-tooltip content="热门城市" placement="left" :offset="10">
-            <el-button 
+          <el-tooltip content="热门城市"
+placement="left" :offset="10">
+            <el-button
               class="nav-button hot-button"
-              circle 
+              circle
               size="small"
               @click="scrollToLetter('热门')"
             >
               <el-icon><Top /></el-icon>
             </el-button>
           </el-tooltip>
-          
-          <el-backtop target=".cities-content" :right="50" :bottom="100">
+
+          <el-backtop target=".cities-content"
+:right="50" :bottom="100">
             <div class="back-top">
               <el-icon><Top /></el-icon>
             </div>
           </el-backtop>
-          
-          <el-tooltip content="跳至Z" placement="left" :offset="10">
-            <el-button 
+
+          <el-tooltip content="跳至Z"
+placement="left" :offset="10">
+            <el-button
               class="nav-button z-button"
-              circle 
+              circle
               size="small"
               @click="scrollToLetter('Z')"
             >
@@ -126,26 +146,26 @@
           </el-tooltip>
         </div>
       </div>
-      
+
       <!-- 添加快捷字母导航 -->
       <div class="letter-nav">
-        <div 
+        <div
           class="letter-item special"
           :class="{ active: activeLetter === '热门' }"
-          @click="scrollToLetter('热门')"
           title="热门城市"
+          @click="scrollToLetter('热门')"
         >
           热门
         </div>
-        
+
         <div class="letter-section">
-          <div 
-            v-for="letter in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" 
+          <div
+            v-for="letter in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"
             :key="letter"
             class="letter-item"
             :class="{ active: activeLetter === letter }"
-            @click="scrollToLetter(letter)"
             :title="letter"
+            @click="scrollToLetter(letter)"
           >
             {{ letter }}
           </div>
@@ -156,202 +176,242 @@
 </template>
 
 <script>
-import { ref, reactive, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import { Search, Top, Bottom } from '@element-plus/icons-vue'
-import pinyin from 'pinyin'
+import {
+  ref,
+  reactive,
+  computed,
+  onMounted,
+  onBeforeUnmount,
+  nextTick,
+} from "vue";
+import { useRouter } from "vue-router";
+import { ElMessage } from "element-plus";
+import { Search, Top, Bottom } from "@element-plus/icons-vue";
+import pinyin from "pinyin";
 
 export default {
-  name: 'Destinations',
+  name: "Destinations",
   components: {
     Search,
     Top,
-    Bottom
+    Bottom,
   },
   setup() {
-    const router = useRouter()
-    
+    const router = useRouter();
+
     // 响应式数据
-    const searchKeyword = ref('')
-    const allCities = ref([])
-    const loading = ref(true)
-    const isSearchMode = ref(false)
-    const searchResults = ref([])
-    const activeLetter = ref('热门')
-    const citiesContent = ref(null)
-    const letterSections = ref([])
-    const showScrollIndicator = ref(false)
-    
+    const searchKeyword = ref("");
+    const allCities = ref([]);
+    const loading = ref(true);
+    const isSearchMode = ref(false);
+    const searchResults = ref([]);
+    const activeLetter = ref("热门");
+    const citiesContent = ref(null);
+    const letterSections = ref([]);
+    const showScrollIndicator = ref(false);
+
     // 字母导航列表 - 单独定义每个字母
-    const letterNavs = ['热门', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 
-                        'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-    
+    const letterNavs = [
+      "热门",
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "H",
+      "I",
+      "J",
+      "K",
+      "L",
+      "M",
+      "N",
+      "O",
+      "P",
+      "Q",
+      "R",
+      "S",
+      "T",
+      "U",
+      "V",
+      "W",
+      "X",
+      "Y",
+      "Z",
+    ];
+
     // 热门城市列表
     const hotCities = [
-      { 中文名: '北京市', adcode: '110000', province: '直辖市' },
-      { 中文名: '上海市', adcode: '310000', province: '直辖市' },
-      { 中文名: '广州市', adcode: '440100', province: '广东省' },
-      { 中文名: '深圳市', adcode: '440300', province: '广东省' },
-      { 中文名: '杭州市', adcode: '330100', province: '浙江省' },
-      { 中文名: '成都市', adcode: '510100', province: '四川省' },
-      { 中文名: '重庆市', adcode: '500000', province: '直辖市' },
-      { 中文名: '西安市', adcode: '610100', province: '陕西省' },
-      { 中文名: '南京市', adcode: '320100', province: '江苏省' },
-      { 中文名: '厦门市', adcode: '350200', province: '福建省' },
-      { 中文名: '三亚市', adcode: '460200', province: '海南省' },
-      { 中文名: '丽江市', adcode: '530700', province: '云南省' }
-    ]
-    
+      { 中文名: "北京市", adcode: "110000", province: "直辖市" },
+      { 中文名: "上海市", adcode: "310000", province: "直辖市" },
+      { 中文名: "广州市", adcode: "440100", province: "广东省" },
+      { 中文名: "深圳市", adcode: "440300", province: "广东省" },
+      { 中文名: "杭州市", adcode: "330100", province: "浙江省" },
+      { 中文名: "成都市", adcode: "510100", province: "四川省" },
+      { 中文名: "重庆市", adcode: "500000", province: "直辖市" },
+      { 中文名: "西安市", adcode: "610100", province: "陕西省" },
+      { 中文名: "南京市", adcode: "320100", province: "江苏省" },
+      { 中文名: "厦门市", adcode: "350200", province: "福建省" },
+      { 中文名: "三亚市", adcode: "460200", province: "海南省" },
+      { 中文名: "丽江市", adcode: "530700", province: "云南省" },
+    ];
+
     // 加载城市数据
     const loadCityData = async () => {
-      loading.value = true
+      loading.value = true;
       try {
-        const response = await fetch('/data/city-codes.json')
+        const response = await fetch("/data/city-codes.json");
         if (!response.ok) {
-          throw new Error(`加载城市数据失败: ${response.status}`)
+          throw new Error(`加载城市数据失败: ${response.status}`);
         }
-        
-        const cityData = await response.json()
-        console.log(`加载了 ${cityData.length} 条城市数据`)
-        
+
+        const cityData = await response.json();
+        console.log(`加载了 ${cityData.length} 条城市数据`);
+
         // 过滤只保留市级城市
-        allCities.value = cityData.filter(city => {
-          const name = city.中文名 || ''
-          return name.includes('市') || name.includes('自治州') || name.includes('地区') || name.includes('盟')
-        })
-        
-        console.log(`过滤后保留了 ${allCities.value.length} 条城市数据`)
+        allCities.value = cityData.filter((city) => {
+          const name = city.中文名 || "";
+          return (
+            name.includes("市") ||
+            name.includes("自治州") ||
+            name.includes("地区") ||
+            name.includes("盟")
+          );
+        });
+
+        console.log(`过滤后保留了 ${allCities.value.length} 条城市数据`);
       } catch (error) {
-        console.error('加载城市数据失败:', error)
-        ElMessage.error('城市数据加载失败，请刷新重试')
-        allCities.value = []
+        console.error("加载城市数据失败:", error);
+        ElMessage.error("城市数据加载失败，请刷新重试");
+        allCities.value = [];
       } finally {
-        loading.value = false
+        loading.value = false;
       }
-    }
+    };
 
     // 按首字母分组城市数据
     const cityGroups = computed(() => {
-      const groups = {}
-      
+      const groups = {};
+
       // 使用汉字拼音首字母作为分组键
-      allCities.value.forEach(city => {
-        const cityName = city.中文名 || ''
-        if (!cityName) return
-        
+      allCities.value.forEach((city) => {
+        const cityName = city.中文名 || "";
+        if (!cityName) return;
+
         try {
           // 获取城市名的拼音首字母
           const firstLetter = pinyin(cityName[0], {
-            style: pinyin.STYLE_FIRST_LETTER
-          })[0][0].toUpperCase()
-          
+            style: pinyin.STYLE_FIRST_LETTER,
+          })[0][0].toUpperCase();
+
           // 初始化字母分组
           if (!groups[firstLetter]) {
             groups[firstLetter] = {
               letter: firstLetter,
-              cities: []
-            }
+              cities: [],
+            };
           }
-          
+
           // 将城市添加到对应字母分组
-          groups[firstLetter].cities.push(city)
+          groups[firstLetter].cities.push(city);
         } catch (e) {
-          console.warn('处理城市拼音失败:', cityName, e)
+          console.warn("处理城市拼音失败:", cityName, e);
         }
-      })
-      
+      });
+
       // 转换为数组并按字母排序
-      return Object.values(groups).sort((a, b) => a.letter.localeCompare(b.letter))
-    })
-    
+      return Object.values(groups).sort((a, b) =>
+        a.letter.localeCompare(b.letter),
+      );
+    });
+
     // 搜索功能
     const searchCities = () => {
-      const keyword = searchKeyword.value.trim().toLowerCase()
+      const keyword = searchKeyword.value.trim().toLowerCase();
       if (!keyword) {
-        clearSearch()
-        return
+        clearSearch();
+        return;
       }
-      
-      isSearchMode.value = true
-      
+
+      isSearchMode.value = true;
+
       // 在城市名、省份、拼音等字段中搜索
-      searchResults.value = allCities.value.filter(city => {
-        const cityName = city.中文名 || ''
-        const province = city.province || ''
-        
+      searchResults.value = allCities.value.filter((city) => {
+        const cityName = city.中文名 || "";
+        const province = city.province || "";
+
         // 简单模糊匹配，可以根据需要扩展
-        return cityName.includes(keyword) || 
-               province.includes(keyword)
-      })
-    }
-    
+        return cityName.includes(keyword) || province.includes(keyword);
+      });
+    };
+
     // 清除搜索
     const clearSearch = () => {
-      searchKeyword.value = ''
-      isSearchMode.value = false
-      searchResults.value = []
-    }
-    
+      searchKeyword.value = "";
+      isSearchMode.value = false;
+      searchResults.value = [];
+    };
+
     // 防抖处理
-    let searchTimer = null
+    let searchTimer = null;
     const debouncedSearch = () => {
-      clearTimeout(searchTimer)
-      searchTimer = setTimeout(searchCities, 300)
-    }
-    
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(searchCities, 300);
+    };
+
     // 选择城市
     const selectCity = (city) => {
-      console.log('选择城市:', city)
+      console.log("选择城市:", city);
       // 跳转到创建行程页面
       router.push({
-        name: 'TripCreate',
+        name: "TripCreate",
         query: {
           city: city.adcode,
-          cityName: city.中文名
-        }
-      })
-    }
-    
+          cityName: city.中文名,
+        },
+      });
+    };
+
     // 滚动到指定字母区域
     const scrollToLetter = (letter) => {
       // 设置激活字母（即使在搜索模式下也应该更新）
       activeLetter.value = letter;
-      
+
       // 如果在搜索模式，先清除搜索
       if (isSearchMode.value) {
         clearSearch();
       }
-      
+
       // 显示滚动指示器
       showScrollIndicator.value = true;
-      
+
       // 延迟一点时间等待DOM更新和搜索清除完成
       setTimeout(() => {
         let targetElement = null;
-        
-        if (letter === '热门') {
+
+        if (letter === "热门") {
           // 滚动到热门城市区域
-          targetElement = document.getElementById('hot-cities');
+          targetElement = document.getElementById("hot-cities");
         } else {
           // 滚动到对应字母区域
           targetElement = document.getElementById(`letter-${letter}`);
         }
-        
+
         if (targetElement) {
           // 平滑滚动到目标元素
-          targetElement.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start' 
+          targetElement.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
           });
-          
+
           // 视觉反馈 - 高亮显示区域
-          targetElement.classList.add('highlight');
-          
+          targetElement.classList.add("highlight");
+
           // 移除高亮效果
           setTimeout(() => {
-            targetElement.classList.remove('highlight');
-            
+            targetElement.classList.remove("highlight");
+
             // 隐藏滚动指示器
             setTimeout(() => {
               showScrollIndicator.value = false;
@@ -359,19 +419,20 @@ export default {
           }, 1000);
         }
       }, 100);
-    }
-    
+    };
+
     // 监听滚动，更新当前激活的字母
     const handleScroll = () => {
       if (!citiesContent.value || isSearchMode.value) return;
-      
+
       // 获取所有字母区域元素
-      const sections = [...document.getElementsByClassName('city-section')];
+      const sections = [...document.getElementsByClassName("city-section")];
       if (sections.length === 0) return;
-      
+
       // 获取搜索框的高度，作为偏移量计算
-      const searchSectionHeight = document.querySelector('.search-section')?.offsetHeight || 0;
-      
+      const searchSectionHeight =
+        document.querySelector(".search-section")?.offsetHeight || 0;
+
       // 检查元素是否在可见区域，考虑搜索框的高度
       const isElementInView = (el, offset = 0) => {
         const rect = el.getBoundingClientRect();
@@ -379,34 +440,34 @@ export default {
         const threshold = searchSectionHeight + 60 + offset;
         return rect.top <= threshold && rect.bottom > threshold - 20;
       };
-      
+
       let newActiveLetter = activeLetter.value;
       let letterChanged = false;
-      
+
       // 如果滚动到顶部，激活热门
       if (citiesContent.value.scrollTop < 10) {
-        if (activeLetter.value !== '热门') {
-          newActiveLetter = '热门';
+        if (activeLetter.value !== "热门") {
+          newActiveLetter = "热门";
           letterChanged = true;
         }
       } else {
         // 检查热门区域是否在视口内
-        const hotSection = document.getElementById('hot-cities');
+        const hotSection = document.getElementById("hot-cities");
         if (hotSection && isElementInView(hotSection, 0)) {
-          if (activeLetter.value !== '热门') {
-            newActiveLetter = '热门';
+          if (activeLetter.value !== "热门") {
+            newActiveLetter = "热门";
             letterChanged = true;
           }
         } else {
           // 检查字母区域
           let foundVisible = false;
-          
+
           for (let i = 0; i < sections.length; i++) {
             const section = sections[i];
-            if (!section.id.startsWith('letter-')) continue;
-            
+            if (!section.id.startsWith("letter-")) continue;
+
             if (isElementInView(section)) {
-              const letter = section.id.replace('letter-', '');
+              const letter = section.id.replace("letter-", "");
               if (activeLetter.value !== letter) {
                 newActiveLetter = letter;
                 letterChanged = true;
@@ -415,39 +476,41 @@ export default {
               break;
             }
           }
-          
+
           // 如果没有找到可见的字母区域，尝试根据滚动位置确定最接近的字母
           if (!foundVisible) {
             // 检查是否滚动到底部 - 激活Z
-            const scrollBottom = citiesContent.value.scrollTop + citiesContent.value.clientHeight;
-            const scrollPercentage = scrollBottom / citiesContent.value.scrollHeight;
-            
+            const scrollBottom =
+              citiesContent.value.scrollTop + citiesContent.value.clientHeight;
+            const scrollPercentage =
+              scrollBottom / citiesContent.value.scrollHeight;
+
             if (scrollPercentage > 0.95) {
-              const zSection = document.getElementById('letter-Z');
-              if (zSection && activeLetter.value !== 'Z') {
-                newActiveLetter = 'Z';
+              const zSection = document.getElementById("letter-Z");
+              if (zSection && activeLetter.value !== "Z") {
+                newActiveLetter = "Z";
                 letterChanged = true;
               }
             } else {
               // 找出最接近视口顶部的部分
               let closestSection = null;
               let minDistance = Infinity;
-              
+
               for (let i = 0; i < sections.length; i++) {
                 const section = sections[i];
-                if (!section.id.startsWith('letter-')) continue;
-                
+                if (!section.id.startsWith("letter-")) continue;
+
                 const rect = section.getBoundingClientRect();
                 const distance = Math.abs(rect.top - searchSectionHeight);
-                
+
                 if (distance < minDistance) {
                   minDistance = distance;
                   closestSection = section;
                 }
               }
-              
+
               if (closestSection) {
-                const letter = closestSection.id.replace('letter-', '');
+                const letter = closestSection.id.replace("letter-", "");
                 if (activeLetter.value !== letter) {
                   newActiveLetter = letter;
                   letterChanged = true;
@@ -457,90 +520,90 @@ export default {
           }
         }
       }
-      
+
       // 如果字母变化，更新并显示指示器
       if (letterChanged) {
         activeLetter.value = newActiveLetter;
         showScrollIndicator.value = true;
-        
+
         // 自动隐藏指示器
         setTimeout(() => {
           showScrollIndicator.value = false;
         }, 1500);
       }
-    }
-    
+    };
+
     // 获取字母导航项的title
     const getLetterTitle = (letter) => {
-      if (letter === '热门') {
-        return '热门城市'
+      if (letter === "热门") {
+        return "热门城市";
       }
-      return letter
-    }
+      return letter;
+    };
 
     // 获取省份名称
     const getProvinceName = (city) => {
-      const adcode = String(city.adcode || '')
+      const adcode = String(city.adcode || "");
       if (!adcode || adcode.length < 2) {
-        return '';
+        return "";
       }
-      
+
       // 通过adcode前两位判断省份
-      const provinceCode = adcode.substring(0, 2)
-      
+      const provinceCode = adcode.substring(0, 2);
+
       // 省份编码映射
       const provinceMap = {
-        '11': '北京市',
-        '12': '天津市',
-        '13': '河北省',
-        '14': '山西省',
-        '15': '内蒙古',
-        '21': '辽宁省',
-        '22': '吉林省',
-        '23': '黑龙江省',
-        '31': '上海市',
-        '32': '江苏省',
-        '33': '浙江省',
-        '34': '安徽省',
-        '35': '福建省',
-        '36': '江西省',
-        '37': '山东省',
-        '41': '河南省',
-        '42': '湖北省',
-        '43': '湖南省',
-        '44': '广东省',
-        '45': '广西',
-        '46': '海南省',
-        '50': '重庆市',
-        '51': '四川省',
-        '52': '贵州省',
-        '53': '云南省',
-        '54': '西藏',
-        '61': '陕西省',
-        '62': '甘肃省',
-        '63': '青海省',
-        '64': '宁夏',
-        '65': '新疆',
-        '71': '台湾省',
-        '81': '香港',
-        '82': '澳门'
+        11: "北京市",
+        12: "天津市",
+        13: "河北省",
+        14: "山西省",
+        15: "内蒙古",
+        21: "辽宁省",
+        22: "吉林省",
+        23: "黑龙江省",
+        31: "上海市",
+        32: "江苏省",
+        33: "浙江省",
+        34: "安徽省",
+        35: "福建省",
+        36: "江西省",
+        37: "山东省",
+        41: "河南省",
+        42: "湖北省",
+        43: "湖南省",
+        44: "广东省",
+        45: "广西",
+        46: "海南省",
+        50: "重庆市",
+        51: "四川省",
+        52: "贵州省",
+        53: "云南省",
+        54: "西藏",
+        61: "陕西省",
+        62: "甘肃省",
+        63: "青海省",
+        64: "宁夏",
+        65: "新疆",
+        71: "台湾省",
+        81: "香港",
+        82: "澳门",
       };
-      
-      return provinceMap[provinceCode] || '';
+
+      return provinceMap[provinceCode] || "";
     };
-    
+
     // 生命周期钩子
     onMounted(() => {
-      loadCityData()
-      
+      loadCityData();
+
       // 添加resize事件监听
-      window.addEventListener('resize', handleScroll)
-    })
-    
+      window.addEventListener("resize", handleScroll);
+    });
+
     onBeforeUnmount(() => {
       // 移除resize事件监听
-      window.removeEventListener('resize', handleScroll)
-    })
+      window.removeEventListener("resize", handleScroll);
+    });
 
     return {
       searchKeyword,
@@ -559,10 +622,10 @@ export default {
       scrollToLetter,
       handleScroll,
       getLetterTitle,
-      getProvinceName
-    }
-  }
-}
+      getProvinceName,
+    };
+  },
+};
 </script>
 
 <style scoped>
@@ -602,14 +665,14 @@ export default {
 }
 
 .search-container h1:after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -8px;
   left: 50%;
   transform: translateX(-50%);
   width: 40px;
   height: 3px;
-  background-color: #409EFF;
+  background-color: #409eff;
   border-radius: 3px;
 }
 
@@ -625,7 +688,7 @@ export default {
 }
 
 .search-input :deep(.el-input__inner):focus {
-  border-color: #409EFF;
+  border-color: #409eff;
   box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
 }
 
@@ -672,12 +735,12 @@ export default {
 }
 
 .letter-item:after {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   width: 2px;
   height: 0;
-  background-color: #409EFF;
+  background-color: #409eff;
   transition: all 0.2s ease;
   border-radius: 2px;
   opacity: 0;
@@ -696,7 +759,7 @@ export default {
 
 .letter-item.special {
   font-weight: 500;
-  color: #409EFF;
+  color: #409eff;
   height: 30px; /* 增大热门选项高度 */
   font-size: 13px; /* 略大字体 */
   padding: 2px 0;
@@ -724,14 +787,14 @@ export default {
 }
 
 .letter-item:hover {
-  color: #409EFF;
+  color: #409eff;
   font-weight: 500;
   background-color: #f5f7fa;
 }
 
 .letter-item.active {
   color: #fff;
-  background-color: #409EFF;
+  background-color: #409eff;
   font-weight: 500;
 }
 
@@ -799,7 +862,7 @@ export default {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: #409EFF;
+  background: #409eff;
   color: #fff;
   display: inline-flex;
   align-items: center;
@@ -859,7 +922,7 @@ export default {
 }
 
 .city-card:hover .city-name {
-  color: #409EFF;
+  color: #409eff;
 }
 
 /* 省份分组 */
@@ -903,7 +966,7 @@ export default {
 }
 
 .city-tag:hover {
-  background: #409EFF;
+  background: #409eff;
   color: #fff;
 }
 
@@ -953,12 +1016,12 @@ export default {
   .cities-content-wrapper {
     flex-direction: column;
   }
-  
+
   .cities-content {
     width: 100%;
     padding: 20px;
   }
-  
+
   .letter-nav {
     position: fixed;
     right: unset;
@@ -975,52 +1038,52 @@ export default {
     overflow-x: auto;
     overflow-y: hidden;
   }
-  
+
   .letter-section {
     flex-direction: row;
     padding: 0;
     margin-left: 10px;
   }
-  
+
   .letter-item {
     width: auto;
     padding: 0 3px;
   }
-  
+
   .letter-item:after {
     left: 0;
     bottom: -2px;
     width: 100%;
     height: 0;
   }
-  
+
   .letter-item:hover:after,
   .letter-item.active:after {
     width: 100%;
     height: 2px;
   }
-  
+
   .letter-item.special {
     margin: 0;
   }
-  
+
   .city-grid {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
-  
+
   .city-card {
     height: 60px;
     padding: 10px;
   }
-  
+
   .city-name {
     font-size: 16px;
   }
-  
+
   .search-container h1 {
     font-size: 22px;
   }
-  
+
   .city-section h2 {
     font-size: 20px;
   }
@@ -1089,7 +1152,7 @@ export default {
 .nav-button:hover {
   background-color: #ecf5ff;
   border-color: #b3d8ff;
-  color: #409EFF;
+  color: #409eff;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
@@ -1123,8 +1186,8 @@ export default {
 :deep(.el-backtop:hover) {
   background-color: #ecf5ff;
   border-color: #b3d8ff;
-  color: #409EFF;
+  color: #409eff;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
-</style> 
+</style>

@@ -96,13 +96,16 @@ export default {
       budget: 'moderate', // 修改为字符串类型以匹配子组件期望
     });
     
-    // 偏好表单数据
+    // 偏好表单数据 - 更新为新的AI-focused结构
     const preferenceForm = reactive({
-      travelStyle: 'balanced',
-      focusAreas: [],
-      intensity: 'medium',
-      dietaryRestrictions: [],
-      customDietaryNotes: '',
+      tripGoals: [], // 行程目标
+      pacePreference: 'balanced', // 行程节奏偏好
+      focusAreas: [], // 重点体验（合并了最想体验和特别体验）
+      socialPreference: 'mixed', // 社交环境偏好
+      photoPreference: 'casual', // 拍照打卡需求
+      dietaryRestrictions: [], // 饮食禁忌
+      customDietaryNotes: '', // 其他饮食禁忌
+      specialRequirements: '', // 特殊需求
     });
     
     // 已选景点和餐厅

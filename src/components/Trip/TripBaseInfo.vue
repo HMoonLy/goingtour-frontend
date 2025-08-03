@@ -1,220 +1,222 @@
 <template>
   <div class="step-content">
-        <el-card class="info-card" shadow="hover">
-          <template #header>
-            <div class="card-header">
-              <el-icon><MapLocation /></el-icon>
-              <span>行程基础信息</span>
-            </div>
-          </template>
+    <el-card class="info-card"
+shadow="hover">
+      <template #header>
+        <div class="card-header">
+          <el-icon><MapLocation /></el-icon>
+          <span>行程基础信息</span>
+        </div>
+      </template>
 
-          <el-form
-            :model="tripForm"
-            :rules="tripRules"
-            ref="tripFormRef"
-            label-position="top"
-          >
-            <el-row :gutter="24">
-              <!-- 目的地选择 -->
-              <el-col :span="12">
-                <el-form-item label="目的地" prop="destination">
-                  <el-input
-                    v-model="tripForm.destinationName"
-                    placeholder="选择你想去的城市"
-                    size="large"
-                    style="width: 100%"
-                     disabled
-                  >
-                  </el-input>
-                  <div class="selected-city-info">
-                    <el-tag type="success">已选择: {{ tripForm.destinationName}}</el-tag>
+      <el-form
+        ref="tripFormRef"
+        :model="tripForm"
+        :rules="tripRules"
+        label-position="top"
+      >
+        <el-row :gutter="24">
+          <!-- 目的地选择 -->
+          <el-col :span="12">
+            <el-form-item label="目的地"
+prop="destination">
+              <el-input
+                v-model="tripForm.destinationName"
+                placeholder="选择你想去的城市"
+                size="large"
+                style="width: 100%"
+                disabled
+              />
+              <div class="selected-city-info">
+                <el-tag type="success">
+                  已选择: {{ tripForm.destinationName }}
+                </el-tag>
+              </div>
+            </el-form-item>
+          </el-col>
+
+          <!-- 出行天数 -->
+          <el-col :span="12">
+            <el-form-item label="出行天数"
+prop="days">
+              <div class="days-input-container">
+                <el-input-number
+                  v-model="tripForm.days"
+                  :min="1"
+                  :max="365"
+                  size="large"
+                  style="width: 100%"
+                  placeholder="根据日期自动计算"
+                  disabled
+                />
+                <!-- 天数描述 -->
+                <div v-if="tripForm.days" class="days-description">
+                  <span class="days-text">{{ getDaysDescription() }}</span>
+                </div>
+                <div class="form-tip">天数将根据您选择的日期范围自动计算</div>
+              </div>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="24">
+          <!-- 出行日期 -->
+          <el-col :span="12">
+            <el-form-item
+              label="出行日期"
+              prop="dateRange"
+              :error="dateRangeError"
+            >
+              <el-date-picker
+                v-model="tripForm.dateRange"
+                type="daterange"
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                size="large"
+                style="width: 100%"
+                format="YYYY年MM月DD日"
+                value-format="YYYY-MM-DD"
+                :disabled-date="disabledDate"
+                :clearable="true"
+                @change="handleDateChange"
+              />
+              <div class="form-tip">
+                <template
+                  v-if="tripForm.dateRange && tripForm.dateRange.length === 2"
+                >
+                  <div class="date-info">
+                    <span class="date-match">
+                      <el-icon><Check /></el-icon>
+                      已选择日期范围：{{ formatDateRange() }}
+                    </span>
                   </div>
-            
-                </el-form-item>
-              </el-col>
+                </template>
+                <template v-else> 请选择您计划出行的日期范围 </template>
+              </div>
+            </el-form-item>
+          </el-col>
 
-              <!-- 出行天数 -->
-              <el-col :span="12">
-                <el-form-item label="出行天数" prop="days">
-                  <div class="days-input-container">
-                      <el-input-number
-                    v-model="tripForm.days"
-                        :min="1"
-                        :max="365"
-                    size="large"
-                      style="width: 100%"
-                      placeholder="根据日期自动计算"
-                      disabled
-                    />
-                    <!-- 天数描述 -->
-                    <div class="days-description" v-if="tripForm.days">
-                      <span class="days-text">{{ getDaysDescription() }}</span>
-                      </div>
-                    <div class="form-tip">
-                      天数将根据您选择的日期范围自动计算
-                      </div>
-                      </div>
-                </el-form-item>
-              </el-col>
-            </el-row>
+          <!-- 出行人数 -->
+          <el-col :span="12">
+            <el-form-item label="出行人数"
+prop="travelers">
+              <el-input-number
+                v-model="tripForm.travelers"
+                :min="1"
+                :max="20"
+                size="large"
+                style="width: 100%"
+              />
+              <div class="form-tip">人数会影响餐厅和住宿推荐</div>
+            </el-form-item>
+          </el-col>
+        </el-row>
 
-            <el-row :gutter="24">
-              <!-- 出行日期 -->
-              <el-col :span="12">
-                <el-form-item label="出行日期" prop="dateRange" :error="dateRangeError">
-                  <el-date-picker
-                    v-model="tripForm.dateRange"
-                    type="daterange"
-                    range-separator="至"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                    size="large"
-                    style="width: 100%"
-                    format="YYYY年MM月DD日"
-                    value-format="YYYY-MM-DD"
-                    :disabled-date="disabledDate"
-                    :clearable="true"
-                    @change="handleDateChange"
-                  />
-                  <div class="form-tip">
-                    <template
-                      v-if="tripForm.dateRange && tripForm.dateRange.length === 2"
-                    >
-                      <div class="date-info">
-                        <span class="date-match">
-                          <el-icon><Check /></el-icon>
-                          已选择日期范围：{{ formatDateRange() }}
-                        </span>
-                      </div>
-                    </template>
-                    <template v-else>
-                      请选择您计划出行的日期范围
-                    </template>
-                  </div>
-                </el-form-item>
-              </el-col>
-
-              <!-- 出行人数 -->
-              <el-col :span="12">
-                <el-form-item label="出行人数" prop="travelers">
-                  <el-input-number
-                    v-model="tripForm.travelers"
-                    :min="1"
-                    :max="20"
-                    size="large"
-                    style="width: 100%"
-                  />
-                  <div class="form-tip">人数会影响餐厅和住宿推荐</div>
-                </el-form-item>
-              </el-col>
-
-            </el-row>
-
-            <el-row>
-              <!-- 预算范围 -->
-              <el-col>
-                <el-form-item label="预算范围（每人每天）" prop="budget">
-                  <div
-                    v-if="userPreferences && userPreferences.budget"
-                    class="preference-hint-banner"
-                  >
-                    <el-icon><Star /></el-icon>
-                    <span
-                      >基于您的偏好设置，推荐预算：¥{{
-                        userPreferences.budget
-                      }}/天</span
-                    >
-                    <el-button
+        <el-row>
+          <!-- 预算范围 -->
+          <el-col>
+            <el-form-item label="预算范围（每人每天）"
+prop="budget">
+              <div
+                v-if="userPreferences && userPreferences.budget"
+                class="preference-hint-banner"
+              >
+                <el-icon><Star /></el-icon>
+                <span
+                  >基于您的偏好设置，推荐预算：¥{{
+                    userPreferences.budget
+                }}/天</span
+                >
+                <el-button
                   type="link"
-                      size="small"
-                      @click="applyRecommendedBudget"
-                    >
-                      应用推荐
-                    </el-button>
-                  </div>
+                  size="small"
+                  @click="applyRecommendedBudget"
+                >
+                  应用推荐
+                </el-button>
+              </div>
 
-                  <div class="budget-selector">
-                    <div
-                      v-for="option in budgetOptions"
-                      :key="option.value"
-                      class="budget-card"
-                      :class="{
-                        selected: tripForm.budget === option.value,
-                        recommended: isRecommendedBudget(option.value),
-                      }"
-                      @click="selectBudget(option.value)"
-                    >
-                      <div class="budget-icon">
-                        <el-icon>
-                          <component :is="option.icon" />
-                        </el-icon>
-                      </div>
-                      <div class="budget-content">
-                        <h4 class="budget-title">
-                          {{ option.title }}
-                          <el-tag
-                            v-if="isRecommendedBudget(option.value)"
-                            size="small"
-                            type="success"
-                          >
-                            推荐
-                          </el-tag>
-                        </h4>
-                        <div class="budget-price">{{ option.price }}</div>
-                        <div class="budget-desc">{{ option.description }}</div>
-                      </div>
-                      <div
-                        class="budget-preview"
-                        v-if="tripForm.days && tripForm.travelers"
+              <div class="budget-selector">
+                <div
+                  v-for="option in budgetOptions"
+                  :key="option.value"
+                  class="budget-card"
+                  :class="{
+                    selected: tripForm.budget === option.value,
+                    recommended: isRecommendedBudget(option.value),
+                  }"
+                  @click="selectBudget(option.value)"
+                >
+                  <div class="budget-icon">
+                    <el-icon>
+                      <component :is="option.icon" />
+                    </el-icon>
+                  </div>
+                  <div class="budget-content">
+                    <h4 class="budget-title">
+                      {{ option.title }}
+                      <el-tag
+                        v-if="isRecommendedBudget(option.value)"
+                        size="small"
+                        type="success"
                       >
-                        <div class="preview-label">预计总花费</div>
-                        <div class="preview-amount">
-                          {{ calculateBudgetPreview(option.value) }}
-                        </div>
-                      </div>
-                      <div
-                        class="budget-check"
-                        v-if="tripForm.budget === option.value"
-                      >
-                        <el-icon><Check /></el-icon>
-                      </div>
+                        推荐
+                      </el-tag>
+                    </h4>
+                    <div class="budget-price">
+                      {{ option.price }}
+                    </div>
+                    <div class="budget-desc">
+                      {{ option.description }}
                     </div>
                   </div>
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </el-form>
-          <div class="form-tip">
-            <template v-if="tripForm.budget">
-              已选择{{ getBudgetText() }}档位
-              <span v-if="tripForm.days && tripForm.travelers">
-                ，{{ tripForm.days }}天{{ tripForm.travelers }}人预计花费{{
-                  getEstimatedCost()
-                }}
-              </span>
-            </template>
-            <template v-else> 预算将影响景点、餐厅和住宿推荐 </template>
-          </div>
-      
+                  <div
+                    v-if="tripForm.days && tripForm.travelers"
+                    class="budget-preview"
+                  >
+                    <div class="preview-label">预计总花费</div>
+                    <div class="preview-amount">
+                      {{ calculateBudgetPreview(option.value) }}
+                    </div>
+                  </div>
+                  <div
+                    v-if="tripForm.budget === option.value"
+                    class="budget-check"
+                  >
+                    <el-icon><Check /></el-icon>
+                  </div>
+                </div>
+              </div>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div class="form-tip">
+        <template v-if="tripForm.budget">
+          已选择{{ getBudgetText() }}档位
+          <span v-if="tripForm.days && tripForm.travelers">
+            ，{{ tripForm.days }}天{{ tripForm.travelers }}人预计花费{{
+              getEstimatedCost()
+            }}
+          </span>
+        </template>
+        <template v-else> 预算将影响景点、餐厅和住宿推荐 </template>
+      </div>
+
       <!-- 下一步按钮 -->
       <div class="next-step-container">
-        <el-button type="primary" size="large" @click="goToNextStep">
+        <el-button type="primary"
+size="large" @click="goToNextStep">
           下一步
           <el-icon><ArrowRight /></el-icon>
         </el-button>
-          </div>
-        </el-card>
       </div>
+    </el-card>
+  </div>
 </template>
 <script>
-import {
-  ref,
-  reactive,
-  computed,
-  watch,
-  nextTick,
-  onMounted
-} from "vue";
+import { ref, reactive, computed, watch, nextTick, onMounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
   MapLocation,
@@ -224,9 +226,8 @@ import {
   Star,
   Money,
   Setting,
-  ArrowRight
+  ArrowRight,
 } from "@element-plus/icons-vue";
-
 
 export default {
   name: "TripBaseInfo",
@@ -238,52 +239,94 @@ export default {
     Star,
     Money,
     Setting,
-    ArrowRight
+    ArrowRight,
   },
   props: {
     // 从父组件接收的行程表单数据
     baseForm: {
       type: Object,
-      required: true
+      required: true,
     },
     // 用户偏好
     userPreferences: {
       type: Object,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
   emits: ["update:baseForm", "next-step", "formValid"],
   setup(props, { emit }) {
     // 使用父组件传递的值初始化本地数据
-    const tripForm = ref({...props.baseForm});
-    
+    const tripForm = ref({ ...props.baseForm });
+
+    // 应用用户偏好默认值
+    const applyUserPreferences = () => {
+      if (props.userPreferences) {
+        // 应用预算偏好
+        if (props.userPreferences.budget && !tripForm.value.budget) {
+          const userBudget = parseInt(props.userPreferences.budget);
+          let budgetType = "moderate"; // 默认中档
+
+          if (userBudget <= 500) {
+            budgetType = "budget";
+          } else if (userBudget > 1000) {
+            budgetType = "luxury";
+          }
+
+          tripForm.value.budget = budgetType;
+          console.log(
+            "✅ 应用用户预算偏好:",
+            userBudget,
+            "-> 档位:",
+            budgetType,
+          );
+        }
+
+        // 应用出行人数偏好（如果用户有家庭偏好）
+        if (
+          props.userPreferences.includeKidsActivities &&
+          !tripForm.value.travelers
+        ) {
+          tripForm.value.travelers = 3; // 家庭出行建议3人
+          console.log("✅ 应用家庭出行人数偏好: 3人");
+        }
+      }
+    };
+
     // 监听tripForm的变化，同步到父组件
-    watch(tripForm, (newVal) => {
-      emit("update:baseForm", newVal);
-    }, { deep: true });
+    watch(
+      tripForm,
+      (newVal) => {
+        emit("update:baseForm", newVal);
+      },
+      { deep: true },
+    );
 
     // 监听props.baseForm的变化，同步到本地
-    watch(() => props.baseForm, (newVal) => {
-      if (JSON.stringify(newVal) !== JSON.stringify(tripForm.value)) {
-        tripForm.value = {...newVal};
-      }
-    }, { deep: true });
+    watch(
+      () => props.baseForm,
+      (newVal) => {
+        if (JSON.stringify(newVal) !== JSON.stringify(tripForm.value)) {
+          tripForm.value = { ...newVal };
+        }
+      },
+      { deep: true },
+    );
 
     const tripFormRef = ref(null);
 
     // 表单验证状态
     const formValid = ref(false);
-    
+
     // 日期范围错误信息
-    const dateRangeError = ref('');
-    
+    const dateRangeError = ref("");
+
     // 验证表单并通知父组件
     const validateForm = () => {
       // 检查并重置日期错误
-      dateRangeError.value = '';
-      
+      dateRangeError.value = "";
+
       if (!tripFormRef.value) return;
-      
+
       tripFormRef.value.validate((valid) => {
         formValid.value = valid;
         emit("formValid", valid);
@@ -291,14 +334,18 @@ export default {
     };
 
     // 监听表单数据变化，验证表单
-    watch(tripForm, () => {
-      validateForm();
-    }, { deep: true });
+    watch(
+      tripForm,
+      () => {
+        validateForm();
+      },
+      { deep: true },
+    );
 
     // 可用城市列表 - 从API获取
     const availableCities = ref([]);
     const loadingCities = ref(false);
-    
+
     // 预算选项配置
     const budgetOptions = [
       {
@@ -326,29 +373,35 @@ export default {
         dailyAmount: 1500,
       },
     ];
-    
+
     // 表单验证规则
     const tripRules = {
-      days: [{ required: true, message: "请选择日期范围以计算天数", trigger: "change" }],
+      days: [
+        {
+          required: true,
+          message: "请选择日期范围以计算天数",
+          trigger: "change",
+        },
+      ],
       dateRange: [
         { required: true, message: "请选择出行日期", trigger: "change" },
-        { 
+        {
           validator: (rule, value, callback) => {
             if (!value || value.length !== 2) {
               callback();
               return;
             }
-            
+
             try {
               const startDate = new Date(value[0]);
               const endDate = new Date(value[1]);
-              
+
               // 检查是否为有效日期
               if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
                 callback(new Error("日期格式不正确"));
                 return;
               }
-              
+
               // 验证开始日期不能早于今天
               const today = new Date();
               today.setHours(0, 0, 0, 0);
@@ -356,22 +409,23 @@ export default {
                 callback(new Error("开始日期不能早于今天"));
                 return;
               }
-              
+
               // 验证日期范围不能超过365天
-              const daysDifference = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+              const daysDifference =
+                Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
               if (daysDifference > 365) {
                 callback(new Error("行程不能超过365天"));
                 return;
               }
-              
+
               callback();
             } catch (error) {
               console.error("日期验证错误:", error);
               callback(new Error("日期验证出错"));
             }
-          }, 
-          trigger: "change" 
-        }
+          },
+          trigger: "change",
+        },
       ],
       travelers: [
         { required: true, message: "请填写出行人数", trigger: "blur" },
@@ -408,26 +462,27 @@ export default {
       if (!newDateRange || newDateRange.length !== 2) {
         return;
       }
-      
+
       try {
         // 输出调试信息
         // console.log("日期字符串格式:", typeof newDateRange[0], newDateRange[0], typeof newDateRange[1], newDateRange[1]);
-        
+
         // 确保是有效的Date对象
         const startDate = new Date(newDateRange[0]);
         const endDate = new Date(newDateRange[1]);
-        
+
         // 检查是否为有效日期
         if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
           console.error("无效的日期对象:", newDateRange);
           ElMessage.error("日期格式不正确");
           return;
         }
-        
+
         // console.log("有效的日期对象:", startDate, endDate);
         // console.log("有效的日期范围:", formatDate(startDate), "至", formatDate(endDate));
-        
-        const actualDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+
+        const actualDays =
+          Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
         // console.log(`计算得出实际天数: ${actualDays}天`);
 
         // 根据日期范围自动设置天数
@@ -444,7 +499,7 @@ export default {
         ElMessage.error("处理日期时出错");
       }
     };
-    
+
     // 格式化日期范围显示
     const formatDateRange = () => {
       if (!tripForm.value.dateRange || tripForm.value.dateRange.length !== 2) {
@@ -453,13 +508,13 @@ export default {
       try {
         const startDate = new Date(tripForm.value.dateRange[0]);
         const endDate = new Date(tripForm.value.dateRange[1]);
-        
+
         // 检查是否为有效日期
         if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
           console.error("无效日期:", tripForm.value.dateRange);
           return "日期格式错误";
         }
-        
+
         return `${formatDate(startDate)} 至 ${formatDate(endDate)}`;
       } catch (error) {
         console.error("日期格式化失败:", error);
@@ -538,10 +593,10 @@ export default {
         comfort: { text: "舒适便利", price: "约1000元/天" },
         luxury: { text: "豪华奢华", price: "约1500元/天" },
       };
-      
+
       const option = budgetMap[tripForm.value.budget];
       if (!option) return "";
-      
+
       return `${option.text}(${option.price})`;
     };
 
@@ -579,7 +634,7 @@ export default {
     const goToNextStep = () => {
       // 验证表单
       if (!tripFormRef.value) return;
-      
+
       tripFormRef.value.validate((valid) => {
         if (valid) {
           emit("next-step");
@@ -591,19 +646,24 @@ export default {
 
     // 组件加载时初始化
     onMounted(async () => {
-      console.log("🚀 TripBaseInfo组件挂载", props.baseForm);    
+      console.log("🚀 TripBaseInfo组件挂载", props.baseForm);
       // 处理从父组件传递的目的地信息
       if (props.baseForm.destination && props.baseForm.destinationName) {
-        console.log(`接收到父组件的目的地信息: ${props.baseForm.destinationName}(${props.baseForm.destination})`);
-        
+        console.log(
+          `接收到父组件的目的地信息: ${props.baseForm.destinationName}(${props.baseForm.destination})`,
+        );
+
         // 确保本地表单数据同步
         tripForm.value.destination = props.baseForm.destination;
         tripForm.value.destinationName = props.baseForm.destinationName;
       }
-      
+
+      // 应用用户偏好默认值
+      applyUserPreferences();
+
       validateForm(); // 初始验证表单
     });
-    
+
     // 格式化单个日期
     const formatDate = (date) => {
       if (!date || isNaN(date.getTime())) return "日期格式错误";
@@ -612,12 +672,12 @@ export default {
       const day = date.getDate();
       return `${year}年${month}月${day}日`;
     };
-    
+
     // 格式化特定日期
     const formatDayDate = (dayIndex) => {
       if (
-        !tripForm.value.dateRange || 
-        tripForm.value.dateRange.length !== 2 || 
+        !tripForm.value.dateRange ||
+        tripForm.value.dateRange.length !== 2 ||
         !tripForm.value.days
       ) {
         return `第${dayIndex + 1}天`;
@@ -626,13 +686,13 @@ export default {
       try {
         const startDate = new Date(tripForm.value.dateRange[0]);
         const currentDate = new Date(startDate);
-        
+
         if (isNaN(startDate.getTime())) {
           return `第${dayIndex + 1}天`;
         }
-        
+
         currentDate.setDate(startDate.getDate() + dayIndex);
-        
+
         const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
         const weekday = weekdays[currentDate.getDay()];
 
@@ -642,7 +702,6 @@ export default {
         return `第${dayIndex + 1}天`;
       }
     };
-    
 
     return {
       tripForm,
@@ -665,9 +724,8 @@ export default {
       goToNextStep,
       formatDayDate,
       dateRangeError,
-   
     };
-  }
+  },
 };
 </script>
 
@@ -685,7 +743,7 @@ export default {
 .card-header {
   display: flex;
   align-items: center;
-    gap: 8px;
+  gap: 8px;
   font-size: 18px;
   font-weight: 600;
   color: #303133;
@@ -711,7 +769,7 @@ export default {
 
 .date-info {
   display: flex;
-    flex-direction: column;
+  flex-direction: column;
   gap: 4px;
 }
 
@@ -928,7 +986,7 @@ export default {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  
+
   .budget-card {
     padding: 16px;
   }
@@ -941,7 +999,7 @@ export default {
     width: 100%;
     justify-content: flex-start;
   }
-  
+
   .quick-days-buttons .el-button-group .el-button {
     flex: 1;
     min-width: 60px;

@@ -1,23 +1,33 @@
 <template>
   <div class="step-content">
-    <div class="city-guide-container">      
+    <div class="city-guide-container">
       <!-- 统一的推荐区域 -->
       <div class="unified-recommendation-section">
         <!-- 切换标签 -->
         <div class="tab-switcher">
-          <div class="tab-item" 
-               :class="{ active: SisShow }"
-               @click="SisShow=true; RisShow=false">
+          <div
+            class="tab-item"
+            :class="{ active: SisShow }"
+            @click="
+              SisShow = true;
+              RisShow = false;
+            "
+          >
             <el-icon><Location /></el-icon>
             <span>{{ cityInfo.destinationName }}推荐景点</span>
-            <el-tag size="small" type="success">高德地图数据</el-tag>
+            <el-tag size="small" type="success"> 高德地图数据 </el-tag>
           </div>
-          <div class="tab-item" 
-               :class="{ active: RisShow }"
-               @click="RisShow=true; SisShow=false">
+          <div
+            class="tab-item"
+            :class="{ active: RisShow }"
+            @click="
+              RisShow = true;
+              SisShow = false;
+            "
+          >
             <el-icon><Food /></el-icon>
             <span>{{ cityInfo.destinationName }}美食推荐</span>
-            <el-tag size="small" type="warning">高德地图数据</el-tag>
+            <el-tag size="small" type="warning"> 高德地图数据 </el-tag>
           </div>
         </div>
 
@@ -26,7 +36,9 @@
           <div class="search-input-group">
             <el-input
               v-model="searchKeyword"
-              :placeholder="SisShow ? '搜索景点名称、类型...' : '搜索餐厅名称、菜系...'"
+              :placeholder="
+                SisShow ? '搜索景点名称、类型...' : '搜索餐厅名称、菜系...'
+              "
               clearable
               @keyup.enter="handleSearch"
               @clear="handleClearSearch"
@@ -35,21 +47,21 @@
                 <el-icon><Search /></el-icon>
               </template>
             </el-input>
-            <el-button 
-              type="primary" 
-              @click="handleSearch"
+            <el-button
+              type="primary"
               :loading="searching"
+              @click="handleSearch"
             >
               <el-icon><Search /></el-icon>
               搜索
             </el-button>
           </div>
           <div class="search-filters">
-            <el-select 
-              v-model="sortBy" 
+            <el-select
+              v-model="sortBy"
               placeholder="排序方式"
               size="small"
-              style="width: 120px;"
+              style="width: 120px"
             >
               <el-option label="默认排序" value="default" />
               <el-option label="评分最高" value="rating" />
@@ -59,22 +71,25 @@
         </div>
 
         <!-- 景点推荐内容 -->
-        <el-card class="recommendation-card" shadow="hover" v-show="SisShow" v-if="SisShow">
+        <div v-show="SisShow" class="recommendation-content" v-if="SisShow">
           <!-- 搜索模式提示 -->
-          <div v-if="isSearchMode && searchResults.length > 0" class="search-mode-tip">
+          <div
+            v-if="isSearchMode && searchResults.length > 0"
+            class="search-mode-tip"
+          >
             <el-alert
-              :title="`搜索'${searchKeyword}'的结果 (${searchResults.filter(item => item.isAttraction).length}个景点)`"
+              :title="`搜索'${searchKeyword}'的结果 (${searchResults.filter((item) => item.isAttraction).length}个景点)`"
               type="info"
               :closable="false"
               show-icon
             />
-            <div style="margin-top: 8px;">
+            <div style="margin-top: 8px">
               <el-button size="small" @click="handleClearSearch">
                 返回推荐
               </el-button>
             </div>
           </div>
-          
+
           <div v-if="loadingAttractions" class="loading-state">
             <el-skeleton :rows="3" animated />
           </div>
@@ -97,7 +112,9 @@
 
           <div v-else class="recommendation-list">
             <div
-              v-for="attraction in (isSearchMode ? searchResults.filter(item => item.isAttraction) : recommendedAttractions)"
+              v-for="attraction in isSearchMode
+                ? searchResults.filter((item) => item.isAttraction)
+                : recommendedAttractions"
               :key="attraction.id"
               class="recommendation-item vertical-layout"
             >
@@ -129,12 +146,12 @@
                   <span class="rating-value">{{ attraction.rating }}</span>
                 </div>
                 <div class="recommendation-tags">
-                  <el-tag size="small" type="success" class="category-tag"
-                    >风景名胜</el-tag
-                  >
-                  <el-tag size="small" class="tag-item">{{
-                    attraction.type
-                  }}</el-tag>
+                  <el-tag size="small" type="success" class="category-tag">
+                    风景名胜
+                  </el-tag>
+                  <el-tag size="small" class="tag-item">
+                    {{ attraction.type }}
+                  </el-tag>
                 </div>
 
                 <!-- 景点标签信息 -->
@@ -206,8 +223,8 @@
           </div>
 
           <div
-            class="view-more-container"
             v-if="recommendedAttractions.length > 0 && !isSearchMode"
+            class="view-more-container"
           >
             <el-button
               type="primary"
@@ -219,25 +236,28 @@
               查看更多景点
             </el-button>
           </div>
-        </el-card>
+        </div>
 
         <!-- 餐厅推荐内容 -->
-        <el-card class="recommendation-card" shadow="hover" v-show="RisShow" v-if="RisShow">
+        <div v-show="RisShow" class="recommendation-content" v-if="RisShow">
           <!-- 搜索模式提示 -->
-          <div v-if="isSearchMode && searchResults.length > 0" class="search-mode-tip">
+          <div
+            v-if="isSearchMode && searchResults.length > 0"
+            class="search-mode-tip"
+          >
             <el-alert
-              :title="`搜索'${searchKeyword}'的结果 (${searchResults.filter(item => !item.isAttraction).length}个餐厅)`"
+              :title="`搜索'${searchKeyword}'的结果 (${searchResults.filter((item) => !item.isAttraction).length}个餐厅)`"
               type="info"
               :closable="false"
               show-icon
             />
-            <div style="margin-top: 8px;">
+            <div style="margin-top: 8px">
               <el-button size="small" @click="handleClearSearch">
                 返回推荐
               </el-button>
             </div>
           </div>
-          
+
           <div v-if="loadingRestaurants" class="loading-state">
             <el-skeleton :rows="3" animated />
           </div>
@@ -263,7 +283,9 @@
 
           <div v-else class="recommendation-list">
             <div
-              v-for="restaurant in (isSearchMode ? searchResults.filter(item => !item.isAttraction) : recommendedRestaurants)"
+              v-for="restaurant in isSearchMode
+                ? searchResults.filter((item) => !item.isAttraction)
+                : recommendedRestaurants"
               :key="restaurant.id"
               class="recommendation-item vertical-layout"
             >
@@ -295,15 +317,15 @@
                   <span class="rating-value">{{ restaurant.rating }}</span>
                 </div>
                 <div class="recommendation-tags">
-                  <el-tag size="small" type="danger" class="price-tag"
-                    >人均￥{{ restaurant.price }}</el-tag
-                  >
-                  <el-tag size="small" type="warning" class="category-tag"
-                    >餐饮服务</el-tag
-                  >
-                  <el-tag size="small" class="tag-item">{{
-                    restaurant.type
-                  }}</el-tag>
+                  <el-tag size="small" type="danger" class="price-tag">
+                    人均￥{{ restaurant.price }}
+                  </el-tag>
+                  <el-tag size="small" type="warning" class="category-tag">
+                    餐饮服务
+                  </el-tag>
+                  <el-tag size="small" class="tag-item">
+                    {{ restaurant.type }}
+                  </el-tag>
                 </div>
 
                 <!-- 招牌菜信息 -->
@@ -375,8 +397,8 @@
           </div>
 
           <div
-            class="view-more-container"
             v-if="recommendedRestaurants.length > 0 && !isSearchMode"
+            class="view-more-container"
           >
             <el-button
               type="primary"
@@ -388,184 +410,359 @@
               查看更多餐厅
             </el-button>
           </div>
-        </el-card>
+        </div>
       </div>
     </div>
 
-    <!-- 个性化偏好设置卡片 -->
-    <el-card class="preferences-card" shadow="hover">
-      <div class="preferences-content">
-        <!-- 简化的个性化问题 -->
-        <div class="personalization-section">
-          <h3>
-            <el-icon><MagicStick /></el-icon>
-            本次行程个性化
-          </h3>
-          <p class="section-desc">
-            基于您的基础偏好的特色，为本次行程做进一步定制
-            <span
-              v-if="userPreferences && selectedPreferenceTags.length > 0"
-              class="preference-hint"
+    <!-- 个性化偏好设置 -->
+    <div class="preferences-section">
+      <el-card class="preferences-card" shadow="hover">
+        <template #header>
+          <div class="preferences-header">
+            <div class="header-left">
+              <div class="header-icon">
+                <el-icon><MagicStick /></el-icon>
+              </div>
+              <div class="header-content">
+                <h2 class="header-title">本次行程个性化</h2>
+                <p class="header-subtitle">
+                  告诉我们您的具体需求，AI将为您量身定制专属行程
+                </p>
+              </div>
+            </div>
+            <div
+              v-if="userPreferences && Object.keys(userPreferences).length > 0"
+              class="smart-hint"
             >
-              （已根据您的{{ selectedPreferenceTags.length }}项偏好智能推荐）
-            </span>
-          </p>
+              <el-icon><Star /></el-icon>
+              <span>已为您智能预填推荐选项</span>
+            </div>
+          </div>
+        </template>
 
-          <el-form :model="localPreferenceForm" class="simple-preferences-form">
-            <!-- 核心偏好 - 卡片式选择 -->
+        <div class="preferences-content">
+          <el-form
+            :model="localPreferenceForm"
+            class="trip-preferences-form"
+            label-position="top"
+          >
+            <!-- 行程目标 -->
             <div class="preference-group">
-              <h4>行程风格</h4>
-              <div class="style-cards">
+              <div class="group-header">
+                <div class="group-icon">
+                  <el-icon><Trophy /></el-icon>
+                </div>
+                <div class="group-info">
+                  <h4 class="group-title">本次行程目标</h4>
+                  <p class="group-desc">
+                    选择这次旅行的主要目的，AI会据此安排最合适的行程节奏和内容
+                  </p>
+                </div>
+              </div>
+              <div class="option-cards">
                 <div
-                  v-for="style in tripStyles"
-                  :key="style.value"
-                  class="style-card"
+                  v-for="goal in tripGoalOptions"
+                  :key="goal.value"
+                  class="option-card"
                   :class="{
-                    active: localPreferenceForm.tripStyle === style.value,
+                    active: localPreferenceForm.tripGoals.includes(goal.value),
                   }"
-                  @click="localPreferenceForm.tripStyle = style.value"
+                  @click="toggleTripGoal(goal.value)"
                 >
-                  <div class="style-icon">{{ style.icon }}</div>
-                  <div class="style-title">{{ style.title }}</div>
-                  <div class="style-desc">{{ style.desc }}</div>
+                  <div class="option-content">
+                    <span class="option-label">{{ goal.label }}</span>
+                  </div>
+                  <div
+                    v-if="localPreferenceForm.tripGoals.includes(goal.value)"
+                    class="option-check"
+                  >
+                    <el-icon><Check /></el-icon>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- 活动强度 -->
+            <!-- 行程节奏偏好 -->
             <div class="preference-group">
-              <h4>
-                活动强度
-                <span v-if="recommendedIntensity" class="recommendation-hint">
-                  （基于您的旅行节奏偏好推荐）
-                </span>
-              </h4>
-              <el-select
-                v-model="localPreferenceForm.intensity"
-                size="large"
-                style="width: 100%; max-width: 300px"
-              >
-                <el-option
-                  v-for="option in intensityOptions"
-                  :key="option.value"
-                  :label="option.label"
-                  :value="option.value"
+              <div class="group-header">
+                <div class="group-icon">
+                  <el-icon><Timer /></el-icon>
+                </div>
+                <div class="group-info">
+                  <h4 class="group-title">行程节奏偏好</h4>
+                  <p class="group-desc">
+                    选择符合您这次旅行的时间安排和体验深度
+                  </p>
+                </div>
+              </div>
+              <div class="pace-cards">
+                <div
+                  v-for="pace in paceOptions"
+                  :key="pace.value"
+                  class="pace-card"
                   :class="{
-                    'recommended-option': option.value === recommendedIntensity,
+                    active: localPreferenceForm.pacePreference === pace.value,
                   }"
+                  @click="localPreferenceForm.pacePreference = pace.value"
                 >
-                  <div class="intensity-option">
-                    <span>
-                      {{ option.label }}
-                      <el-icon
-                        v-if="option.value === recommendedIntensity"
-                        class="recommend-icon"
-                      >
-                        <Star />
-                      </el-icon>
-                    </span>
-                    <small>{{ getIntensityDescription(option.value) }}</small>
+                  <div class="pace-icon">{{ pace.icon }}</div>
+                  <div class="pace-content">
+                    <div class="pace-title">{{ pace.title }}</div>
+                    <div class="pace-desc">{{ pace.desc }}</div>
                   </div>
-                </el-option>
-              </el-select>
-            </div>
-
-            <!-- 体验重点 -->
-            <div class="preference-group">
-              <h4>
-                最想体验
-                <span
-                  v-if="recommendedFocusAreas.length > 0"
-                  class="recommendation-hint"
-                >
-                  （已根据偏好推荐{{ recommendedFocusAreas.length }}项）
-                </span>
-              </h4>
-              <div class="checkbox-grid">
-                <el-checkbox-group v-model="localPreferenceForm.focusAreas">
-                  <el-checkbox
-                    v-for="option in focusAreaOptions"
-                    :key="option.value"
-                    :label="option.value"
-                    :class="{
-                      'recommended-option': isRecommendedFocusArea(
-                        option.value
-                      ),
-                    }"
+                  <div
+                    v-if="localPreferenceForm.pacePreference === pace.value"
+                    class="pace-check"
                   >
-                    {{ option.label }}
-                    <el-icon
-                      v-if="isRecommendedFocusArea(option.value)"
-                      class="recommend-icon"
-                    >
-                      <Star />
-                    </el-icon>
-                  </el-checkbox>
-                </el-checkbox-group>
+                    <el-icon><Check /></el-icon>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- 特别体验 -->
+            <!-- 重点体验 -->
             <div class="preference-group">
-              <h4>特别体验</h4>
-              <div class="checkbox-grid">
-                <el-checkbox-group
-                  v-model="localPreferenceForm.specialExperiences"
+              <div class="group-header">
+                <div class="group-icon">
+                  <el-icon><Star /></el-icon>
+                </div>
+                <div class="group-info">
+                  <h4 class="group-title">重点体验内容</h4>
+                  <p class="group-desc">
+                    选择本次行程最想体验的内容（最多5项）
+                    <span
+                      v-if="recommendedFocusAreas.length > 0"
+                      class="smart-tip"
+                    >
+                      <el-icon><Star /></el-icon>
+                      已为您推荐{{ recommendedFocusAreas.length }}项
+                    </span>
+                  </p>
+                </div>
+              </div>
+              <div class="experience-tags">
+                <div
+                  v-for="option in allExperienceOptions"
+                  :key="option.value"
+                  class="experience-tag"
+                  :class="{
+                    active: localPreferenceForm.focusAreas.includes(
+                      option.value
+                    ),
+                    recommended: isRecommendedFocusArea(option.value),
+                    disabled:
+                      !localPreferenceForm.focusAreas.includes(option.value) &&
+                      localPreferenceForm.focusAreas.length >= 5,
+                  }"
+                  @click="toggleFocusArea(option.value)"
                 >
-                  <el-checkbox value="local_events">当地节庆活动</el-checkbox>
-                  <el-checkbox value="workshops">传统工艺体验</el-checkbox>
-                  <el-checkbox value="performances">文化表演</el-checkbox>
-                  <el-checkbox value="hidden_gems">小众景点</el-checkbox>
-                  <el-checkbox value="night_activities">夜间活动</el-checkbox>
-                </el-checkbox-group>
+                  <span class="tag-label">{{ option.label }}</span>
+                  <el-icon
+                    v-if="isRecommendedFocusArea(option.value)"
+                    class="recommend-star"
+                  >
+                    <Star />
+                  </el-icon>
+                  <el-icon
+                    v-if="localPreferenceForm.focusAreas.includes(option.value)"
+                    class="tag-check"
+                  >
+                    <Check />
+                  </el-icon>
+                </div>
+              </div>
+              <div class="selection-counter">
+                已选择 {{ localPreferenceForm.focusAreas.length }}/5 项
+              </div>
+            </div>
+
+            <!-- 社交环境偏好 -->
+            <div class="preference-group">
+              <div class="group-header">
+                <div class="group-icon">
+                  <el-icon><UserFilled /></el-icon>
+                </div>
+                <div class="group-info">
+                  <h4 class="group-title">社交环境偏好</h4>
+                  <p class="group-desc">选择您更喜欢的旅行环境和氛围</p>
+                </div>
+              </div>
+              <div class="social-cards">
+                <div
+                  class="social-card"
+                  :class="{
+                    active: localPreferenceForm.socialPreference === 'lively',
+                  }"
+                  @click="localPreferenceForm.socialPreference = 'lively'"
+                >
+                  <div class="social-emoji">🎉</div>
+                  <div class="social-content">
+                    <div class="social-title">热闹有趣</div>
+                    <div class="social-desc">人气餐厅、热门景点</div>
+                  </div>
+                </div>
+                <div
+                  class="social-card"
+                  :class="{
+                    active: localPreferenceForm.socialPreference === 'quiet',
+                  }"
+                  @click="localPreferenceForm.socialPreference = 'quiet'"
+                >
+                  <div class="social-emoji">🌸</div>
+                  <div class="social-content">
+                    <div class="social-title">安静私密</div>
+                    <div class="social-desc">小众场所、人少景点</div>
+                  </div>
+                </div>
+                <div
+                  class="social-card"
+                  :class="{
+                    active: localPreferenceForm.socialPreference === 'mixed',
+                  }"
+                  @click="localPreferenceForm.socialPreference = 'mixed'"
+                >
+                  <div class="social-emoji">⚖️</div>
+                  <div class="social-content">
+                    <div class="social-title">灵活搭配</div>
+                    <div class="social-desc">热门与小众结合</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 拍照打卡需求 -->
+            <div class="preference-group">
+              <div class="group-header">
+                <div class="group-icon">
+                  <el-icon><Camera /></el-icon>
+                </div>
+                <div class="group-info">
+                  <h4 class="group-title">拍照打卡需求</h4>
+                  <p class="group-desc">告诉我们您对拍照和分享的重视程度</p>
+                </div>
+              </div>
+              <div class="photo-cards">
+                <div
+                  class="photo-card"
+                  :class="{
+                    active: localPreferenceForm.photoPreference === 'essential',
+                  }"
+                  @click="localPreferenceForm.photoPreference = 'essential'"
+                >
+                  <div class="photo-emoji">📸</div>
+                  <div class="photo-content">
+                    <div class="photo-title">必须有</div>
+                    <div class="photo-desc">网红打卡点优先</div>
+                  </div>
+                </div>
+                <div
+                  class="photo-card"
+                  :class="{
+                    active: localPreferenceForm.photoPreference === 'casual',
+                  }"
+                  @click="localPreferenceForm.photoPreference = 'casual'"
+                >
+                  <div class="photo-emoji">🌅</div>
+                  <div class="photo-content">
+                    <div class="photo-title">随性拍拍</div>
+                    <div class="photo-desc">自然美景即可</div>
+                  </div>
+                </div>
+                <div
+                  class="photo-card"
+                  :class="{
+                    active: localPreferenceForm.photoPreference === 'minimal',
+                  }"
+                  @click="localPreferenceForm.photoPreference = 'minimal'"
+                >
+                  <div class="photo-emoji">👁️</div>
+                  <div class="photo-content">
+                    <div class="photo-title">不太在意</div>
+                    <div class="photo-desc">体验优先</div>
+                  </div>
+                </div>
               </div>
             </div>
 
             <!-- 饮食禁忌 -->
-            <div class="preference-group">
-              <h4>
-                饮食禁忌
-                <span class="preference-hint">（重要）</span>
-              </h4>
-              <div class="checkbox-grid">
-                <el-checkbox-group
-                  v-model="localPreferenceForm.dietaryRestrictions"
+            <div class="preference-group important-group">
+              <div class="group-header">
+                <div class="group-icon important">
+                  <el-icon><KnifeFork /></el-icon>
+                </div>
+                <div class="group-info">
+                  <h4 class="group-title">
+                    饮食禁忌
+                    <el-tag type="danger" size="small">重要</el-tag>
+                  </h4>
+                  <p class="group-desc">
+                    请告知我们您的饮食限制，确保为您推荐合适的餐厅
+                  </p>
+                </div>
+              </div>
+              <div class="dietary-tags">
+                <div
+                  v-for="restriction in dietaryOptions"
+                  :key="restriction.value"
+                  class="dietary-tag"
+                  :class="{
+                    active: localPreferenceForm.dietaryRestrictions.includes(
+                      restriction.value
+                    ),
+                  }"
+                  @click="toggleDietaryRestriction(restriction.value)"
                 >
-                  <el-checkbox value="halal">清真饮食</el-checkbox>
-                  <el-checkbox value="vegetarian">素食</el-checkbox>
-                  <el-checkbox value="vegan">纯素食（全素）</el-checkbox>
-                  <el-checkbox value="no_pork">不吃猪肉</el-checkbox>
-                  <el-checkbox value="no_beef">不吃牛肉</el-checkbox>
-                  <el-checkbox value="no_seafood">不吃海鲜</el-checkbox>
-                  <el-checkbox value="no_spicy">不吃辣</el-checkbox>
-                  <el-checkbox value="gluten_free">无麸质</el-checkbox>
-                </el-checkbox-group>
+                  <span class="dietary-label">{{ restriction.label }}</span>
+                  <el-icon
+                    v-if="
+                      localPreferenceForm.dietaryRestrictions.includes(
+                        restriction.value
+                      )
+                    "
+                    class="dietary-check"
+                  >
+                    <Check />
+                  </el-icon>
+                </div>
               </div>
 
-              <div class="dietary-note">
-                <p>其他饮食禁忌或特殊需求：</p>
+              <div class="custom-dietary">
+                <h5 class="custom-title">
+                  <el-icon><Edit /></el-icon>
+                  其他特殊需求
+                </h5>
                 <el-input
                   v-model="localPreferenceForm.customDietaryNotes"
                   type="textarea"
                   :rows="2"
                   placeholder="请输入其他饮食禁忌或特殊需求，如宗教禁忌、过敏原等"
-                ></el-input>
+                  class="custom-input"
+                />
               </div>
             </div>
 
             <!-- 特殊需求 -->
             <div class="preference-group">
-              <h4>其他特殊需求</h4>
+              <div class="group-header">
+                <div class="group-icon">
+                  <el-icon><Setting /></el-icon>
+                </div>
+                <div class="group-info">
+                  <h4 class="group-title">其他特殊需求</h4>
+                  <p class="group-desc">告诉我们任何需要特别考虑的情况</p>
+                </div>
+              </div>
               <el-input
                 v-model="localPreferenceForm.specialRequirements"
                 type="textarea"
                 :rows="3"
-                placeholder="请输入其他特殊需求，如行动不便、带小孩、带宠物等"
-              ></el-input>
+                placeholder="如：行动不便、带小孩、带宠物、无障碍设施需求等"
+                class="special-input"
+              />
             </div>
           </el-form>
         </div>
-      </div>
+      </el-card>
 
       <!-- 步骤操作按钮 -->
       <div class="step-actions">
@@ -578,7 +775,7 @@
           <el-icon><ArrowRight /></el-icon>
         </el-button>
       </div>
-    </el-card>
+    </div>
   </div>
 </template>
 
@@ -605,6 +802,10 @@ import {
   TurnOff,
   Mouse,
   Search,
+  Trophy,
+  Timer,
+  UserFilled,
+  Camera,
 } from "@element-plus/icons-vue";
 import {
   getRecommendedAttractions,
@@ -631,6 +832,10 @@ export default {
     KnifeFork,
     Mouse,
     Search,
+    Trophy,
+    Timer,
+    UserFilled,
+    Camera,
   },
   props: {
     // 从父组件接收的表单数据
@@ -672,6 +877,174 @@ export default {
     // 使用父组件传递的值初始化本地数据
     const localPreferenceForm = ref({ ...props.preferenceForm });
 
+    // 应用用户偏好默认值 - 更新为新的字段结构
+    const applyUserPreferences = () => {
+      if (props.userPreferences) {
+        console.log("🎯 开始应用用户偏好到个性化设置:", props.userPreferences);
+
+        // 应用行程节奏偏好（基于旅行节奏和MBTI）
+        if (
+          props.userPreferences.travelPace &&
+          !localPreferenceForm.value.pacePreference
+        ) {
+          const pace = parseInt(props.userPreferences.travelPace);
+          let pacePreference = "balanced"; // 默认平衡型
+
+          if (pace <= 2) {
+            pacePreference = "slow"; // 慢节奏
+          } else if (pace >= 4) {
+            pacePreference = "fast"; // 快节奏
+          }
+
+          localPreferenceForm.value.pacePreference = pacePreference;
+          console.log("✅ 应用行程节奏偏好:", pace, "-> 节奏:", pacePreference);
+        }
+
+        // 基于MBTI推荐行程目标
+        if (
+          props.userPreferences.mbtiType &&
+          localPreferenceForm.value.tripGoals.length === 0
+        ) {
+          const mbti = props.userPreferences.mbtiType;
+          const mbtiGoalMapping = {
+            INTJ: ["learning", "solo"],
+            INFP: ["relaxation", "photography"],
+            ENFP: ["friendship", "adventure"],
+            ESFP: ["friendship", "photography"],
+            ISFJ: ["family", "relaxation"],
+            ESTJ: ["business", "learning"],
+            ENTP: ["adventure", "learning"],
+            ISTP: ["solo", "adventure"],
+          };
+
+          const suggestedGoals = mbtiGoalMapping[mbti] || ["relaxation"];
+          localPreferenceForm.value.tripGoals = [...suggestedGoals];
+          console.log(
+            "✅ 基于MBTI推荐行程目标:",
+            mbti,
+            "-> 目标:",
+            suggestedGoals
+          );
+        }
+
+        // 应用重点体验偏好（基于用户标签）
+        if (
+          props.userPreferences.selectedTags &&
+          Array.isArray(props.userPreferences.selectedTags)
+        ) {
+          if (!localPreferenceForm.value.focusAreas) {
+            localPreferenceForm.value.focusAreas = [];
+          }
+
+          // 映射用户标签到新的体验偏好
+          const newTagMapping = {
+            historical: "historical_culture",
+            nature: "natural_scenery",
+            food: "local_cuisine",
+            photography: "photo_spots",
+            culture: "art_culture",
+            relaxation: "leisure_entertainment",
+            adventure: "outdoor_adventure",
+            urban: "urban_lifestyle",
+            shopping: "shopping",
+            nightlife: "nightlife",
+          };
+
+          const mappedExperiences = props.userPreferences.selectedTags
+            .map((tag) => newTagMapping[tag])
+            .filter(
+              (exp) =>
+                exp && !localPreferenceForm.value.focusAreas.includes(exp)
+            );
+
+          localPreferenceForm.value.focusAreas.push(...mappedExperiences);
+          console.log("✅ 应用体验偏好:", mappedExperiences);
+        }
+
+        // 应用社交偏好（基于MBTI外向性）
+        if (
+          props.userPreferences.mbtiType &&
+          !localPreferenceForm.value.socialPreference
+        ) {
+          const mbti = props.userPreferences.mbtiType;
+          const isExtrovert = mbti.startsWith("E");
+          localPreferenceForm.value.socialPreference = isExtrovert
+            ? "lively"
+            : "quiet";
+          console.log(
+            "✅ 基于MBTI应用社交偏好:",
+            mbti,
+            "-> 偏好:",
+            localPreferenceForm.value.socialPreference
+          );
+        }
+
+        // 应用拍照偏好（基于用户标签）
+        if (
+          props.userPreferences.selectedTags &&
+          !localPreferenceForm.value.photoPreference
+        ) {
+          const hasPhotoTags = props.userPreferences.selectedTags.some((tag) =>
+            ["photography", "urban", "modern"].includes(tag)
+          );
+          localPreferenceForm.value.photoPreference = hasPhotoTags
+            ? "essential"
+            : "casual";
+          console.log(
+            "✅ 应用拍照偏好:",
+            hasPhotoTags ? "essential" : "casual"
+          );
+        }
+
+        // 应用饮食禁忌偏好
+        if (
+          props.userPreferences.dietaryRestrictions &&
+          Array.isArray(props.userPreferences.dietaryRestrictions)
+        ) {
+          if (!localPreferenceForm.value.dietaryRestrictions) {
+            localPreferenceForm.value.dietaryRestrictions = [];
+          }
+
+          const restrictionMapping = {
+            halal: "halal",
+            vegetarian: "vegetarian",
+            vegan: "vegan",
+            no_pork: "no_pork",
+            no_beef: "no_beef",
+            no_seafood: "no_seafood",
+            no_spicy: "no_spicy",
+            gluten_free: "gluten_free",
+          };
+
+          const mappedRestrictions = props.userPreferences.dietaryRestrictions
+            .map((restriction) => restrictionMapping[restriction])
+            .filter(
+              (res) =>
+                res &&
+                !localPreferenceForm.value.dietaryRestrictions.includes(res)
+            );
+
+          localPreferenceForm.value.dietaryRestrictions.push(
+            ...mappedRestrictions
+          );
+          console.log("✅ 应用饮食禁忌偏好:", mappedRestrictions);
+        }
+
+        // 应用其他饮食需求
+        if (
+          props.userPreferences.customDietaryNotes &&
+          !localPreferenceForm.value.customDietaryNotes
+        ) {
+          localPreferenceForm.value.customDietaryNotes =
+            props.userPreferences.customDietaryNotes;
+          console.log(
+            "✅ 应用其他饮食需求:",
+            props.userPreferences.customDietaryNotes
+          );
+        }
+      }
+    };
+
     // 监听localPreferenceForm的变化，同步到父组件
     watch(
       localPreferenceForm,
@@ -706,12 +1079,12 @@ export default {
     const loadingAttractions = ref(false);
     const loadingRestaurants = ref(false);
     const apiError = ref(null);
-    const RisShow=ref(false);
-    const SisShow=ref(true)
+    const RisShow = ref(false);
+    const SisShow = ref(true);
 
     // 搜索相关状态
-    const searchKeyword = ref('');
-    const sortBy = ref('default');
+    const searchKeyword = ref("");
+    const sortBy = ref("default");
     const searching = ref(false);
     const searchResults = ref([]);
     const isSearchMode = ref(false);
@@ -769,6 +1142,73 @@ export default {
       { value: "relaxed", label: "轻松休闲" },
       { value: "moderate", label: "适中节奏" },
       { value: "intensive", label: "紧凑高效" },
+    ];
+
+    // 行程目标选项
+    const tripGoalOptions = [
+      { value: "celebration", label: "庆祝节日/生日" },
+      { value: "business", label: "商务出差顺便游玩" },
+      { value: "family", label: "家庭亲子游" },
+      { value: "romantic", label: "情侣蜜月游" },
+      { value: "friendship", label: "朋友聚会游" },
+      { value: "solo", label: "个人独旅" },
+      { value: "learning", label: "学习文化知识" },
+      { value: "relaxation", label: "放松减压" },
+      { value: "adventure", label: "寻求刺激冒险" },
+      { value: "photography", label: "摄影创作" },
+    ];
+
+    // 行程节奏选项
+    const paceOptions = [
+      {
+        value: "slow",
+        title: "慢节奏",
+        desc: "深度体验，充分休息",
+        icon: "🐌",
+      },
+      {
+        value: "balanced",
+        title: "平衡型",
+        desc: "景点与休息并重",
+        icon: "⚖️",
+      },
+      {
+        value: "fast",
+        title: "紧凑型",
+        desc: "多看多玩，充实行程",
+        icon: "⚡",
+      },
+    ];
+
+    // 所有体验选项（合并原来的最想体验和特别体验）
+    const allExperienceOptions = [
+      { value: "historical_culture", label: "历史文化" },
+      { value: "natural_scenery", label: "自然风光" },
+      { value: "local_cuisine", label: "地道美食" },
+      { value: "photo_spots", label: "网红打卡" },
+      { value: "art_culture", label: "文艺体验" },
+      { value: "leisure_entertainment", label: "休闲娱乐" },
+      { value: "outdoor_adventure", label: "户外探险" },
+      { value: "urban_lifestyle", label: "城市风情" },
+      { value: "shopping", label: "购物体验" },
+      { value: "nightlife", label: "夜生活" },
+      { value: "traditional_crafts", label: "传统工艺" },
+      { value: "modern_technology", label: "现代科技" },
+      { value: "religious_sites", label: "宗教文化" },
+      { value: "local_festivals", label: "节庆活动" },
+      { value: "wellness", label: "健康养生" },
+    ];
+
+    // 饮食禁忌选项
+    const dietaryOptions = [
+      { value: "halal", label: "清真饮食" },
+      { value: "vegetarian", label: "素食" },
+      { value: "vegan", label: "纯素食（全素）" },
+      { value: "no_pork", label: "不吃猪肉" },
+      { value: "no_beef", label: "不吃牛肉" },
+      { value: "no_seafood", label: "不吃海鲜" },
+      { value: "no_spicy", label: "不吃辣" },
+      { value: "gluten_free", label: "无麸质" },
     ];
 
     // 完整的标签映射表
@@ -1522,12 +1962,12 @@ export default {
     // 搜索功能
     const handleSearch = async () => {
       if (!searchKeyword.value.trim()) {
-        ElMessage.warning('请输入搜索关键词');
+        ElMessage.warning("请输入搜索关键词");
         return;
       }
 
       if (!cityInfo.value?.destinationName) {
-        ElMessage.warning('请先选择目的地');
+        ElMessage.warning("请先选择目的地");
         return;
       }
 
@@ -1545,20 +1985,20 @@ export default {
 
         // 根据当前标签页自动添加类型过滤
         if (SisShow.value) {
-          searchParams.types = '110000'; // 风景名胜
+          searchParams.types = "110000"; // 风景名胜
         } else if (RisShow.value) {
-          searchParams.types = '050000'; // 餐饮服务
+          searchParams.types = "050000"; // 餐饮服务
         }
 
-        console.log('🔍 开始搜索:', searchParams);
+        console.log("🔍 开始搜索:", searchParams);
         const response = await searchPlaces(searchParams);
 
         if (response && response.pois && response.pois.length > 0) {
-          console.log('✅ 搜索成功，找到', response.pois.length, '个结果');
-          
+          console.log("✅ 搜索成功，找到", response.pois.length, "个结果");
+
           // 处理搜索结果
           const results = response.pois.map((poi) => {
-            const isAttraction = poi.type && poi.type.includes('风景名胜');
+            const isAttraction = poi.type && poi.type.includes("风景名胜");
             return {
               id: poi.id,
               name: poi.name,
@@ -1582,13 +2022,13 @@ export default {
           ElMessage.success(`找到 ${results.length} 个搜索结果`);
         } else {
           searchResults.value = [];
-          ElMessage.info('未找到相关结果，请尝试其他关键词');
+          ElMessage.info("未找到相关结果，请尝试其他关键词");
         }
       } catch (error) {
-        console.error('❌ 搜索失败:', error);
-        apiError.value = '搜索失败，请稍后再试';
+        console.error("❌ 搜索失败:", error);
+        apiError.value = "搜索失败，请稍后再试";
         searchResults.value = [];
-        ElMessage.error('搜索失败，请稍后再试');
+        ElMessage.error("搜索失败，请稍后再试");
       } finally {
         searching.value = false;
       }
@@ -1596,7 +2036,7 @@ export default {
 
     // 清除搜索
     const handleClearSearch = () => {
-      searchKeyword.value = '';
+      searchKeyword.value = "";
       searchResults.value = [];
       isSearchMode.value = false;
       apiError.value = null;
@@ -1605,11 +2045,13 @@ export default {
     // 排序搜索结果
     const sortSearchResults = (results, sortType) => {
       const sorted = [...results];
-      
+
       switch (sortType) {
-        case 'rating':
-          return sorted.sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating));
-        case 'distance':
+        case "rating":
+          return sorted.sort(
+            (a, b) => parseFloat(b.rating) - parseFloat(a.rating)
+          );
+        case "distance":
           return sorted.sort((a, b) => {
             const distA = parseFloat(a.distance) || Infinity;
             const distB = parseFloat(b.distance) || Infinity;
@@ -1746,21 +2188,9 @@ export default {
       { immediate: true }
     );
 
-    // 应用智能推荐
+    // 应用智能推荐 - 更新为新的字段结构
     const applySmartRecommendations = () => {
       console.log("🤖 应用智能推荐...");
-
-      // 只在用户未手动选择时应用推荐
-      if (!localPreferenceForm.value.tripStyle && recommendedTripStyle.value) {
-        localPreferenceForm.value.tripStyle = recommendedTripStyle.value;
-        console.log("🎯 推荐行程风格:", recommendedTripStyle.value);
-      }
-
-      // 推荐活动强度（只在用户未手动选择时）
-      if (!localPreferenceForm.value.intensity && recommendedIntensity.value) {
-        localPreferenceForm.value.intensity = recommendedIntensity.value;
-        console.log("🎯 推荐活动强度:", recommendedIntensity.value);
-      }
 
       // 推荐体验重点（合并而不是覆盖）
       if (recommendedFocusAreas.value.length > 0) {
@@ -1775,9 +2205,46 @@ export default {
       }
     };
 
+    // 切换行程目标选择
+    const toggleTripGoal = (goalValue) => {
+      const goals = localPreferenceForm.value.tripGoals;
+      const index = goals.indexOf(goalValue);
+      if (index > -1) {
+        goals.splice(index, 1);
+      } else {
+        goals.push(goalValue);
+      }
+    };
+
+    // 切换体验重点选择
+    const toggleFocusArea = (areaValue) => {
+      const areas = localPreferenceForm.value.focusAreas;
+      const index = areas.indexOf(areaValue);
+      if (index > -1) {
+        areas.splice(index, 1);
+      } else if (areas.length < 5) {
+        areas.push(areaValue);
+      }
+    };
+
+    // 切换饮食禁忌选择
+    const toggleDietaryRestriction = (restrictionValue) => {
+      const restrictions = localPreferenceForm.value.dietaryRestrictions;
+      const index = restrictions.indexOf(restrictionValue);
+      if (index > -1) {
+        restrictions.splice(index, 1);
+      } else {
+        restrictions.push(restrictionValue);
+      }
+    };
+
     // 组件加载时初始化
     onMounted(() => {
       console.log("🚀 TripPreferences组件挂载");
+
+      // 应用用户偏好默认值
+      applyUserPreferences();
+
       // 如果有目的地，加载相关信息
       if (props.baseForm) {
         console.log("pre 高德");
@@ -1803,6 +2270,10 @@ export default {
       tripStyles,
       focusAreaOptions,
       intensityOptions,
+      tripGoalOptions,
+      paceOptions,
+      allExperienceOptions,
+      dietaryOptions,
       tagMapping,
       selectedPreferenceTags,
       recommendedTripStyle,
@@ -1823,6 +2294,10 @@ export default {
       removeRestaurantFromPlan,
       SisShow,
       RisShow,
+      // 新的切换方法
+      toggleTripGoal,
+      toggleFocusArea,
+      toggleDietaryRestriction,
       // 搜索相关
       searchKeyword,
       sortBy,
@@ -1877,7 +2352,7 @@ export default {
   background: #fff;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ebeef5;
 }
 
 /* 标签切换器样式 */
@@ -1926,7 +2401,7 @@ export default {
 
 /* 添加切换指示器动画 */
 .tab-item.active::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -1px;
   left: 0;
@@ -1968,13 +2443,11 @@ export default {
   margin-bottom: 16px;
 }
 
-/* 推荐卡片样式 */
-.recommendation-card {
-  border-radius: 0;
-  margin-bottom: 0;
-  border: none;
-  box-shadow: none;
-  transition: all 0.3s ease;
+/* 推荐内容样式 */
+.recommendation-content {
+  padding: 20px;
+  background: #fff;
+  border-radius: 0 0 8px 8px;
   animation: slideIn 0.3s ease-out;
 }
 
@@ -2199,20 +2672,100 @@ export default {
   }
 }
 
-/* 偏好卡片样式 */
-.preferences-card {
+/* 偏好区域样式 - 重新设计 */
+.preferences-section {
   margin-bottom: 24px;
-  border-radius: 8px;
+}
+
+.preferences-card {
+  border-radius: 16px;
+  border: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.preferences-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-icon {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #409eff 0%, #67c23a 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+}
+
+.header-content {
+  flex: 1;
+}
+
+.header-title {
+  margin: 0 0 4px 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #303133;
+  background: linear-gradient(135deg, #409eff, #67c23a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header-subtitle {
+  margin: 0;
+  font-size: 15px;
+  color: #606266;
+  line-height: 1.4;
+}
+
+.smart-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%);
+  border: 1px solid #b3e5ff;
+  border-radius: 20px;
+  padding: 8px 16px;
+  color: #1890ff;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.smart-hint .el-icon {
+  color: #faad14;
+}
+
+.preferences-content {
+  padding: 32px;
 }
 
 .preferences-content h3 {
   color: #303133;
-  font-size: 16px;
+  font-size: 18px;
   margin: 0 0 16px 0;
   font-weight: 500;
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.preferences-content h3 .el-icon {
+  color: #409eff;
+  font-size: 20px;
 }
 
 .preferences-header {
@@ -2332,8 +2885,12 @@ export default {
 .section-desc {
   color: #909399;
   font-size: 14px;
-  margin: 0 0 20px 0;
+  margin: 0 0 24px 0;
   line-height: 1.5;
+  background: #f5f7fa;
+  padding: 12px 16px;
+  border-radius: 6px;
+  border-left: 3px solid #409eff;
 }
 
 .preference-hint {
@@ -2348,57 +2905,337 @@ export default {
 }
 
 .preference-group {
-  margin-bottom: 32px;
+  margin-bottom: 40px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid #f0f2f5;
 }
 
-.preference-group h4 {
-  margin: 0 0 16px;
-  font-weight: 500;
-  font-size: 15px;
+.preference-group:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
-/* 行程风格卡片样式 */
-.style-cards {
+.preference-group.important-group {
+  background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+  border: 1px solid #fde2e2;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 40px;
+}
+
+/* 组头部样式 */
+.group-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.group-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #409eff 0%, #36cfc9 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.group-icon.important {
+  background: linear-gradient(135deg, #f56c6c 0%, #ff7875 100%);
+  box-shadow: 0 4px 12px rgba(245, 108, 108, 0.3);
+}
+
+.group-info {
+  flex: 1;
+}
+
+.group-title {
+  margin: 0 0 8px;
+  font-weight: 600;
+  font-size: 18px;
+  color: #303133;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.group-desc {
+  margin: 0;
+  font-size: 14px;
+  color: #606266;
+  line-height: 1.5;
+}
+
+.smart-tip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #fff7e6 0%, #fffbf0 100%);
+  border: 1px solid #ffe7ba;
+  border-radius: 12px;
+  padding: 4px 8px;
+  color: #d46b08;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+/* 选项卡片样式 */
+.option-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.option-card {
+  position: relative;
+  background: #fff;
+  border: 2px solid #e4e7ed;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.option-card:hover {
+  border-color: #409eff;
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.option-card.active {
+  border-color: #409eff;
+  background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+  box-shadow: 0 6px 16px rgba(64, 158, 255, 0.2);
+}
+
+.option-content {
+  text-align: center;
+  flex: 1;
+}
+
+.option-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #303133;
+}
+
+.option-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  background: #67c23a;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+}
+
+/* 节奏卡片样式 */
+.pace-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
 }
 
-.style-card {
+.pace-card {
+  position: relative;
+  background: #fff;
   border: 2px solid #e4e7ed;
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: 12px;
+  padding: 20px;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pace-card:hover {
+  border-color: #409eff;
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.pace-card.active {
+  border-color: #409eff;
+  background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+  box-shadow: 0 6px 16px rgba(64, 158, 255, 0.2);
+}
+
+.pace-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.pace-content {
+  flex: 1;
+}
+
+.pace-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 4px;
+}
+
+.pace-desc {
+  font-size: 13px;
+  color: #909399;
+  line-height: 1.4;
+}
+
+.pace-check {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 20px;
+  height: 20px;
+  background: #67c23a;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+}
+
+/* 体验标签样式 */
+.experience-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.experience-tag {
+  position: relative;
+  background: #fff;
+  border: 2px solid #e4e7ed;
+  border-radius: 20px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+}
+
+.experience-tag:hover:not(.disabled) {
+  border-color: #409eff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.15);
+}
+
+.experience-tag.active {
+  border-color: #409eff;
+  background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+  color: #409eff;
+}
+
+.experience-tag.recommended {
+  border-color: #faad14;
+  background: linear-gradient(135deg, #fff7e6 0%, #ffffff 100%);
+}
+
+.experience-tag.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tag-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.recommend-star {
+  color: #faad14;
+  font-size: 12px;
+}
+
+.tag-check {
+  color: #67c23a;
+  font-size: 14px;
+}
+
+.selection-counter {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #909399;
   text-align: center;
 }
 
-.style-card:hover {
-  transform: translateY(-2px);
-  border-color: #c0c4cc;
+/* 社交和拍照卡片样式 */
+.social-cards,
+.photo-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
 }
 
-.style-card.active {
+.social-card,
+.photo-card {
+  background: #fff;
+  border: 2px solid #e4e7ed;
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.social-card:hover,
+.photo-card:hover {
   border-color: #409eff;
-  background: rgba(64, 158, 255, 0.05);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
+  transform: translateY(-2px);
 }
 
-.style-icon {
+.social-card.active,
+.photo-card.active {
+  border-color: #409eff;
+  background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+}
+
+.social-emoji,
+.photo-emoji {
   font-size: 32px;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
-.style-title {
+.social-content,
+.photo-content {
+  text-align: center;
+}
+
+.social-title,
+.photo-title {
   font-size: 16px;
-  font-weight: 500;
-  margin-bottom: 8px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 6px;
 }
 
-.style-desc {
-  font-size: 12px;
+.social-desc,
+.photo-desc {
+  font-size: 13px;
   color: #909399;
+  line-height: 1.4;
 }
 
+/* 表单组件样式 - 简化设计 */
 .intensity-option {
   display: flex;
   flex-direction: column;
@@ -2419,29 +3256,110 @@ export default {
 }
 
 .checkbox-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 24px;
 }
 
 .checkbox-grid .el-checkbox {
   margin-right: 0;
+  margin-bottom: 0;
+  flex: 0 0 auto;
+  min-width: 120px;
 }
 
-.dietary-note {
-  margin-top: 16px;
+/* 饮食禁忌标签样式 */
+.dietary-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
 }
 
-.dietary-note p {
-  margin: 0 0 8px;
+.dietary-tag {
+  position: relative;
+  background: #fff;
+  border: 2px solid #e4e7ed;
+  border-radius: 20px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+}
+
+.dietary-tag:hover {
+  border-color: #f56c6c;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(245, 108, 108, 0.15);
+}
+
+.dietary-tag.active {
+  border-color: #f56c6c;
+  background: linear-gradient(135deg, #fef0f0 0%, #ffffff 100%);
+  color: #f56c6c;
+}
+
+.dietary-label {
   font-size: 14px;
-  color: #606266;
+  font-weight: 500;
+}
+
+.dietary-check {
+  color: #67c23a;
+  font-size: 14px;
+}
+
+/* 自定义饮食需求 */
+.custom-dietary {
+  background: #fef9e7;
+  border: 1px solid #faecd8;
+  border-radius: 12px;
+  padding: 20px;
+  border-left: 4px solid #e6a23c;
+}
+
+.custom-title {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #d46b08;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.custom-input {
+  border-radius: 8px;
+}
+
+/* 特殊需求输入框 */
+.special-input {
+  border-radius: 8px;
+  border: 2px solid #e4e7ed;
+}
+
+.special-input:focus-within {
+  border-color: #409eff;
 }
 
 @media (max-width: 1200px) {
   .recommendation-list {
     grid-template-columns: repeat(3, 1fr);
     gap: 14px;
+  }
+}
+
+/* 平板端响应式设计 */
+@media (max-width: 1024px) {
+  .style-cards {
+    gap: 12px;
+  }
+
+  .style-card {
+    min-width: 140px;
   }
 }
 
@@ -2474,21 +3392,24 @@ export default {
   }
 
   .style-cards {
-    grid-template-columns: 1fr 1fr;
+    flex-direction: column;
+    gap: 12px;
   }
 
-  .checkbox-grid {
-    grid-template-columns: 1fr 1fr;
+  .style-card {
+    min-width: auto;
   }
 }
 
 @media (max-width: 480px) {
   .style-cards {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    gap: 12px;
   }
 
   .checkbox-grid {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    gap: 12px;
   }
 
   .recommendation-list {

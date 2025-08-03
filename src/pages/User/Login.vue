@@ -27,7 +27,7 @@
               <p>AI驱动的个性化旅行路线推荐</p>
             </div>
           </div>
-          
+
           <div class="feature-item">
             <div class="feature-icon">
               <el-icon size="32" color="#ffffff">
@@ -39,7 +39,7 @@
               <p>基于用户偏好的精准景点匹配</p>
             </div>
           </div>
-          
+
           <div class="feature-item">
             <div class="feature-icon">
               <el-icon size="32" color="#ffffff">
@@ -70,9 +70,9 @@
         </div>
 
         <!-- 登录表单 -->
-        <el-form 
+        <el-form
           ref="loginFormRef"
-          :model="loginForm" 
+          :model="loginForm"
           :rules="loginRules"
           class="login-form"
           size="large"
@@ -86,8 +86,8 @@
               placeholder="请输入手机号"
               clearable
               maxlength="11"
-              @input="handlePhoneInput"
               class="form-input"
+              @input="handlePhoneInput"
             >
               <template #prefix>
                 <el-icon><Phone /></el-icon>
@@ -104,39 +104,41 @@
                 placeholder="请输入验证码"
                 clearable
                 maxlength="6"
-                @input="handleCodeInput"
                 class="form-input"
+                @input="handleCodeInput"
               >
                 <template #prefix>
                   <el-icon><Key /></el-icon>
                 </template>
               </el-input>
-              
+
               <!-- 发送验证码按钮 -->
               <el-button
                 :disabled="!canSendCode || countdown > 0"
                 :loading="sendingCode"
-                @click="sendVerificationCode"
                 class="send-code-btn"
                 type="primary"
                 plain
+                @click="sendVerificationCode"
               >
-                {{ countdown > 0 ? `${countdown}s后重发` : '发送验证码' }}
+                {{ countdown > 0 ? `${countdown}s后重发` : "发送验证码" }}
               </el-button>
             </div>
           </el-form-item>
 
           <!-- 登录按钮 -->
           <el-form-item class="form-item">
-            <el-button 
-              type="primary" 
+            <el-button
+              type="primary"
               :loading="loggingIn"
-              @click="handleLogin"
               class="login-btn"
               size="large"
+              @click="handleLogin"
             >
-              <el-icon v-if="!loggingIn"><User /></el-icon>
-              {{ loggingIn ? '登录中...' : '立即登录' }}
+              <el-icon v-if="!loggingIn">
+                <User />
+              </el-icon>
+              {{ loggingIn ? "登录中..." : "立即登录" }}
             </el-button>
           </el-form-item>
 
@@ -145,25 +147,29 @@
             <el-divider>
               <span class="divider-text">其他登录方式</span>
             </el-divider>
-            
+
             <div class="social-login">
-              <el-button 
-                class="social-btn wechat-btn" 
-                @click="handleWechatLogin"
+              <el-button
+                class="social-btn wechat-btn"
                 size="large"
                 circle
+                @click="handleWechatLogin"
               >
-                <el-icon size="20"><ChatDotRound /></el-icon>
+                <el-icon size="20">
+                  <ChatDotRound />
+                </el-icon>
               </el-button>
-              
-              <el-button 
-                class="social-btn qq-btn" 
-                @click="handleQQLogin"
+
+              <el-button
+                class="social-btn qq-btn"
                 size="large"
                 circle
                 disabled
+                @click="handleQQLogin"
               >
-                <el-icon size="20"><User /></el-icon>
+                <el-icon size="20">
+                  <User />
+                </el-icon>
               </el-button>
             </div>
           </div>
@@ -171,11 +177,11 @@
           <!-- 注册链接 -->
           <div class="register-section">
             <span class="register-text">还没有账号？</span>
-            <el-link 
-              type="primary" 
-              @click="goToRegister"
+            <el-link
+              type="primary"
               :underline="false"
               class="register-link"
+              @click="goToRegister"
             >
               立即注册
             </el-link>
@@ -184,10 +190,11 @@
 
         <!-- 协议条款 -->
         <div class="agreement">
-          <p>登录即表示同意 
-            <el-link type="primary" :underline="false">《用户协议》</el-link> 
-            和 
-            <el-link type="primary" :underline="false">《隐私政策》</el-link>
+          <p>
+            登录即表示同意
+            <el-link type="primary" :underline="false"> 《用户协议》 </el-link>
+            和
+            <el-link type="primary" :underline="false"> 《隐私政策》 </el-link>
           </p>
         </div>
       </div>
@@ -196,182 +203,183 @@
 </template>
 
 <script>
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useUserStore } from '@/store/user'
-import { ElMessage, ElNotification } from 'element-plus'
-import { 
-  MapLocation, 
+import { ref, reactive, computed, onMounted, onUnmounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { useUserStore } from "@/store/user";
+import { ElMessage, ElNotification } from "element-plus";
+import {
+  MapLocation,
   Location,
   DataAnalysis,
   Share,
-  Phone, 
-  Key, 
-  User, 
-  ChatDotRound 
-} from '@element-plus/icons-vue'
+  Phone,
+  Key,
+  User,
+  ChatDotRound,
+} from "@element-plus/icons-vue";
 
 export default {
-  name: 'Login',
+  name: "Login",
   components: {
     MapLocation,
     Location,
     DataAnalysis,
     Share,
-    Phone, 
+    Phone,
     Key,
     User,
-    ChatDotRound
+    ChatDotRound,
   },
   setup() {
-    const router = useRouter()
-    const route = useRoute()
-    const userStore = useUserStore()
+    const router = useRouter();
+    const route = useRoute();
+    const userStore = useUserStore();
 
     // 表单引用
-    const loginFormRef = ref()
+    const loginFormRef = ref();
 
     // 登录表单数据
     const loginForm = reactive({
-      phone: '',
-      code: ''
-    })
+      phone: "",
+      code: "",
+    });
 
     // 状态管理
-    const sendingCode = ref(false)
-    const loggingIn = ref(false)
-    const countdown = ref(0)
-    let countdownTimer = null
+    const sendingCode = ref(false);
+    const loggingIn = ref(false);
+    const countdown = ref(0);
+    let countdownTimer = null;
 
     // 表单验证规则
     const loginRules = {
       phone: [
-        { required: true, message: '请输入手机号', trigger: 'blur' },
-        { 
-          pattern: /^1[3-9]\d{9}$/, 
-          message: '请输入正确的手机号格式', 
-          trigger: 'blur' 
-        }
+        { required: true, message: "请输入手机号", trigger: "blur" },
+        {
+          pattern: /^1[3-9]\d{9}$/,
+          message: "请输入正确的手机号格式",
+          trigger: "blur",
+        },
       ],
       code: [
-        { required: true, message: '请输入验证码', trigger: 'blur' },
-        { 
-          pattern: /^\d{6}$/, 
-          message: '验证码必须是6位数字', 
-          trigger: 'blur' 
-        }
-      ]
-    }
+        { required: true, message: "请输入验证码", trigger: "blur" },
+        {
+          pattern: /^\d{6}$/,
+          message: "验证码必须是6位数字",
+          trigger: "blur",
+        },
+      ],
+    };
 
     // 计算属性
     const canSendCode = computed(() => {
-      return /^1[3-9]\d{9}$/.test(loginForm.phone)
-    })
+      return /^1[3-9]\d{9}$/.test(loginForm.phone);
+    });
 
     // 输入处理
     const handlePhoneInput = (value) => {
-      loginForm.phone = value.replace(/\D/g, '')
-    }
+      loginForm.phone = value.replace(/\D/g, "");
+    };
 
     const handleCodeInput = (value) => {
-      loginForm.code = value.replace(/\D/g, '')
-    }
+      loginForm.code = value.replace(/\D/g, "");
+    };
 
     // 发送验证码
     const sendVerificationCode = async () => {
       if (!canSendCode.value) {
-        ElMessage.warning('请输入正确的手机号')
-        return
+        ElMessage.warning("请输入正确的手机号");
+        return;
       }
 
       try {
-        sendingCode.value = true
-        
-        await userStore.sendVerificationCode(loginForm.phone, 'login')
-        
-        ElMessage.success('验证码已发送，请查看控制台输出')
-        
+        sendingCode.value = true;
+
+        await userStore.sendVerificationCode(loginForm.phone, "login");
+
+        ElMessage.success("验证码已发送，请查看控制台输出");
+
         // 开始倒计时
-        startCountdown(60)
-        
+        startCountdown(60);
       } catch (error) {
-        console.error('发送验证码失败:', error)
-        ElMessage.error(error.message || '验证码发送失败，请重试')
+        console.error("发送验证码失败:", error);
+        ElMessage.error(error.message || "验证码发送失败，请重试");
       } finally {
-        sendingCode.value = false
+        sendingCode.value = false;
       }
-    }
+    };
 
     // 倒计时功能
     const startCountdown = (seconds) => {
-      countdown.value = seconds
+      countdown.value = seconds;
       countdownTimer = setInterval(() => {
-        countdown.value--
+        countdown.value--;
         if (countdown.value <= 0) {
-          clearInterval(countdownTimer)
-          countdownTimer = null
+          clearInterval(countdownTimer);
+          countdownTimer = null;
         }
-      }, 1000)
-    }
+      }, 1000);
+    };
 
     // 登录处理
     const handleLogin = async () => {
-      if (!loginFormRef.value) return
+      if (!loginFormRef.value) return;
 
       try {
-        await loginFormRef.value.validate()
-        
-        loggingIn.value = true
+        await loginFormRef.value.validate();
 
-        const user = await userStore.login(loginForm.phone, loginForm.code)
+        loggingIn.value = true;
+
+        const user = await userStore.login(loginForm.phone, loginForm.code);
 
         ElNotification({
-          title: '登录成功',
-          message: `欢迎回来，${user.nickname || '用户'}！`,
-          type: 'success',
-          duration: 3000
-        })
+          title: "登录成功",
+          message: `欢迎回来，${user.nickname || "用户"}！`,
+          type: "success",
+          duration: 3000,
+        });
 
-        const redirectPath = userStore.getAndClearRedirectPath() || route.query.redirect || '/personal'
-        
-        await router.push(redirectPath)
+        const redirectPath =
+          userStore.getAndClearRedirectPath() ||
+          route.query.redirect ||
+          "/personal";
 
+        await router.push(redirectPath);
       } catch (error) {
-        console.error('登录失败:', error)
-        ElMessage.error(error.message || '登录失败，请检查手机号和验证码')
+        console.error("登录失败:", error);
+        ElMessage.error(error.message || "登录失败，请检查手机号和验证码");
       } finally {
-        loggingIn.value = false
+        loggingIn.value = false;
       }
-    }
+    };
 
     // 微信登录
     const handleWechatLogin = () => {
-      ElMessage.info('微信登录功能开发中，敬请期待！')
-    }
+      ElMessage.info("微信登录功能开发中，敬请期待！");
+    };
 
     // QQ登录
     const handleQQLogin = () => {
-      ElMessage.info('QQ登录功能开发中，敬请期待！')
-    }
+      ElMessage.info("QQ登录功能开发中，敬请期待！");
+    };
 
     // 跳转注册
     const goToRegister = () => {
-      router.push('/register')
-    }
+      router.push("/register");
+    };
 
     // 组件挂载
     onMounted(() => {
       if (userStore.isLoggedIn) {
-        router.push('/personal')
+        router.push("/personal");
       }
-    })
+    });
 
     // 组件卸载
     onUnmounted(() => {
       if (countdownTimer) {
-        clearInterval(countdownTimer)
+        clearInterval(countdownTimer);
       }
-    })
+    });
 
     return {
       loginFormRef,
@@ -387,10 +395,10 @@ export default {
       handleLogin,
       handleWechatLogin,
       handleQQLogin,
-      goToRegister
-    }
-  }
-}
+      goToRegister,
+    };
+  },
+};
 </script>
 
 <style scoped>
@@ -443,8 +451,13 @@ export default {
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .brand-title {
@@ -560,17 +573,17 @@ export default {
 .form-input :deep(.el-input__wrapper) {
   border-radius: 8px;
   padding: 0 16px;
-  border: 1px solid #DCDFE6;
+  border: 1px solid #dcdfe6;
   transition: all 0.3s ease;
   height: 48px;
 }
 
 .form-input :deep(.el-input__wrapper:hover) {
-  border-color: #C0C4CC;
+  border-color: #c0c4cc;
 }
 
 .form-input :deep(.el-input.is-focus .el-input__wrapper) {
-  border-color: #409EFF;
+  border-color: #409eff;
   box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
 }
 
@@ -637,19 +650,19 @@ export default {
 }
 
 .wechat-btn {
-  background: #07C160;
-  border-color: #07C160;
+  background: #07c160;
+  border-color: #07c160;
   color: white;
 }
 
 .wechat-btn:hover {
-  background: #06AD56;
-  border-color: #06AD56;
+  background: #06ad56;
+  border-color: #06ad56;
 }
 
 .qq-btn {
-  background: #12B7F5;
-  border-color: #12B7F5;
+  background: #12b7f5;
+  border-color: #12b7f5;
   color: white;
 }
 
@@ -673,13 +686,13 @@ export default {
   text-align: center;
   margin-top: 28px;
   padding-top: 20px;
-  border-top: 1px solid #EBEEF5;
+  border-top: 1px solid #ebeef5;
 }
 
 .agreement p {
   font-size: 12px;
-  color: #C0C4CC;
+  color: #c0c4cc;
   margin: 0;
   line-height: 1.5;
 }
-</style> 
+</style>

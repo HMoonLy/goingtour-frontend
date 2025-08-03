@@ -1,7 +1,7 @@
 <script>
 export default {
-  name: 'App'
-}
+  name: "App",
+};
 </script>
 
 <template>
@@ -19,7 +19,8 @@ export default {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   width: 100%;
   margin: 0;
@@ -31,7 +32,6 @@ html, body {
   min-height: 100vh;
   width: 100%;
 }
-
 
 /* 滚动条样式 */
 ::-webkit-scrollbar {

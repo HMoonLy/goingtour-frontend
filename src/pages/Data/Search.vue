@@ -6,7 +6,8 @@
     </div>
 
     <div class="coming-soon-card">
-      <el-icon size="64" color="#409EFF">
+      <el-icon size="64"
+color="#409EFF">
         <Search />
       </el-icon>
       <h3>搜索功能开发中</h3>
@@ -24,14 +25,14 @@
 </template>
 
 <script>
-import { Search } from '@element-plus/icons-vue'
+import { Search } from "@element-plus/icons-vue";
 
 export default {
-  name: 'Search',
+  name: "Search",
   components: {
-    Search
-  }
-}
+    Search,
+  },
+};
 </script>
 
 <style scoped>
@@ -93,7 +94,7 @@ export default {
 }
 
 .stay-tuned {
-  color: #409EFF;
+  color: #409eff;
   font-weight: 500;
   font-size: 16px;
 }
@@ -102,13 +103,13 @@ export default {
   .search-page {
     padding: 16px;
   }
-  
+
   .page-header h1 {
     font-size: 24px;
   }
-  
+
   .coming-soon-card {
     padding: 32px 20px;
   }
 }
-</style> 
+</style>

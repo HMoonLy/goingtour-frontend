@@ -6,7 +6,8 @@
     </div>
 
     <div class="coming-soon-card">
-      <el-icon size="64" color="#409EFF">
+      <el-icon size="64"
+color="#409EFF">
         <Camera />
       </el-icon>
       <h3>景点详情功能开发中</h3>
@@ -24,14 +25,14 @@
 </template>
 
 <script>
-import { Camera } from '@element-plus/icons-vue'
+import { Camera } from "@element-plus/icons-vue";
 
 export default {
-  name: 'AttractionDetail',
+  name: "AttractionDetail",
   components: {
-    Camera
-  }
-}
+    Camera,
+  },
+};
 </script>
 
 <style scoped>
@@ -93,7 +94,7 @@ export default {
 }
 
 .stay-tuned {
-  color: #409EFF;
+  color: #409eff;
   font-weight: 500;
   font-size: 16px;
 }
@@ -102,13 +103,13 @@ export default {
   .attraction-detail-page {
     padding: 16px;
   }
-  
+
   .page-header h1 {
     font-size: 24px;
   }
-  
+
   .coming-soon-card {
     padding: 32px 20px;
   }
 }
-</style> 
+</style>
