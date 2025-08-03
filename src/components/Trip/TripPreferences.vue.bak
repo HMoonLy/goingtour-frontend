@@ -1,90 +1,28 @@
 <template>
   <div class="step-content">
-    <div class="city-guide-container">      
-      <!-- 统一的推荐区域 -->
-      <div class="unified-recommendation-section">
-        <!-- 切换标签 -->
-        <div class="tab-switcher">
-          <div class="tab-item" 
-               :class="{ active: SisShow }"
-               @click="SisShow=true; RisShow=false">
-            <el-icon><Location /></el-icon>
-            <span>{{ cityInfo.destinationName }}推荐景点</span>
-            <el-tag size="small" type="success">高德地图数据</el-tag>
-          </div>
-          <div class="tab-item" 
-               :class="{ active: RisShow }"
-               @click="RisShow=true; SisShow=false">
-            <el-icon><Food /></el-icon>
-            <span>{{ cityInfo.destinationName }}美食推荐</span>
-            <el-tag size="small" type="warning">高德地图数据</el-tag>
-          </div>
-        </div>
-
-        <!-- 搜索功能 -->
-        <div class="search-section">
-          <div class="search-input-group">
-            <el-input
-              v-model="searchKeyword"
-              :placeholder="SisShow ? '搜索景点名称、类型...' : '搜索餐厅名称、菜系...'"
-              clearable
-              @keyup.enter="handleSearch"
-              @clear="handleClearSearch"
-            >
-              <template #prefix>
-                <el-icon><Search /></el-icon>
-              </template>
-            </el-input>
-            <el-button 
-              type="primary" 
-              @click="handleSearch"
-              :loading="searching"
-            >
-              <el-icon><Search /></el-icon>
-              搜索
-            </el-button>
-          </div>
-          <div class="search-filters">
-            <el-select 
-              v-model="searchType" 
-              placeholder="搜索类型"
-              size="small"
-              style="width: 120px;"
-            >
-              <el-option label="全部" value="all" />
-              <el-option label="景点" value="attraction" />
-              <el-option label="餐厅" value="restaurant" />
-            </el-select>
-            <el-select 
-              v-model="sortBy" 
-              placeholder="排序方式"
-              size="small"
-              style="width: 120px;"
-            >
-              <el-option label="默认排序" value="default" />
-              <el-option label="评分最高" value="rating" />
-              <el-option label="距离最近" value="distance" />
-            </el-select>
-          </div>
-        </div>
-
-        <!-- 景点推荐内容 -->
-        <el-card class="recommendation-card" shadow="hover" v-show="SisShow" v-if="SisShow">
-          <!-- 搜索模式提示 -->
-          <div v-if="isSearchMode && searchResults.length > 0" class="search-mode-tip">
-            <el-alert
-              :title="`搜索'${searchKeyword}'的结果 (${searchResults.filter(item => item.isAttraction).length}个景点)`"
-              type="info"
-              :closable="false"
-              show-icon
-            />
-            <div style="margin-top: 8px;">
-              <el-button size="small" @click="handleClearSearch">
-                返回推荐
-              </el-button>
+    <div class="city-guide-container">
+      <el-menu
+        :default-active="activeIndex"
+        class="el-menu-demo"
+        mode="horizontal"
+        @select="handleSelect"
+      >
+       <el-menu-item index="1">目的地推荐景点</el-menu-item>
+        <el-menu-item index="2">目的地推荐餐馆</el-menu-item>
+      </el-menu>
+      <div class="guide-section">
+        <!-- 景点推荐卡片 -->
+        <el-card class="recommendation-card" shadow="hover">
+          <template #header>
+            <div class="recommendation-header">
+              <h3>
+                <el-icon><Location /></el-icon>
+                {{ cityInfo?.name || "目的地" }}推荐景点
+              </h3>
+              <el-tag size="small" type="success">高德地图数据</el-tag>
             </div>
-          </div>
-          
+          </template>
+
           <div v-if="loadingAttractions" class="loading-state">
             <el-skeleton :rows="3" animated />
           </div>
@@ -107,7 +45,7 @@
 
           <div v-else class="recommendation-list">
             <div
-              v-for="attraction in (isSearchMode ? searchResults.filter(item => item.isAttraction) : recommendedAttractions)"
+              v-for="attraction in recommendedAttractions"
               :key="attraction.id"
               class="recommendation-item vertical-layout"
             >
@@ -217,7 +155,7 @@
 
           <div
             class="view-more-container"
-            v-if="recommendedAttractions.length > 0 && !isSearchMode"
+            v-if="recommendedAttractions.length > 0"
           >
             <el-button
               type="primary"
@@ -230,24 +168,21 @@
             </el-button>
           </div>
         </el-card>
+      </div>
 
-        <!-- 餐厅推荐内容 -->
-        <el-card class="recommendation-card" shadow="hover" v-show="RisShow" v-if="RisShow">
-          <!-- 搜索模式提示 -->
-          <div v-if="isSearchMode && searchResults.length > 0" class="search-mode-tip">
-            <el-alert
-              :title="`搜索'${searchKeyword}'的结果 (${searchResults.filter(item => !item.isAttraction).length}个餐厅)`"
-              type="info"
-              :closable="false"
-              show-icon
-            />
-            <div style="margin-top: 8px;">
-              <el-button size="small" @click="handleClearSearch">
-                返回推荐
-              </el-button>
+      <div class="guide-section">
+        <!-- 餐厅推荐卡片 -->
+        <el-card class="recommendation-card" shadow="hover">
+          <template #header>
+            <div class="recommendation-header">
+              <h3>
+                <el-icon><Food /></el-icon>
+                {{ cityInfo?.name || "目的地" }}美食推荐
+              </h3>
+              <el-tag size="small" type="warning">高德地图数据</el-tag>
             </div>
-          </div>
-          
+          </template>
+
           <div v-if="loadingRestaurants" class="loading-state">
             <el-skeleton :rows="3" animated />
           </div>
@@ -273,7 +208,7 @@
 
           <div v-else class="recommendation-list">
             <div
-              v-for="restaurant in (isSearchMode ? searchResults.filter(item => !item.isAttraction) : recommendedRestaurants)"
+              v-for="restaurant in recommendedRestaurants"
               :key="restaurant.id"
               class="recommendation-item vertical-layout"
             >
@@ -305,9 +240,9 @@
                   <span class="rating-value">{{ restaurant.rating }}</span>
                 </div>
                 <div class="recommendation-tags">
-                  <el-tag size="small" type="danger" class="price-tag"
-                    >人均￥{{ restaurant.price }}</el-tag
-                  >
+                  <el-tag size="small" type="danger" class="price-tag">{{
+                    restaurant.price || "¥¥"
+                  }}</el-tag>
                   <el-tag size="small" type="warning" class="category-tag"
                     >餐饮服务</el-tag
                   >
@@ -386,7 +321,7 @@
 
           <div
             class="view-more-container"
-            v-if="recommendedRestaurants.length > 0 && !isSearchMode"
+            v-if="recommendedRestaurants.length > 0"
           >
             <el-button
               type="primary"
@@ -612,15 +547,12 @@ import {
   ArrowRight,
   Calendar,
   KnifeFork,
-  TurnOff,
-  Mouse,
-  Search,
 } from "@element-plus/icons-vue";
 import {
   getRecommendedAttractions,
   getRecommendedRestaurants,
-  searchPlaces,
 } from "@/api/amap.js";
+import baseForm from "../../pages/Trip/TripCreate.vue";
 export default {
   name: "TripPreferences",
   components: {
@@ -639,8 +571,6 @@ export default {
     ArrowRight,
     Calendar,
     KnifeFork,
-    Mouse,
-    Search,
   },
   props: {
     // 从父组件接收的表单数据
@@ -704,8 +634,6 @@ export default {
       { deep: true }
     );
 
-    //人均提示词
-    const priceNull = ref("暂无价格参考");
     // 城市信息相关状态
     const cityInfo = ref(null);
     const loadingCityInfo = ref(false);
@@ -716,22 +644,12 @@ export default {
     const loadingAttractions = ref(false);
     const loadingRestaurants = ref(false);
     const apiError = ref(null);
-    const RisShow=ref(false);
-    const SisShow=ref(true)
-
-    // 搜索相关状态
-    const searchKeyword = ref('');
-    const searchType = ref('all');
-    const sortBy = ref('default');
-    const searching = ref(false);
-    const searchResults = ref([]);
-    const isSearchMode = ref(false);
 
     // 分页状态
     const attractionsPage = ref(1);
     const restaurantsPage = ref(1);
-    const attractionsPageSize = 8;
-    const restaurantsPageSize = 8;
+    const attractionsPageSize = 6;
+    const restaurantsPageSize = 6;
     const loadingMoreAttractions = ref(false);
     const loadingMoreRestaurants = ref(false);
     const noMoreAttractions = ref(false);
@@ -1083,7 +1001,7 @@ export default {
         loadingCityInfo.value = true;
         apiError.value = null;
         console.log("🔍 开始加载城市信息和推荐:", city);
-        cityInfo.value = city;
+        console.log(city.destinationName);
 
         // 2. 获取推荐景点 - 使用城市名称而不是cityCode
         loadingAttractions.value = true;
@@ -1096,6 +1014,12 @@ export default {
 
         try {
           console.log("🔄 调用高德API获取景点数据...");
+          console.log("请求参数:", {
+            city: city.destinationName,
+            page: attractionsPage.value,
+            pageSize: attractionsPageSize,
+          });
+
           const attractionsResponse = await getRecommendedAttractions(
             cityName,
             attractionsPage.value,
@@ -1161,6 +1085,12 @@ export default {
 
         try {
           console.log("🔄 调用高德API获取餐厅数据...");
+          console.log("请求参数:", {
+            city: cityName,
+            page: restaurantsPage.value,
+            pageSize: restaurantsPageSize,
+          });
+
           const restaurantsResponse = await getRecommendedRestaurants(
             cityName,
             restaurantsPage.value,
@@ -1463,6 +1393,36 @@ export default {
       return dishes;
     };
 
+    // 城市信息数据库
+    const cityInfoDatabase = {
+      beijing: {
+        name: "北京",
+        description: "千年古都，文化底蕴深厚",
+        highlights: ["故宫", "长城", "天坛", "颐和园", "胡同文化"],
+        specialties: ["北京烤鸭", "炸酱面", "豆汁", "驴打滚"],
+        bestSeasons: ["春季(3-5月)", "秋季(9-11月)"],
+        transportation: ["地铁发达", "公交便利", "共享单车"],
+        culturalFeatures: ["皇家建筑", "传统文化", "现代都市"],
+        foodScene: ["老字号餐厅", "胡同小吃", "高端餐厅"],
+        nightlife: ["三里屯", "后海", "王府井"],
+        shopping: ["王府井", "西单", "前门大街"],
+        tips: ["春秋最佳旅游季节", "故宫需要提前预约", "地铁出行最便利"],
+      },
+      shanghai: {
+        name: "上海",
+        description: "国际化大都市，东西文化交汇",
+        highlights: ["外滩", "东方明珠", "豫园", "田子坊", "新天地"],
+        specialties: ["小笼包", "生煎包", "白切鸡", "红烧肉"],
+        bestSeasons: ["春季(3-5月)", "秋季(9-11月)"],
+        transportation: ["地铁网络完善", "磁悬浮列车", "黄浦江轮渡"],
+        culturalFeatures: ["海派文化", "国际化氛围", "历史租界"],
+        foodScene: ["本帮菜", "国际美食", "网红餐厅"],
+        nightlife: ["新天地", "外滩", "衡山路"],
+        shopping: ["南京路", "淮海路", "人民广场"],
+        tips: ["避开梅雨季节", "外滩夜景最美", "地铁是最佳交通方式"],
+      },
+    };
+
     // 加载更多景点数据
     const loadMoreAttractions = async () => {
       try {
@@ -1530,115 +1490,18 @@ export default {
       }
     };
 
-    // 搜索功能
-    const handleSearch = async () => {
-      if (!searchKeyword.value.trim()) {
-        ElMessage.warning('请输入搜索关键词');
-        return;
-      }
-
-      if (!cityInfo.value?.destinationName) {
-        ElMessage.warning('请先选择目的地');
-        return;
-      }
-
-      try {
-        searching.value = true;
-        isSearchMode.value = true;
-        apiError.value = null;
-
-        const searchParams = {
-          keywords: searchKeyword.value.trim(),
-          city: cityInfo.value.destinationName,
-          offset: 20, // 搜索时返回更多结果
-          page: 1,
-        };
-
-        // 根据搜索类型添加类型过滤
-        if (searchType.value === 'attraction') {
-          searchParams.types = '110000'; // 风景名胜
-        } else if (searchType.value === 'restaurant') {
-          searchParams.types = '050000'; // 餐饮服务
-        }
-
-        console.log('🔍 开始搜索:', searchParams);
-        const response = await searchPlaces(searchParams);
-
-        if (response && response.pois && response.pois.length > 0) {
-          console.log('✅ 搜索成功，找到', response.pois.length, '个结果');
-          
-          // 处理搜索结果
-          const results = response.pois.map((poi) => {
-            const isAttraction = poi.type && poi.type.includes('风景名胜');
-            return {
-              id: poi.id,
-              name: poi.name,
-              address: poi.address,
-              rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
-              photos: poi.photos || [],
-              type: poi.type.split(";")[0] || (isAttraction ? "景点" : "餐厅"),
-              price: (poi.biz_ext && poi.biz_ext.cost) || "¥¥",
-              distance: poi.distance || null,
-              tags: extractTags(poi),
-              tag: poi.tag,
-              matchScore: 0,
-              isAttraction: isAttraction,
-            };
-          });
-
-          // 根据排序方式排序
-          const sortedResults = sortSearchResults(results, sortBy.value);
-          searchResults.value = sortedResults;
-
-          ElMessage.success(`找到 ${results.length} 个搜索结果`);
-        } else {
-          searchResults.value = [];
-          ElMessage.info('未找到相关结果，请尝试其他关键词');
-        }
-      } catch (error) {
-        console.error('❌ 搜索失败:', error);
-        apiError.value = '搜索失败，请稍后再试';
-        searchResults.value = [];
-        ElMessage.error('搜索失败，请稍后再试');
-      } finally {
-        searching.value = false;
-      }
-    };
-
-    // 清除搜索
-    const handleClearSearch = () => {
-      searchKeyword.value = '';
-      searchResults.value = [];
-      isSearchMode.value = false;
-      apiError.value = null;
-    };
-
-    // 排序搜索结果
-    const sortSearchResults = (results, sortType) => {
-      const sorted = [...results];
-      
-      switch (sortType) {
-        case 'rating':
-          return sorted.sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating));
-        case 'distance':
-          return sorted.sort((a, b) => {
-            const distA = parseFloat(a.distance) || Infinity;
-            const distB = parseFloat(b.distance) || Infinity;
-            return distA - distB;
-          });
-        default:
-          return sorted;
-      }
-    };
-
     // 加载更多餐厅数据
     const loadMoreRestaurants = async () => {
       try {
         loadingMoreRestaurants.value = true;
 
         // 使用城市名称而不是cityCode
-        const cityName = props.baseForm.destinationName;
-        console.log("加载更餐厅，城市名称:", cityName);
+        const cityName =
+          cityInfo.value?.name ||
+          getSelectedCityName() ||
+          props.baseForm.destinationCity;
+        console.log("加载更多餐厅，城市名称:", cityName);
+
         // 增加页码并调用API
         restaurantsPage.value += 1;
 
@@ -1832,17 +1695,6 @@ export default {
       isRestaurantSelected,
       addRestaurantToPlan,
       removeRestaurantFromPlan,
-      SisShow,
-      RisShow,
-      // 搜索相关
-      searchKeyword,
-      searchType,
-      sortBy,
-      searching,
-      searchResults,
-      isSearchMode,
-      handleSearch,
-      handleClearSearch,
     };
   },
 };
@@ -1851,157 +1703,28 @@ export default {
 <style scoped>
 /* 城市推荐布局 */
 .city-guide-container {
+  display: flex;
+  gap: 20px;
   margin-bottom: 24px;
-  position: relative;
 }
 
-.guide-tip {
-  position: absolute;
-  top: -30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(64, 158, 255, 0.1);
-  border: 1px solid rgba(64, 158, 255, 0.2);
-  border-radius: 16px;
-  padding: 6px 12px;
-  font-size: 12px;
-  color: #409eff;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  z-index: 10;
-  animation: fadeIn 0.5s ease-in;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-}
-
-/* 统一推荐区域样式 */
-.unified-recommendation-section {
-  background: #fff;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* 标签切换器样式 */
-.tab-switcher {
-  display: flex;
-  background: #f8f9fa;
-  border-bottom: 1px solid #e4e7ed;
-}
-
-.tab-item {
+.guide-section {
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 16px 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border-bottom: 3px solid transparent;
-  position: relative;
-}
-
-.tab-item:hover {
-  background: #e3f2fd;
-}
-
-.tab-item.active {
-  background: #fff;
-  border-bottom-color: #409eff;
-  color: #409eff;
-  font-weight: 500;
-}
-
-.tab-item .el-icon {
-  font-size: 16px;
-}
-
-.tab-item span {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.tab-item .el-tag {
-  margin-left: auto;
-}
-
-/* 添加切换指示器动画 */
-.tab-item.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: #409eff;
-  animation: slideIn 0.3s ease-out;
-}
-
-/* 优化标签内容布局 */
-.tab-item {
-  min-height: 60px;
-}
-
-/* 搜索区域样式 */
-.search-section {
-  padding: 16px 20px;
-  background: #f8f9fa;
-  border-bottom: 1px solid #e4e7ed;
-}
-
-.search-input-group {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.search-input-group .el-input {
-  flex: 1;
-}
-
-.search-filters {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.search-mode-tip {
-  margin-bottom: 16px;
+  min-width: 0;
 }
 
 /* 推荐卡片样式 */
 .recommendation-card {
-  border-radius: 0;
-  margin-bottom: 0;
-  border: none;
-  box-shadow: none;
-  transition: all 0.3s ease;
-  animation: slideIn 0.3s ease-out;
+  height: 100%;
+  border-radius: 8px;
+  margin-bottom: 16px;
 }
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.recommendation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-
-/* 移除原来的header样式，因为现在使用tab-switcher */
 
 .recommendation-header h3 {
   font-size: 16px;
@@ -2021,9 +1744,9 @@ export default {
 
 .recommendation-list {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-top: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .recommendation-item {
@@ -2450,39 +2173,13 @@ export default {
   color: #606266;
 }
 
-@media (max-width: 1200px) {
-  .recommendation-list {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-  }
-}
-
 @media (max-width: 768px) {
-  .tab-switcher {
+  .city-guide-container {
     flex-direction: column;
-  }
-
-  .tab-item {
-    padding: 12px 16px;
-  }
-
-  .search-section {
-    padding: 12px 16px;
-  }
-
-  .search-input-group {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .search-filters {
-    flex-wrap: wrap;
-    gap: 8px;
   }
 
   .recommendation-list {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    grid-template-columns: 1fr;
   }
 
   .style-cards {
@@ -2504,8 +2201,8 @@ export default {
   }
 
   .recommendation-list {
-    grid-template-columns: 1fr;
-    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
   }
 
   .recommendation-image {

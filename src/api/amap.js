@@ -25,7 +25,7 @@ const amapRequest = axios.create({
 // 添加请求拦截器
 amapRequest.interceptors.request.use(
     config => {
-        console.log(`🚀 发送高德API请求: ${config.url}`, config.params);
+        // console.log(`🚀 发送高德API请求: ${config.url}`, config.params);
         return config;
     },
     error => {
@@ -37,7 +37,7 @@ amapRequest.interceptors.request.use(
 // 添加响应拦截器
 amapRequest.interceptors.response.use(
     response => {
-        console.log(`✅ 高德API响应成功: ${response.config.url}`);
+        // console.log(`✅ 高德API响应成功: ${response.config.url}`);
         return response;
     },
     error => {
@@ -87,7 +87,7 @@ export const searchPlaces = async(params) => {
     };
 
     const fullParams = {...defaultParams, ...params };
-    console.log('🔍 高德地图API搜索参数:', fullParams);
+    // console.log('🔍 高德地图API搜索参数:', fullParams);
 
     try {
         // 使用专用的amapRequest实例，直接请求完整URL
@@ -100,9 +100,9 @@ export const searchPlaces = async(params) => {
         // 高德地图API返回的数据在response.data中
         const data = response.data;
 
-        console.log(`📊 高德地图API返回结果: 状态=${data.status}, 数量=${data.count || '未知'}`);
+        // console.log(`📊 高德地图API返回结果: 状态=${data.status}, 数量=${data.count || '未知'}`);
         if (data && data.pois && data.pois.length > 0) {
-            console.log(`🎯 找到 ${data.pois.length} 个POI结果`);
+            // console.log(`🎯 找到 ${data.pois.length} 个POI结果`);
         }
 
         // 检查API响应状态
@@ -128,7 +128,7 @@ export const searchPlaces = async(params) => {
  * @returns {Promise<any>}
  */
 export const getRecommendedAttractions = (city, page = 1, pageSize = 6) => {
-    console.log(`🏛️ 获取城市[${city}]的推荐景点, 页码:${page}, 每页:${pageSize}`);
+    // console.log(`🏛️ 获取城市[${city}]的推荐景点, 页码:${page}, 每页:${pageSize}`);
     return searchPlaces({
         keywords: '景点',
         types: '110000', // 风景名胜
@@ -146,7 +146,7 @@ export const getRecommendedAttractions = (city, page = 1, pageSize = 6) => {
  * @returns {Promise<any>}
  */
 export const getRecommendedRestaurants = (city, page = 1, pageSize = 6) => {
-    console.log(`🍲 获取城市[${city}]的推荐餐厅, 页码:${page}, 每页:${pageSize}`);
+    // console.log(`🍲 获取城市[${city}]的推荐餐厅, 页码:${page}, 每页:${pageSize}`);
     return searchPlaces({
         keywords: '美食',
         types: '050000', // 餐饮服务
