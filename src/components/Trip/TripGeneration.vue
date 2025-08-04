@@ -421,22 +421,58 @@
             <el-button
               type="primary"
               size="large"
-              :disabled="!canGenerateTrip"
+              :disabled="!canGenerateTrip || generating"
+              :loading="generating"
               @click="generateTrip"
             >
-              <el-icon><MagicStick /></el-icon>
-              使用此提示词生成行程
+              <el-icon v-if="!generating"><MagicStick /></el-icon>
+              {{ generating ? '正在生成行程...' : '使用此提示词生成行程' }}
             </el-button>
           </div>
         </div>
 
+        <!-- 数据验证提示 -->
+        <div v-if="!canGenerateTrip && props.baseForm.destination" class="validation-hints">
+          <el-alert
+            v-for="error in validateTripData().errors"
+            :key="error"
+            :title="error"
+            type="error"
+            :closable="false"
+            show-icon
+            class="validation-error"
+          />
+          <el-alert
+            v-for="warning in validateTripData().warnings"
+            :key="warning"
+            :title="warning"
+            type="warning"
+            :closable="false"
+            show-icon
+            class="validation-warning"
+          />
+        </div>
+
         <div v-if="generating" class="generating">
-          <el-icon size="64" color="#409EFF" class="rotating">
-            <Loading />
-          </el-icon>
-          <h3>AI正在为您生成行程...</h3>
-          <p>{{ generationProgress }}</p>
-          <el-progress :percentage="progressPercent" :stroke-width="8" />
+          <div class="generating-animation">
+            <el-icon size="80" color="#409EFF" class="rotating">
+              <Loading />
+            </el-icon>
+            <div class="generating-content">
+              <h3>✨ AI正在為您精心规划行程...</h3>
+              <p class="progress-text">{{ generationProgress }}</p>
+              <el-progress 
+                :percentage="progressPercent" 
+                :stroke-width="12" 
+                status="active"
+                :show-text="false"
+              />
+              <div class="progress-info">
+                <span class="progress-percentage">{{ progressPercent }}%</span>
+                <span class="progress-desc">预计还需 {{ Math.max(0, Math.ceil((100 - progressPercent) * 1.2)) }} 秒</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div v-if="generatedTrip && !generating" class="generation-complete">
@@ -1115,13 +1151,99 @@ export default {
 
     // 检查是否可以生成行程
     const canGenerateTrip = computed(() => {
-      return (
-        props.baseForm.destination && props.baseForm.days && props.baseForm.travelers
-      );
+      const basicInfoValid = props.baseForm.destination && props.baseForm.days && props.baseForm.travelers;
+      if (!basicInfoValid) return false;
+      
+      // 验证数据逻辑一致性
+      const validation = validateTripData();
+      return validation.isValid;
     });
+
+    // 数据验证逻辑
+    const validateTripData = () => {
+      const errors = [];
+      const warnings = [];
+      
+      // 检查人数与旅行类型的匹配
+      const travelers = props.baseForm.travelers;
+      const userPrefs = currentUserPreferences.value;
+      
+      // 获取实际的标签数据（可能是英文或中文）
+      const rawTags = userPrefs?.selectedTags || userPrefs?.tags || [];
+      const chineseTags = selectedPreferenceTags.value || [];
+      
+      console.log('🔍 数据验证检查:', {
+        travelers,
+        rawTags,
+        chineseTags,
+        userPrefs
+      });
+      
+      // 定义标签检查函数（同时检查英文和中文标签）
+      const hasTag = (englishTag, chineseTag) => {
+        return rawTags.includes(englishTag) || 
+               rawTags.includes(chineseTag) || 
+               chineseTags.includes(chineseTag);
+      };
+      
+      // 检查家庭标签与人数匹配
+      if (hasTag('family', '亲子出游') && travelers < 3) {
+        errors.push('选择了"亲子出游"标签，建议至少3人出行');
+      }
+      
+      // 检查情侣标签与人数匹配  
+      if (hasTag('couple', '情侣出行') && travelers !== 2) {
+        errors.push('选择了"情侣出行"标签，建议2人出行');
+      }
+      
+      // 检查单人标签与人数匹配
+      if (hasTag('solo', '独行') && travelers > 1) {
+        errors.push('选择了"独行"标签，但设置了多人出行');
+      }
+      
+      // 检查商务标签与人数匹配
+      if (hasTag('business', '商务') && travelers > 3) {
+        warnings.push('商务旅行通常不超过3人，请确认人数设置');
+      }
+      
+      // 检查预算与天数的合理性
+      if (props.baseForm.days > 10 && !props.baseForm.budget) {
+        warnings.push('长途旅行建议设置预算范围');
+      }
+      
+      console.log('✅ 验证结果:', {
+        isValid: errors.length === 0,
+        errors,
+        warnings
+      });
+      
+      return {
+        isValid: errors.length === 0,
+        errors,
+        warnings
+      };
+    };
 
     // 生成行程
     const generateTrip = async () => {
+      // 数据验证
+      const validation = validateTripData();
+      
+      if (!validation.isValid) {
+        // 显示具体的验证错误
+        validation.errors.forEach(error => {
+          ElMessage.error(error);
+        });
+        return;
+      }
+      
+      // 显示警告（但不阻止生成）
+      if (validation.warnings.length > 0) {
+        validation.warnings.forEach(warning => {
+          ElMessage.warning(warning);
+        });
+      }
+      
       if (!canGenerateTrip.value) {
         ElMessage.warning("请先完善基本信息");
         return;
@@ -1458,6 +1580,7 @@ export default {
       getPromptCompletionClass,
       getPromptCompletionText,
       getPromptCompletionScore,
+      validateTripData,
       canGenerateTrip,
       generateTrip,
       getSelectedCityName,
@@ -1577,19 +1700,86 @@ export default {
   justify-content: center;
 }
 
+/* 数据验证提示样式 */
+.validation-hints {
+  margin: 20px 0;
+}
+
+.validation-error {
+  margin-bottom: 10px;
+}
+
+.validation-warning {
+  margin-bottom: 10px;
+}
+
 .generating {
   text-align: center;
   padding: 40px 20px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-radius: 16px;
+  margin: 20px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.generating::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.generating-animation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.generating-content {
+  width: 100%;
+  max-width: 400px;
 }
 
 .generating h3 {
-  margin: 16px 0 8px;
+  margin: 0 0 15px;
+  color: #1e40af;
+  font-size: 20px;
   font-weight: 600;
 }
 
-.generating p {
-  margin-bottom: 24px;
-  color: #606266;
+.progress-text {
+  margin: 0 0 20px;
+  font-size: 16px;
+  color: #374151;
+  min-height: 24px;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.progress-percentage {
+  font-weight: 600;
+  color: #1e40af;
+}
+
+.progress-desc {
+  color: #6b7280;
 }
 
 .rotating {

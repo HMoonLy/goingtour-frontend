@@ -51,7 +51,13 @@ finish-status="success" align-center>
         :weather-suggestion="weatherSuggestion"
         :loading-weather="loadingWeather"
         :weather-error="weatherError"
+        :generating="generating"
+        :generation-progress="generationProgress"
+        :progress-percent="progressPercent"
         @update:extra-requirements="extraRequirements = $event"
+        @update:generating="generating = $event"
+        @update:generation-progress="generationProgress = $event"
+        @update:progress-percent="progressPercent = $event"
         @generation-complete="handleGenerationComplete"
         @next-step="nextStep"
         @prev-step="prevStep"
@@ -154,6 +160,11 @@ export default {
     // 生成的行程数据
     const tripData = ref({});
     const isLoadingTrip = ref(false);
+
+    // AI生成状态
+    const generating = ref(false);
+    const generationProgress = ref("");
+    const progressPercent = ref(0);
 
     // 天气相关状态
     const weatherSuggestion = ref(null);
@@ -308,6 +319,9 @@ export default {
       extraRequirements,
       tripData,
       isLoadingTrip,
+      generating,
+      generationProgress,
+      progressPercent,
       weatherSuggestion,
       loadingWeather,
       weatherError,
