@@ -520,7 +520,7 @@
             <span v-else-if="preferences.travelPace === 2">🚶 悠闲型 - 适度安排，轻松游览</span>
             <span v-else-if="preferences.travelPace === 3">⚖️ 平衡型 - 景点与休息并重</span>
             <span v-else-if="preferences.travelPace === 4">🏃 紧凑型 - 多看多玩，充实行程</span>
-            <span v-else="preferences.travelPace === 5">⚡ 暴走型 - 最大化利用时间</span>
+            <span v-else>⚡ 暴走型 - 最大化利用时间</span>
           </div>
         </div>
       </div>
@@ -608,6 +608,7 @@ import {
   User,
 } from "@element-plus/icons-vue";
 import { useRouter, useRoute } from "vue-router";
+import { getMbtiName, getMbtiTravelDescription } from "@/utils/tagMapping.js";
 
 export default {
   name: "Preferences",
@@ -864,85 +865,8 @@ export default {
       }
     };
 
-    // 获取MBTI名称
-    const getMbtiName = (type) => {
-      switch (type) {
-        case "INTJ":
-          return "建筑师";
-        case "INTP":
-          return "逻辑学家";
-        case "ENTJ":
-          return "指挥官";
-        case "ENTP":
-          return "辩论家";
-        case "INFJ":
-          return "提倡者";
-        case "INFP":
-          return "调停者";
-        case "ENFJ":
-          return "主人公";
-        case "ENFP":
-          return "活动家";
-        case "ISTJ":
-          return "物流师";
-        case "ISFJ":
-          return "守护者";
-        case "ESTJ":
-          return "总经理";
-        case "ESFJ":
-          return "执政官";
-        case "ISTP":
-          return "鉴赏家";
-        case "ISFP":
-          return "探险家";
-        case "ESTP":
-          return "企业家";
-        case "ESFP":
-          return "娱乐家";
-        default:
-          return "未知";
-      }
-    };
-
-    // 获取MBTI性格的旅行偏好描述
-    const getMbtiTravelDescription = (type) => {
-      switch (type) {
-        case "INTJ":
-          return "您喜欢规划和设计，追求效率和逻辑性。您可能偏爱探索城市的历史遗迹、现代建筑或科技景点。";
-        case "INTP":
-          return "您思维敏捷，喜欢独立思考和探索新事物。您可能对自然风光、艺术展览或文化交流感兴趣。";
-        case "ENTJ":
-          return "您具有领导力和决断力，喜欢挑战和竞争。您可能偏爱极限运动、探险或城市中的热门景点。";
-        case "ENTP":
-          return "您充满好奇心，喜欢辩论和交流。您可能对文化体验、美食探索或城市中的新奇事物感兴趣。";
-        case "INFJ":
-          return "您富有同情心和洞察力，喜欢帮助他人。您可能偏爱文化交流、艺术体验或自然风光。";
-        case "INFP":
-          return "您敏感且富有创造力，喜欢探索内心世界。您可能偏爱文艺体验、特色民宿或宁静的自然环境。";
-        case "ENFJ":
-          return "您富有爱心和责任感，喜欢社交和团队合作。您可能偏爱亲子活动、文化交流或城市中的热门景点。";
-        case "ENFP":
-          return "您充满活力和热情，喜欢参与和体验。您可能偏爱极限运动、美食探索或城市中的新奇事物。";
-        case "ISTJ":
-          return "您注重细节和秩序，喜欢规划和组织。您可能偏爱历史古迹、自然风光或城市中的文化景点。";
-        case "ISFJ":
-          return "您富有同情心和责任感，喜欢照顾他人。您可能偏爱住宿便利、美食推荐或城市中的温馨体验。";
-        case "ESTJ":
-          return "您具有领导力和决断力，喜欢规划和组织。您可能偏爱商务旅行、极限运动或城市中的热门景点。";
-        case "ESFJ":
-          return "您富有爱心和责任感，喜欢社交和团队合作。您可能偏爱住宿便利、美食推荐或城市中的温馨体验。";
-        case "ISTP":
-          return "您喜欢独立行动和探索，喜欢速度和刺激。您可能偏爱极限运动、自驾游或城市中的新奇体验。";
-        case "ISFP":
-          return "您富有同情心和创造力，喜欢探索和体验。您可能偏爱特色民宿、美食探索或城市中的宁静环境。";
-        case "ESTP":
-          return "您充满活力和热情，喜欢速度和刺激。您可能偏爱极限运动、自驾游或城市中的新奇体验。";
-        case "ESFP":
-          return "您富有同情心和创造力，喜欢探索和体验。您可能偏爱特色民宿、美食探索或城市中的宁静环境。";
-        default:
-          return "您的旅行偏好将基于您的MBTI类型和预算来定制。";
-      }
-    };
+    // 使用导入的工具函数
+    // getMbtiName 和 getMbtiTravelDescription 已从 tagMapping.js 导入
 
     // 加载用户偏好
     const loadPreferences = async () => {
