@@ -1133,74 +1133,116 @@ export default {
         emit("update:generationProgress", "正在分析您的偏好...");
         emit("update:progressPercent", 0);
 
-        // 模拟AI生成过程的各个步骤
-        const steps = [
-          {
-            text: "正在分析您的偏好...",
-            percent: 10,
-            action: () => analyzePreferences(),
-          },
-          {
-            text: "搜索推荐景点...",
-            percent: 30,
-            action: () => fetchAttractions(),
-          },
-          {
-            text: "筛选优质餐厅...",
-            percent: 50,
-            action: () => fetchRestaurants(),
-          },
-          {
-            text: "规划最佳路线...",
-            percent: 70,
-            action: () => optimizeRoute(),
-          },
-          {
-            text: "生成完整行程...",
-            percent: 90,
-            action: () => buildDailyPlan(),
-          },
-          {
-            text: "行程生成完成！",
-            percent: 100,
-            action: null,
-          },
-        ];
 
-        let attractions = [];
-        let restaurants = [];
 
-        for (const step of steps) {
-          emit("update:generationProgress", step.text);
-          emit("update:progressPercent", step.percent);
-
-          if (step.action) {
-            const result = await step.action();
-            if (result?.attractions) attractions = result.attractions;
-            if (result?.restaurants) restaurants = result.restaurants;
-          }
-
-          // 每步延迟，提供真实的生成体验
-          await new Promise((resolve) => setTimeout(resolve, 800));
-        }
-
-        // 构建最终行程数据
-        const tripData = {
-          attractions,
-          restaurants,
-          dailyPlan: createOptimizedDailyPlan(attractions, restaurants),
+        // 构建AI请求数据
+        const requestData = {
+          // 基础信息
+          destination: props.baseForm.destination,
+          destinationName: getSelectedCityName(),
+          days: props.baseForm.days,
+          travelers: props.baseForm.travelers,
+          budget: getBudgetText(),
+          startDate: props.baseForm.dateRange?.[0],
+          endDate: props.baseForm.dateRange?.[1],
+          
+          // 用户偏好
+          travelTags: selectedPreferenceTags.value,
+          transports: currentUserPreferences.value?.selectedTransports,
+          accommodationType: currentUserPreferences.value?.accommodationType,
+          travelPace: currentUserPreferences.value?.travelPace,
+          foodTastes: currentUserPreferences.value?.foodTastes,
+          dietaryRestrictions: props.preferenceForm.dietaryRestrictions,
+          customDietaryNotes: props.preferenceForm.customDietaryNotes,
+          
+          // 行程偏好
+          tripStyle: props.preferenceForm.tripStyle,
+          intensity: props.preferenceForm.intensity,
+          focusAreas: props.preferenceForm.focusAreas,
+          specialExperiences: props.preferenceForm.specialExperiences,
+          specialRequirements: props.preferenceForm.specialRequirements,
+          
+          // 必去景点和餐厅
+          selectedAttractions: props.selectedAttractions?.map(a => ({
+            name: a.name,
+            description: a.description,
+            address: a.address
+          })),
+          selectedRestaurants: props.selectedRestaurants?.map(r => ({
+            name: r.name,
+            description: r.description,
+            address: r.address
+          })),
+          
+          // 天气信息
+          weatherInfo: props.weatherSuggestion ? {
+            weatherDesc: props.weatherSuggestion.weatherDesc,
+            tempRange: props.weatherSuggestion.tempRange,
+            tips: props.weatherSuggestion.tips,
+            avoid: props.weatherSuggestion.avoid,
+            isHistorical: props.weatherSuggestion.isHistorical
+          } : null,
+          
+          // 用户类型判断
+          userType: determineUserType()
         };
 
-        // 行程生成完成
+        emit("update:generationProgress", "AI正在分析您的需求...");
+        emit("update:progressPercent", 50);
 
-        // 将生成的行程数据传递给父组件
-        emit("generation-complete", tripData);
+        // 调用后端AI接口
+        const response = await fetch('/api/ai/trip/generate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestData)
+        });
+
+        const result = await response.json();
+
+        if (result.code === 200) {
+          emit("update:generationProgress", "行程生成完成！");
+          emit("update:progressPercent", 100);
+          
+          // 处理成功结果
+          const tripData = {
+            id: result.data.tripId,
+            content: result.data.content,
+            aiProvider: result.data.aiProvider,
+            processingTime: result.data.processingTime,
+            qualityScore: result.data.qualityScore,
+            destinationInfo: result.data.destinationInfo,
+            tripBasicInfo: result.data.tripBasicInfo
+          };
+          
+          emit("update:generatedTrip", tripData);
+          emit("generation-complete", tripData);
+          
+          ElMessage.success(`AI行程生成成功！质量评分：${result.data.qualityScore}/100，用时${Math.round(result.data.processingTime/1000)}秒`);
+        } else {
+          throw new Error(result.msg || '生成失败');
+        }
+
       } catch (error) {
-        // 行程生成失败
-        ElMessage.error("行程生成失败，请重试");
+        console.error("生成行程失败:", error);
+        emit("update:generationProgress", "生成失败");
+        emit("update:progressPercent", 0);
+        
+        ElMessage.error(`生成行程失败: ${error.message}`);
       } finally {
-        emit("update:generating", false);
+        // 延迟一下再关闭loading，让用户看到完成状态
+        setTimeout(() => {
+          emit("update:generating", false);
+        }, 2000);
       }
+    };
+
+    // 判断用户类型的辅助方法
+    const determineUserType = () => {
+      if (props.baseForm.travelers > 2) return "FAMILY";
+      if (props.baseForm.travelers === 2) return "COUPLE";
+      return "INDIVIDUAL";
     };
 
     // 创建优化的每日计划 (简化版)
