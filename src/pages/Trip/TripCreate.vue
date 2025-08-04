@@ -40,6 +40,7 @@ finish-status="success" align-center>
         v-show="currentStep === 2"
         :base-form="baseForm"
         :preference-form="preferenceForm"
+        :user-preferences="userStore.userPreferences"
         :selected-attractions="selectedAttractions"
         :selected-restaurants="selectedRestaurants"
         :extra-requirements="extraRequirements"

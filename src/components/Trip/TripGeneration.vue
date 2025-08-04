@@ -65,26 +65,26 @@
                   selectedPreferenceTags.join("、")
                 }}</span
                 >。
-                <template v-if="userPreferences.accommodationType">
+                <template v-if="currentUserPreferences.accommodationType">
                   住宿偏好<span class="highlight">{{
-                    tagMapping[userPreferences.accommodationType] ||
-                    userPreferences.accommodationType
+                    tagMapping[currentUserPreferences.accommodationType] ||
+                    currentUserPreferences.accommodationType
                   }}</span
                   >。
                 </template>
-                <template v-if="userPreferences.travelPace">
+                <template v-if="currentUserPreferences.travelPace">
                   旅行节奏偏好<span class="highlight">{{
-                    tagMapping[userPreferences.travelPace] || userPreferences.travelPace
+                    tagMapping[currentUserPreferences.travelPace] || currentUserPreferences.travelPace
                   }}</span
                   >。
                 </template>
                 <template
                   v-if="
-                    userPreferences.foodTastes && userPreferences.foodTastes.length > 0
+                    currentUserPreferences.foodTastes && currentUserPreferences.foodTastes.length > 0
                   "
                 >
                   饮食偏好<span class="highlight">{{
-                    userPreferences.foodTastes
+                    currentUserPreferences.foodTastes
                       .map((taste) => tagMapping[taste] || taste)
                       .join("、")
                   }}</span
@@ -240,14 +240,31 @@
               <div class="section-header">
                 <el-icon><Sunny /></el-icon>
                 <h4>天气建议</h4>
+                <el-tag 
+                  v-if="weatherSuggestion.isHistorical" 
+                  size="small" 
+                  type="info"
+                  effect="plain"
+                >
+                  {{ weatherSuggestion.dataSource }}
+                </el-tag>
               </div>
               <div class="prompt-text">
                 <p>
-                  出行期间天气预计<span class="highlight">{{
-                    weatherSuggestion.weatherDesc
-                  }}</span
-                  >， 气温<span class="highlight">{{ weatherSuggestion.tempRange }}</span
-                  >。
+                  <template v-if="weatherSuggestion.isHistorical">
+                    基于历史气候数据，出行期间天气预计<span class="highlight">{{
+                      weatherSuggestion.weatherDesc
+                    }}</span
+                    >， 气温<span class="highlight">{{ weatherSuggestion.tempRange }}</span
+                    >。
+                  </template>
+                  <template v-else>
+                    出行期间天气预计<span class="highlight">{{
+                      weatherSuggestion.weatherDesc
+                    }}</span
+                    >， 气温<span class="highlight">{{ weatherSuggestion.tempRange }}</span
+                    >。
+                  </template>
                 </p>
                 <template
                   v-if="
@@ -386,7 +403,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from "vue";
+import { computed, onMounted, watch, nextTick } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
   MapLocation,
@@ -413,6 +430,7 @@ import {
   getBudgetText as getBudgetTextUtil,
   getCityName,
 } from "@/utils/tagMapping.js";
+import { useUserStore } from "@/store/user.js";
 
 export default {
   name: "TripGeneration",
@@ -498,73 +516,106 @@ export default {
       default: 0,
     },
   },
-  emits: ["update:extraRequirements", "generation-complete", "next-step", "prev-step"],
+  emits: [
+    "update:extraRequirements", 
+    "update:generatedTrip",
+    "update:generating",
+    "update:generationProgress", 
+    "update:progressPercent",
+    "generation-complete", 
+    "next-step", 
+    "prev-step"
+  ],
   setup(props, { emit }) {
-    // 使用父组件传递的数据
-    const generatedTrip = computed({
-      get: () => props.generatedTrip,
-      set: (value) => emit("update:generatedTrip", value),
-    });
+    // 获取用户store
+    const userStore = useUserStore();
+    
+    // 注意：generatedTrip 通过 props 传递，直接使用 props.generatedTrip
 
-    // 使用导入的标签映射表和城市信息数据库
-    // tagMapping 和 cityInfoDatabase 已从 tagMapping.js 导入
+    // 获取实时的用户偏好数据，优先使用store中的数据
+    const currentUserPreferences = computed(() => {
+      // 优先使用 props 传递的数据，如果没有则使用 store 中的数据
+      const preferences = props.userPreferences || userStore.userPreferences;
+      // 调试用：当前用户偏好数据
+      return preferences;
+    });
 
     // 计算用户偏好标签的中文显示
     const selectedPreferenceTags = computed(() => {
-      if (!props.userPreferences) return [];
+      const preferences = currentUserPreferences.value;
+      if (!preferences) return [];
+      
       const tags = [];
 
-      // 从旅行类型标签中提取并转换为中文
-      if (props.userPreferences.selectedTags?.length > 0) {
-        props.userPreferences.selectedTags.forEach((tag) => {
+      // 从旅行类型标签中提取并转换为中文 - 兼容多种数据格式
+      const travelTags = preferences.selectedTags || preferences.tags || [];
+      if (Array.isArray(travelTags) && travelTags.length > 0) {
+        travelTags.forEach((tag) => {
           const chineseTag = tagMapping[tag] || tag;
           tags.push(chineseTag);
         });
       }
 
       // 从其他各种偏好中提取标签
-      if (props.userPreferences.selectedTransports?.length > 0) {
-        props.userPreferences.selectedTransports.forEach((transport) => {
+      const transports = preferences.selectedTransports || [];
+      if (Array.isArray(transports) && transports.length > 0) {
+        transports.forEach((transport) => {
           const chineseTag = tagMapping[transport];
           if (chineseTag) tags.push(chineseTag);
         });
       }
 
-      if (props.userPreferences.accommodationType) {
-        const chineseTag = tagMapping[props.userPreferences.accommodationType];
+      // 住宿类型
+      if (preferences.accommodationType) {
+        const chineseTag = tagMapping[preferences.accommodationType];
         if (chineseTag) tags.push(chineseTag);
       }
 
-      if (props.userPreferences.travelPace) {
-        const chineseTag = tagMapping[props.userPreferences.travelPace];
+      // 旅行节奏
+      if (preferences.travelPace) {
+        const chineseTag = tagMapping[preferences.travelPace];
         if (chineseTag) tags.push(chineseTag);
       }
 
-      if (props.userPreferences.foodTastes?.length > 0) {
-        props.userPreferences.foodTastes.forEach((taste) => {
+      // 美食偏好
+      const foodTastes = preferences.foodTastes || [];
+      if (Array.isArray(foodTastes) && foodTastes.length > 0) {
+        foodTastes.forEach((taste) => {
           const chineseTag = tagMapping[taste] || taste;
           tags.push(chineseTag);
         });
       }
 
+      // MBTI 类型
+      if (preferences.mbtiType) {
+        tags.push(`MBTI: ${preferences.mbtiType}`);
+      }
+
+      // 调试用：解析的偏好标签
       return [...new Set(tags)].slice(0, 15);
     });
 
-    // 判断用户是否有设置偏好
+    // 判断用户是否有设置偏好 - 更全面的检查
     const hasUserPreferences = computed(() => {
-      if (!props.userPreferences) return false;
+      const preferences = currentUserPreferences.value;
+      if (!preferences) return false;
 
       // 检查是否有任何偏好设置
-      return !!(
-        props.userPreferences.selectedTags?.length > 0 ||
-        props.userPreferences.selectedTransports?.length > 0 ||
-        props.userPreferences.accommodationType ||
-        props.userPreferences.travelPace ||
-        props.userPreferences.foodTastes?.length > 0 ||
-        props.userPreferences.dietaryRestrictions?.length > 0 ||
-        props.userPreferences.mbtiType ||
-        props.userPreferences.budget
+      const hasPrefs = !!(
+        (preferences.selectedTags?.length > 0) ||
+        (preferences.tags?.length > 0) ||
+        (preferences.selectedTransports?.length > 0) ||
+        preferences.accommodationType ||
+        preferences.travelPace ||
+        (preferences.foodTastes?.length > 0) ||
+        (preferences.dietaryRestrictions?.length > 0) ||
+        preferences.mbtiType ||
+        preferences.budget ||
+        preferences.dailyBudget
       );
+
+      // 调试用：用户是否有偏好设置
+      return hasPrefs;
     });
 
     // 获取城市名称
@@ -727,12 +778,12 @@ export default {
       if (props.baseForm.budget) score += 10;
 
       // 个人偏好 (20分)
-      if (props.userPreferences && selectedPreferenceTags.value.length > 0) score += 10;
-      if (props.userPreferences && props.userPreferences.travelPace) score += 5;
+      if (currentUserPreferences.value && selectedPreferenceTags.value.length > 0) score += 10;
+      if (currentUserPreferences.value && currentUserPreferences.value.travelPace) score += 5;
       if (
-        props.userPreferences &&
-        props.userPreferences.foodTastes &&
-        props.userPreferences.foodTastes.length > 0
+        currentUserPreferences.value &&
+        currentUserPreferences.value.foodTastes &&
+        currentUserPreferences.value.foodTastes.length > 0
       )
         score += 5;
 
@@ -783,25 +834,25 @@ export default {
       }
 
       // 个人偏好
-      if (props.userPreferences && selectedPreferenceTags.value.length > 0) {
+      if (currentUserPreferences.value && selectedPreferenceTags.value.length > 0) {
         prompt += `我的旅行偏好是${selectedPreferenceTags.value.join("、")}。`;
-        if (props.userPreferences.accommodationType) {
+        if (currentUserPreferences.value.accommodationType) {
           prompt += `住宿偏好${
-            tagMapping[props.userPreferences.accommodationType] ||
-            props.userPreferences.accommodationType
+            tagMapping[currentUserPreferences.value.accommodationType] ||
+            currentUserPreferences.value.accommodationType
           }。`;
         }
-        if (props.userPreferences.travelPace) {
+        if (currentUserPreferences.value.travelPace) {
           prompt += `旅行节奏偏好${
-            tagMapping[props.userPreferences.travelPace] ||
-            props.userPreferences.travelPace
+            tagMapping[currentUserPreferences.value.travelPace] ||
+            currentUserPreferences.value.travelPace
           }。`;
         }
         if (
-          props.userPreferences.foodTastes &&
-          props.userPreferences.foodTastes.length > 0
+          currentUserPreferences.value.foodTastes &&
+          currentUserPreferences.value.foodTastes.length > 0
         ) {
-          prompt += `饮食偏好${props.userPreferences.foodTastes.join("、")}。`;
+          prompt += `饮食偏好${currentUserPreferences.value.foodTastes.map(taste => tagMapping[taste] || taste).join("、")}。`;
         }
         prompt += "\n\n";
       }
@@ -956,10 +1007,10 @@ export default {
       }
 
       try {
-        // 状态设置
-        generating.value = true;
-        generationProgress.value = "正在分析您的偏好...";
-        progressPercent.value = 0;
+        // 通过emit通知父组件更新状态
+        emit("update:generating", true);
+        emit("update:generationProgress", "正在分析您的偏好...");
+        emit("update:progressPercent", 0);
 
         // 模拟AI生成过程的各个步骤
         const steps = [
@@ -999,8 +1050,8 @@ export default {
         let restaurants = [];
 
         for (const step of steps) {
-          generationProgress.value = step.text;
-          progressPercent.value = step.percent;
+          emit("update:generationProgress", step.text);
+          emit("update:progressPercent", step.percent);
 
           if (step.action) {
             const result = await step.action();
@@ -1019,15 +1070,15 @@ export default {
           dailyPlan: createOptimizedDailyPlan(attractions, restaurants),
         };
 
-        console.log("🎉 行程生成完成:", tripData);
+        // 行程生成完成
 
         // 将生成的行程数据传递给父组件
         emit("generation-complete", tripData);
       } catch (error) {
-        console.error("❌ 行程生成失败:", error);
+        // 行程生成失败
         ElMessage.error("行程生成失败，请重试");
       } finally {
-        generating.value = false;
+        emit("update:generating", false);
       }
     };
 
@@ -1087,7 +1138,7 @@ export default {
 
     // 分析用户偏好
     const analyzePreferences = async () => {
-      console.log("🧠 分析用户偏好中...");
+      // 分析用户偏好中...
       return Promise.resolve();
     };
 
@@ -1146,25 +1197,46 @@ export default {
 
     // 优化路线
     const optimizeRoute = async () => {
-      console.log("🗺️ 优化路线中...");
+      // 优化路线中...
       return Promise.resolve();
     };
 
     // 构建每日计划
     const buildDailyPlan = async () => {
-      console.log("📅 构建每日计划中...");
+      // 构建每日计划中...
       return Promise.resolve();
     };
 
-    // 定义状态变量
-    const generating = ref(false);
-    const generationProgress = ref("准备中...");
-    const progressPercent = ref(0);
+    // 注意：generating, generationProgress, progressPercent 这些状态通过 props 传递，不需要在这里定义
 
     // 组件挂载时的处理
-    onMounted(() => {
-      console.log("🚀 TripGeneration组件挂载");
+    onMounted(async () => {
+      // TripGeneration组件挂载
+      
+      // 如果用户已登录但没有偏好数据，尝试从API获取
+      if (userStore.isLoggedIn && (!props.userPreferences || Object.keys(props.userPreferences).length === 0)) {
+        try {
+          // 尝试获取用户偏好数据
+          await userStore.fetchUserPreferences();
+          
+          // 等待下一个tick确保数据更新完成
+          await nextTick();
+          // 用户偏好数据获取完成
+        } catch (error) {
+          // 获取用户偏好数据失败
+        }
+      }
     });
+
+    // 监听用户偏好数据变化
+    watch(
+      () => [props.userPreferences, userStore.userPreferences],
+      () => {
+        // 监听到偏好数据变化，可以在这里处理数据更新逻辑
+        // 数据自动通过computed响应式更新
+      },
+      { deep: true, immediate: true }
+    );
 
     return {
       generatePromptText,
@@ -1173,10 +1245,6 @@ export default {
       getPromptCompletionText,
       canGenerateTrip,
       generateTrip,
-      generatedTrip,
-      generating,
-      generationProgress,
-      progressPercent,
       getSelectedCityName,
       formatDateRange,
       getBudgetText,
@@ -1188,6 +1256,8 @@ export default {
       getSeasonalSuggestions,
       selectedPreferenceTags,
       hasUserPreferences,
+      currentUserPreferences,
+      tagMapping,
     };
   },
 };
