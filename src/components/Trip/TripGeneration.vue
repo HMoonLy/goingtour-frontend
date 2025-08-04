@@ -411,6 +411,14 @@
 
           <div class="prompt-actions">
             <el-button
+              type="success"
+              size="large"
+              @click="showFullPrompt"
+            >
+              <el-icon><ViewIcon /></el-icon>
+              查看完整提示词
+            </el-button>
+            <el-button
               type="primary"
               size="large"
               :disabled="!canGenerateTrip"
@@ -455,12 +463,45 @@
         上一步
       </el-button>
     </div>
+
+    <!-- 完整提示词弹窗 -->
+    <el-dialog
+      v-model="fullPromptVisible"
+      title="完整AI生成提示词"
+      width="80%"
+      max-width="800px"
+      :show-close="true"
+      destroy-on-close
+    >
+      <div class="full-prompt-content">
+        <div class="prompt-stats">
+          <el-tag :type="getPromptCompletionClass()" size="large">
+            {{ getPromptCompletionText() }} ({{ getPromptCompletionScore() }}/100)
+          </el-tag>
+          <el-button type="primary" @click="copyPromptToClipboard">
+            <el-icon><DocumentCopy /></el-icon>
+            复制提示词
+          </el-button>
+        </div>
+        <div class="prompt-text-area">
+          <pre>{{ fullPromptText }}</pre>
+        </div>
+      </div>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="fullPromptVisible = false">关闭</el-button>
+          <el-button type="primary" @click="copyPromptAndClose">
+            复制并关闭
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { computed, onMounted, watch, nextTick } from "vue";
-import { ElMessage, ElMessageBox } from "element-plus";
+import { computed, onMounted, watch, nextTick, ref } from "vue";
+import { ElMessage } from "element-plus";
 import {
   MapLocation,
   User,
@@ -476,6 +517,7 @@ import {
   ArrowLeft,
   ArrowRight,
   View as ViewIcon,
+  DocumentCopy,
 } from "@element-plus/icons-vue";
 import {
   tagMapping,
@@ -506,6 +548,7 @@ export default {
     ArrowLeft,
     ArrowRight,
     ViewIcon,
+    DocumentCopy,
   },
   props: {
     // 基础表单数据
@@ -587,6 +630,12 @@ export default {
   setup(props, { emit }) {
     // 获取用户store
     const userStore = useUserStore();
+    
+    // 完整提示词弹窗显示状态
+    const fullPromptVisible = ref(false);
+    
+    // 完整提示词文本
+    const fullPromptText = ref("");
     
     // 注意：generatedTrip 通过 props 传递，直接使用 props.generatedTrip
 
@@ -977,6 +1026,22 @@ export default {
           .join("、")}。\n`;
       }
 
+      // 添加专业的AI生成指导
+      prompt += "\n\n请根据以上信息，为我生成一份详细的旅行计划，包括：\n";
+      prompt += "1. 每日行程安排（包含具体时间、景点、餐厅、交通方式）\n";
+      prompt += "2. 预算分配建议（门票、餐饮、交通、住宿等）\n";
+      prompt += "3. 实用出行提示（最佳游览时间、避坑指南、当地文化注意事项）\n";
+      prompt += "4. 备选方案（雨天室内活动、行程调整建议）\n";
+      prompt += "5. 必备物品清单\n\n";
+      
+      prompt += "请确保：\n";
+      prompt += "- 行程安排合理，时间充裕，避免过度紧张\n";
+      prompt += "- 推荐的景点和餐厅具有当地特色和良好口碑\n";
+      prompt += "- 考虑交通便利性和地理位置的合理性\n";
+      prompt += "- 预算控制在指定范围内\n";
+      prompt += "- 提供具体的地址、营业时间、门票价格等实用信息\n";
+      prompt += "- 语言表达亲切自然，适合实际执行\n";
+
       return prompt;
     };
 
@@ -998,21 +1063,54 @@ export default {
       return userStartDate <= forecastEndDate && userEndDate >= forecastStartDate;
     };
 
-    // 预览完整提示词
-    const previewFullPrompt = () => {
-      const promptText = generatePromptText();
+    // 显示完整提示词弹窗
+    const showFullPrompt = () => {
+      fullPromptText.value = generatePromptText();
+      fullPromptVisible.value = true;
       ElMessage({
-        message: "完整提示词已生成",
-        type: "info",
-        duration: 2000,
+        message: "完整提示词已生成，您可以复制后在AI工具中测试",
+        type: "success",
+        duration: 3000,
       });
-      // 这里需要实现弹窗显示完整提示词，可以根据实际UI需要替换
-      // 例如使用Element Plus的MessageBox
-      ElMessageBox.alert(promptText, "AI提示词预览", {
-        confirmButtonText: "确定",
-        dangerouslyUseHTMLString: false,
-        customClass: "full-prompt-preview",
-      });
+    };
+
+    // 复制提示词到剪贴板
+    const copyPromptToClipboard = async () => {
+      try {
+        await navigator.clipboard.writeText(fullPromptText.value);
+        ElMessage({
+          message: "提示词已复制到剪贴板！",
+          type: "success",
+          duration: 2000,
+        });
+      } catch (error) {
+        // 如果现代API不可用，使用传统方法
+        const textArea = document.createElement("textarea");
+        textArea.value = fullPromptText.value;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand("copy");
+          ElMessage({
+            message: "提示词已复制到剪贴板！",
+            type: "success",
+            duration: 2000,
+          });
+        } catch (err) {
+          ElMessage({
+            message: "复制失败，请手动复制",
+            type: "error",
+            duration: 3000,
+          });
+        }
+        document.body.removeChild(textArea);
+      }
+    };
+
+    // 复制并关闭弹窗
+    const copyPromptAndClose = async () => {
+      await copyPromptToClipboard();
+      fullPromptVisible.value = false;
     };
 
     // 检查是否可以生成行程
@@ -1263,9 +1361,14 @@ export default {
 
     return {
       generatePromptText,
-      previewFullPrompt,
+      showFullPrompt,
+      copyPromptToClipboard,
+      copyPromptAndClose,
+      fullPromptVisible,
+      fullPromptText,
       getPromptCompletionClass,
       getPromptCompletionText,
+      getPromptCompletionScore,
       canGenerateTrip,
       generateTrip,
       getSelectedCityName,
@@ -1380,6 +1483,9 @@ export default {
   margin-top: 32px;
   padding-top: 24px;
   border-top: 1px solid #ebeef5;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
 }
 
 .generating {
@@ -1600,6 +1706,64 @@ export default {
 
   .forecast-wind {
     display: none; /* 在小屏幕上隐藏风力信息以节省空间 */
+  }
+}
+
+/* 完整提示词弹窗样式 */
+.full-prompt-content {
+  min-height: 400px;
+}
+
+.prompt-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.prompt-text-area {
+  background: #fafafa;
+  border: 1px solid #e4e7ed;
+  border-radius: 6px;
+  padding: 16px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.prompt-text-area pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #2c3e50;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .prompt-stats {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  
+  .prompt-text-area {
+    max-height: 300px;
+    padding: 12px;
+  }
+  
+  .prompt-text-area pre {
+    font-size: 13px;
   }
 }
 </style>
