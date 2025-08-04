@@ -98,80 +98,6 @@ class="days-description">
                 </template>
                 <template v-else> 请选择您计划出行的日期范围 </template>
               </div>
-              
-              <!-- 天气预览卡片 -->
-              <div 
-                v-if="tripForm.destinationName && (loadingWeather || weatherError || weatherSuggestion)"
-                class="weather-preview-card"
-              >
-                <!-- 天气加载状态 -->
-                <div v-if="loadingWeather" class="weather-loading">
-                  <el-icon class="is-loading"><Loading /></el-icon>
-                  <span>正在获取天气信息...</span>
-                </div>
-                
-                <!-- 天气错误状态 -->
-                <div v-else-if="weatherError" class="weather-error">
-                  <el-icon><Warning /></el-icon>
-                  <span>{{ weatherError }}</span>
-                </div>
-                
-                <!-- 天气信息显示 -->
-                <div v-else-if="weatherSuggestion" class="weather-content">
-                  <div class="weather-header">
-                    <div class="weather-icon">
-                      <el-icon><Sunny /></el-icon>
-                    </div>
-                    <div class="weather-title-section">
-                      <h4 class="weather-title">{{ tripForm.destinationName }}天气参考</h4>
-                      <div class="weather-validity">
-                        <el-icon><Calendar /></el-icon>
-                        <span>{{ getWeatherValidityText() }}</span>
-                      </div>
-                    </div>
-                    <el-tag 
-                      :type="getWeatherTagType()" 
-                      size="small" 
-                      effect="plain"
-                      class="weather-source-tag"
-                    >
-                      {{ getWeatherSourceText() }}
-                    </el-tag>
-                  </div>
-                  
-                  <div class="weather-body">
-                    <div class="weather-main-info">
-                      <div class="weather-condition">
-                        <span class="weather-desc">{{ weatherSuggestion.weatherDesc }}</span>
-                        <span class="weather-temp">{{ weatherSuggestion.tempRange }}</span>
-                      </div>
-                      
-                      <!-- 附加天气信息 -->
-                      <div v-if="weatherSuggestion.humidity || weatherSuggestion.windDirection" class="weather-details">
-                        <span v-if="weatherSuggestion.humidity" class="weather-detail-item">
-                          <el-icon><Cloudy /></el-icon>
-                          湿度 {{ weatherSuggestion.humidity }}
-                        </span>
-                        <span v-if="weatherSuggestion.windDirection" class="weather-detail-item">
-                          <el-icon><WindPower /></el-icon>
-                          {{ weatherSuggestion.windDirection }}{{ weatherSuggestion.windPower }}级
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <!-- 出行建议 -->
-                    <div v-if="weatherSuggestion.tips && weatherSuggestion.tips.length > 0" class="weather-tips">
-                      <div class="tips-header">
-                        <el-icon><InfoFilled /></el-icon>
-                        <span class="tips-title">出行建议</span>
-                      </div>
-                      <div class="tips-content">
-                        {{ weatherSuggestion.tips.slice(0, 2).join('；') }}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </el-form-item>
           </el-col>
 
@@ -189,6 +115,81 @@ label="出行人数" prop="travelers"
               />
               <div class="form-tip">人数会影响餐厅和住宿推荐</div>
             </el-form-item>
+          </el-col>
+        </el-row>
+
+        <!-- 天气预览卡片 - 独立一行 -->
+        <el-row v-if="tripForm.destinationName && (loadingWeather || weatherError || weatherSuggestion)">
+          <el-col :span="24">
+            <div class="weather-preview-card-standalone">
+              <!-- 天气加载状态 -->
+              <div v-if="loadingWeather" class="weather-loading">
+                <el-icon class="is-loading"><Loading /></el-icon>
+                <span>正在获取天气信息...</span>
+              </div>
+              
+              <!-- 天气错误状态 -->
+              <div v-else-if="weatherError" class="weather-error">
+                <el-icon><Warning /></el-icon>
+                <span>{{ weatherError }}</span>
+              </div>
+              
+              <!-- 天气信息显示 -->
+              <div v-else-if="weatherSuggestion" class="weather-content">
+                <div class="weather-header">
+                  <div class="weather-icon">
+                    <el-icon><Sunny /></el-icon>
+                  </div>
+                  <div class="weather-title-section">
+                    <h4 class="weather-title">{{ tripForm.destinationName }}天气参考</h4>
+                    <div class="weather-validity">
+                      <el-icon><Calendar /></el-icon>
+                      <span>{{ getWeatherValidityText() }}</span>
+                    </div>
+                  </div>
+                  <el-tag 
+                    :type="getWeatherTagType()" 
+                    size="small" 
+                    effect="plain"
+                    class="weather-source-tag"
+                  >
+                    {{ getWeatherSourceText() }}
+                  </el-tag>
+                </div>
+                
+                <div class="weather-body">
+                  <div class="weather-main-info">
+                    <div class="weather-condition">
+                      <span class="weather-desc">{{ weatherSuggestion.weatherDesc }}</span>
+                      <span class="weather-temp">{{ weatherSuggestion.tempRange }}</span>
+                    </div>
+                    
+                    <!-- 附加天气信息 -->
+                    <div v-if="weatherSuggestion.humidity || weatherSuggestion.windDirection" class="weather-details">
+                      <span v-if="weatherSuggestion.humidity" class="weather-detail-item">
+                        <el-icon><Cloudy /></el-icon>
+                        湿度 {{ weatherSuggestion.humidity }}
+                      </span>
+                      <span v-if="weatherSuggestion.windDirection" class="weather-detail-item">
+                        <el-icon><WindPower /></el-icon>
+                        {{ weatherSuggestion.windDirection }}{{ weatherSuggestion.windPower }}级
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <!-- 出行建议 -->
+                  <div v-if="weatherSuggestion.tips && weatherSuggestion.tips.length > 0" class="weather-tips">
+                    <div class="tips-header">
+                      <el-icon><InfoFilled /></el-icon>
+                      <span class="tips-title">出行建议</span>
+                    </div>
+                    <div class="tips-content">
+                      {{ weatherSuggestion.tips.slice(0, 2).join('；') }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </el-col>
         </el-row>
 
@@ -813,10 +814,10 @@ export default {
 
     // 天气相关工具函数
     const getWeatherSourceText = () => {
-      if (!weatherSuggestion.value) return '';
+      if (!props.weatherSuggestion) return '';
       
-      if (weatherSuggestion.value.isHistorical) {
-        if (weatherSuggestion.value.isFallback) {
+      if (props.weatherSuggestion.isHistorical) {
+        if (props.weatherSuggestion.isFallback) {
           return '季节性参考';
         }
         return '历史气候数据';
@@ -825,12 +826,12 @@ export default {
     };
 
     const getWeatherValidityText = () => {
-      if (!weatherSuggestion.value) return '';
+      if (!props.weatherSuggestion) return '';
       
       const today = new Date();
       const currentDate = today.toISOString().split('T')[0];
       
-      if (weatherSuggestion.value.isHistorical) {
+      if (props.weatherSuggestion.isHistorical) {
         return '基于历史同期气候特征预测';
       }
       
@@ -839,10 +840,10 @@ export default {
     };
 
     const getWeatherTagType = () => {
-      if (!weatherSuggestion.value) return 'info';
+      if (!props.weatherSuggestion) return 'info';
       
-      if (weatherSuggestion.value.isHistorical) {
-        return weatherSuggestion.value.isFallback ? 'warning' : 'info';
+      if (props.weatherSuggestion.isHistorical) {
+        return props.weatherSuggestion.isFallback ? 'warning' : 'info';
       }
       return 'success';
     };
@@ -1140,7 +1141,19 @@ export default {
   transition: all 0.3s ease;
 }
 
-.weather-preview-card:hover {
+/* 独立天气预览卡片样式 - 占满整行 */
+.weather-preview-card-standalone {
+  margin: 20px 0;
+  background: #ffffff;
+  border: 2px solid #e4e7ed;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.weather-preview-card:hover,
+.weather-preview-card-standalone:hover {
   border-color: #409eff;
   box-shadow: 0 4px 16px rgba(64, 158, 255, 0.15);
   transform: translateY(-2px);
@@ -1343,6 +1356,12 @@ export default {
 
   .weather-preview-card {
     margin-left: 0;
+    padding: 16px;
+    border-radius: 8px;
+  }
+
+  .weather-preview-card-standalone {
+    margin: 16px 0;
     padding: 16px;
     border-radius: 8px;
   }
