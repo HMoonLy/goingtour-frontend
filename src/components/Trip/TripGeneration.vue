@@ -73,7 +73,7 @@ class="prompt-placeholder">
                 <h4>个人偏好</h4>
               </div>
               <div
-                v-if="userPreferences && selectedPreferenceTags.length > 0"
+                v-if="hasUserPreferences"
                 class="prompt-text"
               >
                 我的旅行偏好是<span class="highlight">{{
@@ -101,7 +101,7 @@ class="prompt-placeholder">
                   "
                 >
                   饮食偏好<span class="highlight">{{
-                    userPreferences.foodTastes.join("、")
+                    userPreferences.foodTastes.map(taste => tagMapping[taste] || taste).join("、")
                   }}</span
                   >。
                 </template>
@@ -567,6 +567,7 @@ export default {
       adventure: "冒险体验",
       photography: "摄影打卡",
       history: "历史古迹",
+      historical: "历史文化",
       art: "艺术文化",
       sports: "运动健身",
       family: "亲子出游",
@@ -581,6 +582,20 @@ export default {
       mountains: "山景",
       cities: "城市探索",
       countryside: "乡村体验",
+      urban: "都市风情",
+
+      // 交通偏好
+      public: "公共交通",
+      walk: "步行出行",
+      bicycle: "骑行",
+      taxi: "打车出行",
+      car: "自驾",
+
+      // 住宿类型
+      comfort: "舒适便利",
+      hotel: "酒店住宿",
+      hostel: "青旅住宿",
+      apartment: "公寓民宿",
 
       // 旅行节奏
       slow: "慢节奏",
@@ -589,6 +604,26 @@ export default {
       relaxed: "轻松休闲",
       moderate: "适中节奏",
       intensive: "紧凑高效",
+
+      // 数字形式的旅行节奏
+      1: "慢节奏",
+      2: "悠闲型",
+      3: "平衡型",
+      4: "紧凑型",
+      5: "暴走型",
+
+      // 美食偏好
+      spicy: "辣味美食",
+      sweet: "甜味美食",
+      sour: "酸味美食",
+      bitter: "苦味美食",
+      salty: "咸味美食",
+
+      // 时间偏好
+      morning: "上午",
+      afternoon: "下午",
+      evening: "晚上",
+      night: "夜间",
     };
 
     // 城市信息数据库
@@ -644,21 +679,45 @@ export default {
       return [...new Set(tags)].slice(0, 15);
     });
 
+    // 判断用户是否有设置偏好
+    const hasUserPreferences = computed(() => {
+      if (!props.userPreferences) return false;
+      
+      // 检查是否有任何偏好设置
+      return !!(
+        props.userPreferences.selectedTags?.length > 0 ||
+        props.userPreferences.selectedTransports?.length > 0 ||
+        props.userPreferences.accommodationType ||
+        props.userPreferences.travelPace ||
+        props.userPreferences.foodTastes?.length > 0 ||
+        props.userPreferences.dietaryRestrictions?.length > 0 ||
+        props.userPreferences.mbtiType ||
+        props.userPreferences.budget
+      );
+    });
+
     // 获取城市名称
     const getSelectedCityName = () => {
-      if (!props.baseForm || !props.baseForm.destination) {
+      if (!props.baseForm) {
         return "未选择";
       }
 
-      const cityCode = props.baseForm.destination;
-
-      // 从cityInfoDatabase获取城市名称
-      if (cityInfoDatabase[cityCode]) {
-        return cityInfoDatabase[cityCode].name;
+      // 优先使用destinationName（中文名称）
+      if (props.baseForm.destinationName) {
+        return props.baseForm.destinationName;
       }
 
-      // 没有找到城市信息，返回城市代码
-      return cityCode;
+      // 如果没有destinationName，尝试从cityInfoDatabase获取
+      if (props.baseForm.destination) {
+        const cityCode = props.baseForm.destination;
+        if (cityInfoDatabase[cityCode]) {
+          return cityInfoDatabase[cityCode].name;
+        }
+        // 没有找到城市信息，返回城市代码
+        return cityCode;
+      }
+
+      return "未选择";
     };
 
     // 格式化日期范围显示
@@ -714,16 +773,31 @@ export default {
     const getFocusAreasText = (areas) => {
       if (!areas || areas.length === 0) return "";
       const areaMap = {
+        historical_culture: "历史文化",
         historical: "历史文化",
+        art_culture: "艺术文化",
         art: "艺术博物",
+        natural_scenery: "自然风光",
         nature: "自然风光",
+        local_cuisine: "地道美食",
+        food_experience: "美食体验",
         food: "美食体验",
         shopping: "购物休闲",
         entertainment: "娱乐活动",
         sports: "体育运动",
+        urban_lifestyle: "都市生活",
         urban_life: "都市风情",
         rural_life: "乡村风光",
         local_culture: "风土人情",
+        photo_spots: "网红打卡",
+        leisure_entertainment: "休闲娱乐",
+        outdoor_adventure: "户外探险",
+        modern_technology: "现代科技",
+        traditional_crafts: "传统工艺",
+        religious_sites: "宗教文化",
+        local_festivals: "节庆活动",
+        wellness: "健康养生",
+        nightlife: "夜生活",
       };
       return areas.map((area) => areaMap[area] || area).join("、");
     };
@@ -1353,6 +1427,7 @@ export default {
       getDietaryRestrictionsText,
       getSeasonalSuggestions,
       selectedPreferenceTags,
+      hasUserPreferences,
     };
   },
 };

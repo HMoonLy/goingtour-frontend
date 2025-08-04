@@ -817,7 +817,7 @@ size="large" @click="$emit('next-step')">
 </template>
 
 <script>
-import { ref, reactive, computed, watch, onMounted } from "vue";
+import { ref,computed, watch, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import {
@@ -836,7 +836,6 @@ import {
   ArrowRight,
   Calendar,
   KnifeFork,
-  TurnOff,
   Mouse,
   Search,
   Trophy,
@@ -910,7 +909,8 @@ export default {
   ],
   setup(props, { emit }) {
     const router = useRouter();
-
+    console.log(props);
+    
     // 使用父组件传递的值初始化本地数据
     const localPreferenceForm = ref({ ...props.preferenceForm });
 

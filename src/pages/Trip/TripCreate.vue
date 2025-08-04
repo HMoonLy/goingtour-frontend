@@ -65,7 +65,7 @@ finish-status="success" align-center>
 
 <script>
 import { ref, reactive, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
 import { useUserStore } from "@/store/user.js";
 import TripBaseInfo from "@/components/Trip/TripBaseInfo.vue";
@@ -83,7 +83,6 @@ export default {
   },
 
   setup() {
-    const router = useRouter();
     const route = useRoute();
     const userStore = useUserStore();
 
@@ -152,7 +151,7 @@ export default {
     };
 
     // 处理行程保存成功事件
-    const handleTripSaved = (savedTrip) => {
+    const handleTripSaved = () => {
       ElMessage.success("行程保存成功！");
       // 保存后的跳转逻辑已经在TripPreview组件中处理
     };
