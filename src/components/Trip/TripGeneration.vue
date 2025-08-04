@@ -1130,10 +1130,14 @@ export default {
       try {
         // 通过emit通知父组件更新状态
         emit("update:generating", true);
-        emit("update:generationProgress", "正在分析您的偏好...");
-        emit("update:progressPercent", 0);
+        emit("update:generationProgress", "🚀 启动AI行程规划助手...");
+        emit("update:progressPercent", 5);
 
+        // 等待一下让用户看到开始状态
+        await new Promise(resolve => setTimeout(resolve, 800));
 
+        emit("update:generationProgress", "📊 正在分析您的旅行偏好...");
+        emit("update:progressPercent", 15);
 
         // 构建AI请求数据
         const requestData = {
@@ -1187,10 +1191,24 @@ export default {
           userType: determineUserType()
         };
 
-        emit("update:generationProgress", "AI正在分析您的需求...");
-        emit("update:progressPercent", 50);
+        // 数据准备完成
+        emit("update:generationProgress", "📝 构建专属行程提示词...");
+        emit("update:progressPercent", 25);
+        
+        await new Promise(resolve => setTimeout(resolve, 600));
+
+        emit("update:generationProgress", "🤖 连接DeepSeek AI服务...");
+        emit("update:progressPercent", 35);
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        emit("update:generationProgress", "🧠 AI正在深度分析您的需求...");
+        emit("update:progressPercent", 45);
 
         // 调用后端AI接口
+        emit("update:generationProgress", "🌐 发送请求到AI服务器...");
+        emit("update:progressPercent", 55);
+        
         const response = await fetch('/api/ai/trip/generate', {
           method: 'POST',
           headers: {
@@ -1199,10 +1217,16 @@ export default {
           body: JSON.stringify(requestData)
         });
 
+        emit("update:generationProgress", "⚡ AI正在生成您的专属行程...");
+        emit("update:progressPercent", 75);
+        
         const result = await response.json();
+        
+        emit("update:generationProgress", "📋 正在整理行程内容...");
+        emit("update:progressPercent", 90);
 
         if (result.code === 200) {
-          emit("update:generationProgress", "行程生成完成！");
+          emit("update:generationProgress", "🎉 行程生成完成！");
           emit("update:progressPercent", 100);
           
           // 处理成功结果
@@ -1216,20 +1240,43 @@ export default {
             tripBasicInfo: result.data.tripBasicInfo
           };
           
+          // 给用户一点时间看到完成状态
+          await new Promise(resolve => setTimeout(resolve, 800));
+          
           emit("update:generatedTrip", tripData);
           emit("generation-complete", tripData);
           
-          ElMessage.success(`AI行程生成成功！质量评分：${result.data.qualityScore}/100，用时${Math.round(result.data.processingTime/1000)}秒`);
+          ElMessage.success({
+            message: `🎯 AI行程生成成功！质量评分：${result.data.qualityScore}/100，用时${Math.round(result.data.processingTime/1000)}秒`,
+            duration: 5000,
+            showClose: true
+          });
         } else {
           throw new Error(result.msg || '生成失败');
         }
 
       } catch (error) {
         console.error("生成行程失败:", error);
-        emit("update:generationProgress", "生成失败");
+        emit("update:generationProgress", "❌ 生成失败，请稍后重试");
         emit("update:progressPercent", 0);
         
-        ElMessage.error(`生成行程失败: ${error.message}`);
+        // 根据错误类型提供不同的提示
+        let errorMessage = "生成行程失败";
+        if (error.message.includes('timeout') || error.message.includes('TimeoutException')) {
+          errorMessage = "⏰ AI服务响应超时，请稍后重试";
+        } else if (error.message.includes('402') || error.message.includes('Payment Required')) {
+          errorMessage = "💳 AI服务余额不足，请联系管理员";
+        } else if (error.message.includes('Failed to fetch')) {
+          errorMessage = "🌐 网络连接失败，请检查网络后重试";
+        } else {
+          errorMessage = `❌ ${error.message}`;
+        }
+        
+        ElMessage.error({
+          message: errorMessage,
+          duration: 6000,
+          showClose: true
+        });
       } finally {
         // 延迟一下再关闭loading，让用户看到完成状态
         setTimeout(() => {

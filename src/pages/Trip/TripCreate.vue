@@ -57,9 +57,19 @@ finish-status="success" align-center>
         @prev-step="prevStep"
       />
 
-      <!-- 第四步：行程预览 -->
+      <!-- 第四步：行程展示 -->
+      <!-- AI生成的行程展示 -->
+      <AiTripDisplay
+        v-if="currentStep === 3 && tripData && tripData.content"
+        :trip-data="tripData"
+        @regenerate="regenerateTrip"
+        @save="handleTripSaved"
+        @share="handleTripShare"
+      />
+      
+      <!-- 传统结构化行程展示 -->
       <TripPreview
-        v-show="currentStep === 3"
+        v-else-if="currentStep === 3 && tripData && tripData.dailyPlan"
         :trip-data="tripData"
         :is-loading="isLoadingTrip"
         :base-form="baseForm"
@@ -67,6 +77,18 @@ finish-status="success" align-center>
         @saved="handleTripSaved"
         @prev-step="prevStep"
       />
+      
+      <!-- 空状态展示 -->
+      <div v-else-if="currentStep === 3" class="empty-trip-state">
+        <el-empty 
+          description="暂无行程数据"
+          :image-size="200"
+        >
+          <el-button type="primary" @click="regenerateTrip">
+            重新生成行程
+          </el-button>
+        </el-empty>
+      </div>
     </div>
   </div>
 </template>
@@ -81,6 +103,7 @@ import TripBaseInfo from "@/components/Trip/TripBaseInfo.vue";
 import TripPreferences from "@/components/Trip/TripPreferences.vue";
 import TripGeneration from "@/components/Trip/TripGeneration.vue";
 import TripPreview from "@/components/Trip/TripPreview.vue";
+import AiTripDisplay from "@/components/Trip/AiTripDisplay.vue";
 
 export default {
   name: "TripCreate",
@@ -89,6 +112,7 @@ export default {
     TripPreferences,
     TripGeneration,
     TripPreview,
+    AiTripDisplay,
   },
 
   setup() {
@@ -168,6 +192,12 @@ export default {
     const handleTripSaved = () => {
       ElMessage.success("行程保存成功！");
       // 保存后的跳转逻辑已经在TripPreview组件中处理
+    };
+
+    // 处理行程分享事件
+    const handleTripShare = (tripData) => {
+      console.log('分享行程:', tripData);
+      ElMessage.success("分享功能开发中，敬请期待！");
     };
 
     // 获取天气信息
@@ -287,6 +317,7 @@ export default {
       handleGenerationComplete,
       regenerateTrip,
       handleTripSaved,
+      handleTripShare,
       fetchWeatherForTrip,
     };
   },
@@ -294,6 +325,26 @@ export default {
 </script>
 
 <style scoped>
+.empty-trip-state {
+  padding: 60px 20px;
+  text-align: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 12px;
+  margin: 20px 0;
+}
+
+.empty-trip-state :deep(.el-empty__description) {
+  font-size: 16px;
+  color: #666;
+  margin: 20px 0;
+}
+
+.empty-trip-state :deep(.el-button--primary) {
+  padding: 12px 30px;
+  font-size: 16px;
+  border-radius: 8px;
+}
+
 .trip-create-container {
   padding: 20px;
   max-width: 1200px;
