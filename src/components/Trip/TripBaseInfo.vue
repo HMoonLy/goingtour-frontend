@@ -98,6 +98,80 @@ class="days-description">
                 </template>
                 <template v-else> 请选择您计划出行的日期范围 </template>
               </div>
+              
+              <!-- 天气预览卡片 -->
+              <div 
+                v-if="tripForm.destinationName && (loadingWeather || weatherError || weatherSuggestion)"
+                class="weather-preview-card"
+              >
+                <!-- 天气加载状态 -->
+                <div v-if="loadingWeather" class="weather-loading">
+                  <el-icon class="is-loading"><Loading /></el-icon>
+                  <span>正在获取天气信息...</span>
+                </div>
+                
+                <!-- 天气错误状态 -->
+                <div v-else-if="weatherError" class="weather-error">
+                  <el-icon><Warning /></el-icon>
+                  <span>{{ weatherError }}</span>
+                </div>
+                
+                <!-- 天气信息显示 -->
+                <div v-else-if="weatherSuggestion" class="weather-content">
+                  <div class="weather-header">
+                    <div class="weather-icon">
+                      <el-icon><Sunny /></el-icon>
+                    </div>
+                    <div class="weather-title-section">
+                      <h4 class="weather-title">{{ tripForm.destinationName }}天气参考</h4>
+                      <div class="weather-validity">
+                        <el-icon><Calendar /></el-icon>
+                        <span>{{ getWeatherValidityText() }}</span>
+                      </div>
+                    </div>
+                    <el-tag 
+                      :type="getWeatherTagType()" 
+                      size="small" 
+                      effect="plain"
+                      class="weather-source-tag"
+                    >
+                      {{ getWeatherSourceText() }}
+                    </el-tag>
+                  </div>
+                  
+                  <div class="weather-body">
+                    <div class="weather-main-info">
+                      <div class="weather-condition">
+                        <span class="weather-desc">{{ weatherSuggestion.weatherDesc }}</span>
+                        <span class="weather-temp">{{ weatherSuggestion.tempRange }}</span>
+                      </div>
+                      
+                      <!-- 附加天气信息 -->
+                      <div v-if="weatherSuggestion.humidity || weatherSuggestion.windDirection" class="weather-details">
+                        <span v-if="weatherSuggestion.humidity" class="weather-detail-item">
+                          <el-icon><Cloudy /></el-icon>
+                          湿度 {{ weatherSuggestion.humidity }}
+                        </span>
+                        <span v-if="weatherSuggestion.windDirection" class="weather-detail-item">
+                          <el-icon><WindPower /></el-icon>
+                          {{ weatherSuggestion.windDirection }}{{ weatherSuggestion.windPower }}级
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <!-- 出行建议 -->
+                    <div v-if="weatherSuggestion.tips && weatherSuggestion.tips.length > 0" class="weather-tips">
+                      <div class="tips-header">
+                        <el-icon><InfoFilled /></el-icon>
+                        <span class="tips-title">出行建议</span>
+                      </div>
+                      <div class="tips-content">
+                        {{ weatherSuggestion.tips.slice(0, 2).join('；') }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </el-form-item>
           </el-col>
 
@@ -235,6 +309,11 @@ import {
   Money,
   Setting,
   ArrowRight,
+  Loading,
+  Sunny,
+  InfoFilled,
+  Cloudy,
+  WindPower,
 } from "@element-plus/icons-vue";
 
 export default {
@@ -248,6 +327,11 @@ export default {
     Money,
     Setting,
     ArrowRight,
+    Loading,
+    Sunny,
+    InfoFilled,
+    Cloudy,
+    WindPower,
   },
   props: {
     // 从父组件接收的行程表单数据
@@ -260,8 +344,23 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    // 天气建议
+    weatherSuggestion: {
+      type: Object,
+      default: null,
+    },
+    // 天气加载状态
+    loadingWeather: {
+      type: Boolean,
+      default: false,
+    },
+    // 天气错误状态
+    weatherError: {
+      type: String,
+      default: null,
+    },
   },
-  emits: ["update:baseForm", "next-step", "formValid"],
+  emits: ["update:baseForm", "next-step", "formValid", "fetch-weather"],
   setup(props, { emit }) {
     // 使用父组件传递的值初始化本地数据
     const tripForm = ref({ ...props.baseForm });
@@ -465,7 +564,8 @@ export default {
 
     // 处理日期变化
     const handleDateChange = (newDateRange) => {
-      console.log("日期范围变化:", newDateRange);
+      console.log("🗓️ 日期范围变化:", newDateRange);
+      console.log("🗓️ 当前目的地:", tripForm.value.destinationName);
 
       if (!newDateRange || newDateRange.length !== 2) {
         return;
@@ -711,6 +811,42 @@ export default {
       }
     };
 
+    // 天气相关工具函数
+    const getWeatherSourceText = () => {
+      if (!weatherSuggestion.value) return '';
+      
+      if (weatherSuggestion.value.isHistorical) {
+        if (weatherSuggestion.value.isFallback) {
+          return '季节性参考';
+        }
+        return '历史气候数据';
+      }
+      return '高德实时数据';
+    };
+
+    const getWeatherValidityText = () => {
+      if (!weatherSuggestion.value) return '';
+      
+      const today = new Date();
+      const currentDate = today.toISOString().split('T')[0];
+      
+      if (weatherSuggestion.value.isHistorical) {
+        return '基于历史同期气候特征预测';
+      }
+      
+      // 实时数据的有效期计算
+      return `数据更新时间：今日，预报范围：今日起3天内`;
+    };
+
+    const getWeatherTagType = () => {
+      if (!weatherSuggestion.value) return 'info';
+      
+      if (weatherSuggestion.value.isHistorical) {
+        return weatherSuggestion.value.isFallback ? 'warning' : 'info';
+      }
+      return 'success';
+    };
+
     return {
       tripForm,
       tripFormRef,
@@ -732,6 +868,9 @@ export default {
       goToNextStep,
       formatDayDate,
       dateRangeError,
+      getWeatherSourceText,
+      getWeatherValidityText,
+      getWeatherTagType,
     };
   },
 };
@@ -989,6 +1128,193 @@ export default {
   margin-left: 10px;
 }
 
+/* 天气预览卡片样式 - 采用项目统一设计风格 */
+.weather-preview-card {
+  margin-top: 16px;
+  margin-left: 10px;
+  background: #ffffff;
+  border: 2px solid #e4e7ed;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.weather-preview-card:hover {
+  border-color: #409eff;
+  box-shadow: 0 4px 16px rgba(64, 158, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.weather-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #409eff;
+  font-size: 14px;
+  padding: 16px 0;
+}
+
+.weather-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #f56c6c;
+  font-size: 14px;
+  padding: 16px 0;
+}
+
+.weather-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.weather-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.weather-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #409eff, #67c23a);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.weather-title-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.weather-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.weather-validity {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #909399;
+}
+
+.weather-validity .el-icon {
+  color: #606266;
+}
+
+.weather-source-tag {
+  flex-shrink: 0;
+}
+
+.weather-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.weather-main-info {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.3s ease;
+}
+
+.weather-main-info:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.weather-condition {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.weather-desc {
+  font-size: 16px;
+  color: #409eff;
+  font-weight: 600;
+}
+
+.weather-temp {
+  font-size: 18px;
+  color: #67c23a;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.weather-details {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.weather-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #606266;
+  background: #ffffff;
+  border: 1px solid #e4e7ed;
+  padding: 6px 10px;
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+
+.weather-detail-item:hover {
+  border-color: #409eff;
+  background: #f0f7ff;
+}
+
+.weather-detail-item .el-icon {
+  color: #409eff;
+}
+
+.weather-tips {
+  background: linear-gradient(135deg, #fff7e6 0%, #fffbf0 100%);
+  border: 1px solid #ffe7ba;
+  border-left: 4px solid #e6a23c;
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.weather-tips .el-icon {
+  color: #e6a23c;
+  font-size: 16px;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+.weather-tips span {
+  font-size: 13px;
+  color: #d46b08;
+  line-height: 1.4;
+}
+
 @media (max-width: 768px) {
   .budget-selector {
     grid-template-columns: 1fr;
@@ -1012,6 +1338,71 @@ export default {
     flex: 1;
     min-width: 60px;
     padding: 8px 4px;
+    font-size: 12px;
+  }
+
+  .weather-preview-card {
+    margin-left: 0;
+    padding: 16px;
+    border-radius: 8px;
+  }
+
+  .weather-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+
+  .weather-title {
+    font-size: 14px;
+  }
+
+  .weather-validity {
+    font-size: 11px;
+  }
+
+  .weather-condition {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .weather-desc {
+    font-size: 14px;
+  }
+
+  .weather-temp {
+    font-size: 16px;
+  }
+
+  .weather-details {
+    gap: 8px;
+  }
+
+  .weather-detail-item {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+
+  .weather-tips span {
+    font-size: 12px;
+  }
+
+  .weather-temp {
+    font-size: 16px;
+  }
+
+  .weather-details {
+    gap: 8px;
+  }
+
+  .weather-detail-item {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+
+  .tips-content {
+    margin-left: 0;
     font-size: 12px;
   }
 }

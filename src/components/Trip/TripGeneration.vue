@@ -235,7 +235,7 @@
               </div>
             </div>
 
-            <!-- 替换为天气建议部分 -->
+            <!-- 天气建议部分 -->
             <div v-if="weatherSuggestion" class="prompt-section">
               <div class="section-header">
                 <el-icon><Sunny /></el-icon>
@@ -248,6 +248,14 @@
                 >
                   {{ weatherSuggestion.dataSource }}
                 </el-tag>
+                <el-tag 
+                  v-else
+                  size="small" 
+                  type="success"
+                  effect="plain"
+                >
+                  高德天气API
+                </el-tag>
               </div>
               <div class="prompt-text">
                 <p>
@@ -257,13 +265,25 @@
                     }}</span
                     >， 气温<span class="highlight">{{ weatherSuggestion.tempRange }}</span
                     >。
+                    <template v-if="weatherSuggestion.rainProbability">
+                      降雨概率约<span class="highlight">{{ weatherSuggestion.rainProbability }}</span>。
+                    </template>
+                    <template v-if="weatherSuggestion.season">
+                      <span class="highlight">{{ weatherSuggestion.season }}</span>时节特点明显。
+                    </template>
                   </template>
                   <template v-else>
-                    出行期间天气预计<span class="highlight">{{
+                    根据高德天气API实时数据，出行期间天气预计<span class="highlight">{{
                       weatherSuggestion.weatherDesc
                     }}</span
                     >， 气温<span class="highlight">{{ weatherSuggestion.tempRange }}</span
                     >。
+                    <template v-if="weatherSuggestion.humidity">
+                      湿度<span class="highlight">{{ weatherSuggestion.humidity }}</span>。
+                    </template>
+                    <template v-if="weatherSuggestion.windDirection && weatherSuggestion.windPower">
+                      风向<span class="highlight">{{ weatherSuggestion.windDirection }}{{ weatherSuggestion.windPower }}级</span>。
+                    </template>
                   </template>
                 </p>
                 <template
@@ -298,6 +318,44 @@
                     }}</span
                     >。
                   </p>
+                </template>
+                
+                <!-- 天气预报详情展示 -->
+                <template v-if="weatherSuggestion.forecast && weatherSuggestion.forecast.length > 0">
+                  <div class="weather-forecast">
+                    <h5>
+                      <el-icon><Calendar /></el-icon>
+                      天气预报详情
+                      <el-tag v-if="weatherSuggestion.isHistorical" size="mini" type="info">
+                        基于历史数据模拟
+                      </el-tag>
+                      <el-tag v-else size="mini" type="success">
+                        高德API预报
+                      </el-tag>
+                    </h5>
+                    <div class="forecast-list">
+                      <div 
+                        v-for="(day, index) in weatherSuggestion.forecast.slice(0, Math.min(5, weatherSuggestion.forecast.length))" 
+                        :key="index"
+                        class="forecast-item"
+                      >
+                        <div class="forecast-date">{{ day.date }}</div>
+                        <div class="forecast-weather">
+                          <span class="day-weather">{{ day.dayWeather }}</span>
+                          <span v-if="day.nightWeather && day.nightWeather !== day.dayWeather" class="night-weather">
+                            / {{ day.nightWeather }}
+                          </span>
+                        </div>
+                        <div class="forecast-temp">{{ day.dayTemp }}/{{ day.nightTemp }}</div>
+                        <div v-if="day.dayWind || day.nightWind" class="forecast-wind">
+                          <template v-if="day.dayWind">{{ day.dayWind }}{{ day.dayPower }}级</template>
+                          <template v-if="day.nightWind && day.nightWind !== day.dayWind">
+                            / {{ day.nightWind }}{{ day.nightPower }}级
+                          </template>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </template>
               </div>
             </div>
@@ -914,7 +972,36 @@ export default {
 
       // 天气建议
       if (props.weatherSuggestion) {
-        prompt += `出行期间天气预计${props.weatherSuggestion.weatherDesc}，气温${props.weatherSuggestion.tempRange}。`;
+        // 根据数据来源添加不同的前缀
+        if (props.weatherSuggestion.isHistorical) {
+          prompt += `基于历史气候数据分析，出行期间天气预计${props.weatherSuggestion.weatherDesc}，气温${props.weatherSuggestion.tempRange}。`;
+          
+          // 如果有降雨概率信息，添加到提示中
+          if (props.weatherSuggestion.rainProbability) {
+            prompt += `降雨概率约${props.weatherSuggestion.rainProbability}。`;
+          }
+          
+          // 添加季节信息
+          if (props.weatherSuggestion.season) {
+            prompt += `${props.weatherSuggestion.season}时节特点明显。`;
+          }
+        } else {
+          prompt += `根据高德天气API实时数据，出行期间天气预计${props.weatherSuggestion.weatherDesc}，气温${props.weatherSuggestion.tempRange}。`;
+          
+          // 添加高德API提供的详细天气信息
+          if (props.weatherSuggestion.humidity) {
+            prompt += `湿度${props.weatherSuggestion.humidity}。`;
+          }
+          
+          if (props.weatherSuggestion.windDirection && props.weatherSuggestion.windPower) {
+            prompt += `风向${props.weatherSuggestion.windDirection}${props.weatherSuggestion.windPower}级。`;
+          }
+          
+          // 如果有当前温度信息
+          if (props.weatherSuggestion.currentTemp) {
+            prompt += `当前温度${props.weatherSuggestion.currentTemp}℃。`;
+          }
+        }
 
         if (
           props.weatherSuggestion.activities &&
@@ -929,6 +1016,15 @@ export default {
 
         if (props.weatherSuggestion.avoid && props.weatherSuggestion.avoid.length > 0) {
           prompt += `注意事项：${props.weatherSuggestion.avoid.join("；")}。`;
+        }
+
+        // 如果有详细的天气预报数据，添加到提示中
+        if (props.weatherSuggestion.forecast && props.weatherSuggestion.forecast.length > 0) {
+          prompt += `具体天气预报：`;
+          const forecastSummary = props.weatherSuggestion.forecast.slice(0, 3).map(day => 
+            `${day.date}${day.dayWeather}，${day.dayTemp}/${day.nightTemp}`
+          ).join("；");
+          prompt += forecastSummary + "。";
         }
 
         prompt += "\n\n";
@@ -1412,6 +1508,77 @@ export default {
   margin-top: 24px;
 }
 
+/* 天气预报样式 */
+.weather-forecast {
+  margin-top: 12px;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid #409eff;
+}
+
+.weather-forecast h5 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #606266;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.forecast-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.forecast-item {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1fr 1.5fr;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid #ebeef5;
+  font-size: 13px;
+  align-items: center;
+}
+
+.forecast-item:last-child {
+  border-bottom: none;
+}
+
+.forecast-date {
+  color: #606266;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.forecast-weather {
+  color: #409eff;
+  font-size: 13px;
+}
+
+.forecast-weather .day-weather {
+  font-weight: 500;
+}
+
+.forecast-weather .night-weather {
+  color: #909399;
+  font-size: 12px;
+}
+
+.forecast-temp {
+  color: #909399;
+  font-family: monospace;
+  font-size: 13px;
+  text-align: center;
+}
+
+.forecast-wind {
+  color: #67c23a;
+  font-size: 11px;
+  text-align: right;
+}
+
 @media (max-width: 768px) {
   .prompt-section {
     padding: 12px;
@@ -1424,6 +1591,24 @@ export default {
   .generating,
   .generation-complete {
     padding: 20px 12px;
+  }
+
+  .weather-forecast {
+    padding: 8px;
+  }
+
+  .forecast-item {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 4px;
+    font-size: 11px;
+  }
+
+  .forecast-date {
+    font-size: 10px;
+  }
+
+  .forecast-wind {
+    display: none; /* 在小屏幕上隐藏风力信息以节省空间 */
   }
 }
 </style>

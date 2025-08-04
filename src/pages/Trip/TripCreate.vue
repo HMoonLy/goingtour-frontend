@@ -18,7 +18,11 @@ finish-status="success" align-center>
       <TripBaseInfo
         v-show="currentStep === 0"
         v-model:base-form="baseForm"
+        :weather-suggestion="weatherSuggestion"
+        :loading-weather="loadingWeather"
+        :weather-error="weatherError"
         @next-step="nextStep"
+        @fetch-weather="fetchWeatherForTrip"
       />
 
       <!-- 第二步：个性化偏好 -->
@@ -44,6 +48,9 @@ finish-status="success" align-center>
         :selected-attractions="selectedAttractions"
         :selected-restaurants="selectedRestaurants"
         :extra-requirements="extraRequirements"
+        :weather-suggestion="weatherSuggestion"
+        :loading-weather="loadingWeather"
+        :weather-error="weatherError"
         @update:extra-requirements="extraRequirements = $event"
         @generation-complete="handleGenerationComplete"
         @next-step="nextStep"
@@ -65,10 +72,11 @@ finish-status="success" align-center>
 </template>
 
 <script>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
 import { useUserStore } from "@/store/user.js";
+import { weatherApi } from "@/api/weather.js";
 import TripBaseInfo from "@/components/Trip/TripBaseInfo.vue";
 import TripPreferences from "@/components/Trip/TripPreferences.vue";
 import TripGeneration from "@/components/Trip/TripGeneration.vue";
@@ -123,6 +131,11 @@ export default {
     const tripData = ref({});
     const isLoadingTrip = ref(false);
 
+    // 天气相关状态
+    const weatherSuggestion = ref(null);
+    const loadingWeather = ref(false);
+    const weatherError = ref(null);
+
     // 步骤控制
     const nextStep = () => {
       if (currentStep.value < 3) {
@@ -157,9 +170,74 @@ export default {
       // 保存后的跳转逻辑已经在TripPreview组件中处理
     };
 
+    // 获取天气信息
+    const fetchWeatherForTrip = async (city, startDate, days) => {
+      if (!city) {
+        console.log("🌤️ 缺少城市信息，跳过天气获取");
+        return;
+      }
+
+      try {
+        loadingWeather.value = true;
+        weatherError.value = null;
+        
+        if (startDate && days) {
+          console.log(`🌤️ 开始获取天气信息：${city}, ${startDate}, ${days}天`);
+          const weatherData = await weatherApi.getWeatherSuggestions(city, new Date(startDate), days);
+          if (weatherData) {
+            weatherSuggestion.value = weatherData;
+            console.log("✅ 天气信息获取成功", weatherData);
+          }
+        } else {
+          console.log(`🌤️ 开始获取${city}的基础天气数据（不依赖日期选择）`);
+          // 获取基础天气数据，不依赖用户的具体日期选择
+          const weatherData = await weatherApi.getWeatherSuggestions(city, new Date(), 3); // 默认3天
+          if (weatherData) {
+            weatherSuggestion.value = weatherData;
+            console.log("✅ 基础天气信息获取成功", weatherData);
+          }
+        }
+        
+        if (!weatherSuggestion.value) {
+          weatherError.value = "获取天气信息失败";
+          console.log("❌ 天气信息获取失败");
+        }
+      } catch (error) {
+        console.error("❌ 获取天气信息时出错:", error);
+        weatherError.value = error.message || "获取天气信息失败";
+      } finally {
+        loadingWeather.value = false;
+      }
+    };
+
+    // 监听城市变化，立即获取天气数据
+    watch(
+      () => baseForm.destinationName,
+      (city) => {
+        console.log(`🔍 监听到城市变化：${city}`);
+        
+        if (city) {
+          // 清空之前的天气数据
+          weatherSuggestion.value = null;
+          weatherError.value = null;
+          
+          console.log(`🌤️ 城市确定，立即获取天气数据：${city}`);
+          // 立即获取天气数据，不依赖用户的日期选择
+          fetchWeatherForTrip(city, null, null);
+        }
+      },
+      { immediate: true }
+    );
+
     // 组件挂载后检查URL参数并加载用户偏好
     onMounted(async () => {
-      console.log("TripCreate组件挂载，获取路由参数:", route.query);
+      console.log("🚀 TripCreate组件挂载，获取路由参数:", route.query);
+      console.log("🌤️ 当前基础表单数据:", {
+        destination: baseForm.destination,
+        destinationName: baseForm.destinationName,
+        dateRange: baseForm.dateRange,
+        days: baseForm.days
+      });
 
       // 确保用户偏好数据已加载
       if (userStore.isLoggedIn && userStore.currentUser?.id) {
@@ -186,6 +264,8 @@ export default {
           `从URL获取到目的地城市：${baseForm.destinationName}(${baseForm.destination})`,
         );
         ElMessage.success(`已选择目的地: ${baseForm.destinationName}`);
+        
+        // 注意：天气获取将由watch监听器自动触发，不需要在这里手动调用
       }
     });
 
@@ -198,12 +278,16 @@ export default {
       extraRequirements,
       tripData,
       isLoadingTrip,
+      weatherSuggestion,
+      loadingWeather,
+      weatherError,
       userStore,
       nextStep,
       prevStep,
       handleGenerationComplete,
       regenerateTrip,
       handleTripSaved,
+      fetchWeatherForTrip,
     };
   },
 };
