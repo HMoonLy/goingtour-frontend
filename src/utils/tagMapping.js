@@ -83,10 +83,7 @@ export const tagMapping = {
     evening: "晚上",
     night: "夜间",
 
-    // 常见的英文标签
-    historical: "历史文化",
-    urban: "都市风情",
-    heavy: "深度体验",
+    // 其他常见标签
     cultural: "文化探索",
     modern: "现代都市",
     traditional: "传统文化",
@@ -97,42 +94,64 @@ export const tagMapping = {
 
 // 体验重点映射
 export const focusAreaMapping = {
+    // 文化体验类
     historical_culture: "历史文化",
     historical: "历史文化",
     art_culture: "艺术文化",
     art: "艺术博物",
-    natural_scenery: "自然风光",
-    nature: "自然风光",
-    local_cuisine: "地道美食",
-    food_experience: "美食体验",
-    food: "美食体验",
-    shopping: "购物休闲",
-    entertainment: "娱乐活动",
-    sports: "体育运动",
-    urban_lifestyle: "都市生活",
-    urban_life: "都市风情",
-    rural_life: "乡村风光",
     local_culture: "风土人情",
-    photo_spots: "网红打卡",
-    leisure_entertainment: "休闲娱乐",
-    outdoor_adventure: "户外探险",
-    modern_technology: "现代科技",
     traditional_crafts: "传统工艺",
     religious_sites: "宗教文化",
     local_festivals: "节庆活动",
-    wellness: "健康养生",
+
+    // 自然风光类
+    natural_scenery: "自然风光",
+    nature: "自然风光",
+    outdoor_adventure: "户外探险",
+
+    // 美食体验类
+    local_cuisine: "地道美食",
+    food_experience: "美食体验",
+    food: "美食体验",
+
+    // 都市生活类
+    urban_lifestyle: "都市生活",
+    urban_life: "都市风情",
+    modern_technology: "现代科技",
     nightlife: "夜生活",
+
+    // 休闲娱乐类
+    shopping: "购物休闲",
+    entertainment: "娱乐活动",
+    sports: "体育运动",
+    leisure_entertainment: "休闲娱乐",
+    photo_spots: "网红打卡",
+
+    // 乡村体验类
+    rural_life: "乡村风光",
+
+    // 健康养生类
+    wellness: "健康养生",
 };
 
 // 饮食禁忌映射
 export const dietaryRestrictionMapping = {
+    // 宗教饮食
     halal: "清真饮食",
+
+    // 素食类型
     vegetarian: "素食",
     vegan: "纯素食（全素）",
+
+    // 肉类禁忌
     no_pork: "不吃猪肉",
     no_beef: "不吃牛肉",
     no_seafood: "不吃海鲜",
+
+    // 口味禁忌
     no_spicy: "不吃辣",
+
+    // 健康饮食
     gluten_free: "无麸质",
     no_alcohol: "不饮酒",
 };
@@ -175,15 +194,97 @@ export const budgetMapping = {
 
 // 城市信息数据库
 export const cityInfoDatabase = {
+    // 一线城市
     beijing: {
         name: "北京",
         description: "千年古都，文化底蕴深厚",
+        region: "华北",
+        features: ["历史文化", "政治中心", "现代都市"],
     },
     shanghai: {
         name: "上海",
         description: "国际化大都市，东西文化交汇",
+        region: "华东",
+        features: ["现代都市", "金融中心", "海派文化"],
     },
-    // 可以继续添加更多城市
+    guangzhou: {
+        name: "广州",
+        description: "岭南文化之都，美食天堂",
+        region: "华南",
+        features: ["岭南文化", "美食天堂", "商贸中心"],
+    },
+    shenzhen: {
+        name: "深圳",
+        description: "改革开放窗口，科技创新之城",
+        region: "华南",
+        features: ["科技创新", "现代都市", "改革开放"],
+    },
+
+    // 历史文化名城
+    xian: {
+        name: "西安",
+        description: "古都长安，丝绸之路起点",
+        region: "西北",
+        features: ["历史文化", "古都", "丝绸之路"],
+    },
+    nanjing: {
+        name: "南京",
+        description: "六朝古都，江南文化重镇",
+        region: "华东",
+        features: ["历史文化", "江南文化", "古都"],
+    },
+    hangzhou: {
+        name: "杭州",
+        description: "人间天堂，西湖美景",
+        region: "华东",
+        features: ["自然风光", "江南文化", "西湖"],
+    },
+    suzhou: {
+        name: "苏州",
+        description: "园林之城，江南水乡",
+        region: "华东",
+        features: ["园林文化", "江南水乡", "传统文化"],
+    },
+
+    // 自然风光城市
+    chengdu: {
+        name: "成都",
+        description: "天府之国，休闲之都",
+        region: "西南",
+        features: ["休闲文化", "美食天堂", "熊猫故乡"],
+    },
+    kunming: {
+        name: "昆明",
+        description: "春城花都，高原明珠",
+        region: "西南",
+        features: ["自然风光", "春城", "高原"],
+    },
+    lhasa: {
+        name: "拉萨",
+        description: "雪域高原，藏传佛教圣地",
+        region: "西南",
+        features: ["藏传佛教", "高原风光", "民族文化"],
+    },
+
+    // 海滨城市
+    qingdao: {
+        name: "青岛",
+        description: "海滨城市，啤酒之都",
+        region: "华东",
+        features: ["海滨风光", "啤酒文化", "德式建筑"],
+    },
+    dalian: {
+        name: "大连",
+        description: "浪漫之都，海滨花园",
+        region: "东北",
+        features: ["海滨风光", "现代都市", "花园城市"],
+    },
+    xiamen: {
+        name: "厦门",
+        description: "海上花园，文艺之城",
+        region: "华东",
+        features: ["海滨风光", "文艺氛围", "闽南文化"],
+    },
 };
 
 // 工具函数
@@ -320,6 +421,79 @@ export function getMbtiTravelDescription(type) {
     return descriptions[type] || "您的旅行偏好将基于您的MBTI类型和预算来定制。";
 }
 
+/**
+ * 获取城市详细信息
+ * @param {string} cityCode - 城市代码
+ * @returns {object|null} 城市详细信息
+ */
+export function getCityInfo(cityCode) {
+    if (!cityCode || !cityInfoDatabase[cityCode]) {
+        return null;
+    }
+    return cityInfoDatabase[cityCode];
+}
+
+/**
+ * 根据地区获取城市列表
+ * @param {string} region - 地区名称
+ * @returns {Array} 该地区的城市列表
+ */
+export function getCitiesByRegion(region) {
+    return Object.entries(cityInfoDatabase)
+        .filter(([, info]) => info.region === region)
+        .map(([code, info]) => ({
+            code,
+            name: info.name,
+            description: info.description,
+            features: info.features,
+        }));
+}
+
+/**
+ * 根据特征搜索城市
+ * @param {string} feature - 特征关键词
+ * @returns {Array} 包含该特征的城市列表
+ */
+export function searchCitiesByFeature(feature) {
+    return Object.entries(cityInfoDatabase)
+        .filter(([, info]) =>
+            info.features.some(f => f.includes(feature) || feature.includes(f))
+        )
+        .map(([code, info]) => ({
+            code,
+            name: info.name,
+            description: info.description,
+            features: info.features,
+        }));
+}
+
+/**
+ * 获取所有可用的映射类型
+ * @returns {Array} 映射类型列表
+ */
+export function getMappingTypes() {
+    return [
+        { key: 'general', name: '通用标签', mapping: tagMapping },
+        { key: 'focus', name: '体验重点', mapping: focusAreaMapping },
+        { key: 'dietary', name: '饮食禁忌', mapping: dietaryRestrictionMapping },
+        { key: 'style', name: '行程风格', mapping: tripStyleMapping },
+        { key: 'intensity', name: '活动强度', mapping: intensityMapping },
+        { key: 'experience', name: '特殊体验', mapping: specialExperienceMapping },
+    ];
+}
+
+/**
+ * 批量翻译标签
+ * @param {Array} tags - 标签数组
+ * @param {string} type - 映射类型
+ * @param {string} separator - 分隔符
+ * @returns {string} 翻译后的字符串
+ */
+export function translateTagsToString(tags, type = 'general', separator = '、') {
+    const translatedTags = translateTags(tags, type);
+    return translatedTags.join(separator);
+}
+
 export default {
     tagMapping,
     focusAreaMapping,
@@ -331,8 +505,13 @@ export default {
     cityInfoDatabase,
     translateTag,
     translateTags,
+    translateTagsToString,
     getBudgetText,
     getCityName,
+    getCityInfo,
+    getCitiesByRegion,
+    searchCitiesByFeature,
+    getMappingTypes,
     getMbtiName,
     getMbtiTravelDescription,
 };

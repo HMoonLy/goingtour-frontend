@@ -848,6 +848,7 @@ import {
   getRecommendedRestaurants,
   searchPlaces,
 } from "@/api/amap.js";
+import { tagMapping } from "@/utils/tagMapping.js";
 export default {
   name: "TripPreferences",
   components: {
@@ -1251,82 +1252,8 @@ export default {
       { value: "gluten_free", label: "无麸质" },
     ];
 
-    // 完整的标签映射表
-    const tagMapping = {
-      // 旅行类型和兴趣
-      nature: "自然风光",
-      culture: "文化体验",
-      relaxation: "休闲放松",
-      food: "美食探索",
-      shopping: "购物娱乐",
-      nightlife: "夜生活",
-      adventure: "冒险体验",
-      photography: "摄影打卡",
-      history: "历史古迹",
-      art: "艺术文化",
-      sports: "运动健身",
-      family: "亲子出游",
-      couple: "情侣出行",
-      solo: "独行",
-      group: "团体出行",
-      luxury: "奢华体验",
-      budget: "经济实惠",
-      local_life: "体验当地生活",
-      festivals: "节庆活动",
-      beaches: "海滩度假",
-      mountains: "山景",
-      cities: "城市探索",
-      countryside: "乡村体验",
-
-      // 常见的英文标签
-      historical: "历史文化",
-      urban: "都市风情",
-      heavy: "深度体验",
-      cultural: "文化探索",
-      modern: "现代都市",
-      traditional: "传统文化",
-      scenic: "风景名胜",
-      entertainment: "娱乐休闲",
-      wellness: "健康养生",
-
-      // 交通偏好
-      walk: "步行出行",
-      walking: "步行",
-      bicycle: "骑行",
-      bike: "骑行",
-      public_transport: "公共交通",
-      public: "公共交通",
-      taxi: "打车出行",
-      car: "自驾",
-      metro: "地铁",
-      bus: "公交",
-
-      // 住宿类型
-      hotel: "酒店住宿",
-      hostel: "青旅住宿",
-      apartment: "公寓民宿",
-      bnb: "民宿体验",
-      resort: "度假村",
-      guesthouse: "客栈",
-      comfort: "舒适便利",
-      luxury: "豪华奢华",
-      budget: "经济实惠",
-
-      // 旅行节奏
-      slow: "慢节奏",
-      medium: "适中节奏",
-      fast: "快节奏",
-      relaxed: "轻松休闲",
-      moderate: "适中节奏",
-      intensive: "紧凑高效",
-
-      // 数字形式的旅行节奏
-      1: "🐌 慢悠悠 - 深度体验",
-      2: "🚶 悠闲型 - 适度安排",
-      3: "⚖️ 平衡型 - 景点与休息并重",
-      4: "🏃 紧凑型 - 多看多玩",
-      5: "⚡ 暴走型 - 最大化利用时间",
-    };
+    // 使用导入的标签映射表
+    // tagMapping 已从 tagMapping.js 导入
 
     // 计算用户偏好标签的中文显示
     const selectedPreferenceTags = computed(() => {
