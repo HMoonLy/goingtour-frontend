@@ -141,7 +141,7 @@ label="出行人数" prop="travelers"
                     <el-icon><Sunny /></el-icon>
                   </div>
                   <div class="weather-title-section">
-                    <h4 class="weather-title">{{ tripForm.destinationName }}天气参考</h4>
+                    <h4 class="weather-title">{{ tripForm.destinationName }}天气预报</h4>
                     <div class="weather-validity">
                       <el-icon><Calendar /></el-icon>
                       <span>{{ getWeatherValidityText() }}</span>
@@ -158,33 +158,72 @@ label="出行人数" prop="travelers"
                 </div>
                 
                 <div class="weather-body">
-                  <div class="weather-main-info">
-                    <div class="weather-condition">
-                      <span class="weather-desc">{{ weatherSuggestion.weatherDesc }}</span>
-                      <span class="weather-temp">{{ weatherSuggestion.tempRange }}</span>
+                  <!-- 天气预报卡片 -->
+                  <div 
+                    v-if="weatherSuggestion.forecast && weatherSuggestion.forecast.length > 0" 
+                    class="weather-forecast-grid"
+                    :class="{ 'forecast-outdated': isForecastOutdated() }"
+                  >
+                    <div 
+                      v-for="(forecast, index) in weatherSuggestion.forecast" 
+                      :key="index"
+                      class="forecast-card"
+                      :class="{ 'today': index === 0 }"
+                    >
+                      <div class="forecast-date">
+                        <div class="date-text">{{forecast.date }}</div>
+                        <div class="week-text">星期{{ forecast.week }}</div>
+                      </div>
+                      
+                      <div class="forecast-weather">
+                        <div class="weather-icon-large">
+                          {{ getWeatherEmoji(forecast.dayWeather) }}
+                        </div>
+                        <div class="weather-desc">{{ forecast.dayWeather }}</div>
+                      </div>
+                      
+                      <div class="forecast-temp">
+                        <div class="temp-high">{{ forecast.dayTemp }}°</div>
+                        <div class="temp-low">{{ forecast.nightTemp }}°</div>
+                      </div>
+                      
+                      <div class="forecast-wind">
+                        <div class="wind-info">{{ forecast.dayWind }} {{ forecast.dayPower }}级</div>
+                      </div>
                     </div>
-                    
-                    <!-- 附加天气信息 -->
-                    <div v-if="weatherSuggestion.humidity || weatherSuggestion.windDirection" class="weather-details">
-                      <span v-if="weatherSuggestion.humidity" class="weather-detail-item">
-                        <el-icon><Cloudy /></el-icon>
-                        湿度 {{ weatherSuggestion.humidity }}
-                      </span>
-                      <span v-if="weatherSuggestion.windDirection" class="weather-detail-item">
-                        <el-icon><WindPower /></el-icon>
-                        {{ weatherSuggestion.windDirection }}{{ weatherSuggestion.windPower }}级
-                      </span>
+                  </div>
+                  
+                  <!-- 超出预报范围的提示 -->
+                  <div v-if="getTripDaysExceedForecast()" class="forecast-notice" :class="{ 'forecast-outdated-notice': isForecastOutdated() }">
+                    <el-icon><InfoFilled /></el-icon>
+                    <span v-if="isForecastOutdated()">
+                      您的行程为{{ tripForm.days }}天，但天气预报仅提供{{ weatherSuggestion.forecast.length }}天数据，预报范围严重不足。建议调整行程长度或密切关注目的地实时天气。
+                    </span>
+                    <span v-else>
+                      您的行程为{{ tripForm.days }}天，天气预报仅提供{{ weatherSuggestion.forecast.length }}天数据。超出部分建议关注当地实时天气预报。
+                    </span>
+                  </div>
+                  
+                  <!-- 综合信息展示 -->
+                  <div class="weather-summary" :class="{ 'forecast-outdated': isForecastOutdated() }">
+                    <div class="summary-item">
+                      <span class="summary-label">整体温度范围</span>
+                      <span class="summary-value">{{ weatherSuggestion.tempRange }}</span>
+                    </div>
+                    <div class="summary-item">
+                      <span class="summary-label">预报天数</span>
+                      <span class="summary-value">{{ weatherSuggestion.forecast.length }}天</span>
                     </div>
                   </div>
                   
                   <!-- 出行建议 -->
-                  <div v-if="weatherSuggestion.tips && weatherSuggestion.tips.length > 0" class="weather-tips">
+                  <div v-if="getSmartTravelTips().length > 0" class="weather-tips" :class="{ 'forecast-outdated': isForecastOutdated() }">
                     <div class="tips-header">
                       <el-icon><InfoFilled /></el-icon>
                       <span class="tips-title">出行建议</span>
                     </div>
                     <div class="tips-content">
-                      {{ weatherSuggestion.tips.slice(0, 2).join('；') }}
+                      {{ getSmartTravelTips().slice(0, 2).join('；') }}
                     </div>
                   </div>
                 </div>
@@ -299,8 +338,8 @@ type="primary" size="large"
   </div>
 </template>
 <script>
-import { ref, reactive, computed, watch, nextTick, onMounted } from "vue";
-import { ElMessage, ElMessageBox } from "element-plus";
+import { ref, computed, watch, nextTick, onMounted } from "vue";
+import { ElMessage } from "element-plus";
 import {
   MapLocation,
   Calendar,
@@ -452,7 +491,6 @@ export default {
 
     // 可用城市列表 - 从API获取
     const availableCities = ref([]);
-    const loadingCities = ref(false);
 
     // 预算选项配置
     const budgetOptions = [
@@ -827,10 +865,6 @@ export default {
 
     const getWeatherValidityText = () => {
       if (!props.weatherSuggestion) return '';
-      
-      const today = new Date();
-      const currentDate = today.toISOString().split('T')[0];
-      
       if (props.weatherSuggestion.isHistorical) {
         return '基于历史同期气候特征预测';
       }
@@ -846,6 +880,141 @@ export default {
         return props.weatherSuggestion.isFallback ? 'warning' : 'info';
       }
       return 'success';
+    };
+
+
+    // 根据天气类型返回对应的emoji
+    const getWeatherEmoji = (weather) => {
+      if (!weather) return '☀️';
+      
+      const weatherEmojiMap = {
+        '晴': '☀️',
+        '多云': '⛅',
+        '阴': '☁️',
+        '小雨': '🌦️',
+        '中雨': '🌧️',
+        '大雨': '⛈️',
+        '暴雨': '⛈️',
+        '雷阵雨': '⛈️',
+        '阵雨': '🌦️',
+        '小雪': '❄️',
+        '中雪': '🌨️',
+        '大雪': '❄️',
+        '暴雪': '❄️',
+        '雨夹雪': '🌨️',
+        '雾': '🌫️',
+        '霾': '😷',
+        '沙尘暴': '💨',
+        '大风': '💨'
+      };
+      
+      // 尝试精确匹配
+      if (weatherEmojiMap[weather]) {
+        return weatherEmojiMap[weather];
+      }
+      
+      // 模糊匹配
+      for (const [key, emoji] of Object.entries(weatherEmojiMap)) {
+        if (weather.includes(key)) {
+          return emoji;
+        }
+      }
+      
+      // 默认返回太阳
+      return '☀️';
+    };
+
+    // 生成智能的出行建议
+    const getSmartTravelTips = () => {
+      if (!props.weatherSuggestion || !props.weatherSuggestion.forecast) {
+        return [];
+      }
+      
+      const tips = [];
+      const forecasts = props.weatherSuggestion.forecast.slice(0, 4);
+      
+      // 分析温度变化
+      const temps = forecasts.map(f => ({
+        day: parseInt(f.dayTemp) || 0,
+        night: parseInt(f.nightTemp) || 0
+      }));
+      
+      const maxTemp = Math.max(...temps.map(t => t.day));
+      const minTemp = Math.min(...temps.map(t => t.night));
+      const tempDiff = maxTemp - minTemp;
+      
+      // 温度建议
+      if (tempDiff > 15) {
+        tips.push(`温差较大（${tempDiff}℃），建议穿层次丰富的衣物`);
+      } else if (maxTemp > 30) {
+        tips.push('气温较高，建议携带防晒用品和多补水');
+      } else if (minTemp < 5) {
+        tips.push('气温较低，请注意保暖，建议携带厚外套');
+      }
+      
+      // 分析天气类型
+      const weatherTypes = new Set();
+      forecasts.forEach(f => {
+        if (f.dayWeather) weatherTypes.add(f.dayWeather);
+        if (f.nightWeather) weatherTypes.add(f.nightWeather);
+      });
+      
+      const weatherArray = Array.from(weatherTypes);
+      const hasRain = weatherArray.some(w => w.includes('雨'));
+      const hasSnow = weatherArray.some(w => w.includes('雪'));
+      const hasStorm = weatherArray.some(w => w.includes('雷') || w.includes('暴'));
+      
+      // 根据季节和天气给出合理建议
+      const currentMonth = new Date().getMonth() + 1; // 1-12
+      const isSummer = currentMonth >= 6 && currentMonth <= 8;
+      
+      if (hasRain && !hasSnow) {
+        tips.push('有降雨天气，建议携带雨具');
+      } else if (hasSnow && !isSummer) {
+        tips.push('有降雪天气，建议携带保暖衣物和防滑鞋');
+      } else if (hasStorm) {
+        tips.push('有雷暴天气，建议避免户外活动，注意安全');
+      }
+      
+      // 风力建议
+      const hasStrongWind = forecasts.some(f => {
+        const power = parseInt(f.dayPower) || 0;
+        return power >= 4;
+      });
+      
+      if (hasStrongWind) {
+        tips.push('风力较大，户外活动请注意安全');
+      }
+      
+      // 如果没有特殊建议，给出通用建议
+      if (tips.length === 0) {
+        if (weatherArray.some(w => w.includes('晴'))) {
+          tips.push('天气良好，适合户外活动和观光');
+        } else {
+          tips.push('天气平稳，适合按计划进行行程');
+        }
+      }
+      
+      return tips;
+    };
+
+    // 检查行程天数是否超出天气预报范围
+    const getTripDaysExceedForecast = () => {
+      if (!props.weatherSuggestion || !props.weatherSuggestion.forecast || !tripForm.value.days) {
+        return false;
+      }
+      
+      return tripForm.value.days > props.weatherSuggestion.forecast.length;
+    };
+
+    // 检查天气预报是否严重过时（行程天数超过预报天数的2倍以上）
+    const isForecastOutdated = () => {
+      if (!props.weatherSuggestion || !props.weatherSuggestion.forecast || !tripForm.value.days) {
+        return false;
+      }
+      
+      const forecastDays = props.weatherSuggestion.forecast.length;
+      return tripForm.value.days > forecastDays * 2;
     };
 
     return {
@@ -872,6 +1041,10 @@ export default {
       getWeatherSourceText,
       getWeatherValidityText,
       getWeatherTagType,
+      getWeatherEmoji,
+      getSmartTravelTips,
+      getTripDaysExceedForecast,
+      isForecastOutdated,
     };
   },
 };
@@ -1313,6 +1486,15 @@ export default {
   display: flex;
   align-items: flex-start;
   gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.weather-tips.forecast-outdated {
+  opacity: 0.5;
+  filter: grayscale(60%);
+  background: linear-gradient(135deg, #f5f5f5 0%, #f0f0f0 100%);
+  border-color: #d3d3d3;
+  border-left-color: #999999;
 }
 
 .weather-tips .el-icon {
@@ -1423,6 +1605,258 @@ export default {
   .tips-content {
     margin-left: 0;
     font-size: 12px;
+  }
+}
+
+/* 天气预报网格样式 */
+.weather-forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  margin: 16px 0;
+  transition: all 0.3s ease;
+}
+
+/* 过时的天气预报样式 */
+.weather-forecast-grid.forecast-outdated {
+  opacity: 0.5;
+  filter: grayscale(60%);
+  position: relative;
+}
+
+.weather-forecast-grid.forecast-outdated::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.weather-forecast-grid.forecast-outdated .forecast-card {
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.forecast-card {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.forecast-card:hover {
+  border-color: #409eff;
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.forecast-card.today {
+  background: linear-gradient(135deg, #f0f7ff 0%, #e6f3ff 100%);
+  border-color: #409eff;
+}
+
+.forecast-card.today::before {
+  content: "今日";
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #409eff;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.forecast-date {
+  margin-bottom: 12px;
+}
+
+.date-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 2px;
+}
+
+.week-text {
+  font-size: 11px;
+  color: #909399;
+}
+
+.forecast-weather {
+  margin-bottom: 12px;
+}
+
+.weather-icon-large {
+  font-size: 32px;
+  margin-bottom: 6px;
+  line-height: 1;
+}
+
+.weather-desc {
+  font-size: 12px;
+  color: #606266;
+  line-height: 1.2;
+}
+
+.forecast-temp {
+  margin-bottom: 8px;
+}
+
+.temp-high {
+  font-size: 16px;
+  font-weight: 700;
+  color: #e6a23c;
+  margin-bottom: 2px;
+}
+
+.temp-low {
+  font-size: 12px;
+  color: #909399;
+}
+
+.forecast-wind {
+  margin-top: auto;
+}
+
+.wind-info {
+  font-size: 11px;
+  color: #909399;
+  background: #ffffff;
+  border: 1px solid #e4e7ed;
+  padding: 4px 8px;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+/* 超出预报范围提示 */
+.forecast-notice {
+  background: linear-gradient(135deg, #fff7e6 0%, #fffbf0 100%);
+  border: 1px solid #ffe7ba;
+  border-left: 4px solid #e6a23c;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #d46b08;
+  line-height: 1.4;
+}
+
+.forecast-notice .el-icon {
+  color: #e6a23c;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+/* 严重过时的预报提示样式 */
+.forecast-outdated-notice {
+  background: linear-gradient(135deg, #fef0f0 0%, #fef5f5 100%);
+  border: 1px solid #fbc4c4;
+  border-left: 4px solid #f56c6c;
+  color: #c45656;
+}
+
+.forecast-outdated-notice .el-icon {
+  color: #f56c6c;
+}
+
+/* 天气综合信息样式 */
+.weather-summary {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: #f5f7fa;
+  border: 1px solid #e4e7ed;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 16px 0;
+  transition: all 0.3s ease;
+}
+
+.weather-summary.forecast-outdated {
+  opacity: 0.5;
+  filter: grayscale(60%);
+  background: #f0f0f0;
+  border-color: #d3d3d3;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.summary-label {
+  font-size: 11px;
+  color: #909399;
+}
+
+.summary-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #409eff;
+}
+
+/* 天气预报移动端优化 */
+@media (max-width: 768px) {
+  .weather-forecast-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .forecast-card {
+    padding: 12px;
+  }
+  
+  .weather-icon-large {
+    font-size: 24px;
+  }
+  
+  .temp-high {
+    font-size: 14px;
+  }
+  
+  .date-text {
+    font-size: 12px;
+  }
+  
+  .weather-summary {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .forecast-notice {
+    font-size: 12px;
+    padding: 10px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .weather-forecast-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  
+  .forecast-card {
+    padding: 10px;
+  }
+  
+  .weather-icon-large {
+    font-size: 20px;
+    margin-bottom: 4px;
   }
 }
 </style>
