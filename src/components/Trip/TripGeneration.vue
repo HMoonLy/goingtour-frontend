@@ -214,36 +214,59 @@
                 </el-tag>
               </div>
               <div class="prompt-text">
-                <p>
-                  <template v-if="weatherSuggestion.isHistorical">
-                    基于历史气候数据，出行期间天气预计<span class="highlight">{{
-                      weatherSuggestion.weatherDesc
-                    }}</span
-                    >， 气温<span class="highlight">{{ weatherSuggestion.tempRange }}</span
-                    >。
-                    <template v-if="weatherSuggestion.rainProbability">
-                      降雨概率约<span class="highlight">{{ weatherSuggestion.rainProbability }}</span>。
+                <!-- 日期在预报范围内的正常天气描述 -->
+                <template v-if="isDateWithinForecastRange()">
+                  <p>
+                    <template v-if="weatherSuggestion.isHistorical">
+                      基于历史气候数据，出行期间天气预计<span class="highlight">{{
+                        weatherSuggestion.weatherDesc
+                      }}</span
+                      >， 气温<span class="highlight">{{ weatherSuggestion.tempRange }}</span
+                      >。
+                      <template v-if="weatherSuggestion.rainProbability">
+                        降雨概率约<span class="highlight">{{ weatherSuggestion.rainProbability }}</span>。
+                      </template>
+                      <template v-if="weatherSuggestion.season">
+                        <span class="highlight">{{ weatherSuggestion.season }}</span>时节特点明显。
+                      </template>
                     </template>
-                    <template v-if="weatherSuggestion.season">
-                      <span class="highlight">{{ weatherSuggestion.season }}</span>时节特点明显。
+                    <template v-else>
+                      根据高德天气API实时数据，出行期间天气预计<span class="highlight">{{
+                        weatherSuggestion.weatherDesc
+                      }}</span
+                      >， 气温<span class="highlight">{{ weatherSuggestion.tempRange }}</span
+                      >。
+                      <template v-if="weatherSuggestion.humidity">
+                        湿度<span class="highlight">{{ weatherSuggestion.humidity }}</span>。
+                      </template>
+                      <template v-if="weatherSuggestion.windDirection && weatherSuggestion.windPower">
+                        风向<span class="highlight">{{ weatherSuggestion.windDirection }}{{ weatherSuggestion.windPower }}级</span>。
+                      </template>
                     </template>
-                  </template>
-                  <template v-else>
-                    根据高德天气API实时数据，出行期间天气预计<span class="highlight">{{
-                      weatherSuggestion.weatherDesc
-                    }}</span
-                    >， 气温<span class="highlight">{{ weatherSuggestion.tempRange }}</span
-                    >。
-                    <template v-if="weatherSuggestion.humidity">
-                      湿度<span class="highlight">{{ weatherSuggestion.humidity }}</span>。
+                  </p>
+                </template>
+                
+                <!-- 日期超出预报范围的说明 -->
+                <template v-else>
+                  <div class="weather-limitation-notice">
+                    <template v-if="baseForm.days > (weatherSuggestion.forecast?.length || 0)">
+                      <p class="notice-title">🌤️ 天气预报说明</p>
+                      <p>您的<span class="highlight">{{ baseForm.days }}天</span>行程中，我们仅能提供前<span class="highlight">{{ weatherSuggestion.forecast?.length || 0 }}天</span>的准确天气预报。</p>
+                      <template v-if="weatherSuggestion.forecast && weatherSuggestion.forecast.length > 0">
+                        <p>已知的天气情况：<span class="highlight">{{ weatherSuggestion.weatherDesc }}</span>，气温<span class="highlight">{{ weatherSuggestion.tempRange }}</span>。</p>
+                      </template>
+                      <p class="notice-suggestion">超出预报范围的日期建议您关注当地实时天气预报，并准备适应性较强的衣物。</p>
                     </template>
-                    <template v-if="weatherSuggestion.windDirection && weatherSuggestion.windPower">
-                      风向<span class="highlight">{{ weatherSuggestion.windDirection }}{{ weatherSuggestion.windPower }}级</span>。
+                    <template v-else>
+                      <p class="notice-title">⚠️ 天气预报说明</p>
+                      <p>由于您选择的出行日期与当前天气预报时间范围不匹配，无法提供准确的天气预报。</p>
+                      <p class="notice-suggestion">建议您在出行前关注目的地的实时天气预报。</p>
                     </template>
-                  </template>
-                </p>
+                  </div>
+                </template>
                 <template
                   v-if="
+                    isDateWithinForecastRange() &&
                     weatherSuggestion.activities &&
                     weatherSuggestion.activities.length > 0
                   "
@@ -281,19 +304,31 @@
                   <div class="weather-forecast">
                     <h5>
                       <el-icon><Calendar /></el-icon>
-                      天气预报详情
+                      <template v-if="isDateWithinForecastRange()">
+                        天气预报详情
+                      </template>
+                      <template v-else-if="baseForm.days > weatherSuggestion.forecast.length">
+                        可获取的天气预报（前{{ weatherSuggestion.forecast.length }}天）
+                      </template>
+                      <template v-else>
+                        参考天气预报
+                      </template>
                       <el-tag v-if="weatherSuggestion.isHistorical" size="mini" type="info">
                         基于历史数据模拟
                       </el-tag>
                       <el-tag v-else size="mini" type="success">
                         高德API预报
                       </el-tag>
+                      <el-tag v-if="!isDateWithinForecastRange()" size="mini" type="warning">
+                        日期超出预报范围
+                      </el-tag>
                     </h5>
                     <div class="forecast-list">
                       <div 
-                        v-for="(day, index) in weatherSuggestion.forecast.slice(0, Math.min(5, weatherSuggestion.forecast.length))" 
+                        v-for="(day, index) in weatherSuggestion.forecast" 
                         :key="index"
                         class="forecast-item"
+                        :class="{ 'forecast-outdated': !isDateWithinForecastRange() }"
                       >
                         <div class="forecast-date">{{ day.date }}</div>
                         <div class="forecast-weather">
@@ -302,7 +337,7 @@
                             / {{ day.nightWeather }}
                           </span>
                         </div>
-                        <div class="forecast-temp">{{ day.dayTemp }}/{{ day.nightTemp }}</div>
+                        <div class="forecast-temp">{{ day.dayTemp }}℃/{{ day.nightTemp }}℃</div>
                         <div v-if="day.dayWind || day.nightWind" class="forecast-wind">
                           <template v-if="day.dayWind">{{ day.dayWind }}{{ day.dayPower }}级</template>
                           <template v-if="day.nightWind && day.nightWind !== day.dayWind">
@@ -311,6 +346,13 @@
                         </div>
                       </div>
                     </div>
+                    <!-- 超出预报范围的提醒 -->
+                    <template v-if="!isDateWithinForecastRange() && baseForm.days > weatherSuggestion.forecast.length">
+                      <div class="forecast-limitation-notice">
+                        <el-icon><Warning /></el-icon>
+                        <span>第{{ weatherSuggestion.forecast.length + 1 }}天及之后的天气情况需要关注实时预报</span>
+                      </div>
+                    </template>
                   </div>
                 </template>
               </div>
@@ -807,59 +849,91 @@ export default {
 
       // 天气建议
       if (props.weatherSuggestion) {
-        // 根据数据来源添加不同的前缀
-        if (props.weatherSuggestion.isHistorical) {
-          prompt += `基于历史气候数据分析，出行期间天气预计${props.weatherSuggestion.weatherDesc}，气温${props.weatherSuggestion.tempRange}。`;
-          
-          // 如果有降雨概率信息，添加到提示中
-          if (props.weatherSuggestion.rainProbability) {
-            prompt += `降雨概率约${props.weatherSuggestion.rainProbability}。`;
-          }
-          
-          // 添加季节信息
-          if (props.weatherSuggestion.season) {
-            prompt += `${props.weatherSuggestion.season}时节特点明显。`;
+        const isDateInRange = isDateWithinForecastRange();
+        const tripDays = props.baseForm.days || 1;
+        const forecastDays = props.weatherSuggestion.forecast ? props.weatherSuggestion.forecast.length : 0;
+        
+        // 根据日期范围和数据来源添加前缀说明
+        if (isDateInRange) {
+          // 日期在预报范围内
+          if (props.weatherSuggestion.isHistorical) {
+            prompt += `基于历史气候数据分析，出行期间天气预计${props.weatherSuggestion.weatherDesc}，气温${props.weatherSuggestion.tempRange}。`;
+            
+            // 如果有降雨概率信息，添加到提示中
+            if (props.weatherSuggestion.rainProbability) {
+              prompt += `降雨概率约${props.weatherSuggestion.rainProbability}。`;
+            }
+            
+            // 添加季节信息
+            if (props.weatherSuggestion.season) {
+              prompt += `${props.weatherSuggestion.season}时节特点明显。`;
+            }
+          } else {
+            prompt += `根据高德天气API实时数据，出行期间天气预计${props.weatherSuggestion.weatherDesc}，气温${props.weatherSuggestion.tempRange}。`;
+            
+            // 添加高德API提供的详细天气信息
+            if (props.weatherSuggestion.humidity) {
+              prompt += `湿度${props.weatherSuggestion.humidity}。`;
+            }
+            
+            if (props.weatherSuggestion.windDirection && props.weatherSuggestion.windPower) {
+              prompt += `风向${props.weatherSuggestion.windDirection}${props.weatherSuggestion.windPower}级。`;
+            }
+            
+            // 如果有当前温度信息
+            if (props.weatherSuggestion.currentTemp) {
+              prompt += `当前温度${props.weatherSuggestion.currentTemp}℃。`;
+            }
           }
         } else {
-          prompt += `根据高德天气API实时数据，出行期间天气预计${props.weatherSuggestion.weatherDesc}，气温${props.weatherSuggestion.tempRange}。`;
-          
-          // 添加高德API提供的详细天气信息
-          if (props.weatherSuggestion.humidity) {
-            prompt += `湿度${props.weatherSuggestion.humidity}。`;
-          }
-          
-          if (props.weatherSuggestion.windDirection && props.weatherSuggestion.windPower) {
-            prompt += `风向${props.weatherSuggestion.windDirection}${props.weatherSuggestion.windPower}级。`;
-          }
-          
-          // 如果有当前温度信息
-          if (props.weatherSuggestion.currentTemp) {
-            prompt += `当前温度${props.weatherSuggestion.currentTemp}℃。`;
+          // 日期超出预报范围，给出说明
+          if (tripDays > forecastDays) {
+            prompt += `🌤️ 天气预报说明：您的${tripDays}天行程中，我们仅能提供前${forecastDays}天的准确天气预报。`;
+            if (props.weatherSuggestion.forecast && props.weatherSuggestion.forecast.length > 0) {
+              prompt += `已知的天气情况：${props.weatherSuggestion.weatherDesc}，气温${props.weatherSuggestion.tempRange}。`;
+            }
+            prompt += `超出预报范围的日期建议您关注当地实时天气预报，并准备适应性较强的衣物。`;
+          } else {
+            prompt += `⚠️ 天气预报说明：由于您选择的出行日期与当前天气预报时间范围不匹配，无法提供准确的天气预报。建议您在出行前关注目的地的实时天气预报。`;
           }
         }
 
-        if (
-          props.weatherSuggestion.activities &&
-          props.weatherSuggestion.activities.length > 0
-        ) {
+        // 只有在日期范围内时才添加活动建议
+        if (isDateInRange && props.weatherSuggestion.activities && props.weatherSuggestion.activities.length > 0) {
           prompt += `适合安排${props.weatherSuggestion.activities.join("、")}等活动。`;
         }
 
-        if (props.weatherSuggestion.tips && props.weatherSuggestion.tips.length > 0 && isDateWithinForecastRange()) {
+        // 只有在日期范围内时才添加建议和注意事项
+        if (isDateInRange && props.weatherSuggestion.tips && props.weatherSuggestion.tips.length > 0) {
           prompt += `建议：${props.weatherSuggestion.tips.join("；")}。`;
         }
 
-        if (props.weatherSuggestion.avoid && props.weatherSuggestion.avoid.length > 0 && isDateWithinForecastRange()) {
+        if (isDateInRange && props.weatherSuggestion.avoid && props.weatherSuggestion.avoid.length > 0) {
           prompt += `注意事项：${props.weatherSuggestion.avoid.join("；")}。`;
         }
 
-        // 如果有详细的天气预报数据，添加到提示中
+        // 详细天气预报：根据日期覆盖情况调整
         if (props.weatherSuggestion.forecast && props.weatherSuggestion.forecast.length > 0) {
-          prompt += `具体天气预报：`;
-          const forecastSummary = props.weatherSuggestion.forecast.slice(0, 3).map(day => 
-            `${day.date}${day.dayWeather}，${day.dayTemp}/${day.nightTemp}`
-          ).join("；");
-          prompt += forecastSummary + "。";
+          if (isDateInRange) {
+            prompt += `具体天气预报：`;
+            const forecastSummary = props.weatherSuggestion.forecast.map(day => 
+              `${day.date}${day.dayWeather}，${day.dayTemp}℃/${day.nightTemp}℃`
+            ).join("；");
+            prompt += forecastSummary + "。";
+          } else if (tripDays > forecastDays) {
+            // 部分日期有预报
+            prompt += `可获取的天气预报（前${forecastDays}天）：`;
+            const forecastSummary = props.weatherSuggestion.forecast.map(day => 
+              `${day.date}${day.dayWeather}，${day.dayTemp}℃/${day.nightTemp}℃`
+            ).join("；");
+            prompt += forecastSummary + "。";
+            prompt += `第${forecastDays + 1}天及之后的天气情况需要关注实时预报。`;
+          }
+        }
+
+        // 如果完全没有可用预报，给出通用建议
+        if (!isDateInRange && tripDays <= forecastDays) {
+          prompt += `建议在行程规划时预留天气变化的应对方案，准备雨具和适合不同天气的衣物。`;
         }
 
         prompt += "\n\n";
@@ -1430,6 +1504,70 @@ export default {
   color: #67c23a;
   font-size: 11px;
   text-align: right;
+}
+
+/* 天气限制通知样式 */
+.weather-limitation-notice {
+  background: linear-gradient(135deg, #fff7e6 0%, #fffbf0 100%);
+  border: 1px solid #ffe7ba;
+  border-left: 4px solid #e6a23c;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 12px 0;
+}
+
+.weather-limitation-notice .notice-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #d46b08;
+  margin: 0 0 8px 0;
+}
+
+.weather-limitation-notice .notice-suggestion {
+  color: #d46b08;
+  font-size: 13px;
+  margin: 8px 0 0 0;
+  font-style: italic;
+}
+
+/* 过时天气预报样式 */
+.forecast-item.forecast-outdated {
+  opacity: 0.7;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  position: relative;
+}
+
+.forecast-item.forecast-outdated::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(230, 162, 60, 0.1);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+/* 预报限制提醒样式 */
+.forecast-limitation-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: #fdf6ec;
+  border: 1px solid #ffd591;
+  border-radius: 4px;
+  color: #d46b08;
+  font-size: 12px;
+}
+
+.forecast-limitation-notice .el-icon {
+  color: #e6a23c;
+  font-size: 14px;
+  flex-shrink: 0;
 }
 
 @media (max-width: 768px) {
