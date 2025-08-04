@@ -40,16 +40,22 @@ export const tagMapping = {
     bike: "骑行",
     taxi: "打车出行",
     car: "自驾",
+    driving: "自驾",
     metro: "地铁",
     bus: "公交",
     shared: "包车/拼车",
+    motorcycle: "摩托车",
+    train: "火车",
+    flight: "飞机",
 
     // 住宿类型
     comfort: "舒适便利",
+    budget: "经济实惠",
+    luxury: "奢华享受",
     hotel: "酒店住宿",
     hostel: "青旅住宿",
     apartment: "公寓民宿",
-    bnb: "民宿体验",
+    bnb: "特色民宿",
     resort: "度假村",
     guesthouse: "客栈",
 
@@ -76,20 +82,37 @@ export const tagMapping = {
     salty: "咸味美食",
     light: "清淡",
     heavy: "重口味",
+    umami: "鲜味",
 
     // 时间偏好
-    morning: "上午",
-    afternoon: "下午",
-    evening: "晚上",
+    morning: "早起型",
+    afternoon: "午间型",
+    evening: "夜猫子",
     night: "夜间",
+    "early-morning": "清晨型",
+    "late-night": "深夜型",
+    "all-day": "全天型",
 
     // 其他常见标签
     cultural: "文化探索",
     modern: "现代都市",
+    modern_attractions: "现代景点",
     traditional: "传统文化",
     scenic: "风景名胜",
     entertainment: "娱乐休闲",
     wellness: "健康养生",
+    local_culture: "风土人情",
+    urban_life: "都市风情",
+    local_cuisine: "地道美食",
+
+    // 其他偏好选项
+    popularFirst: "优先热门景点",
+    includeFood: "包含美食推荐",
+    avoidCrowds: "避开人群",
+    includeShopping: "包含购物",
+    preferPublicTransport: "偏好公共交通",
+    includeKidsActivities: "包含亲子活动",
+    needAccessibility: "需要无障碍设施",
 };
 
 // 体验重点映射
@@ -138,10 +161,11 @@ export const focusAreaMapping = {
 export const dietaryRestrictionMapping = {
     // 宗教饮食
     halal: "清真饮食",
+    kosher: "犹太洁食",
 
     // 素食类型
-    vegetarian: "素食",
-    vegan: "纯素食（全素）",
+    vegetarian: "素食主义",
+    vegan: "纯素食",
 
     // 肉类禁忌
     no_pork: "不吃猪肉",
@@ -154,6 +178,7 @@ export const dietaryRestrictionMapping = {
     // 健康饮食
     gluten_free: "无麸质",
     no_alcohol: "不饮酒",
+    dairy_free: "无乳制品",
 };
 
 // 行程风格映射

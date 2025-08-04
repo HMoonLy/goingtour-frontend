@@ -16,7 +16,7 @@
           <div class="header-right">
             <el-tooltip content="查看完整提示词" placement="top">
               <el-button type="info" link @click="previewFullPrompt">
-                <el-icon><View /></el-icon>
+                <el-icon><ViewIcon /></el-icon>
               </el-button>
             </el-tooltip>
           </div>
@@ -189,51 +189,7 @@
               </div>
             </div>
 
-            <!-- 季节性建议部分 -->
-            <div v-if="getSeasonalSuggestions" class="prompt-section">
-              <div class="section-header">
-                <el-icon><Calendar /></el-icon>
-                <h4>季节性建议</h4>
-              </div>
-              <div class="prompt-text">
-                请考虑<span class="highlight">{{
-                  getSeasonalSuggestions.seasonName
-                }}</span
-                >的特点，
-                <template
-                  v-if="
-                    getSeasonalSuggestions.activities &&
-                    getSeasonalSuggestions.activities.length > 0
-                  "
-                >
-                  可以安排<span class="highlight">{{
-                    getSeasonalSuggestions.activities.join("、")
-                  }}</span
-                  >等季节性活动。
-                </template>
-                <template
-                  v-if="
-                    getSeasonalSuggestions.tips && getSeasonalSuggestions.tips.length > 0
-                  "
-                >
-                  请注意：<span class="highlight">{{
-                    getSeasonalSuggestions.tips.join("；")
-                  }}</span
-                  >。
-                </template>
-                <template
-                  v-if="
-                    getSeasonalSuggestions.avoid &&
-                    getSeasonalSuggestions.avoid.length > 0
-                  "
-                >
-                  需要避免的事项：<span class="highlight">{{
-                    getSeasonalSuggestions.avoid.join("；")
-                  }}</span
-                  >。
-                </template>
-              </div>
-            </div>
+
 
             <!-- 天气建议部分 -->
             <div v-if="weatherSuggestion" class="prompt-section">
@@ -300,7 +256,7 @@
                   </p>
                 </template>
                 <template
-                  v-if="weatherSuggestion.tips && weatherSuggestion.tips.length > 0"
+                  v-if="weatherSuggestion.tips && weatherSuggestion.tips.length > 0 && isDateWithinForecastRange()"
                 >
                   <p>
                     建议：<span class="highlight">{{
@@ -310,7 +266,7 @@
                   </p>
                 </template>
                 <template
-                  v-if="weatherSuggestion.avoid && weatherSuggestion.avoid.length > 0"
+                  v-if="weatherSuggestion.avoid && weatherSuggestion.avoid.length > 0 && isDateWithinForecastRange()"
                 >
                   <p>
                     注意事项：<span class="highlight">{{
@@ -477,6 +433,7 @@ import {
   Sunny,
   ArrowLeft,
   ArrowRight,
+  View as ViewIcon,
 } from "@element-plus/icons-vue";
 import {
   tagMapping,
@@ -506,6 +463,7 @@ export default {
     Sunny,
     ArrowLeft,
     ArrowRight,
+    ViewIcon,
   },
   props: {
     // 基础表单数据
@@ -722,108 +680,9 @@ export default {
       return restrictions.map((r) => dietaryRestrictionMapping[r] || r).join("、");
     };
 
-    // 季节性建议数据
-    const seasonalSuggestions = {
-      spring: {
-        beijing: {
-          activities: ["赏花", "踏青", "公园游览"],
-          tips: ["春季是北京最佳旅游季节之一，气候宜人", "可以去颐和园、北海公园赏花"],
-          avoid: ["春季北京可能有沙尘天气，请关注天气预报"],
-        },
-        shanghai: {
-          activities: ["赏花", "城市公园", "户外咖啡"],
-          tips: ["春季上海温度适宜，非常适合户外活动", "可以去外滩、豫园感受春日氛围"],
-          avoid: ["春季上海多雨，请携带雨具"],
-        },
-      },
-      summer: {
-        beijing: {
-          activities: ["室内博物馆", "晚间活动", "水上项目"],
-          tips: [
-            "夏季北京较热，建议早晚游览，中午休息",
-            "可以去室内场所如故宫博物院、国家博物馆",
-          ],
-          avoid: ["避免中午高温时段户外活动", "注意防晒补水"],
-        },
-        shanghai: {
-          activities: ["水上活动", "室内购物", "夜游"],
-          tips: ["夏季上海炎热多雨，建议携带遮阳伞", "可以去室内场所如博物馆、购物中心"],
-          avoid: ["避开午后高温时段", "注意防暑降温"],
-        },
-      },
-      autumn: {
-        beijing: {
-          activities: ["赏红叶", "登长城", "户外徒步"],
-          tips: ["秋季是北京最佳旅游季节，天高气爽", "可以去香山、颐和园赏红叶"],
-          avoid: ["秋季温差较大，请准备适当衣物"],
-        },
-        shanghai: {
-          activities: ["户外活动", "公园游览", "外滩漫步"],
-          tips: ["秋季上海气候宜人，适合各类户外活动", "可以去外滩、豫园、静安寺游览"],
-          avoid: ["秋季仍有雨天，请关注天气预报"],
-        },
-      },
-      winter: {
-        beijing: {
-          activities: ["滑雪", "温泉", "室内活动"],
-          tips: ["冬季北京寒冷干燥，请做好保暖措施", "可以去故宫、博物馆等室内场所"],
-          avoid: ["注意防寒保暖", "雪天路滑，注意安全"],
-        },
-        shanghai: {
-          activities: ["室内活动", "美食", "购物"],
-          tips: ["冬季上海湿冷，建议穿着保暖防潮", "可以去室内场所如博物馆、购物中心"],
-          avoid: ["注意防寒防潮", "雨天路滑，注意安全"],
-        },
-      },
-    };
 
-    // 获取当前季节
-    const getCurrentSeason = (date) => {
-      if (!date) return null;
 
-      const month = new Date(date).getMonth() + 1; // 月份从0开始，需要+1
 
-      if (month >= 3 && month <= 5) return "spring"; // 春季：3-5月
-      if (month >= 6 && month <= 8) return "summer"; // 夏季：6-8月
-      if (month >= 9 && month <= 11) return "autumn"; // 秋季：9-11月
-      return "winter"; // 冬季：12-2月
-    };
-
-    // 获取季节名称
-    const getSeasonName = (season) => {
-      const seasonMap = {
-        spring: "春季",
-        summer: "夏季",
-        autumn: "秋季",
-        winter: "冬季",
-      };
-      return seasonMap[season] || season;
-    };
-
-    // 获取季节性建议
-    const getSeasonalSuggestions = computed(() => {
-      if (
-        !props.baseForm.dateRange ||
-        props.baseForm.dateRange.length !== 2 ||
-        !props.baseForm.destination
-      ) {
-        return null;
-      }
-
-      const season = getCurrentSeason(props.baseForm.dateRange[0]);
-      const city = props.baseForm.destination.toLowerCase();
-
-      // 如果没有特定城市的季节建议，返回null
-      if (!season || !seasonalSuggestions[season] || !seasonalSuggestions[season][city]) {
-        return null;
-      }
-
-      return {
-        season,
-        seasonName: getSeasonName(season),
-        ...seasonalSuggestions[season][city],
-      };
-    });
 
     // 生成提示词完整度评估
     const getPromptCompletionScore = () => {
@@ -944,31 +803,7 @@ export default {
         prompt += "\n\n";
       }
 
-      // 季节性建议
-      if (getSeasonalSuggestions.value) {
-        prompt += `请考虑${getSeasonalSuggestions.value.seasonName}的特点，`;
-        if (
-          getSeasonalSuggestions.value.activities &&
-          getSeasonalSuggestions.value.activities.length > 0
-        ) {
-          prompt += `可以安排${getSeasonalSuggestions.value.activities.join(
-            "、"
-          )}等季节性活动。`;
-        }
-        if (
-          getSeasonalSuggestions.value.tips &&
-          getSeasonalSuggestions.value.tips.length > 0
-        ) {
-          prompt += `请注意：${getSeasonalSuggestions.value.tips.join("；")}。`;
-        }
-        if (
-          getSeasonalSuggestions.value.avoid &&
-          getSeasonalSuggestions.value.avoid.length > 0
-        ) {
-          prompt += `需要避免的事项：${getSeasonalSuggestions.value.avoid.join("；")}。`;
-        }
-        prompt += "\n\n";
-      }
+
 
       // 天气建议
       if (props.weatherSuggestion) {
@@ -1010,11 +845,11 @@ export default {
           prompt += `适合安排${props.weatherSuggestion.activities.join("、")}等活动。`;
         }
 
-        if (props.weatherSuggestion.tips && props.weatherSuggestion.tips.length > 0) {
+        if (props.weatherSuggestion.tips && props.weatherSuggestion.tips.length > 0 && isDateWithinForecastRange()) {
           prompt += `建议：${props.weatherSuggestion.tips.join("；")}。`;
         }
 
-        if (props.weatherSuggestion.avoid && props.weatherSuggestion.avoid.length > 0) {
+        if (props.weatherSuggestion.avoid && props.weatherSuggestion.avoid.length > 0 && isDateWithinForecastRange()) {
           prompt += `注意事项：${props.weatherSuggestion.avoid.join("；")}。`;
         }
 
@@ -1069,6 +904,24 @@ export default {
       }
 
       return prompt;
+    };
+
+    // 检查用户选择的日期是否在天气预报范围内
+    const isDateWithinForecastRange = () => {
+      if (!props.weatherSuggestion || !props.weatherSuggestion.forecast || !props.baseForm.dateRange || !props.baseForm.dateRange.length) {
+        return false;
+      }
+      
+      const userStartDate = new Date(props.baseForm.dateRange[0]);
+      const userEndDate = new Date(props.baseForm.dateRange[1]);
+      
+      // 获取天气预报的日期范围
+      const forecastDates = props.weatherSuggestion.forecast.map(f => new Date(f.date));
+      const forecastStartDate = new Date(Math.min(...forecastDates));
+      const forecastEndDate = new Date(Math.max(...forecastDates));
+      
+      // 检查用户选择的日期是否与天气预报日期有重叠
+      return userStartDate <= forecastEndDate && userEndDate >= forecastStartDate;
     };
 
     // 预览完整提示词
@@ -1349,11 +1202,11 @@ export default {
       getFocusAreasText,
       getSpecialExperiencesText,
       getDietaryRestrictionsText,
-      getSeasonalSuggestions,
       selectedPreferenceTags,
       hasUserPreferences,
       currentUserPreferences,
       tagMapping,
+      isDateWithinForecastRange,
     };
   },
 };

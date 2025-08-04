@@ -352,9 +352,8 @@ import {
   Loading,
   Sunny,
   InfoFilled,
-  Cloudy,
-  WindPower,
-} from "@element-plus/icons-vue";
+  } from "@element-plus/icons-vue";
+import { translateTags, translateTag } from "@/utils/tagMapping.js";
 
 export default {
   name: "TripBaseInfo",
@@ -370,8 +369,6 @@ export default {
     Loading,
     Sunny,
     InfoFilled,
-    Cloudy,
-    WindPower,
   },
   props: {
     // 从父组件接收的行程表单数据
@@ -706,15 +703,7 @@ export default {
       return `¥${totalAmount.toLocaleString()}`;
     };
 
-    // 获取实际天数
-    const getActualDays = computed(() => {
-      if (!tripForm.value.dateRange || tripForm.value.dateRange.length !== 2) {
-        return 0;
-      }
-      const startDate = new Date(tripForm.value.dateRange[0]);
-      const endDate = new Date(tripForm.value.dateRange[1]);
-      return Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-    });
+
 
     // 预算推荐计算
     const budgetRecommendation = computed(() => {
@@ -820,35 +809,7 @@ export default {
       return `${year}年${month}月${day}日`;
     };
 
-    // 格式化特定日期
-    const formatDayDate = (dayIndex) => {
-      if (
-        !tripForm.value.dateRange ||
-        tripForm.value.dateRange.length !== 2 ||
-        !tripForm.value.days
-      ) {
-        return `第${dayIndex + 1}天`;
-      }
 
-      try {
-        const startDate = new Date(tripForm.value.dateRange[0]);
-        const currentDate = new Date(startDate);
-
-        if (isNaN(startDate.getTime())) {
-          return `第${dayIndex + 1}天`;
-        }
-
-        currentDate.setDate(startDate.getDate() + dayIndex);
-
-        const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
-        const weekday = weekdays[currentDate.getDay()];
-
-        return `第${dayIndex + 1}天 ${formatDate(currentDate)} (周${weekday})`;
-      } catch (error) {
-        console.error("日期格式化失败:", error);
-        return `第${dayIndex + 1}天`;
-      }
-    };
 
     // 天气相关工具函数
     const getWeatherSourceText = () => {
@@ -924,10 +885,44 @@ export default {
       return '☀️';
     };
 
+    // 检查用户选择的日期是否在天气预报范围内
+    const isDateWithinForecastRange = () => {
+      if (!props.weatherSuggestion || !props.weatherSuggestion.forecast || !tripForm.value.dateRange || !tripForm.value.dateRange.length) {
+        console.log('⚠️ 天气日期检查：缺少必要数据');
+        return false;
+      }
+      
+      const userStartDate = new Date(tripForm.value.dateRange[0]);
+      const userEndDate = new Date(tripForm.value.dateRange[1]);
+      
+      // 获取天气预报的日期范围
+      const forecastDates = props.weatherSuggestion.forecast.map(f => new Date(f.date));
+      const forecastStartDate = new Date(Math.min(...forecastDates));
+      const forecastEndDate = new Date(Math.max(...forecastDates));
+      
+      console.log('🔍 天气日期检查：', {
+        userStartDate: userStartDate.toDateString(),
+        userEndDate: userEndDate.toDateString(),
+        forecastStartDate: forecastStartDate.toDateString(),
+        forecastEndDate: forecastEndDate.toDateString()
+      });
+      
+      // 检查用户选择的日期是否与天气预报日期有重叠
+      const hasOverlap = userStartDate <= forecastEndDate && userEndDate >= forecastStartDate;
+      console.log('📊 天气日期重叠结果：', hasOverlap);
+      
+      return hasOverlap;
+    };
+
     // 生成智能的出行建议
     const getSmartTravelTips = () => {
       if (!props.weatherSuggestion || !props.weatherSuggestion.forecast) {
         return [];
+      }
+      
+      // 检查用户选择的日期是否在天气预报范围内
+      if (!isDateWithinForecastRange()) {
+        return []; // 如果日期超出预报范围，不显示天气建议
       }
       
       const tips = [];
@@ -1029,14 +1024,12 @@ export default {
       handleDateChange,
       formatDateRange,
       getDaysDescription,
-      getActualDays,
       budgetRecommendation,
       isRecommendedBudget,
       getBudgetText,
       applyRecommendedBudget,
       getEstimatedCost,
       goToNextStep,
-      formatDayDate,
       dateRangeError,
       getWeatherSourceText,
       getWeatherValidityText,
@@ -1045,6 +1038,7 @@ export default {
       getSmartTravelTips,
       getTripDaysExceedForecast,
       isForecastOutdated,
+      isDateWithinForecastRange,
     };
   },
 };

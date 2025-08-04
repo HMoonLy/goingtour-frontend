@@ -825,7 +825,6 @@ import {
   Picture,
   Food,
   More,
-  User,
   MagicStick,
   Edit,
   Setting,
@@ -834,9 +833,7 @@ import {
   Plus,
   ArrowLeft,
   ArrowRight,
-  Calendar,
   KnifeFork,
-  Mouse,
   Search,
   Trophy,
   Timer,
@@ -848,7 +845,7 @@ import {
   getRecommendedRestaurants,
   searchPlaces,
 } from "@/api/amap.js";
-import { tagMapping } from "@/utils/tagMapping.js";
+import { tagMapping, focusAreaMapping, translateTag } from "@/utils/tagMapping.js";
 export default {
   name: "TripPreferences",
   components: {
@@ -856,7 +853,6 @@ export default {
     Picture,
     Food,
     More,
-    User,
     MagicStick,
     Edit,
     Setting,
@@ -865,9 +861,7 @@ export default {
     Plus,
     ArrowLeft,
     ArrowRight,
-    Calendar,
     KnifeFork,
-    Mouse,
     Search,
     Trophy,
     Timer,
@@ -977,10 +971,10 @@ export default {
             localPreferenceForm.value.focusAreas = [];
           }
 
-          // 映射用户标签到新的体验偏好
-          const newTagMapping = {
+          // 映射用户标签到新的体验偏好 - 使用统一的标签映射
+          const tagToFocusAreaMapping = {
             historical: "historical_culture",
-            nature: "natural_scenery",
+            nature: "natural_scenery", 
             food: "local_cuisine",
             photography: "photo_spots",
             culture: "art_culture",
@@ -992,7 +986,7 @@ export default {
           };
 
           const mappedExperiences = props.userPreferences.selectedTags
-            .map((tag) => newTagMapping[tag])
+            .map((tag) => tagToFocusAreaMapping[tag])
             .filter(
               (exp) =>
                 exp && !localPreferenceForm.value.focusAreas.includes(exp),
@@ -1108,8 +1102,7 @@ export default {
       { deep: true },
     );
 
-    //人均提示词
-    const priceNull = ref("暂无价格参考");
+
     // 城市信息相关状态
     const cityInfo = ref(null);
     const loadingCityInfo = ref(false);
@@ -1140,50 +1133,7 @@ export default {
     const noMoreAttractions = ref(false);
     const noMoreRestaurants = ref(false);
 
-    // 行程风格选项
-    const tripStyles = [
-      {
-        value: "exploration",
-        title: "深度探索",
-        desc: "深入了解当地文化",
-        icon: "🔍",
-      },
-      {
-        value: "relaxation",
-        title: "休闲度假",
-        desc: "放松身心的悠闲时光",
-        icon: "🌴",
-      },
-      {
-        value: "cultural",
-        title: "文化体验",
-        desc: "感受历史与艺术",
-        icon: "🎭",
-      },
-      {
-        value: "adventure",
-        title: "冒险刺激",
-        desc: "挑战自我的精彩体验",
-        icon: "⚡",
-      },
-    ];
 
-    // 体验重点选项
-    const focusAreaOptions = [
-      { value: "local_culture", label: "当地文化" },
-      { value: "food_experience", label: "美食体验" },
-      { value: "natural_scenery", label: "自然风光" },
-      { value: "urban_life", label: "都市生活" },
-      { value: "historical_sites", label: "历史古迹" },
-      { value: "modern_attractions", label: "现代景观" },
-    ];
-
-    // 活动强度选项
-    const intensityOptions = [
-      { value: "relaxed", label: "轻松休闲" },
-      { value: "moderate", label: "适中节奏" },
-      { value: "intensive", label: "紧凑高效" },
-    ];
 
     // 行程目标选项
     const tripGoalOptions = [
@@ -1263,7 +1213,7 @@ export default {
       // 从旅行类型标签中提取并转换为中文
       if (props.userPreferences.selectedTags?.length > 0) {
         props.userPreferences.selectedTags.forEach((tag) => {
-          const chineseTag = tagMapping[tag] || tag;
+          const chineseTag = translateTag(tag);
           tags.push(chineseTag);
         });
       }
@@ -1271,8 +1221,8 @@ export default {
       // 从交通偏好中提取中文标签
       if (props.userPreferences.selectedTransports?.length > 0) {
         props.userPreferences.selectedTransports.forEach((transport) => {
-          const chineseTag = tagMapping[transport];
-          if (chineseTag) {
+          const chineseTag = translateTag(transport);
+          if (chineseTag && chineseTag !== transport) {
             tags.push(chineseTag);
           }
         });
@@ -1280,16 +1230,16 @@ export default {
 
       // 从其他偏好中提取标签
       if (props.userPreferences.accommodationType) {
-        const chineseTag = tagMapping[props.userPreferences.accommodationType];
-        if (chineseTag) {
+        const chineseTag = translateTag(props.userPreferences.accommodationType);
+        if (chineseTag && chineseTag !== props.userPreferences.accommodationType) {
           tags.push(chineseTag);
         }
       }
 
       // 从旅行节奏中提取标签
       if (props.userPreferences.travelPace) {
-        const chineseTag = tagMapping[props.userPreferences.travelPace];
-        if (chineseTag) {
+        const chineseTag = translateTag(props.userPreferences.travelPace);
+        if (chineseTag && chineseTag !== props.userPreferences.travelPace) {
           tags.push(chineseTag);
         }
       }
@@ -1297,7 +1247,7 @@ export default {
       // 从美食偏好中提取标签
       if (props.userPreferences.foodTastes?.length > 0) {
         props.userPreferences.foodTastes.forEach((taste) => {
-          const chineseTag = tagMapping[taste] || taste;
+          const chineseTag = translateTag(taste);
           tags.push(chineseTag);
         });
       }
@@ -1305,49 +1255,7 @@ export default {
       return [...new Set(tags)].slice(0, 15);
     });
 
-    // 根据用户偏好推荐行程风格
-    const recommendedTripStyle = computed(() => {
-      if (!props.userPreferences?.selectedTags?.length) return null;
 
-      const tags = props.userPreferences.selectedTags;
-
-      // 文化体验相关标签
-      if (
-        tags.some((tag) =>
-          [
-            "culture",
-            "history",
-            "art",
-            "historical",
-            "cultural",
-            "traditional",
-          ].includes(tag),
-        )
-      ) {
-        return "cultural";
-      }
-
-      // 冒险相关标签
-      if (
-        tags.some((tag) =>
-          ["adventure", "sports", "outdoor", "extreme_sports"].includes(tag),
-        )
-      ) {
-        return "adventure";
-      }
-
-      // 休闲相关标签
-      if (
-        tags.some((tag) =>
-          ["relaxation", "wellness", "peaceful", "beaches"].includes(tag),
-        )
-      ) {
-        return "relaxation";
-      }
-
-      // 默认推荐探索
-      return "exploration";
-    });
 
     // 根据用户偏好推荐体验重点
     const recommendedFocusAreas = computed(() => {
@@ -1391,53 +1299,7 @@ export default {
       return recommendations;
     });
 
-    // 智能推荐：推荐活动强度
-    const recommendedIntensity = computed(() => {
-      if (!props.userPreferences?.travelPace) return null;
 
-      const pace = props.userPreferences.travelPace;
-      const paceMapping = {
-        slow: "relaxed",
-        medium: "moderate",
-        fast: "intensive",
-        relaxed: "relaxed",
-        moderate: "moderate",
-        intensive: "intensive",
-        leisurely: "relaxed",
-        balanced: "moderate",
-        packed: "intensive",
-      };
-
-      return paceMapping[pace] || "moderate";
-    });
-
-    // 获取活动强度描述
-    const getIntensityDescription = (intensity) => {
-      const days = props.baseForm?.days || 0;
-      const descriptions = {
-        relaxed: {
-          short: "每天2-3个景点",
-          medium: "每天1-2个景点",
-          long: "每天0-1个景点，更多自由时间",
-        },
-        moderate: {
-          short: "每天3-4个景点",
-          medium: "每天2-3个景点",
-          long: "每天1-2个景点，张弛有度",
-        },
-        intensive: {
-          short: "每天4-5个景点",
-          medium: "每天3-4个景点",
-          long: "每天2-3个景点，充实体验",
-        },
-      };
-
-      if (!intensity || !descriptions[intensity]) return "";
-
-      if (days <= 7) return descriptions[intensity]?.short || "";
-      if (days <= 30) return descriptions[intensity]?.medium || "";
-      return descriptions[intensity]?.long || "";
-    };
 
     // 判断是否为推荐的体验重点
     const isRecommendedFocusArea = (areaValue) => {
@@ -2249,22 +2111,14 @@ export default {
       apiError,
       loadMoreAttractions,
       loadMoreRestaurants,
-      tripStyles,
-      focusAreaOptions,
-      intensityOptions,
       tripGoalOptions,
       paceOptions,
       allExperienceOptions,
       dietaryOptions,
-      tagMapping,
+      translateTag,
       selectedPreferenceTags,
-      recommendedTripStyle,
       recommendedFocusAreas,
-      recommendedIntensity,
-      getIntensityDescription,
       isRecommendedFocusArea,
-      skipPreferences,
-      openPreferences,
       extractTags,
       extractAttractionTags,
       extractSignatureDishes,

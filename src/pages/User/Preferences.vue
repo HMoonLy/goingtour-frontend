@@ -608,7 +608,7 @@ import {
   User,
 } from "@element-plus/icons-vue";
 import { useRouter, useRoute } from "vue-router";
-import { getMbtiName, getMbtiTravelDescription } from "@/utils/tagMapping.js";
+import { getMbtiName, getMbtiTravelDescription, translateTag } from "@/utils/tagMapping.js";
 
 export default {
   name: "Preferences",
@@ -657,42 +657,42 @@ export default {
     // MBTI性格类型选择
     const mbtiType = ref("");
 
-    // 可选择的旅行偏好标签
+    // 可选择的旅行偏好标签 - 使用统一的标签映射
     const availableTags = [
-      { label: "历史古迹", value: "historical", icon: School },
-      { label: "自然风光", value: "nature", icon: Sunrise },
-      { label: "美食探索", value: "food", icon: Coffee },
-      { label: "拍照打卡", value: "photography", icon: Camera },
-      { label: "亲子游", value: "family", icon: Trophy },
-      { label: "城市探索", value: "urban", icon: MapLocation },
-      { label: "文艺体验", value: "culture", icon: School },
-      { label: "休闲度假", value: "relaxation", icon: Coffee },
-      { label: "极限运动", value: "adventure", icon: Trophy },
-      { label: "温泉养生", value: "wellness", icon: House },
+      { label: translateTag("historical"), value: "historical", icon: School },
+      { label: translateTag("nature"), value: "nature", icon: Sunrise },
+      { label: translateTag("food"), value: "food", icon: Coffee },
+      { label: translateTag("photography"), value: "photography", icon: Camera },
+      { label: translateTag("family"), value: "family", icon: Trophy },
+      { label: translateTag("urban"), value: "urban", icon: MapLocation },
+      { label: translateTag("culture"), value: "culture", icon: School },
+      { label: translateTag("relaxation"), value: "relaxation", icon: Coffee },
+      { label: translateTag("adventure"), value: "adventure", icon: Trophy },
+      { label: translateTag("wellness"), value: "wellness", icon: House },
     ];
 
-    // 出行方式偏好
+    // 出行方式偏好 - 使用统一的标签映射
     const transportTypes = [
       {
-        label: "自驾游",
+        label: translateTag("car"),
         value: "car",
         icon: MapLocation,
         desc: "自由自在，不受公共交通限制",
       },
       {
-        label: "公共交通",
+        label: translateTag("public"),
         value: "public",
         icon: Monitor,
         desc: "环保出行，了解当地文化",
       },
       {
-        label: "步行/骑行",
+        label: translateTag("walk"),
         value: "walk",
         icon: Bicycle,
         desc: "深度体验，探索城市细节",
       },
       {
-        label: "包车/拼车",
+        label: translateTag("shared"),
         value: "shared",
         icon: House,
         desc: "灵活安排，节省时间",

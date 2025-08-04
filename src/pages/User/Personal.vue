@@ -541,6 +541,7 @@ import {
 } from "@element-plus/icons-vue";
 import { useUserStore } from "@/store/user.js";
 import { convertBackendTripToFrontend } from "@/utils/tripDataConverter.js";
+import { translateTag, getMbtiName } from "@/utils/tagMapping.js";
 
 export default {
   name: "Personal",
@@ -657,149 +658,44 @@ export default {
       return Object.keys(activeOtherPreferences.value).length > 0;
     });
 
-    // Helper 方法
+    // Helper 方法 - 使用统一的标签映射
     const getTravelTagLabel = (tagValue) => {
-      const labels = {
-        historical: "历史古迹",
-        nature: "自然风光",
-        food: "美食探索",
-        photography: "拍照打卡",
-        family: "亲子游",
-        urban: "城市探索",
-        culture: "文艺体验",
-        relaxation: "休闲度假",
-        adventure: "极限运动",
-        wellness: "温泉养生",
-      };
-      return labels[tagValue] || tagValue;
+      return translateTag(tagValue) || tagValue;
     };
 
     const getTransportLabel = (transport) => {
-      const labels = {
-        car: "自驾游",
-        public: "公共交通",
-        walk: "步行/骑行",
-        shared: "包车/拼车",
-        // 兼容旧值
-        walking: "步行",
-        driving: "自驾",
-        taxi: "出租车",
-        bicycle: "骑行",
-        motorcycle: "摩托车",
-        train: "火车",
-        flight: "飞机",
-      };
-      return labels[transport] || transport;
+      return translateTag(transport);
     };
 
     const getAccommodationLabel = (type) => {
-      const labels = {
-        budget: "经济实惠",
-        comfort: "舒适便利",
-        bnb: "特色民宿",
-        luxury: "奢华享受",
-        // 兼容旧值
-        hotel: "酒店",
-        hostel: "青旅",
-        apartment: "民宿",
-        guesthouse: "客栈",
-      };
-      return labels[type] || type;
+      return translateTag(type);
     };
 
     const getFoodTastesText = (tastes) => {
-      const labels = {
-        spicy: "辣味",
-        sweet: "甜味",
-        sour: "酸味",
-        light: "清淡",
-        heavy: "重口味",
-        // 可能的其他值
-        bitter: "苦味",
-        salty: "咸味",
-        umami: "鲜味",
-      };
-      return tastes.map((taste) => labels[taste] || taste).join("、");
+      return tastes.map((taste) => translateTag(taste)).join("、");
     };
 
     const getDietaryRestrictionsText = (restrictions) => {
-      const labels = {
-        vegetarian: "素食主义",
-        halal: "清真食品",
-        no_seafood: "不吃海鲜",
-        no_alcohol: "不饮酒",
-        gluten_free: "无麸质",
-        // 可能的其他值
-        vegan: "纯素食",
-        kosher: "犹太洁食",
-        no_pork: "不吃猪肉",
-        no_beef: "不吃牛肉",
-        dairy_free: "无乳制品",
-        no_spicy: "不吃辣",
-      };
       return restrictions
-        .map((restriction) => labels[restriction] || restriction)
+        .map((restriction) => translateTag(restriction, 'dietary'))
         .join("、");
     };
 
     const getTimeLabel = (time) => {
-      const labels = {
-        morning: "早起型",
-        afternoon: "午间型",
-        evening: "夜猫子",
-        // 可能的其他值
-        "early-morning": "清晨型",
-        "late-night": "深夜型",
-        "all-day": "全天型",
-      };
-      return labels[time] || time;
+      return translateTag(time);
     };
 
     const getTravelPaceText = (pace) => {
-      const labels = {
-        1: "🐌 慢悠悠 - 深度体验",
-        2: "🚶 悠闲型 - 适度安排",
-        3: "⚖️ 平衡型 - 景点与休息并重",
-        4: "🏃 紧凑型 - 多看多玩",
-        5: "⚡ 暴走型 - 最大化利用时间",
-      };
-      return labels[pace] || `节奏${pace}`;
+      return translateTag(pace);
     };
 
     const getOtherPreferenceLabel = (key) => {
-      const labels = {
-        popularFirst: "优先热门景点",
-        includeFood: "包含美食推荐",
-        avoidCrowds: "避开人群",
-        includeShopping: "包含购物",
-        preferPublicTransport: "偏好公共交通",
-        includeKidsActivities: "包含亲子活动",
-        needAccessibility: "需要无障碍设施",
-      };
-      return labels[key] || key;
+      return translateTag(key);
     };
 
-    // MBTI相关辅助函数
+    // MBTI相关辅助函数 - 使用统一的标签映射
     const getMbtiDisplayName = (type) => {
-      const names = {
-        INTJ: "建筑师",
-        INTP: "逻辑学家",
-        ENTJ: "指挥官",
-        ENTP: "辩论家",
-        INFJ: "提倡者",
-        INFP: "调停者",
-        ENFJ: "主人公",
-        ENFP: "活动家",
-        ISTJ: "物流师",
-        ISFJ: "守护者",
-        ESTJ: "总经理",
-        ESFJ: "执政官",
-        ISTP: "鉴赏家",
-        ISFP: "探险家",
-        ESTP: "企业家",
-        ESFP: "娱乐家",
-      };
-      return names[type] || "未知类型";
+      return getMbtiName(type);
     };
 
     const getMbtiTravelDescriptionShort = (type) => {
