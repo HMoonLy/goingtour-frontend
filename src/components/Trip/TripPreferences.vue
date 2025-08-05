@@ -801,7 +801,7 @@ type="danger" size="small"> 重要 </el-tag>
           <el-icon><ArrowLeft /></el-icon>
           上一步
         </el-button>
-        <el-button type="primary" size="large" @click="$emit('next-step')">
+        <el-button type="primary" size="large" @click="handleNextStep">
           下一步
           <el-icon><ArrowRight /></el-icon>
         </el-button>
@@ -2056,6 +2056,157 @@ export default {
       { deep: true, immediate: true },
     );
 
+    // 数据一致性验证
+    const validateDataConsistency = () => {
+      const errors = [];
+      const warnings = [];
+      
+      const travelers = props.baseForm.travelers;
+      const userPrefs = props.userPreferences;
+      const tripGoals = localPreferenceForm.value.tripGoals || [];
+      
+      // 获取所有选中的标签（包括用户偏好和行程目标）
+      const allSelectedTags = [
+        ...(userPrefs?.selectedTags || []),
+        ...(userPrefs?.tags || []),
+        ...tripGoals
+      ];
+      
+      console.log('🔍 验证数据:', { travelers, allSelectedTags });
+      
+      // 检查标签是否包含某个值（支持中英文）
+      const hasTag = (englishTag, chineseTag) => {
+        return allSelectedTags.includes(englishTag) || 
+               allSelectedTags.includes(chineseTag) ||
+               tripGoals.includes(englishTag) ||
+               tripGoals.includes(chineseTag);
+      };
+      
+      // 验证人数与标签的一致性
+      if (hasTag('family', '亲子出游') && travelers < 3) {
+        errors.push({
+          type: 'travelers_family_mismatch',
+          message: '选择了"亲子出游"标签，但人数少于3人',
+          suggestion: '亲子出游通常需要至少3人（父母+孩子），建议调整人数或更换标签'
+        });
+      }
+      
+      if (hasTag('couple', '情侣出行') && travelers !== 2) {
+        if (travelers === 1) {
+          errors.push({
+            type: 'travelers_couple_mismatch',
+            message: '选择了"情侣出行"标签，但设置为单人出行',
+            suggestion: '情侣出行需要2人，建议调整人数为2人或选择"独行"标签'
+          });
+        } else if (travelers > 2) {
+          warnings.push({
+            type: 'travelers_couple_warning',
+            message: '选择了"情侣出行"标签，但人数超过2人',
+            suggestion: '可能需要考虑选择"团体出行"或"亲子出游"标签'
+          });
+        }
+      }
+      
+      if (hasTag('solo', '独行') && travelers > 1) {
+        errors.push({
+          type: 'travelers_solo_mismatch',
+          message: '选择了"独行"标签，但设置了多人出行',
+          suggestion: '独行旅游应该是1人，建议调整人数为1人或选择其他出行方式标签'
+        });
+      }
+      
+      if (hasTag('group', '团体出行') && travelers < 4) {
+        warnings.push({
+          type: 'travelers_group_warning',
+          message: '选择了"团体出行"标签，但人数较少',
+          suggestion: '团体出行通常是4人以上，当前人数可能更适合"情侣出行"或"亲子出游"'
+        });
+      }
+      
+      // 验证预算与标签的一致性
+      const budget = props.baseForm.budget;
+      if (hasTag('luxury', '奢华体验') && budget && budget.includes('1000以下')) {
+        warnings.push({
+          type: 'budget_luxury_mismatch',
+          message: '选择了"奢华体验"标签，但预算设置较低',
+          suggestion: '奢华体验通常需要较高预算，建议调整预算范围或选择"经济实惠"标签'
+        });
+      }
+      
+      if (hasTag('budget', '经济实惠') && budget && budget.includes('5000以上')) {
+        warnings.push({
+          type: 'budget_economic_mismatch',
+          message: '选择了"经济实惠"标签，但预算设置较高',
+          suggestion: '当前预算可以考虑更多体验，建议调整标签或充分利用预算'
+        });
+      }
+      
+      // 验证天数与标签的一致性
+      const days = props.baseForm.days;
+      if (hasTag('relaxation', '休闲放松') && days < 3) {
+        warnings.push({
+          type: 'days_relaxation_warning',
+          message: '选择了"休闲放松"标签，但行程天数较短',
+          suggestion: '休闲放松的旅行建议至少3天以上，才能真正享受放松的感觉'
+        });
+      }
+      
+      return {
+        isValid: errors.length === 0,
+        errors,
+        warnings,
+        summary: {
+          totalIssues: errors.length + warnings.length,
+          criticalIssues: errors.length,
+          suggestions: warnings.length
+        }
+      };
+    };
+
+    // 处理下一步点击
+    const handleNextStep = () => {
+      console.log('🚀 准备进入下一步，开始验证数据一致性...');
+      
+      const validation = validateDataConsistency();
+      
+      if (validation.isValid) {
+        // 验证通过，可以进入下一步
+        console.log('✅ 数据验证通过');
+        if (validation.warnings.length > 0) {
+          // 有警告但不阻止进入下一步
+          ElMessage.warning(`数据验证通过，但有${validation.warnings.length}个建议需要注意`);
+          console.log('⚠️ 警告信息:', validation.warnings);
+        }
+        emit('next-step');
+      } else {
+        // 验证失败，显示错误信息
+        console.log('❌ 数据验证失败:', validation.errors);
+        
+        const errorMessages = validation.errors.map(error => error.message);
+        const warningMessages = validation.warnings.map(warning => warning.message);
+        
+        let messageContent = '';
+        if (errorMessages.length > 0) {
+          messageContent += '需要解决的问题：\n' + errorMessages.join('\n');
+        }
+        if (warningMessages.length > 0) {
+          if (messageContent) messageContent += '\n\n';
+          messageContent += '建议优化：\n' + warningMessages.join('\n');
+        }
+        
+        ElMessage({
+          type: 'error',
+          message: messageContent,
+          duration: 6000,
+          showClose: true,
+          dangerouslyUseHTMLString: false
+        });
+        
+        // 可以考虑滚动到页面顶部，让用户更容易看到需要修改的地方
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
+
     // 组件加载时初始化
     onMounted(() => {
       console.log("🚀 TripPreferences组件挂载");
@@ -2116,6 +2267,8 @@ export default {
       isSearchMode,
       handleSearch,
       handleClearSearch,
+      // 数据验证相关
+      handleNextStep,
     };
   },
 };
