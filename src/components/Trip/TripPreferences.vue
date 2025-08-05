@@ -17,7 +17,7 @@
       <div class="form-section">
         <div class="section-title">
           <el-icon><Location /></el-icon>
-          <span>{{ cityInfo.destinationName }}推荐内容</span>
+          <span>{{ cityInfo?.destinationName || '目的地' }}推荐内容</span>
         </div>
         
         <!-- 切换标签 -->
@@ -896,7 +896,7 @@ export default {
   ],
   setup(props, { emit }) {
     const router = useRouter();
-    console.log(props);
+    
     
     // 使用父组件传递的值初始化本地数据
     const localPreferenceForm = ref({ ...props.preferenceForm });
@@ -907,7 +907,7 @@ export default {
         props.userPreferences &&
         Object.keys(props.userPreferences).length > 0
       ) {
-        console.log("🎯 开始应用用户偏好到个性化设置:", props.userPreferences);
+  
 
         // 应用行程节奏偏好（基于旅行节奏和MBTI）
         if (
@@ -2058,7 +2058,7 @@ export default {
 
     // 组件加载时初始化
     onMounted(() => {
-      console.log("🚀 TripPreferences组件挂载");
+      
 
       // 应用用户偏好默认值
       applyUserPreferences();

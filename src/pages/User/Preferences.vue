@@ -871,13 +871,13 @@ export default {
     // 加载用户偏好
     const loadPreferences = async () => {
       if (!userStore.currentUser?.id) {
-        console.log("用户未登录，跳过偏好加载");
+
         loading.value = false;
         return;
       }
 
       try {
-        console.log("🔄 开始加载用户偏好...");
+
 
         // 首先尝试从API获取最新的偏好数据
         try {
