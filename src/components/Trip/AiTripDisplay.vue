@@ -6,10 +6,10 @@
         <div class="trip-title-section">
           <div class="title-with-icon">
             <el-icon class="ai-icon" color="#409eff"><Cpu /></el-icon>
-            <h1 class="trip-main-title">{{ structuredData?.title || '智能行程计划' }}</h1>
+            <h1 class="trip-main-title">{{ tripTitle }}</h1>
           </div>
-          <p class="trip-subtitle" v-if="structuredData?.description">
-            {{ cleanDescription(structuredData.description) }}
+          <p class="trip-subtitle" v-if="props.tripData?.content">
+            AI为您精心规划的{{ props.tripData?.tripBasicInfo?.days || 3 }}天行程
           </p>
         </div>
         
@@ -96,7 +96,7 @@
       <!-- 预算分配卡片 -->
       <el-card 
         class="info-card budget-card" 
-        v-if="structuredData?.budgetAllocation?.categories?.length" 
+        v-if="budgetHtml" 
         shadow="hover"
       >
         <template #header>
@@ -106,28 +106,7 @@
           </div>
         </template>
         
-        <div class="budget-summary" v-if="budgetTotal">
-          <div class="budget-total-card">
-            <div class="total-label">总预算</div>
-            <div class="total-amount">{{ budgetTotal }}</div>
-          </div>
-        </div>
-        
-        <div class="budget-list">
-          <div 
-            v-for="(category, index) in structuredData.budgetAllocation.categories" 
-            :key="index"
-            class="budget-item"
-          >
-            <div class="budget-row">
-              <span class="budget-category">{{ category.name }}</span>
-              <span class="budget-amount">{{ category.amount }}</span>
-            </div>
-            <div class="budget-desc" v-if="category.description">
-              {{ category.description }}
-            </div>
-          </div>
-        </div>
+        <div class="budget-content" v-html="budgetHtml"></div>
       </el-card>
 
       <!-- 实用提示卡片 -->
@@ -142,41 +121,25 @@
       </el-card>
 
       <!-- 必备物品卡片 -->
-      <el-card class="info-card packing-card" v-if="packingItems.length" shadow="hover">
+      <el-card class="info-card packing-card" v-if="packingHtml" shadow="hover">
         <template #header>
           <div class="card-title">
             <el-icon color="#409eff"><Suitcase /></el-icon>
             <span>必备物品</span>
           </div>
         </template>
-        <div class="packing-items">
-          <el-tag 
-            v-for="(item, index) in packingItems" 
-            :key="index"
-            class="packing-tag"
-            size="small"
-            type="info"
-          >
-            <el-icon><Check /></el-icon>
-            {{ item }}
-          </el-tag>
-        </div>
+        <div class="packing-content" v-html="packingHtml"></div>
       </el-card>
 
       <!-- 备选方案卡片 -->
-      <el-card class="info-card backup-card" v-if="backupPlans.length" shadow="hover">
+      <el-card class="info-card backup-card" v-if="backupHtml" shadow="hover">
         <template #header>
           <div class="card-title">
             <el-icon color="#909399"><Cloudy /></el-icon>
             <span>备选方案</span>
           </div>
         </template>
-        <div class="backup-list">
-          <div v-for="(plan, index) in backupPlans" :key="index" class="backup-item">
-            <el-icon class="backup-icon"><Right /></el-icon>
-            <span>{{ plan }}</span>
-          </div>
-        </div>
+        <div class="backup-content" v-html="backupHtml"></div>
       </el-card>
     </div>
 
@@ -283,9 +246,13 @@ const md = new MarkdownIt({
 md.renderer.rules.strong_open = () => '<strong class="text-highlight">'
 md.renderer.rules.strong_close = () => '</strong>'
 
-// 计算属性：结构化数据
-const structuredData = computed(() => {
-  return props.tripData?.structuredData || null
+// 计算属性：从原始content解析标题
+const tripTitle = computed(() => {
+  if (!props.tripData?.content) return '智能行程计划'
+  
+  const content = props.tripData.content
+  const titleMatch = content.match(/^### 📅 (.+)$/m)
+  return titleMatch ? titleMatch[1] : '智能行程计划'
 })
 
 // 计算属性：解析每日行程
@@ -329,19 +296,18 @@ const parsedDays = computed(() => {
   return days
 })
 
-// 计算属性：预算总计
-const budgetTotal = computed(() => {
-  const categories = structuredData.value?.budgetAllocation?.categories
-  if (!categories?.length) return null
+// 计算属性：预算分配HTML
+const budgetHtml = computed(() => {
+  if (!props.tripData?.content) return ''
   
-  // 尝试从分类中计算总预算
-  const amounts = categories.map(cat => {
-    const match = cat.amount?.match(/(\d+)/)
-    return match ? parseInt(match[1]) : 0
-  })
+  const content = props.tripData.content  
+  const budgetMatch = content.match(/### 💰 \*{2}预算分配[^\\n]*\*{2}[\\s\\S]*?(\\|[\\s\\S]*?)(?=###|$)/m)
   
-  const total = amounts.reduce((sum, amount) => sum + amount, 0)
-  return total > 0 ? `${total}元` : '约4500元'
+  if (budgetMatch) {
+    return md.render(budgetMatch[0])
+  }
+  
+  return ''
 })
 
 // 计算属性：实用提示HTML
@@ -349,7 +315,7 @@ const tipsHtml = computed(() => {
   if (!props.tripData?.content) return ''
   
   const content = props.tripData.content
-  const tipsMatch = content.match(/### 💡 \*{2}实用出行提示\*{2}([\s\S]*?)(?=###|$)/)
+  const tipsMatch = content.match(/### 💡 \*{2}实用[^*]*提示\*{2}([\\s\\S]*?)(?=###|$)/m)
   
   if (tipsMatch) {
     return md.render(tipsMatch[1].trim())
@@ -358,41 +324,35 @@ const tipsHtml = computed(() => {
   return ''
 })
 
-// 计算属性：物品清单
-const packingItems = computed(() => {
-  const items = structuredData.value?.packingList || []
-  return items.filter(item => 
-    item && 
-    item !== '必备物品清单' && 
-    item !== '--' && 
-    !item.includes('✨') &&
-    !item.includes('深度游点睛建议') &&
-    item.length < 50
-  ).slice(0, 20) // 限制显示数量
+// 计算属性：必备物品HTML
+const packingHtml = computed(() => {
+  if (!props.tripData?.content) return ''
+  
+  const content = props.tripData.content
+  const packingMatch = content.match(/### 🎒 \*{2}必备物品[^*]*\*{2}([\\s\\S]*?)(?=###|$)/m)
+  
+  if (packingMatch) {
+    return md.render(packingMatch[1].trim())
+  }
+  
+  return ''
 })
 
-// 计算属性：备选方案
-const backupPlans = computed(() => {
-  const plans = structuredData.value?.backupPlans || []
-  return plans.filter(plan => 
-    plan && 
-    plan !== '雨天备选方案' && 
-    plan !== '--' && 
-    plan !== '替换景点：' && 
-    plan !== '室内体验：' &&
-    !plan.includes('→') &&
-    plan.length > 5
-  ).slice(0, 10) // 限制显示数量
+// 计算属性：备选方案HTML
+const backupHtml = computed(() => {
+  if (!props.tripData?.content) return ''
+  
+  const content = props.tripData.content
+  const backupMatch = content.match(/### 🌧️ \*{2}[^*]*备选方案\*{2}([\\s\\S]*?)(?=###|$)/m)
+  
+  if (backupMatch) {
+    return md.render(backupMatch[1].trim())
+  }
+  
+  return ''
 })
 
-// 工具函数：清理描述文本
-const cleanDescription = (description) => {
-  if (!description) return ''
-  return description
-    .replace(/\*{2}[^*]+\*{2}/g, '')
-    .replace(/- \*{2}[^*]+\*{2}/g, '')
-    .substring(0, 150) + (description.length > 150 ? '...' : '')
-}
+
 
 // 工具函数：格式化处理时间
 const formatProcessingTime = (time) => {
