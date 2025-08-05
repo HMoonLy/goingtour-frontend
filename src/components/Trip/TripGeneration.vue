@@ -40,15 +40,14 @@
                 <h4>基本信息</h4>
               </div>
               <div v-if="baseForm.destination && baseForm.days" class="prompt-text">
-                为我规划一次前往<span class="highlight">{{ getSelectedCityName() }}</span
-                >的 <span class="highlight">{{ baseForm.days }}天</span>行程， 共<span
-                  class="highlight"
-                  >{{ baseForm.travelers }}人</span
-                >出行， 预算约<span class="highlight">{{ getBudgetText() }}</span
-                >。 出行日期为<span class="highlight">{{
-                  formatDateRange(baseForm.dateRange)
-                }}</span
-                >。
+                为我规划一次前往
+                <span class="highlight">{{ getSelectedCityName() }}</span>
+                的 <span class="highlight">{{ baseForm.days }}天</span>行程， 共
+                <span class="highlight">{{ baseForm.travelers }}人</span>
+                出行， 预算约
+                <span class="highlight">{{ getBudgetText() }}</span>
+                。出行日期为
+                <span class="highlight">{{formatDateRange(baseForm.dateRange)}}</span>。
               </div>
               <div v-else class="prompt-placeholder">
                 请填写基本信息（目的地、天数、日期等）
@@ -63,14 +62,12 @@
               <div v-if="hasUserPreferences" class="prompt-text">
                 我的旅行偏好是<span class="highlight">{{
                   selectedPreferenceTags.join("、")
-                }}</span
-                >。
+                }}</span>。
                 <template v-if="currentUserPreferences.accommodationType">
                   住宿偏好<span class="highlight">{{
                     tagMapping[currentUserPreferences.accommodationType] ||
                     currentUserPreferences.accommodationType
-                  }}</span
-                  >。
+                  }}</span>。
                 </template>
                 <template v-if="currentUserPreferences.travelPace">
                   旅行节奏偏好<span class="highlight">{{
