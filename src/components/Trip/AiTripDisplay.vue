@@ -275,18 +275,22 @@ const clearFeedback = () => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  background: #fafafa;
+  background: #f5f7fa;
+  min-height: 100vh;
 }
 
 /* 头部卡片 */
 .trip-header-card {
   margin-bottom: 24px;
   border-radius: 12px;
-  border: 1px solid #e4e7ed;
+  border: none;
+  background: #ffffff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 .trip-header-card :deep(.el-card__body) {
   padding: 32px;
+  background: transparent;
 }
 
 .trip-header-content {
@@ -303,18 +307,19 @@ const clearFeedback = () => {
 
 .ai-icon {
   font-size: 32px;
+  color: #667eea;
 }
 
 .trip-main-title {
   font-size: 28px;
-  font-weight: 600;
-  color: #303133;
+  font-weight: 700;
+  color: #2d3748;
   margin: 0;
 }
 
 .trip-subtitle {
   font-size: 16px;
-  color: #606266;
+  color: #718096;
   margin: 0 0 32px 0;
   line-height: 1.6;
 }
@@ -330,14 +335,17 @@ const clearFeedback = () => {
   align-items: center;
   gap: 16px;
   padding: 20px;
-  background: #f5f7fa;
+  background: #ffffff;
   border-radius: 8px;
   transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .stat-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #667eea;
 }
 
 .stat-icon {
@@ -346,10 +354,11 @@ const clearFeedback = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: white;
+  background: #f7fafc;
   border-radius: 8px;
   font-size: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: #667eea;
+  border: 1px solid #e2e8f0;
 }
 
 .stat-content {
@@ -359,14 +368,15 @@ const clearFeedback = () => {
 .stat-number {
   font-size: 24px;
   font-weight: 600;
-  color: #303133;
+  color: #2d3748;
   line-height: 1;
 }
 
 .stat-label {
   font-size: 14px;
-  color: #909399;
+  color: #718096;
   margin-top: 4px;
+  font-weight: 500;
 }
 
 /* 内容卡片 */
@@ -374,13 +384,21 @@ const clearFeedback = () => {
   margin-bottom: 24px;
   border-radius: 12px;
   overflow: hidden;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  background: white;
+}
+
+.content-card :deep(.el-card__body) {
+  padding: 24px;
 }
 
 /* Markdown内容样式 */
 .markdown-content {
   line-height: 1.8;
-  color: #333;
+  color: #2d3748;
   font-size: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .markdown-content :deep(h1),
@@ -389,133 +407,188 @@ const clearFeedback = () => {
 .markdown-content :deep(h4),
 .markdown-content :deep(h5),
 .markdown-content :deep(h6) {
-  margin: 24px 0 16px 0;
-  font-weight: 600;
-  color: #1a1a1a;
+  margin: 32px 0 20px 0;
+  font-weight: 700;
+  color: #1a202c;
   line-height: 1.3;
+  letter-spacing: -0.025em;
 }
 
 .markdown-content :deep(h1) {
-  font-size: 32px;
-  border-bottom: 3px solid #409eff;
-  padding-bottom: 12px;
+  font-size: 28px;
+  color: #2d3748;
+  text-align: center;
+  margin: 24px 0 20px 0;
+  padding: 16px 20px;
+  background: #f7fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
 }
 
 .markdown-content :deep(h2) {
-  font-size: 28px;
-  border-bottom: 2px solid #67c23a;
-  padding-bottom: 10px;
+  font-size: 24px;
+  color: #2d3748;
+  padding: 12px 0;
+  border-bottom: 2px solid #667eea;
+  margin: 32px 0 20px 0;
 }
 
 .markdown-content :deep(h3) {
-  font-size: 24px;
-  border-left: 4px solid #e6a23c;
-  padding-left: 16px;
+  font-size: 20px;
+  color: #2d3748;
+  padding: 12px 16px;
+  background: #f7fafc;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+  margin: 24px 0 16px 0;
 }
 
 .markdown-content :deep(h4) {
-  font-size: 20px;
-  border-left: 3px solid #f56c6c;
-  padding-left: 12px;
-  background: #fef0f0;
-  padding: 8px 0 8px 12px;
-  border-radius: 4px;
+  font-size: 18px;
+  color: #2d3748;
+  background: #f7fafc;
+  padding: 10px 16px;
+  border-radius: 6px;
+  border-left: 3px solid #667eea;
+  margin: 20px 0 12px 0;
+  font-weight: 600;
 }
 
 .markdown-content :deep(h5) {
-  font-size: 18px;
-  color: #409eff;
+  font-size: 16px;
+  color: #667eea;
+  font-weight: 600;
+  margin: 16px 0 8px 0;
 }
 
 .markdown-content :deep(h6) {
-  font-size: 16px;
-  color: #909399;
+  font-size: 14px;
+  color: #718096;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 12px 0 6px 0;
 }
 
 .markdown-content :deep(p) {
-  margin: 16px 0;
+  margin: 18px 0;
   line-height: 1.8;
+  color: #4a5568;
 }
 
 .markdown-content :deep(ul),
 .markdown-content :deep(ol) {
-  margin: 16px 0;
-  padding-left: 32px;
+  margin: 20px 0;
+  padding-left: 0;
+  list-style: none;
 }
 
 .markdown-content :deep(li) {
-  margin: 8px 0;
+  margin: 12px 0;
   line-height: 1.7;
+  position: relative;
+  padding: 8px 0 8px 32px;
+  color: #4a5568;
 }
 
-.markdown-content :deep(ul li) {
-  list-style-type: disc;
+.markdown-content :deep(ul li)::before {
+  content: "•";
+  color: #667eea;
+  font-weight: bold;
+  position: absolute;
+  left: 8px;
+  top: 8px;
+}
+
+.markdown-content :deep(ol) {
+  counter-reset: list-counter;
 }
 
 .markdown-content :deep(ol li) {
-  list-style-type: decimal;
+  counter-increment: list-counter;
+}
+
+.markdown-content :deep(ol li)::before {
+  content: counter(list-counter);
+  background: #667eea;
+  color: white;
+  font-weight: 600;
+  font-size: 12px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  left: 0;
+  top: 10px;
 }
 
 .markdown-content :deep(.trip-highlight) {
-  background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
-  padding: 3px 8px;
-  border-radius: 6px;
+  background: #f7fafc;
+  padding: 2px 6px;
+  border-radius: 4px;
   font-weight: 600;
-  color: #333;
+  color: #667eea;
+  border: 1px solid #e2e8f0;
 }
 
 .markdown-content :deep(table) {
   width: 100%;
   border-collapse: collapse;
-  margin: 20px 0;
+  margin: 24px 0;
   background: white;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
 }
 
 .markdown-content :deep(th),
 .markdown-content :deep(td) {
   padding: 12px 16px;
   text-align: left;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .markdown-content :deep(th) {
-  background: #fafafa;
+  background: #f7fafc;
   font-weight: 600;
-  color: #333;
+  color: #2d3748;
   font-size: 14px;
 }
 
 .markdown-content :deep(td) {
   font-size: 14px;
+  color: #4a5568;
 }
 
 .markdown-content :deep(tr:hover) {
-  background: #f8f9fa;
+  background: #f8fafc;
 }
 
 .markdown-content :deep(blockquote) {
   margin: 20px 0;
   padding: 16px 20px;
-  border-left: 4px solid #409eff;
-  background: #f0f9ff;
+  border-left: 4px solid #667eea;
+  background: #f7fafc;
   border-radius: 0 8px 8px 0;
 }
 
 .markdown-content :deep(code) {
-  background: #f1f2f3;
+  background: #f1f5f9;
   padding: 2px 6px;
   border-radius: 4px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 14px;
-  color: #e74c3c;
+  font-size: 13px;
+  color: #667eea;
+  font-weight: 500;
 }
 
 .markdown-content :deep(pre) {
   background: #2d3748;
-  color: #fff;
+  color: #f7fafc;
   padding: 20px;
   border-radius: 8px;
   overflow-x: auto;
@@ -531,7 +604,7 @@ const clearFeedback = () => {
 .markdown-content :deep(hr) {
   border: none;
   height: 2px;
-  background: linear-gradient(to right, #409eff, #67c23a);
+  background: #e2e8f0;
   margin: 32px 0;
   border-radius: 1px;
 }
@@ -540,6 +613,13 @@ const clearFeedback = () => {
 .actions-card {
   margin-bottom: 24px;
   border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.actions-card :deep(.el-card__body) {
+  padding: 24px;
 }
 
 .action-buttons {
@@ -549,13 +629,30 @@ const clearFeedback = () => {
   flex-wrap: wrap;
 }
 
-.action-buttons .el-button {
+.action-buttons :deep(.el-button) {
   min-width: 120px;
+  height: 40px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.action-buttons :deep(.el-button):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* 反馈卡片 */
 .feedback-card {
   border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  background: white;
+}
+
+.feedback-card :deep(.el-card__body) {
+  padding: 24px;
 }
 
 .card-title {
@@ -564,7 +661,8 @@ const clearFeedback = () => {
   gap: 8px;
   font-weight: 600;
   font-size: 16px;
-  color: #303133;
+  color: #2d3748;
+  margin-bottom: 20px;
 }
 
 .feedback-content > * + * {
@@ -576,16 +674,33 @@ const clearFeedback = () => {
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
+  padding: 16px;
+  background: #f7fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
 }
 
 .rating-label {
   font-size: 14px;
-  color: #606266;
+  color: #2d3748;
   font-weight: 500;
 }
 
 .feedback-input {
   margin: 16px 0;
+}
+
+.feedback-input :deep(.el-textarea__inner) {
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.feedback-input :deep(.el-textarea__inner):focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .feedback-actions {
@@ -594,18 +709,28 @@ const clearFeedback = () => {
   gap: 12px;
 }
 
+.feedback-actions :deep(.el-button) {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .ai-trip-display {
     padding: 16px;
+    background: #f8fafc;
   }
   
   .trip-header-card :deep(.el-card__body) {
-    padding: 20px;
+    padding: 24px;
   }
   
   .trip-main-title {
-    font-size: 24px;
+    font-size: 26px;
+  }
+  
+  .trip-subtitle {
+    font-size: 16px;
   }
   
   .trip-stats {
@@ -614,27 +739,78 @@ const clearFeedback = () => {
   }
   
   .stat-card {
-    padding: 16px;
+    padding: 20px;
     flex-direction: column;
     text-align: center;
+    gap: 12px;
+  }
+  
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+  }
+  
+  .content-card :deep(.el-card__body) {
+    padding: 24px;
   }
   
   .action-buttons {
     flex-direction: column;
     align-items: stretch;
+    gap: 16px;
   }
   
   .rating-section {
     flex-direction: column;
     align-items: flex-start;
+    gap: 16px;
   }
   
   .markdown-content {
-    font-size: 14px;
+    font-size: 15px;
   }
   
   .markdown-content :deep(h1) {
-    font-size: 24px;
+    font-size: 26px;
+    padding: 12px 16px;
+  }
+  
+  .markdown-content :deep(h2) {
+    font-size: 22px;
+  }
+  
+  .markdown-content :deep(h3) {
+    font-size: 20px;
+    padding: 12px 16px;
+  }
+  
+  .markdown-content :deep(h4) {
+    font-size: 18px;
+    padding: 10px 16px;
+  }
+  
+  .markdown-content :deep(table) {
+    font-size: 13px;
+  }
+  
+  .markdown-content :deep(th),
+  .markdown-content :deep(td) {
+    padding: 12px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ai-trip-display {
+    padding: 12px;
+  }
+  
+  .trip-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .markdown-content :deep(h1) {
+    font-size: 22px;
   }
   
   .markdown-content :deep(h2) {
@@ -644,34 +820,30 @@ const clearFeedback = () => {
   .markdown-content :deep(h3) {
     font-size: 18px;
   }
-  
-  .markdown-content :deep(h4) {
-    font-size: 16px;
-  }
 }
 
 /* 美化滚动条 */
 .markdown-content :deep(*) {
   scrollbar-width: thin;
-  scrollbar-color: #409eff #f1f1f1;
+  scrollbar-color: #667eea #f1f5f9;
 }
 
 .markdown-content :deep(*::-webkit-scrollbar) {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 .markdown-content :deep(*::-webkit-scrollbar-track) {
-  background: #f1f1f1;
-  border-radius: 4px;
+  background: #f1f5f9;
+  border-radius: 3px;
 }
 
 .markdown-content :deep(*::-webkit-scrollbar-thumb) {
-  background: #409eff;
-  border-radius: 4px;
+  background: #667eea;
+  border-radius: 3px;
 }
 
 .markdown-content :deep(*::-webkit-scrollbar-thumb:hover) {
-  background: #337ecc;
+  background: #5a67d8;
 }
 </style>
