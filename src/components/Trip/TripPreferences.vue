@@ -1,8 +1,25 @@
 <template>
   <div class="step-content">
-    <div class="city-guide-container">
-      <!-- 统一的推荐区域 -->
-      <div class="unified-recommendation-section">
+    <!-- 页面标题区域 -->
+    <div class="page-title">
+      <div class="title-content">
+        <el-icon class="title-icon"><MagicStick /></el-icon>
+        <div class="title-text">
+          <h2 class="main-title">个性化偏好设置</h2>
+          <p class="subtitle">设置您的旅行偏好，我们将为您推荐最符合喜好的景点和餐厅</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 表单区域 -->
+    <div class="form-sections">
+      <!-- 推荐区域 -->
+      <div class="form-section">
+        <div class="section-title">
+          <el-icon><Location /></el-icon>
+          <span>{{ cityInfo.destinationName }}推荐内容</span>
+        </div>
+        
         <!-- 切换标签 -->
         <div class="tab-switcher">
           <div
@@ -14,9 +31,8 @@
             "
           >
             <el-icon><Location /></el-icon>
-            <span>{{ cityInfo.destinationName }}推荐景点</span>
-            <el-tag
-size="small" type="success"> 高德地图数据 </el-tag>
+            <span>推荐景点</span>
+            <el-tag size="small" type="success">高德地图数据</el-tag>
           </div>
           <div
             class="tab-item"
@@ -27,9 +43,8 @@ size="small" type="success"> 高德地图数据 </el-tag>
             "
           >
             <el-icon><Food /></el-icon>
-            <span>{{ cityInfo.destinationName }}美食推荐</span>
-            <el-tag
-size="small" type="warning"> 高德地图数据 </el-tag>
+            <span>美食推荐</span>
+            <el-tag size="small" type="warning">高德地图数据</el-tag>
           </div>
         </div>
 
@@ -76,8 +91,7 @@ value="distance" />
         </div>
 
         <!-- 景点推荐内容 -->
-        <div v-show="SisShow"
-class="recommendation-content" v-if="SisShow">
+        <div v-show="SisShow" class="recommendation-content">
           <!-- 搜索模式提示 -->
           <div
             v-if="isSearchMode && searchResults.length > 0"
@@ -90,17 +104,14 @@ class="recommendation-content" v-if="SisShow">
               show-icon
             />
             <div style="margin-top: 8px">
-              <el-button size="small"
-@click="handleClearSearch">
+              <el-button size="small" @click="handleClearSearch">
                 返回推荐
               </el-button>
             </div>
           </div>
 
-          <div v-if="loadingAttractions"
-class="loading-state">
-            <el-skeleton :rows="3"
-animated />
+          <div v-if="loadingAttractions" class="loading-state">
+            <el-skeleton :rows="3" animated />
           </div>
 
           <div
@@ -110,8 +121,7 @@ animated />
             <el-empty description="暂无推荐景点" />
           </div>
 
-          <div v-else
-if="apiError" class="error-state">
+          <div v-else-if="apiError" class="error-state">
             <el-alert
               :title="apiError"
               type="error"
@@ -120,8 +130,10 @@ if="apiError" class="error-state">
             />
           </div>
 
-          <div v-else
-class="recommendation-list">
+          <div 
+            v-else 
+            class="recommendation-list"
+          >
             <div
               v-for="attraction in isSearchMode
                 ? searchResults.filter((item) => item.isAttraction)
@@ -439,41 +451,26 @@ class="dish-tags">
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- 个性化偏好设置 -->
-    <div class="preferences-section">
-      <el-card class="preferences-card"
-shadow="hover">
-        <template #header>
-          <div class="preferences-header">
-            <div class="header-left">
-              <div class="header-icon">
-                <el-icon><MagicStick /></el-icon>
-              </div>
-              <div class="header-content">
-                <h2 class="header-title">本次行程个性化</h2>
-                <p class="header-subtitle">
-                  告诉我们您的具体需求，AI将为您量身定制专属行程
-                </p>
-              </div>
-            </div>
-            <div
-              v-if="userPreferences && Object.keys(userPreferences).length > 0"
-              class="smart-hint"
-            >
-              <el-icon><Star /></el-icon>
-              <span>已为您智能预填推荐选项</span>
-            </div>
-          </div>
-        </template>
-
-        <div class="preferences-content">
-          <el-form
-            :model="localPreferenceForm"
-            class="trip-preferences-form"
-            label-position="top"
+      <!-- 个性化偏好设置 -->
+      <div class="form-section">
+        <div class="section-title">
+          <el-icon><MagicStick /></el-icon>
+          <span>个性化偏好设置</span>
+          <div
+            v-if="userPreferences && Object.keys(userPreferences).length > 0"
+            class="section-subtitle"
           >
+            <el-icon><Star /></el-icon>
+            <span>已为您智能预填推荐选项</span>
+          </div>
+        </div>
+
+        <el-form
+          :model="localPreferenceForm"
+          class="trip-preferences-form"
+          label-position="top"
+        >
             <!-- 行程目标 -->
             <div class="preference-group">
               <div class="group-header">
@@ -795,19 +792,16 @@ type="danger" size="small"> 重要 </el-tag>
                 class="special-input"
               />
             </div>
-          </el-form>
-        </div>
-      </el-card>
-
-      <!-- 步骤操作按钮 -->
-      <div class="step-actions">
-        <el-button size="large"
-@click="$emit('prev-step')">
+        </el-form>
+      </div>
+      
+      <!-- 操作按钮区域 -->
+      <div class="action-section">
+        <el-button size="large" @click="$emit('prev-step')">
           <el-icon><ArrowLeft /></el-icon>
           上一步
         </el-button>
-        <el-button type="primary"
-size="large" @click="$emit('next-step')">
+        <el-button type="primary" size="large" @click="$emit('next-step')">
           下一步
           <el-icon><ArrowRight /></el-icon>
         </el-button>
@@ -817,12 +811,11 @@ size="large" @click="$emit('next-step')">
 </template>
 
 <script>
-import { ref,computed, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import {
   Location,
-  Picture,
   Food,
   More,
   MagicStick,
@@ -845,12 +838,11 @@ import {
   getRecommendedRestaurants,
   searchPlaces,
 } from "@/api/amap.js";
-import { tagMapping, focusAreaMapping, translateTag } from "@/utils/tagMapping.js";
+import { translateTag } from "@/utils/tagMapping.js";
 export default {
   name: "TripPreferences",
   components: {
     Location,
-    Picture,
     Food,
     More,
     MagicStick,
@@ -1304,24 +1296,6 @@ export default {
     // 判断是否为推荐的体验重点
     const isRecommendedFocusArea = (areaValue) => {
       return recommendedFocusAreas.value.includes(areaValue);
-    };
-
-    // 跳过偏好设置
-    const skipPreferences = () => {
-      ElMessage.info("您可以随时在个人中心设置偏好以获得更好的推荐");
-    };
-
-    // 打开偏好设置页面
-    const openPreferences = () => {
-      router.push({
-        name: "Preferences",
-        query: {
-          returnTo: "/trip/create", // 返回路径
-          returnQuery: JSON.stringify({
-            fromPreferences: "true", // 标记从偏好设置返回
-          }),
-        },
-      });
     };
 
     // 加载城市信息和推荐
@@ -2148,6 +2122,145 @@ export default {
 </script>
 
 <style scoped>
+/* 整体布局 - 完全按照TripBaseInfo.vue */
+.step-content {
+  width: 100%;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+/* 页面标题区域 - 完全按照TripBaseInfo.vue */
+.page-title {
+  background: linear-gradient(135deg, #409eff 0%, #5dade2 100%);
+  color: white;
+  padding: 32px 24px;
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-title::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><radialGradient id="a" cx="50" cy="50" r="50"><stop offset="0" stop-color="white" stop-opacity="0.1"/><stop offset="1" stop-color="white" stop-opacity="0.05"/></radialGradient></defs><rect width="100" height="20" fill="url(%23a)"/></svg>');
+  opacity: 0.3;
+}
+
+.title-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.title-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  backdrop-filter: blur(10px);
+}
+
+.title-text .main-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.title-text .subtitle {
+  font-size: 16px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 400;
+}
+
+/* 表单区域 - 完全按照TripBaseInfo.vue */
+.form-sections {
+  padding: 0 24px 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 表单分区样式 - 完全按照TripBaseInfo.vue */
+.form-section {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e8eaed;
+  transition: all 0.3s ease;
+}
+
+.form-section:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+/* 分区标题 - 完全按照TripBaseInfo.vue */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f0f2f5;
+  position: relative;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(135deg, #409eff, #5dade2);
+  border-radius: 1px;
+}
+
+.section-title .el-icon {
+  color: #409eff;
+  font-size: 24px;
+}
+
+.section-subtitle {
+  font-size: 14px;
+  color: #909399;
+  font-weight: 400;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 操作按钮区域 - 完全按照TripBaseInfo.vue */
+.action-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e4e7ed;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 /* 城市推荐布局 */
 .city-guide-container {
   margin-bottom: 24px;

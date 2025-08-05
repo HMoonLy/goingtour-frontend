@@ -1,340 +1,339 @@
 <template>
   <div class="step-content">
-    <el-card
-class="info-card" shadow="hover"
->
-      <template #header>
-        <div class="card-header">
-          <el-icon><MapLocation /></el-icon>
-          <span>行程基础信息</span>
+    <!-- 页面标题区域 -->
+    <div class="page-title">
+      <div class="title-content">
+        <el-icon class="title-icon"><MapLocation /></el-icon>
+        <div class="title-text">
+          <h2 class="main-title">行程基础信息</h2>
+          <p class="subtitle">完善您的出行计划，我们将为您量身定制专属行程</p>
         </div>
-      </template>
+      </div>
+    </div>
 
+    <!-- 表单区域 -->
+    <div class="form-sections">
       <el-form
         ref="tripFormRef"
         :model="tripForm"
         :rules="tripRules"
         label-position="top"
       >
-        <el-row :gutter="24">
-          <!-- 目的地选择 -->
-          <el-col :span="12">
-            <el-form-item
-label="目的地" prop="destination"
->
-              <el-input
-                v-model="tripForm.destinationName"
-                placeholder="选择你想去的城市"
-                size="large"
-                style="width: 100%"
-                disabled
-              />
-              <div class="selected-city-info">
-                <el-tag type="success">
-                  已选择: {{ tripForm.destinationName }}
-                </el-tag>
-              </div>
-            </el-form-item>
-          </el-col>
-
-          <!-- 出行天数 -->
-          <el-col :span="12">
-            <el-form-item
-label="出行天数" prop="days"
->
-              <div class="days-input-container">
-                <el-input-number
-                  v-model="tripForm.days"
-                  :min="1"
-                  :max="365"
+        <!-- 基本信息区域 -->
+        <div class="form-section">
+          <div class="section-title">
+            <el-icon><MapLocation /></el-icon>
+            <span>基本信息</span>
+          </div>
+          
+          <el-row :gutter="24">
+            <!-- 目的地选择 -->
+            <el-col :span="12">
+              <el-form-item label="目的地" prop="destination">
+                <el-input
+                  v-model="tripForm.destinationName"
+                  placeholder="选择你想去的城市"
                   size="large"
                   style="width: 100%"
-                  placeholder="根据日期自动计算"
                   disabled
                 />
-                <!-- 天数描述 -->
-                <div v-if="tripForm.days"
-class="days-description">
-                  <span class="days-text">{{ getDaysDescription() }}</span>
-                </div>
-                <div class="form-tip">天数将根据您选择的日期范围自动计算</div>
-              </div>
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-row :gutter="24">
-          <!-- 出行日期 -->
-          <el-col :span="12">
-            <el-form-item
-              label="出行日期"
-              prop="dateRange"
-              :error="dateRangeError"
-            >
-              <el-date-picker
-                v-model="tripForm.dateRange"
-                type="daterange"
-                range-separator="至"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
-                size="large"
-                style="width: 100%"
-                format="YYYY年MM月DD日"
-                value-format="YYYY-MM-DD"
-                :disabled-date="disabledDate"
-                :clearable="true"
-                @change="handleDateChange"
-              />
-              <div class="form-tip">
-                <template
-                  v-if="tripForm.dateRange && tripForm.dateRange.length === 2"
-                >
-                  <div class="date-info">
-                    <span class="date-match">
-                      <el-icon><Check /></el-icon>
-                      已选择日期范围：{{ formatDateRange() }}
-                    </span>
-                  </div>
-                </template>
-                <template v-else> 请选择您计划出行的日期范围 </template>
-              </div>
-            </el-form-item>
-          </el-col>
-
-          <!-- 出行人数 -->
-          <el-col :span="12">
-            <el-form-item
-label="出行人数" prop="travelers"
->
-              <el-input-number
-                v-model="tripForm.travelers"
-                :min="1"
-                :max="20"
-                size="large"
-                style="width: 100%"
-              />
-              <div class="form-tip">人数会影响餐厅和住宿推荐</div>
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <!-- 天气预览卡片 - 独立一行 -->
-        <el-row v-if="tripForm.destinationName && (loadingWeather || weatherError || weatherSuggestion)">
-          <el-col :span="24">
-            <div class="weather-preview-card-standalone">
-              <!-- 天气加载状态 -->
-              <div v-if="loadingWeather" class="weather-loading">
-                <el-icon class="is-loading"><Loading /></el-icon>
-                <span>正在获取天气信息...</span>
-              </div>
-              
-              <!-- 天气错误状态 -->
-              <div v-else-if="weatherError" class="weather-error">
-                <el-icon><Warning /></el-icon>
-                <span>{{ weatherError }}</span>
-              </div>
-              
-              <!-- 天气信息显示 -->
-              <div v-else-if="weatherSuggestion" class="weather-content">
-                <div class="weather-header">
-                  <div class="weather-icon">
-                    <el-icon><Sunny /></el-icon>
-                  </div>
-                  <div class="weather-title-section">
-                    <h4 class="weather-title">{{ tripForm.destinationName }}天气预报</h4>
-                    <div class="weather-validity">
-                      <el-icon><Calendar /></el-icon>
-                      <span>{{ getWeatherValidityText() }}</span>
-                    </div>
-                  </div>
-                  <el-tag 
-                    :type="getWeatherTagType()" 
-                    size="small" 
-                    effect="plain"
-                    class="weather-source-tag"
-                  >
-                    {{ getWeatherSourceText() }}
+                <div class="selected-city-info">
+                  <el-tag type="success" size="small">
+                    已选择: {{ tripForm.destinationName }}
                   </el-tag>
                 </div>
-                
-                <div class="weather-body">
-                  <!-- 天气预报卡片 -->
-                  <div 
-                    v-if="weatherSuggestion.forecast && weatherSuggestion.forecast.length > 0" 
-                    class="weather-forecast-grid"
-                    :class="{ 'forecast-outdated': isForecastOutdated() }"
+              </el-form-item>
+            </el-col>
+
+            <!-- 出行天数 -->
+            <el-col :span="12">
+              <el-form-item label="出行天数" prop="days">
+                <div class="days-input-container">
+                  <el-input-number
+                    v-model="tripForm.days"
+                    :min="1"
+                    :max="365"
+                    size="large"
+                    style="width: 100%"
+                    placeholder="根据日期自动计算"
+                    disabled
+                  />
+                  <!-- 天数描述 -->
+                  <div v-if="tripForm.days" class="days-description">
+                    <span class="days-text">{{ getDaysDescription() }}</span>
+                  </div>
+                  <div class="form-tip">天数将根据您选择的日期范围自动计算</div>
+                </div>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+          <el-row :gutter="24">
+            <!-- 出行日期 -->
+            <el-col :span="12">
+              <el-form-item
+                label="出行日期"
+                prop="dateRange"
+                :error="dateRangeError"
+              >
+                <el-date-picker
+                  v-model="tripForm.dateRange"
+                  type="daterange"
+                  range-separator="至"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
+                  size="large"
+                  style="width: 100%"
+                  format="YYYY年MM月DD日"
+                  value-format="YYYY-MM-DD"
+                  :disabled-date="disabledDate"
+                  :clearable="true"
+                  @change="handleDateChange"
+                />
+                <div class="form-tip">
+                  <template
+                    v-if="tripForm.dateRange && tripForm.dateRange.length === 2"
                   >
-                    <div 
-                      v-for="(forecast, index) in weatherSuggestion.forecast" 
-                      :key="index"
-                      class="forecast-card"
-                      :class="{ 'today': index === 0 }"
-                    >
-                      <div class="forecast-date">
-                        <div class="date-text">{{forecast.date }}</div>
-                        <div class="week-text">星期{{ forecast.week }}</div>
-                      </div>
-                      
-                      <div class="forecast-weather">
-                        <div class="weather-icon-large">
-                          {{ getWeatherEmoji(forecast.dayWeather) }}
-                        </div>
-                        <div class="weather-desc">{{ forecast.dayWeather }}</div>
-                      </div>
-                      
-                      <div class="forecast-temp">
-                        <div class="temp-high">{{ forecast.dayTemp }}°</div>
-                        <div class="temp-low">{{ forecast.nightTemp }}°</div>
-                      </div>
-                      
-                      <div class="forecast-wind">
-                        <div class="wind-info">{{ forecast.dayWind }} {{ forecast.dayPower }}级</div>
-                      </div>
+                    <div class="date-info">
+                      <span class="date-match">
+                        <el-icon><Check /></el-icon>
+                        已选择日期范围：{{ formatDateRange() }}
+                      </span>
                     </div>
+                  </template>
+                  <template v-else> 请选择您计划出行的日期范围 </template>
+                </div>
+              </el-form-item>
+            </el-col>
+
+            <!-- 出行人数 -->
+            <el-col :span="12">
+              <el-form-item label="出行人数" prop="travelers">
+                <el-input-number
+                  v-model="tripForm.travelers"
+                  :min="1"
+                  :max="20"
+                  size="large"
+                  style="width: 100%"
+                />
+                <div class="form-tip">人数会影响餐厅和住宿推荐</div>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </div>
+
+        <!-- 天气信息区域 -->
+        <div 
+          v-if="tripForm.destinationName && (loadingWeather || weatherError || weatherSuggestion)" 
+          class="form-section weather-section"
+          :class="{ 
+            'weather-disabled': isWeatherDisabled(),
+            'weather-outdated': isForecastOutdated() 
+          }"
+        >
+          <div class="section-title">
+            <el-icon><Sunny /></el-icon>
+            <span>天气预报</span>
+            <el-tag 
+              v-if="weatherSuggestion"
+              :type="getWeatherTagType()" 
+              size="small" 
+              effect="plain"
+              class="weather-source-tag"
+            >
+              {{ getWeatherSourceText() }}
+            </el-tag>
+          </div>
+          
+          <!-- 天气加载状态 -->
+          <div v-if="loadingWeather" class="weather-loading">
+            <el-icon class="is-loading"><Loading /></el-icon>
+            <span>正在获取天气信息...</span>
+          </div>
+          
+          <!-- 天气错误状态 -->
+          <div v-else-if="weatherError" class="weather-error">
+            <el-icon><Warning /></el-icon>
+            <span>{{ weatherError }}</span>
+          </div>
+          
+          <!-- 天气信息显示 -->
+          <div v-else-if="weatherSuggestion" class="weather-content">
+            <!-- 失效提示 -->
+            <div v-if="isWeatherDisabled()" class="weather-disabled-notice">
+              <el-icon><InfoFilled /></el-icon>
+              <span v-if="isDateRangeOutOfForecast()">
+                您选择的出行日期（{{ formatDateRange() }}）超出了天气预报范围，以下天气信息仅供参考
+              </span>
+              <span v-else-if="isForecastOutdated()">
+                您的行程为{{ tripForm.days }}天，但天气预报仅提供{{ weatherSuggestion.forecast.length }}天数据，预报范围不足
+              </span>
+            </div>
+            
+            <!-- 天气预报网格 -->
+            <div 
+              v-if="weatherSuggestion.forecast && weatherSuggestion.forecast.length > 0" 
+              class="weather-forecast-grid"
+            >
+              <div 
+                v-for="(forecast, index) in weatherSuggestion.forecast" 
+                :key="index"
+                class="forecast-card"
+                :class="{ 'today': index === 0 }"
+              >
+                <div class="forecast-date">
+                  <div class="date-text">{{ forecast.date }}</div>
+                  <div class="week-text">星期{{ forecast.week }}</div>
+                </div>
+                
+                <div class="forecast-weather">
+                  <div class="weather-icon-large">
+                    {{ getWeatherEmoji(forecast.dayWeather) }}
                   </div>
-                  
-                  <!-- 超出预报范围的提示 -->
-                  <div v-if="getTripDaysExceedForecast()" class="forecast-notice" :class="{ 'forecast-outdated-notice': isForecastOutdated() }">
-                    <el-icon><InfoFilled /></el-icon>
-                    <span v-if="isForecastOutdated()">
-                      您的行程为{{ tripForm.days }}天，但天气预报仅提供{{ weatherSuggestion.forecast.length }}天数据，预报范围严重不足。建议调整行程长度或密切关注目的地实时天气。
-                    </span>
-                    <span v-else>
-                      您的行程为{{ tripForm.days }}天，天气预报仅提供{{ weatherSuggestion.forecast.length }}天数据。超出部分建议关注当地实时天气预报。
-                    </span>
-                  </div>
-                  
-                  <!-- 综合信息展示 -->
-                  <div class="weather-summary" :class="{ 'forecast-outdated': isForecastOutdated() }">
-                    <div class="summary-item">
-                      <span class="summary-label">整体温度范围</span>
-                      <span class="summary-value">{{ weatherSuggestion.tempRange }}</span>
-                    </div>
-                    <div class="summary-item">
-                      <span class="summary-label">预报天数</span>
-                      <span class="summary-value">{{ weatherSuggestion.forecast.length }}天</span>
-                    </div>
-                  </div>
-                  
-                  <!-- 出行建议 -->
-                  <div v-if="getSmartTravelTips().length > 0" class="weather-tips" :class="{ 'forecast-outdated': isForecastOutdated() }">
-                    <div class="tips-header">
-                      <el-icon><InfoFilled /></el-icon>
-                      <span class="tips-title">出行建议</span>
-                    </div>
-                    <div class="tips-content">
-                      {{ getSmartTravelTips().slice(0, 2).join('；') }}
-                    </div>
-                  </div>
+                  <div class="weather-desc">{{ forecast.dayWeather }}</div>
+                </div>
+                
+                <div class="forecast-temp">
+                  <div class="temp-high">{{ forecast.dayTemp }}°</div>
+                  <div class="temp-low">{{ forecast.nightTemp }}°</div>
+                </div>
+                
+                <div class="forecast-wind">
+                  <div class="wind-info">{{ forecast.dayWind }} {{ forecast.dayPower }}级</div>
                 </div>
               </div>
             </div>
-          </el-col>
-        </el-row>
-
-        <el-row>
-          <!-- 预算范围 -->
-          <el-col>
-            <el-form-item
-label="预算范围（每人每天）" prop="budget"
->
-              <div
-                v-if="userPreferences && userPreferences.budget"
-                class="preference-hint-banner"
-              >
-                <el-icon><Star /></el-icon>
-                <span
-                  >基于您的偏好设置，推荐预算：¥{{
-                    userPreferences.budget
-                }}/天</span
-                >
-                <el-button
-                  type="link"
-                  size="small"
-                  @click="applyRecommendedBudget"
-                >
-                  应用推荐
-                </el-button>
+            
+            <!-- 天气综合信息 -->
+            <div class="weather-summary">
+              <div class="summary-item">
+                <span class="summary-label">温度范围</span>
+                <span class="summary-value">{{ weatherSuggestion.tempRange }}</span>
               </div>
+              <div class="summary-item">
+                <span class="summary-label">预报天数</span>
+                <span class="summary-value">{{ weatherSuggestion.forecast.length }}天</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">数据来源</span>
+                <span class="summary-value">{{ getWeatherSourceText() }}</span>
+              </div>
+            </div>
+            
+            <!-- 出行建议 -->
+            <div v-if="getSmartTravelTips().length > 0" class="weather-tips">
+              <div class="tips-header">
+                <el-icon><InfoFilled /></el-icon>
+                <span class="tips-title">出行建议</span>
+              </div>
+              <div class="tips-content">
+                {{ getSmartTravelTips().slice(0, 2).join('；') }}
+              </div>
+            </div>
+          </div>
+        </div>
 
-              <div class="budget-selector">
-                <div
-                  v-for="option in budgetOptions"
-                  :key="option.value"
-                  class="budget-card"
-                  :class="{
-                    selected: tripForm.budget === option.value,
-                    recommended: isRecommendedBudget(option.value),
-                  }"
-                  @click="selectBudget(option.value)"
-                >
-                  <div class="budget-icon">
-                    <el-icon>
-                      <component :is="option.icon" />
-                    </el-icon>
+        <!-- 预算选择区域 -->
+        <div class="form-section budget-section">
+          <div class="section-title">
+            <el-icon><Money /></el-icon>
+            <span>预算范围</span>
+            <span class="section-subtitle">每人每天</span>
+          </div>
+          
+          <el-form-item prop="budget">
+            <div
+              v-if="userPreferences && userPreferences.budget"
+              class="preference-hint-banner"
+            >
+              <el-icon><Star /></el-icon>
+              <span>基于您的偏好设置，推荐预算：¥{{ userPreferences.budget }}/天</span>
+              <el-button
+                type="link"
+                size="small"
+                @click="applyRecommendedBudget"
+              >
+                应用推荐
+              </el-button>
+            </div>
+
+            <div class="budget-selector">
+              <div
+                v-for="option in budgetOptions"
+                :key="option.value"
+                class="budget-card"
+                :class="{
+                  selected: tripForm.budget === option.value,
+                  recommended: isRecommendedBudget(option.value),
+                }"
+                @click="selectBudget(option.value)"
+              >
+                <div class="budget-icon">
+                  <el-icon>
+                    <component :is="option.icon" />
+                  </el-icon>
+                </div>
+                <div class="budget-content">
+                  <h4 class="budget-title">
+                    {{ option.title }}
+                    <el-tag
+                      v-if="isRecommendedBudget(option.value)"
+                      size="small"
+                      type="success"
+                    >
+                      推荐
+                    </el-tag>
+                  </h4>
+                  <div class="budget-price">
+                    {{ option.price }}
                   </div>
-                  <div class="budget-content">
-                    <h4 class="budget-title">
-                      {{ option.title }}
-                      <el-tag
-                        v-if="isRecommendedBudget(option.value)"
-                        size="small"
-                        type="success"
-                      >
-                        推荐
-                      </el-tag>
-                    </h4>
-                    <div class="budget-price">
-                      {{ option.price }}
-                    </div>
-                    <div class="budget-desc">
-                      {{ option.description }}
-                    </div>
-                  </div>
-                  <div
-                    v-if="tripForm.days && tripForm.travelers"
-                    class="budget-preview"
-                  >
-                    <div class="preview-label">预计总花费</div>
-                    <div class="preview-amount">
-                      {{ calculateBudgetPreview(option.value) }}
-                    </div>
-                  </div>
-                  <div
-                    v-if="tripForm.budget === option.value"
-                    class="budget-check"
-                  >
-                    <el-icon><Check /></el-icon>
+                  <div class="budget-desc">
+                    {{ option.description }}
                   </div>
                 </div>
+                <div
+                  v-if="tripForm.days && tripForm.travelers"
+                  class="budget-preview"
+                >
+                  <div class="preview-label">预计总花费</div>
+                  <div class="preview-amount">
+                    {{ calculateBudgetPreview(option.value) }}
+                  </div>
+                </div>
+                <div
+                  v-if="tripForm.budget === option.value"
+                  class="budget-check"
+                >
+                  <el-icon><Check /></el-icon>
+                </div>
               </div>
-            </el-form-item>
-          </el-col>
-        </el-row>
+            </div>
+            
+            <div v-if="shouldShowBudgetSummary()" class="budget-summary">
+              <div class="budget-info-row">
+                <span class="budget-label">已选择：</span>
+                <span class="budget-value">{{ getBudgetText() }}档位</span>
+                <span v-if="tripForm.days && tripForm.travelers" class="budget-total">
+                  总预算：{{ getEstimatedCost() }}
+                </span>
+              </div>
+            </div>
+          </el-form-item>
+        </div>
       </el-form>
-      <div class="form-tip">
-        <template v-if="tripForm.budget">
-          已选择{{ getBudgetText() }}档位
-          <span v-if="tripForm.days && tripForm.travelers">
-            ，{{ tripForm.days }}天{{ tripForm.travelers }}人预计花费{{
-              getEstimatedCost()
-            }}
-          </span>
-        </template>
-        <template v-else> 预算将影响景点、餐厅和住宿推荐 </template>
-      </div>
-
-      <!-- 下一步按钮 -->
-      <div class="next-step-container">
+      
+      <!-- 操作按钮区域 -->
+      <div class="action-section">
         <el-button
-type="primary" size="large"
-@click="goToNextStep"
->
+          type="primary" 
+          size="large"
+          @click="goToNextStep"
+        >
           下一步
           <el-icon><ArrowRight /></el-icon>
         </el-button>
       </div>
-    </el-card>
+    </div>
   </div>
 </template>
 <script>
@@ -353,7 +352,7 @@ import {
   Sunny,
   InfoFilled,
   } from "@element-plus/icons-vue";
-import { translateTags, translateTag } from "@/utils/tagMapping.js";
+
 
 export default {
   name: "TripBaseInfo",
@@ -744,6 +743,16 @@ export default {
       }
     };
 
+    // 获取每日预算金额
+    const getBudgetDailyAmount = () => {
+      const budgetMap = {
+        budget: 400,
+        moderate: 750,
+        luxury: 1500,
+      };
+      return budgetMap[tripForm.value.budget] || 750;
+    };
+
     // 获取预计总花费
     const getEstimatedCost = () => {
       if (
@@ -755,15 +764,22 @@ export default {
         return "计算中...";
       }
 
-      const budgetMap = {
-        budget: 400,
-        moderate: 750,
-        luxury: 1500,
-      };
-      const dailyBudget = budgetMap[tripForm.value.budget] || 750;
-      const totalCost =
-        dailyBudget * tripForm.value.days * tripForm.value.travelers;
-      return `约 ¥${totalCost.toLocaleString()}`;
+      const dailyBudget = getBudgetDailyAmount();
+      const totalCost = dailyBudget * tripForm.value.days * tripForm.value.travelers;
+      return `¥${totalCost.toLocaleString()}`;
+    };
+
+    // 判断是否显示预算摘要
+    const shouldShowBudgetSummary = () => {
+      // 如果用户有偏好预算，且已选择预算档位，显示简化信息
+      if (tripForm.value.budget && props.userPreferences?.budget) {
+        return true;
+      }
+      // 如果用户选择了预算档位但没有偏好设置，也显示基本信息
+      if (tripForm.value.budget) {
+        return true;
+      }
+      return false;
     };
 
     // 处理下一步按钮点击
@@ -1012,6 +1028,34 @@ export default {
       return tripForm.value.days > forecastDays * 2;
     };
 
+    // 检查用户选择的日期范围是否完全超出天气预报范围
+    const isDateRangeOutOfForecast = () => {
+      if (!props.weatherSuggestion || !props.weatherSuggestion.forecast || !tripForm.value.dateRange || tripForm.value.dateRange.length !== 2) {
+        return false;
+      }
+      
+      try {
+        const userStartDate = new Date(tripForm.value.dateRange[0]);
+        const userEndDate = new Date(tripForm.value.dateRange[1]);
+        
+        // 获取天气预报的日期范围
+        const forecastDates = props.weatherSuggestion.forecast.map(f => new Date(f.date));
+        const forecastStartDate = new Date(Math.min(...forecastDates));
+        const forecastEndDate = new Date(Math.max(...forecastDates));
+        
+        // 检查用户的日期范围是否完全超出预报范围
+        return userStartDate > forecastEndDate || userEndDate < forecastStartDate;
+      } catch (error) {
+        console.error('日期范围检查错误:', error);
+        return false;
+      }
+    };
+
+    // 检查天气是否应该显示为失效状态
+    const isWeatherDisabled = () => {
+      return isDateRangeOutOfForecast() || isForecastOutdated();
+    };
+
     return {
       tripForm,
       tripFormRef,
@@ -1028,7 +1072,9 @@ export default {
       isRecommendedBudget,
       getBudgetText,
       applyRecommendedBudget,
+      getBudgetDailyAmount,
       getEstimatedCost,
+      shouldShowBudgetSummary,
       goToNextStep,
       dateRangeError,
       getWeatherSourceText,
@@ -1039,47 +1085,225 @@ export default {
       getTripDaysExceedForecast,
       isForecastOutdated,
       isDateWithinForecastRange,
+      isDateRangeOutOfForecast,
+      isWeatherDisabled,
     };
   },
 };
 </script>
 
 <style scoped>
-/* 表单样式 */
-.info-card {
-  border-radius: 12px;
-  margin-bottom: 24px;
-}
-
+/* 整体布局 */
 .step-content {
   width: 100%;
+  background: #f8f9fa;
+  min-height: 100vh;
 }
 
-.card-header {
+/* 页面标题区域 */
+.page-title {
+  background: linear-gradient(135deg, #409eff 0%, #5dade2 100%);
+  color: white;
+  padding: 32px 24px;
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-title::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><radialGradient id="a" cx="50" cy="50" r="50"><stop offset="0" stop-color="white" stop-opacity="0.1"/><stop offset="1" stop-color="white" stop-opacity="0.05"/></radialGradient></defs><rect width="100" height="20" fill="url(%23a)"/></svg>');
+  opacity: 0.3;
+}
+
+.title-content {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 18px;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.title-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  backdrop-filter: blur(10px);
+}
+
+.title-text .main-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.title-text .subtitle {
+  font-size: 16px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 400;
+}
+
+/* 表单区域 */
+.form-sections {
+  padding: 0 24px 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 表单分区样式 */
+.form-section {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e8eaed;
+  transition: all 0.3s ease;
+}
+
+.form-section:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+/* 分区标题 */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 20px;
   font-weight: 600;
   color: #303133;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f0f2f5;
+  position: relative;
 }
 
-.city-option {
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(135deg, #409eff, #5dade2);
+  border-radius: 1px;
+}
+
+.section-title .el-icon {
+  color: #409eff;
+  font-size: 24px;
+}
+
+.section-subtitle {
+  font-size: 14px;
+  color: #909399;
+  font-weight: 400;
+  margin-left: auto;
+}
+
+/* 天气区域特殊样式 */
+.weather-section {
+  transition: all 0.5s ease;
+}
+
+.weather-section.weather-disabled {
+  background: #f5f5f5;
+  opacity: 0.7;
+  filter: grayscale(50%);
+  position: relative;
+}
+
+.weather-section.weather-disabled::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(0, 0, 0, 0.02) 10px,
+    rgba(0, 0, 0, 0.02) 20px
+  );
+  border-radius: 16px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.weather-section.weather-disabled .section-title {
+  color: #909399;
+}
+
+.weather-section.weather-disabled .section-title .el-icon {
+  color: #c0c4cc;
+}
+
+/* 天气失效提示 */
+.weather-disabled-notice {
+  background: linear-gradient(135deg, #fef0f0 0%, #fef5f5 100%);
+  border: 1px solid #f8c2c2;
+  border-left: 4px solid #f56c6c;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: #c45656;
+  line-height: 1.5;
 }
 
-.city-desc {
-  font-size: 12px;
-  color: #909399;
+.weather-disabled-notice .el-icon {
+  color: #f56c6c;
+  font-size: 18px;
+  flex-shrink: 0;
 }
 
+/* 表单元素样式 */
 .form-tip {
-  font-size: 12px;
+  font-size: 13px;
   color: #909399;
-  margin-top: 4px;
-  line-height: 1.4;
-  margin-left: 10px;
+  margin-top: 8px;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.selected-city-info {
+  margin-top: 8px;
+}
+
+.days-description {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #f0f7ff;
+  border-radius: 8px;
+  border-left: 3px solid #409eff;
+}
+
+.days-text {
+  font-size: 13px;
+  color: #409eff;
+  font-weight: 500;
 }
 
 .date-info {
@@ -1108,57 +1332,229 @@ export default {
   margin-left: 8px;
 }
 
+/* 天气预报样式 */
+.weather-content {
+  position: relative;
+  z-index: 2;
+}
+
+.weather-loading, .weather-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 20px;
+  font-size: 15px;
+  border-radius: 12px;
+  margin: 20px 0;
+}
+
+.weather-loading {
+  background: #f0f7ff;
+  color: #409eff;
+}
+
+.weather-error {
+  background: #fef0f0;
+  color: #f56c6c;
+}
+
+.weather-forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.forecast-card {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.forecast-card:hover {
+  border-color: #409eff;
+  box-shadow: 0 4px 15px rgba(64, 158, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.forecast-card.today {
+  background: linear-gradient(135deg, #f0f7ff 0%, #e6f3ff 100%);
+  border-color: #409eff;
+}
+
+.forecast-card.today::before {
+  content: "今日";
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #409eff;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.forecast-date .date-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 2px;
+}
+
+.forecast-date .week-text {
+  font-size: 11px;
+  color: #909399;
+}
+
+.weather-icon-large {
+  font-size: 32px;
+  margin: 12px 0 8px;
+  line-height: 1;
+}
+
+.weather-desc {
+  font-size: 12px;
+  color: #606266;
+  margin-bottom: 8px;
+}
+
+.temp-high {
+  font-size: 16px;
+  font-weight: 700;
+  color: #e6a23c;
+  margin-bottom: 2px;
+}
+
+.temp-low {
+  font-size: 12px;
+  color: #909399;
+}
+
+.wind-info {
+  font-size: 11px;
+  color: #909399;
+  background: white;
+  border: 1px solid #e4e7ed;
+  padding: 4px 8px;
+  border-radius: 12px;
+  display: inline-block;
+  margin-top: 8px;
+}
+
+.weather-summary {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: #f5f7fa;
+  border: 1px solid #e4e7ed;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 20px 0;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.summary-label {
+  font-size: 12px;
+  color: #909399;
+}
+
+.summary-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #409eff;
+}
+
+.weather-tips {
+  background: linear-gradient(135deg, #fff7e6 0%, #fffbf0 100%);
+  border: 1px solid #ffe7ba;
+  border-left: 4px solid #e6a23c;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin: 20px 0;
+}
+
+.tips-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.tips-title {
+  font-weight: 600;
+  color: #d46b08;
+}
+
+.tips-content {
+  font-size: 14px;
+  color: #d46b08;
+  line-height: 1.5;
+}
+
 /* 预算选择器样式 */
 .budget-selector {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   width: 100%;
-  margin: 16px 0;
+  margin: 20px 0;
 }
 
 .budget-card {
   position: relative;
-  background: #ffffff;
+  background: white;
   border: 2px solid #e4e7ed;
-  border-radius: 12px;
-  padding: 20px;
+  border-radius: 16px;
+  padding: 24px;
   cursor: pointer;
   transition: all 0.3s ease;
-  min-height: 140px;
+  min-height: 160px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100%;
 }
 
 .budget-card:hover {
   border-color: #409eff;
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
+  box-shadow: 0 4px 20px rgba(64, 158, 255, 0.15);
   transform: translateY(-2px);
 }
 
 .budget-card.selected {
   border-color: #409eff;
   background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
-  box-shadow: 0 6px 16px rgba(64, 158, 255, 0.2);
+  box-shadow: 0 6px 20px rgba(64, 158, 255, 0.2);
 }
 
 .budget-icon {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, #409eff, #67c23a);
-  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #409eff, #5dade2);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
   color: white;
-  font-size: 20px;
+  font-size: 24px;
+  transition: all 0.3s ease;
 }
 
 .budget-card.selected .budget-icon {
-  background: linear-gradient(135deg, #67c23a, #409eff);
+  background: linear-gradient(135deg, #5dade2, #409eff);
+  transform: scale(1.1);
 }
 
 .budget-content {
@@ -1166,61 +1562,128 @@ export default {
 }
 
 .budget-title {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: #303133;
-  margin: 0 0 8px 0;
+  margin: 0 0 12px 0;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .budget-price {
-  font-size: 15px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 700;
   color: #409eff;
   margin-bottom: 8px;
 }
 
 .budget-desc {
-  font-size: 13px;
-  color: #909399;
-  line-height: 1.4;
-  margin-bottom: 12px;
+  font-size: 14px;
+  color: #606266;
+  line-height: 1.5;
+  margin-bottom: 16px;
 }
 
 .budget-preview {
-  background: #f5f7fa;
-  border-radius: 6px;
-  padding: 8px 12px;
-  margin-top: 12px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-top: 16px;
 }
 
 .preview-label {
-  font-size: 11px;
+  font-size: 12px;
   color: #909399;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 
 .preview-amount {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   color: #e6a23c;
 }
 
 .budget-check {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 24px;
-  height: 24px;
+  top: 16px;
+  right: 16px;
+  width: 28px;
+  height: 28px;
   background: #67c23a;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
+  font-size: 16px;
+  box-shadow: 0 2px 8px rgba(103, 194, 58, 0.3);
+}
+
+.budget-summary {
+  margin-top: 16px;
+  padding: 16px 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 3px solid #409eff;
+}
+
+.budget-info-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.budget-label {
   font-size: 14px;
+  color: #909399;
+}
+
+.budget-value {
+  font-size: 14px;
+  color: #409eff;
+  font-weight: 600;
+}
+
+.budget-total {
+  font-size: 15px;
+  color: #67c23a;
+  font-weight: 700;
+  margin-left: auto;
+}
+
+/* 偏好提示横条 */
+.preference-hint-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #f0f9eb 0%, #f7fdf2 100%);
+  border: 1px solid #d9f7be;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  color: #52c41a;
+  font-size: 14px;
+}
+
+.preference-hint-banner .el-icon {
+  color: #52c41a;
+  font-size: 18px;
+}
+
+/* 操作按钮区域 */
+.action-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e4e7ed;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 /* 天数选择相关样式 */
@@ -1504,308 +1967,98 @@ export default {
   line-height: 1.4;
 }
 
-@media (max-width: 768px) {
+/* 移动端响应式样式 */
+@media (max-width: 1024px) {
+  .form-sections {
+    padding: 0 16px 24px;
+  }
+  
+  .form-section {
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  
   .budget-selector {
     grid-template-columns: 1fr;
     gap: 16px;
   }
+}
 
-  .budget-card {
-    padding: 16px;
+@media (max-width: 768px) {
+  .page-title {
+    padding: 24px 16px;
+    margin-bottom: 24px;
   }
-
-  .budget-title {
-    font-size: 15px;
+  
+  .title-content {
+    gap: 12px;
   }
-
-  .quick-days-buttons .el-button-group {
-    width: 100%;
-    justify-content: flex-start;
+  
+  .title-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
   }
-
-  .quick-days-buttons .el-button-group .el-button {
-    flex: 1;
-    min-width: 60px;
-    padding: 8px 4px;
-    font-size: 12px;
+  
+  .title-text .main-title {
+    font-size: 24px;
   }
-
-  .weather-preview-card {
-    margin-left: 0;
-    padding: 16px;
-    border-radius: 8px;
-  }
-
-  .weather-preview-card-standalone {
-    margin: 16px 0;
-    padding: 16px;
-    border-radius: 8px;
-  }
-
-  .weather-icon {
-    width: 32px;
-    height: 32px;
-    font-size: 16px;
-  }
-
-  .weather-title {
+  
+  .title-text .subtitle {
     font-size: 14px;
   }
-
-  .weather-validity {
-    font-size: 11px;
+  
+  .form-section {
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
   }
-
-  .weather-condition {
+  
+  .section-title {
+    font-size: 18px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+  }
+  
+  .section-title .el-icon {
+    font-size: 20px;
+  }
+  
+  .budget-card {
+    padding: 20px;
+    min-height: 140px;
+  }
+  
+  .budget-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+  
+  .budget-title {
+    font-size: 16px;
+  }
+  
+  .budget-price {
+    font-size: 14px;
+  }
+  
+  .budget-desc {
+    font-size: 13px;
+  }
+  
+  .budget-info-row {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
-
-  .weather-desc {
+  
+  .budget-total {
+    margin-left: 0;
     font-size: 14px;
   }
-
-  .weather-temp {
-    font-size: 16px;
-  }
-
-  .weather-details {
-    gap: 8px;
-  }
-
-  .weather-detail-item {
-    font-size: 12px;
-    padding: 4px 8px;
-  }
-
-  .weather-tips span {
-    font-size: 12px;
-  }
-
-  .weather-temp {
-    font-size: 16px;
-  }
-
-  .weather-details {
-    gap: 8px;
-  }
-
-  .weather-detail-item {
-    font-size: 12px;
-    padding: 4px 8px;
-  }
-
-  .tips-content {
-    margin-left: 0;
-    font-size: 12px;
-  }
-}
-
-/* 天气预报网格样式 */
-.weather-forecast-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 16px;
-  margin: 16px 0;
-  transition: all 0.3s ease;
-}
-
-/* 过时的天气预报样式 */
-.weather-forecast-grid.forecast-outdated {
-  opacity: 0.5;
-  filter: grayscale(60%);
-  position: relative;
-}
-
-.weather-forecast-grid.forecast-outdated::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.weather-forecast-grid.forecast-outdated .forecast-card {
-  pointer-events: none;
-  cursor: not-allowed;
-}
-
-.forecast-card {
-  background: #f8f9fa;
-  border: 2px solid #e9ecef;
-  border-radius: 12px;
-  padding: 16px;
-  text-align: center;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.forecast-card:hover {
-  border-color: #409eff;
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
-  transform: translateY(-2px);
-}
-
-.forecast-card.today {
-  background: linear-gradient(135deg, #f0f7ff 0%, #e6f3ff 100%);
-  border-color: #409eff;
-}
-
-.forecast-card.today::before {
-  content: "今日";
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  background: #409eff;
-  color: white;
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 8px;
-  font-weight: 500;
-}
-
-.forecast-date {
-  margin-bottom: 12px;
-}
-
-.date-text {
-  font-size: 14px;
-  font-weight: 600;
-  color: #303133;
-  margin-bottom: 2px;
-}
-
-.week-text {
-  font-size: 11px;
-  color: #909399;
-}
-
-.forecast-weather {
-  margin-bottom: 12px;
-}
-
-.weather-icon-large {
-  font-size: 32px;
-  margin-bottom: 6px;
-  line-height: 1;
-}
-
-.weather-desc {
-  font-size: 12px;
-  color: #606266;
-  line-height: 1.2;
-}
-
-.forecast-temp {
-  margin-bottom: 8px;
-}
-
-.temp-high {
-  font-size: 16px;
-  font-weight: 700;
-  color: #e6a23c;
-  margin-bottom: 2px;
-}
-
-.temp-low {
-  font-size: 12px;
-  color: #909399;
-}
-
-.forecast-wind {
-  margin-top: auto;
-}
-
-.wind-info {
-  font-size: 11px;
-  color: #909399;
-  background: #ffffff;
-  border: 1px solid #e4e7ed;
-  padding: 4px 8px;
-  border-radius: 12px;
-  display: inline-block;
-}
-
-/* 超出预报范围提示 */
-.forecast-notice {
-  background: linear-gradient(135deg, #fff7e6 0%, #fffbf0 100%);
-  border: 1px solid #ffe7ba;
-  border-left: 4px solid #e6a23c;
-  border-radius: 8px;
-  padding: 12px 16px;
-  margin: 16px 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: #d46b08;
-  line-height: 1.4;
-}
-
-.forecast-notice .el-icon {
-  color: #e6a23c;
-  font-size: 16px;
-  flex-shrink: 0;
-}
-
-/* 严重过时的预报提示样式 */
-.forecast-outdated-notice {
-  background: linear-gradient(135deg, #fef0f0 0%, #fef5f5 100%);
-  border: 1px solid #fbc4c4;
-  border-left: 4px solid #f56c6c;
-  color: #c45656;
-}
-
-.forecast-outdated-notice .el-icon {
-  color: #f56c6c;
-}
-
-/* 天气综合信息样式 */
-.weather-summary {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  background: #f5f7fa;
-  border: 1px solid #e4e7ed;
-  border-radius: 8px;
-  padding: 12px;
-  margin: 16px 0;
-  transition: all 0.3s ease;
-}
-
-.weather-summary.forecast-outdated {
-  opacity: 0.5;
-  filter: grayscale(60%);
-  background: #f0f0f0;
-  border-color: #d3d3d3;
-}
-
-.summary-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.summary-label {
-  font-size: 11px;
-  color: #909399;
-}
-
-.summary-value {
-  font-size: 14px;
-  font-weight: 600;
-  color: #409eff;
-}
-
-/* 天气预报移动端优化 */
-@media (max-width: 768px) {
+  
   .weather-forecast-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
@@ -1817,31 +2070,68 @@ export default {
   
   .weather-icon-large {
     font-size: 24px;
+    margin: 8px 0 6px;
   }
   
   .temp-high {
     font-size: 14px;
   }
   
-  .date-text {
+  .forecast-date .date-text {
     font-size: 12px;
   }
   
   .weather-summary {
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
+    padding: 12px;
   }
   
-  .forecast-notice {
-    font-size: 12px;
-    padding: 10px 12px;
+  .summary-item {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .action-section {
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  
+  .next-btn {
+    height: 48px;
+    padding: 0 32px;
+    font-size: 15px;
   }
 }
 
 @media (max-width: 480px) {
-  .weather-forecast-grid {
-    grid-template-columns: 1fr 1fr;
+  .page-title {
+    padding: 20px 12px;
+  }
+  
+  .form-sections {
+    padding: 0 12px 20px;
+  }
+  
+  .form-section {
+    padding: 16px;
+  }
+  
+  .section-title {
+    font-size: 16px;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 8px;
+  }
+  
+  .section-subtitle {
+    margin-left: 0;
+  }
+  
+  .weather-forecast-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
   
   .forecast-card {
@@ -1850,7 +2140,28 @@ export default {
   
   .weather-icon-large {
     font-size: 20px;
-    margin-bottom: 4px;
+    margin: 6px 0 4px;
+  }
+  
+  .budget-card {
+    padding: 16px;
+  }
+  
+  .budget-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+  
+  .action-section {
+    padding: 20px;
+    justify-content: center;
+  }
+  
+  .action-section .el-button {
+    width: 100%;
   }
 }
+
 </style>
+
