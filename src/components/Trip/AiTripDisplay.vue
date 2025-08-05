@@ -6,7 +6,7 @@
         <div class="trip-title-section">
           <div class="title-with-icon">
             <el-icon class="ai-icon" color="#409eff"><Cpu /></el-icon>
-            <h1 class="trip-main-title">{{ tripTitle }}</h1>
+            <h1 class="trip-main-title">{{ tripData?.destinationInfo?.name }}旅游计划</h1>
           </div>
           <p class="trip-subtitle" v-if="tripData?.destinationInfo">
             AI为您精心规划的{{ tripData?.tripBasicInfo?.days || 3 }}天{{ tripData?.destinationInfo?.name || '智能' }}行程
@@ -395,9 +395,9 @@ const clearFeedback = () => {
 
 /* Markdown内容样式 */
 .markdown-content {
-  line-height: 1.8;
-  color: #2d3748;
-  font-size: 16px;
+  line-height: 1.7;
+  color: #4a5568;
+  font-size: 15px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
@@ -407,72 +407,75 @@ const clearFeedback = () => {
 .markdown-content :deep(h4),
 .markdown-content :deep(h5),
 .markdown-content :deep(h6) {
-  margin: 32px 0 20px 0;
-  font-weight: 700;
-  color: #1a202c;
-  line-height: 1.3;
-  letter-spacing: -0.025em;
+  font-weight: 600;
+  color: #2d3748;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
 }
 
 .markdown-content :deep(h1) {
-  font-size: 28px;
+  font-size: 24px;
   color: #2d3748;
   text-align: center;
-  margin: 24px 0 20px 0;
-  padding: 16px 20px;
-  background: #f7fafc;
-  border-radius: 8px;
+  margin: 28px 0 24px 0;
+  padding: 20px 24px;
+  background: #f8fafc;
+  border-radius: 12px;
   border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .markdown-content :deep(h2) {
-  font-size: 24px;
+  font-size: 20px;
   color: #2d3748;
-  padding: 12px 0;
-  border-bottom: 2px solid #667eea;
+  padding: 16px 0 12px 0;
+  border-bottom: 2px solid #e2e8f0;
   margin: 32px 0 20px 0;
 }
 
 .markdown-content :deep(h3) {
-  font-size: 20px;
+  font-size: 18px;
   color: #2d3748;
-  padding: 12px 16px;
-  background: #f7fafc;
+  padding: 16px 20px;
+  background: #f8fafc;
   border-radius: 8px;
   border-left: 4px solid #667eea;
-  margin: 24px 0 16px 0;
+  margin: 28px 0 20px 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .markdown-content :deep(h4) {
-  font-size: 18px;
-  color: #2d3748;
-  background: #f7fafc;
-  padding: 10px 16px;
-  border-radius: 6px;
-  border-left: 3px solid #667eea;
-  margin: 20px 0 12px 0;
+  font-size: 16px;
+  color: #4a5568;
+  background: transparent;
+  padding: 0;
+  border: none;
+  margin: 24px 0 16px 0;
   font-weight: 600;
+  line-height: 1.5;
 }
 
 .markdown-content :deep(h5) {
-  font-size: 16px;
+  font-size: 15px;
   color: #667eea;
   font-weight: 600;
-  margin: 16px 0 8px 0;
+  margin: 20px 0 12px 0;
+  padding: 0;
+  line-height: 1.5;
 }
 
 .markdown-content :deep(h6) {
   font-size: 14px;
   color: #718096;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 12px 0 6px 0;
+  font-weight: 500;
+  margin: 16px 0 8px 0;
+  padding: 0;
+  line-height: 1.4;
 }
 
 .markdown-content :deep(p) {
-  margin: 18px 0;
-  line-height: 1.8;
+  margin: 12px 0;
+  line-height: 1.7;
   color: #4a5568;
 }
 
@@ -484,20 +487,22 @@ const clearFeedback = () => {
 }
 
 .markdown-content :deep(li) {
-  margin: 12px 0;
-  line-height: 1.7;
+  margin: 8px 0;
+  line-height: 1.6;
   position: relative;
-  padding: 8px 0 8px 32px;
+  padding: 6px 0 6px 28px;
   color: #4a5568;
+  font-size: 14px;
 }
 
 .markdown-content :deep(ul li)::before {
   content: "•";
-  color: #667eea;
-  font-weight: bold;
+  color: #718096;
+  font-weight: normal;
   position: absolute;
   left: 8px;
   top: 8px;
+  font-size: 12px;
 }
 
 .markdown-content :deep(ol) {
@@ -510,26 +515,26 @@ const clearFeedback = () => {
 
 .markdown-content :deep(ol li)::before {
   content: counter(list-counter);
-  background: #667eea;
+  background: #718096;
   color: white;
-  font-weight: 600;
-  font-size: 12px;
-  width: 18px;
-  height: 18px;
+  font-weight: 500;
+  font-size: 10px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   position: absolute;
-  left: 0;
-  top: 10px;
+  left: 4px;
+  top: 7px;
 }
 
 .markdown-content :deep(.trip-highlight) {
-  background: #f7fafc;
-  padding: 2px 6px;
+  background: #f8fafc;
+  padding: 3px 8px;
   border-radius: 4px;
-  font-weight: 600;
+  font-weight: 500;
   color: #667eea;
   border: 1px solid #e2e8f0;
 }
@@ -541,7 +546,7 @@ const clearFeedback = () => {
   background: white;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   border: 1px solid #e2e8f0;
 }
 
@@ -553,14 +558,14 @@ const clearFeedback = () => {
 }
 
 .markdown-content :deep(th) {
-  background: #f7fafc;
+  background: #f8fafc;
   font-weight: 600;
   color: #2d3748;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .markdown-content :deep(td) {
-  font-size: 14px;
+  font-size: 13px;
   color: #4a5568;
 }
 
@@ -571,28 +576,30 @@ const clearFeedback = () => {
 .markdown-content :deep(blockquote) {
   margin: 20px 0;
   padding: 16px 20px;
-  border-left: 4px solid #667eea;
-  background: #f7fafc;
-  border-radius: 0 8px 8px 0;
+  border-left: 3px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 0 6px 6px 0;
+  color: #4a5568;
 }
 
 .markdown-content :deep(code) {
   background: #f1f5f9;
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: 3px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 13px;
-  color: #667eea;
+  font-size: 12px;
+  color: #718096;
   font-weight: 500;
 }
 
 .markdown-content :deep(pre) {
-  background: #2d3748;
-  color: #f7fafc;
-  padding: 20px;
-  border-radius: 8px;
+  background: #f8fafc;
+  color: #4a5568;
+  padding: 16px;
+  border-radius: 6px;
   overflow-x: auto;
   margin: 20px 0;
+  border: 1px solid #e2e8f0;
 }
 
 .markdown-content :deep(pre code) {
@@ -603,9 +610,9 @@ const clearFeedback = () => {
 
 .markdown-content :deep(hr) {
   border: none;
-  height: 2px;
+  height: 1px;
   background: #e2e8f0;
-  margin: 32px 0;
+  margin: 28px 0;
   border-radius: 1px;
 }
 
@@ -768,35 +775,78 @@ const clearFeedback = () => {
   }
   
   .markdown-content {
-    font-size: 15px;
+    font-size: 14px;
   }
   
   .markdown-content :deep(h1) {
-    font-size: 26px;
-    padding: 12px 16px;
+    font-size: 20px;
+    padding: 16px 20px;
+    margin: 20px 0 16px 0;
   }
   
   .markdown-content :deep(h2) {
-    font-size: 22px;
+    font-size: 18px;
+    margin: 24px 0 16px 0;
   }
   
   .markdown-content :deep(h3) {
-    font-size: 20px;
+    font-size: 16px;
     padding: 12px 16px;
+    margin: 20px 0 14px 0;
   }
   
   .markdown-content :deep(h4) {
-    font-size: 18px;
-    padding: 10px 16px;
+    font-size: 15px;
+    margin: 18px 0 12px 0;
+  }
+  
+  .markdown-content :deep(h5) {
+    font-size: 14px;
+    margin: 16px 0 8px 0;
+  }
+  
+  .markdown-content :deep(h6) {
+    font-size: 13px;
+    margin: 14px 0 6px 0;
+  }
+  
+  .markdown-content :deep(p) {
+    margin: 10px 0;
+  }
+  
+  .markdown-content :deep(ul),
+  .markdown-content :deep(ol) {
+    margin: 16px 0;
+  }
+  
+  .markdown-content :deep(li) {
+    margin: 6px 0;
+    padding: 4px 0 4px 24px;
+    font-size: 13px;
+  }
+  
+  .markdown-content :deep(ul li)::before {
+    left: 6px;
+    top: 6px;
+    font-size: 10px;
+  }
+  
+  .markdown-content :deep(ol li)::before {
+    left: 2px;
+    top: 5px;
+    width: 14px;
+    height: 14px;
+    font-size: 9px;
   }
   
   .markdown-content :deep(table) {
-    font-size: 13px;
+    font-size: 12px;
+    margin: 16px 0;
   }
   
   .markdown-content :deep(th),
   .markdown-content :deep(td) {
-    padding: 12px 16px;
+    padding: 8px 12px;
   }
 }
 
