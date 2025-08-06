@@ -225,6 +225,8 @@ import {
   User,
   ChatDotRound,
 } from "@element-plus/icons-vue";
+import { formRules } from "@/utils/validation.js";
+import { handleApiError, handleSuccess } from "@/utils/errorHandler.js";
 
 export default {
   name: "Login",
@@ -258,24 +260,10 @@ export default {
     const countdown = ref(0);
     let countdownTimer = null;
 
-    // 表单验证规则
+    // 表单验证规则 - 使用统一的验证工具
     const loginRules = {
-      phone: [
-        { required: true, message: "请输入手机号", trigger: "blur" },
-        {
-          pattern: /^1[3-9]\d{9}$/,
-          message: "请输入正确的手机号格式",
-          trigger: "blur",
-        },
-      ],
-      code: [
-        { required: true, message: "请输入验证码", trigger: "blur" },
-        {
-          pattern: /^\d{6}$/,
-          message: "验证码必须是6位数字",
-          trigger: "blur",
-        },
-      ],
+      phone: formRules.phone,
+      code: formRules.verificationCode,
     };
 
     // 计算属性
@@ -339,11 +327,8 @@ export default {
 
         const user = await userStore.login(loginForm.phone, loginForm.code);
 
-        ElNotification({
-          title: "登录成功",
-          message: `欢迎回来，${user.nickname || "用户"}！`,
-          type: "success",
-          duration: 3000,
+        handleSuccess(`欢迎回来，${user.nickname || "用户"}！`, {
+          showNotification: true
         });
 
         const redirectPath =
@@ -353,8 +338,7 @@ export default {
 
         await router.push(redirectPath);
       } catch (error) {
-        console.error("登录失败:", error);
-        ElMessage.error(error.message || "登录失败，请检查手机号和验证码");
+        handleApiError(error, "登录失败，请检查手机号和验证码");
       } finally {
         loggingIn.value = false;
       }

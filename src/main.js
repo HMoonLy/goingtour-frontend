@@ -87,6 +87,24 @@ if (
     console.log("🚀 GoingTour 应用启动成功");
 }
 
+// 初始化PWA功能
+if (
+    import.meta.env.PROD) {
+    import ('./utils/pwaManager.js').then(({ pwaManager }) => {
+        console.log('🔧 PWA功能已初始化');
+    }).catch(error => {
+        console.error('PWA初始化失败:', error);
+    });
+}
+
+// 初始化无障碍访问功能
+import ('./utils/accessibility.js').then(({ initAccessibility }) => {
+    initAccessibility();
+    console.log('♿ 无障碍访问功能已启用');
+}).catch(error => {
+    console.error('无障碍访问初始化失败:', error);
+});
+
 // 性能监控（开发环境）
 if (
     import.meta.env.DEV) {
