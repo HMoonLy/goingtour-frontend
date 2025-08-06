@@ -144,12 +144,22 @@ class="trips-grid">
         >
           <div class="trip-header">
             <h4>{{ trip.title }}</h4>
-            <el-tag
-              :type="trip.status === 'draft' ? 'info' : 'success'"
-              size="small"
-            >
-              {{ trip.status === "draft" ? "草稿" : "已完成" }}
-            </el-tag>
+            <div class="trip-tags">
+              <el-tag
+                v-if="trip.aiGenerated"
+                type="primary"
+                size="small"
+                class="ai-tag"
+              >
+                AI生成
+              </el-tag>
+              <el-tag
+                :type="trip.status === 'draft' ? 'info' : 'success'"
+                size="small"
+              >
+                {{ trip.status === "draft" ? "草稿" : "已完成" }}
+              </el-tag>
+            </div>
           </div>
           <div class="trip-info">
             <div class="trip-detail">
@@ -930,20 +940,41 @@ export default {
     // 查看行程详情
     const viewTripDetail = (trip) => {
       console.log("🔍 查看行程详情:", trip.title, trip.id);
-      router.push({
-        name: "TripDetail",
-        params: { id: trip.id },
-      });
+      
+      if (trip.aiGenerated) {
+        // AI生成的行程跳转到AI编辑页面（只读模式）
+        router.push({
+          name: "AiTripEdit",
+          params: { id: trip.id },
+          query: { readonly: 'true' },
+        });
+      } else {
+        // 手动创建的行程跳转到传统详情页面
+        router.push({
+          name: "TripDetail",
+          params: { id: trip.id },
+        });
+      }
     };
 
     // 编辑行程
     const editTrip = (trip) => {
       console.log("✏️ 编辑行程:", trip.title, trip.id);
-      router.push({
-        name: "TripDetail",
-        params: { id: trip.id },
-        query: { edit: "true" }, // 传递编辑标识
-      });
+      
+      if (trip.aiGenerated) {
+        // AI生成的行程跳转到AI编辑页面
+        router.push({
+          name: "AiTripEdit",
+          params: { id: trip.id },
+        });
+      } else {
+        // 手动创建的行程跳转到传统编辑页面
+        router.push({
+          name: "TripDetail",
+          params: { id: trip.id },
+          query: { edit: "true" }, // 传递编辑标识
+        });
+      }
     };
 
     // 监听路由变化，从特定页面返回时刷新数据
@@ -1300,8 +1331,21 @@ export default {
   margin: 0;
 }
 
+.trip-tags {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
 .trip-header .el-tag {
   font-size: 12px;
+}
+
+.ai-tag {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  font-weight: 500;
 }
 
 .trip-info {

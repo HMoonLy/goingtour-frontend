@@ -340,6 +340,11 @@ const saveTrip = async () => {
         savedTripId: response.data.id,
         saved: true
       });
+      
+      // 延迟跳转到个人中心
+      setTimeout(() => {
+        router.push("/personal");
+      }, 1500);
     } else {
       throw new Error(response.msg || "保存失败");
     }
