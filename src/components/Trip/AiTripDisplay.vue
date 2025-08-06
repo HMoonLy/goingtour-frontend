@@ -160,22 +160,27 @@ const md = new MarkdownIt({
 })
 
 // 自定义渲染规则 - 优化行程展示
-md.renderer.rules.strong_open = () => '<strong class="trip-highlight">'
-md.renderer.rules.strong_close = () => '</strong>'
+md.renderer.rules.strong_open = () => '<p class="trip-highlight">'
+md.renderer.rules.strong_close = () => '</p>'
 
-// 计算属性：从原始content解析标题
-const tripTitle = computed(() => {
-  if (!props.tripData?.content) return '智能行程计划'
-  
-  const content = props.tripData.content
-  const titleMatch = content.match(/^### 📅 (.+)$/m)
-  return titleMatch ? titleMatch[1] : `${props.tripData?.destinationInfo?.name || ''}智能行程计划`
-})
+
 
 // 计算属性：渲染完整的markdown内容
 const renderedContent = computed(() => {
   if (!props.tripData?.content) return '<p>暂无行程数据</p>'
-  return md.render(props.tripData.content)
+  
+  // 渲染markdown
+  let html = md.render(props.tripData.content)
+  
+  // 清理空标签
+  html = html
+    .replace(/<p>\s*<\/p>/g, '') // 删除空的p标签
+    .replace(/<div>\s*<\/div>/g, '') // 删除空的div标签
+    .replace(/<br\s*\/?>\s*<br\s*\/?>/g, '<br>') // 合并多个连续的br标签
+    .replace(/\n\s*\n/g, '\n') // 清理多余的换行
+    .trim() // 去除首尾空白
+  
+  return html
 })
 
 // 工具函数：格式化处理时间
@@ -496,7 +501,7 @@ const clearFeedback = () => {
 }
 
 .markdown-content :deep(ul li)::before {
-  content: "•";
+  content: "";
   color: #718096;
   font-weight: normal;
   position: absolute;
@@ -530,9 +535,20 @@ const clearFeedback = () => {
   top: 7px;
 }
 
+.markdown-content :deep(p) 
+{
+  
+}
+
+.markdown-content :deep(strong) 
+{
+  /* display: block; */
+}
 .markdown-content :deep(.trip-highlight) {
+  display: inline-block;
   background: #f8fafc;
-  padding: 3px 8px;
+  padding: 1px 8px;
+  margin-top: auto;
   border-radius: 4px;
   font-weight: 500;
   color: #667eea;
@@ -859,16 +875,41 @@ const clearFeedback = () => {
     grid-template-columns: 1fr;
   }
   
+  .markdown-content {
+    font-size: 13px;
+  }
+  
   .markdown-content :deep(h1) {
-    font-size: 22px;
+    font-size: 18px;
+    padding: 12px 16px;
+    margin: 16px 0 12px 0;
   }
   
   .markdown-content :deep(h2) {
-    font-size: 20px;
+    font-size: 16px;
+    margin: 20px 0 12px 0;
   }
   
   .markdown-content :deep(h3) {
-    font-size: 18px;
+    font-size: 15px;
+    padding: 10px 12px;
+    margin: 16px 0 12px 0;
+  }
+  
+  .markdown-content :deep(h4) {
+    font-size: 14px;
+    margin: 14px 0 10px 0;
+  }
+  
+  .markdown-content :deep(h5) {
+    font-size: 13px;
+    margin: 12px 0 6px 0;
+  }
+  
+  .markdown-content :deep(li) {
+    margin: 4px 0;
+    padding: 3px 0 3px 20px;
+    font-size: 12px;
   }
 }
 
