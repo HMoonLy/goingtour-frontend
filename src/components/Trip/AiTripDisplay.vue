@@ -16,7 +16,7 @@
             }}行程
           </p>
         </div>
-
+        
         <!-- 快速统计信息 -->
         <div class="trip-stats">
           <div class="stat-card">
@@ -68,7 +68,7 @@
     <!-- 完整的行程内容 -->
     <el-card class="content-card" shadow="hover">
       <div class="markdown-content" v-html="renderedContent"></div>
-    </el-card>
+        </el-card>
 
     <!-- 操作按钮区域 -->
     <el-card class="actions-card" shadow="never">
@@ -100,7 +100,7 @@
           <span>行程评价</span>
         </div>
       </template>
-
+      
       <div class="feedback-content">
         <div class="rating-section">
           <span class="rating-label">整体满意度:</span>
@@ -112,7 +112,7 @@
             :texts="['很差', '一般', '还行', '不错', '很棒']"
           />
         </div>
-
+        
         <el-input
           v-model="userFeedback"
           type="textarea"
@@ -122,7 +122,7 @@
           show-word-limit
           class="feedback-input"
         />
-
+        
         <div class="feedback-actions">
           <el-button
             size="small"
@@ -141,6 +141,9 @@
 <script setup>
 import { ref, computed } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
+import { useUserStore } from "@/store/user";
+import { useRouter } from "vue-router";
+import { http } from "@/api/request";
 import {
   Cpu,
   Calendar,
@@ -163,6 +166,10 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["save", "share", "regenerate"]);
+
+// 获取用户store和路由
+const userStore = useUserStore();
+const router = useRouter();
 
 // 响应式数据
 const copying = ref(false);
@@ -248,8 +255,7 @@ const renderedContent = computed(() => {
       );
   });
 
-  console.log("原始HTML:", md.render(props.tripData.content));
-  console.log("处理后的HTML:", html);
+
 
   return html;
 });
@@ -260,6 +266,29 @@ const formatProcessingTime = (time) => {
   return time < 1000 ? `${time}ms` : `${Math.round(time / 1000)}s`;
 };
 
+// 工具函数：从行程内容中提取预算信息
+const extractBudgetFromContent = (content) => {
+  if (!content) return null;
+  
+  // 尝试匹配预算信息的正则表达式
+  const budgetPatterns = [
+    /预算分配.*?(\d+)元/,
+    /总计约?(\d+)元/,
+    /费用.*?(\d+)元/,
+    /预算.*?(\d+)元/,
+    /约(\d+)元/
+  ];
+  
+  for (const pattern of budgetPatterns) {
+    const match = content.match(pattern);
+    if (match && match[1]) {
+      return parseFloat(match[1]);
+    }
+  }
+  
+  return null;
+};
+
 // 复制到剪贴板
 const copyToClipboard = async () => {
   copying.value = true;
@@ -268,7 +297,6 @@ const copyToClipboard = async () => {
     await navigator.clipboard.writeText(content);
     ElMessage.success("行程内容已复制到剪贴板！");
   } catch (err) {
-    console.error("复制失败:", err);
     ElMessage.error("复制失败，请手动选择复制");
   } finally {
     copying.value = false;
@@ -279,12 +307,44 @@ const copyToClipboard = async () => {
 const saveTrip = async () => {
   saving.value = true;
   try {
-    // 模拟保存操作
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    ElMessage.success("行程已保存到我的行程中！");
-    emit("save", props.tripData);
+    // 构建保存请求数据
+    const saveRequest = {
+      userId: userStore.userId || 1, // 如果没有用户ID则使用默认值1
+      title: `${props.tripData?.destinationInfo?.name || "未知目的地"}${props.tripData?.tripBasicInfo?.days || 3}天${props.tripData?.tripBasicInfo?.travelers || 1}人行程`,
+      city: props.tripData?.destinationInfo?.name || "未知目的地",
+      days: props.tripData?.tripBasicInfo?.days || 3,
+      travelers: props.tripData?.tripBasicInfo?.travelers || 1,
+      totalBudget: extractBudgetFromContent(props.tripData?.content) || null,
+      aiContent: props.tripData?.content || "",
+      destinationInfo: JSON.stringify(props.tripData?.destinationInfo || {}),
+      tripBasicInfo: JSON.stringify(props.tripData?.tripBasicInfo || {}),
+      qualityScore: props.tripData?.qualityScore || null,
+      processingTime: props.tripData?.processingTime || null,
+      generationParams: JSON.stringify({
+        aiProvider: props.tripData?.aiProvider || "DeepSeek",
+        promptLength: props.tripData?.promptLength || null,
+        responseLength: props.tripData?.responseLength || null,
+        generatedAt: props.tripData?.generatedAt || new Date().toISOString()
+      }),
+      feedbackRating: userRating.value > 0 ? userRating.value : null,
+      feedbackContent: userFeedback.value.trim() || null
+    };
+
+    // 调用后端API保存行程
+    const response = await http.post("/ai/trip/save", saveRequest);
+    
+    if (response.code === 200) {
+      ElMessage.success("行程已成功保存到我的行程中！");
+      emit("save", {
+        ...props.tripData,
+        savedTripId: response.data.id,
+        saved: true
+      });
+    } else {
+      throw new Error(response.msg || "保存失败");
+    }
   } catch (err) {
-    ElMessage.error("保存失败，请重试");
+    ElMessage.error(err.message || "保存失败，请重试");
   } finally {
     saving.value = false;
   }
@@ -802,11 +862,11 @@ const clearFeedback = () => {
     padding: 16px;
     background: #f8fafc;
   }
-
+  
   .trip-header-card :deep(.el-card__body) {
     padding: 24px;
   }
-
+  
   .trip-main-title {
     font-size: 26px;
   }
@@ -814,12 +874,12 @@ const clearFeedback = () => {
   .trip-subtitle {
     font-size: 16px;
   }
-
+  
   .trip-stats {
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
   }
-
+  
   .stat-card {
     padding: 20px;
     flex-direction: column;
@@ -899,7 +959,7 @@ const clearFeedback = () => {
     padding: 4px 0 4px 24px;
     font-size: 13px;
   }
-
+  
   .markdown-content :deep(ul li)::before {
     left: 6px;
     top: 6px;
@@ -933,7 +993,7 @@ const clearFeedback = () => {
   .trip-stats {
     grid-template-columns: 1fr;
   }
-
+  
   .markdown-content {
     font-size: 13px;
   }
