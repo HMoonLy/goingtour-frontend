@@ -32,7 +32,7 @@
     </div>
 
     <!-- 行程展示内容 - 参考AiTripDisplay样式 -->
-    <div v-else-if="tripData.id" class="ai-trip-display">
+    <div v-else-if="tripData && tripData.id" class="ai-trip-display">
       <!-- 行程标题卡片 -->
       <el-card class="trip-header-card" shadow="never">
         <div class="trip-header-content">
@@ -195,8 +195,6 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import {
   ArrowLeft,
   Edit,
-  Document,
-  DataLine,
   View,
   Money,
   Cpu,
@@ -219,7 +217,7 @@ const loading = ref(true);
 const saving = ref(false);
 const editMode = ref("preview"); // 默认预览模式
 const isReadOnly = ref(false); // 是否只读模式
-const tripData = ref({});
+const tripData = ref(null);
 const editedTrip = ref({});
 
 // Markdown解析器
@@ -324,15 +322,9 @@ const loadTripData = async () => {
     loading.value = true;
     
     // 调用后端API获取AI行程数据
-    const response = await http.get(`/trips/${tripId.value}`, {
-      params: {
-        userId: userStore.userId || 1
-      }
-    });
+    const response = await http.get(`/trips/${tripId.value}?userId=${userStore.userId || 1}`);
     
     if (response.code === 200 && response.data) {
-      tripData.value = response.data;
-      
       // 解析JSON字段
       let destinationInfo = {};
       let tripBasicInfo = {};
@@ -348,6 +340,13 @@ const loadTripData = async () => {
       } catch (e) {
         console.warn("解析tripBasicInfo失败:", e);
       }
+      
+      // 首先更新tripData以供模板使用
+      tripData.value = {
+        ...response.data,
+        destinationInfo: destinationInfo,
+        tripBasicInfo: tripBasicInfo
+      };
       
       // 设置编辑数据，确保所有AI相关字段都被正确映射
       editedTrip.value = {
@@ -368,14 +367,8 @@ const loadTripData = async () => {
         feedbackContent: response.data.feedbackContent
       };
       
-      // 同时更新tripData以供模板使用
-      tripData.value = {
-        ...response.data,
-        destinationInfo: destinationInfo,
-        tripBasicInfo: tripBasicInfo
-      };
-      
       console.log("✅ AI行程数据加载成功:", response.data);
+      console.log("✅ tripData设置:", tripData.value);
       console.log("✅ 编辑数据设置:", editedTrip.value);
     } else {
       throw new Error(response.msg || "获取行程数据失败");
