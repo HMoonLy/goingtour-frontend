@@ -201,6 +201,7 @@ import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import { Search, Top, Bottom } from "@element-plus/icons-vue";
 import pinyin from "pinyin";
+import { createCachedRequest, debounce } from "@/utils/apiOptimizer.js";
 
 export default {
   name: "Destinations",
@@ -270,17 +271,31 @@ export default {
       { 中文名: "丽江市", adcode: "530700", province: "云南省" },
     ];
 
+    // 原始城市数据加载函数
+    const fetchCityData = async () => {
+      const response = await fetch("/data/city-codes.json");
+      if (!response.ok) {
+        throw new Error(`加载城市数据失败: ${response.status}`);
+      }
+      return await response.json();
+    };
+
+    // 带缓存的城市数据加载函数
+    const cachedFetchCityData = createCachedRequest(fetchCityData, {
+      cacheKey: 'city-data',
+      ttl: 30 * 60 * 1000, // 缓存30分钟
+      enableCache: true
+    });
+
     // 加载城市数据
     const loadCityData = async () => {
       loading.value = true;
       try {
-        const response = await fetch("/data/city-codes.json");
-        if (!response.ok) {
-          throw new Error(`加载城市数据失败: ${response.status}`);
+        const cityData = await cachedFetchCityData();
+        
+        if (import.meta.env.DEV) {
+          console.log(`加载了 ${cityData.length} 条城市数据`);
         }
-
-        const cityData = await response.json();
-        console.log(`加载了 ${cityData.length} 条城市数据`);
 
         // 过滤只保留市级城市
         allCities.value = cityData.filter((city) => {
@@ -293,7 +308,9 @@ export default {
           );
         });
 
-        console.log(`过滤后保留了 ${allCities.value.length} 条城市数据`);
+        if (import.meta.env.DEV) {
+          console.log(`过滤后保留了 ${allCities.value.length} 条城市数据`);
+        }
       } catch (error) {
         console.error("加载城市数据失败:", error);
         ElMessage.error("城市数据加载失败，请刷新重试");
@@ -366,12 +383,8 @@ export default {
       searchResults.value = [];
     };
 
-    // 防抖处理
-    let searchTimer = null;
-    const debouncedSearch = () => {
-      clearTimeout(searchTimer);
-      searchTimer = setTimeout(searchCities, 300);
-    };
+    // 防抖搜索
+    const debouncedSearch = debounce(searchCities, 300);
 
     // 选择城市
     const selectCity = (city) => {

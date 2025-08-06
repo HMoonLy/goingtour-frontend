@@ -25,14 +25,14 @@ export function handleApiError(error, defaultMessage = '操作失败', options =
     }
 
     // 解析错误信息
-    if (error ? .response) {
+    if (error?.response) {
         // HTTP响应错误
         const { status, data } = error.response;
         errorCode = `HTTP_${status}`;
 
         switch (status) {
             case 400:
-                errorMessage = data ? .msg || '请求参数错误';
+                errorMessage = data?.msg || '请求参数错误';
                 break;
             case 401:
                 errorMessage = '登录已过期，请重新登录';
@@ -48,7 +48,7 @@ export function handleApiError(error, defaultMessage = '操作失败', options =
                 errorMessage = '请求的资源不存在';
                 break;
             case 422:
-                errorMessage = data ? .msg || '数据验证失败';
+                errorMessage = data?.msg || '数据验证失败';
                 break;
             case 429:
                 errorMessage = '请求过于频繁，请稍后重试';
@@ -62,13 +62,13 @@ export function handleApiError(error, defaultMessage = '操作失败', options =
                 errorMessage = '服务暂时不可用，请稍后重试';
                 break;
             default:
-                errorMessage = data ? .msg || `服务器错误 (${status})`;
+                errorMessage = data?.msg || `服务器错误 (${status})`;
         }
-    } else if (error ? .request) {
+    } else if (error?.request) {
         // 网络错误
         errorCode = 'NETWORK_ERROR';
         errorMessage = '网络连接失败，请检查网络';
-    } else if (error ? .message) {
+    } else if (error?.message) {
         // 其他错误
         errorMessage = error.message;
         errorCode = 'CLIENT_ERROR';

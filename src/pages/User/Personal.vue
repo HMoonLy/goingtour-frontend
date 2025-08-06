@@ -504,6 +504,7 @@ import {
 } from "@element-plus/icons-vue";
 import { useUserStore } from "@/store/user.js";
 import { convertBackendTripToFrontend } from "@/utils/tripDataConverter.js";
+import { handleApiError, handleSuccess } from "@/utils/errorHandler.js";
 import { translateTag, getMbtiName } from "@/utils/tagMapping.js";
 
 export default {
@@ -820,7 +821,12 @@ export default {
           savedTrips.value = [];
         }
       } catch (error) {
-        console.error("❌ 从API加载行程数据失败:", error);
+        // 使用统一的错误处理，但不显示用户提示（因为有降级方案）
+        handleApiError(error, "加载行程数据失败", { 
+          showNotification: false,
+          logError: true 
+        });
+        
         // 降级到localStorage作为备选
         try {
           const trips = localStorage.getItem("savedTrips");
@@ -828,11 +834,13 @@ export default {
             savedTrips.value = JSON.parse(trips).map((trip) =>
               convertBackendTripToFrontend(trip)
             );
-            console.log(
-              "📋 降级使用本地存储数据:",
-              savedTrips.value.length,
-              "个"
-            );
+            if (import.meta.env.DEV) {
+              console.log(
+                "📋 降级使用本地存储数据:",
+                savedTrips.value.length,
+                "个"
+              );
+            }
           } else {
             savedTrips.value = [];
           }
@@ -871,16 +879,14 @@ export default {
         // 更新统计数据
         updateUserStats();
 
-        ElMessage.success("行程删除成功");
-        console.log("🗑️ 行程删除成功, ID:", tripId);
+        handleSuccess("行程删除成功");
       } catch (error) {
         if (error === "cancel") {
           // 用户取消删除
           return;
         }
 
-        console.error("❌ 删除行程失败:", error);
-        ElMessage.error("删除行程失败：" + (error.message || "请重试"));
+        handleApiError(error, "删除行程失败，请重试");
       }
     };
 
@@ -896,41 +902,49 @@ export default {
 
     // 查看行程详情
     const viewTripDetail = (trip) => {
-      console.log("🔍 查看行程详情:", trip.title, trip.id);
-
-      if (trip.aiGenerated) {
-        // AI生成的行程跳转到AI编辑页面（只读模式）
-        router.push({
-          name: "AiTripEdit",
-          params: { id: trip.id },
-          query: { readonly: "true" },
-        });
-      } else {
-        // 手动创建的行程跳转到传统详情页面
-        router.push({
-          name: "TripDetail",
-          params: { id: trip.id },
-        });
+      // 查看行程详情
+      try {
+        if (trip.aiGenerated) {
+          // AI生成的行程跳转到AI编辑页面（只读模式）
+          router.push({
+            name: "AiTripEdit",
+            params: { id: trip.id },
+            query: { readonly: "true" },
+          });
+        } else {
+          // 手动创建的行程跳转到传统详情页面
+          router.push({
+            name: "TripDetail",
+            params: { id: trip.id },
+          });
+        }
+      } catch (error) {
+        console.error("路由跳转失败:", error);
+        ElMessage.error("跳转失败，请重试");
       }
     };
 
     // 编辑行程
     const editTrip = (trip) => {
-      console.log("✏️ 编辑行程:", trip.title, trip.id);
-
-      if (trip.aiGenerated) {
-        // AI生成的行程跳转到AI编辑页面
-        router.push({
-          name: "AiTripEdit",
-          params: { id: trip.id },
-        });
-      } else {
-        // 手动创建的行程跳转到传统编辑页面
-        router.push({
-          name: "TripDetail",
-          params: { id: trip.id },
-          query: { edit: "true" }, // 传递编辑标识
-        });
+      // 编辑行程
+      try {
+        if (trip.aiGenerated) {
+          // AI生成的行程跳转到AI编辑页面
+          router.push({
+            name: "AiTripEdit",
+            params: { id: trip.id },
+          });
+        } else {
+          // 手动创建的行程跳转到传统编辑页面
+          router.push({
+            name: "TripDetail",
+            params: { id: trip.id },
+            query: { edit: "true" }, // 传递编辑标识
+          });
+        }
+      } catch (error) {
+        console.error("路由跳转失败:", error);
+        ElMessage.error("跳转失败，请重试");
       }
     };
 
@@ -1060,6 +1074,17 @@ export default {
       getMbtiTravelDescriptionShort,
       savedTrips, // 暴露保存的行程数据
       formatTripDate, // 暴露行程日期格式化函数
+      // 图标组件
+      UserFilled,
+      Calendar,
+      MapLocation,
+      Setting,
+      Tickets,
+      Tools,
+      DocumentCopy,
+      Plus,
+      User,
+      Money,
       viewTripDetail, // 暴露查看行程详情函数
       editTrip, // 暴露编辑行程函数
       deleteTrip, // 暴露删除行程函数
