@@ -60,13 +60,9 @@
     <div class="quick-actions">
       <h3 class="section-title">快捷功能</h3>
       <div class="action-grid">
-        <div
-class="action-card" @click="createTrip"
->
+        <div class="action-card" @click="createTrip">
           <div class="action-icon">
-            <el-icon
-size="32" color="#667eea"
->
+            <el-icon size="32" color="#667eea">
               <MapLocation />
             </el-icon>
           </div>
@@ -74,13 +70,9 @@ size="32" color="#667eea"
           <p>开始规划您的下一次旅行</p>
         </div>
 
-        <div
-class="action-card" @click="goToPreferences"
->
+        <div class="action-card" @click="goToPreferences">
           <div class="action-icon">
-            <el-icon
-size="32" color="#07C160"
->
+            <el-icon size="32" color="#07C160">
               <Setting />
             </el-icon>
           </div>
@@ -88,13 +80,9 @@ size="32" color="#07C160"
           <p>个性化您的旅行推荐</p>
         </div>
 
-        <div
-class="action-card" @click="viewTrips"
->
+        <div class="action-card" @click="viewTrips">
           <div class="action-icon">
-            <el-icon
-size="32" color="#FF6B35"
->
+            <el-icon size="32" color="#FF6B35">
               <Tickets />
             </el-icon>
           </div>
@@ -102,13 +90,9 @@ size="32" color="#FF6B35"
           <p>查看和管理历史行程</p>
         </div>
 
-        <div
-class="action-card" @click="accountSettings"
->
+        <div class="action-card" @click="accountSettings">
           <div class="action-icon">
-            <el-icon
-size="32" color="#8B5CF6"
->
+            <el-icon size="32" color="#8B5CF6">
               <Tools />
             </el-icon>
           </div>
@@ -134,8 +118,7 @@ size="32" color="#8B5CF6"
         </el-button>
       </div>
 
-      <div v-if="savedTrips.length > 0"
-class="trips-grid">
+      <div v-if="savedTrips.length > 0" class="trips-grid">
         <div
           v-for="trip in savedTrips"
           :key="trip.id"
@@ -179,11 +162,6 @@ class="trips-grid">
               <span>{{ trip.budgetText }}</span>
             </div>
           </div>
-          <div class="trip-summary">
-            <span>{{ trip.attractions?.length || 0 }}个景点</span>
-            <span>{{ trip.restaurants?.length || 0 }}家餐厅</span>
-            <span>{{ formatTripDate(trip.createdAt) }}</span>
-          </div>
           <div class="trip-actions">
             <el-button
               size="small"
@@ -205,20 +183,12 @@ class="trips-grid">
         </div>
       </div>
 
-      <div
-v-else class="no-trips"
->
-        <el-icon
-size="48" color="#C0C4CC"
->
+      <div v-else class="no-trips">
+        <el-icon size="48" color="#C0C4CC">
           <DocumentCopy />
         </el-icon>
         <p>还没有创建任何行程</p>
-        <el-button type="primary"
-@click="createTrip"
->
-立即创建行程
-</el-button>
+        <el-button type="primary" @click="createTrip"> 立即创建行程 </el-button>
       </div>
     </div>
 
@@ -238,9 +208,7 @@ size="48" color="#C0C4CC"
         </el-button>
       </div>
 
-      <div
-v-if="hasPreferences" class="preferences-grid"
->
+      <div v-if="hasPreferences" class="preferences-grid">
         <!-- 旅行类型偏好 -->
         <div
           v-if="
@@ -270,8 +238,7 @@ v-if="hasPreferences" class="preferences-grid"
         </div>
 
         <!-- 日均预算 -->
-        <div v-if="parsedPreferences.budget"
-class="preference-card">
+        <div v-if="parsedPreferences.budget" class="preference-card">
           <div class="card-header">
             <el-icon class="card-icon">
               <Tools />
@@ -287,8 +254,7 @@ class="preference-card">
         </div>
 
         <!-- MBTI性格类型 -->
-        <div v-if="parsedPreferences.mbtiType"
-class="preference-card">
+        <div v-if="parsedPreferences.mbtiType" class="preference-card">
           <div class="card-header">
             <el-icon class="card-icon">
               <User />
@@ -348,8 +314,7 @@ class="preference-card">
         </div>
 
         <!-- 住宿偏好 -->
-        <div v-if="parsedPreferences.accommodationType"
-class="preference-card">
+        <div v-if="parsedPreferences.accommodationType" class="preference-card">
           <div class="card-header">
             <el-icon class="card-icon">
               <UserFilled />
@@ -366,8 +331,7 @@ class="preference-card">
         </div>
 
         <!-- 饮食偏好 -->
-        <div v-if="hasFoodPreferences"
-class="preference-card">
+        <div v-if="hasFoodPreferences" class="preference-card">
           <div class="card-header">
             <el-icon class="card-icon">
               <Calendar />
@@ -379,7 +343,7 @@ class="preference-card">
               <div
                 v-if="
                   parsedPreferences.foodTastes &&
-                    parsedPreferences.foodTastes.length > 0
+                  parsedPreferences.foodTastes.length > 0
                 "
                 class="food-category"
               >
@@ -391,14 +355,14 @@ class="preference-card">
               <div
                 v-if="
                   parsedPreferences.dietaryRestrictions &&
-                    parsedPreferences.dietaryRestrictions.length > 0
+                  parsedPreferences.dietaryRestrictions.length > 0
                 "
                 class="food-category"
               >
                 <span class="category-label">限制：</span>
                 <span class="food-items">{{
                   getDietaryRestrictionsText(
-                    parsedPreferences.dietaryRestrictions,
+                    parsedPreferences.dietaryRestrictions
                   )
                 }}</span>
               </div>
@@ -434,8 +398,7 @@ class="preference-card">
         </div>
 
         <!-- 旅行节奏 -->
-        <div v-if="parsedPreferences.travelPace"
-class="preference-card">
+        <div v-if="parsedPreferences.travelPace" class="preference-card">
           <div class="card-header">
             <el-icon class="card-icon">
               <Tools />
@@ -452,8 +415,7 @@ class="preference-card">
         </div>
 
         <!-- 其他偏好 -->
-        <div v-if="hasOtherPreferences"
-class="preference-card">
+        <div v-if="hasOtherPreferences" class="preference-card">
           <div class="card-header">
             <el-icon class="card-icon">
               <Setting />
@@ -477,18 +439,12 @@ class="preference-card">
       </div>
 
       <!-- 无偏好数据时的提示 -->
-      <div
-v-else class="no-preferences"
->
-        <el-icon
-size="48" color="#C0C4CC"
->
+      <div v-else class="no-preferences">
+        <el-icon size="48" color="#C0C4CC">
           <Setting />
         </el-icon>
         <p>还没有设置偏好信息</p>
-        <el-button
-type="primary" @click="goToPreferences"
->
+        <el-button type="primary" @click="goToPreferences">
           立即设置
         </el-button>
       </div>
@@ -510,16 +466,13 @@ type="primary" @click="goToPreferences"
             class="preset-avatar"
             @click="selectAvatar(avatar)"
           >
-            <el-avatar
-:size="60" :src="avatar"
-/>
+            <el-avatar :size="60" :src="avatar" />
           </div>
         </div>
       </div>
       <template #footer>
         <el-button @click="avatarDialogVisible = false"> 取消 </el-button>
-        <el-button
-type="primary" @click="saveAvatar"> 确定 </el-button>
+        <el-button type="primary" @click="saveAvatar"> 确定 </el-button>
       </template>
     </el-dialog>
   </div>
@@ -687,7 +640,7 @@ export default {
 
     const getDietaryRestrictionsText = (restrictions) => {
       return restrictions
-        .map((restriction) => translateTag(restriction, 'dietary'))
+        .map((restriction) => translateTag(restriction, "dietary"))
         .join("、");
     };
 
@@ -856,7 +809,7 @@ export default {
 
         if (response.data) {
           savedTrips.value = response.data.map((trip) =>
-            convertBackendTripToFrontend(trip),
+            convertBackendTripToFrontend(trip)
           );
           console.log("📋 从API加载行程成功:", savedTrips.value.length, "个");
         } else {
@@ -869,12 +822,12 @@ export default {
           const trips = localStorage.getItem("savedTrips");
           if (trips) {
             savedTrips.value = JSON.parse(trips).map((trip) =>
-              convertBackendTripToFrontend(trip),
+              convertBackendTripToFrontend(trip)
             );
             console.log(
               "📋 降级使用本地存储数据:",
               savedTrips.value.length,
-              "个",
+              "个"
             );
           } else {
             savedTrips.value = [];
@@ -896,7 +849,7 @@ export default {
             confirmButtonText: "删除",
             cancelButtonText: "取消",
             type: "warning",
-          },
+          }
         );
 
         if (!userStore.currentUser?.id) {
@@ -940,13 +893,13 @@ export default {
     // 查看行程详情
     const viewTripDetail = (trip) => {
       console.log("🔍 查看行程详情:", trip.title, trip.id);
-      
+
       if (trip.aiGenerated) {
         // AI生成的行程跳转到AI编辑页面（只读模式）
         router.push({
           name: "AiTripEdit",
           params: { id: trip.id },
-          query: { readonly: 'true' },
+          query: { readonly: "true" },
         });
       } else {
         // 手动创建的行程跳转到传统详情页面
@@ -960,7 +913,7 @@ export default {
     // 编辑行程
     const editTrip = (trip) => {
       console.log("✏️ 编辑行程:", trip.title, trip.id);
-      
+
       if (trip.aiGenerated) {
         // AI生成的行程跳转到AI编辑页面
         router.push({
@@ -993,7 +946,7 @@ export default {
             loadUserData();
           }, 100);
         }
-      },
+      }
     );
 
     // 监听用户偏好变化，自动更新统计数据
@@ -1005,7 +958,7 @@ export default {
           await updateUserStats();
         }
       },
-      { deep: true },
+      { deep: true }
     );
 
     // 加载用户数据

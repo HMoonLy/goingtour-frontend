@@ -29,6 +29,93 @@
 
     <!-- 行程展示内容 -->
     <div v-else-if="tripData && tripData.id" class="ai-trip-display">
+      <!-- 行程标题卡片 - 使用自定义div -->
+      <div class="trip-header-card-custom">
+        <div class="trip-header-content">
+          <div class="trip-title-section">
+            <div class="title-with-icon">
+              <el-icon class="ai-icon" color="#409eff"><Cpu /></el-icon>
+              <h1 v-if="isReadOnly" class="trip-main-title">
+                {{ tripData.title }}
+              </h1>
+              <el-input
+                v-else
+                v-model="editedTrip.title"
+                class="trip-title-input"
+                placeholder="请输入行程标题"
+                maxlength="100"
+                show-word-limit
+              />
+            </div>
+            <p class="trip-subtitle">
+              AI为您精心规划的{{ editedTrip?.days || tripData.days || 3 }}天{{
+                tripData?.destinationInfo?.name || tripData.city || "智能"
+              }}行程
+            </p>
+          </div>
+          <div class="trip-stats">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <el-icon color="#409eff"><Calendar /></el-icon>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number" v-if="isReadOnly">
+                  {{ editedTrip?.days || tripData.days || 0 }}
+                </div>
+                <el-input-number
+                  v-else
+                  v-model="editedTrip.days"
+                  :min="1"
+                  :max="30"
+                  controls-position="right"
+                  class="stat-input"
+                />
+                <div class="stat-label">天数</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">
+                <el-icon color="#67c23a"><User /></el-icon>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number" v-if="isReadOnly">
+                  {{ editedTrip?.mate || tripData.mate || 0 }}
+                </div>
+                <el-input-number
+                  v-else
+                  v-model="editedTrip.mate"
+                  :min="1"
+                  :max="20"
+                  controls-position="right"
+                  class="stat-input"
+                />
+                <div class="stat-label">人数</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">
+                <el-icon color="#e6a23c"><Trophy /></el-icon>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number">{{ tripData?.qualityScore || 0 }}</div>
+                <div class="stat-label">质量分</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">
+                <el-icon color="#f56c6c"><Timer /></el-icon>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number">
+                  {{ formatProcessingTime(tripData?.processingTime) }}
+                </div>
+                <div class="stat-label">用时</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- 行程标题卡片 -->
       <!-- <el-card class="trip-header-card" shadow="never">
         <div class="trip-header-content">
@@ -117,7 +204,9 @@
       </el-card> -->
 
 
-      <!-- <el-card class="content-card" shadow="hover">
+      <!-- 完整的行程内容 - 使用自定义div -->
+      <div class="content-card-custom">
+        <!-- 编辑模式选择（仅在非只读模式显示） -->
         <div v-if="!isReadOnly" class="editor-tabs">
           <el-radio-group v-model="editMode" class="edit-mode-selector">
             <el-radio-button label="preview">预览模式</el-radio-button>
@@ -125,17 +214,20 @@
           </el-radio-group>
         </div>
         
+        <!-- Markdown编辑器 -->
         <div v-if="!isReadOnly && editMode === 'markdown'" class="editor-container">
           <el-input
             v-model="editedTrip.aiContent"
             type="textarea"
             :rows="25"
             placeholder="请输入行程内容（支持Markdown格式）"
-            class="content-textarea"/>
+            class="content-textarea"
+          />
         </div>
         
+        <!-- 预览模式 - 使用与AiTripDisplay相同的样式 -->
         <div v-else class="markdown-content" v-html="renderedContent"></div>
-      </el-card> -->
+      </div>
 
       <el-card v-if="!isReadOnly" class="budget-card" shadow="never">
         <template #header>
@@ -453,21 +545,46 @@ const formatProcessingTime = (time) => {
 
 <style scoped>
 .ai-trip-edit-page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  background: #f5f7fa;
-  min-height: auto;
-  width: 100%;
-  box-sizing: border-box;
+  position: fixed !important;
+  top: 64px !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: calc(100vh - 64px) !important;
+  margin: 0 !important;
+  padding: 20px !important;
+  background: #f5f7fa !important;
+  overflow-y: auto !important;
+  z-index: 1 !important;
+}
+
+/* 重置可能影响布局的样式 */
+.ai-trip-edit-page * {
+  box-sizing: border-box !important;
+}
+
+/* 自定义头部卡片 */
+.trip-header-card-custom {
+  margin: 0 auto 24px auto !important;
+  border-radius: 12px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: white !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06) !important;
+  padding: 24px !important;
+  overflow: visible !important;
+  width: 100% !important;
+  max-width: 1200px !important;
 }
 
 .page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding: 0 4px;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin: 0 auto 24px auto !important;
+  padding: 0 4px !important;
+  width: 100% !important;
+  max-width: 1200px !important;
 }
 
 .back-btn {
@@ -497,12 +614,13 @@ const formatProcessingTime = (time) => {
 
 /* AI Trip Display 样式 */
 .ai-trip-display {
-  max-width: 1200px;
-  margin: 0 auto;
-  background: #f5f7fa;
-  padding-bottom: 60px;
-  min-height: auto;
-  overflow: visible;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  background: transparent !important;
+  padding-bottom: 60px !important;
+  min-height: auto !important;
+  overflow: visible !important;
+  width: 100% !important;
 }
 
 /* 头部卡片 */
@@ -629,6 +747,20 @@ const formatProcessingTime = (time) => {
   color: #718096;
   margin-top: 4px;
   font-weight: 500;
+}
+
+/* 自定义内容卡片 */
+.content-card-custom {
+  margin: 0 auto 24px auto !important;
+  border-radius: 12px !important;
+  overflow: visible !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06) !important;
+  background: white !important;
+  padding: 24px !important;
+  min-height: auto !important;
+  width: 100% !important;
+  max-width: 1200px !important;
 }
 
 /* 内容卡片 */
@@ -891,11 +1023,13 @@ const formatProcessingTime = (time) => {
 
 /* 预算卡片 */
 .budget-card {
-  margin-bottom: 24px;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin: 0 auto 24px auto !important;
+  border-radius: 12px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06) !important;
+  width: 100% !important;
+  max-width: 1200px !important;
 }
 
 .budget-card :deep(.el-card__body) {
@@ -920,6 +1054,52 @@ const formatProcessingTime = (time) => {
   margin-left: 8px;
   color: #718096;
   font-size: 14px;
+}
+
+/* ========== 响应式设计 ========== */
+@media (max-width: 768px) {
+  .ai-trip-edit-page {
+    padding: 12px !important;
+  }
+  
+  .trip-header-card-custom,
+  .content-card-custom,
+  .budget-card {
+    margin: 0 auto 16px auto !important;
+    padding: 16px !important;
+  }
+  
+  .page-header {
+    margin: 0 auto 16px auto !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    align-items: stretch !important;
+  }
+  
+  .trip-title {
+    font-size: 20px !important;
+  }
+  
+  .trip-subtitle {
+    font-size: 14px !important;
+  }
+  
+  .trip-stats {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+  
+  .stat-card {
+    padding: 12px !important;
+  }
+  
+  .editor-tabs {
+    margin-bottom: 16px !important;
+  }
+  
+  .markdown-content {
+    font-size: 14px !important;
+  }
 }
 
 /* Textarea样式 */
