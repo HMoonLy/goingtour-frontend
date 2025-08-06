@@ -747,7 +747,7 @@ export default {
       if (!currentUser) return;
 
       // 强制重新加载保存的行程（确保数据最新）
-      console.log("🔄 重新加载行程数据...");
+      // 重新加载行程数据
       await loadSavedTrips();
 
       // 计算偏好标签数量
@@ -789,7 +789,9 @@ export default {
         userStats.usageDays = diffDays || 1;
       }
 
-      console.log("📊 用户统计数据更新:", userStats);
+      if (import.meta.env.DEV) {
+        console.log("📊 用户统计数据更新:", userStats);
+      }
     };
 
     // 加载保存的行程
@@ -801,7 +803,7 @@ export default {
           return;
         }
 
-        console.log("🔄 从API加载行程数据...");
+        // 从API加载行程数据
 
         // 调用后端API获取用户行程
         const { tripApi } = await import("@/api/trip.js");
@@ -811,7 +813,9 @@ export default {
           savedTrips.value = response.data.map((trip) =>
             convertBackendTripToFrontend(trip)
           );
-          console.log("📋 从API加载行程成功:", savedTrips.value.length, "个");
+          if (import.meta.env.DEV) {
+            console.log("📋 从API加载行程成功:", savedTrips.value.length, "个");
+          }
         } else {
           savedTrips.value = [];
         }

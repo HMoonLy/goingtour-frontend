@@ -226,7 +226,7 @@
         </div>
         
         <!-- 预览模式 - 使用与AiTripDisplay相同的样式 -->
-        <div v-else class="markdown-content" v-html="renderedContent"></div>
+        <div v-else class="markdown-content" v-html="renderedContent" data-safe="true"></div>
       </div>
 
       <el-card v-if="!isReadOnly" class="budget-card" shadow="never">
@@ -259,7 +259,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { ElMessage, ElMessageBox } from "element-plus";
+import { ElMessageBox } from "element-plus";
 import {
   ArrowLeft,
   Edit,
@@ -274,6 +274,8 @@ import {
 import { http } from "@/api/request";
 import { useUserStore } from "@/store/user";
 import MarkdownIt from "markdown-it";
+import { sanitizeMarkdownHtml } from "@/utils/xssFilter.js";
+import { handleApiError, handleSuccess } from "@/utils/errorHandler.js";
 
 // 路由和store
 const route = useRoute();
@@ -369,6 +371,9 @@ const renderedContent = computed(() => {
       );
   });
 
+  // 安全过滤HTML内容，防止XSS攻击
+  html = sanitizeMarkdownHtml(html);
+
   return html;
 });
 
@@ -436,15 +441,15 @@ const loadTripData = async () => {
         aiContent: data.aiContent || ''
       };
       
-      console.log("✅ AI行程数据加载成功:", data);
-      console.log("✅ tripData设置:", tripData.value);
-      console.log("✅ 编辑数据设置:", editedTrip.value);
+      // 数据加载成功，在开发环境下记录日志
+      if (import.meta.env.DEV) {
+        console.log("✅ AI行程数据加载成功");
+      }
     } else {
       throw new Error(response.msg || "获取行程数据失败");
     }
   } catch (error) {
-    console.error("❌ 加载AI行程数据失败:", error);
-    ElMessage.error("加载行程数据失败，请重试");
+    handleApiError(error, "加载行程数据失败，请重试");
     router.push("/personal");
   } finally {
     loading.value = false;
@@ -480,7 +485,7 @@ const saveChanges = async () => {
     const response = await http.put(`/ai/trip/${tripId.value}`, updateRequest);
     
     if (response.code === 200) {
-      ElMessage.success("行程修改已保存！");
+      handleSuccess("行程修改已保存！");
       // 更新本地数据
       tripData.value = { ...tripData.value, ...editedTrip.value };
       // 切换回预览模式
@@ -490,8 +495,7 @@ const saveChanges = async () => {
       throw new Error(response.msg || "保存失败");
     }
   } catch (error) {
-    console.error("保存AI行程失败:", error);
-    ElMessage.error("保存失败，请重试");
+    handleApiError(error, "保存失败，请重试");
   } finally {
     saving.value = false;
   }

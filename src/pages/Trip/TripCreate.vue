@@ -207,14 +207,14 @@ export default {
 
     // 处理行程分享事件
     const handleTripShare = (tripData) => {
-      console.log('分享行程:', tripData);
+      // 分享行程功能
       ElMessage.success("分享功能开发中，敬请期待！");
     };
 
     // 获取天气信息
     const fetchWeatherForTrip = async (city, startDate, days) => {
       if (!city) {
-        console.log("🌤️ 缺少城市信息，跳过天气获取");
+        // 缺少城市信息，跳过天气获取
         return;
       }
 
@@ -223,7 +223,7 @@ export default {
         weatherError.value = null;
         
         if (startDate && days) {
-          console.log(`🌤️ 开始获取天气信息：${city}, ${startDate}, ${days}天`);
+          // 获取天气信息
           const weatherData = await weatherApi.getWeatherSuggestions(city, new Date(startDate), days);
           if (weatherData) {
             weatherSuggestion.value = weatherData;

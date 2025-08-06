@@ -67,7 +67,7 @@
 
     <!-- 完整的行程内容 -->
     <el-card class="content-card" shadow="hover">
-      <div class="markdown-content" v-html="renderedContent"></div>
+      <div class="markdown-content" v-html="renderedContent" data-safe="true"></div>
         </el-card>
 
     <!-- 操作按钮区域 -->
@@ -157,6 +157,7 @@ import {
   ChatDotSquare,
 } from "@element-plus/icons-vue";
 import MarkdownIt from "markdown-it";
+import { sanitizeMarkdownHtml } from "@/utils/xssFilter.js";
 
 const props = defineProps({
   tripData: {
@@ -255,7 +256,8 @@ const renderedContent = computed(() => {
       );
   });
 
-
+  // 安全过滤HTML内容，防止XSS攻击
+  html = sanitizeMarkdownHtml(html);
 
   return html;
 });
