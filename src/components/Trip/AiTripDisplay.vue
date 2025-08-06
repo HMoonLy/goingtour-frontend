@@ -58,7 +58,7 @@
     <!-- 完整的行程内容 -->
     <el-card class="content-card" shadow="hover">
       <div class="markdown-content" v-html="renderedContent"></div>
-    </el-card>
+        </el-card>
 
     <!-- 操作按钮区域 -->
     <el-card class="actions-card" shadow="never">
@@ -160,7 +160,15 @@ const md = new MarkdownIt({
 })
 
 // 自定义渲染规则 - 优化行程展示
-md.renderer.rules.strong_open = () => '<p class="trip-highlight">'
+md.renderer.rules.strong_open = (tokens, idx) => {
+  const content = tokens[idx + 1]?.content || ''
+  // 检查是否是时间格式（如 07:00-08:30）
+  const isTimeRange = /^\d{2}:\d{2}-\d{2}:\d{2}$/.test(content)
+  if (isTimeRange) {
+    return '<p class="trip-highlight time-range">'
+  }
+  return '<p class="trip-highlight">'
+}
 md.renderer.rules.strong_close = () => '</p>'
 
 
@@ -168,19 +176,7 @@ md.renderer.rules.strong_close = () => '</p>'
 // 计算属性：渲染完整的markdown内容
 const renderedContent = computed(() => {
   if (!props.tripData?.content) return '<p>暂无行程数据</p>'
-  
-  // 渲染markdown
-  let html = md.render(props.tripData.content)
-  
-  // 清理空标签
-  html = html
-    .replace(/<p>\s*<\/p>/g, '') // 删除空的p标签
-    .replace(/<div>\s*<\/div>/g, '') // 删除空的div标签
-    .replace(/<br\s*\/?>\s*<br\s*\/?>/g, '<br>') // 合并多个连续的br标签
-    .replace(/\n\s*\n/g, '\n') // 清理多余的换行
-    .trim() // 去除首尾空白
-  
-  return html
+  return md.render(props.tripData.content)
 })
 
 // 工具函数：格式化处理时间
@@ -535,15 +531,6 @@ const clearFeedback = () => {
   top: 7px;
 }
 
-.markdown-content :deep(p) 
-{
-  
-}
-
-.markdown-content :deep(strong) 
-{
-  /* display: block; */
-}
 .markdown-content :deep(.trip-highlight) {
   display: inline-block;
   background: #f8fafc;
@@ -554,6 +541,22 @@ const clearFeedback = () => {
   color: #667eea;
   border: 1px solid #e2e8f0;
 }
+
+/* 专门针对时间段的样式 */
+.markdown-content :deep(.trip-highlight.time-range) {
+  background: #fef3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+  font-weight: 600;
+  padding: 2px 10px;
+  display: block;
+
+}
+
+.markdown-content :deep(#text)
+{
+  font-weight: 100;
+} 
 
 .markdown-content :deep(table) {
   width: 100%;
