@@ -1,51 +1,44 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { useUserStore } from "../store/user";
+import { useUserStore } from "@/store/user";
 
 const routes = [
-    // 重定向到登录页
-    {
-        path: "/",
-        redirect: "/login",
-    },
-
     // ========== 认证相关页面（无需登录） ==========
     {
-        path: "/auth",
+        path: "/login",
+        name: "Login",
         component: () =>
-            import ("../layouts/AuthLayout.vue"),
-        children: [{
-                path: "/login",
-                name: "Login",
-                component: () =>
-                    import ("../pages/User/Login.vue"),
-                meta: {
-                    title: "登录",
-                    requiresAuth: false,
-                },
-            },
-            {
-                path: "/register",
-                name: "Register",
-                component: () =>
-                    import ("../pages/User/Register.vue"),
-                meta: {
-                    title: "注册",
-                    requiresAuth: false,
-                },
-            },
-        ],
+            import ("../pages/User/Login.vue"),
+        meta: {
+            title: "登录",
+            requiresAuth: false,
+        },
+    },
+    {
+        path: "/register",
+        name: "Register",
+        component: () =>
+            import ("../pages/User/Register.vue"),
+        meta: {
+            title: "注册",
+            requiresAuth: false,
+        },
     },
 
-    // ========== 主应用页面（需要登录） ==========
+    // ========== 主应用页面（使用DefaultLayout） ==========
     {
-        path: "/app",
+        path: "/",
         component: () =>
             import ("../layouts/DefaultLayout.vue"),
-        meta: { requiresAuth: true },
         children: [
+            // 默认重定向到个人中心
+            {
+                path: "",
+                redirect: "/personal",
+            },
+
             // 用户模块
             {
-                path: "/personal",
+                path: "personal",
                 name: "Personal",
                 component: () =>
                     import ("../pages/User/Personal.vue"),
@@ -55,7 +48,7 @@ const routes = [
                 },
             },
             {
-                path: "/preferences",
+                path: "preferences",
                 name: "Preferences",
                 component: () =>
                     import ("../pages/User/Preferences.vue"),
@@ -67,7 +60,7 @@ const routes = [
 
             // 行程模块
             {
-                path: "/destinations",
+                path: "destinations",
                 name: "Destinations",
                 component: () =>
                     import ("../pages/Trip/Destinations.vue"),
@@ -77,7 +70,7 @@ const routes = [
                 },
             },
             {
-                path: "/trip/create",
+                path: "trip/create",
                 name: "TripCreate",
                 component: () =>
                     import ("../pages/Trip/TripCreate.vue"),
@@ -87,7 +80,7 @@ const routes = [
                 },
             },
             {
-                path: "/trip/:id",
+                path: "trip/:id",
                 name: "TripDetail",
                 component: () =>
                     import ("../pages/Trip/TripDetail.vue"),
@@ -98,7 +91,7 @@ const routes = [
                 },
             },
             {
-                path: "/ai-trip/:id/edit",
+                path: "ai-trip/:id/edit",
                 name: "AiTripEdit",
                 component: () =>
                     import ("../pages/Trip/AiTripEdit.vue"),
@@ -111,7 +104,7 @@ const routes = [
 
             // 数据模块
             {
-                path: "/attraction/:id",
+                path: "attraction/:id",
                 name: "AttractionDetail",
                 component: () =>
                     import ("../pages/Data/AttractionDetail.vue"),
@@ -122,7 +115,7 @@ const routes = [
                 },
             },
             {
-                path: "/restaurants",
+                path: "restaurants",
                 name: "RestaurantList",
                 component: () =>
                     import ("../pages/Data/RestaurantList.vue"),
@@ -132,7 +125,7 @@ const routes = [
                 },
             },
             {
-                path: "/search",
+                path: "search",
                 name: "Search",
                 component: () =>
                     import ("../pages/Data/Search.vue"),

@@ -30,7 +30,7 @@
     <!-- 行程展示内容 -->
     <div v-else-if="tripData && tripData.id" class="ai-trip-display">
       <!-- 行程标题卡片 -->
-      <el-card class="trip-header-card" shadow="never">
+      <!-- <el-card class="trip-header-card" shadow="never">
         <div class="trip-header-content">
           <div class="trip-title-section">
             <div class="title-with-icon">
@@ -53,8 +53,6 @@
               }}行程
             </p>
           </div>
-          
-          <!-- 快速统计信息 -->
           <div class="trip-stats">
             <div class="stat-card">
               <div class="stat-icon">
@@ -116,11 +114,10 @@
             </div>
           </div>
         </div>
-      </el-card>
+      </el-card> -->
 
-      <!-- 完整的行程内容 -->
-      <el-card class="content-card" shadow="hover">
-        <!-- 编辑模式选择（仅在非只读模式显示） -->
+
+      <!-- <el-card class="content-card" shadow="hover">
         <div v-if="!isReadOnly" class="editor-tabs">
           <el-radio-group v-model="editMode" class="edit-mode-selector">
             <el-radio-button label="preview">预览模式</el-radio-button>
@@ -128,22 +125,18 @@
           </el-radio-group>
         </div>
         
-        <!-- Markdown编辑器 -->
         <div v-if="!isReadOnly && editMode === 'markdown'" class="editor-container">
           <el-input
             v-model="editedTrip.aiContent"
             type="textarea"
             :rows="25"
             placeholder="请输入行程内容（支持Markdown格式）"
-            class="content-textarea"
-          />
+            class="content-textarea"/>
         </div>
         
-        <!-- 预览模式 - 使用与AiTripDisplay相同的样式 -->
         <div v-else class="markdown-content" v-html="renderedContent"></div>
-      </el-card>
+      </el-card> -->
 
-      <!-- 预算编辑卡片（仅在编辑模式显示） -->
       <el-card v-if="!isReadOnly" class="budget-card" shadow="never">
         <template #header>
           <div class="card-header">
@@ -165,7 +158,6 @@
       </el-card>
     </div>
 
-    <!-- 无数据状态 -->
     <div v-else class="no-data">
       <el-empty description="未找到行程数据" />
     </div>
@@ -465,7 +457,9 @@ const formatProcessingTime = (time) => {
   margin: 0 auto;
   padding: 20px;
   background: #f5f7fa;
-  min-height: calc(100vh - 60px);
+  min-height: auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .page-header {
@@ -506,6 +500,9 @@ const formatProcessingTime = (time) => {
   max-width: 1200px;
   margin: 0 auto;
   background: #f5f7fa;
+  padding-bottom: 60px;
+  min-height: auto;
+  overflow: visible;
 }
 
 /* 头部卡片 */
@@ -638,14 +635,14 @@ const formatProcessingTime = (time) => {
 .content-card {
   margin-bottom: 24px;
   border-radius: 12px;
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid #e2e8f0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   background: white;
 }
 
 .content-card :deep(.el-card__body) {
-  padding: 24px;
+  padding: 24px !important;
 }
 
 /* 编辑器标签页 */
@@ -820,9 +817,10 @@ const formatProcessingTime = (time) => {
   margin: 24px 0;
   background: white;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   border: 1px solid #e2e8f0;
+  display: table;
 }
 
 .markdown-content :deep(th),

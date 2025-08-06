@@ -3,9 +3,9 @@
     <!-- 顶部导航栏 -->
     <header class="layout-header">
       <div class="header-container">
-        <div
-class="header-logo" @click="$router.push('/destinations')"
->
+                <div
+          class="header-logo" @click="$router.push('/destinations')"
+        >
           <h2>GoingTour</h2>
         </div>
 
@@ -126,7 +126,7 @@ export default {
 
     // 检查是否是TripDetail页面
     const isTripDetailPage = computed(() => {
-      return route.path.includes("/trip/") && route.params.id;
+      return route.path.startsWith("/trip/") && route.params.id && !route.path.includes("/ai-trip/");
     });
 
     // 处理用户命令
@@ -173,7 +173,7 @@ export default {
   display: flex;
   flex-direction: column;
   background-color: #f7fafc;
-  overflow: hidden; /* 防止水平滚动条 */
+  overflow-x: hidden; /* 只防止水平滚动条 */
 }
 
 /* 顶部导航栏 */
@@ -300,9 +300,11 @@ export default {
 /* 主要内容区域 */
 .layout-main {
   flex: 1;
-  overflow: auto; /* 允许自然滚动 */
+  overflow-y: auto; /* 允许垂直滚动 */
+  overflow-x: hidden; /* 防止水平滚动 */
   min-height: calc(100vh - 64px); /* 确保最小高度，减去导航栏高度 */
   position: relative;
+  width: 100%;
 }
 
 /* TripDetail页面特殊布局 */
@@ -315,9 +317,10 @@ export default {
 .main-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px; /* 增加上下padding */
-  min-height: inherit; /* 继承父容器的最小高度 */
+  padding: 0; /* 移除padding，让子页面自己控制 */
+  min-height: auto; /* 不限制最小高度 */
   box-sizing: border-box;
+  width: 100%;
 }
 
 /* TripDetail页面的容器特殊处理 */
