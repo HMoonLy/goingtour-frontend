@@ -100,11 +100,12 @@ finish-status="success" align-center>
 </template>
 
 <script>
-import { ref, reactive, onMounted, watch } from "vue";
+import { ref, reactive, onMounted, watch, onBeforeUnmount } from "vue";
 import { useRoute } from "vue-router";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import { useUserStore } from "@/store/user.js";
 import { weatherApi } from "@/api/weather.js";
+import { tripProgressManager } from "@/utils/tripProgress.js";
 import TripBaseInfo from "@/components/Trip/TripBaseInfo.vue";
 import TripPreferences from "@/components/Trip/TripPreferences.vue";
 import TripGeneration from "@/components/Trip/TripGeneration.vue";
@@ -270,6 +271,61 @@ export default {
       { immediate: true }
     );
 
+    // 进度保存功能
+    const saveProgress = () => {
+      const progressData = {
+        currentStep: currentStep.value,
+        baseForm: { ...baseForm },
+        preferenceForm: { ...preferenceForm },
+        selectedAttractions: selectedAttractions.value,
+        selectedRestaurants: selectedRestaurants.value,
+        extraRequirements: extraRequirements.value,
+        weatherSuggestion: weatherSuggestion.value
+      };
+      
+      tripProgressManager.autoSave(progressData);
+    };
+
+    // 恢复进度功能
+    const restoreProgress = async () => {
+      if (!tripProgressManager.hasProgress()) return false;
+
+      const progressSummary = tripProgressManager.getProgressSummary();
+      
+      try {
+        await ElMessageBox.confirm(
+          `发现您有未完成的行程创建进度：\n目的地：${progressSummary.destination}\n步骤：${progressSummary.stepName}\n保存时间：${progressSummary.timeAgo}\n\n是否继续之前的进度？`,
+          '恢复创建进度',
+          {
+            confirmButtonText: '恢复进度',
+            cancelButtonText: '重新开始',
+            type: 'info',
+          }
+        );
+
+        const progressData = tripProgressManager.restoreProgress();
+        if (progressData) {
+          // 恢复数据
+          currentStep.value = progressData.currentStep;
+          Object.assign(baseForm, progressData.baseForm);
+          Object.assign(preferenceForm, progressData.preferenceForm);
+          selectedAttractions.value = progressData.selectedAttractions || [];
+          selectedRestaurants.value = progressData.selectedRestaurants || [];
+          extraRequirements.value = progressData.extraRequirements || "";
+          weatherSuggestion.value = progressData.weatherSuggestion || null;
+
+          ElMessage.success(`已恢复到第${progressData.currentStep + 1}步：${progressSummary.stepName}`);
+          return true;
+        }
+      } catch {
+        // 用户选择重新开始
+        tripProgressManager.clearProgress();
+        ElMessage.info('已开始新的行程创建');
+      }
+      
+      return false;
+    };
+
     // 组件挂载后检查URL参数并加载用户偏好
     onMounted(async () => {
       console.log("🚀 TripCreate组件挂载，获取路由参数:", route.query);
@@ -308,6 +364,36 @@ export default {
         
         // 注意：天气获取将由watch监听器自动触发，不需要在这里手动调用
       }
+
+      // 尝试恢复进度（只有在没有URL参数时才尝试恢复）
+      if (!route.query.city && !route.query.fromPreferences) {
+        await restoreProgress();
+      }
+    });
+
+    // 监听数据变化，自动保存进度
+    watch([currentStep, baseForm, preferenceForm, selectedAttractions, selectedRestaurants, extraRequirements], 
+      () => {
+        // 只有在有基本信息时才保存进度
+        if (baseForm.destinationName) {
+          saveProgress();
+        }
+      }, 
+      { deep: true }
+    );
+
+    // 成功保存行程后清除进度
+    const originalHandleTripSaved = handleTripSaved;
+    const enhancedHandleTripSaved = () => {
+      tripProgressManager.clearProgress();
+      originalHandleTripSaved();
+    };
+
+    // 组件卸载时保存进度
+    onBeforeUnmount(() => {
+      if (baseForm.destinationName && currentStep.value < 3) {
+        saveProgress();
+      }
     });
 
     return {
@@ -330,7 +416,7 @@ export default {
       prevStep,
       handleGenerationComplete,
       regenerateTrip,
-      handleTripSaved,
+      handleTripSaved: enhancedHandleTripSaved,
       handleTripShare,
       fetchWeatherForTrip,
     };

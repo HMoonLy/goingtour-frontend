@@ -11,8 +11,6 @@
       </div>
     </div>
 
-    <!-- 表单区域 -->
-    <div class="form-sections">
       <!-- 推荐区域 -->
       <div class="form-section">
         <div class="section-title">
@@ -451,7 +449,89 @@ class="dish-tags">
           </div>
         </div>
       </div>
+    <!-- 表单区域 -->
+    <div class="form-sections">
+      <!-- 选择摘要区域 -->
+      <div class="form-section" v-if="selectedAttractions.length > 0 || selectedRestaurants.length > 0">
+        <div class="section-title">
+          <el-icon><Check /></el-icon>
+          <span>已选择内容</span>
+          <el-tag size="small" type="primary">
+            {{ selectedAttractions.length + selectedRestaurants.length }} 项
+          </el-tag>
+        </div>
+        
+        <div class="selection-summary">
+          <el-card class="summary-card" shadow="hover">
+            <div class="selected-items">
+              <!-- 已选择的景点 -->
+              <div v-if="selectedAttractions.length > 0" class="selected-section">
+                <div class="section-header">
+                  <el-icon class="section-icon" color="#409EFF"><Location /></el-icon>
+                  <h4 class="section-title">必去景点 ({{ selectedAttractions.length }})</h4>
+                </div>
+                <div class="selected-list">
+                  <el-tag 
+                    v-for="attraction in selectedAttractions" 
+                    :key="attraction.id"
+                    type="primary"
+                    closable
+                    size="large"
+                    class="selection-tag"
+                    @close="removeAttractionFromPlan(attraction)"
+                  >
+                    <div class="tag-content">
+                      <span class="tag-name">{{ attraction.name }}</span>
+                      <span class="tag-rating">
+                        <el-icon><Star /></el-icon>
+                        {{ attraction.rating }}
+                      </span>
+                    </div>
+                  </el-tag>
+                </div>
+              </div>
 
+              <!-- 已选择的餐厅 -->
+              <div v-if="selectedRestaurants.length > 0" class="selected-section">
+                <div class="section-header">
+                  <el-icon class="section-icon" color="#E6A23C"><Food /></el-icon>
+                  <h4 class="section-title">必吃美食 ({{ selectedRestaurants.length }})</h4>
+                </div>
+                <div class="selected-list">
+                  <el-tag 
+                    v-for="restaurant in selectedRestaurants" 
+                    :key="restaurant.id"
+                    type="warning"
+                    closable
+                    size="large"
+                    class="selection-tag"
+                    @close="removeRestaurantFromPlan(restaurant)"
+                  >
+                    <div class="tag-content">
+                      <span class="tag-name">{{ restaurant.name }}</span>
+                      <span class="tag-rating">
+                        <el-icon><Star /></el-icon>
+                        {{ restaurant.rating }}
+                      </span>
+                    </div>
+                  </el-tag>
+                </div>
+              </div>
+
+              <!-- 操作按钮 -->
+              <div class="summary-actions">
+                <el-button 
+                  type="danger" 
+                  link
+                  @click="clearAllSelections"
+                >
+                  清空选择
+                </el-button>
+              </div>
+            </div>
+          </el-card>
+        </div>
+      </div>
       <!-- 个性化偏好设置 -->
       <div class="form-section">
         <div class="section-title">
@@ -813,7 +893,7 @@ type="danger" size="small"> 重要 </el-tag>
 <script>
 import { ref, computed, watch, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import {
   Location,
   Food,
@@ -839,6 +919,7 @@ import {
   searchPlaces,
 } from "@/api/amap.js";
 import { translateTag } from "@/utils/tagMapping.js";
+import { dataCache } from "@/utils/dataCache.js";
 export default {
   name: "TripPreferences",
   components: {
@@ -1327,12 +1408,27 @@ export default {
         console.log("使用城市名称获取推荐:", cityName);
 
         try {
-          console.log("🔄 调用高德API获取景点数据...");
-          const attractionsResponse = await getRecommendedAttractions(
-            cityName,
-            attractionsPage.value,
-            attractionsPageSize,
-          );
+          console.log("🔄 获取景点数据...");
+          
+          // 检查缓存
+          const cacheKey = dataCache.generateKey('attractions', cityName, attractionsPage.value);
+          let attractionsResponse = dataCache.get(cacheKey);
+          
+          if (!attractionsResponse) {
+            console.log("🌐 调用高德API获取景点数据...");
+            attractionsResponse = await getRecommendedAttractions(
+              cityName,
+              attractionsPage.value,
+              attractionsPageSize,
+            );
+            
+            // 缓存响应数据
+            if (attractionsResponse && attractionsResponse.pois) {
+              dataCache.set(cacheKey, attractionsResponse);
+            }
+          } else {
+            console.log("📦 使用缓存的景点数据");
+          }
 
           console.log("🔄 高德API景点响应:", attractionsResponse);
 
@@ -1392,12 +1488,27 @@ export default {
         noMoreRestaurants.value = false;
 
         try {
-          console.log("🔄 调用高德API获取餐厅数据...");
-          const restaurantsResponse = await getRecommendedRestaurants(
-            cityName,
-            restaurantsPage.value,
-            restaurantsPageSize,
-          );
+          console.log("🔄 获取餐厅数据...");
+          
+          // 检查缓存
+          const restaurantCacheKey = dataCache.generateKey('restaurants', cityName, restaurantsPage.value);
+          let restaurantsResponse = dataCache.get(restaurantCacheKey);
+          
+          if (!restaurantsResponse) {
+            console.log("🌐 调用高德API获取餐厅数据...");
+            restaurantsResponse = await getRecommendedRestaurants(
+              cityName,
+              restaurantsPage.value,
+              restaurantsPageSize,
+            );
+            
+            // 缓存响应数据
+            if (restaurantsResponse && restaurantsResponse.pois) {
+              dataCache.set(restaurantCacheKey, restaurantsResponse);
+            }
+          } else {
+            console.log("📦 使用缓存的餐厅数据");
+          }
 
           console.log("🔄 高德API餐厅响应:", restaurantsResponse);
 
@@ -1704,14 +1815,28 @@ export default {
         const cityName = props.baseForm.destinationName;
         console.log("加载更多景点，城市名称:", cityName);
 
-        // 增加页码并调用API
+        // 增加页码
         attractionsPage.value += 1;
 
-        const response = await getRecommendedAttractions(
-          cityName,
-          attractionsPage.value,
-          attractionsPageSize,
-        );
+        // 检查缓存
+        const cacheKey = dataCache.generateKey('attractions', cityName, attractionsPage.value);
+        let response = dataCache.get(cacheKey);
+        
+        if (!response) {
+          console.log("🌐 调用API加载更多景点...");
+          response = await getRecommendedAttractions(
+            cityName,
+            attractionsPage.value,
+            attractionsPageSize,
+          );
+          
+          // 缓存响应数据
+          if (response && response.pois) {
+            dataCache.set(cacheKey, response);
+          }
+        } else {
+          console.log("📦 使用缓存加载更多景点");
+        }
 
         console.log("加载更多景点响应:", response);
 
@@ -1873,14 +1998,28 @@ export default {
         // 使用城市名称而不是cityCode
         const cityName = props.baseForm.destinationName;
         console.log("加载更餐厅，城市名称:", cityName);
-        // 增加页码并调用API
+        // 增加页码
         restaurantsPage.value += 1;
 
-        const response = await getRecommendedRestaurants(
-          cityName,
-          restaurantsPage.value,
-          restaurantsPageSize,
-        );
+        // 检查缓存
+        const cacheKey = dataCache.generateKey('restaurants', cityName, restaurantsPage.value);
+        let response = dataCache.get(cacheKey);
+        
+        if (!response) {
+          console.log("🌐 调用API加载更多餐厅...");
+          response = await getRecommendedRestaurants(
+            cityName,
+            restaurantsPage.value,
+            restaurantsPageSize,
+          );
+          
+          // 缓存响应数据
+          if (response && response.pois) {
+            dataCache.set(cacheKey, response);
+          }
+        } else {
+          console.log("📦 使用缓存加载更多餐厅");
+        }
 
         console.log("加载更多餐厅响应:", response);
 
@@ -1977,6 +2116,27 @@ export default {
         updatedRestaurants.splice(index, 1);
         emit("update:selectedRestaurants", updatedRestaurants);
         ElMessage.info(`已将"${restaurant.name}"从计划中移除`);
+      }
+    };
+
+    // 清空所有选择
+    const clearAllSelections = async () => {
+      try {
+        await ElMessageBox.confirm(
+          `确定要清空所有已选择的景点和餐厅吗？\n\n当前选择：\n景点：${props.selectedAttractions.length}个\n餐厅：${props.selectedRestaurants.length}个`,
+          '清空选择',
+          {
+            confirmButtonText: '确定清空',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }
+        );
+
+        emit("update:selectedAttractions", []);
+        emit("update:selectedRestaurants", []);
+        ElMessage.success('已清空所有选择');
+      } catch {
+        // 用户取消
       }
     };
 
@@ -2102,6 +2262,7 @@ export default {
       isRestaurantSelected,
       addRestaurantToPlan,
       removeRestaurantFromPlan,
+      clearAllSelections,
       SisShow,
       RisShow,
       // 新的切换方法
@@ -3422,5 +3583,155 @@ export default {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 10px;
+}
+
+/* 选择摘要卡片样式 */
+.selection-summary {
+  margin: 20px 0;
+}
+
+.summary-card {
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.summary-card:hover {
+  border-color: #409eff;
+  box-shadow: 0 8px 24px rgba(64, 158, 255, 0.12);
+}
+
+.selected-items {
+  padding: 20px;
+}
+
+.selected-section {
+  margin-bottom: 24px;
+}
+
+.selected-section:last-of-type {
+  margin-bottom: 16px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.section-icon {
+  font-size: 18px;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.selected-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.selection-tag {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.selection-tag:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.tag-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tag-name {
+  font-weight: 500;
+}
+
+.tag-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.summary-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+  margin-top: 8px;
+}
+
+.summary-actions .el-button--primary {
+  flex: 1;
+  max-width: 300px;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .selected-list {
+    gap: 8px;
+  }
+  
+  .selection-tag {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+  
+  .summary-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .summary-actions .el-button--primary {
+    max-width: 100%;
+    order: 1;
+  }
+  
+  .summary-actions .el-button--danger {
+    order: 2;
+  }
+}
+
+@media (max-width: 480px) {
+  .selected-items {
+    padding: 16px;
+  }
+  
+  .selected-list {
+    gap: 6px;
+  }
+  
+  .selection-tag {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+  
+  .tag-content {
+    gap: 6px;
+  }
+  
+  .tag-rating {
+    font-size: 11px;
+  }
 }
 </style>
