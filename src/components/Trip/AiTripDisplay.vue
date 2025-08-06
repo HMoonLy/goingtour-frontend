@@ -6,13 +6,17 @@
         <div class="trip-title-section">
           <div class="title-with-icon">
             <el-icon class="ai-icon" color="#409eff"><Cpu /></el-icon>
-            <h1 class="trip-main-title">{{ tripData?.destinationInfo?.name }}旅游计划</h1>
+            <h1 class="trip-main-title">
+              {{ tripData?.destinationInfo?.name }}旅游计划
+            </h1>
           </div>
           <p class="trip-subtitle" v-if="tripData?.destinationInfo">
-            AI为您精心规划的{{ tripData?.tripBasicInfo?.days || 3 }}天{{ tripData?.destinationInfo?.name || '智能' }}行程
+            AI为您精心规划的{{ tripData?.tripBasicInfo?.days || 3 }}天{{
+              tripData?.destinationInfo?.name || "智能"
+            }}行程
           </p>
         </div>
-        
+
         <!-- 快速统计信息 -->
         <div class="trip-stats">
           <div class="stat-card">
@@ -20,7 +24,9 @@
               <el-icon color="#409eff"><Calendar /></el-icon>
             </div>
             <div class="stat-content">
-              <div class="stat-number">{{ tripData?.tripBasicInfo?.days || 0 }}</div>
+              <div class="stat-number">
+                {{ tripData?.tripBasicInfo?.days || 0 }}
+              </div>
               <div class="stat-label">天数</div>
             </div>
           </div>
@@ -29,7 +35,9 @@
               <el-icon color="#67c23a"><User /></el-icon>
             </div>
             <div class="stat-content">
-              <div class="stat-number">{{ tripData?.tripBasicInfo?.travelers || 0 }}</div>
+              <div class="stat-number">
+                {{ tripData?.tripBasicInfo?.travelers || 0 }}
+              </div>
               <div class="stat-label">人数</div>
             </div>
           </div>
@@ -47,7 +55,9 @@
               <el-icon color="#f56c6c"><Timer /></el-icon>
             </div>
             <div class="stat-content">
-              <div class="stat-number">{{ formatProcessingTime(tripData?.processingTime) }}</div>
+              <div class="stat-number">
+                {{ formatProcessingTime(tripData?.processingTime) }}
+              </div>
               <div class="stat-label">用时</div>
             </div>
           </div>
@@ -58,7 +68,7 @@
     <!-- 完整的行程内容 -->
     <el-card class="content-card" shadow="hover">
       <div class="markdown-content" v-html="renderedContent"></div>
-        </el-card>
+    </el-card>
 
     <!-- 操作按钮区域 -->
     <el-card class="actions-card" shadow="never">
@@ -90,7 +100,7 @@
           <span>行程评价</span>
         </div>
       </template>
-      
+
       <div class="feedback-content">
         <div class="rating-section">
           <span class="rating-label">整体满意度:</span>
@@ -102,7 +112,7 @@
             :texts="['很差', '一般', '还行', '不错', '很棒']"
           />
         </div>
-        
+
         <el-input
           v-model="userFeedback"
           type="textarea"
@@ -112,14 +122,16 @@
           show-word-limit
           class="feedback-input"
         />
-        
+
         <div class="feedback-actions">
-          <el-button size="small" @click="submitFeedback" :disabled="!userFeedback.trim()">
+          <el-button
+            size="small"
+            @click="submitFeedback"
+            :disabled="!userFeedback.trim()"
+          >
             提交反馈
           </el-button>
-          <el-button size="small" link @click="clearFeedback">
-            清空
-          </el-button>
+          <el-button size="small" link @click="clearFeedback"> 清空 </el-button>
         </div>
       </div>
     </el-card>
@@ -127,148 +139,211 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, computed } from "vue";
+import { ElMessage, ElMessageBox } from "element-plus";
 import {
-  Cpu, Calendar, User, Trophy, Timer, DocumentCopy, Folder, Share, 
-  Refresh, ChatDotSquare
-} from '@element-plus/icons-vue'
-import MarkdownIt from 'markdown-it'
+  Cpu,
+  Calendar,
+  User,
+  Trophy,
+  Timer,
+  DocumentCopy,
+  Folder,
+  Share,
+  Refresh,
+  ChatDotSquare,
+} from "@element-plus/icons-vue";
+import MarkdownIt from "markdown-it";
 
 const props = defineProps({
   tripData: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
-const emit = defineEmits(['save', 'share', 'regenerate'])
+const emit = defineEmits(["save", "share", "regenerate"]);
 
 // 响应式数据
-const copying = ref(false)
-const saving = ref(false)
-const sharing = ref(false)
-const userRating = ref(0)
-const userFeedback = ref('')
+const copying = ref(false);
+const saving = ref(false);
+const sharing = ref(false);
+const userRating = ref(0);
+const userFeedback = ref("");
 
 // 初始化Markdown解析器
 const md = new MarkdownIt({
   html: true,
   linkify: true,
   typographer: true,
-  breaks: true
-})
+  breaks: true,
+});
 
 // 自定义渲染规则 - 优化行程展示
 md.renderer.rules.strong_open = (tokens, idx) => {
-  const content = tokens[idx + 1]?.content || ''
+  const content = tokens[idx + 1]?.content || "";
   // 检查是否是时间格式（如 07:00-08:30）
-  const isTimeRange = /^\d{2}:\d{2}-\d{2}:\d{2}$/.test(content)
+  const isTimeRange = /^\d{2}:\d{2}-\d{2}:\d{2}$/.test(content);
   if (isTimeRange) {
-    return '<p class="trip-highlight time-range">'
+    return '<p class="trip-highlight time-range">';
   }
-  return '<p class="trip-highlight">'
-}
-md.renderer.rules.strong_close = () => '</p>'
-
-
+  return '<p class="trip-highlight">';
+};
+md.renderer.rules.strong_close = () => "</p>";
 
 // 计算属性：渲染完整的markdown内容
 const renderedContent = computed(() => {
-  if (!props.tripData?.content) return '<p>暂无行程数据</p>'
-  return md.render(props.tripData.content)
-})
+  if (!props.tripData?.content) return "<p>暂无行程数据</p>";
+  let html = md.render(props.tripData.content);
+
+  // 删除餐饮信息前的时间点 - 通用方法处理各种HTML结构
+  const mealKeywords = [
+    "晚餐",
+    "午餐",
+    "早餐",
+    "下午茶",
+    "夜宵",
+    "小食",
+    "点心",
+    "茶歇",
+    "返程前休整",
+    "购物",
+    "休息",
+    "整理",
+  ];
+
+  mealKeywords.forEach((keyword) => {
+    // 处理各种可能的HTML标签包装的时间
+    html = html
+      // 处理 <p class="trip-highlight">时间</p> 餐饮
+      .replace(
+        new RegExp(
+          `<p[^>]*class="trip-highlight[^"]*"[^>]*>\\d{1,2}:\\d{2}</p>\\s*(${keyword}[:：])`,
+          "g"
+        ),
+        "$1"
+      )
+      // 处理 <strong>时间</strong> 餐饮
+      .replace(
+        new RegExp(
+          `<strong[^>]*>\\d{1,2}:\\d{2}</strong>\\s*(${keyword}[:：])`,
+          "g"
+        ),
+        "$1"
+      )
+      // 处理 <span>时间</span> 餐饮
+      .replace(
+        new RegExp(
+          `<span[^>]*>\\d{1,2}:\\d{2}</span>\\s*(${keyword}[:：])`,
+          "g"
+        ),
+        "$1"
+      )
+      // 处理纯文本 时间 餐饮
+      .replace(new RegExp(`\\b\\d{1,2}:\\d{2}\\s+(${keyword}[:：])`, "g"), "$1")
+      // 处理任何标签包装的时间
+      .replace(
+        new RegExp(`<[^>]+>\\d{1,2}:\\d{2}</[^>]+>\\s*(${keyword}[:：])`, "g"),
+        "$1"
+      );
+  });
+
+  console.log("原始HTML:", md.render(props.tripData.content));
+  console.log("处理后的HTML:", html);
+
+  return html;
+});
 
 // 工具函数：格式化处理时间
 const formatProcessingTime = (time) => {
-  if (!time) return '0s'
-  return time < 1000 ? `${time}ms` : `${Math.round(time / 1000)}s`
-}
+  if (!time) return "0s";
+  return time < 1000 ? `${time}ms` : `${Math.round(time / 1000)}s`;
+};
 
 // 复制到剪贴板
 const copyToClipboard = async () => {
-  copying.value = true
+  copying.value = true;
   try {
-    const content = props.tripData?.content || ''
-    await navigator.clipboard.writeText(content)
-    ElMessage.success('行程内容已复制到剪贴板！')
+    const content = props.tripData?.content || "";
+    await navigator.clipboard.writeText(content);
+    ElMessage.success("行程内容已复制到剪贴板！");
   } catch (err) {
-    console.error('复制失败:', err)
-    ElMessage.error('复制失败，请手动选择复制')
+    console.error("复制失败:", err);
+    ElMessage.error("复制失败，请手动选择复制");
   } finally {
-    copying.value = false
+    copying.value = false;
   }
-}
+};
 
 // 保存行程
 const saveTrip = async () => {
-  saving.value = true
+  saving.value = true;
   try {
     // 模拟保存操作
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    ElMessage.success('行程已保存到我的行程中！')
-    emit('save', props.tripData)
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    ElMessage.success("行程已保存到我的行程中！");
+    emit("save", props.tripData);
   } catch (err) {
-    ElMessage.error('保存失败，请重试')
+    ElMessage.error("保存失败，请重试");
   } finally {
-    saving.value = false
+    saving.value = false;
   }
-}
+};
 
 // 分享行程
 const shareTrip = async () => {
-  sharing.value = true
+  sharing.value = true;
   try {
     // 模拟分享操作
-    await new Promise(resolve => setTimeout(resolve, 800))
-    ElMessage.success('分享链接已生成！')
-    emit('share', props.tripData)
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    ElMessage.success("分享链接已生成！");
+    emit("share", props.tripData);
   } catch (err) {
-    ElMessage.error('分享失败，请重试')
+    ElMessage.error("分享失败，请重试");
   } finally {
-    sharing.value = false
+    sharing.value = false;
   }
-}
+};
 
 // 重新生成行程
 const regenerateTrip = () => {
   ElMessageBox.confirm(
-    '重新生成将覆盖当前行程，确定要继续吗？', 
-    '确认重新生成', 
+    "重新生成将覆盖当前行程，确定要继续吗？",
+    "确认重新生成",
     {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning',
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning",
     }
   )
     .then(() => {
-      emit('regenerate')
+      emit("regenerate");
     })
     .catch(() => {
       // 用户取消
-    })
-}
+    });
+};
 
 // 提交评分
 const submitRating = () => {
   if (userRating.value > 0) {
-    ElMessage.success(`感谢您的${userRating.value}星评价！`)
+    ElMessage.success(`感谢您的${userRating.value}星评价！`);
   }
-}
+};
 
 // 提交反馈
 const submitFeedback = () => {
-  if (!userFeedback.value.trim()) return
-  
-  ElMessage.success('感谢您的宝贵反馈！')
-  userFeedback.value = ''
-}
+  if (!userFeedback.value.trim()) return;
+
+  ElMessage.success("感谢您的宝贵反馈！");
+  userFeedback.value = "";
+};
 
 // 清空反馈
 const clearFeedback = () => {
-  userFeedback.value = ''
-  userRating.value = 0
-}
+  userFeedback.value = "";
+  userRating.value = 0;
+};
 </script>
 
 <style scoped>
@@ -399,7 +474,8 @@ const clearFeedback = () => {
   line-height: 1.7;
   color: #4a5568;
   font-size: 15px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .markdown-content :deep(h1),
@@ -478,32 +554,28 @@ const clearFeedback = () => {
   margin: 12px 0;
   line-height: 1.7;
   color: #4a5568;
+  display: inline-block;
 }
 
 .markdown-content :deep(ul),
 .markdown-content :deep(ol) {
-  margin: 20px 0;
-  padding-left: 0;
   list-style: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 5px 5px 5px 8px;
+  margin-top: 5px;
 }
 
 .markdown-content :deep(li) {
-  margin: 8px 0;
   line-height: 1.6;
   position: relative;
-  padding: 6px 0 6px 28px;
+  padding:5px 6px 5px 0px;
   color: #4a5568;
   font-size: 14px;
 }
 
 .markdown-content :deep(ul li)::before {
-  content: "";
-  color: #718096;
-  font-weight: normal;
-  position: absolute;
-  left: 8px;
-  top: 8px;
-  font-size: 12px;
+
 }
 
 .markdown-content :deep(ol) {
@@ -515,22 +587,12 @@ const clearFeedback = () => {
 }
 
 .markdown-content :deep(ol li)::before {
-  content: counter(list-counter);
-  background: #718096;
-  color: white;
-  font-weight: 500;
-  font-size: 10px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  left: 4px;
-  top: 7px;
-}
 
+}
+.markdown-content :deep(h4 .trip-highlight)
+{
+  margin: 0;
+}
 .markdown-content :deep(.trip-highlight) {
   display: inline-block;
   background: #f8fafc;
@@ -544,19 +606,13 @@ const clearFeedback = () => {
 
 /* 专门针对时间段的样式 */
 .markdown-content :deep(.trip-highlight.time-range) {
-  background: #fef3cd;
-  color: #856404;
-  border: 1px solid #ffeaa7;
+  background: #f8fafc;
+  color: #667eea;
+  border: 1px solid #e2e8f0;
   font-weight: 600;
   padding: 2px 10px;
   display: block;
-
 }
-
-.markdown-content :deep(#text)
-{
-  font-weight: 100;
-} 
 
 .markdown-content :deep(table) {
   width: 100%;
@@ -605,7 +661,7 @@ const clearFeedback = () => {
   background: #f1f5f9;
   padding: 2px 6px;
   border-radius: 3px;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
   font-size: 12px;
   color: #718096;
   font-weight: 500;
@@ -746,110 +802,110 @@ const clearFeedback = () => {
     padding: 16px;
     background: #f8fafc;
   }
-  
+
   .trip-header-card :deep(.el-card__body) {
     padding: 24px;
   }
-  
+
   .trip-main-title {
     font-size: 26px;
   }
-  
+
   .trip-subtitle {
     font-size: 16px;
   }
-  
+
   .trip-stats {
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
   }
-  
+
   .stat-card {
     padding: 20px;
     flex-direction: column;
     text-align: center;
     gap: 12px;
   }
-  
+
   .stat-icon {
     width: 48px;
     height: 48px;
     font-size: 24px;
   }
-  
+
   .content-card :deep(.el-card__body) {
     padding: 24px;
   }
-  
+
   .action-buttons {
     flex-direction: column;
     align-items: stretch;
     gap: 16px;
   }
-  
+
   .rating-section {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
   }
-  
+
   .markdown-content {
     font-size: 14px;
   }
-  
+
   .markdown-content :deep(h1) {
     font-size: 20px;
     padding: 16px 20px;
     margin: 20px 0 16px 0;
   }
-  
+
   .markdown-content :deep(h2) {
     font-size: 18px;
     margin: 24px 0 16px 0;
   }
-  
+
   .markdown-content :deep(h3) {
     font-size: 16px;
     padding: 12px 16px;
     margin: 20px 0 14px 0;
   }
-  
+
   .markdown-content :deep(h4) {
     font-size: 15px;
     margin: 18px 0 12px 0;
   }
-  
+
   .markdown-content :deep(h5) {
     font-size: 14px;
     margin: 16px 0 8px 0;
   }
-  
+
   .markdown-content :deep(h6) {
     font-size: 13px;
     margin: 14px 0 6px 0;
   }
-  
+
   .markdown-content :deep(p) {
     margin: 10px 0;
   }
-  
+
   .markdown-content :deep(ul),
   .markdown-content :deep(ol) {
     margin: 16px 0;
   }
-  
+
   .markdown-content :deep(li) {
     margin: 6px 0;
     padding: 4px 0 4px 24px;
     font-size: 13px;
   }
-  
+
   .markdown-content :deep(ul li)::before {
     left: 6px;
     top: 6px;
     font-size: 10px;
   }
-  
+
   .markdown-content :deep(ol li)::before {
     left: 2px;
     top: 5px;
@@ -857,12 +913,12 @@ const clearFeedback = () => {
     height: 14px;
     font-size: 9px;
   }
-  
+
   .markdown-content :deep(table) {
     font-size: 12px;
     margin: 16px 0;
   }
-  
+
   .markdown-content :deep(th),
   .markdown-content :deep(td) {
     padding: 8px 12px;
@@ -873,42 +929,42 @@ const clearFeedback = () => {
   .ai-trip-display {
     padding: 12px;
   }
-  
+
   .trip-stats {
     grid-template-columns: 1fr;
   }
-  
+
   .markdown-content {
     font-size: 13px;
   }
-  
+
   .markdown-content :deep(h1) {
     font-size: 18px;
     padding: 12px 16px;
     margin: 16px 0 12px 0;
   }
-  
+
   .markdown-content :deep(h2) {
     font-size: 16px;
     margin: 20px 0 12px 0;
   }
-  
+
   .markdown-content :deep(h3) {
     font-size: 15px;
     padding: 10px 12px;
     margin: 16px 0 12px 0;
   }
-  
+
   .markdown-content :deep(h4) {
     font-size: 14px;
     margin: 14px 0 10px 0;
   }
-  
+
   .markdown-content :deep(h5) {
     font-size: 13px;
     margin: 12px 0 6px 0;
   }
-  
+
   .markdown-content :deep(li) {
     margin: 4px 0;
     padding: 3px 0 3px 20px;
