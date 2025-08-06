@@ -9,19 +9,15 @@
         </el-button>
       </div>
       <div class="header-right">
-        <el-button v-if="!isReadOnly" @click="toggleReadOnly">
-          <el-icon><View /></el-icon>
-          预览模式
-        </el-button>
-        <el-button v-else @click="toggleReadOnly" type="primary">
-          <el-icon><Edit /></el-icon>
-          编辑模式
-        </el-button>
-        <el-button v-if="!isReadOnly" @click="cancelEdit" :disabled="saving">
-          取消
-        </el-button>
-        <el-button v-if="!isReadOnly" type="primary" @click="saveChanges" :loading="saving">
-          保存修改
+        <div v-if="!isReadOnly" class="header-actions">
+          <el-button @click="saveChanges" :loading="saving" type="primary">
+            <el-icon><Edit /></el-icon>
+            保存修改
+          </el-button>
+        </div>
+        <el-button @click="toggleReadOnly" :type="isReadOnly ? 'primary' : 'default'">
+          <el-icon><View v-if="isReadOnly" /><Edit v-else /></el-icon>
+          {{ isReadOnly ? "编辑模式" : "预览模式" }}
         </el-button>
       </div>
     </div>
@@ -31,7 +27,7 @@
       <el-skeleton :rows="8" animated />
     </div>
 
-    <!-- 行程展示内容 - 参考AiTripDisplay样式 -->
+    <!-- 行程展示内容 -->
     <div v-else-if="tripData && tripData.id" class="ai-trip-display">
       <!-- 行程标题卡片 -->
       <el-card class="trip-header-card" shadow="never">
@@ -40,7 +36,7 @@
             <div class="title-with-icon">
               <el-icon class="ai-icon" color="#409eff"><Cpu /></el-icon>
               <h1 v-if="isReadOnly" class="trip-main-title">
-                {{ tripData?.destinationInfo?.name || tripData.city }}旅游计划
+                {{ tripData.title }}
               </h1>
               <el-input
                 v-else
@@ -51,8 +47,8 @@
                 show-word-limit
               />
             </div>
-            <p class="trip-subtitle" v-if="tripData?.destinationInfo">
-              AI为您精心规划的{{ editedTrip?.days || 3 }}天{{
+            <p class="trip-subtitle">
+              AI为您精心规划的{{ editedTrip?.days || tripData.days || 3 }}天{{
                 tripData?.destinationInfo?.name || tripData.city || "智能"
               }}行程
             </p>
@@ -66,7 +62,7 @@
               </div>
               <div class="stat-content">
                 <div class="stat-number" v-if="isReadOnly">
-                  {{ editedTrip?.days || 0 }}
+                  {{ editedTrip?.days || tripData.days || 0 }}
                 </div>
                 <el-input-number
                   v-else
@@ -85,7 +81,7 @@
               </div>
               <div class="stat-content">
                 <div class="stat-number" v-if="isReadOnly">
-                  {{ editedTrip?.mate || 0 }}
+                  {{ editedTrip?.mate || tripData.mate || 0 }}
                 </div>
                 <el-input-number
                   v-else
@@ -133,7 +129,7 @@
         </div>
         
         <!-- Markdown编辑器 -->
-        <div v-if="!isReadOnly && editMode === 'markdown'" class="markdown-editor">
+        <div v-if="!isReadOnly && editMode === 'markdown'" class="editor-container">
           <el-input
             v-model="editedTrip.aiContent"
             type="textarea"
@@ -141,20 +137,6 @@
             placeholder="请输入行程内容（支持Markdown格式）"
             class="content-textarea"
           />
-          <div class="editor-tips">
-            <el-alert
-              title="编辑提示"
-              type="info"
-              :closable="false"
-              show-icon
-            >
-              <template #default>
-                <p>• 支持Markdown语法：**粗体**、*斜体*、### 标题等</p>
-                <p>• 建议保持原有的行程结构和格式</p>
-                <p>• 可以添加、删除或修改具体的景点、餐厅和活动安排</p>
-              </template>
-            </el-alert>
-          </div>
         </div>
         
         <!-- 预览模式 - 使用与AiTripDisplay相同的样式 -->
@@ -183,14 +165,16 @@
       </el-card>
     </div>
 
-    <!-- 数据不存在 -->
-    <el-empty v-else description="行程数据不存在" />
+    <!-- 无数据状态 -->
+    <div v-else class="no-data">
+      <el-empty description="未找到行程数据" />
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
   ArrowLeft,
@@ -208,15 +192,15 @@ import { useUserStore } from "@/store/user";
 import MarkdownIt from "markdown-it";
 
 // 路由和store
-const router = useRouter();
 const route = useRoute();
+const router = useRouter();
 const userStore = useUserStore();
 
 // 响应式数据
 const loading = ref(true);
 const saving = ref(false);
-const editMode = ref("preview"); // 默认预览模式
-const isReadOnly = ref(false); // 是否只读模式
+const isReadOnly = ref(true);
+const editMode = ref("preview");
 const tripData = ref(null);
 const editedTrip = ref({});
 
@@ -245,8 +229,9 @@ const tripId = computed(() => route.params.id);
 
 // 渲染的内容 - 与AiTripDisplay保持一致
 const renderedContent = computed(() => {
-  if (!editedTrip.value.aiContent) return "<p>暂无行程数据</p>";
-  let html = md.render(editedTrip.value.aiContent);
+  const content = editedTrip.value.aiContent || tripData.value?.aiContent;
+  if (!content) return "<p>暂无行程数据</p>";
+  let html = md.render(content);
 
   // 删除餐饮信息前的时间点 - 通用方法处理各种HTML结构
   const mealKeywords = [
@@ -317,6 +302,8 @@ const toggleReadOnly = () => {
     editMode.value = "preview";
   }
 };
+
+// 加载行程数据
 const loadTripData = async () => {
   try {
     loading.value = true;
@@ -325,49 +312,47 @@ const loadTripData = async () => {
     const response = await http.get(`/trips/${tripId.value}?userId=${userStore.userId || 1}`);
     
     if (response.code === 200 && response.data) {
+      const data = response.data;
+      
       // 解析JSON字段
       let destinationInfo = {};
       let tripBasicInfo = {};
       
       try {
-        destinationInfo = response.data.destinationInfo ? JSON.parse(response.data.destinationInfo) : {};
+        destinationInfo = data.destinationInfo ? JSON.parse(data.destinationInfo) : {};
       } catch (e) {
         console.warn("解析destinationInfo失败:", e);
       }
       
       try {
-        tripBasicInfo = response.data.tripBasicInfo ? JSON.parse(response.data.tripBasicInfo) : {};
+        tripBasicInfo = data.tripBasicInfo ? JSON.parse(data.tripBasicInfo) : {};
       } catch (e) {
         console.warn("解析tripBasicInfo失败:", e);
       }
       
-      // 首先更新tripData以供模板使用
+      // 设置tripData
       tripData.value = {
-        ...response.data,
+        ...data,
         destinationInfo: destinationInfo,
-        tripBasicInfo: tripBasicInfo
+        tripBasicInfo: {
+          days: data.days,
+          travelers: data.mate,
+          ...tripBasicInfo
+        }
       };
       
-      // 设置编辑数据，确保所有AI相关字段都被正确映射
+      // 设置编辑数据
       editedTrip.value = {
-        id: response.data.id,
-        title: response.data.title,
-        city: response.data.city,
-        days: response.data.days,
-        mate: response.data.mate, // 人数字段
-        totalBudget: response.data.totalBudget,
-        aiContent: response.data.aiContent, // AI生成的内容
-        aiGenerated: response.data.aiGenerated,
-        destinationInfo: destinationInfo,
-        tripBasicInfo: tripBasicInfo,
-        qualityScore: response.data.qualityScore,
-        processingTime: response.data.processingTime,
-        generationParams: response.data.generationParams,
-        feedbackRating: response.data.feedbackRating,
-        feedbackContent: response.data.feedbackContent
+        id: data.id,
+        title: data.title,
+        city: data.city,
+        days: data.days,
+        mate: data.mate,
+        totalBudget: data.totalBudget,
+        aiContent: data.aiContent || ''
       };
       
-      console.log("✅ AI行程数据加载成功:", response.data);
+      console.log("✅ AI行程数据加载成功:", data);
       console.log("✅ tripData设置:", tripData.value);
       console.log("✅ 编辑数据设置:", editedTrip.value);
     } else {
@@ -407,48 +392,64 @@ const saveChanges = async () => {
       feedbackRating: tripData.value.feedbackRating,
       feedbackContent: tripData.value.feedbackContent
     };
-    
-    // 调用专门的AI行程更新API
+
     const response = await http.put(`/ai/trip/${tripId.value}`, updateRequest);
     
     if (response.code === 200) {
-      ElMessage.success("行程修改保存成功！");
-      
-      // 延迟跳转回个人中心
-      setTimeout(() => {
-        router.push("/personal");
-      }, 1000);
+      ElMessage.success("行程修改已保存！");
+      // 更新本地数据
+      tripData.value = { ...tripData.value, ...editedTrip.value };
+      // 切换回预览模式
+      isReadOnly.value = true;
+      editMode.value = "preview";
     } else {
       throw new Error(response.msg || "保存失败");
     }
   } catch (error) {
-    console.error("❌ 保存AI行程失败:", error);
-    ElMessage.error(error.message || "保存失败，请重试");
+    console.error("保存AI行程失败:", error);
+    ElMessage.error("保存失败，请重试");
   } finally {
     saving.value = false;
   }
 };
 
-const cancelEdit = () => {
-  ElMessageBox.confirm(
-    "确定要取消编辑吗？未保存的修改将会丢失。",
-    "确认取消",
+const confirmUnsavedChanges = () => {
+  return ElMessageBox.confirm(
+    "您有未保存的修改，确定要离开吗？",
+    "确认离开",
     {
-      confirmButtonText: "确定",
+      confirmButtonText: "离开",
       cancelButtonText: "继续编辑",
       type: "warning",
     }
-  )
+  );
+};
+
+const goBack = () => {
+  if (!isReadOnly.value && hasUnsavedChanges()) {
+    confirmUnsavedChanges()
     .then(() => {
       router.push("/personal");
     })
     .catch(() => {
       // 用户选择继续编辑
     });
+  } else {
+    router.push("/personal");
+  }
 };
 
-const goBack = () => {
-  router.push("/personal");
+const hasUnsavedChanges = () => {
+  if (!tripData.value) return false;
+  
+  return (
+    editedTrip.value.title !== tripData.value.title ||
+    editedTrip.value.city !== tripData.value.city ||
+    editedTrip.value.days !== tripData.value.days ||
+    editedTrip.value.mate !== tripData.value.mate ||
+    editedTrip.value.totalBudget !== tripData.value.totalBudget ||
+    editedTrip.value.aiContent !== tripData.value.aiContent
+  );
 };
 
 // 工具函数
@@ -456,31 +457,15 @@ const formatProcessingTime = (time) => {
   if (!time) return "0s";
   return time < 1000 ? `${time}ms` : `${Math.round(time / 1000)}s`;
 };
-
-const formatDate = (dateString) => {
-  if (!dateString) return "未知";
-  try {
-    return new Date(dateString).toLocaleString("zh-CN");
-  } catch {
-    return "未知";
-  }
-};
-
-const getAiProvider = () => {
-  try {
-    const params = JSON.parse(tripData.value.generationParams || "{}");
-    return params.aiProvider || "DeepSeek";
-  } catch {
-    return "DeepSeek";
-  }
-};
 </script>
 
 <style scoped>
 .ai-trip-edit-page {
-  min-height: 100vh;
-  background-color: #f5f7fa;
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 20px;
+  background: #f5f7fa;
+  min-height: calc(100vh - 60px);
 }
 
 .page-header {
@@ -500,23 +485,27 @@ const getAiProvider = () => {
   color: #409eff;
 }
 
-.header-right {
+.header-actions {
   display: flex;
+  align-items: center;
   gap: 12px;
 }
 
 .loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
   background: white;
   border-radius: 8px;
   padding: 24px;
 }
 
-/* AI行程展示样式 - 复制自AiTripDisplay */
+/* AI Trip Display 样式 */
 .ai-trip-display {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0;
-  background: transparent;
+  background: #f5f7fa;
 }
 
 /* 头部卡片 */
@@ -558,17 +547,18 @@ const getAiProvider = () => {
 }
 
 .trip-title-input {
-  font-size: 24px;
-  font-weight: 600;
-  text-align: center;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
 .trip-title-input :deep(.el-input__inner) {
   font-size: 24px;
   font-weight: 600;
   text-align: center;
-  border: 2px dashed #e2e8f0;
-  background: #f8fafc;
+  color: #2d3748;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px 16px;
 }
 
 .trip-subtitle {
@@ -627,14 +617,14 @@ const getAiProvider = () => {
 }
 
 .stat-input {
-  width: 80px;
+  width: 100%;
 }
 
-.stat-input :deep(.el-input__inner) {
+.stat-input :deep(.el-input-number__input) {
   font-size: 20px;
   font-weight: 600;
+  color: #2d3748;
   text-align: center;
-  padding: 8px;
 }
 
 .stat-label {
@@ -658,72 +648,41 @@ const getAiProvider = () => {
   padding: 24px;
 }
 
-/* 编辑器样式 */
+/* 编辑器标签页 */
 .editor-tabs {
   margin-bottom: 20px;
-  display: flex;
-  justify-content: center;
+  text-align: center;
 }
 
 .edit-mode-selector {
-  display: flex;
-}
-
-.markdown-editor {
-  margin-top: 16px;
-}
-
-.content-textarea {
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.content-textarea :deep(.el-textarea__inner) {
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
   background: #f8fafc;
-}
-
-.editor-tips {
-  margin-top: 16px;
-}
-
-/* 预算卡片 */
-.budget-card {
-  margin-bottom: 24px;
-  border-radius: 12px;
+  border-radius: 8px;
+  padding: 4px;
   border: 1px solid #e2e8f0;
-  background: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-.budget-card :deep(.el-card__body) {
-  padding: 24px;
+.edit-mode-selector :deep(.el-radio-button__inner) {
+  border: none;
+  background: transparent;
+  color: #718096;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
 }
 
-.card-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.edit-mode-selector :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
+  background: #667eea;
+  color: white;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
 }
 
-.header-icon {
-  color: #409eff;
-}
-
-.budget-unit {
-  margin-left: 8px;
-  color: #909399;
-}
-
-/* Markdown内容样式 - 与AiTripDisplay保持完全一致 */
+/* Markdown内容样式 */
 .markdown-content {
   line-height: 1.7;
   color: #4a5568;
   font-size: 15px;
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .markdown-content :deep(h1),
@@ -817,7 +776,7 @@ const getAiProvider = () => {
 .markdown-content :deep(li) {
   line-height: 1.6;
   position: relative;
-  padding:5px 6px 5px 0px;
+  padding: 5px 6px 5px 0px;
   color: #4a5568;
   font-size: 14px;
 }
@@ -932,20 +891,72 @@ const getAiProvider = () => {
   border-radius: 1px;
 }
 
+/* 预算卡片 */
+.budget-card {
+  margin-bottom: 24px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.budget-card :deep(.el-card__body) {
+  padding: 24px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  color: #2d3748;
+}
+
+.header-icon {
+  font-size: 18px;
+  color: #667eea;
+}
+
+.budget-unit {
+  margin-left: 8px;
+  color: #718096;
+  font-size: 14px;
+}
+
+/* Textarea样式 */
+.content-textarea {
+  width: 100%;
+}
+
+.content-textarea :deep(.el-textarea__inner) {
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  resize: vertical;
+}
+
+.content-textarea :deep(.el-textarea__inner):focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.no-data {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .ai-trip-edit-page {
     padding: 16px;
-  }
-  
-  .page-header {
-    flex-direction: column;
-    gap: 16px;
-    align-items: stretch;
-  }
-  
-  .header-right {
-    justify-content: flex-end;
   }
   
   .trip-header-card :deep(.el-card__body) {
@@ -953,11 +964,11 @@ const getAiProvider = () => {
   }
   
   .trip-main-title {
-    font-size: 26px;
+    font-size: 24px;
   }
 
   .trip-subtitle {
-    font-size: 16px;
+    font-size: 14px;
   }
   
   .trip-stats {
@@ -966,20 +977,16 @@ const getAiProvider = () => {
   }
   
   .stat-card {
-    padding: 20px;
+    padding: 16px;
     flex-direction: column;
     text-align: center;
     gap: 12px;
   }
 
   .stat-icon {
-    width: 48px;
-    height: 48px;
-    font-size: 24px;
-  }
-
-  .content-card :deep(.el-card__body) {
-    padding: 24px;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
   }
 
   .markdown-content {
@@ -1001,6 +1008,20 @@ const getAiProvider = () => {
     font-size: 16px;
     padding: 12px 16px;
     margin: 20px 0 14px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .ai-trip-edit-page {
+    padding: 12px;
+  }
+
+  .trip-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .markdown-content {
+    font-size: 13px;
   }
 }
 </style>
