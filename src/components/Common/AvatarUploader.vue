@@ -34,6 +34,7 @@
           <el-tab-pane label="上传头像" name="upload">
             <div class="upload-section">
               <el-upload
+                v-if="!rawImage && !uploadSuccess"
                 ref="uploadRef"
                 :auto-upload="false"
                 :show-file-list="false"
@@ -46,18 +47,34 @@
                   <el-icon class="upload-icon-large"><Upload /></el-icon>
                   <div class="upload-text-large">
                     <p>点击或拖拽图片到此处上传</p>
-                    <p class="upload-tip">支持 PNG、JPG、JPEG、GIF 格式，大小不超过 2MB</p>
+                    <p class="upload-tip">支持 PNG、JPG、JPEG、GIF 格式，大小不超过 5MB</p>
                   </div>
                 </div>
               </el-upload>
               
               <!-- 图片预览区域 -->
-              <div v-if="rawImage" class="preview-section">
+              <div v-if="rawImage && !uploadSuccess" class="preview-section">
                 <div class="image-preview">
                   <img :src="rawImage" alt="预览图片" class="preview-image" />
                 </div>
                 <div class="preview-info">
                   <p>✅ 图片已选择，将直接使用完整图片作为头像</p>
+                </div>
+                <div class="preview-actions">
+                  <el-button @click="resetImageSelection" size="small" type="info" plain>
+                    重新选择
+                  </el-button>
+                </div>
+              </div>
+              
+              <!-- 上传成功提示 -->
+              <div v-if="uploadSuccess" class="upload-success-section">
+                <div class="success-icon">
+                  <el-icon size="48" color="#67c23a"><CircleCheck /></el-icon>
+                </div>
+                <div class="success-info">
+                  <h3>头像上传成功！</h3>
+                  <p>您的头像已更新，可以关闭此窗口或选择其他头像</p>
                 </div>
               </div>
             </div>
@@ -150,9 +167,9 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick } from 'vue';
+import { ref, computed } from 'vue';
 import { ElMessage } from 'element-plus';
-import { Plus, Upload } from '@element-plus/icons-vue';
+import { Plus, Upload, CircleCheck } from '@element-plus/icons-vue';
 import { uploadAvatar } from '@/utils/ossUpload.js';
 
 const props = defineProps({
@@ -180,6 +197,7 @@ const uploadRef = ref();
 
 // 图片相关
 const rawImage = ref(null);
+const uploadSuccess = ref(false);
 
 // 选择状态
 const selectedDefaultAvatar = ref('');
@@ -190,8 +208,8 @@ const currentAvatar = computed(() => props.avatar);
 
 // 预览头像
 const previewAvatar = computed(() => {
-  if (activeTab.value === 'upload' && croppedImage.value) {
-    return croppedImage.value;
+  if (activeTab.value === 'upload' && rawImage.value) {
+    return rawImage.value;
   } else if (activeTab.value === 'default' && selectedDefaultAvatar.value) {
     return selectedDefaultAvatar.value;
   } else if (activeTab.value === 'generated' && selectedGeneratedStyle.value) {
@@ -264,6 +282,7 @@ const openUploader = () => {
 const resetStates = () => {
   activeTab.value = 'upload';
   rawImage.value = null;
+  uploadSuccess.value = false;
   selectedDefaultAvatar.value = '';
   selectedGeneratedStyle.value = null;
 };
@@ -289,6 +308,16 @@ const handleFileChange = (file) => {
     console.log('✅ 图片加载成功，将使用完整图片');
   };
   reader.readAsDataURL(raw);
+};
+
+// 重新选择图片
+const resetImageSelection = () => {
+  rawImage.value = null;
+  uploadSuccess.value = false;
+  // 清空文件输入
+  if (uploadRef.value) {
+    uploadRef.value.clearFiles();
+  }
 };
 
 
@@ -352,7 +381,7 @@ const compressImageForStorage = (dataURL) => {
 const generateAvatarDataURL = (style) => {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
-  const size = 200; // 减小尺寸，避免过大的Base64数据
+  const size = 80; // 大幅减小尺寸，确保Base64数据在数据库限制内
   
   canvas.width = size;
   canvas.height = size;
@@ -361,61 +390,43 @@ const generateAvatarDataURL = (style) => {
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, size, size);
   
-  // 解析渐变背景
-  let fillStyle;
+  // 简化背景处理，直接使用纯色
+  let backgroundColor = '#667eea'; // 默认颜色
+  
   try {
-    // 尝试解析 linear-gradient
+    // 尝试提取渐变中的主色调
     const gradientMatch = style.background.match(/linear-gradient\(([^)]+)\)/);
     if (gradientMatch) {
       const gradientStr = gradientMatch[1];
-      // 提取角度和颜色
-      const parts = gradientStr.split(',').map(s => s.trim());
-      const colors = parts.filter(part => 
-        part.includes('#') || part.includes('rgb') || 
-        ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'cyan'].some(color => part.includes(color))
-      );
-      
-      if (colors.length >= 2) {
-        // 创建线性渐变
-        const gradient = ctx.createLinearGradient(0, 0, size, size);
-        gradient.addColorStop(0, colors[0].replace(/\d+%\s*/, '').trim());
-        gradient.addColorStop(1, colors[1].replace(/\d+%\s*/, '').trim());
-        fillStyle = gradient;
-      } else {
-        fillStyle = style.background;
+      const colorMatch = gradientStr.match(/#[0-9a-fA-F]{6}/);
+      if (colorMatch) {
+        backgroundColor = colorMatch[0];
       }
-    } else {
-      fillStyle = style.background;
+    } else if (style.background.includes('#')) {
+      const colorMatch = style.background.match(/#[0-9a-fA-F]{6}/);
+      if (colorMatch) {
+        backgroundColor = colorMatch[0];
+      }
     }
   } catch (error) {
-    console.warn('解析渐变失败，使用默认渐变:', error);
-    const gradient = ctx.createLinearGradient(0, 0, size, size);
-    gradient.addColorStop(0, '#667eea');
-    gradient.addColorStop(1, '#764ba2');
-    fillStyle = gradient;
+    console.warn('解析颜色失败，使用默认颜色:', error);
   }
   
-  // 绘制背景
-  ctx.fillStyle = fillStyle;
+  // 绘制纯色背景
+  ctx.fillStyle = backgroundColor;
   ctx.fillRect(0, 0, size, size);
   
   // 绘制文字
   ctx.fillStyle = style.color || '#ffffff';
-  ctx.font = `bold ${Math.floor(size * 0.4)}px "Microsoft YaHei", Arial, sans-serif`;
+  ctx.font = `bold ${Math.floor(size * 0.45)}px Arial, sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  
-  // 添加文字阴影效果
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-  ctx.shadowBlur = 4;
-  ctx.shadowOffsetX = 2;
-  ctx.shadowOffsetY = 2;
   
   const initials = getInitials(props.userName);
   ctx.fillText(initials, size / 2, size / 2);
   
-  // 使用JPEG格式，避免透明背景导致的格子问题
-  return canvas.toDataURL('image/jpeg', 0.95);
+  // 使用JPEG格式，低质量压缩以减少数据大小
+  return canvas.toDataURL('image/jpeg', 0.6);
 };
 
 const saveAvatar = async () => {
@@ -486,7 +497,18 @@ const saveAvatar = async () => {
     emit('update:avatar', avatarUrl);
     
     ElMessage.success('头像更新成功！');
-    dialogVisible.value = false;
+    
+    // 对于上传的图片，显示成功状态而不是立即关闭对话框
+    if (activeTab.value === 'upload') {
+      uploadSuccess.value = true;
+      // 3秒后自动关闭对话框
+      setTimeout(() => {
+        dialogVisible.value = false;
+      }, 3000);
+    } else {
+      // 对于默认头像和个性头像，立即关闭对话框
+      dialogVisible.value = false;
+    }
     
   } catch (error) {
     console.error('❌ 保存头像失败:', error);
@@ -657,6 +679,35 @@ const saveAvatar = async () => {
 
 .preview-info p {
   margin: 0;
+  font-size: 14px;
+}
+
+.preview-actions {
+  margin-top: 16px;
+  text-align: center;
+}
+
+/* 上传成功样式 */
+.upload-success-section {
+  margin-top: 30px;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.success-icon {
+  margin-bottom: 20px;
+}
+
+.success-info h3 {
+  margin: 0 0 12px 0;
+  color: #67c23a;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.success-info p {
+  margin: 0;
+  color: #666;
   font-size: 14px;
 }
 
