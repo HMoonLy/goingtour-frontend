@@ -664,21 +664,15 @@ export default {
   font-size: 13px;
   font-weight: 500;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background:#0070f8;
   border: none;
   color: white;
-}
-
-.send-code-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
 }
 
 .send-code-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  background: #c0c4cc;
+
 }
 
 .login-btn {

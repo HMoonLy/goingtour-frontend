@@ -504,12 +504,12 @@ export default {
 </script>
 
 <style scoped>
-/* 统一的页面布局 - 与Personal.vue保持一致 */
+
 .register-page {
   display: flex !important;
+  min-height: 600px;
 }
 
-/* 重置可能影响布局的样式 */
 .register-page * {
   box-sizing: border-box !important;
 }
@@ -518,21 +518,46 @@ export default {
 .register-brand {
   flex: 1;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 30px;
+  padding: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.register-brand::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: float-dots 20s linear infinite;
+}
+
+@keyframes float-dots {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50px, -50px) rotate(360deg);
+  }
 }
 
 .brand-content {
   color: white;
   width: 100%;
-  max-width: 500px;
+  max-width: 600px;
+  position: relative;
+  z-index: 2;
 }
 
 .brand-header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 50px;
 }
 
 .brand-logo {
@@ -551,65 +576,93 @@ export default {
 }
 
 .brand-title {
-  font-size: 48px;
+  font-size: 56px;
   font-weight: 700;
-  margin: 0 0 12px 0;
-  letter-spacing: 2px;
+  margin: 0 0 16px 0;
+  letter-spacing: 3px;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(45deg, #ffffff, #e3f2fd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: title-glow 3s ease-in-out infinite alternate;
+}
+
+@keyframes title-glow {
+  0% {
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+  }
+  100% {
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6));
+  }
 }
 
 .brand-subtitle {
-  font-size: 18px;
+  font-size: 20px;
   opacity: 0.9;
   margin: 0;
   font-weight: 300;
 }
 
 .features {
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
 
 .feature-item {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
-  padding: 20px;
+  margin-bottom: 30px;
+  padding: 25px;
   background: rgba(255, 255, 255, 0.15);
-  border-radius: 12px;
+  border-radius: 16px;
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
   text-align: left;
+  animation: fade-in-up 0.6s ease-out forwards;
+  animation-delay: var(--delay, 0s);
+}
+
+.feature-item:nth-child(1) {
+  --delay: 0.2s;
+}
+
+.feature-item:nth-child(2) {
+  --delay: 0.4s;
+}
+
+.feature-item:nth-child(3) {
+  --delay: 0.6s;
 }
 
 .feature-item:hover {
-  transform: translateX(10px);
+  transform: translateX(15px);
   background: rgba(255, 255, 255, 0.2);
 }
 
 .feature-icon {
-  margin-right: 16px;
+  margin-right: 20px;
   flex-shrink: 0;
 }
 
 .feature-text h3 {
-  font-size: 16px;
-  margin: 0 0 6px 0;
+  font-size: 18px;
+  margin: 0 0 8px 0;
   font-weight: 600;
   text-align: left;
 }
 
 .feature-text p {
-  font-size: 13px;
+  font-size: 14px;
   margin: 0;
-  opacity: 0.85;
-  line-height: 1.4;
+  opacity: 0.8;
+  line-height: 1.5;
   text-align: left;
 }
 
 .brand-footer {
   text-align: center;
   opacity: 0.7;
-  font-size: 12px;
+  font-size: 14px;
   margin-top: 20px;
 }
 
@@ -619,19 +672,35 @@ export default {
 
 /* ========== 右侧注册表单区 ========== */
 .register-form-section {
-  flex: 0 0 540px;
-  background: white;
+  flex: 0 0 600px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  padding: 60px 30px 40px 30px;
+  padding: 20px;
   box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+  position: relative;
+  margin-top: 60px;
 }
 
 .form-container {
   width: 100%;
-  max-width: 400px;
-  margin-top: 60px;
+  max-width: 380px;
+  position: relative;
+  z-index: 2;
+  animation: slide-in-right 0.8s ease-out;
+}
+
+@keyframes slide-in-right {
+  0% {
+    transform: translateX(50px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .form-header {
@@ -640,25 +709,17 @@ export default {
 }
 
 .form-title {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 600;
   color: #303133;
-  margin: 0 0 10px 0;
+  margin: 0 0 0px 0;
 }
 
 .form-subtitle {
-  font-size: 15px;
+  font-size: 16px;
   color: #909399;
   margin: 0;
-  line-height: 1.4;
-}
-
-.form-item {
-
-}
-
-.code-form-item {
-
+  line-height: 1.5;
 }
 
 .form-label {
@@ -676,26 +737,32 @@ export default {
 }
 
 .form-input :deep(.el-input__wrapper) {
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 0 16px;
-  border: 1px solid #dcdfe6;
-  transition: all 0.3s ease;
-  height: 46px;
+  border: 2px solid #e4e7ed;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 52px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
 }
 
 .form-input :deep(.el-input__wrapper:hover) {
-  border-color: #c0c4cc;
+  border-color: #b3c0d1;
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .form-input :deep(.el-input.is-focus .el-input__wrapper) {
-  border-color: #409eff;
-  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
+  border-color: #667eea;
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1), 0 4px 16px rgba(102, 126, 234, 0.15);
+  transform: translateY(-2px);
 }
 
 .code-input-group {
   display: flex;
-  gap: 16px;
-  align-items: flex-end;
+  gap: 12px;
 }
 
 .code-input-group .form-input {
@@ -704,15 +771,27 @@ export default {
 
 .send-code-btn {
   flex-shrink: 0;
-  width: 120px;
-  height: 46px;
-  border-radius: 8px;
+  width: 110px;
+  height: 52px;
+  border-radius: 12px;
   font-size: 13px;
+  font-weight: 500;
   white-space: nowrap;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background:#0070f8;
+  border: none;
+  color: white;
+}
+
+
+.send-code-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  
 }
 
 .agreement-item {
-  margin-bottom: 28px;
+
 }
 
 .agreement-checkbox {
@@ -728,23 +807,44 @@ export default {
 
 .register-btn {
   width: 100%;
-  height: 46px;
+  height: 56px;
   font-size: 16px;
   font-weight: 600;
-  border-radius: 8px;
-  margin-top: 16px;
+  border-radius: 14px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.register-btn::before {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.register-btn:hover::before {
+  left: 100%;
 }
 
 .register-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
+.register-btn:active {
+  transform: translateY(-1px);
+  transition: all 0.1s;
 }
 
 .other-register {
-margin: 0;
+  margin: 32px 0;
 }
 
 .divider-text {
@@ -757,18 +857,38 @@ margin: 0;
   display: flex;
   justify-content: center;
   gap: 16px;
-  margin-top: 18px;
 }
 
 .social-btn {
-  width: 42px;
-  height: 42px;
+  width: 48px;
+  height: 48px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.social-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
   transition: all 0.3s ease;
 }
 
+.social-btn:hover::before {
+  width: 100px;
+  height: 100px;
+}
+
 .social-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
 .wechat-btn {
@@ -802,5 +922,175 @@ margin: 0;
   margin-left: 6px;
   font-weight: 500;
   font-size: 14px;
+}
+
+/* ========== 动画定义 ========== */
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========== 响应式设计 ========== */
+@media (max-width: 1200px) {
+  .register-brand {
+    padding: 30px;
+  }
+  
+  .brand-title {
+    font-size: 48px;
+  }
+  
+  .register-form-section {
+    flex: 0 0 500px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .register-page {
+    flex-direction: column;
+    height: auto;
+    min-height: calc(100vh - 64px);
+  }
+  
+  .register-brand {
+    flex: 0 0 35vh;
+    min-height: 280px;
+    padding: 20px;
+  }
+  
+  .brand-title {
+    font-size: 36px;
+  }
+  
+  .brand-subtitle {
+    font-size: 16px;
+  }
+  
+  .features {
+    display: none;
+  }
+  
+  .register-form-section {
+    flex: 1;
+    min-height: 65vh;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@media (max-width: 768px) {
+  .register-brand {
+    flex: 0 0 25vh;
+    min-height: 200px;
+    padding: 15px;
+  }
+  
+  .brand-title {
+    font-size: 28px;
+    letter-spacing: 1px;
+  }
+  
+  .brand-subtitle {
+    font-size: 14px;
+  }
+  
+  .form-container {
+    max-width: 320px;
+  }
+  
+  .form-title {
+    font-size: 24px;
+  }
+  
+  .form-subtitle {
+    font-size: 14px;
+  }
+  
+  .code-input-group {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .send-code-btn {
+    width: 100%;
+  }
+  
+  .agreement-checkbox :deep(.el-checkbox__label) {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .register-page {
+    top: 0 !important;
+    height: 100vh !important;
+  }
+  
+  .register-brand {
+    flex: 0 0 20vh;
+    min-height: 150px;
+    padding: 10px;
+  }
+  
+  .brand-header {
+    margin-bottom: 15px;
+  }
+  
+  .brand-title {
+    font-size: 24px;
+  }
+  
+  .brand-subtitle {
+    font-size: 12px;
+  }
+  
+  .form-container {
+    max-width: 280px;
+  }
+  
+  .form-header {
+    margin-bottom: 30px;
+  }
+  
+  .form-title {
+    font-size: 20px;
+  }
+  
+  .form-item {
+    margin-bottom: 20px;
+  }
+  
+  .social-register {
+    gap: 12px;
+  }
+  
+  .social-btn {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* ========== 高对比度和无障碍支持 ========== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .form-input :deep(.el-input__wrapper) {
+    border-width: 3px;
+  }
+  
+  .register-btn {
+    border: 2px solid #333;
+  }
 }
 </style>
