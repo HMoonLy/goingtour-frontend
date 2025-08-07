@@ -1,19 +1,40 @@
 <template>
   <div class="trip-create-container">
-    <h1 class="page-title">创建您的个性化行程</h1>
+    <!-- 目的地未选择的提示 -->
+    <div v-if="!baseForm.destinationName && !isRestoringProgress" class="no-destination-notice">
+      <el-card class="notice-card" shadow="hover">
+        <div class="notice-content">
+          <el-icon class="notice-icon" color="#F56C6C" size="48">
+            <Location />
+          </el-icon>
+          <h2>请先选择目的地</h2>
+          <p>您需要先选择想要旅行的城市，才能开始创建个性化行程</p>
+          <div class="notice-actions">
+            <el-button type="primary" size="large" @click="goToDestinations">
+              <el-icon><Location /></el-icon>
+              选择目的地
+            </el-button>
+          </div>
+        </div>
+      </el-card>
+    </div>
 
-    <el-card class="steps-card">
-      <el-steps :active="currentStep"
-finish-status="success" align-center>
-        <el-step title="基础信息" />
-        <el-step title="个性化偏好" />
-        <el-step title="智能生成" />
-        <el-step title="行程预览" />
-      </el-steps>
-    </el-card>
+    <!-- 正常的行程创建界面 -->
+    <template v-else>
+      <h1 class="page-title">创建您的个性化行程</h1>
 
-    <!-- 步骤内容 -->
-    <div class="step-container">
+      <el-card class="steps-card">
+        <el-steps :active="currentStep"
+  finish-status="success" align-center>
+          <el-step title="基础信息" />
+          <el-step title="个性化偏好" />
+          <el-step title="智能生成" />
+          <el-step title="行程预览" />
+        </el-steps>
+      </el-card>
+
+      <!-- 步骤内容 -->
+      <div class="step-container">
       <!-- 第一步：基础信息 -->
       <TripBaseInfo
         v-show="currentStep === 0"
@@ -95,14 +116,16 @@ finish-status="success" align-center>
           </el-button>
         </el-empty>
       </div>
-    </div>
+      </div>
+    </template>
   </div>
 </template>
 
 <script>
 import { ref, reactive, onMounted, watch, onBeforeUnmount } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
+import { Location } from "@element-plus/icons-vue";
 import { useUserStore } from "@/store/user.js";
 import { weatherApi } from "@/api/weather.js";
 import { tripProgressManager } from "@/utils/tripProgress.js";
@@ -120,10 +143,12 @@ export default {
     TripGeneration,
     TripPreview,
     AiTripDisplay,
+    Location,
   },
 
   setup() {
     const route = useRoute();
+    const router = useRouter();
     const userStore = useUserStore();
 
     // 当前步骤
@@ -171,6 +196,9 @@ export default {
     const weatherSuggestion = ref(null);
     const loadingWeather = ref(false);
     const weatherError = ref(null);
+
+    // 进度恢复状态
+    const isRestoringProgress = ref(false);
 
     // 步骤控制
     const nextStep = () => {
@@ -252,6 +280,11 @@ export default {
       }
     };
 
+    // 跳转到目的地选择页面
+    const goToDestinations = () => {
+      router.push('/destinations');
+    };
+
     // 监听城市变化，立即获取天气数据
     watch(
       () => baseForm.destinationName,
@@ -290,9 +323,11 @@ export default {
     const restoreProgress = async () => {
       if (!tripProgressManager.hasProgress()) return false;
 
-      const progressSummary = tripProgressManager.getProgressSummary();
+      isRestoringProgress.value = true;
       
       try {
+        const progressSummary = tripProgressManager.getProgressSummary();
+        
         await ElMessageBox.confirm(
           `发现您有未完成的行程创建进度：\n目的地：${progressSummary.destination}\n步骤：${progressSummary.stepName}\n保存时间：${progressSummary.timeAgo}\n\n是否继续之前的进度？`,
           '恢复创建进度',
@@ -321,6 +356,8 @@ export default {
         // 用户选择重新开始
         tripProgressManager.clearProgress();
         ElMessage.info('已开始新的行程创建');
+      } finally {
+        isRestoringProgress.value = false;
       }
       
       return false;
@@ -419,12 +456,115 @@ export default {
       handleTripSaved: enhancedHandleTripSaved,
       handleTripShare,
       fetchWeatherForTrip,
+      isRestoringProgress,
+      goToDestinations,
     };
   },
 };
 </script>
 
 <style scoped>
+/* 目的地未选择提示样式 */
+.no-destination-notice {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  padding: 20px;
+}
+
+.notice-card {
+  max-width: 500px;
+  width: 100%;
+  border-radius: 16px;
+  border: 2px solid #f56c6c;
+  background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
+}
+
+.notice-card :deep(.el-card__body) {
+  padding: 48px 32px;
+}
+
+.notice-content {
+  text-align: center;
+}
+
+.notice-icon {
+  margin-bottom: 24px;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+.notice-content h2 {
+  color: #f56c6c;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+}
+
+.notice-content p {
+  color: #666;
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0 0 32px 0;
+}
+
+.notice-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.notice-actions .el-button {
+  height: 48px;
+  padding: 0 32px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.notice-actions .el-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(64, 158, 255, 0.3);
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .no-destination-notice {
+    min-height: 50vh;
+    padding: 16px;
+  }
+  
+  .notice-card :deep(.el-card__body) {
+    padding: 32px 24px;
+  }
+  
+  .notice-content h2 {
+    font-size: 20px;
+  }
+  
+  .notice-content p {
+    font-size: 14px;
+  }
+  
+  .notice-actions .el-button {
+    height: 44px;
+    padding: 0 24px;
+    font-size: 15px;
+  }
+}
+
 .empty-trip-state {
   padding: 60px 20px;
   text-align: center;

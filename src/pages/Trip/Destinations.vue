@@ -4,6 +4,7 @@
     <div class="search-section">
       <div class="search-container">
         <h1>去哪里旅行</h1>
+        
         <el-input
           v-model="searchKeyword"
           placeholder="搜索城市、地区..."
@@ -191,13 +192,11 @@ content="跳至Z" placement="left"
 <script>
 import {
   ref,
-  reactive,
   computed,
   onMounted,
   onBeforeUnmount,
-  nextTick,
 } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
 import { Search, Top, Bottom } from "@element-plus/icons-vue";
 import pinyin from "pinyin";
@@ -212,6 +211,7 @@ export default {
   },
   setup() {
     const router = useRouter();
+    const route = useRoute();
 
     // 响应式数据
     const searchKeyword = ref("");
@@ -624,6 +624,15 @@ export default {
 
       // 添加resize事件监听
       window.addEventListener("resize", handleScroll);
+
+      // 检查是否有重定向消息
+      if (route.query.message) {
+        ElMessage.warning({
+          message: route.query.message,
+          duration: 4000,
+          showClose: true
+        });
+      }
     });
 
     onBeforeUnmount(() => {
@@ -1215,5 +1224,75 @@ export default {
   color: #409eff;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 重定向提示样式 */
+.redirect-notice {
+  margin-bottom: 20px;
+}
+
+.custom-alert {
+  border-radius: 12px;
+  border: 2px solid #409eff;
+  background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+}
+
+.alert-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.alert-text {
+  flex: 1;
+}
+
+.alert-text strong {
+  color: #409eff;
+  font-size: 16px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.alert-text p {
+  color: #606266;
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.alert-icon {
+  margin-left: 16px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .redirect-notice {
+    margin-bottom: 16px;
+  }
+  
+  .alert-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  
+  .alert-icon {
+    margin-left: 0;
+  }
 }
 </style>

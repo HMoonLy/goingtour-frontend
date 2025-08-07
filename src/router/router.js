@@ -77,6 +77,7 @@ const routes = [
                 meta: {
                     title: "创建行程",
                     requiresAuth: true,
+                    requiresDestination: true, // 需要先选择目的地
                 },
             },
             {
@@ -190,6 +191,42 @@ router.beforeEach(async(to, from, next) => {
             next({
                 path: "/login",
                 query: { redirect: to.fullPath }, // 保存原始路径，登录后跳转
+            });
+            return;
+        }
+    }
+
+    // 检查是否需要先选择目的地
+    if (to.meta.requiresDestination) {
+        // 检查是否有城市参数或保存的进度
+        const hasDestinationParam = to.query.city && to.query.cityName;
+        const hasSavedProgress = localStorage.getItem('goingtour_trip_progress');
+
+        let hasValidDestination = hasDestinationParam;
+
+        // 如果没有URL参数，检查保存的进度
+        if (!hasValidDestination && hasSavedProgress) {
+            try {
+                const progressData = JSON.parse(hasSavedProgress);
+                const isValidProgress = progressData &&
+                    progressData.baseForm &&
+                    progressData.baseForm.destinationName &&
+                    (Date.now() - progressData.timestamp <= 24 * 60 * 60 * 1000); // 24小时内有效
+
+                hasValidDestination = isValidProgress;
+            } catch (error) {
+                console.warn('解析保存的进度失败:', error);
+            }
+        }
+
+        if (!hasValidDestination) {
+            // 没有目的地信息，重定向到目的地选择页面
+            next({
+                path: "/destinations",
+                query: {
+                    redirect: to.fullPath,
+                    message: "请先选择目的地再创建行程"
+                }
             });
             return;
         }
