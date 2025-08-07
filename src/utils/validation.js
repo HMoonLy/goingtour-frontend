@@ -237,6 +237,20 @@ export const formRules = {
         }
     ],
 
+    email: [
+        { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+        {
+            validator: (rule, value, callback) => {
+                if (validateEmail(value)) {
+                    callback();
+                } else {
+                    callback(new Error('请输入正确的邮箱格式'));
+                }
+            },
+            trigger: 'blur'
+        }
+    ],
+
     verificationCode: [
         { required: true, message: '请输入验证码', trigger: 'blur' },
         {

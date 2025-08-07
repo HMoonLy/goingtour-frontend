@@ -78,19 +78,18 @@
           size="large"
           @submit.prevent="handleRegister"
         >
-          <!-- 手机号输入 -->
-          <el-form-item prop="phone" class="form-item">
-            <label class="form-label">手机号</label>
+          <!-- 邮箱输入 -->
+          <el-form-item prop="email" class="form-item">
+            <label class="form-label">邮箱</label>
             <el-input
-              v-model="registerForm.phone"
-              placeholder="请输入手机号"
+              v-model="registerForm.email"
+              placeholder="请输入邮箱地址"
               clearable
-              maxlength="11"
               class="form-input"
-              @input="handlePhoneInput"
+              @input="handleEmailInput"
             >
               <template #prefix>
-                <el-icon><Phone /></el-icon>
+                <el-icon><Message /></el-icon>
               </template>
             </el-input>
           </el-form-item>
@@ -245,7 +244,7 @@ import {
   UserFilled,
   Setting,
   Star,
-  Phone,
+  Message,
   Key,
   User,
   ChatDotRound,
@@ -258,7 +257,7 @@ export default {
     UserFilled,
     Setting,
     Star,
-    Phone,
+    Message,
     Key,
     User,
     ChatDotRound,
@@ -272,7 +271,7 @@ export default {
 
     // 注册表单数据
     const registerForm = reactive({
-      phone: "",
+      email: "",
       code: "",
       nickname: "",
       agreement: false,
@@ -286,11 +285,11 @@ export default {
 
     // 表单验证规则
     const registerRules = {
-      phone: [
-        { required: true, message: "请输入手机号", trigger: "blur" },
+      email: [
+        { required: true, message: "请输入邮箱地址", trigger: "blur" },
         {
-          pattern: /^1[3-9]\d{9}$/,
-          message: "请输入正确的手机号格式",
+          type: "email",
+          message: "请输入正确的邮箱格式",
           trigger: "blur",
         },
       ],
@@ -326,12 +325,13 @@ export default {
 
     // 计算属性
     const canSendCode = computed(() => {
-      return /^1[3-9]\d{9}$/.test(registerForm.phone);
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(registerForm.email);
     });
 
     // 输入处理
-    const handlePhoneInput = (value) => {
-      registerForm.phone = value.replace(/\D/g, "");
+    const handleEmailInput = (value) => {
+      registerForm.email = value.trim().toLowerCase();
     };
 
     const handleCodeInput = (value) => {
@@ -341,16 +341,16 @@ export default {
     // 发送验证码
     const sendVerificationCode = async () => {
       if (!canSendCode.value) {
-        ElMessage.warning("请输入正确的手机号");
+        ElMessage.warning("请输入正确的邮箱地址");
         return;
       }
 
       try {
         sendingCode.value = true;
 
-        await userStore.sendVerificationCode(registerForm.phone, "register");
+        await userStore.sendVerificationCode(registerForm.email, "register");
 
-        ElMessage.success("验证码已发送，请查看控制台输出");
+        ElMessage.success("验证码已发送到您的邮箱，请查收");
 
         // 开始倒计时
         startCountdown(60);
@@ -384,7 +384,7 @@ export default {
         registering.value = true;
 
         const user = await userStore.register(
-          registerForm.phone,
+          registerForm.email,
           registerForm.code,
           registerForm.nickname || undefined
         );
@@ -489,7 +489,7 @@ export default {
       registering,
       countdown,
       canSendCode,
-      handlePhoneInput,
+      handleEmailInput,
       handleCodeInput,
       sendVerificationCode,
       handleRegister,

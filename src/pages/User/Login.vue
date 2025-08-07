@@ -82,20 +82,19 @@ color="#ffffff">
           size="large"
           @submit.prevent="handleLogin"
         >
-          <!-- 手机号输入 -->
-          <el-form-item prop="phone"
+          <!-- 邮箱输入 -->
+          <el-form-item prop="email"
 class="form-item">
-            <label class="form-label">手机号</label>
+            <label class="form-label">邮箱</label>
             <el-input
-              v-model="loginForm.phone"
-              placeholder="请输入手机号"
+              v-model="loginForm.email"
+              placeholder="请输入邮箱地址"
               clearable
-              maxlength="11"
               class="form-input"
-              @input="handlePhoneInput"
+              @input="handleEmailInput"
             >
               <template #prefix>
-                <el-icon><Phone /></el-icon>
+                <el-icon><Message /></el-icon>
               </template>
             </el-input>
           </el-form-item>
@@ -220,7 +219,7 @@ import {
   Location,
   DataAnalysis,
   Share,
-  Phone,
+  Message,
   Key,
   User,
   ChatDotRound,
@@ -235,7 +234,7 @@ export default {
     Location,
     DataAnalysis,
     Share,
-    Phone,
+    Message,
     Key,
     User,
     ChatDotRound,
@@ -250,7 +249,7 @@ export default {
 
     // 登录表单数据
     const loginForm = reactive({
-      phone: "",
+      email: "",
       code: "",
     });
 
@@ -262,18 +261,19 @@ export default {
 
     // 表单验证规则 - 使用统一的验证工具
     const loginRules = {
-      phone: formRules.phone,
+      email: formRules.email,
       code: formRules.verificationCode,
     };
 
     // 计算属性
     const canSendCode = computed(() => {
-      return /^1[3-9]\d{9}$/.test(loginForm.phone);
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(loginForm.email);
     });
 
     // 输入处理
-    const handlePhoneInput = (value) => {
-      loginForm.phone = value.replace(/\D/g, "");
+    const handleEmailInput = (value) => {
+      loginForm.email = value.trim().toLowerCase();
     };
 
     const handleCodeInput = (value) => {
@@ -283,16 +283,16 @@ export default {
     // 发送验证码
     const sendVerificationCode = async () => {
       if (!canSendCode.value) {
-        ElMessage.warning("请输入正确的手机号");
+        ElMessage.warning("请输入正确的邮箱地址");
         return;
       }
 
       try {
         sendingCode.value = true;
 
-        await userStore.sendVerificationCode(loginForm.phone, "login");
+        await userStore.sendVerificationCode(loginForm.email, "login");
 
-        ElMessage.success("验证码已发送，请查看控制台输出");
+        ElMessage.success("验证码已发送到您的邮箱，请查收");
 
         // 开始倒计时
         startCountdown(60);
@@ -325,7 +325,7 @@ export default {
 
         loggingIn.value = true;
 
-        const user = await userStore.login(loginForm.phone, loginForm.code);
+        const user = await userStore.login(loginForm.email, loginForm.code);
 
         handleSuccess(`欢迎回来，${user.nickname || "用户"}！`, {
           showNotification: true
@@ -338,7 +338,7 @@ export default {
 
         await router.push(redirectPath);
       } catch (error) {
-        handleApiError(error, "登录失败，请检查手机号和验证码");
+        handleApiError(error, "登录失败，请检查邮箱和验证码");
       } finally {
         loggingIn.value = false;
       }
@@ -381,7 +381,7 @@ export default {
       loggingIn,
       countdown,
       canSendCode,
-      handlePhoneInput,
+      handleEmailInput,
       handleCodeInput,
       sendVerificationCode,
       handleLogin,
