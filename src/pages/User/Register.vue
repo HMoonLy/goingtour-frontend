@@ -6,9 +6,7 @@
         <!-- Logo和品牌名 -->
         <div class="brand-header">
           <div class="brand-logo">
-            <el-icon
-size="60" color="#ffffff"
->
+            <el-icon size="60" color="#ffffff">
               <MapLocation />
             </el-icon>
           </div>
@@ -20,9 +18,7 @@ size="60" color="#ffffff"
         <div class="features">
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon
-size="32" color="#ffffff"
->
+              <el-icon size="32" color="#ffffff">
                 <UserFilled />
               </el-icon>
             </div>
@@ -34,9 +30,7 @@ size="32" color="#ffffff"
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon
-size="32" color="#ffffff"
->
+              <el-icon size="32" color="#ffffff">
                 <Setting />
               </el-icon>
             </div>
@@ -48,9 +42,7 @@ size="32" color="#ffffff"
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon
-size="32" color="#ffffff"
->
+              <el-icon size="32" color="#ffffff">
                 <Star />
               </el-icon>
             </div>
@@ -87,9 +79,7 @@ size="32" color="#ffffff"
           @submit.prevent="handleRegister"
         >
           <!-- 手机号输入 -->
-          <el-form-item
-prop="phone" class="form-item"
->
+          <el-form-item prop="phone" class="form-item">
             <label class="form-label">手机号</label>
             <el-input
               v-model="registerForm.phone"
@@ -106,9 +96,7 @@ prop="phone" class="form-item"
           </el-form-item>
 
           <!-- 验证码输入 -->
-          <el-form-item
-prop="code" class="form-item code-form-item"
->
+          <el-form-item prop="code" class="form-item code-form-item">
             <label class="form-label">验证码</label>
             <div class="code-input-group">
               <el-input
@@ -139,10 +127,10 @@ prop="code" class="form-item code-form-item"
           </el-form-item>
 
           <!-- 昵称输入（可选） -->
-          <el-form-item
-prop="nickname" class="form-item"
->
-            <label class="form-label">昵称 <span class="optional">(可选)</span></label>
+          <el-form-item prop="nickname" class="form-item">
+            <label class="form-label"
+              >昵称 <span class="optional">(可选)</span></label
+            >
             <el-input
               v-model="registerForm.nickname"
               placeholder="请输入昵称，不填写将自动生成"
@@ -157,9 +145,7 @@ prop="nickname" class="form-item"
           </el-form-item>
 
           <!-- 用户协议确认 -->
-          <el-form-item
-prop="agreement" class="form-item agreement-item"
->
+          <el-form-item prop="agreement" class="form-item agreement-item">
             <el-checkbox
               v-model="registerForm.agreement"
               class="agreement-checkbox"
@@ -251,7 +237,7 @@ prop="agreement" class="form-item agreement-item"
 
 <script>
 import { ref, reactive, computed, onMounted, onUnmounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/user";
 import { ElMessage, ElNotification, ElMessageBox } from "element-plus";
 import {
@@ -279,7 +265,6 @@ export default {
   },
   setup() {
     const router = useRouter();
-    const route = useRoute();
     const userStore = useUserStore();
 
     // 表单引用
@@ -401,7 +386,7 @@ export default {
         const user = await userStore.register(
           registerForm.phone,
           registerForm.code,
-          registerForm.nickname || undefined,
+          registerForm.nickname || undefined
         );
 
         ElNotification({
@@ -442,7 +427,7 @@ export default {
         {
           confirmButtonText: "我知道了",
           dangerouslyUseHTMLString: true,
-        },
+        }
       );
     };
 
@@ -463,7 +448,7 @@ export default {
         {
           confirmButtonText: "我知道了",
           dangerouslyUseHTMLString: true,
-        },
+        }
       );
     };
 
@@ -521,18 +506,6 @@ export default {
 <style scoped>
 /* 统一的页面布局 - 与Personal.vue保持一致 */
 .register-page {
-  position: fixed !important;
-  top: 64px !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  width: 100vw !important;
-  height: calc(100vh - 64px) !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  background: #f5f7fa !important;
-  overflow-y: auto !important;
-  z-index: 1 !important;
   display: flex !important;
 }
 
@@ -663,7 +636,7 @@ export default {
 
 .form-header {
   text-align: center;
-  margin-bottom: 35px;
+
 }
 
 .form-title {
@@ -681,11 +654,11 @@ export default {
 }
 
 .form-item {
-  margin-bottom: 25px;
+
 }
 
 .code-form-item {
-  margin-bottom: 28px;
+
 }
 
 .form-label {
@@ -693,7 +666,7 @@ export default {
   font-size: 14px;
   font-weight: 500;
   color: #606266;
-  margin-bottom: 8px;
+
 }
 
 .optional {
@@ -771,7 +744,7 @@ export default {
 }
 
 .other-register {
-  margin: 28px 0;
+margin: 0;
 }
 
 .divider-text {

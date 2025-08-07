@@ -214,7 +214,7 @@ type="primary" :underline="false"> 《隐私政策》 </el-link>
 import { ref, reactive, computed, onMounted, onUnmounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useUserStore } from "@/store/user";
-import { ElMessage, ElNotification } from "element-plus";
+import { ElMessage } from "element-plus";
 import {
   MapLocation,
   Location,
@@ -396,19 +396,8 @@ export default {
 <style scoped>
 /* 统一的页面布局 - 与Personal.vue保持一致 */
 .login-page {
-  position: fixed !important;
-  top: 64px !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  width: 100vw !important;
-  height: calc(100vh - 64px) !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  background: #f5f7fa !important;
-  overflow-y: auto !important;
-  z-index: 1 !important;
   display: flex !important;
+  min-height: 600px;
 }
 
 /* 重置可能影响布局的样式 */
@@ -424,12 +413,37 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-brand::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: float-dots 20s linear infinite;
+}
+
+@keyframes float-dots {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50px, -50px) rotate(360deg);
+  }
 }
 
 .brand-content {
   color: white;
   width: 100%;
   max-width: 600px;
+  position: relative;
+  z-index: 2;
 }
 
 .brand-header {
@@ -458,6 +472,20 @@ export default {
   margin: 0 0 16px 0;
   letter-spacing: 3px;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(45deg, #ffffff, #e3f2fd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: title-glow 3s ease-in-out infinite alternate;
+}
+
+@keyframes title-glow {
+  0% {
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+  }
+  100% {
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6));
+  }
 }
 
 .brand-subtitle {
@@ -518,17 +546,50 @@ export default {
 /* ========== 右侧登录表单区 ========== */
 .login-form-section {
   flex: 0 0 600px;
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
   box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.login-form-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.9) 0%, 
+    rgba(255, 255, 255, 0.8) 50%, 
+    rgba(255, 255, 255, 0.9) 100%);
+  z-index: 1;
+}
+
+.form-container {
+  position: relative;
+  z-index: 2;
 }
 
 .form-container {
   width: 100%;
   max-width: 380px;
+  animation: slide-in-right 0.8s ease-out;
+}
+
+@keyframes slide-in-right {
+  0% {
+    transform: translateX(50px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .form-header {
@@ -563,20 +624,27 @@ export default {
 }
 
 .form-input :deep(.el-input__wrapper) {
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 0 16px;
-  border: 1px solid #dcdfe6;
-  transition: all 0.3s ease;
-  height: 48px;
+  border: 2px solid #e4e7ed;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 52px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
 }
 
 .form-input :deep(.el-input__wrapper:hover) {
-  border-color: #c0c4cc;
+  border-color: #b3c0d1;
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .form-input :deep(.el-input.is-focus .el-input__wrapper) {
-  border-color: #409eff;
-  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
+  border-color: #667eea;
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1), 0 4px 16px rgba(102, 126, 234, 0.15);
+  transform: translateY(-2px);
 }
 
 .code-input-group {
@@ -591,26 +659,66 @@ export default {
 .send-code-btn {
   flex-shrink: 0;
   width: 110px;
-  height: 48px;
-  border-radius: 8px;
+  height: 52px;
+  border-radius: 12px;
   font-size: 13px;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+}
+
+.send-code-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
+.send-code-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #c0c4cc;
 }
 
 .login-btn {
   width: 100%;
-  height: 48px;
+  height: 56px;
   font-size: 16px;
   font-weight: 600;
-  border-radius: 8px;
+  border-radius: 14px;
   margin-top: 16px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.login-btn:hover::before {
+  left: 100%;
 }
 
 .login-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
+.login-btn:active {
+  transform: translateY(-1px);
+  transition: all 0.1s;
 }
 
 .other-login {
@@ -631,14 +739,35 @@ export default {
 }
 
 .social-btn {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.social-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
   transition: all 0.3s ease;
 }
 
+.social-btn:hover::before {
+  width: 100px;
+  height: 100px;
+}
+
 .social-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
 .wechat-btn {
@@ -686,5 +815,188 @@ export default {
   color: #c0c4cc;
   margin: 0;
   line-height: 1.5;
+}
+
+/* ========== 响应式设计 ========== */
+@media (max-width: 1200px) {
+  .login-brand {
+    padding: 30px;
+  }
+  
+  .brand-title {
+    font-size: 48px;
+  }
+  
+  .login-form-section {
+    flex: 0 0 500px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .login-page {
+    flex-direction: column;
+    height: auto;
+    min-height: calc(100vh - 64px);
+  }
+  
+  .login-brand {
+    flex: 0 0 40vh;
+    min-height: 300px;
+    padding: 20px;
+  }
+  
+  .brand-title {
+    font-size: 36px;
+  }
+  
+  .brand-subtitle {
+    font-size: 16px;
+  }
+  
+  .features {
+    display: none;
+  }
+  
+  .login-form-section {
+    flex: 1;
+    min-height: 60vh;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@media (max-width: 768px) {
+  .login-brand {
+    flex: 0 0 30vh;
+    min-height: 250px;
+    padding: 15px;
+  }
+  
+  .brand-title {
+    font-size: 28px;
+    letter-spacing: 1px;
+  }
+  
+  .brand-subtitle {
+    font-size: 14px;
+  }
+  
+  .form-container {
+    max-width: 320px;
+  }
+  
+  .form-title {
+    font-size: 24px;
+  }
+  
+  .form-subtitle {
+    font-size: 14px;
+  }
+  
+  .code-input-group {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .send-code-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-page {
+    top: 0 !important;
+    height: 100vh !important;
+  }
+  
+  .login-brand {
+    flex: 0 0 25vh;
+    min-height: 200px;
+    padding: 10px;
+  }
+  
+  .brand-header {
+    margin-bottom: 20px;
+  }
+  
+  .brand-title {
+    font-size: 24px;
+  }
+  
+  .brand-subtitle {
+    font-size: 12px;
+  }
+  
+  .form-container {
+    max-width: 280px;
+  }
+  
+  .form-header {
+    margin-bottom: 30px;
+  }
+  
+  .form-title {
+    font-size: 20px;
+  }
+  
+  .form-item {
+    margin-bottom: 20px;
+  }
+  
+  .social-login {
+    gap: 12px;
+  }
+  
+  .social-btn {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* ========== 动画增强 ========== */
+.feature-item {
+  animation: fade-in-up 0.6s ease-out forwards;
+  animation-delay: var(--delay, 0s);
+}
+
+.feature-item:nth-child(1) {
+  --delay: 0.2s;
+}
+
+.feature-item:nth-child(2) {
+  --delay: 0.4s;
+}
+
+.feature-item:nth-child(3) {
+  --delay: 0.6s;
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========== 高对比度和无障碍支持 ========== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .form-input :deep(.el-input__wrapper) {
+    border-width: 3px;
+  }
+  
+  .login-btn {
+    border: 2px solid #333;
+  }
 }
 </style>
