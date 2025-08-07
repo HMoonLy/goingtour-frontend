@@ -25,17 +25,17 @@ export const useUserStore = defineStore("user", {
 
     getters: {
         // 获取用户ID
-        userId: (state) => state.currentUser ? .id,
+        userId: (state) => state.currentUser?.id,
 
         // 获取用户昵称
-        nickname: (state) => state.currentUser ? .nickname || "未设置昵称",
+        nickname: (state) => state.currentUser?.nickname || "未设置昵称",
 
         // 获取用户邮箱
-        email: (state) => state.currentUser ? .email,
+        email: (state) => state.currentUser?.email,
 
         // 获取用户头像
         avatar: (state) =>
-            state.currentUser ? .avatar || "/images/default-avatar.jpg",
+            state.currentUser?.avatar || "/images/default-avatar.jpg",
 
         // 检查是否完善了偏好设置
         hasPreferences: (state) => {
@@ -194,7 +194,7 @@ export const useUserStore = defineStore("user", {
          * @param {string} avatar 头像URL
          */
         async updateUserInfo(nickname, avatar) {
-            if (!this.currentUser ? .id) {
+            if (!this.currentUser?.id) {
                 throw new Error("用户未登录");
             }
 
@@ -219,7 +219,7 @@ export const useUserStore = defineStore("user", {
          * 获取用户偏好设置
          */
         async fetchUserPreferences() {
-            if (!this.currentUser ? .id) {
+            if (!this.currentUser?.id) {
                 throw new Error("用户未登录");
             }
 
@@ -263,7 +263,7 @@ export const useUserStore = defineStore("user", {
          * @param {Object} preferences 偏好数据对象（匹配UserPreferencesRequest格式）
          */
         async updateUserPreferences(preferences) {
-            if (!this.currentUser ? .id) {
+            if (!this.currentUser?.id) {
                 throw new Error("用户未登录");
             }
 
@@ -302,7 +302,7 @@ export const useUserStore = defineStore("user", {
          * 获取用户完整信息
          */
         async fetchUserInfo() {
-            if (!this.currentUser ? .id) {
+            if (!this.currentUser?.id) {
                 throw new Error("用户未登录");
             }
 
