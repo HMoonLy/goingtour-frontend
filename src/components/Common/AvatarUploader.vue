@@ -57,9 +57,6 @@
                 <div class="image-preview">
                   <img :src="rawImage" alt="预览图片" class="preview-image" />
                 </div>
-                <div class="preview-info">
-                  <p>✅ 图片已选择，将直接使用完整图片作为头像</p>
-                </div>
                 <div class="preview-actions">
                   <el-button @click="resetImageSelection" size="small" type="info" plain>
                     重新选择
