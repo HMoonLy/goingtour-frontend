@@ -4,21 +4,11 @@
     <div class="user-info-card">
       <div class="user-avatar-section">
         <div class="user-avatar">
-          <el-avatar
-            :size="80"
-            :src="userInfo.avatar"
-            :icon="UserFilled"
-            class="avatar"
+          <AvatarUploader
+            :avatar="userInfo.avatar"
+            :userName="userInfo.nickname || '用户'"
+            @update:avatar="handleAvatarUpdate"
           />
-          <el-button
-            size="small"
-            type="primary"
-            plain
-            class="change-avatar-btn"
-            @click="changeAvatar"
-          >
-            更换头像
-          </el-button>
         </div>
         <div class="user-basic-info">
           <h2 class="user-name">
@@ -450,31 +440,7 @@
       </div>
     </div>
 
-    <!-- 更换头像对话框 -->
-    <el-dialog
-      v-model="avatarDialogVisible"
-      title="更换头像"
-      width="400px"
-      center
-    >
-      <div class="avatar-upload-section">
-        <p>暂时只支持预设头像，上传功能开发中...</p>
-        <div class="preset-avatars">
-          <div
-            v-for="avatar in presetAvatars"
-            :key="avatar"
-            class="preset-avatar"
-            @click="selectAvatar(avatar)"
-          >
-            <el-avatar :size="60" :src="avatar" />
-          </div>
-        </div>
-      </div>
-      <template #footer>
-        <el-button @click="avatarDialogVisible = false"> 取消 </el-button>
-        <el-button type="primary" @click="saveAvatar"> 确定 </el-button>
-      </template>
-    </el-dialog>
+
   </div>
 </template>
 
@@ -503,6 +469,7 @@ import {
   Money,
 } from "@element-plus/icons-vue";
 import { useUserStore } from "@/store/user.js";
+import AvatarUploader from "@/components/Common/AvatarUploader.vue";
 import { convertBackendTripToFrontend } from "@/utils/tripDataConverter.js";
 import { handleApiError, handleSuccess } from "@/utils/errorHandler.js";
 import { translateTag, getMbtiName } from "@/utils/tagMapping.js";
@@ -520,6 +487,7 @@ export default {
     Plus,
     User,
     Money,
+    AvatarUploader,
   },
   setup() {
     const router = useRouter();
@@ -527,8 +495,6 @@ export default {
     const userStore = useUserStore();
 
     // 响应式数据
-    const avatarDialogVisible = ref(false);
-    const selectedAvatar = ref("");
 
     // 保存的行程数据
     const savedTrips = ref([]);
@@ -684,12 +650,7 @@ export default {
       return descriptions[type] || "个性化旅行推荐";
     };
 
-    // 预设头像
-    const presetAvatars = [
-      "https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png",
-      "https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png",
-      "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png",
-    ];
+
 
     // 方法
     const formatPhone = (phone) => {
@@ -703,22 +664,35 @@ export default {
       return `加入于 ${date.getFullYear()}年${date.getMonth() + 1}月`;
     };
 
-    const changeAvatar = () => {
-      avatarDialogVisible.value = true;
-      selectedAvatar.value = userInfo.value.avatar || "";
-    };
-
-    const selectAvatar = (avatar) => {
-      selectedAvatar.value = avatar;
-    };
-
-    const saveAvatar = async () => {
+    // 处理头像更新
+    const handleAvatarUpdate = async (newAvatar) => {
       try {
-        // TODO: 调用API更新头像
+        console.log('🔄 开始更新头像:', {
+          newAvatar: newAvatar?.substring(0, 50) + '...',
+          currentNickname: userInfo.value.nickname,
+          userInfoType: typeof userInfo.value.nickname
+        });
+        
+        // 确保昵称是字符串类型
+        const nickname = String(userInfo.value.nickname || userStore.currentUser?.nickname || "用户");
+        
+        // 更新本地用户信息
+        userInfo.value.avatar = newAvatar;
+        
+        // 调用用户store更新头像（修复参数传递）
+        await userStore.updateUserInfo(nickname, newAvatar);
+        
+        // 保存到localStorage（作为备份）
+        localStorage.setItem('user_avatar', newAvatar);
+        
+        console.log('✅ 头像更新成功');
         ElMessage.success("头像更新成功！");
-        avatarDialogVisible.value = false;
       } catch (error) {
+        console.error('❌ 头像更新失败:', error);
         ElMessage.error("头像更新失败，请重试");
+        
+        // 恢复原头像
+        userInfo.value.avatar = userStore.currentUser?.avatar || '';
       }
     };
 
@@ -1040,15 +1014,10 @@ export default {
       userStats,
       userPreferences,
       savedTrips,
-      avatarDialogVisible,
-      selectedAvatar,
-      presetAvatars,
       formatPhone,
       formatJoinDate,
       formatTripDate,
-      changeAvatar,
-      selectAvatar,
-      saveAvatar,
+      handleAvatarUpdate,
       createTrip,
       goToPreferences,
       viewTrips,
