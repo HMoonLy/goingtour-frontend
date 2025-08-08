@@ -473,7 +473,6 @@ import AvatarUploader from "@/components/Common/AvatarUploader.vue";
 import { convertBackendTripToFrontend } from "@/utils/tripDataConverter.js";
 import { handleApiError, handleSuccess } from "@/utils/errorHandler.js";
 import { translateTag, getMbtiName } from "@/utils/tagMapping.js";
-
 export default {
   name: "Personal",
   components: {

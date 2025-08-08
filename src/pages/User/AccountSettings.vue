@@ -4,28 +4,28 @@
       <!-- 页面头部 -->
       <div class="page-header">
         <div class="header-content">
-          <h1 class="page-title">账户设置</h1>
-          <p class="page-subtitle">管理您的账户信息和隐私设置</p>
+          <h1 class="page-title">{{ t('settings.accountSettings') }}</h1>
+          <p class="page-subtitle">{{ t('brand.tagline') }}</p>
         </div>
         <el-button @click="goBack" plain>
           <el-icon><ArrowLeft /></el-icon>
-          返回
+          {{ t('common.back') }}
         </el-button>
       </div>
 
       <!-- 设置选项卡 -->
       <el-tabs v-model="activeTab" class="settings-tabs">
         <!-- 个人信息 -->
-        <el-tab-pane label="个人信息" name="profile">
+        <el-tab-pane :label="t('settings.profileSettings')" name="profile">
           <div class="tab-content">
             <div class="setting-section">
-              <h3 class="section-title">基本信息</h3>
+              <h3 class="section-title">{{ t('settings.profileSettings') }}</h3>
               
               <!-- 头像设置 -->
               <div class="setting-item">
                 <div class="item-label">
-                  <span class="label-text">头像</span>
-                  <span class="label-desc">个性化您的账户头像</span>
+                  <span class="label-text">{{ t('settings.avatar') }}</span>
+                  <span class="label-desc">{{ t('common.edit') }}</span>
                 </div>
                 <div class="item-control">
                   <AvatarUploader
@@ -40,13 +40,13 @@
               <!-- 昵称设置 -->
               <div class="setting-item">
                 <div class="item-label">
-                  <span class="label-text">昵称</span>
-                  <span class="label-desc">您在系统中显示的名称</span>
+                  <span class="label-text">{{ t('settings.nickname') }}</span>
+                  <span class="label-desc">{{ t('common.optional') }}</span>
                 </div>
                 <div class="item-control">
                   <el-input
                     v-model="profileForm.nickname"
-                    placeholder="请输入昵称"
+                    :placeholder="t('settings.nickname')"
                     maxlength="20"
                     show-word-limit
                     :disabled="profileLoading"
@@ -57,7 +57,7 @@
                     @click="updateProfile"
                     :disabled="!isProfileChanged"
                   >
-                    保存
+                    {{ t('common.save') }}
                   </el-button>
                 </div>
               </div>
@@ -65,8 +65,8 @@
               <!-- 邮箱显示 -->
               <div class="setting-item">
                 <div class="item-label">
-                  <span class="label-text">邮箱</span>
-                  <span class="label-desc">用于登录和接收通知</span>
+                  <span class="label-text">{{ t('settings.email') }}</span>
+                  <span class="label-desc">{{ t('common.info') }}</span>
                 </div>
                 <div class="item-control">
                   <el-input
@@ -74,15 +74,15 @@
                     readonly
                     disabled
                   />
-                  <el-tag type="info" size="small">不可修改</el-tag>
+                   <el-tag type="info" size="small">{{ t('common.info') }}</el-tag>
                 </div>
               </div>
 
               <!-- 注册时间 -->
               <div class="setting-item">
                 <div class="item-label">
-                  <span class="label-text">注册时间</span>
-                  <span class="label-desc">您的账户创建时间</span>
+                  <span class="label-text">{{ t('settings.joinDate') }}</span>
+                  <span class="label-desc">{{ t('common.info') }}</span>
                 </div>
                 <div class="item-control">
                   <span class="info-text">{{ formatJoinDate(userInfo.createTime) }}</span>
@@ -93,22 +93,22 @@
         </el-tab-pane>
 
         <!-- 安全设置 -->
-        <el-tab-pane label="安全设置" name="security">
+        <el-tab-pane :label="t('settings.securitySettings')" name="security">
           <div class="tab-content">
             <div class="setting-section">
-              <h3 class="section-title">登录安全</h3>
+              <h3 class="section-title">{{ t('settings.securitySettings') }}</h3>
               
               <!-- 邮箱验证登录 -->
               <div class="setting-item">
                 <div class="item-label">
-                  <span class="label-text">邮箱验证码登录</span>
-                  <span class="label-desc">主要登录方式，更安全便捷</span>
+                  <span class="label-text">{{ t('settings.emailLogin') }}</span>
+                  <span class="label-desc">{{ t('common.info') }}</span>
                 </div>
                 <div class="item-control">
-                  <el-tag type="success" size="small">已启用</el-tag>
-                  <el-button plain size="small" @click="testEmailVerification">
-                    测试发送
-                  </el-button>
+                   <el-tag type="success" size="small">{{ t('common.success') }}</el-tag>
+                   <el-button plain size="small" @click="testEmailVerification">
+                    {{ t('common.submit') }}
+                   </el-button>
                 </div>
               </div>
 
@@ -185,20 +185,20 @@
         </el-tab-pane>
 
         <!-- 隐私设置 -->
-        <el-tab-pane label="隐私设置" name="privacy">
+        <el-tab-pane :label="t('settings.privacySettings')" name="privacy">
           <div class="tab-content">
             <div class="setting-section">
-              <h3 class="section-title">数据管理</h3>
+              <h3 class="section-title">{{ t('settings.privacySettings') }}</h3>
               
               <!-- 数据导出 -->
               <div class="setting-item">
                 <div class="item-label">
-                  <span class="label-text">导出数据</span>
-                  <span class="label-desc">下载您的个人数据和行程记录</span>
+                  <span class="label-text">{{ t('settings.exportData') }}</span>
+                  <span class="label-desc">{{ t('common.info') }}</span>
                 </div>
                 <div class="item-control">
                   <el-button type="primary" @click="exportUserData" :loading="exportLoading">
-                    导出数据
+                    {{ t('settings.exportData') }}
                   </el-button>
                 </div>
               </div>
@@ -206,12 +206,12 @@
               <!-- 数据清理 -->
               <div class="setting-item">
                 <div class="item-label">
-                  <span class="label-text">清理数据</span>
-                  <span class="label-desc">删除缓存和临时数据</span>
+                  <span class="label-text">{{ t('common.delete') }}</span>
+                  <span class="label-desc">{{ t('common.warning') }}</span>
                 </div>
                 <div class="item-control">
                   <el-button plain @click="clearUserData">
-                    清理缓存
+                    {{ t('common.delete') }}
                   </el-button>
                 </div>
               </div>
@@ -252,10 +252,10 @@
         </el-tab-pane>
 
         <!-- 系统设置 -->
-        <el-tab-pane label="系统设置" name="system">
+        <el-tab-pane :label="t('settings.systemSettings')" name="system">
           <div class="tab-content">
             <div class="setting-section">
-              <h3 class="section-title">偏好设置</h3>
+              <h3 class="section-title">{{ t('settings.systemSettings') }}</h3>
               
               <!-- 语言设置 -->
               <div class="setting-item">
@@ -1153,9 +1153,18 @@ export default {
 
 <style scoped>
 .account-settings-page {
-  min-height: 100vh;
-  background: #f5f7fa;
-  padding: 20px;
+  position: fixed !important;
+  top: 64px !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: calc(100vh - 64px) !important;
+  margin: 0 !important;
+  padding: 20px !important;
+  background: var(--bg-color) !important;
+  overflow-y: auto !important;
+  z-index: 1 !important;
 }
 
 .settings-container {
@@ -1170,7 +1179,7 @@ export default {
   align-items: center;
   margin-bottom: 24px;
   padding: 24px;
-  background: white;
+  background: var(--card-bg);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
@@ -1179,18 +1188,18 @@ export default {
   margin: 0 0 8px 0;
   font-size: 24px;
   font-weight: 600;
-  color: #303133;
+  color: var(--text-primary);
 }
 
 .header-content p {
   margin: 0;
-  color: #909399;
+  color: var(--text-secondary);
   font-size: 14px;
 }
 
 /* 设置选项卡 */
 .settings-tabs {
-  background: white;
+  background: var(--card-bg);
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   overflow: hidden;
@@ -1199,8 +1208,8 @@ export default {
 .settings-tabs :deep(.el-tabs__header) {
   margin: 0;
   padding: 0 24px;
-  background: #fafbfc;
-  border-bottom: 1px solid #e4e7ed;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .settings-tabs :deep(.el-tabs__nav-wrap) {
@@ -1209,11 +1218,11 @@ export default {
 
 .settings-tabs :deep(.el-tabs__item) {
   font-weight: 500;
-  color: #606266;
+  color: var(--text-secondary);
 }
 
 .settings-tabs :deep(.el-tabs__item.is-active) {
-  color: #409eff;
+  color: var(--primary-color);
   font-weight: 600;
 }
 
@@ -1234,9 +1243,9 @@ export default {
   margin: 0 0 20px 0;
   font-size: 18px;
   font-weight: 600;
-  color: #303133;
+  color: var(--text-primary);
   padding-bottom: 12px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .danger-section .section-title {
@@ -1250,7 +1259,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 16px 0;
-  border-bottom: 1px solid #f5f7fa;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .setting-item:last-child {
@@ -1266,14 +1275,14 @@ export default {
   display: block;
   font-size: 16px;
   font-weight: 500;
-  color: #303133;
+  color: var(--text-primary);
   margin-bottom: 4px;
 }
 
 .label-desc {
   display: block;
   font-size: 14px;
-  color: #909399;
+  color: var(--text-secondary);
   line-height: 1.4;
 }
 
@@ -1285,7 +1294,7 @@ export default {
 }
 
 .info-text {
-  color: #606266;
+  color: var(--text-secondary);
   font-size: 14px;
 }
 
@@ -1371,7 +1380,7 @@ export default {
 .login-stats-summary {
   margin-bottom: 20px;
   padding: 20px;
-  background: #f8f9fa;
+  background: var(--bg-secondary);
   border-radius: 8px;
 }
 
@@ -1388,7 +1397,7 @@ export default {
 
 .stat-label {
   font-size: 12px;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .history-actions {

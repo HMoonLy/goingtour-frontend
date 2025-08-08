@@ -17,7 +17,7 @@
               @click="$router.push('/destinations')"
             >
               <el-icon><MapLocation /></el-icon>
-              <span>目的地</span>
+              <span>{{ t('trip.destination') }}</span>
             </div>
             <div
               class="nav-item"
@@ -25,7 +25,7 @@
               @click="$router.push('/trip/create')"
             >
               <el-icon><Calendar /></el-icon>
-              <span>创建行程</span>
+              <span>{{ t('trip.createTrip') }}</span>
             </div>
           </div>
         </nav>
@@ -47,15 +47,15 @@ src="../assets/images/default-avatar.jpg" alt="avatar" />
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item command="personal">
-                  <el-icon><User /></el-icon>个人中心
+                  <el-icon><User /></el-icon>{{ t('nav.profile') }}
                 </el-dropdown-item>
                 <el-dropdown-item command="preferences">
-                  <el-icon><Setting /></el-icon>偏好设置
+                  <el-icon><Setting /></el-icon>{{ t('nav.settings') }}
                 </el-dropdown-item>
                 <el-dropdown-item
 divided command="logout"
 >
-                  <el-icon><SwitchButton /></el-icon>退出登录
+                  <el-icon><SwitchButton /></el-icon>{{ t('nav.logout') }}
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -84,6 +84,7 @@ import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useUserStore } from "@/store/user.js";
 import { ElMessage, ElMessageBox } from "element-plus";
+import { useI18n } from "@/utils/i18n.js";
 import {
   MapLocation,
   Calendar,
@@ -107,6 +108,7 @@ export default {
     const route = useRoute();
     const router = useRouter();
     const userStore = useUserStore();
+    const { t } = useI18n();
 
     // 当前激活的菜单项
     const activeMenu = computed(() => {
@@ -162,23 +164,24 @@ export default {
       userStore,
       handleUserCommand,
       isTripDetailPage,
+      t,
     };
   },
 };
 </script>
 
-<style scoped>
+  <style scoped>
 .default-layout {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #f7fafc;
+  background-color: var(--bg-color);
   overflow-x: hidden; /* 只防止水平滚动条 */
 }
 
 /* 顶部导航栏 */
 .layout-header {
-  background: #ffffff;
+  background: var(--card-bg);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   position: sticky;
   top: 0;
@@ -243,7 +246,7 @@ export default {
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s;
-  color: #2d3748;
+  color: var(--text-primary);
   font-size: 14px;
   font-weight: 500;
   white-space: nowrap;
@@ -251,13 +254,13 @@ export default {
 }
 
 .nav-item:hover {
-  background-color: #f7fafc;
-  color: #667eea;
+  background-color: var(--bg-secondary);
+  color: var(--primary-color);
 }
 
 .nav-item.is-active {
-  background-color: #edf2f7;
-  color: #667eea;
+  background-color: var(--bg-secondary);
+  color: var(--primary-color);
 }
 
 .nav-item .el-icon {
@@ -282,13 +285,13 @@ export default {
 }
 
 .user-info:hover {
-  background-color: #f7fafc;
+  background-color: var(--bg-secondary);
 }
 
 .username {
   margin: 0 8px;
   font-size: 0.9rem;
-  color: #2d3748;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
@@ -343,8 +346,8 @@ export default {
 
 /* 页脚 */
 .layout-footer {
-  background: #ffffff;
-  border-top: 1px solid #e2e8f0;
+  background: var(--card-bg);
+  border-top: 1px solid var(--border-color);
   padding: 20px 0;
   flex-shrink: 0; /* 防止页脚被压缩 */
 }
@@ -357,7 +360,7 @@ export default {
 }
 
 .footer-container p {
-  color: #718096;
+  color: var(--text-secondary);
   font-size: 0.85rem;
   margin: 0;
 }
