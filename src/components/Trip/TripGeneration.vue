@@ -872,11 +872,11 @@ export default {
         if (chineseTag) tags.push(chineseTag);
       }
 
-      // 美食偏好
+      // 美食偏好（也可能出现在个人偏好中混入英文）
       const foodTastes = preferences.foodTastes || [];
       if (Array.isArray(foodTastes) && foodTastes.length > 0) {
         foodTastes.forEach((taste) => {
-          const chineseTag = tagMapping.value[taste] || taste;
+          const chineseTag = tagMapping.value[taste] || focusAreaMapping[taste] || tagMappingZh[taste] || taste;
           tags.push(chineseTag);
         });
       }
@@ -1097,13 +1097,13 @@ export default {
         prompt += `我的旅行偏好是${selectedPreferenceTags.value.join("、")}。`;
         if (currentUserPreferences.value.accommodationType) {
           prompt += `住宿偏好${
-            tagMapping[currentUserPreferences.value.accommodationType] ||
+            tagMapping.value[currentUserPreferences.value.accommodationType] ||
             currentUserPreferences.value.accommodationType
           }。`;
         }
         if (currentUserPreferences.value.travelPace) {
           prompt += `旅行节奏偏好${
-            tagMapping[currentUserPreferences.value.travelPace] ||
+            tagMapping.value[currentUserPreferences.value.travelPace] ||
             currentUserPreferences.value.travelPace
           }。`;
         }
@@ -1112,7 +1112,7 @@ export default {
           currentUserPreferences.value.foodTastes.length > 0
         ) {
           prompt += `饮食偏好${currentUserPreferences.value.foodTastes
-            .map((taste) => tagMapping[taste] || taste)
+            .map((taste) => tagMapping.value[taste] || taste)
             .join("、")}。`;
         }
         prompt += "\n\n";
@@ -1130,7 +1130,11 @@ export default {
       if (hasAnyPreference) {
         // 行程目标
         if (props.preferenceForm.tripGoals && props.preferenceForm.tripGoals.length > 0) {
-          prompt += `本次行程目标是${getTripGoalsText(props.preferenceForm.tripGoals)}。`;
+          // 优先翻译通用标签（如 food、hiking）
+          const goalsText = getTripGoalsText(props.preferenceForm.tripGoals)
+            .replace(/food/g, tagMappingZh.food)
+            .replace(/hiking/g, '徒步');
+          prompt += `本次行程目标是${goalsText}。`;
         }
 
         // 行程节奏偏好
