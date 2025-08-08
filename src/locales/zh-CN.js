@@ -117,6 +117,7 @@ export default {
         quickActions: '快捷功能',
         createTripDesc: '开始规划您的下一次旅行',
         preferencesDesc: '个性化您的旅行推荐',
+        myTripsDesc: '查看和管理历史行程',
         myTrips: '我的行程',
         createNewTrip: '创建新行程',
         aiGenerated: 'AI生成',
@@ -146,10 +147,25 @@ export default {
         perDay: '/ 天',
         noPreferences: '还没有设置偏好信息',
         setNow: '立即设置',
+        accountSettingsDesc: '安全设置和隐私管理',
+        joinedAt: '加入于 {date}',
+        noPhone: '未绑定手机号',
         stats: {
             createdTrips: '创建行程',
             preferenceTags: '偏好标签',
             usageDays: '使用天数'
+        },
+        messages: {
+            avatarUpdateSuccess: '头像更新成功！',
+            avatarUpdateFail: '头像更新失败，请重试',
+            notLoggedIn: '用户未登录',
+            tripDeleteSuccess: '行程删除成功',
+            tripDeleteFail: '删除行程失败，请重试',
+            navigationFail: '跳转失败，请重试'
+        },
+        dialog: {
+            deleteTripTitle: '删除行程',
+            deleteTripMessage: '确定要删除这个行程吗？删除后无法恢复。'
         }
     },
 

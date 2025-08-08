@@ -263,7 +263,7 @@
                   <span class="label-text">{{ t('settings.language') }}</span>
                   <span class="label-desc">{{ t('common.optional') }}</span>
                 </div>
-                <div class="item-control">
+                <div class="item-controltext">
                   <el-select v-model="currentLanguage" size="small" @change="handleLanguageChange">
                     <el-option 
                       v-for="(label, code) in supportedLocales" 
@@ -1286,6 +1286,13 @@ export default {
   line-height: 1.4;
 }
 
+.item-controltext{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  width: 100px;
+}
 .item-control {
   display: flex;
   align-items: center;

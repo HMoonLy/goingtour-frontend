@@ -469,7 +469,7 @@ import {
   Money,
 } from "@element-plus/icons-vue";
 import { useUserStore } from "@/store/user.js";
-import { useI18n } from "@/utils/i18n.js";
+import { useI18n, formatDate as i18nFormatDate } from "@/utils/i18n.js";
 import AvatarUploader from "@/components/Common/AvatarUploader.vue";
 import { convertBackendTripToFrontend } from "@/utils/tripDataConverter.js";
 import { handleApiError, handleSuccess } from "@/utils/errorHandler.js";
@@ -655,14 +655,19 @@ export default {
 
     // 方法
     const formatPhone = (phone) => {
-      if (!phone) return "未绑定手机号";
+      if (!phone) return t('personal.noPhone');
       return phone.replace(/(\d{3})\d{4}(\d{4})/, "$1****$2");
     };
 
     const formatJoinDate = (createTime) => {
-      if (!createTime) return "加入时间未知";
-      const date = new Date(createTime);
-      return `加入于 ${date.getFullYear()}年${date.getMonth() + 1}月`;
+      if (!createTime) return '';
+      try {
+        const date = new Date(createTime);
+        const pretty = i18nFormatDate(date, { year: 'numeric', month: 'long' });
+        return t('personal.joinedAt', { date: pretty });
+      } catch (e) {
+        return '';
+      }
     };
 
     // 处理头像更新
@@ -830,17 +835,17 @@ export default {
     const deleteTrip = async (tripId) => {
       try {
         await ElMessageBox.confirm(
-          "确定要删除这个行程吗？删除后无法恢复。",
-          "删除行程",
+          t('personal.dialog.deleteTripMessage'),
+          t('personal.dialog.deleteTripTitle'),
           {
-            confirmButtonText: "删除",
-            cancelButtonText: "取消",
+            confirmButtonText: t('common.delete'),
+            cancelButtonText: t('common.cancel'),
             type: "warning",
           }
         );
 
         if (!userStore.currentUser?.id) {
-          ElMessage.error("用户未登录");
+          ElMessage.error(t('personal.messages.notLoggedIn'));
           return;
         }
 
@@ -854,14 +859,14 @@ export default {
         // 更新统计数据
         updateUserStats();
 
-        handleSuccess("行程删除成功");
+        handleSuccess(t('personal.messages.tripDeleteSuccess'));
       } catch (error) {
         if (error === "cancel") {
           // 用户取消删除
           return;
         }
 
-        handleApiError(error, "删除行程失败，请重试");
+        handleApiError(error, t('personal.messages.tripDeleteFail'));
       }
     };
 
@@ -895,7 +900,7 @@ export default {
         }
       } catch (error) {
         console.error("路由跳转失败:", error);
-        ElMessage.error("跳转失败，请重试");
+        ElMessage.error(t('personal.messages.navigationFail'));
       }
     };
 
@@ -919,7 +924,7 @@ export default {
         }
       } catch (error) {
         console.error("路由跳转失败:", error);
-        ElMessage.error("跳转失败，请重试");
+        ElMessage.error(t('personal.messages.navigationFail'));
       }
     };
 
