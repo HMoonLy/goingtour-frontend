@@ -297,8 +297,16 @@ export default {
     // 应用模板/场景：通过 query 传递预填信息到创建页
     const applyScenario = (sc) => {
       openAiScenarios.value = false
-      // 先到目的地选择，带上预设，选择城市后会透传到创建页
-      router.push({ path: '/destinations', query: { preset: encodeURIComponent(JSON.stringify({ type: 'scenario', id: sc.id })) } })
+      const preset = encodeURIComponent(JSON.stringify({ type: 'scenario', id: sc.id }))
+      // 若场景自带城市，则直达创建页；否则先选目的地
+      if (sc.city && sc.city.adcode && sc.city.name) {
+        router.push({
+          path: '/trip/create',
+          query: { preset, city: sc.city.adcode, cityName: encodeURIComponent(sc.city.name) }
+        })
+      } else {
+        router.push({ path: '/destinations', query: { preset } })
+      }
     }
 
     return {
