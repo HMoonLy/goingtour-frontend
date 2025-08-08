@@ -1,5 +1,5 @@
 <template>
-  <div class="preferences-page">
+  <div :class="embedded ? 'preferences-embedded' : 'preferences-page'">
     <!-- 加载提示 -->
     <div v-if="loading" class="loading-section">
       <el-skeleton animated :loading="true">
@@ -46,7 +46,7 @@
 
     <!-- 主要内容 -->
     <div v-else class="preferences-container">
-      <UserCenterNav />
+      <UserCenterNav v-if="!embedded" />
       <div class="page-header">
         <h1>{{ t('settings.preferences') }}</h1>
         <p>{{ t('personal.preferencesDesc') }}</p>
@@ -573,6 +573,10 @@ import UserCenterNav from '@/components/User/UserCenterNav.vue';
 
 export default {
   name: "Preferences",
+  props: {
+    embedded: { type: Boolean, default: false },
+  },
+  emits: ['saved', 'close'],
   components: {
     UserCenterNav,
     Collection,
@@ -590,7 +594,7 @@ export default {
     Bicycle,
     User,
   },
-  setup() {
+  setup(props, { emit }) {
     const userStore = useUserStore();
     const { t } = useI18n();
     const router = useRouter();
@@ -993,29 +997,28 @@ export default {
 
         ElMessage.success("偏好设置已保存");
 
-        // 根据query参数决定跳转目标
-        const returnTo = route.query.returnTo;
-        const returnQuery = route.query.returnQuery;
-
-        setTimeout(() => {
-          if (returnTo) {
-            // 如果有返回路径，跳转到指定页面
-            try {
-              const queryParams = returnQuery ? JSON.parse(returnQuery) : {};
-              router.push({
-                path: returnTo,
-                query: queryParams,
-              });
-              console.log(`🔄 返回到: ${returnTo}`);
-            } catch (error) {
-              console.error("解析返回参数失败:", error);
-              router.push(returnTo);
+        // 嵌入模式下不跳转，发出事件交给父级关闭抽屉
+        if (props.embedded) {
+          emit('saved');
+        } else {
+          // 根据query参数决定跳转目标
+          const returnTo = route.query.returnTo;
+          const returnQuery = route.query.returnQuery;
+          setTimeout(() => {
+            if (returnTo) {
+              try {
+                const queryParams = returnQuery ? JSON.parse(returnQuery) : {};
+                router.push({ path: returnTo, query: queryParams });
+                console.log(`🔄 返回到: ${returnTo}`);
+              } catch (error) {
+                console.error("解析返回参数失败:", error);
+                router.push(returnTo);
+              }
+            } else {
+              router.push("/home");
             }
-          } else {
-            // 默认跳转到首页
-            router.push("/home");
-          }
-        }, 1000);
+          }, 800);
+        }
       } catch (error) {
         console.error("保存偏好设置失败:", error);
         ElMessage.error("保存失败：" + (error.message || "请重试"));
@@ -1094,6 +1097,12 @@ export default {
   background: #f5f5f5 !important;
   overflow-y: auto !important;
   z-index: 1 !important;
+}
+
+/* 内嵌模式：用于抽屉/对话框中复用，不改变父级布局 */
+.preferences-embedded {
+  width: 100%;
+  padding: 0 12px 12px 12px;
 }
 
 /* 重置可能影响布局的样式 */

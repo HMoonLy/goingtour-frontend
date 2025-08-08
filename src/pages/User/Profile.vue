@@ -13,24 +13,31 @@
     <el-card class="quick-nav">
       <div class="grid">
         <div class="grid-item" @click="goTo('/personal/security')">
+          <el-icon><Lock /></el-icon>
           <span class="title">{{ t('settings.securitySettings') }}</span>
         </div>
-        <div class="grid-item" @click="goTo('/personal/preferences')">
+        <div class="grid-item" @click="openPreferences()">
+          <el-icon><Setting /></el-icon>
           <span class="title">{{ t('settings.preferences') }}</span>
         </div>
         <div class="grid-item" @click="goTo('/personal/notifications')">
+          <el-icon><Bell /></el-icon>
           <span class="title">{{ t('settings.notifications') }}</span>
         </div>
         <div class="grid-item" @click="goTo('/personal/system')">
+          <el-icon><Cpu /></el-icon>
           <span class="title">{{ t('settings.systemSettings') }}</span>
         </div>
         <div class="grid-item" @click="goTo('/personal/history')">
+          <el-icon><Timer /></el-icon>
           <span class="title">{{ t('settings.loginHistory') }}</span>
         </div>
         <div class="grid-item" @click="goTo('/personal/data')">
+          <el-icon><Document /></el-icon>
           <span class="title">{{ t('settings.privacySettings') }}</span>
         </div>
         <div class="grid-item danger" @click="goTo('/personal/danger')">
+          <el-icon><Warning /></el-icon>
           <span class="title">{{ t('settings.deleteAccount') }}</span>
         </div>
       </div>
@@ -60,22 +67,29 @@
       </el-card>
     </div>
   </div>
+    <el-drawer v-model="showPref" :title="t('settings.preferences')" size="60%">
+      <Preferences embedded @saved="onPrefSaved" />
+    </el-drawer>
+
 </template>
 
 <script>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/store/user.js';
 import { useI18n, formatDate as i18nFormatDate } from '@/utils/i18n.js';
+import { Lock, Setting, Bell, Cpu, Timer, Document, Warning } from '@element-plus/icons-vue';
 import UserCenterNav from '@/components/User/UserCenterNav.vue';
+import Preferences from '@/pages/User/Preferences.vue';
 
 export default {
   name: 'Profile',
-  components: { UserCenterNav },
+  components: { UserCenterNav, Preferences, Lock, Setting, Bell, Cpu, Timer, Document, Warning },
   setup() {
     const router = useRouter();
     const userStore = useUserStore();
     const { t } = useI18n();
+    const showPref = ref(false);
 
     const joinDateText = computed(() => {
       const ts = userStore.currentUser?.createTime;
@@ -92,12 +106,14 @@ export default {
     const goAccountSettings = () => router.push('/account-settings');
     const goPreferences = () => router.push('/personal/preferences');
     const goTo = (path) => router.push(path);
+    const openPreferences = () => { showPref.value = true; };
+    const onPrefSaved = () => { showPref.value = false; };
 
     onMounted(() => {
       if (!userStore.isLoggedIn) router.push('/login');
     });
 
-    return { userStore, t, joinDateText, goAccountSettings, goPreferences, goTo };
+    return { userStore, t, joinDateText, goAccountSettings, goPreferences, goTo, showPref, openPreferences, onPrefSaved };
   },
 };
 </script>

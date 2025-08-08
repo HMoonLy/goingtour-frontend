@@ -276,6 +276,9 @@ export default {
   font-size: 16px;
 }
 
+/* 桌面端隐藏顶部导航的图标，仅保留文字（scoped 下需要深度选择器） */
+.header-nav :deep(.nav-item .el-icon) { display: none; }
+
 /* 用户信息区域 */
 .header-user {
   display: flex;
@@ -398,6 +401,9 @@ export default {
     padding: 8px 12px;
     font-size: 13px;
   }
+
+  /* 移动端显示图标，配合更紧凑的文字 */
+  .header-nav :deep(.nav-item .el-icon) { display: inline-flex; }
 
   .layout-main {
     min-height: calc(100vh - 56px); /* 移动端导航栏可能更矮 */
