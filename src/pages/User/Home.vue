@@ -981,14 +981,6 @@ export default {
   z-index: 1 !important;
 }
 
-/* 重置可能影响布局的样式 */
-.personal-page * {
-  box-sizing: border-box !important;
-}
-
-.personal-page .el-avatar {
-  flex-shrink: 0 !important;
-}
 
 /* ========== 用户信息卡片 ========== */
 .user-info-card {

@@ -4,23 +4,8 @@
     <section class="quick-actions">
       <h3 class="section-title">{{ t('home.quickActions') }}</h3>
       <div class="action-grid">
-        <div class="action-card" @click="goToDestinations">
-          <div class="action-icon primary">
-            <el-icon size="24"><MapLocation /></el-icon>
-          </div>
-          <h4>{{ t('trip.destination') }}</h4>
-          <p>{{ t('home.chooseDestinationDesc') }}</p>
-        </div>
-
-        <div class="action-card" @click="goToCreate">
-          <div class="action-icon success">
-            <el-icon size="24"><Calendar /></el-icon>
-          </div>
-          <h4>{{ t('trip.createTrip') }}</h4>
-          <p>{{ t('home.createTripDesc') }}</p>
-        </div>
-
-        <div class="action-card" @click="goToAi">
+        <!-- 仅保留 AI 行程生成入口 -->
+        <div class="action-card" @click="openAiScenarios = true">
           <div class="action-icon violet">
             <el-icon size="24"><Cpu /></el-icon>
           </div>
@@ -56,14 +41,15 @@
     <section class="my-trips-section">
       <div class="section-header">
         <h3 class="section-title">{{ t('personal.myTrips') }}</h3>
+        <div class="header-actions"><el-segmented v-model="tripTab" :options="tripTabs" size="small" /></div>
         <el-button size="small" type="primary" plain class="create-trip-btn" @click="goToCreate">
           <el-icon><Plus /></el-icon>
           {{ t('personal.createNewTrip') }}
         </el-button>
       </div>
 
-      <div v-if="savedTrips.length > 0" class="trips-grid">
-        <div v-for="trip in savedTrips" :key="trip.id" class="trip-card" @click="viewTripDetail(trip)">
+      <div v-if="displayTrips.length > 0" class="trips-grid">
+        <div v-for="trip in displayTrips" :key="trip.id" class="trip-card" @click="viewTripDetail(trip)">
           <div class="trip-header">
             <h4>{{ trip.title }}</h4>
             <div class="trip-tags">
@@ -93,6 +79,48 @@
         <el-button type="primary" @click="goToCreate">{{ t('personal.createNow') }}</el-button>
       </div>
     </section>
+
+    
+
+    <!-- 天气速览 -->
+    <section class="weather-section">
+      <h3 class="section-title">{{ t('home.weather.title') }}</h3>
+      <el-card v-if="weather" class="weather-card" shadow="hover">
+        <div class="weather-top">
+          <div class="w-left">
+            <div class="w-city">{{ weather.city }}</div>
+            <div class="w-desc">{{ weather.weatherDesc }}</div>
+          </div>
+          <div class="w-right">
+            <div class="w-temp">{{ weather.currentTemp }}°C</div>
+            <div class="w-range">{{ weather.tempRange }}</div>
+          </div>
+        </div>
+        <div class="forecast">
+          <div v-for="(f, i) in (weather.forecast || []).slice(0,3)" :key="i" class="f-item">
+            <div class="f-date">{{ f.date }}</div>
+            <div class="f-weather">{{ f.dayWeather }}</div>
+            <div class="f-temp">{{ f.dayTemp }} / {{ f.nightTemp }}</div>
+          </div>
+        </div>
+      </el-card>
+      <el-empty v-else :description="t('home.weather.none')" />
+    </section>
+
+    <!-- 模板与场景弹层 -->
+    
+
+    <el-dialog v-model="openAiScenarios" :title="t('home.scenarios.title')" width="600px">
+      <div class="tpl-grid">
+        <div v-for="sc in scenarios" :key="sc.id" class="tpl-card" @click="applyScenario(sc)">
+          <h4>{{ sc.title }}</h4>
+          <p>{{ sc.desc }}</p>
+        </div>
+      </div>
+      <template #footer>
+        <el-button @click="openAiScenarios=false">{{ t('common.close') }}</el-button>
+      </template>
+    </el-dialog>
 
     <!-- 公告/发现 -->
     <section class="ann-section">
@@ -124,6 +152,8 @@ import { useI18n } from '@/utils/i18n.js'
 import { tripProgressManager } from '@/utils/tripProgress.js'
 import { convertBackendTripToFrontend } from '@/utils/tripDataConverter.js'
 import { handleApiError, handleSuccess } from '@/utils/errorHandler.js'
+import { aiScenarios } from '@/data/aiScenarios.js'
+import { weatherApi } from '@/api/weather.js'
 
 export default {
   name: 'HomeDashboard',
@@ -136,6 +166,14 @@ export default {
     const savedTrips = ref([])
     const hasProgress = ref(false)
     const progressSummary = ref({})
+    const openAiScenarios = ref(false)
+    const scenarios = ref(aiScenarios)
+    const weather = ref(null)
+    const tripTab = ref('recent')
+    const tripTabs = [
+      { label: t('home.trips.recent'), value: 'recent' },
+      { label: t('home.trips.drafts'), value: 'drafts' },
+    ]
 
     const announcements = ref([
       { title: t('home.ann.sample1.title'), desc: t('home.ann.sample1.desc'), type: 'info' },
@@ -146,9 +184,7 @@ export default {
       progressSummary.value = tripProgressManager.getProgressSummary() || {}
     }
 
-    const goToDestinations = () => router.push('/destinations')
     const goToCreate = () => router.push('/destinations')
-    const goToAi = () => router.push('/trip/create')
     const resumeProgress = () => router.push('/trip/create')
     const discardProgress = async () => {
       try {
@@ -186,6 +222,14 @@ export default {
         }
       }
     }
+
+    const displayTrips = computed(() => {
+      const list = [...savedTrips.value]
+      // 最近优先：按更新时间/创建时间倒序
+      list.sort((a,b)=> (new Date(b.updatedAt||b.createdAt||0)) - (new Date(a.updatedAt||a.createdAt||0)))
+      if (tripTab.value === 'drafts') return list.filter(x=>x.status==='draft')
+      return list.slice(0, 8)
+    })
 
     const viewTripDetail = (trip) => {
       try {
@@ -240,7 +284,22 @@ export default {
       }
       await loadSavedTrips()
       refreshProgress()
+      // 天气速览：优先使用进度中的目的地，否则取最近行程的目的地
+      let city = progressSummary.value?.destination || (savedTrips.value[0]?.destinationName)
+      if (city) {
+        try {
+          const ws = await weatherApi.getWeatherSuggestions(city, new Date(), 3)
+          weather.value = ws
+        } catch(e) { console.warn('获取天气失败', e) }
+      }
     })
+
+    // 应用模板/场景：通过 query 传递预填信息到创建页
+    const applyScenario = (sc) => {
+      openAiScenarios.value = false
+      // 先到目的地选择，带上预设，选择城市后会透传到创建页
+      router.push({ path: '/destinations', query: { preset: encodeURIComponent(JSON.stringify({ type: 'scenario', id: sc.id })) } })
+    }
 
     return {
       t,
@@ -248,14 +307,19 @@ export default {
       hasProgress,
       progressSummary,
       announcements,
-      goToDestinations,
       goToCreate,
-      goToAi,
       resumeProgress,
       discardProgress,
       viewTripDetail,
       editTrip,
       deleteTrip,
+      tripTab,
+      tripTabs,
+      displayTrips,
+      weather,
+      openAiScenarios,
+      scenarios,
+      applyScenario,
     }
   },
 }
@@ -263,9 +327,19 @@ export default {
 
 <style scoped>
 .home-page {
-  position: relative;
-  padding: 20px;
-  background: #f5f7fa;
+  position: fixed !important;
+  top: 64px !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: calc(100vh - 64px) !important;
+  margin: 0 !important;
+  padding: 20px !important;
+  background: #f5f7fa !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  z-index: 1 !important;
 }
 
 .section-title {
@@ -331,6 +405,7 @@ export default {
   max-width: 1200px;
 }
 .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; }
+.header-actions { margin-left: auto; margin-right: 12px; }
 .trips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
 .trip-card { background: #f8f9fa; border-radius: 8px; padding: 16px; border: 1px solid #e9ecef; transition: all 0.3s; display: flex; flex-direction: column; }
 .trip-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
@@ -347,11 +422,34 @@ export default {
 .ann-section { max-width: 1200px; margin: 0 auto 24px; }
 .ann-item { margin-bottom: 10px; }
 
+/* 模板/场景弹层 */
+.tpl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.tpl-card { border: 1px solid #ebeef5; border-radius: 10px; padding: 12px; background: #fff; cursor: pointer; transition: .2s; }
+.tpl-card:hover { border-color: #b3d8ff; box-shadow: 0 6px 16px rgba(0,0,0,.08); transform: translateY(-2px); }
+
+/* 模板快捷区 */
+.templates-section { max-width: 1200px; margin: 0 auto 24px; }
+
+/* 天气速览 */
+.weather-section { max-width: 1200px; margin: 0 auto 24px; }
+.weather-card { border-radius: 12px; }
+.weather-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.w-city { font-weight: 600; color: #303133; }
+.w-desc { color: #909399; font-size: 13px; }
+.w-temp { font-size: 28px; font-weight: 700; color: #303133; text-align: right; }
+.w-range { color: #909399; font-size: 12px; text-align: right; }
+.forecast { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.f-item { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 8px; text-align: center; }
+.f-date { font-size: 12px; color: #606266; }
+.f-weather { font-size: 13px; color: #303133; margin: 4px 0; }
+.f-temp { font-size: 12px; color: #909399; }
+
 @media (max-width: 768px) {
   .home-page { padding: 12px; }
   .action-grid { grid-template-columns: 1fr; }
   .progress-content { flex-direction: column; align-items: flex-start; }
 }
 </style>
+
 
 

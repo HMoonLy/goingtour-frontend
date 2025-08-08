@@ -687,9 +687,11 @@ import {
   DocumentCopy,
 } from "@element-plus/icons-vue";
 import {
-  tagMapping,
+  tagMappingZh,
+  tagMappingEn,
   focusAreaMapping,
-  dietaryRestrictionMapping,
+  dietaryRestrictionMappingZh,
+  dietaryRestrictionMappingEn,
   tripStyleMapping,
   intensityMapping,
   specialExperienceMapping,
@@ -795,7 +797,7 @@ export default {
     "prev-step",
   ],
   setup(props, { emit }) {
-    const { t } = useI18n();
+    const { t, locale } = useI18n();
     // 获取用户store
     const userStore = useUserStore();
 
@@ -821,6 +823,10 @@ export default {
       return preferences;
     });
 
+    // 语言映射对象（用于模板中的直接索引）
+    const tagMapping = computed(() => (locale.value === 'en-US' ? tagMappingEn : tagMappingZh));
+    const dietaryRestrictionMapping = computed(() => (locale.value === 'en-US' ? dietaryRestrictionMappingEn : dietaryRestrictionMappingZh));
+
     // 计算用户偏好标签的中文显示
     const selectedPreferenceTags = computed(() => {
       const preferences = currentUserPreferences.value;
@@ -832,7 +838,7 @@ export default {
       const travelTags = preferences.selectedTags || preferences.tags || [];
       if (Array.isArray(travelTags) && travelTags.length > 0) {
         travelTags.forEach((tag) => {
-          const chineseTag = tagMapping[tag] || tag;
+          const chineseTag = tagMapping.value[tag] || tag;
           tags.push(chineseTag);
         });
       }
@@ -841,20 +847,20 @@ export default {
       const transports = preferences.selectedTransports || [];
       if (Array.isArray(transports) && transports.length > 0) {
         transports.forEach((transport) => {
-          const chineseTag = tagMapping[transport];
+          const chineseTag = tagMapping.value[transport];
           if (chineseTag) tags.push(chineseTag);
         });
       }
 
       // 住宿类型
       if (preferences.accommodationType) {
-        const chineseTag = tagMapping[preferences.accommodationType];
+        const chineseTag = tagMapping.value[preferences.accommodationType];
         if (chineseTag) tags.push(chineseTag);
       }
 
       // 旅行节奏
       if (preferences.travelPace) {
-        const chineseTag = tagMapping[preferences.travelPace];
+        const chineseTag = tagMapping.value[preferences.travelPace];
         if (chineseTag) tags.push(chineseTag);
       }
 
@@ -862,7 +868,7 @@ export default {
       const foodTastes = preferences.foodTastes || [];
       if (Array.isArray(foodTastes) && foodTastes.length > 0) {
         foodTastes.forEach((taste) => {
-          const chineseTag = tagMapping[taste] || taste;
+          const chineseTag = tagMapping.value[taste] || taste;
           tags.push(chineseTag);
         });
       }
@@ -949,7 +955,8 @@ export default {
 
     const getDietaryRestrictionsText = (restrictions) => {
       if (!restrictions || restrictions.length === 0) return "";
-      return restrictions.map((r) => dietaryRestrictionMapping[r] || r).join("、");
+      const mapObj = dietaryRestrictionMapping.value;
+      return restrictions.map((r) => mapObj[r] || r).join("、");
     };
 
     // 新增：获取行程目标文本
@@ -1952,7 +1959,7 @@ export default {
       selectedPreferenceTags,
       hasUserPreferences,
       currentUserPreferences,
-      tagMapping,
+      tagMapping: tagMapping.value,
       isDateWithinForecastRange,
       // 风格选择相关
       selectedGenerationStyle,

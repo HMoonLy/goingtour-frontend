@@ -28,6 +28,16 @@ export default {
         discard: '丢弃',
         discardConfirm: '确定要丢弃未完成的创建进度吗？',
         announcements: '公告与动态',
+        create: {
+            manual: '手动创建',
+            ai: 'AI 创建',
+            fromTemplate: '从模板创建'
+        },
+        templates: { title: '选择一个模板' },
+        scenarios: { title: '选择一个 AI 场景' },
+        templates: { title: '选择一个模板', quick: '常用模板' },
+        trips: { recent: '最近', drafts: '草稿' },
+        weather: { title: '天气速览', none: '暂无天气信息' },
         ann: {
             sample1: { title: '欢迎使用 GoingTour', desc: '选择一个目的地开始吧！' }
         }

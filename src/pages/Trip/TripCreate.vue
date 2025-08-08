@@ -392,6 +392,36 @@ export default {
         ElMessage.success("偏好设置已更新");
       }
 
+      // 处理模板/场景预填（允许从 /destinations 透传）
+      if (route.query.preset) {
+        try {
+          const payload = JSON.parse(decodeURIComponent(route.query.preset))
+          const { type, id } = payload || {}
+          if (type && id) {
+            if (type === 'template') {
+              const { findTemplateById } = await import('@/data/tripTemplates.js')
+              const tpl = findTemplateById(id)
+              if (tpl?.preset) {
+                Object.assign(baseForm, { ...baseForm, ...(tpl.preset.baseForm || {}) })
+                Object.assign(preferenceForm, { ...preferenceForm, ...(tpl.preset.preferenceForm || {}) })
+                ElMessage.success(`已应用模板：${tpl.title}`)
+              }
+            } else if (type === 'scenario') {
+              const { findScenarioById } = await import('@/data/aiScenarios.js')
+              const sc = findScenarioById(id)
+              if (sc?.preset) {
+                Object.assign(baseForm, { ...baseForm, ...(sc.preset.baseForm || {}) })
+                Object.assign(preferenceForm, { ...preferenceForm, ...(sc.preset.preferenceForm || {}) })
+                ElMessage.success(`已应用场景：${sc.title}`)
+                // TODO: 可在 TripGeneration 处利用 sc.preset.ai.hint 影响提示词
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('解析 preset 失败', e)
+        }
+      }
+
       // 检查URL中是否包含城市信息
       if (route.query.city && route.query.cityName) {
         baseForm.destination = route.query.city;
