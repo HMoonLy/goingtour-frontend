@@ -299,6 +299,10 @@ export default {
             title: '行程基础信息',
             subtitle: '完善您的出行计划，我们将为您量身定制专属行程'
         },
+        onboarding: {
+            title: '创建向导',
+            desc: '按步骤完成基础信息、偏好设置和AI生成；你可以随时返回修改。'
+        },
         createTrip: '创建行程',
         editTrip: '编辑行程',
         tripDetails: '行程详情',

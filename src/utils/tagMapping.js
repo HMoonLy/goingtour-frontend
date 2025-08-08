@@ -351,7 +351,7 @@ export const budgetMapping = {
 export function translateTag(tag, type = 'general') {
     if (!tag) return '';
 
-    const isEn = getLocale && getLocale() === 'en-US';
+    const isEn = false; // 固定为中文，不再使用英文
     let mapping;
     switch (type) {
         case 'focus':

@@ -1,7 +1,7 @@
 import { computed } from 'vue'
 import zhCN from '../locales/zh-CN.js'
 
-// 固定中文：剔除多语言切换相关逻辑
+// 纯中文文本映射系统
 const messages = zhCN
 
 export const t = (key, params = {}) => {
@@ -25,6 +25,18 @@ export const useI18n = () => {
     const locale = computed(() => 'zh-CN')
     return { t, locale }
 }
+
+// 为兼容现有组件，提供这些函数但固定返回中文
+export const getLocale = () => 'zh-CN'
+
+export const setLocale = (locale) => {
+    // 空实现，固定为中文，避免组件报错
+    console.warn('语言切换功能已移除，应用固定使用中文')
+}
+
+export const supportedLocales = ['zh-CN']
+
+export const locale = computed(() => 'zh-CN')
 
 export const initI18n = () => {
     document.documentElement.lang = 'zh-CN'

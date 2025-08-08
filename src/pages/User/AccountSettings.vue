@@ -257,24 +257,6 @@
             <div class="setting-section">
               <h3 class="section-title">{{ t('settings.systemSettings') }}</h3>
               
-              <!-- 语言设置 -->
-              <div class="setting-item">
-                <div class="item-label">
-                  <span class="label-text">{{ t('settings.language') }}</span>
-                  <span class="label-desc">{{ t('common.optional') }}</span>
-                </div>
-                <div class="item-controltext">
-                  <el-select v-model="currentLanguage" size="small" @change="handleLanguageChange">
-                    <el-option 
-                      v-for="(label, code) in supportedLocales" 
-                      :key="code"
-                      :label="label" 
-                      :value="code" 
-                    />
-                  </el-select>
-                </div>
-              </div>
-
               <!-- 主题设置 -->
               <div class="setting-item">
                 <div class="item-label">
@@ -612,7 +594,7 @@ export default {
   setup() {
     const router = useRouter()
     const userStore = useUserStore()
-    const { t, locale, setLocale, supportedLocales } = useI18n()
+    const { t } = useI18n()
     const { currentTheme, setTheme, themeOptions } = useTheme()
 
     // 响应式数据
@@ -727,11 +709,6 @@ export default {
       // 这里需要从用户信息中判断是否已设置密码
       // 由于安全原因，后端不会返回实际密码，我们需要添加一个标识字段
       return userInfo.value.hasPassword || false
-    })
-
-    const currentLanguage = computed({
-      get: () => locale.value,
-      set: (value) => setLocale(value)
     })
 
     const selectedTheme = computed({
@@ -961,11 +938,6 @@ export default {
       }
     }
 
-    const handleLanguageChange = (newLanguage) => {
-      setLocale(newLanguage)
-      ElMessage.success(t('messages.updateSuccess'))
-    }
-
     const handleThemeChange = (newTheme) => {
       setTheme(newTheme)
       ElMessage.success(t('messages.updateSuccess'))
@@ -1117,8 +1089,6 @@ export default {
       notificationSettings,
       isProfileChanged,
       hasPassword,
-      currentLanguage,
-      supportedLocales,
       selectedTheme,
       themeOptions,
       t,
@@ -1138,7 +1108,6 @@ export default {
       formatLoginTime,
       getStatusColor,
       getStatusText,
-      handleLanguageChange,
       handleThemeChange,
       exportUserData,
       clearUserData,
