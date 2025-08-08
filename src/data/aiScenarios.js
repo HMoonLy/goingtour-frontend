@@ -5,6 +5,7 @@ export const aiScenarios = [{
         title: '长沙美食 · 3天',
         desc: '苍蝇馆+地方小吃为主，避开排队',
         city: { adcode: '430100', name: '长沙市' },
+        cover: '/images/scenarios/changsha_food.jpg',
         preset: {
             baseForm: { days: 3 },
             preferenceForm: {
@@ -23,6 +24,7 @@ export const aiScenarios = [{
         title: '川西小环线 · 5天',
         desc: '自然风光+轻徒步，避开高强度线路',
         city: { adcode: '510100', name: '成都市' },
+        cover: '/images/scenarios/sichuan_ring.jpg',
         preset: {
             baseForm: { days: 5 },
             preferenceForm: {
@@ -40,6 +42,7 @@ export const aiScenarios = [{
         title: '周末 Citywalk · 2天',
         desc: '小众街区+咖啡馆+步行优先',
         // 该场景为泛城市，可不带默认城市
+        cover: '/images/scenarios/weekend_citywalk.jpg',
         preset: {
             baseForm: { days: 2 },
             preferenceForm: {

@@ -3,7 +3,6 @@
  * 统一管理所有组件中使用的标签映射关系
  */
 
-import { getLocale } from '@/utils/i18n.js';
 
 // 完整的标签映射表（中文）
 export const tagMappingZh = {
