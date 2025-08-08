@@ -1,8 +1,8 @@
 <template>
   <div class="trip-share-page">
     <div class="page-header">
-      <h1>行程分享</h1>
-      <p>分享您的精彩旅行行程</p>
+      <h1>{{ t('share.title') }}</h1>
+      <p>{{ t('share.subtitle') }}</p>
     </div>
 
     <div class="coming-soon-card">
@@ -10,26 +10,31 @@
 color="#409EFF">
         <Share />
       </el-icon>
-      <h3>行程分享功能开发中</h3>
-      <p>我们正在努力完善行程分享功能，包括：</p>
+      <h3>{{ t('share.comingTitle') }}</h3>
+      <p>{{ t('share.comingDesc') }}</p>
       <ul class="feature-list">
-        <li>行程海报生成</li>
-        <li>二维码分享</li>
-        <li>社交媒体分享</li>
-        <li>链接分享</li>
+        <li>{{ t('share.features.poster') }}</li>
+        <li>{{ t('share.features.qr') }}</li>
+        <li>{{ t('share.features.social') }}</li>
+        <li>{{ t('share.features.link') }}</li>
       </ul>
-      <p class="stay-tuned">敬请期待！</p>
+      <p class="stay-tuned">{{ t('share.stayTuned') }}</p>
     </div>
   </div>
 </template>
 
 <script>
 import { Share } from "@element-plus/icons-vue";
+import { useI18n } from "@/utils/i18n.js";
 
 export default {
   name: "TripShare",
   components: {
     Share,
+  },
+  setup() {
+    const { t } = useI18n();
+    return { t };
   },
 };
 </script>

@@ -7,12 +7,12 @@
           <el-icon class="notice-icon" color="#F56C6C" size="48">
             <Location />
           </el-icon>
-          <h2>请先选择目的地</h2>
-          <p>您需要先选择想要旅行的城市，才能开始创建个性化行程</p>
+          <h2>{{ t('trip.destination') }}</h2>
+          <p>{{ t('trip.createTrip') }}</p>
           <div class="notice-actions">
             <el-button type="primary" size="large" @click="goToDestinations">
               <el-icon><Location /></el-icon>
-              选择目的地
+              {{ t('trip.destination') }}
             </el-button>
           </div>
         </div>
@@ -21,15 +21,15 @@
 
     <!-- 正常的行程创建界面 -->
     <template v-else>
-      <h1 class="page-title">创建您的个性化行程</h1>
+      <h1 class="page-title">{{ t('trip.createTrip') }}</h1>
 
       <el-card class="steps-card">
         <el-steps :active="currentStep"
   finish-status="success" align-center>
-          <el-step title="基础信息" />
-          <el-step title="个性化偏好" />
-          <el-step title="智能生成" />
-          <el-step title="行程预览" />
+          <el-step :title="t('trip.editTrip') || '基础信息'" />
+          <el-step :title="t('trip.preferences') || '个性化偏好'" />
+          <el-step :title="t('trip.aiGeneration') || '智能生成'" />
+          <el-step :title="t('trip.tripDetails') || '行程预览'" />
         </el-steps>
       </el-card>
 
@@ -107,12 +107,12 @@
       
       <!-- 空状态展示 -->
       <div v-else-if="currentStep === 3" class="empty-trip-state">
-        <el-empty 
-          description="暂无行程数据"
+          <el-empty 
+          :description="t('messages.operationFailed') || '暂无行程数据'"
           :image-size="200"
         >
           <el-button type="primary" @click="regenerateTrip">
-            重新生成行程
+            {{ t('trip.generateTrip') }}
           </el-button>
         </el-empty>
       </div>
@@ -126,6 +126,7 @@ import { ref, reactive, onMounted, watch, onBeforeUnmount } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { Location } from "@element-plus/icons-vue";
+import { useI18n } from "@/utils/i18n.js";
 import { useUserStore } from "@/store/user.js";
 import { weatherApi } from "@/api/weather.js";
 import { tripProgressManager } from "@/utils/tripProgress.js";
@@ -150,6 +151,7 @@ export default {
     const route = useRoute();
     const router = useRouter();
     const userStore = useUserStore();
+    const { t } = useI18n();
 
     // 当前步骤
     const currentStep = ref(0);
@@ -230,14 +232,14 @@ export default {
 
     // 处理行程保存成功事件
     const handleTripSaved = () => {
-      ElMessage.success("行程保存成功！");
+      ElMessage.success(t('messages.updateSuccess'));
       // 保存后的跳转逻辑已经在TripPreview组件中处理
     };
 
     // 处理行程分享事件
     const handleTripShare = (tripData) => {
       // 分享行程功能
-      ElMessage.success("分享功能开发中，敬请期待！");
+      ElMessage.success('Share WIP');
     };
 
     // 获取天气信息
@@ -269,12 +271,12 @@ export default {
         }
         
         if (!weatherSuggestion.value) {
-          weatherError.value = "获取天气信息失败";
+          weatherError.value = t('messages.updateFailed');
           console.log("❌ 天气信息获取失败");
         }
       } catch (error) {
         console.error("❌ 获取天气信息时出错:", error);
-        weatherError.value = error.message || "获取天气信息失败";
+        weatherError.value = error.message || t('messages.updateFailed');
       } finally {
         loadingWeather.value = false;
       }
@@ -394,10 +396,8 @@ export default {
       if (route.query.city && route.query.cityName) {
         baseForm.destination = route.query.city;
         baseForm.destinationName = decodeURIComponent(route.query.cityName); // 解码中文名称
-        console.log(
-          `从URL获取到目的地城市：${baseForm.destinationName}(${baseForm.destination})`,
-        );
-        ElMessage.success(`已选择目的地: ${baseForm.destinationName}`);
+        console.log(`从URL获取到目的地城市：${baseForm.destinationName}(${baseForm.destination})`);
+        ElMessage.success(`${t('trip.destination')}: ${baseForm.destinationName}`);
         
         // 注意：天气获取将由watch监听器自动触发，不需要在这里手动调用
       }
@@ -434,6 +434,7 @@ export default {
     });
 
     return {
+      t,
       currentStep,
       baseForm,
       preferenceForm,

@@ -47,19 +47,17 @@
     <!-- 主要内容 -->
     <div v-else class="preferences-container">
       <div class="page-header">
-        <h1>偏好设置</h1>
-        <p>设置您的旅行偏好，为您推荐更合适的景点和行程</p>
+        <h1>{{ t('settings.preferences') }}</h1>
+        <p>{{ t('personal.preferencesDesc') }}</p>
       </div>
 
       <!-- 旅行偏好标签 -->
       <div class="preference-section">
         <h3 class="section-title">
           <el-icon><Collection /></el-icon>
-          旅行类型偏好
+          {{ t('personal.card.travelTypes') }}
         </h3>
-        <p class="section-desc">
-选择您感兴趣的旅行类型，可多选
-</p>
+        <p class="section-desc">{{ t('personal.preferencesDesc') }}</p>
 
         <div class="tags-grid">
           <el-check-tag
@@ -82,7 +80,7 @@
       <div class="preference-section">
         <h3 class="section-title">
           <el-icon><User /></el-icon>
-          MBTI性格类型
+          {{ t('personal.card.mbti') }}
         </h3>
         <p class="section-desc">
           选择您的MBTI性格类型，我们将据此为您推荐合适的旅行体验
@@ -222,16 +220,14 @@
       <div class="preference-section">
         <h3 class="section-title">
           <el-icon><Money /></el-icon>
-          日均预算
+          {{ t('personal.card.dailyBudget') }}
         </h3>
-        <p class="section-desc">
-设置您的日均旅行预算（人民币）
-</p>
+        <p class="section-desc">{{ t('personal.preferencesDesc') }}</p>
 
         <div class="budget-container">
           <div class="budget-display">
             <span class="budget-amount">¥{{ budget }}</span>
-            <span class="budget-unit">/ 天</span>
+            <span class="budget-unit">{{ t('personal.perDay') }}</span>
           </div>
 
           <el-slider
@@ -254,11 +250,9 @@
       <div class="preference-section">
         <h3 class="section-title">
           <el-icon><Trophy /></el-icon>
-          出行方式偏好
+          {{ t('personal.card.transport') }}
         </h3>
-        <p class="section-desc">
-选择您偏爱的交通和出行方式
-</p>
+        <p class="section-desc">{{ t('personal.preferencesDesc') }}</p>
 
         <div class="transport-grid">
           <div
@@ -281,11 +275,9 @@
       <div class="preference-section">
         <h3 class="section-title">
           <el-icon><House /></el-icon>
-          住宿类型偏好
+          {{ t('personal.card.accommodation') }}
         </h3>
-        <p class="section-desc">
-选择您喜欢的住宿类型
-</p>
+        <p class="section-desc">{{ t('personal.preferencesDesc') }}</p>
 
         <div class="accommodation-options">
           <div class="accommodation-grid">
@@ -299,8 +291,8 @@
               <el-icon class="accommodation-icon">
                 <House />
               </el-icon>
-              <span class="accommodation-title">经济实惠</span>
-              <span class="accommodation-desc">青旅、快捷酒店</span>
+              <span class="accommodation-title">{{ t('personal.card.accommodation') }}</span>
+              <span class="accommodation-desc">Budget</span>
             </div>
 
             <div
@@ -313,8 +305,8 @@
               <el-icon class="accommodation-icon">
                 <Monitor />
               </el-icon>
-              <span class="accommodation-title">舒适便利</span>
-              <span class="accommodation-desc">三星酒店、精品民宿</span>
+              <span class="accommodation-title">Comfort</span>
+              <span class="accommodation-desc">3-star / Boutique</span>
             </div>
 
             <div
@@ -327,8 +319,8 @@
               <el-icon class="accommodation-icon">
                 <Coffee />
               </el-icon>
-              <span class="accommodation-title">特色民宿</span>
-              <span class="accommodation-desc">当地民宿、客栈体验</span>
+              <span class="accommodation-title">B&B</span>
+              <span class="accommodation-desc">Local homestay</span>
             </div>
 
             <div
@@ -341,8 +333,8 @@
               <el-icon class="accommodation-icon">
                 <Trophy />
               </el-icon>
-              <span class="accommodation-title">奢华享受</span>
-              <span class="accommodation-desc">五星酒店、度假村</span>
+              <span class="accommodation-title">Luxury</span>
+              <span class="accommodation-desc">5-star / Resort</span>
             </div>
           </div>
         </div>
@@ -352,7 +344,7 @@
       <div class="preference-section">
         <h3 class="section-title">
           <el-icon><Coffee /></el-icon>
-          饮食偏好
+          {{ t('personal.card.diet') }}
         </h3>
         <p class="section-desc">
 告诉我们您的饮食习惯和偏好
@@ -360,73 +352,45 @@
 
         <div class="food-preferences">
           <div class="food-category">
-            <h4>口味偏好</h4>
+            <h4>{{ t('personal.card.taste') }}</h4>
             <el-checkbox-group
               v-model="preferences.foodTastes"
               class="taste-group"
             >
-              <el-checkbox value="spicy">
-辣味
-</el-checkbox>
-              <el-checkbox value="sweet">
-甜味
-</el-checkbox>
-              <el-checkbox value="sour">
-酸味
-</el-checkbox>
-              <el-checkbox value="light">
-清淡
-</el-checkbox>
-              <el-checkbox value="heavy">
-重口味
-</el-checkbox>
+              <el-checkbox value="spicy">Spicy</el-checkbox>
+              <el-checkbox value="sweet">Sweet</el-checkbox>
+              <el-checkbox value="sour">Sour</el-checkbox>
+              <el-checkbox value="light">Light</el-checkbox>
+              <el-checkbox value="heavy">Rich</el-checkbox>
             </el-checkbox-group>
           </div>
 
           <div class="food-category">
-            <h4>饮食限制</h4>
+            <h4>{{ t('personal.card.restrictions') }}</h4>
             <el-checkbox-group
               v-model="preferences.dietaryRestrictions"
               class="restriction-group"
             >
-              <el-checkbox value="halal">
-清真饮食
-</el-checkbox>
-              <el-checkbox value="vegetarian">
-素食
-</el-checkbox>
-              <el-checkbox value="vegan">
-纯素食（全素）
-</el-checkbox>
-              <el-checkbox value="no_pork">
-不吃猪肉
-</el-checkbox>
-              <el-checkbox value="no_beef">
-不吃牛肉
-</el-checkbox>
-              <el-checkbox value="no_seafood">
-不吃海鲜
-</el-checkbox>
-              <el-checkbox value="no_spicy">
-不吃辣
-</el-checkbox>
-              <el-checkbox value="gluten_free">
-无麸质
-</el-checkbox>
-              <el-checkbox value="no_alcohol">
-不饮酒
-</el-checkbox>
+              <el-checkbox value="halal">Halal</el-checkbox>
+              <el-checkbox value="vegetarian">Vegetarian</el-checkbox>
+              <el-checkbox value="vegan">Vegan</el-checkbox>
+              <el-checkbox value="no_pork">No Pork</el-checkbox>
+              <el-checkbox value="no_beef">No Beef</el-checkbox>
+              <el-checkbox value="no_seafood">No Seafood</el-checkbox>
+              <el-checkbox value="no_spicy">No Spicy</el-checkbox>
+              <el-checkbox value="gluten_free">Gluten-free</el-checkbox>
+              <el-checkbox value="no_alcohol">No Alcohol</el-checkbox>
             </el-checkbox-group>
           </div>
 
           <!-- 其他饮食禁忌或特殊需求 -->
           <div class="food-category">
-            <h4>其他饮食需求</h4>
+            <h4>{{ t('personal.card.others') }}</h4>
             <el-input
               v-model="preferences.customDietaryNotes"
               type="textarea"
               :rows="2"
-              placeholder="请输入其他饮食禁忌或特殊需求，如宗教禁忌、过敏原等"
+              :placeholder="t('personal.preferencesDesc')"
             />
           </div>
         </div>
@@ -436,7 +400,7 @@
       <div class="preference-section">
         <h3 class="section-title">
           <el-icon><Sunrise /></el-icon>
-          活动时间偏好
+          {{ t('personal.card.activityTime') }}
         </h3>
         <p class="section-desc">
 选择您喜欢的活动时间安排
@@ -452,8 +416,8 @@
           >
             <el-icon><Sunrise /></el-icon>
             <div class="time-info">
-              <span class="time-title">早起型</span>
-              <span class="time-desc">6:00-10:00 开始活动</span>
+              <span class="time-title">Early</span>
+              <span class="time-desc">6:00-10:00</span>
             </div>
           </div>
 
@@ -466,8 +430,8 @@
           >
             <el-icon><Trophy /></el-icon>
             <div class="time-info">
-              <span class="time-title">午间型</span>
-              <span class="time-desc">10:00-16:00 主要活动</span>
+              <span class="time-title">Noon</span>
+              <span class="time-desc">10:00-16:00</span>
             </div>
           </div>
 
@@ -480,8 +444,8 @@
           >
             <el-icon><Camera /></el-icon>
             <div class="time-info">
-              <span class="time-title">夜猫型</span>
-              <span class="time-desc">16:00-22:00 享受夜生活</span>
+              <span class="time-title">Night</span>
+              <span class="time-desc">16:00-22:00</span>
             </div>
           </div>
         </div>
@@ -491,7 +455,7 @@
       <div class="preference-section">
         <h3 class="section-title">
           <el-icon><MapLocation /></el-icon>
-          旅行节奏
+          {{ t('personal.card.travelPace') }}
         </h3>
         <p class="section-desc">
 选择适合您的旅行节奏
@@ -499,11 +463,11 @@
 
         <div class="pace-selector">
           <div class="pace-labels">
-            <span class="pace-label">🐌 慢悠悠</span>
-            <span class="pace-label">🚶 悠闲型</span>
-            <span class="pace-label">⚖️ 平衡型</span>
-            <span class="pace-label">🏃 紧凑型</span>
-            <span class="pace-label">⚡ 暴走型</span>
+            <span class="pace-label">🐌</span>
+            <span class="pace-label">🚶</span>
+            <span class="pace-label">⚖️</span>
+            <span class="pace-label">🏃</span>
+            <span class="pace-label">⚡</span>
           </div>
 
           <el-slider
@@ -516,11 +480,11 @@
           />
 
           <div class="pace-description">
-            <span v-if="preferences.travelPace === 1">🐌 慢悠悠 - 深度体验，充足休息</span>
-            <span v-else-if="preferences.travelPace === 2">🚶 悠闲型 - 适度安排，轻松游览</span>
-            <span v-else-if="preferences.travelPace === 3">⚖️ 平衡型 - 景点与休息并重</span>
-            <span v-else-if="preferences.travelPace === 4">🏃 紧凑型 - 多看多玩，充实行程</span>
-            <span v-else>⚡ 暴走型 - 最大化利用时间</span>
+            <span v-if="preferences.travelPace === 1">🐌</span>
+            <span v-else-if="preferences.travelPace === 2">🚶</span>
+            <span v-else-if="preferences.travelPace === 3">⚖️</span>
+            <span v-else-if="preferences.travelPace === 4">🏃</span>
+            <span v-else>⚡</span>
           </div>
         </div>
       </div>
@@ -529,42 +493,42 @@
       <div class="preference-section">
         <h3 class="section-title">
           <el-icon><Setting /></el-icon>
-          其他偏好
+          {{ t('personal.card.others') }}
         </h3>
 
         <div class="other-preferences">
           <div class="preference-item">
-            <span>优先选择热门景点</span>
+            <span>{{ t('personal.card.others') }}</span>
             <el-switch v-model="preferences.popularFirst" />
           </div>
 
           <div class="preference-item">
-            <span>包含美食推荐</span>
+            <span>{{ t('personal.card.diet') }}</span>
             <el-switch v-model="preferences.includeFood" />
           </div>
 
           <div class="preference-item">
-            <span>避开拥挤时段</span>
+            <span>Avoid crowds</span>
             <el-switch v-model="preferences.avoidCrowds" />
           </div>
 
           <div class="preference-item">
-            <span>包含购物推荐</span>
+            <span>Shopping</span>
             <el-switch v-model="preferences.includeShopping" />
           </div>
 
           <div class="preference-item">
-            <span>优先公共交通</span>
+            <span>{{ t('personal.card.transport') }}</span>
             <el-switch v-model="preferences.preferPublicTransport" />
           </div>
 
           <div class="preference-item">
-            <span>包含亲子活动</span>
+            <span>Kids friendly</span>
             <el-switch v-model="preferences.includeKidsActivities" />
           </div>
 
           <div class="preference-item">
-            <span>需要无障碍设施</span>
+            <span>Accessibility</span>
             <el-switch v-model="preferences.needAccessibility" />
           </div>
         </div>
@@ -580,7 +544,7 @@
           @click="savePreferences"
         >
           <el-icon><Check /></el-icon>
-          保存偏好设置
+          {{ t('common.save') }}
         </el-button>
       </div>
     </div>
@@ -591,6 +555,7 @@
 import { ref, reactive, onMounted, watch } from "vue";
 import { ElMessage } from "element-plus";
 import { useUserStore } from "@/store/user.js";
+import { useI18n } from "@/utils/i18n.js";
 import {
   Collection,
   Money,
@@ -630,6 +595,7 @@ export default {
   },
   setup() {
     const userStore = useUserStore();
+    const { t } = useI18n();
     const router = useRouter();
     const route = useRoute();
 
@@ -1093,6 +1059,7 @@ export default {
     );
 
     return {
+      t,
       selectedTags,
       budget,
       saving,

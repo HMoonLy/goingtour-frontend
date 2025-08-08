@@ -21,7 +21,7 @@
     <div v-if="showFilters" class="filter-section">
       <!-- 标签过滤 -->
       <div v-if="tagOptions.length > 0" class="filter-group">
-        <label class="filter-label">标签筛选</label>
+        <label class="filter-label">{{ t('common.tags') || '标签筛选' }}</label>
         <div class="tag-filters">
           <el-tag
             v-for="tag in tagOptions"
@@ -38,14 +38,14 @@
 
       <!-- 日期范围过滤 -->
       <div v-if="showDateFilter" class="filter-group">
-        <label class="filter-label">创建时间</label>
+        <label class="filter-label">{{ t('common.createdAt') || '创建时间' }}</label>
         <el-date-picker
           v-model="dateRange"
           type="daterange"
           :size="size"
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
+          :range-separator="t('common.to') || '至'"
+          :start-placeholder="t('trip.startDate')"
+          :end-placeholder="t('trip.endDate')"
           format="YYYY-MM-DD"
           value-format="YYYY-MM-DD"
           @change="handleDateChange"
@@ -55,7 +55,7 @@
 
       <!-- 排序选项 -->
       <div v-if="sortOptions.length > 0" class="filter-group">
-        <label class="filter-label">排序方式</label>
+        <label class="filter-label">{{ t('common.sortBy') || '排序方式' }}</label>
         <el-select
           v-model="selectedSort"
           :placeholder="sortPlaceholder"
@@ -86,7 +86,7 @@
         @click="toggleFilters"
         size="small"
       >
-        {{ showFilters ? '收起筛选' : '展开筛选' }}
+        {{ showFilters ? (t('common.collapseFilters') || '收起筛选') : (t('common.expandFilters') || '展开筛选') }}
       </el-button>
     </div>
 
@@ -98,14 +98,14 @@
         @click="clearAllFilters"
         size="small"
       >
-        清除所有筛选
+        {{ t('common.clearAll') || '清除所有筛选' }}
       </el-button>
     </div>
 
     <!-- 结果统计 -->
     <div v-if="showResultCount" class="result-count">
       <span class="count-text">
-        找到 <strong>{{ resultCount }}</strong> 个结果
+        {{ t('common.foundResults', { count: resultCount }) || `找到 ${resultCount} 个结果` }}
       </span>
     </div>
   </div>
@@ -115,6 +115,9 @@
 import { ref, computed, watch } from 'vue';
 import { Search, ArrowUp, ArrowDown } from '@element-plus/icons-vue';
 import { debounce } from '@/utils/apiOptimizer.js';
+import { useI18n } from '@/utils/i18n.js'
+
+const { t } = useI18n()
 
 const props = defineProps({
   // 搜索占位符

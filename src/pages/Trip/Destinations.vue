@@ -3,11 +3,11 @@
     <!-- 搜索部分 -->
     <div class="search-section">
       <div class="search-container">
-        <h1>去哪里旅行</h1>
+        <h1>{{ t('destinations.title') }}</h1>
         
         <el-input
           v-model="searchKeyword"
-          placeholder="搜索城市、地区..."
+          :placeholder="t('destinations.searchPlaceholder')"
           size="large"
           class="search-input"
           clearable
@@ -46,11 +46,9 @@ v-if="loading" class="loading-container"
 v-else-if="isSearchMode" class="search-results"
 >
           <h2 v-if="searchResults.length > 0">
-            搜索结果 ({{ searchResults.length }})
+            {{ t('destinations.searchResults') }} ({{ searchResults.length }})
           </h2>
-          <el-empty
-v-else description="未找到匹配的城市，请尝试其他关键词"
-/>
+          <el-empty v-else :description="t('destinations.noMatch')" />
 
           <div class="city-grid">
             <div
@@ -76,7 +74,7 @@ v-else description="未找到匹配的城市，请尝试其他关键词"
           <!-- 热门城市 -->
           <div id="hot-cities"
 class="city-section hot-city-section">
-            <h2><i class="hot-icon">🔥</i> 热门城市</h2>
+            <h2><i class="hot-icon">🔥</i> {{ t('destinations.hotCities') }}</h2>
             <div class="city-grid">
               <div
                 v-for="city in hotCities"
@@ -122,10 +120,7 @@ class="city-section hot-city-section">
 
         <!-- 导航辅助按钮组 -->
         <div class="nav-assist-buttons">
-          <el-tooltip
-content="热门城市" placement="left"
-:offset="10"
->
+          <el-tooltip :content="t('destinations.hotCities')" placement="left" :offset="10">
             <el-button
               class="nav-button hot-button"
               circle
@@ -145,10 +140,7 @@ target=".cities-content" :right="50"
             </div>
           </el-backtop>
 
-          <el-tooltip
-content="跳至Z" placement="left"
-:offset="10"
->
+          <el-tooltip :content="t('destinations.jumpTo', { letter: 'Z' })" placement="left" :offset="10">
             <el-button
               class="nav-button z-button"
               circle
@@ -165,11 +157,11 @@ content="跳至Z" placement="left"
       <div class="letter-nav">
         <div
           class="letter-item special"
-          :class="{ active: activeLetter === '热门' }"
-          title="热门城市"
-          @click="scrollToLetter('热门')"
+          :class="{ active: activeLetter === hotLabel }"
+          :title="t('destinations.hotCities')"
+          @click="scrollToLetter(hotLabel)"
         >
-          热门
+          {{ t('destinations.hot') }}
         </div>
 
         <div class="letter-section">
@@ -201,6 +193,7 @@ import { ElMessage } from "element-plus";
 import { Search, Top, Bottom } from "@element-plus/icons-vue";
 import pinyin from "pinyin";
 import { createCachedRequest, debounce } from "@/utils/apiOptimizer.js";
+  import { useI18n } from "@/utils/i18n.js";
 
 export default {
   name: "Destinations",
@@ -212,6 +205,7 @@ export default {
   setup() {
     const router = useRouter();
     const route = useRoute();
+    const { t } = useI18n();
 
     // 响应式数据
     const searchKeyword = ref("");
@@ -219,14 +213,15 @@ export default {
     const loading = ref(true);
     const isSearchMode = ref(false);
     const searchResults = ref([]);
-    const activeLetter = ref("热门");
+    const hotLabel = '热门';
+    const activeLetter = ref(hotLabel);
     const citiesContent = ref(null);
     const letterSections = ref([]);
     const showScrollIndicator = ref(false);
 
     // 字母导航列表 - 单独定义每个字母
     const letterNavs = [
-      "热门",
+      hotLabel,
       "A",
       "B",
       "C",
@@ -416,7 +411,7 @@ export default {
       setTimeout(() => {
         let targetElement = null;
 
-        if (letter === "热门") {
+        if (letter === hotLabel) {
           // 滚动到热门城市区域
           targetElement = document.getElementById("hot-cities");
         } else {
@@ -471,17 +466,17 @@ export default {
       let letterChanged = false;
 
       // 如果滚动到顶部，激活热门
-      if (citiesContent.value.scrollTop < 10) {
-        if (activeLetter.value !== "热门") {
-          newActiveLetter = "热门";
+        if (citiesContent.value.scrollTop < 10) {
+        if (activeLetter.value !== hotLabel) {
+          newActiveLetter = hotLabel;
           letterChanged = true;
         }
       } else {
         // 检查热门区域是否在视口内
         const hotSection = document.getElementById("hot-cities");
         if (hotSection && isElementInView(hotSection, 0)) {
-          if (activeLetter.value !== "热门") {
-            newActiveLetter = "热门";
+          if (activeLetter.value !== hotLabel) {
+            newActiveLetter = hotLabel;
             letterChanged = true;
           }
         } else {
@@ -561,8 +556,8 @@ export default {
 
     // 获取字母导航项的title
     const getLetterTitle = (letter) => {
-      if (letter === "热门") {
-        return "热门城市";
+      if (letter === hotLabel) {
+        return t('destinations.hotCities');
       }
       return letter;
     };
@@ -641,6 +636,7 @@ export default {
     });
 
     return {
+      t,
       searchKeyword,
       hotCities,
       cityGroups,
@@ -648,6 +644,7 @@ export default {
       isSearchMode,
       searchResults,
       activeLetter,
+      hotLabel,
       letterNavs,
       citiesContent,
       letterSections,

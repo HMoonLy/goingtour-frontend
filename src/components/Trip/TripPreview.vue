@@ -10,19 +10,19 @@ v-if="tripData" class="trip-preview"
         <div class="trip-summary">
           <div class="summary-header">
             <div class="summary-title">
-              <h3>{{ getSelectedCityName() }} {{ baseForm?.days || 0 }}日游</h3>
+              <h3>{{ getSelectedCityName() }} {{ baseForm?.days || 0 }}{{ t('personal.daysSuffix') }}</h3>
               <div class="summary-stats">
                 <div class="stat-item">
                   <el-icon><MapLocation /></el-icon>
-                  <span>{{ tripData?.attractions?.length || 0 }} 个景点</span>
+                  <span>{{ t('trip.attractionCount', { count: tripData?.attractions?.length || 0 }) }}</span>
                 </div>
                 <div class="stat-item">
                   <el-icon><Shop /></el-icon>
-                  <span>{{ tripData?.restaurants?.length || 0 }} 家餐厅</span>
+                  <span>{{ t('trip.restaurantCount', { count: tripData?.restaurants?.length || 0 }) }}</span>
                 </div>
                 <div class="stat-item">
                   <el-icon><Money /></el-icon>
-                  <span>预计花费：{{ getEstimatedCost() }}</span>
+                  <span>{{ t('trip.estimatedCost') }}：{{ getEstimatedCost() }}</span>
                 </div>
               </div>
             </div>
@@ -32,7 +32,7 @@ type="primary" size="large"
 @click="shareTrip"
 >
                 <el-icon><Share /></el-icon>
-                分享行程
+                {{ t('trip.share') }}
               </el-button>
             </div>
           </div>
@@ -45,7 +45,7 @@ type="primary" size="large"
               class="day-plan"
             >
               <div class="day-header">
-                <h4>第{{ index + 1 }}天</h4>
+                 <h4>{{ t('trip.dayN', { n: index + 1 }) }}</h4>
                 <span class="day-date">{{ formatDayDate(index) }}</span>
               </div>
               <div class="day-activities">
@@ -115,11 +115,11 @@ v-else-if="isLoading" class="no-trip-data"
       <div
 v-else class="no-trip-data"
 >
-        <el-empty description="暂无行程数据，请先生成行程">
+         <el-empty :description="t('trip.noTripData')">
           <el-button
 type="primary" @click="$emit('prev-step')"
 >
-            返回生成行程
+            {{ t('trip.generateTrip') }}
           </el-button>
         </el-empty>
       </div>
@@ -131,7 +131,7 @@ type="primary" @click="$emit('prev-step')"
 size="large" @click="$emit('prev-step')"
 >
         <el-icon><ArrowLeft /></el-icon>
-        上一步
+        {{ t('common.previous') }}
       </el-button>
 
       <el-button
@@ -140,7 +140,7 @@ size="large" @click="$emit('prev-step')"
         :disabled="!tripData"
         @click="saveTrip"
       >
-        保存行程
+        {{ t('trip.saveTrip') }}
       </el-button>
     </div>
   </div>
@@ -149,6 +149,7 @@ size="large" @click="$emit('prev-step')"
 <script>
 import { ref, computed, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { useI18n } from "@/utils/i18n.js";
 import {
   MapLocation,
   Shop,
@@ -193,6 +194,7 @@ export default {
   },
   emits: ["regenerate", "saved", "prev-step"],
   setup(props, { emit }) {
+    const { t } = useI18n();
     // 城市信息数据库
     const cityInfoDatabase = {
       beijing: {
@@ -338,6 +340,7 @@ export default {
     });
 
     return {
+      t,
       getSelectedCityName,
       formatDayDate,
       getBudgetText,

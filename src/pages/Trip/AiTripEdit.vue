@@ -5,19 +5,19 @@
       <div class="header-left">
         <el-button type="text" @click="goBack" class="back-btn">
           <el-icon><ArrowLeft /></el-icon>
-          返回个人中心
+          {{ t('trip.backToProfile') }}
         </el-button>
       </div>
       <div class="header-right">
         <div v-if="!isReadOnly" class="header-actions">
           <el-button @click="saveChanges" :loading="saving" type="primary">
             <el-icon><Edit /></el-icon>
-            保存修改
+            {{ t('trip.saveChanges') }}
           </el-button>
         </div>
         <el-button @click="toggleReadOnly" :type="isReadOnly ? 'primary' : 'default'">
           <el-icon><View v-if="isReadOnly" /><Edit v-else /></el-icon>
-          {{ isReadOnly ? "编辑模式" : "预览模式" }}
+          {{ isReadOnly ? t('trip.editMode') : t('trip.previewMode') }}
         </el-button>
       </div>
     </div>
@@ -42,15 +42,13 @@
                 v-else
                 v-model="editedTrip.title"
                 class="trip-title-input"
-                placeholder="请输入行程标题"
+                :placeholder="t('trip.inputTitle')"
                 maxlength="100"
                 show-word-limit
               />
             </div>
             <p class="trip-subtitle">
-              AI为您精心规划的{{ editedTrip?.days || tripData.days || 3 }}天{{
-                tripData?.destinationInfo?.name || tripData.city || "智能"
-              }}行程
+              AI {{ editedTrip?.days || tripData.days || 3 }} {{ tripData?.destinationInfo?.name || tripData.city || '' }}
             </p>
           </div>
           <div class="trip-stats">
@@ -70,7 +68,7 @@
                   controls-position="right"
                   class="stat-input"
                 />
-                <div class="stat-label">天数</div>
+                <div class="stat-label">{{ t('trip.daysLabel') }}</div>
               </div>
             </div>
             <div class="stat-card">
@@ -89,7 +87,7 @@
                   controls-position="right"
                   class="stat-input"
                 />
-                <div class="stat-label">人数</div>
+                <div class="stat-label">{{ t('trip.travelersLabel') }}</div>
               </div>
             </div>
             <div class="stat-card">
@@ -98,7 +96,7 @@
               </div>
               <div class="stat-content">
                 <div class="stat-number">{{ tripData?.qualityScore || 0 }}</div>
-                <div class="stat-label">质量分</div>
+                <div class="stat-label">{{ t('trip.qualityScore') }}</div>
               </div>
             </div>
             <div class="stat-card">
@@ -109,7 +107,7 @@
                 <div class="stat-number">
                   {{ formatProcessingTime(tripData?.processingTime) }}
                 </div>
-                <div class="stat-label">用时</div>
+                <div class="stat-label">{{ t('trip.durationLabel') }}</div>
               </div>
             </div>
           </div>
@@ -209,8 +207,8 @@
         <!-- 编辑模式选择（仅在非只读模式显示） -->
         <div v-if="!isReadOnly" class="editor-tabs">
           <el-radio-group v-model="editMode" class="edit-mode-selector">
-            <el-radio-button label="preview">预览模式</el-radio-button>
-            <el-radio-button label="markdown">Markdown编辑</el-radio-button>
+            <el-radio-button label="preview">{{ t('trip.previewMode') }}</el-radio-button>
+            <el-radio-button label="markdown">{{ t('trip.markdownEdit') }}</el-radio-button>
           </el-radio-group>
         </div>
         
@@ -220,7 +218,7 @@
             v-model="editedTrip.aiContent"
             type="textarea"
             :rows="25"
-            placeholder="请输入行程内容（支持Markdown格式）"
+            :placeholder="t('trip.contentPlaceholder')"
             class="content-textarea"
           />
         </div>
@@ -233,25 +231,25 @@
         <template #header>
           <div class="card-header">
             <el-icon class="header-icon"><Money /></el-icon>
-            <span>预算设置</span>
+            <span>{{ t('trip.budgetSettings') }}</span>
           </div>
         </template>
-        <el-form-item label="总预算">
+        <el-form-item :label="t('trip.totalBudget')">
           <el-input-number
             v-model="editedTrip.totalBudget"
             :min="0"
             :precision="2"
             controls-position="right"
-            placeholder="预算金额"
+            :placeholder="t('trip.budgetPlaceholder')"
             style="width: 200px;"
           />
-          <span class="budget-unit">元</span>
+          <span class="budget-unit">{{ t('trip.yuan') }}</span>
         </el-form-item>
       </el-card>
     </div>
 
     <div v-else class="no-data">
-      <el-empty description="未找到行程数据" />
+      <el-empty :description="t('trip.noTripData')" />
     </div>
   </div>
 </template>
@@ -276,11 +274,13 @@ import { useUserStore } from "@/store/user";
 import MarkdownIt from "markdown-it";
 import { sanitizeMarkdownHtml } from "@/utils/xssFilter.js";
 import { handleApiError, handleSuccess } from "@/utils/errorHandler.js";
+import { useI18n } from "@/utils/i18n.js";
 
 // 路由和store
 const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
+const { t } = useI18n();
 
 // 响应式数据
 const loading = ref(true);
@@ -316,7 +316,7 @@ const tripId = computed(() => route.params.id);
 // 渲染的内容 - 与AiTripDisplay保持一致
 const renderedContent = computed(() => {
   const content = editedTrip.value.aiContent || tripData.value?.aiContent;
-  if (!content) return "<p>暂无行程数据</p>";
+  if (!content) return `<p>${t('trip.noTripData')}</p>`;
   let html = md.render(content);
 
   // 删除餐饮信息前的时间点 - 通用方法处理各种HTML结构
@@ -503,12 +503,12 @@ const saveChanges = async () => {
 
 const confirmUnsavedChanges = () => {
   return ElMessageBox.confirm(
-    "您有未保存的修改，确定要离开吗？",
-    "确认离开",
+    t('messages.unsavedMessage'),
+    t('messages.unsavedTitle'),
     {
-      confirmButtonText: "离开",
-      cancelButtonText: "继续编辑",
-      type: "warning",
+      confirmButtonText: t('messages.leave'),
+      cancelButtonText: t('messages.stay'),
+      type: 'warning',
     }
   );
 };

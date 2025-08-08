@@ -1,8 +1,8 @@
 <template>
   <div class="restaurant-list-page">
     <div class="page-header">
-      <h1>餐厅推荐</h1>
-      <p>发现附近美食，丰富您的旅行体验</p>
+      <h1>{{ t('restaurant.title') }}</h1>
+      <p>{{ t('restaurant.subtitle') }}</p>
     </div>
 
     <div class="coming-soon-card">
@@ -11,27 +11,32 @@ size="64" color="#409EFF"
 >
         <Food />
       </el-icon>
-      <h3>餐厅推荐功能开发中</h3>
-      <p>我们正在努力完善餐厅推荐功能，包括：</p>
+      <h3>{{ t('restaurant.comingTitle') }}</h3>
+      <p>{{ t('restaurant.comingDesc') }}</p>
       <ul class="feature-list">
-        <li>附近餐厅展示</li>
-        <li>按价格排序</li>
-        <li>距离筛选</li>
-        <li>菜系分类</li>
-        <li>用户评价</li>
+        <li>{{ t('restaurant.features.nearby') }}</li>
+        <li>{{ t('restaurant.features.price') }}</li>
+        <li>{{ t('restaurant.features.distance') }}</li>
+        <li>{{ t('restaurant.features.cuisine') }}</li>
+        <li>{{ t('restaurant.features.reviews') }}</li>
       </ul>
-      <p class="stay-tuned">敬请期待！</p>
+      <p class="stay-tuned">{{ t('restaurant.stayTuned') }}</p>
     </div>
   </div>
 </template>
 
 <script>
 import { Food } from "@element-plus/icons-vue";
+import { useI18n } from "@/utils/i18n.js";
 
 export default {
   name: "RestaurantList",
   components: {
     Food,
+  },
+  setup() {
+    const { t } = useI18n();
+    return { t };
   },
 };
 </script>

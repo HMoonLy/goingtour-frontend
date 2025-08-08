@@ -11,7 +11,7 @@
             </el-icon>
           </div>
           <h1 class="brand-title">GoingTour</h1>
-          <p class="brand-subtitle">个性化旅行规划助手</p>
+          <p class="brand-subtitle">{{ t('brand.tagline') }}</p>
         </div>
 
         <!-- 注册页面特有的展示内容 -->
@@ -23,8 +23,8 @@
               </el-icon>
             </div>
             <div class="feature-text">
-              <h3>免费注册</h3>
-              <p>仅需手机号，即可开启专属旅行规划</p>
+              <h3>{{ t('auth.register') }}</h3>
+              <p>{{ t('personal.createTripDesc') }}</p>
             </div>
           </div>
 
@@ -35,8 +35,8 @@
               </el-icon>
             </div>
             <div class="feature-text">
-              <h3>个性化设置</h3>
-              <p>根据您的偏好，定制专属旅行体验</p>
+              <h3>{{ t('settings.preferences') }}</h3>
+              <p>{{ t('personal.preferencesDesc') }}</p>
             </div>
           </div>
 
@@ -47,15 +47,15 @@
               </el-icon>
             </div>
             <div class="feature-text">
-              <h3>智能推荐</h3>
-              <p>AI算法为您匹配最合适的旅行路线</p>
+              <h3>{{ t('brand.features.smartPlanning.title') }}</h3>
+              <p>{{ t('brand.features.smartPlanning.desc') }}</p>
             </div>
           </div>
         </div>
 
         <!-- 底部装饰 -->
         <div class="brand-footer">
-          <p>&copy; 2024 GoingTour. 开启你的专属旅行之旅</p>
+          <p>&copy; 2024 GoingTour. {{ t('brand.copyright') }}</p>
         </div>
       </div>
     </div>
@@ -65,8 +65,8 @@
       <div class="form-container">
         <!-- 表单头部 -->
         <div class="form-header">
-          <h2 class="form-title">创建账号</h2>
-          <p class="form-subtitle">加入GoingTour，开启你的个性化旅行规划</p>
+          <h2 class="form-title">{{ t('auth.register') }}</h2>
+          <p class="form-subtitle">{{ t('brand.tagline') }}</p>
         </div>
 
         <!-- 注册表单 -->
@@ -80,10 +80,10 @@
         >
           <!-- 邮箱输入 -->
           <el-form-item prop="email" class="form-item">
-            <label class="form-label">邮箱</label>
+            <label class="form-label">{{ t('auth.email') }}</label>
             <el-input
               v-model="registerForm.email"
-              placeholder="请输入邮箱地址"
+              :placeholder="t('auth.email')"
               clearable
               class="form-input"
               @input="handleEmailInput"
@@ -96,11 +96,11 @@
 
           <!-- 验证码输入 -->
           <el-form-item prop="code" class="form-item code-form-item">
-            <label class="form-label">验证码</label>
+            <label class="form-label">{{ t('auth.verificationCode') }}</label>
             <div class="code-input-group">
               <el-input
                 v-model="registerForm.code"
-                placeholder="请输入验证码"
+                :placeholder="t('auth.verificationCode')"
                 clearable
                 maxlength="6"
                 class="form-input"
@@ -120,19 +120,17 @@
                 plain
                 @click="sendVerificationCode"
               >
-                {{ countdown > 0 ? `${countdown}s后重发` : "发送验证码" }}
+                {{ countdown > 0 ? t('auth.resendIn', { s: countdown }) : t('auth.sendCode') }}
               </el-button>
             </div>
           </el-form-item>
 
           <!-- 昵称输入（可选） -->
           <el-form-item prop="nickname" class="form-item">
-            <label class="form-label"
-              >昵称 <span class="optional">(可选)</span></label
-            >
+            <label class="form-label">{{ t('auth.nickname') }} <span class="optional">({{ t('common.optional') }})</span></label>
             <el-input
               v-model="registerForm.nickname"
-              placeholder="请输入昵称，不填写将自动生成"
+              :placeholder="t('auth.nickname')"
               clearable
               maxlength="20"
               class="form-input"
@@ -149,13 +147,13 @@
               v-model="registerForm.agreement"
               class="agreement-checkbox"
             >
-              我已阅读并同意
+              {{ t('common.info') }}
               <el-link
                 type="primary"
                 :underline="false"
                 @click="showUserAgreement"
               >
-                《用户协议》
+                {{ t('auth.userAgreement') }}
               </el-link>
               和
               <el-link
@@ -163,7 +161,7 @@
                 :underline="false"
                 @click="showPrivacyPolicy"
               >
-                《隐私政策》
+                {{ t('auth.privacyPolicy') }}
               </el-link>
             </el-checkbox>
           </el-form-item>
@@ -180,14 +178,14 @@
               <el-icon v-if="!registering">
                 <UserFilled />
               </el-icon>
-              {{ registering ? "注册中..." : "立即注册" }}
+              {{ registering ? t('auth.registering') : t('auth.register') }}
             </el-button>
           </el-form-item>
 
           <!-- 其他注册方式 -->
           <div class="other-register">
             <el-divider>
-              <span class="divider-text">其他注册方式</span>
+              <span class="divider-text">{{ t('auth.otherRegisterMethods') }}</span>
             </el-divider>
 
             <div class="social-register">
@@ -218,14 +216,14 @@
 
           <!-- 登录链接 -->
           <div class="login-section">
-            <span class="login-text">已有账号？</span>
+            <span class="login-text">{{ t('auth.hasAccount') }}</span>
             <el-link
               type="primary"
               :underline="false"
               class="login-link"
               @click="goToLogin"
             >
-              立即登录
+              {{ t('auth.goToLogin') }}
             </el-link>
           </div>
         </el-form>
@@ -238,6 +236,7 @@
 import { ref, reactive, computed, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/user";
+import { useI18n } from "@/utils/i18n.js";
 import { ElMessage, ElNotification, ElMessageBox } from "element-plus";
 import {
   MapLocation,
@@ -265,6 +264,7 @@ export default {
   setup() {
     const router = useRouter();
     const userStore = useUserStore();
+    const { t } = useI18n();
 
     // 表单引用
     const registerFormRef = ref();
@@ -341,7 +341,7 @@ export default {
     // 发送验证码
     const sendVerificationCode = async () => {
       if (!canSendCode.value) {
-        ElMessage.warning("请输入正确的邮箱地址");
+        ElMessage.warning(t('validation.email'));
         return;
       }
 
@@ -350,13 +350,12 @@ export default {
 
         await userStore.sendVerificationCode(registerForm.email, "register");
 
-        ElMessage.success("验证码已发送到您的邮箱，请查收");
+        ElMessage.success(t('auth.codeResent'));
 
         // 开始倒计时
         startCountdown(60);
       } catch (error) {
-        console.error("发送验证码失败:", error);
-        ElMessage.error(error.message || "验证码发送失败，请重试");
+        ElMessage.error(error.message || t('messages.operationFailed'));
       } finally {
         sendingCode.value = false;
       }
@@ -390,13 +389,12 @@ export default {
         );
 
         ElNotification({
-          title: "注册成功",
-          message: `欢迎加入GoingTour，${user.nickname}！`,
+          title: t('auth.registerSuccess'),
+          message: t('auth.welcomeBack', { name: user.nickname }),
           type: "success",
           duration: 3000,
         });
-
-        ElMessage.success("注册成功，正在为您跳转...");
+        ElMessage.success(t('auth.registerSuccess'));
 
         // 注册成功后自动登录并跳转
         setTimeout(() => {

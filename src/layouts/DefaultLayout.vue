@@ -135,15 +135,15 @@ export default {
     const handleUserCommand = async (command) => {
       if (command === "logout") {
         try {
-          await ElMessageBox.confirm("确定要退出登录吗？", "提示", {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
+          await ElMessageBox.confirm(t('messages.confirmLogout'), t('common.warning'), {
+            confirmButtonText: t('common.confirm'),
+            cancelButtonText: t('common.cancel'),
             type: "warning",
           });
 
           // 执行退出登录
           userStore.logout();
-          ElMessage.success("退出登录成功");
+          ElMessage.success(t('messages.updateSuccess'));
 
           // 跳转到登录页
           router.push("/login");

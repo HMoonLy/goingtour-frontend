@@ -190,6 +190,51 @@ export default {
         generateTrip: '生成行程',
         cancelGeneration: '取消生成',
         generating: '正在生成行程...',
+        backToList: '返回行程列表',
+        saveChanges: '保存修改',
+        share: '分享',
+        export: '导出',
+        more: '更多',
+        duplicate: '复制行程',
+        saveAsTemplate: '保存为模板',
+        deleteTrip: '删除行程',
+        createdAt: '创建于 {date}',
+        dailySchedule: '每日行程安排',
+        dayN: '第{n}天',
+        activitiesCount: '{count}个活动',
+        tripTime: '行程时间',
+        budgetRange: '预算范围',
+        estimatedCost: '预计花费',
+        contentStats: '内容统计',
+        attractionCount: '{count}个景点',
+        restaurantCount: '{count}家餐厅',
+        activityTypes: {
+            attraction: '景点',
+            restaurant: '餐厅',
+            transport: '交通',
+            hotel: '住宿',
+            other: '其他'
+        },
+        intensity: '行程强度',
+        specialExperiences: '特殊体验',
+        transportPreferences: '交通偏好',
+        specialRequests: '特殊要求',
+        backToProfile: '返回个人中心',
+        previewMode: '预览模式',
+        editMode: '编辑模式',
+        markdownEdit: 'Markdown编辑',
+        contentPlaceholder: '请输入行程内容（支持Markdown格式）',
+        inputTitle: '请输入行程标题',
+        daysLabel: '天数',
+        travelersLabel: '人数',
+        qualityScore: '质量分',
+        durationLabel: '用时',
+        budgetSettings: '预算设置',
+        totalBudget: '总预算',
+        budgetPlaceholder: '预算金额',
+        yuan: '元',
+        noTripData: '未找到行程数据',
+        saveTrip: '保存行程',
         styles: {
             table: '表格',
             narrative: '叙述',
@@ -204,6 +249,78 @@ export default {
         }
     },
 
+    // 目的地选择页
+    destinations: {
+        title: '去哪里旅行',
+        searchPlaceholder: '搜索城市、地区...',
+        searchResults: '搜索结果',
+        noMatch: '未找到匹配的城市，请尝试其他关键词',
+        hotCities: '热门城市',
+        hot: '热门',
+        jumpTo: '跳至{letter}'
+    },
+
+    // 行程分享页
+    share: {
+        title: '行程分享',
+        subtitle: '分享您的精彩旅行行程',
+        comingTitle: '行程分享功能开发中',
+        comingDesc: '我们正在努力完善行程分享功能，包括：',
+        features: {
+            poster: '行程海报生成',
+            qr: '二维码分享',
+            social: '社交媒体分享',
+            link: '链接分享'
+        },
+        stayTuned: '敬请期待！'
+    },
+
+    // 数据与搜索相关占位页
+    dataSearch: {
+        title: '搜索结果',
+        subtitle: '找到您感兴趣的景点和目的地',
+        comingTitle: '搜索功能开发中',
+        comingDesc: '我们正在努力完善搜索功能，包括：',
+        features: {
+            attraction: '景点搜索',
+            city: '城市搜索',
+            smart: '智能推荐',
+            filter: '筛选功能',
+            history: '搜索历史'
+        },
+        stayTuned: '敬请期待！'
+    },
+
+    attraction: {
+        title: '景点详情',
+        subtitle: '了解景点详细信息，添加到您的行程中',
+        comingTitle: '景点详情功能开发中',
+        comingDesc: '我们正在努力完善景点详情功能，包括：',
+        features: {
+            intro: '景点详细介绍',
+            hours: '开放时间信息',
+            ticket: '门票价格',
+            reviews: '用户评价',
+            add: '添加到行程'
+        },
+        stayTuned: '敬请期待！'
+    },
+
+    restaurant: {
+        title: '餐厅推荐',
+        subtitle: '发现附近美食，丰富您的旅行体验',
+        comingTitle: '餐厅推荐功能开发中',
+        comingDesc: '我们正在努力完善餐厅推荐功能，包括：',
+        features: {
+            nearby: '附近餐厅展示',
+            price: '按价格排序',
+            distance: '距离筛选',
+            cuisine: '菜系分类',
+            reviews: '用户评价'
+        },
+        stayTuned: '敬请期待！'
+    },
+
     // 表单验证
     validation: {
         required: '{field}不能为空',
@@ -216,6 +333,11 @@ export default {
 
     // 消息提示
     messages: {
+        confirmLogout: '确定要退出登录吗？',
+        unsavedTitle: '未保存的修改',
+        unsavedMessage: '您有未保存的修改，确定要离开吗？',
+        leave: '离开',
+        stay: '继续编辑',
         updateSuccess: '更新成功',
         updateFailed: '更新失败',
         deleteSuccess: '删除成功',
