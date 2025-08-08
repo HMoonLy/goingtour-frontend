@@ -1,7 +1,7 @@
 <template>
-  <div class="personal-page simple">
-    <UserCenterNav />
-    <h2 class="title">{{ t('settings.securitySettings') }}</h2>
+  <div class="personal-page simple" :class="{ embedded }">
+    <UserCenterNav v-if="!embedded" />
+    <h2 class="title" v-if="!embedded">{{ t('settings.securitySettings') }}</h2>
 
     <el-card class="section">
       <div class="row">
@@ -76,8 +76,9 @@ import UserCenterNav from '@/components/User/UserCenterNav.vue';
 
 export default {
   name: 'Security',
+  props: { embedded: Boolean },
   components: { UserCenterNav },
-  setup() {
+  setup(props) {
     const router = useRouter();
     const userStore = useUserStore();
     const { t } = useI18n();
@@ -158,19 +159,21 @@ export default {
       } finally { loading.value = false; }
     };
 
-    return { t, loading, setVisible, changeVisible, setForm, changeForm, openSet, openChange, submitSet, submitChange, clearPwd };
+    return { t, loading, setVisible, changeVisible, setForm, changeForm, openSet, openChange, submitSet, submitChange, clearPwd, embedded: props.embedded };
   }
 };
 </script>
 
 <style scoped>
 .personal-page.simple { max-width: 960px; margin: 24px auto; padding: 0 16px; }
+.personal-page.simple.embedded { max-width: 100%; margin: 0; padding: 0; }
 .title { margin: 0 0 16px 0; }
-.section { margin-bottom: 16px; }
+.section { margin-bottom: 16px; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); overflow: hidden; }
 .row { display:flex; justify-content: space-between; align-items:center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
 .row:last-child { border-bottom: none; }
 .row-title { font-weight: 600; color: #303133; }
 .row-desc { color: #909399; font-size: 12px; }
+.section :deep(.el-card__header) { background: linear-gradient(90deg, rgba(102,126,234,.12), rgba(118,75,162,.06)); }
 </style>
 
 

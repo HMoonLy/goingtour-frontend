@@ -1,7 +1,7 @@
 <template>
-  <div class="personal-page simple">
-    <UserCenterNav />
-    <h2 class="title">{{ t('settings.loginHistory') }}</h2>
+  <div class="personal-page simple" :class="{ embedded }">
+    <UserCenterNav v-if="!embedded" />
+    <h2 class="title" v-if="!embedded">{{ t('settings.loginHistory') }}</h2>
     <el-card class="section">
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px;">
         <el-button size="small" @click="load">{{ t('common.refresh') || '刷新' }}</el-button>
@@ -32,8 +32,9 @@ import { ElMessage } from 'element-plus';
 import UserCenterNav from '@/components/User/UserCenterNav.vue';
 export default {
   name: 'LoginHistory',
+  props: { embedded: Boolean },
   components: { UserCenterNav },
-  setup() {
+  setup(props) {
     const router = useRouter();
     const userStore = useUserStore();
     const { t } = useI18n();
@@ -60,14 +61,16 @@ export default {
       }
     };
     onMounted(load);
-    return { t, records, load, clearAll };
+    return { t, records, load, clearAll, embedded: props.embedded };
   }
 }
 </script>
 <style scoped>
 .personal-page.simple { max-width: 960px; margin: 24px auto; padding: 0 16px; }
+.personal-page.simple.embedded { max-width: 100%; margin: 0; padding: 0; }
 .title { margin: 0 0 16px 0; }
-.section { margin-bottom: 16px; }
+.section { margin-bottom: 16px; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); overflow: hidden; }
+.section :deep(.el-card__header) { background: linear-gradient(90deg, rgba(102,126,234,.12), rgba(118,75,162,.06)); }
 </style>
 
 

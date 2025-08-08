@@ -1,7 +1,7 @@
 <template>
-  <div class="personal-page simple">
-    <UserCenterNav />
-    <h2 class="title">{{ t('settings.privacySettings') }}</h2>
+  <div class="personal-page simple" :class="{ embedded }">
+    <UserCenterNav v-if="!embedded" />
+    <h2 class="title" v-if="!embedded">{{ t('settings.privacySettings') }}</h2>
     <el-card class="section">
       <div class="row">
         <span>{{ t('settings.exportData') }}</span>
@@ -23,8 +23,9 @@ import { ElMessage } from 'element-plus';
 import UserCenterNav from '@/components/User/UserCenterNav.vue';
 export default {
   name: 'DataAndPrivacy',
+  props: { embedded: Boolean },
   components: { UserCenterNav },
-  setup() {
+  setup(props) {
     const router = useRouter();
     const userStore = useUserStore();
     const { t } = useI18n();
@@ -49,15 +50,17 @@ export default {
         ElMessage.success(t('messages.operationSuccess'));
       } catch { ElMessage.error(t('messages.operationFailed')); }
     };
-    return { t, exportData, clearLocal };
+    return { t, exportData, clearLocal, embedded: props.embedded };
   }
 }
 </script>
 <style scoped>
 .personal-page.simple { max-width: 960px; margin: 24px auto; padding: 0 16px; }
+.personal-page.simple.embedded { max-width: 100%; margin: 0; padding: 0; }
 .title { margin: 0 0 16px 0; }
-.section { margin-bottom: 16px; }
+.section { margin-bottom: 16px; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); overflow: hidden; }
 .row { display:flex; justify-content: space-between; align-items:center; padding:12px 0; }
+.section :deep(.el-card__header) { background: linear-gradient(90deg, rgba(102,126,234,.12), rgba(118,75,162,.06)); }
 </style>
 
 

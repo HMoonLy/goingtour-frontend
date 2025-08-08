@@ -12,7 +12,7 @@
 
     <el-card class="quick-nav">
       <div class="grid">
-        <div class="grid-item" @click="goTo('/personal/security')">
+        <div class="grid-item" @click="openSecurity()">
           <el-icon><Lock /></el-icon>
           <span class="title">{{ t("settings.securitySettings") }}</span>
         </div>
@@ -20,23 +20,23 @@
           <el-icon><Setting /></el-icon>
           <span class="title">{{ t("settings.preferences") }}</span>
         </div>
-        <div class="grid-item" @click="goTo('/personal/notifications')">
+        <div class="grid-item" @click="openNotifications()">
           <el-icon><Bell /></el-icon>
           <span class="title">{{ t("settings.notifications") }}</span>
         </div>
-        <div class="grid-item" @click="goTo('/personal/system')">
+        <div class="grid-item" @click="openSystem()">
           <el-icon><Cpu /></el-icon>
           <span class="title">{{ t("settings.systemSettings") }}</span>
         </div>
-        <div class="grid-item" @click="goTo('/personal/history')">
+        <div class="grid-item" @click="openHistory()">
           <el-icon><Timer /></el-icon>
           <span class="title">{{ t("settings.loginHistory") }}</span>
         </div>
-        <div class="grid-item" @click="goTo('/personal/data')">
+        <div class="grid-item" @click="openData()">
           <el-icon><Document /></el-icon>
           <span class="title">{{ t("settings.privacySettings") }}</span>
         </div>
-        <div class="grid-item danger" @click="goTo('/personal/danger')">
+        <div class="grid-item danger" @click="openDanger()">
           <el-icon><Warning /></el-icon>
           <span class="title">{{ t("settings.deleteAccount") }}</span>
         </div>
@@ -97,8 +97,32 @@
       </el-card>
     </div>
   </div>
-  <el-drawer v-model="showPref" :title="t('settings.preferences')" size="60%">
+  <el-drawer v-model="showPref" :title="t('settings.preferences')" size="60%" destroy-on-close>
     <Preferences embedded @saved="onPrefSaved" />
+  </el-drawer>
+
+  <el-drawer v-model="showSecurity" :title="t('settings.securitySettings')" size="60%" destroy-on-close>
+    <Security embedded />
+  </el-drawer>
+
+  <el-drawer v-model="showNotifications" :title="t('settings.notifications')" size="60%" destroy-on-close>
+    <Notifications embedded />
+  </el-drawer>
+
+  <el-drawer v-model="showSystem" :title="t('settings.systemSettings')" size="60%" destroy-on-close>
+    <SystemSettings embedded />
+  </el-drawer>
+
+  <el-drawer v-model="showHistory" :title="t('settings.loginHistory')" size="60%" destroy-on-close>
+    <LoginHistory embedded />
+  </el-drawer>
+
+  <el-drawer v-model="showData" :title="t('settings.privacySettings')" size="60%" destroy-on-close>
+    <DataAndPrivacy embedded />
+  </el-drawer>
+
+  <el-drawer v-model="showDanger" :title="t('settings.deleteAccount')" size="60%" destroy-on-close>
+    <DangerZone embedded />
   </el-drawer>
 </template>
 
@@ -119,12 +143,24 @@ import {
 import UserCenterNav from "@/components/User/UserCenterNav.vue";
 import { translateTag, getMbtiName } from "@/utils/tagMapping.js";
 import Preferences from "@/pages/User/Preferences.vue";
+import Security from "@/pages/User/Security.vue";
+import Notifications from "@/pages/User/Notifications.vue";
+import SystemSettings from "@/pages/User/SystemSettings.vue";
+import LoginHistory from "@/pages/User/LoginHistory.vue";
+import DataAndPrivacy from "@/pages/User/DataAndPrivacy.vue";
+import DangerZone from "@/pages/User/DangerZone.vue";
 
 export default {
   name: "Profile",
   components: {
     UserCenterNav,
     Preferences,
+    Security,
+    Notifications,
+    SystemSettings,
+    LoginHistory,
+    DataAndPrivacy,
+    DangerZone,
     Lock,
     Setting,
     Bell,
@@ -138,6 +174,12 @@ export default {
     const userStore = useUserStore();
     const { t } = useI18n();
     const showPref = ref(false);
+    const showSecurity = ref(false);
+    const showNotifications = ref(false);
+    const showSystem = ref(false);
+    const showHistory = ref(false);
+    const showData = ref(false);
+    const showDanger = ref(false);
 
     const joinDateText = computed(() => {
       const ts = userStore.currentUser?.createTime;
@@ -152,11 +194,16 @@ export default {
     });
 
     const goAccountSettings = () => router.push("/account-settings");
-    const goPreferences = () => router.push("/personal/preferences");
-    const goTo = (path) => router.push(path);
+    const goPreferences = () => (showPref.value = true);
+    const openSecurity = () => (showSecurity.value = true);
     const openPreferences = () => {
       showPref.value = true;
     };
+    const openNotifications = () => (showNotifications.value = true);
+    const openSystem = () => (showSystem.value = true);
+    const openHistory = () => (showHistory.value = true);
+    const openData = () => (showData.value = true);
+    const openDanger = () => (showDanger.value = true);
     const onPrefSaved = () => {
       showPref.value = false;
     };
@@ -217,9 +264,20 @@ export default {
       joinDateText,
       goAccountSettings,
       goPreferences,
-      goTo,
       showPref,
+      showSecurity,
+      showNotifications,
+      showSystem,
+      showHistory,
+      showData,
+      showDanger,
       openPreferences,
+      openSecurity,
+      openNotifications,
+      openSystem,
+      openHistory,
+      openData,
+      openDanger,
       onPrefSaved,
       translateTag,
       getMbtiName,
@@ -234,6 +292,7 @@ export default {
 
 <style scoped>
 .profile-page {
+  --content-max-width: 980px;
   position: fixed !important;
   top: 64px !important;
   left: 0 !important;
@@ -250,16 +309,38 @@ export default {
 .profile-header {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
   width: 100% !important;
-  max-width: 1200px !important;
+  max-width: var(--content-max-width) !important;
   margin: 0 auto 24px auto !important;
+  padding: 18px 20px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  box-shadow: 0 10px 30px rgba(118, 75, 162, 0.18);
+  position: relative;
+  overflow: hidden;
+}
+.profile-header::after {
+  content: "";
+  position: absolute;
+  right: -40px;
+  top: -40px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  filter: blur(2px);
+}
+.profile-header :deep(.el-avatar) {
+  box-shadow: 0 6px 16px rgba(0,0,0,.18), 0 0 0 4px rgba(255,255,255,0.35);
 }
 .profile-basic h2 {
   margin: 0;
+  color: #fff;
 }
 .profile-basic .email {
-  color: #909399;
+  color: rgba(255,255,255,0.85);
   margin-top: 4px;
 }
 .profile-actions {
@@ -270,25 +351,31 @@ export default {
 .section-card {
   margin-bottom: 16px;
   width: 100% !important;
-  max-width: 1200px !important;
+  max-width: var(--content-max-width) !important;
   margin: 0 auto 24px auto !important;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
 }
 .row {
   display: flex;
   justify-content: space-between;
-  padding: 8px 0;
+  padding: 12px 0;
+  border-bottom: 1px dashed #eef2f7;
 }
+.row:last-child { border-bottom: none; }
 .label {
-  color: #909399;
+  color: #8a8f98;
 }
 .value {
-  color: #303133;
+  color: #2c2f36;
+  font-weight: 600;
 }
 
 .quick-nav {
   margin-top: 16px;
   width: 100% !important;
-  max-width: 1200px !important;
+  max-width: var(--content-max-width) !important;
   margin: 0 auto 24px auto !important;
 }
 .grid {
@@ -305,11 +392,13 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 .grid-item:hover {
-  border-color: #409eff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  transform: translateY(-2px);
+  border-color: rgba(102,126,234,.35);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.18);
+  transform: translateY(-3px);
 }
 .grid-item .title {
   font-weight: 600;
@@ -323,12 +412,30 @@ export default {
   border-color: #f56c6c;
 }
 
+/* 彩色图标圆点（与项目色系一致） */
+.grid-item :deep(.el-icon) {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #fff;
+}
+.grid-item:nth-child(1) :deep(.el-icon) { background: linear-gradient(135deg,#409eff,#67c23a); }
+.grid-item:nth-child(2) :deep(.el-icon) { background: linear-gradient(135deg,#07C160,#34d399); }
+.grid-item:nth-child(3) :deep(.el-icon) { background: linear-gradient(135deg,#ff9f43,#ff6b35); }
+.grid-item:nth-child(4) :deep(.el-icon) { background: linear-gradient(135deg,#667eea,#764ba2); }
+.grid-item:nth-child(5) :deep(.el-icon) { background: linear-gradient(135deg,#20c997,#0ea5e9); }
+.grid-item:nth-child(6) :deep(.el-icon) { background: linear-gradient(135deg,#4b5563,#111827); }
+.grid-item.danger :deep(.el-icon) { background: linear-gradient(135deg,#f56c6c,#f43f5e); }
+
 /* 偏好概览样式（与首页协调） */
 .summary-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 0;
+  padding: 8px 0;
 }
 .summary-label {
   color: #909399;
@@ -336,8 +443,11 @@ export default {
   min-width: 84px;
 }
 .summary-text {
-  color: #303133;
-  font-weight: 500;
+  color: #3a57e8;
+  font-weight: 600;
+  background: #eef4ff;
+  padding: 6px 10px;
+  border-radius: 999px;
 }
 .mbti-badge {
   width: 64px;
@@ -346,5 +456,35 @@ export default {
   object-fit: cover;
   background: #fff;
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.12));
+}
+/* 卡片头部强调条 */
+.section-card :deep(.el-card__header) {
+  background: linear-gradient(90deg, rgba(102,126,234,.12), rgba(118,75,162,.06));
+}
+.card-header {
+  position: relative;
+  padding-left: 10px;
+}
+.card-header::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 60%;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #667eea, #764ba2);
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+  .profile-page { padding: 12px !important; }
+  .profile-header {
+    padding: 16px;
+    gap: 12px;
+    border-radius: 12px;
+  }
+  .summary-text { font-weight: 500; }
 }
 </style>

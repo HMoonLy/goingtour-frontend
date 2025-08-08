@@ -12,7 +12,7 @@
         </div>
         <div class="user-basic-info">
           <h2 class="user-name">
-            {{ userInfo.nickname || t('personal.userDefault') }}
+            {{ userInfo.nickname || t("personal.userDefault") }}
           </h2>
           <p class="user-phone">
             {{ formatPhone(userInfo.phone) }}
@@ -29,26 +29,26 @@
           <div class="stat-number">
             {{ userStats.tripCount }}
           </div>
-          <div class="stat-label">{{ t('personal.stats.createdTrips') }}</div>
+          <div class="stat-label">{{ t("personal.stats.createdTrips") }}</div>
         </div>
         <div class="stat-item">
           <div class="stat-number">
             {{ userStats.preferenceCount }}
           </div>
-          <div class="stat-label">{{ t('personal.stats.preferenceTags') }}</div>
+          <div class="stat-label">{{ t("personal.stats.preferenceTags") }}</div>
         </div>
         <div class="stat-item">
           <div class="stat-number">
             {{ userStats.usageDays }}
           </div>
-          <div class="stat-label">{{ t('personal.stats.usageDays') }}</div>
+          <div class="stat-label">{{ t("personal.stats.usageDays") }}</div>
         </div>
       </div>
     </div>
 
     <!-- 快捷功能区 -->
     <div class="quick-actions">
-      <h3 class="section-title">{{ t('personal.quickActions') }}</h3>
+      <h3 class="section-title">{{ t("personal.quickActions") }}</h3>
       <div class="action-grid">
         <div class="action-card" @click="createTrip">
           <div class="action-icon">
@@ -56,8 +56,8 @@
               <MapLocation />
             </el-icon>
           </div>
-          <h4>{{ t('trip.createTrip') }}</h4>
-          <p>{{ t('personal.createTripDesc') }}</p>
+          <h4>{{ t("trip.createTrip") }}</h4>
+          <p>{{ t("personal.createTripDesc") }}</p>
         </div>
 
         <div class="action-card" @click="goToPreferences">
@@ -66,8 +66,8 @@
               <Setting />
             </el-icon>
           </div>
-          <h4>{{ t('settings.preferences') }}</h4>
-          <p>{{ t('personal.preferencesDesc') }}</p>
+          <h4>{{ t("settings.preferences") }}</h4>
+          <p>{{ t("personal.preferencesDesc") }}</p>
         </div>
 
         <div class="action-card" @click="viewTrips">
@@ -76,8 +76,8 @@
               <Tickets />
             </el-icon>
           </div>
-          <h4>{{ t('personal.myTrips') }}</h4>
-          <p>{{ t('personal.myTripsDesc') }}</p>
+          <h4>{{ t("personal.myTrips") }}</h4>
+          <p>{{ t("personal.myTripsDesc") }}</p>
         </div>
 
         <div class="action-card" @click="accountSettings">
@@ -86,8 +86,8 @@
               <Tools />
             </el-icon>
           </div>
-          <h4>{{ t('settings.accountSettings') }}</h4>
-          <p>{{ t('personal.accountSettingsDesc') }}</p>
+          <h4>{{ t("settings.accountSettings") }}</h4>
+          <p>{{ t("personal.accountSettingsDesc") }}</p>
         </div>
       </div>
     </div>
@@ -95,7 +95,7 @@
     <!-- 我的行程 -->
     <div class="my-trips-section">
       <div class="section-header">
-        <h3 class="section-title">{{ t('personal.myTrips') }}</h3>
+        <h3 class="section-title">{{ t("personal.myTrips") }}</h3>
         <el-button
           size="small"
           type="primary"
@@ -104,7 +104,7 @@
           @click="createTrip"
         >
           <el-icon><Plus /></el-icon>
-          {{ t('personal.createNewTrip') }}
+          {{ t("personal.createNewTrip") }}
         </el-button>
       </div>
 
@@ -118,19 +118,15 @@
           <div class="trip-header">
             <h4>{{ trip.title }}</h4>
             <div class="trip-tags">
-              <el-tag
-                v-if="trip.aiGenerated"
-                type="primary"
-                size="small"
-                class="ai-tag"
-              >
-                 {{ t('personal.aiGenerated') }}
+              <el-tag v-if="trip.aiGenerated" type="primary" size="small" class="ai-tag">
+                {{ t("personal.aiGenerated") }}
               </el-tag>
-              <el-tag
-                :type="trip.status === 'draft' ? 'info' : 'success'"
-                size="small"
-              >
-                 {{ trip.status === 'draft' ? t('personal.status.draft') : t('personal.status.completed') }}
+              <el-tag :type="trip.status === 'draft' ? 'info' : 'success'" size="small">
+                {{
+                  trip.status === "draft"
+                    ? t("personal.status.draft")
+                    : t("personal.status.completed")
+                }}
               </el-tag>
             </div>
           </div>
@@ -141,11 +137,11 @@
             </div>
             <div class="trip-detail">
               <el-icon><Calendar /></el-icon>
-               <span>{{ trip.days }}{{ t('personal.daysSuffix') }}</span>
+              <span>{{ trip.days }}{{ t("personal.daysSuffix") }}</span>
             </div>
             <div class="trip-detail">
               <el-icon><User /></el-icon>
-               <span>{{ trip.travelers }}{{ t('personal.travelersSuffix') }}</span>
+              <span>{{ trip.travelers }}{{ t("personal.travelersSuffix") }}</span>
             </div>
             <div class="trip-detail">
               <el-icon><Money /></el-icon>
@@ -153,21 +149,11 @@
             </div>
           </div>
           <div class="trip-actions">
-            <el-button
-              size="small"
-              type="primary"
-              plain
-              @click.stop="editTrip(trip)"
-            >
-              {{ t('common.edit') }}
+            <el-button size="small" type="primary" plain @click.stop="editTrip(trip)">
+              {{ t("common.edit") }}
             </el-button>
-            <el-button
-              size="small"
-              type="danger"
-              plain
-              @click.stop="deleteTrip(trip.id)"
-            >
-              {{ t('common.delete') }}
+            <el-button size="small" type="danger" plain @click.stop="deleteTrip(trip.id)">
+              {{ t("common.delete") }}
             </el-button>
           </div>
         </div>
@@ -177,15 +163,17 @@
         <el-icon size="48" color="#C0C4CC">
           <DocumentCopy />
         </el-icon>
-        <p>{{ t('personal.noTrips') }}</p>
-        <el-button type="primary" @click="createTrip">{{ t('personal.createNow') }}</el-button>
+        <p>{{ t("personal.noTrips") }}</p>
+        <el-button type="primary" @click="createTrip">{{
+          t("personal.createNow")
+        }}</el-button>
       </div>
     </div>
 
     <!-- 我的偏好（摘要） -->
     <div class="my-preferences-section">
       <div class="section-header">
-        <h3 class="section-title">{{ t('personal.myPreferences') }}</h3>
+        <h3 class="section-title">{{ t("personal.myPreferences") }}</h3>
         <el-button
           size="small"
           type="primary"
@@ -194,7 +182,7 @@
           @click="openPrefDrawer"
         >
           <el-icon><Setting /></el-icon>
-          {{ t('personal.editPreferences') }}
+          {{ t("personal.editPreferences") }}
         </el-button>
       </div>
 
@@ -207,14 +195,21 @@
           >
             <div class="card-header">
               <el-icon class="card-icon"><Tickets /></el-icon>
-              <h4>{{ t('personal.card.travelTypes') }}</h4>
+              <h4>{{ t("personal.card.travelTypes") }}</h4>
             </div>
             <div class="card-content">
               <div class="tags-display">
-                <el-tag v-for="tag in topTags" :key="tag" size="small" class="preference-tag">
+                <el-tag
+                  v-for="tag in topTags"
+                  :key="tag"
+                  size="small"
+                  class="preference-tag"
+                >
                   {{ getTravelTagLabel(tag) }}
                 </el-tag>
-                <el-tag v-if="moreTagCount > 0" size="small" type="info">+{{ moreTagCount }}</el-tag>
+                <el-tag v-if="moreTagCount > 0" size="small" type="info"
+                  >+{{ moreTagCount }}</el-tag
+                >
               </div>
             </div>
           </div>
@@ -223,12 +218,12 @@
           <div v-if="parsedPreferences.budget" class="preference-card">
             <div class="card-header">
               <el-icon class="card-icon"><Tools /></el-icon>
-              <h4>{{ t('personal.card.dailyBudget') }}</h4>
+              <h4>{{ t("personal.card.dailyBudget") }}</h4>
             </div>
             <div class="card-content">
               <div class="budget-display">
                 <span class="budget-amount">¥{{ parsedPreferences.budget }}</span>
-                <span class="budget-unit">{{ t('personal.perDay') }}</span>
+                <span class="budget-unit">{{ t("personal.perDay") }}</span>
               </div>
             </div>
           </div>
@@ -237,11 +232,18 @@
           <div v-if="parsedPreferences.mbtiType" class="preference-card mbti-summary">
             <div class="card-header">
               <el-icon class="card-icon"><User /></el-icon>
-              <h4>{{ t('personal.card.mbti') }}</h4>
+              <h4>{{ t("personal.card.mbti") }}</h4>
             </div>
             <div class="card-content mbti-compact">
-              <img class="mbti-badge" :src="`/images/mbti/${parsedPreferences.mbtiType}.png`" :alt="parsedPreferences.mbtiType" />
-              <span class="pace-text">{{ parsedPreferences.mbtiType }} · {{ getMbtiDisplayName(parsedPreferences.mbtiType) }}</span>
+              <img
+                class="mbti-badge"
+                :src="`/images/mbti/${parsedPreferences.mbtiType}.png`"
+                :alt="parsedPreferences.mbtiType"
+              />
+              <span class="pace-text"
+                >{{ parsedPreferences.mbtiType }} ·
+                {{ getMbtiDisplayName(parsedPreferences.mbtiType) }}</span
+              >
             </div>
           </div>
 
@@ -249,17 +251,17 @@
           <div v-if="hasAnyQuickSummary" class="preference-card quick-summary">
             <div class="quick-row" v-if="summaryTransportText">
               <el-icon class="qs-icon"><MapLocation /></el-icon>
-              <span class="qs-label">{{ t('personal.card.transport') }}</span>
+              <span class="qs-label">{{ t("personal.card.transport") }}</span>
               <span class="qs-text">{{ summaryTransportText }}</span>
             </div>
             <div class="quick-row" v-if="summaryPaceText">
               <el-icon class="qs-icon"><Tools /></el-icon>
-              <span class="qs-label">{{ t('personal.card.travelPace') }}</span>
+              <span class="qs-label">{{ t("personal.card.travelPace") }}</span>
               <span class="qs-text">{{ summaryPaceText }}</span>
             </div>
             <div class="quick-row" v-if="summaryDietText">
               <el-icon class="qs-icon"><Coffee /></el-icon>
-              <span class="qs-label">{{ t('personal.card.diet') }}</span>
+              <span class="qs-label">{{ t("personal.card.diet") }}</span>
               <span class="qs-text">{{ summaryDietText }}</span>
             </div>
           </div>
@@ -268,16 +270,17 @@
 
       <div v-else class="no-preferences">
         <el-icon size="48" color="#C0C4CC"><Setting /></el-icon>
-        <p>{{ t('personal.noPreferences') }}</p>
-        <el-button type="primary" @click="openPrefDrawer">{{ t('personal.setNow') }}</el-button>
+        <p>{{ t("personal.noPreferences") }}</p>
+        <el-button type="primary" @click="openPrefDrawer">{{
+          t("personal.setNow")
+        }}</el-button>
       </div>
     </div>
-    
+
     <!-- 偏好设置抽屉（放在同一模板内） -->
     <el-drawer v-model="showPrefDrawer" :title="t('settings.preferences')" size="60%">
       <Preferences embedded @saved="onPrefSaved" />
     </el-drawer>
-
   </div>
 </template>
 
@@ -311,7 +314,7 @@ import AvatarUploader from "@/components/Common/AvatarUploader.vue";
 import { convertBackendTripToFrontend } from "@/utils/tripDataConverter.js";
 import { handleApiError, handleSuccess } from "@/utils/errorHandler.js";
 import { translateTag, getMbtiName } from "@/utils/tagMapping.js";
-import Preferences from '@/pages/User/Preferences.vue';
+import Preferences from "@/pages/User/Preferences.vue";
 export default {
   name: "Personal",
   components: {
@@ -330,7 +333,9 @@ export default {
   },
   setup() {
     const showPrefDrawer = ref(false);
-    const openPrefDrawer = () => { showPrefDrawer.value = true; };
+    const openPrefDrawer = () => {
+      showPrefDrawer.value = true;
+    };
     const onPrefSaved = async () => {
       showPrefDrawer.value = false;
       await loadUserData();
@@ -472,22 +477,40 @@ export default {
     // 概览文案
     const summaryTransportText = computed(() => {
       const transports = parsedPreferences.value.selectedTransports || [];
-      if (!transports.length) return '';
-      return transports.slice(0, 3).map(t => translateTag(t)).join('、');
+      if (!transports.length) return "";
+      return transports
+        .slice(0, 3)
+        .map((t) => translateTag(t))
+        .join("、");
     });
     const summaryPaceText = computed(() => {
       const pace = parsedPreferences.value.travelPace;
-      return pace ? translateTag(pace) : '';
+      return pace ? translateTag(pace) : "";
     });
     const summaryDietText = computed(() => {
       const tastes = parsedPreferences.value.foodTastes || [];
       const restrictions = parsedPreferences.value.dietaryRestrictions || [];
       const parts = [];
-      if (tastes.length) parts.push(tastes.slice(0,2).map(t => translateTag(t)).join('、'));
-      if (restrictions.length) parts.push(restrictions.slice(0,2).map(r => translateTag(r, 'dietary')).join('、'));
-      return parts.join(' · ');
+      if (tastes.length)
+        parts.push(
+          tastes
+            .slice(0, 2)
+            .map((t) => translateTag(t))
+            .join("、")
+        );
+      if (restrictions.length)
+        parts.push(
+          restrictions
+            .slice(0, 2)
+            .map((r) => translateTag(r, "dietary"))
+            .join("、")
+        );
+      return parts.join(" · ");
     });
-    const hasAnyQuickSummary = computed(() => !!(summaryTransportText.value || summaryPaceText.value || summaryDietText.value));
+    const hasAnyQuickSummary = computed(
+      () =>
+        !!(summaryTransportText.value || summaryPaceText.value || summaryDietText.value)
+    );
 
     // MBTI相关辅助函数 - 使用统一的标签映射
     const getMbtiDisplayName = (type) => {
@@ -516,54 +539,54 @@ export default {
       return descriptions[type] || "个性化旅行推荐";
     };
 
-
-
     // 方法
     const formatPhone = (phone) => {
-      if (!phone) return t('personal.noPhone');
+      if (!phone) return t("personal.noPhone");
       return phone.replace(/(\d{3})\d{4}(\d{4})/, "$1****$2");
     };
 
     const formatJoinDate = (createTime) => {
-      if (!createTime) return '';
+      if (!createTime) return "";
       try {
         const date = new Date(createTime);
-        const pretty = i18nFormatDate(date, { year: 'numeric', month: 'long' });
-        return t('personal.joinedAt', { date: pretty });
+        const pretty = i18nFormatDate(date, { year: "numeric", month: "long" });
+        return t("personal.joinedAt", { date: pretty });
       } catch (e) {
-        return '';
+        return "";
       }
     };
 
     // 处理头像更新
     const handleAvatarUpdate = async (newAvatar) => {
       try {
-        console.log('🔄 开始更新头像:', {
-          newAvatar: newAvatar?.substring(0, 50) + '...',
+        console.log("🔄 开始更新头像:", {
+          newAvatar: newAvatar?.substring(0, 50) + "...",
           currentNickname: userInfo.value.nickname,
-          userInfoType: typeof userInfo.value.nickname
+          userInfoType: typeof userInfo.value.nickname,
         });
-        
+
         // 确保昵称是字符串类型
-        const nickname = String(userInfo.value.nickname || userStore.currentUser?.nickname || "用户");
-        
+        const nickname = String(
+          userInfo.value.nickname || userStore.currentUser?.nickname || "用户"
+        );
+
         // 更新本地用户信息
         userInfo.value.avatar = newAvatar;
-        
+
         // 调用用户store更新头像（修复参数传递）
         await userStore.updateUserInfo(nickname, newAvatar);
-        
+
         // 保存到localStorage（作为备份）
-        localStorage.setItem('user_avatar', newAvatar);
-        
-        console.log('✅ 头像更新成功');
+        localStorage.setItem("user_avatar", newAvatar);
+
+        console.log("✅ 头像更新成功");
         ElMessage.success("头像更新成功！");
       } catch (error) {
-        console.error('❌ 头像更新失败:', error);
+        console.error("❌ 头像更新失败:", error);
         ElMessage.error("头像更新失败，请重试");
-        
+
         // 恢复原头像
-        userInfo.value.avatar = userStore.currentUser?.avatar || '';
+        userInfo.value.avatar = userStore.currentUser?.avatar || "";
       }
     };
 
@@ -571,7 +594,9 @@ export default {
       router.push("/destinations");
     };
 
-    const goToPreferences = () => { openPrefDrawer(); };
+    const goToPreferences = () => {
+      openPrefDrawer();
+    };
 
     const viewTrips = () => {
       // 滚动到我的行程部分
@@ -600,13 +625,10 @@ export default {
         const preferences = currentUser.preferences;
         if (preferences) {
           const parsed =
-            typeof preferences === "string"
-              ? JSON.parse(preferences)
-              : preferences;
+            typeof preferences === "string" ? JSON.parse(preferences) : preferences;
 
           // 统计所有类型的偏好标签
-          if (parsed.selectedTags)
-            preferenceCount += parsed.selectedTags.length;
+          if (parsed.selectedTags) preferenceCount += parsed.selectedTags.length;
           if (parsed.selectedTransports)
             preferenceCount += parsed.selectedTransports.length;
           if (parsed.accommodationType) preferenceCount += 1;
@@ -665,11 +687,11 @@ export default {
         }
       } catch (error) {
         // 使用统一的错误处理，但不显示用户提示（因为有降级方案）
-        handleApiError(error, "加载行程数据失败", { 
+        handleApiError(error, "加载行程数据失败", {
           showNotification: false,
-          logError: true 
+          logError: true,
         });
-        
+
         // 降级到localStorage作为备选
         try {
           const trips = localStorage.getItem("savedTrips");
@@ -678,11 +700,7 @@ export default {
               convertBackendTripToFrontend(trip)
             );
             if (import.meta.env.DEV) {
-              console.log(
-                "📋 降级使用本地存储数据:",
-                savedTrips.value.length,
-                "个"
-              );
+              console.log("📋 降级使用本地存储数据:", savedTrips.value.length, "个");
             }
           } else {
             savedTrips.value = [];
@@ -698,17 +716,17 @@ export default {
     const deleteTrip = async (tripId) => {
       try {
         await ElMessageBox.confirm(
-          t('personal.dialog.deleteTripMessage'),
-          t('personal.dialog.deleteTripTitle'),
+          t("personal.dialog.deleteTripMessage"),
+          t("personal.dialog.deleteTripTitle"),
           {
-            confirmButtonText: t('common.delete'),
-            cancelButtonText: t('common.cancel'),
+            confirmButtonText: t("common.delete"),
+            cancelButtonText: t("common.cancel"),
             type: "warning",
           }
         );
 
         if (!userStore.currentUser?.id) {
-          ElMessage.error(t('personal.messages.notLoggedIn'));
+          ElMessage.error(t("personal.messages.notLoggedIn"));
           return;
         }
 
@@ -722,14 +740,14 @@ export default {
         // 更新统计数据
         updateUserStats();
 
-        handleSuccess(t('personal.messages.tripDeleteSuccess'));
+        handleSuccess(t("personal.messages.tripDeleteSuccess"));
       } catch (error) {
         if (error === "cancel") {
           // 用户取消删除
           return;
         }
 
-        handleApiError(error, t('personal.messages.tripDeleteFail'));
+        handleApiError(error, t("personal.messages.tripDeleteFail"));
       }
     };
 
@@ -763,7 +781,7 @@ export default {
         }
       } catch (error) {
         console.error("路由跳转失败:", error);
-        ElMessage.error(t('personal.messages.navigationFail'));
+        ElMessage.error(t("personal.messages.navigationFail"));
       }
     };
 
@@ -787,7 +805,7 @@ export default {
         }
       } catch (error) {
         console.error("路由跳转失败:", error);
-        ElMessage.error(t('personal.messages.navigationFail'));
+        ElMessage.error(t("personal.messages.navigationFail"));
       }
     };
 
@@ -1007,7 +1025,6 @@ export default {
   font-size: 12px !important;
   padding: 4px 12px !important;
 }
-
 
 .user-basic-info h2 {
   font-size: 28px !important;
@@ -1317,7 +1334,9 @@ export default {
 }
 
 /* MBTI 摘要卡片：白色背景以突出透明PNG头像 */
-.preference-card.mbti-summary { background: #fff; }
+.preference-card.mbti-summary {
+  background: #fff;
+}
 
 .preference-card:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -1352,15 +1371,39 @@ export default {
   min-height: 40px;
 }
 
-.mbti-compact { gap: 10px; }
-.mbti-badge { width: 64px; height: 64px; border-radius: 10px; object-fit: cover; background: #fff; filter: drop-shadow(0 2px 6px rgba(0,0,0,.12)); }
+.mbti-compact {
+  gap: 10px;
+}
+.mbti-badge {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: #fff;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.12));
+}
 
 /* 快速概览样式 */
-.quick-summary { gap: 6px; }
-.quick-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
-.qs-icon { color: #409eff; }
-.qs-label { color: #909399; font-size: 13px; }
-.qs-text { color: #303133; font-weight: 500; }
+.quick-summary {
+  gap: 6px;
+}
+.quick-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+.qs-icon {
+  color: #409eff;
+}
+.qs-label {
+  color: #909399;
+  font-size: 13px;
+}
+.qs-text {
+  color: #303133;
+  font-weight: 500;
+}
 
 /* 标签展示 */
 .tags-display {
@@ -1686,4 +1729,3 @@ export default {
   }
 }
 </style>
-
