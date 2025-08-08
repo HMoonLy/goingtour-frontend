@@ -51,6 +51,23 @@ export const aiScenarios = [{
                 hint: '强调 citywalk、小众街区和咖啡馆的周末轻旅行。'
             }
         }
+    },
+    {
+        id: 'shanghai-weekend-food-2d',
+        title: '上海周末美食 · 2天',
+        desc: '本帮菜+市集/咖啡，夜宵/夜生活',
+        city: { adcode: '310000', name: '上海市' },
+        preset: {
+            baseForm: { days: 2 },
+            preferenceForm: {
+                tripGoals: ['food'],
+                pacePreference: 'balanced',
+                focusAreas: ['food', 'market', 'nightlife']
+            },
+            ai: {
+                hint: '以上海为目的地，强调地道本帮菜与夜宵场景，结合市集/咖啡小憩。'
+            }
+        }
     }
 ]
 

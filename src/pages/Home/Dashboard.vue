@@ -4,8 +4,8 @@
     <section class="quick-actions">
       <h3 class="section-title">{{ t('home.quickActions') }}</h3>
       <div class="action-grid">
-        <!-- 仅保留 AI 行程生成入口 -->
-        <div class="action-card" @click="openAiScenarios = true">
+        <!-- 仅保留 AI 行程生成入口：直接进入创建流程 -->
+        <div class="action-card" @click="goToCreate">
           <div class="action-icon violet">
             <el-icon size="24"><Cpu /></el-icon>
           </div>
@@ -107,20 +107,16 @@
       <el-empty v-else :description="t('home.weather.none')" />
     </section>
 
-    <!-- 模板与场景弹层 -->
-    
-
-    <el-dialog v-model="openAiScenarios" :title="t('home.scenarios.title')" width="600px">
+    <!-- AI 场景推荐（4条） -->
+    <section class="templates-section">
+      <h3 class="section-title">{{ t('home.scenarios.title') }}</h3>
       <div class="tpl-grid">
-        <div v-for="sc in scenarios" :key="sc.id" class="tpl-card" @click="applyScenario(sc)">
+        <div v-for="sc in scenarios.slice(0,4)" :key="sc.id" class="tpl-card" @click="applyScenario(sc)">
           <h4>{{ sc.title }}</h4>
           <p>{{ sc.desc }}</p>
         </div>
       </div>
-      <template #footer>
-        <el-button @click="openAiScenarios=false">{{ t('common.close') }}</el-button>
-      </template>
-    </el-dialog>
+    </section>
 
     <!-- 公告/发现 -->
     <section class="ann-section">
@@ -166,7 +162,6 @@ export default {
     const savedTrips = ref([])
     const hasProgress = ref(false)
     const progressSummary = ref({})
-    const openAiScenarios = ref(false)
     const scenarios = ref(aiScenarios)
     const weather = ref(null)
     const tripTab = ref('recent')
@@ -296,7 +291,6 @@ export default {
 
     // 应用模板/场景：通过 query 传递预填信息到创建页
     const applyScenario = (sc) => {
-      openAiScenarios.value = false
       const preset = encodeURIComponent(JSON.stringify({ type: 'scenario', id: sc.id }))
       // 若场景自带城市，则直达创建页；否则先选目的地
       if (sc.city && sc.city.adcode && sc.city.name) {
@@ -325,7 +319,6 @@ export default {
       tripTabs,
       displayTrips,
       weather,
-      openAiScenarios,
       scenarios,
       applyScenario,
     }
