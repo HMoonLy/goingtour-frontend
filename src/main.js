@@ -3,7 +3,7 @@ import { createPinia } from "pinia";
 import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
 import * as ElementPlusIconsVue from "@element-plus/icons-vue";
-
+import 'element-plus/theme-chalk/dark/css-vars.css'
 import App from "./App.vue";
 import router from "./router/router.js";
 import { useUserStore } from "./store/user.js";
@@ -75,7 +75,7 @@ const initApp = async() => {
     userStore.init();
 
     // 如果用户已登录，刷新用户信息
-    if (userStore.isLoggedIn && userStore.currentUser ? .id) {
+    if (userStore.isLoggedIn && userStore.currentUser?.id) {
         try {
             await userStore.fetchUserInfo();
         } catch (error) {
