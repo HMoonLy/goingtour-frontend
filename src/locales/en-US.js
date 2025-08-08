@@ -103,11 +103,56 @@ export default {
         language: 'Language',
         theme: 'Theme',
         notifications: 'Notifications',
+        preferences: 'Preferences',
         exportData: 'Export Data',
         deleteAccount: 'Delete Account',
         darkMode: 'Dark Mode',
         lightMode: 'Light Mode',
         systemMode: 'Follow System'
+    },
+
+    // Personal (Profile) Page
+    personal: {
+        userDefault: 'User',
+        quickActions: 'Quick Actions',
+        createTripDesc: 'Start planning your next journey',
+        preferencesDesc: 'Personalize your travel recommendations',
+        myTrips: 'My Trips',
+        createNewTrip: 'Create New Trip',
+        aiGenerated: 'AI Generated',
+        status: {
+            draft: 'Draft',
+            completed: 'Completed'
+        },
+        daysSuffix: ' days',
+        travelersSuffix: ' ppl',
+        noTrips: 'No trips created yet',
+        createNow: 'Create now',
+        myPreferences: 'My Preferences',
+        editPreferences: 'Edit Preferences',
+        card: {
+            travelTypes: 'Travel Types',
+            dailyBudget: 'Daily Budget',
+            mbti: 'MBTI Personality',
+            transport: 'Transportation',
+            accommodation: 'Accommodation',
+            diet: 'Diet Preferences',
+            taste: 'Taste',
+            restrictions: 'Restrictions',
+            activityTime: 'Activity Time',
+            travelPace: 'Travel Pace',
+            others: 'Other Preferences'
+        },
+        perDay: ' / day',
+        noPreferences: 'No preferences set yet',
+        setNow: 'Set now',
+        myTripsDesc: 'View and manage your trip history',
+        accountSettingsDesc: 'Security and privacy settings',
+        stats: {
+            createdTrips: 'Trips created',
+            preferenceTags: 'Preference tags',
+            usageDays: 'Usage days'
+        }
     },
 
     // Trip Related

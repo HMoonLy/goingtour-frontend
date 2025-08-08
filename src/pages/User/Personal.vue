@@ -6,13 +6,13 @@
         <div class="user-avatar">
           <AvatarUploader
             :avatar="userInfo.avatar"
-            :userName="userInfo.nickname || '用户'"
+            :userName="userInfo.nickname || t('personal.userDefault')"
             @update:avatar="handleAvatarUpdate"
           />
         </div>
         <div class="user-basic-info">
           <h2 class="user-name">
-            {{ userInfo.nickname || "用户" }}
+            {{ userInfo.nickname || t('personal.userDefault') }}
           </h2>
           <p class="user-phone">
             {{ formatPhone(userInfo.phone) }}
@@ -29,26 +29,26 @@
           <div class="stat-number">
             {{ userStats.tripCount }}
           </div>
-          <div class="stat-label">创建行程</div>
+          <div class="stat-label">{{ t('personal.stats.createdTrips') }}</div>
         </div>
         <div class="stat-item">
           <div class="stat-number">
             {{ userStats.preferenceCount }}
           </div>
-          <div class="stat-label">偏好标签</div>
+          <div class="stat-label">{{ t('personal.stats.preferenceTags') }}</div>
         </div>
         <div class="stat-item">
           <div class="stat-number">
             {{ userStats.usageDays }}
           </div>
-          <div class="stat-label">使用天数</div>
+          <div class="stat-label">{{ t('personal.stats.usageDays') }}</div>
         </div>
       </div>
     </div>
 
     <!-- 快捷功能区 -->
     <div class="quick-actions">
-      <h3 class="section-title">快捷功能</h3>
+      <h3 class="section-title">{{ t('personal.quickActions') }}</h3>
       <div class="action-grid">
         <div class="action-card" @click="createTrip">
           <div class="action-icon">
@@ -56,8 +56,8 @@
               <MapLocation />
             </el-icon>
           </div>
-          <h4>创建行程</h4>
-          <p>开始规划您的下一次旅行</p>
+          <h4>{{ t('trip.createTrip') }}</h4>
+          <p>{{ t('personal.createTripDesc') }}</p>
         </div>
 
         <div class="action-card" @click="goToPreferences">
@@ -66,8 +66,8 @@
               <Setting />
             </el-icon>
           </div>
-          <h4>偏好设置</h4>
-          <p>个性化您的旅行推荐</p>
+          <h4>{{ t('settings.preferences') }}</h4>
+          <p>{{ t('personal.preferencesDesc') }}</p>
         </div>
 
         <div class="action-card" @click="viewTrips">
@@ -76,8 +76,8 @@
               <Tickets />
             </el-icon>
           </div>
-          <h4>我的行程</h4>
-          <p>查看和管理历史行程</p>
+          <h4>{{ t('personal.myTrips') }}</h4>
+          <p>{{ t('personal.myTripsDesc') }}</p>
         </div>
 
         <div class="action-card" @click="accountSettings">
@@ -86,8 +86,8 @@
               <Tools />
             </el-icon>
           </div>
-          <h4>账户设置</h4>
-          <p>安全设置和隐私管理</p>
+          <h4>{{ t('settings.accountSettings') }}</h4>
+          <p>{{ t('personal.accountSettingsDesc') }}</p>
         </div>
       </div>
     </div>
@@ -95,7 +95,7 @@
     <!-- 我的行程 -->
     <div class="my-trips-section">
       <div class="section-header">
-        <h3 class="section-title">我的行程</h3>
+        <h3 class="section-title">{{ t('personal.myTrips') }}</h3>
         <el-button
           size="small"
           type="primary"
@@ -104,7 +104,7 @@
           @click="createTrip"
         >
           <el-icon><Plus /></el-icon>
-          创建新行程
+          {{ t('personal.createNewTrip') }}
         </el-button>
       </div>
 
@@ -124,13 +124,13 @@
                 size="small"
                 class="ai-tag"
               >
-                AI生成
+                 {{ t('personal.aiGenerated') }}
               </el-tag>
               <el-tag
                 :type="trip.status === 'draft' ? 'info' : 'success'"
                 size="small"
               >
-                {{ trip.status === "draft" ? "草稿" : "已完成" }}
+                 {{ trip.status === 'draft' ? t('personal.status.draft') : t('personal.status.completed') }}
               </el-tag>
             </div>
           </div>
@@ -141,11 +141,11 @@
             </div>
             <div class="trip-detail">
               <el-icon><Calendar /></el-icon>
-              <span>{{ trip.days }}天</span>
+               <span>{{ trip.days }}{{ t('personal.daysSuffix') }}</span>
             </div>
             <div class="trip-detail">
               <el-icon><User /></el-icon>
-              <span>{{ trip.travelers }}人</span>
+               <span>{{ trip.travelers }}{{ t('personal.travelersSuffix') }}</span>
             </div>
             <div class="trip-detail">
               <el-icon><Money /></el-icon>
@@ -177,15 +177,15 @@
         <el-icon size="48" color="#C0C4CC">
           <DocumentCopy />
         </el-icon>
-        <p>还没有创建任何行程</p>
-        <el-button type="primary" @click="createTrip"> 立即创建行程 </el-button>
+        <p>{{ t('personal.noTrips') }}</p>
+        <el-button type="primary" @click="createTrip">{{ t('personal.createNow') }}</el-button>
       </div>
     </div>
 
     <!-- 我的偏好详细展示 -->
     <div class="my-preferences-section">
       <div class="section-header">
-        <h3 class="section-title">我的偏好</h3>
+        <h3 class="section-title">{{ t('personal.myPreferences') }}</h3>
         <el-button
           size="small"
           type="primary"
@@ -194,7 +194,7 @@
           @click="goToPreferences"
         >
           <el-icon><Setting /></el-icon>
-          编辑偏好
+          {{ t('personal.editPreferences') }}
         </el-button>
       </div>
 
@@ -211,7 +211,7 @@
             <el-icon class="card-icon">
               <Tickets />
             </el-icon>
-            <h4>旅行类型</h4>
+            <h4>{{ t('personal.card.travelTypes') }}</h4>
           </div>
           <div class="card-content">
             <div class="tags-display">
@@ -233,12 +233,12 @@
             <el-icon class="card-icon">
               <Tools />
             </el-icon>
-            <h4>日均预算</h4>
+            <h4>{{ t('personal.card.dailyBudget') }}</h4>
           </div>
           <div class="card-content">
             <div class="budget-display">
               <span class="budget-amount">¥{{ parsedPreferences.budget }}</span>
-              <span class="budget-unit">/ 天</span>
+              <span class="budget-unit">{{ t('personal.perDay') }}</span>
             </div>
           </div>
         </div>
@@ -249,7 +249,7 @@
             <el-icon class="card-icon">
               <User />
             </el-icon>
-            <h4>MBTI性格</h4>
+            <h4>{{ t('personal.card.mbti') }}</h4>
           </div>
           <div class="card-content mbti-card-content">
             <div class="mbti-display">
@@ -288,7 +288,7 @@
             <el-icon class="card-icon">
               <MapLocation />
             </el-icon>
-            <h4>出行方式</h4>
+            <h4>{{ t('personal.card.transport') }}</h4>
           </div>
           <div class="card-content">
             <div class="transport-display">
@@ -309,7 +309,7 @@
             <el-icon class="card-icon">
               <UserFilled />
             </el-icon>
-            <h4>住宿偏好</h4>
+            <h4>{{ t('personal.card.accommodation') }}</h4>
           </div>
           <div class="card-content">
             <div class="accommodation-display">
@@ -326,7 +326,7 @@
             <el-icon class="card-icon">
               <Calendar />
             </el-icon>
-            <h4>饮食偏好</h4>
+            <h4>{{ t('personal.card.diet') }}</h4>
           </div>
           <div class="card-content">
             <div class="food-display">
@@ -337,7 +337,7 @@
                 "
                 class="food-category"
               >
-                <span class="category-label">口味：</span>
+                <span class="category-label">{{ t('personal.card.taste') }}：</span>
                 <span class="food-items">{{
                   getFoodTastesText(parsedPreferences.foodTastes)
                 }}</span>
@@ -349,7 +349,7 @@
                 "
                 class="food-category"
               >
-                <span class="category-label">限制：</span>
+                <span class="category-label">{{ t('personal.card.restrictions') }}：</span>
                 <span class="food-items">{{
                   getDietaryRestrictionsText(
                     parsedPreferences.dietaryRestrictions
@@ -372,7 +372,7 @@
             <el-icon class="card-icon">
               <DocumentCopy />
             </el-icon>
-            <h4>活动时间</h4>
+            <h4>{{ t('personal.card.activityTime') }}</h4>
           </div>
           <div class="card-content">
             <div class="time-display">
@@ -393,7 +393,7 @@
             <el-icon class="card-icon">
               <Tools />
             </el-icon>
-            <h4>旅行节奏</h4>
+            <h4>{{ t('personal.card.travelPace') }}</h4>
           </div>
           <div class="card-content">
             <div class="pace-display">
@@ -410,7 +410,7 @@
             <el-icon class="card-icon">
               <Setting />
             </el-icon>
-            <h4>其他偏好</h4>
+            <h4>{{ t('personal.card.others') }}</h4>
           </div>
           <div class="card-content">
             <div class="other-display">
@@ -433,9 +433,9 @@
         <el-icon size="48" color="#C0C4CC">
           <Setting />
         </el-icon>
-        <p>还没有设置偏好信息</p>
+        <p>{{ t('personal.noPreferences') }}</p>
         <el-button type="primary" @click="goToPreferences">
-          立即设置
+          {{ t('personal.setNow') }}
         </el-button>
       </div>
     </div>
@@ -469,6 +469,7 @@ import {
   Money,
 } from "@element-plus/icons-vue";
 import { useUserStore } from "@/store/user.js";
+import { useI18n } from "@/utils/i18n.js";
 import AvatarUploader from "@/components/Common/AvatarUploader.vue";
 import { convertBackendTripToFrontend } from "@/utils/tripDataConverter.js";
 import { handleApiError, handleSuccess } from "@/utils/errorHandler.js";
@@ -492,6 +493,7 @@ export default {
     const router = useRouter();
     const route = useRoute();
     const userStore = useUserStore();
+    const { t } = useI18n();
 
     // 响应式数据
 
@@ -1009,6 +1011,7 @@ export default {
     });
 
     return {
+      t,
       userInfo,
       userStats,
       userPreferences,

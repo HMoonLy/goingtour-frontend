@@ -103,11 +103,54 @@ export default {
         language: '语言',
         theme: '主题',
         notifications: '通知设置',
+        preferences: '偏好设置',
         exportData: '导出数据',
         deleteAccount: '注销账户',
         darkMode: '深色模式',
         lightMode: '浅色模式',
         systemMode: '跟随系统'
+    },
+
+    // 个人中心页面
+    personal: {
+        userDefault: '用户',
+        quickActions: '快捷功能',
+        createTripDesc: '开始规划您的下一次旅行',
+        preferencesDesc: '个性化您的旅行推荐',
+        myTrips: '我的行程',
+        createNewTrip: '创建新行程',
+        aiGenerated: 'AI生成',
+        status: {
+            draft: '草稿',
+            completed: '已完成'
+        },
+        daysSuffix: '天',
+        travelersSuffix: '人',
+        noTrips: '还没有创建任何行程',
+        createNow: '立即创建行程',
+        myPreferences: '我的偏好',
+        editPreferences: '编辑偏好',
+        card: {
+            travelTypes: '旅行类型',
+            dailyBudget: '日均预算',
+            mbti: 'MBTI性格',
+            transport: '出行方式',
+            accommodation: '住宿偏好',
+            diet: '饮食偏好',
+            taste: '口味',
+            restrictions: '限制',
+            activityTime: '活动时间',
+            travelPace: '旅行节奏',
+            others: '其他偏好'
+        },
+        perDay: '/ 天',
+        noPreferences: '还没有设置偏好信息',
+        setNow: '立即设置',
+        stats: {
+            createdTrips: '创建行程',
+            preferenceTags: '偏好标签',
+            usageDays: '使用天数'
+        }
     },
 
     // 行程相关
