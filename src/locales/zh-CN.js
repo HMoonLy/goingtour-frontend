@@ -19,6 +19,7 @@ export default {
     common: {
         confirm: '确认',
         cancel: '取消',
+        confirmRemove: '确定要移除该项吗？',
         save: '保存',
         delete: '删除',
         edit: '编辑',
@@ -38,7 +39,14 @@ export default {
         yes: '是',
         no: '否',
         required: '必填',
-        optional: '可选'
+        optional: '可选',
+        selected: '已选择',
+        to: '至',
+        startDate: '开始日期',
+        endDate: '结束日期',
+        dateFormatYMD: 'YYYY-MM-DD',
+        weekdayPrefix: '周',
+        none: '无'
     },
 
     // 导航和菜单
@@ -262,6 +270,21 @@ export default {
             regenerate: '重新生成'
         },
         generationStyle: '生成格式',
+        generation: {
+            format: '生成格式',
+            styles: {
+                table: '表格',
+                narrative: '叙述',
+                card: '卡片',
+                checklist: '清单'
+            },
+            styleDesc: {
+                table: '时间清晰',
+                narrative: '生动详细',
+                card: '现代美观',
+                checklist: '便于执行'
+            }
+        },
         generateTrip: '生成行程',
         cancelGeneration: '取消生成',
         generating: '正在生成行程...',
