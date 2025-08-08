@@ -97,31 +97,66 @@
       </el-card>
     </div>
   </div>
-  <el-drawer v-model="showPref" :title="t('settings.preferences')" size="60%" destroy-on-close>
+  <el-drawer
+    v-model="showPref"
+    :title="t('settings.preferences')"
+    size="60%"
+    destroy-on-close
+  >
     <Preferences embedded @saved="onPrefSaved" />
   </el-drawer>
 
-  <el-drawer v-model="showSecurity" :title="t('settings.securitySettings')" size="60%" destroy-on-close>
+  <el-drawer
+    v-model="showSecurity"
+    :title="t('settings.securitySettings')"
+    size="60%"
+    destroy-on-close
+  >
     <Security embedded />
   </el-drawer>
 
-  <el-drawer v-model="showNotifications" :title="t('settings.notifications')" size="60%" destroy-on-close>
+  <el-drawer
+    v-model="showNotifications"
+    :title="t('settings.notifications')"
+    size="60%"
+    destroy-on-close
+  >
     <Notifications embedded />
   </el-drawer>
 
-  <el-drawer v-model="showSystem" :title="t('settings.systemSettings')" size="60%" destroy-on-close>
+  <el-drawer
+    v-model="showSystem"
+    :title="t('settings.systemSettings')"
+    size="60%"
+    destroy-on-close
+  >
     <SystemSettings embedded />
   </el-drawer>
 
-  <el-drawer v-model="showHistory" :title="t('settings.loginHistory')" size="60%" destroy-on-close>
+  <el-drawer
+    v-model="showHistory"
+    :title="t('settings.loginHistory')"
+    size="60%"
+    destroy-on-close
+  >
     <LoginHistory embedded />
   </el-drawer>
 
-  <el-drawer v-model="showData" :title="t('settings.privacySettings')" size="60%" destroy-on-close>
+  <el-drawer
+    v-model="showData"
+    :title="t('settings.privacySettings')"
+    size="60%"
+    destroy-on-close
+  >
     <DataAndPrivacy embedded />
   </el-drawer>
 
-  <el-drawer v-model="showDanger" :title="t('settings.deleteAccount')" size="60%" destroy-on-close>
+  <el-drawer
+    v-model="showDanger"
+    :title="t('settings.deleteAccount')"
+    size="60%"
+    destroy-on-close
+  >
     <DangerZone embedded />
   </el-drawer>
 </template>
@@ -213,9 +248,7 @@ export default {
       try {
         const preferences = userStore.currentUser?.preferences;
         if (!preferences) return {};
-        return typeof preferences === "string"
-          ? JSON.parse(preferences)
-          : preferences;
+        return typeof preferences === "string" ? JSON.parse(preferences) : preferences;
       } catch {
         return {};
       }
@@ -311,7 +344,7 @@ export default {
   align-items: center;
   gap: 18px;
   width: 100% !important;
-  max-width: var(--content-max-width) !important;
+  max-width: 1200px !important;
   margin: 0 auto 24px auto !important;
   padding: 18px 20px;
   border-radius: 16px;
@@ -329,18 +362,18 @@ export default {
   width: 160px;
   height: 160px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.12);
+  background: rgba(255, 255, 255, 0.12);
   filter: blur(2px);
 }
 .profile-header :deep(.el-avatar) {
-  box-shadow: 0 6px 16px rgba(0,0,0,.18), 0 0 0 4px rgba(255,255,255,0.35);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18), 0 0 0 4px rgba(255, 255, 255, 0.35);
 }
 .profile-basic h2 {
   margin: 0;
   color: #fff;
 }
 .profile-basic .email {
-  color: rgba(255,255,255,0.85);
+  color: rgba(255, 255, 255, 0.85);
   margin-top: 4px;
 }
 .profile-actions {
@@ -351,11 +384,11 @@ export default {
 .section-card {
   margin-bottom: 16px;
   width: 100% !important;
-  max-width: var(--content-max-width) !important;
+  max-width: 1200px !important;
   margin: 0 auto 24px auto !important;
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
 }
 .row {
   display: flex;
@@ -363,7 +396,9 @@ export default {
   padding: 12px 0;
   border-bottom: 1px dashed #eef2f7;
 }
-.row:last-child { border-bottom: none; }
+.row:last-child {
+  border-bottom: none;
+}
 .label {
   color: #8a8f98;
 }
@@ -375,7 +410,7 @@ export default {
 .quick-nav {
   margin-top: 16px;
   width: 100% !important;
-  max-width: var(--content-max-width) !important;
+  max-width: 1200px !important;
   margin: 0 auto 24px auto !important;
 }
 .grid {
@@ -393,10 +428,10 @@ export default {
   flex-direction: column;
   gap: 6px;
   background: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 .grid-item:hover {
-  border-color: rgba(102,126,234,.35);
+  border-color: rgba(102, 126, 234, 0.35);
   box-shadow: 0 10px 20px rgba(102, 126, 234, 0.18);
   transform: translateY(-3px);
 }
@@ -422,13 +457,27 @@ export default {
   border-radius: 50%;
   color: #fff;
 }
-.grid-item:nth-child(1) :deep(.el-icon) { background: linear-gradient(135deg,#409eff,#67c23a); }
-.grid-item:nth-child(2) :deep(.el-icon) { background: linear-gradient(135deg,#07C160,#34d399); }
-.grid-item:nth-child(3) :deep(.el-icon) { background: linear-gradient(135deg,#ff9f43,#ff6b35); }
-.grid-item:nth-child(4) :deep(.el-icon) { background: linear-gradient(135deg,#667eea,#764ba2); }
-.grid-item:nth-child(5) :deep(.el-icon) { background: linear-gradient(135deg,#20c997,#0ea5e9); }
-.grid-item:nth-child(6) :deep(.el-icon) { background: linear-gradient(135deg,#4b5563,#111827); }
-.grid-item.danger :deep(.el-icon) { background: linear-gradient(135deg,#f56c6c,#f43f5e); }
+.grid-item:nth-child(1) :deep(.el-icon) {
+  background: linear-gradient(135deg, #409eff, #67c23a);
+}
+.grid-item:nth-child(2) :deep(.el-icon) {
+  background: linear-gradient(135deg, #07c160, #34d399);
+}
+.grid-item:nth-child(3) :deep(.el-icon) {
+  background: linear-gradient(135deg, #ff9f43, #ff6b35);
+}
+.grid-item:nth-child(4) :deep(.el-icon) {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+.grid-item:nth-child(5) :deep(.el-icon) {
+  background: linear-gradient(135deg, #20c997, #0ea5e9);
+}
+.grid-item:nth-child(6) :deep(.el-icon) {
+  background: linear-gradient(135deg, #4b5563, #111827);
+}
+.grid-item.danger :deep(.el-icon) {
+  background: linear-gradient(135deg, #f56c6c, #f43f5e);
+}
 
 /* 偏好概览样式（与首页协调） */
 .summary-row {
@@ -459,7 +508,7 @@ export default {
 }
 /* 卡片头部强调条 */
 .section-card :deep(.el-card__header) {
-  background: linear-gradient(90deg, rgba(102,126,234,.12), rgba(118,75,162,.06));
+  background: linear-gradient(90deg, rgba(102, 126, 234, 0.12), rgba(118, 75, 162, 0.06));
 }
 .card-header {
   position: relative;
@@ -479,12 +528,16 @@ export default {
 
 /* 响应式优化 */
 @media (max-width: 768px) {
-  .profile-page { padding: 12px !important; }
+  .profile-page {
+    padding: 12px !important;
+  }
   .profile-header {
     padding: 16px;
     gap: 12px;
     border-radius: 12px;
   }
-  .summary-text { font-weight: 500; }
+  .summary-text {
+    font-weight: 500;
+  }
 }
 </style>

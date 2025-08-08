@@ -42,7 +42,7 @@ const routes = [
                 path: "home",
                 name: "Home",
                 component: () =>
-                    import ("../pages/User/Home.vue"),
+                    import ("../pages/Home/Dashboard.vue"),
                 meta: {
                     titleKey: "route.home",
                     requiresAuth: true,

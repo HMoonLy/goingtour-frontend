@@ -977,6 +977,7 @@ export default {
   padding: 20px !important;
   background: #f5f7fa !important;
   overflow-y: auto !important;
+  overflow-x: hidden !important;
   z-index: 1 !important;
 }
 
@@ -991,16 +992,27 @@ export default {
 
 /* ========== 用户信息卡片 ========== */
 .user-info-card {
-  background: white !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
   border-radius: 16px !important;
-  padding: 32px !important;
+  padding: 28px 32px !important;
   margin: 0 auto 24px auto !important;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 10px 30px rgba(118, 75, 162, 0.18) !important;
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
   width: 100% !important;
-  max-width: 1200px !important;
+  max-width: 1200px!important;
+  overflow: hidden !important;
+}
+.user-info-card::after {
+  content: "";
+  position: absolute;
+  right: -40px;
+  top: -40px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
 }
 
 .user-avatar-section {
@@ -1029,18 +1041,18 @@ export default {
 .user-basic-info h2 {
   font-size: 28px !important;
   font-weight: 600 !important;
-  color: #303133 !important;
+  color: #ffffff !important;
   margin: 0 0 8px 0 !important;
 }
 
 .user-phone {
-  color: #909399 !important;
+  color: rgba(255,255,255,0.9) !important;
   font-size: 16px !important;
   margin: 0 0 8px 0 !important;
 }
 
 .user-join-date {
-  color: #909399 !important;
+  color: rgba(255,255,255,0.85) !important;
   font-size: 14px !important;
   margin: 0 !important;
   display: flex !important;
@@ -1061,13 +1073,13 @@ export default {
 .stat-number {
   font-size: 32px;
   font-weight: 700;
-  color: #667eea;
+  color: #ffffff;
   margin-bottom: 4px;
 }
 
 .stat-label {
   font-size: 14px;
-  color: #909399;
+  color: rgba(255,255,255,0.85);
 }
 
 /* ========== 快捷功能区 ========== */
@@ -1075,6 +1087,7 @@ export default {
   margin: 0 auto 24px auto !important;
   width: 100% !important;
   max-width: 1200px !important;
+  overflow: hidden !important;
 }
 
 .section-title {
@@ -1110,6 +1123,19 @@ export default {
 .action-icon {
   margin-bottom: 16px;
 }
+.action-icon :deep(.el-icon) {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #fff !important;
+}
+.action-grid .action-card:nth-child(1) .action-icon :deep(.el-icon) { background: linear-gradient(135deg,#409eff,#67c23a); }
+.action-grid .action-card:nth-child(2) .action-icon :deep(.el-icon) { background: linear-gradient(135deg,#07C160,#34d399); }
+.action-grid .action-card:nth-child(3) .action-icon :deep(.el-icon) { background: linear-gradient(135deg,#ff9f43,#ff6b35); }
+.action-grid .action-card:nth-child(4) .action-icon :deep(.el-icon) { background: linear-gradient(135deg,#667eea,#764ba2); }
 
 .action-card h4 {
   font-size: 18px;
@@ -1133,6 +1159,7 @@ export default {
   margin: 0 auto 24px auto !important;
   width: 100% !important;
   max-width: 1200px !important;
+  overflow: hidden !important;
 }
 
 .section-header {
@@ -1305,6 +1332,7 @@ export default {
   margin: 0 auto 24px auto !important;
   width: 100% !important;
   max-width: 1200px !important;
+  overflow: hidden !important;
 }
 
 .section-header {
@@ -1401,8 +1429,11 @@ export default {
   font-size: 13px;
 }
 .qs-text {
-  color: #303133;
-  font-weight: 500;
+  color: #3a57e8;
+  font-weight: 600;
+  background: #eef4ff;
+  padding: 4px 8px;
+  border-radius: 999px;
 }
 
 /* 标签展示 */

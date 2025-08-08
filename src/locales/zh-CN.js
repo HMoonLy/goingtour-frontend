@@ -16,6 +16,22 @@ export default {
         tripShare: '行程分享',
         notFound: '页面不存在'
     },
+    // 首页
+    home: {
+        quickActions: '快捷操作',
+        chooseDestinationDesc: '先选择一个你想去的城市',
+        createTripDesc: '进入创建流程，填写基础信息',
+        aiEntry: 'AI 行程生成',
+        aiEntryDesc: '基于你的偏好快速生成行程',
+        continueProgress: '继续未完成的创建',
+        resume: '继续',
+        discard: '丢弃',
+        discardConfirm: '确定要丢弃未完成的创建进度吗？',
+        announcements: '公告与动态',
+        ann: {
+            sample1: { title: '欢迎使用 GoingTour', desc: '选择一个目的地开始吧！' }
+        }
+    },
     // 通用
     common: {
         confirm: '确认',
