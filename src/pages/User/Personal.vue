@@ -1008,8 +1008,6 @@ export default {
   padding: 4px 12px !important;
 }
 
-.user-basic-info {
-}
 
 .user-basic-info h2 {
   font-size: 28px !important;
