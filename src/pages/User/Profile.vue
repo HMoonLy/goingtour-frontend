@@ -65,6 +65,33 @@
           <span class="value">{{ joinDateText }}</span>
         </div>
       </el-card>
+
+      <!-- 偏好快速概览，与首页保持一致结构 -->
+      <el-card class="section-card">
+        <template #header>
+          <div class="card-header">
+            <span>{{ t('personal.myPreferences') }}</span>
+          </div>
+        </template>
+        <div class="summary-row" v-if="parsedPreferences.mbtiType">
+          <img class="mbti-badge" :src="`/images/mbti/${parsedPreferences.mbtiType}.png`" />
+          <span class="summary-text">
+            {{ parsedPreferences.mbtiType }} · {{ getMbtiName(parsedPreferences.mbtiType) }}
+          </span>
+        </div>
+        <div class="summary-row" v-if="summaryTransportText">
+          <span class="summary-label">{{ t('personal.card.transport') }}</span>
+          <span class="summary-text">{{ summaryTransportText }}</span>
+        </div>
+        <div class="summary-row" v-if="summaryPaceText">
+          <span class="summary-label">{{ t('personal.card.travelPace') }}</span>
+          <span class="summary-text">{{ summaryPaceText }}</span>
+        </div>
+        <div class="summary-row" v-if="summaryDietText">
+          <span class="summary-label">{{ t('personal.card.diet') }}</span>
+          <span class="summary-text">{{ summaryDietText }}</span>
+        </div>
+      </el-card>
     </div>
   </div>
     <el-drawer v-model="showPref" :title="t('settings.preferences')" size="60%">
@@ -80,6 +107,7 @@ import { useUserStore } from '@/store/user.js';
 import { useI18n, formatDate as i18nFormatDate } from '@/utils/i18n.js';
 import { Lock, Setting, Bell, Cpu, Timer, Document, Warning } from '@element-plus/icons-vue';
 import UserCenterNav from '@/components/User/UserCenterNav.vue';
+import { translateTag, getMbtiName } from '@/utils/tagMapping.js';
 import Preferences from '@/pages/User/Preferences.vue';
 
 export default {
@@ -109,11 +137,36 @@ export default {
     const openPreferences = () => { showPref.value = true; };
     const onPrefSaved = () => { showPref.value = false; };
 
+    // 解析偏好（与首页逻辑保持一致）
+    const parsedPreferences = computed(() => {
+      try {
+        const preferences = userStore.currentUser?.preferences;
+        if (!preferences) return {};
+        return typeof preferences === 'string' ? JSON.parse(preferences) : preferences;
+      } catch { return {}; }
+    });
+    const summaryTransportText = computed(() => {
+      const transports = parsedPreferences.value.selectedTransports || [];
+      return transports.length ? transports.slice(0,3).map(x=>translateTag(x)).join('、') : '';
+    });
+    const summaryPaceText = computed(() => {
+      const pace = parsedPreferences.value.travelPace;
+      return pace ? translateTag(pace) : '';
+    });
+    const summaryDietText = computed(() => {
+      const tastes = parsedPreferences.value.foodTastes || [];
+      const restrictions = parsedPreferences.value.dietaryRestrictions || [];
+      const parts = [];
+      if (tastes.length) parts.push(tastes.slice(0,2).map(x=>translateTag(x)).join('、'));
+      if (restrictions.length) parts.push(restrictions.slice(0,2).map(x=>translateTag(x,'dietary')).join('、'));
+      return parts.join(' · ');
+    });
+
     onMounted(() => {
       if (!userStore.isLoggedIn) router.push('/login');
     });
 
-    return { userStore, t, joinDateText, goAccountSettings, goPreferences, goTo, showPref, openPreferences, onPrefSaved };
+    return { userStore, t, joinDateText, goAccountSettings, goPreferences, goTo, showPref, openPreferences, onPrefSaved, translateTag, getMbtiName, parsedPreferences, summaryTransportText, summaryPaceText, summaryDietText };
   },
 };
 </script>
@@ -159,6 +212,12 @@ export default {
 .grid-item .title { font-weight: 600; color: #303133; }
 .grid-item .desc { color: #909399; font-size: 12px; }
 .grid-item.danger { border-color: #f56c6c; }
+
+/* 偏好概览样式（与首页协调） */
+.summary-row { display:flex; align-items:center; gap:10px; padding:6px 0; }
+.summary-label { color:#909399; font-size:13px; min-width:84px; }
+.summary-text { color:#303133; font-weight:500; }
+.mbti-badge { width:64px; height:64px; border-radius:10px; object-fit:cover; background:#fff; filter: drop-shadow(0 2px 6px rgba(0,0,0,.12)); }
 </style>
 
 

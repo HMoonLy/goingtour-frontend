@@ -293,7 +293,7 @@
                 <House />
               </el-icon>
               <span class="accommodation-title">{{ translateTag('budget') }}</span>
-              <span class="accommodation-desc">Budget</span>
+              <span v-if="isEnglish" class="accommodation-desc">Budget</span>
             </div>
 
             <div
@@ -307,7 +307,7 @@
                 <Monitor />
               </el-icon>
               <span class="accommodation-title">{{ translateTag('comfort') }}</span>
-              <span class="accommodation-desc">3-star / Boutique</span>
+              <span v-if="isEnglish" class="accommodation-desc">3-star / Boutique</span>
             </div>
 
             <div
@@ -321,7 +321,7 @@
                 <Coffee />
               </el-icon>
               <span class="accommodation-title">{{ translateTag('bnb') }}</span>
-              <span class="accommodation-desc">Local homestay</span>
+              <span v-if="isEnglish" class="accommodation-desc">Local homestay</span>
             </div>
 
             <div
@@ -335,7 +335,7 @@
                 <Trophy />
               </el-icon>
               <span class="accommodation-title">{{ translateTag('luxury') }}</span>
-              <span class="accommodation-desc">5-star / Resort</span>
+              <span v-if="isEnglish" class="accommodation-desc">5-star / Resort</span>
             </div>
           </div>
         </div>
@@ -547,7 +547,7 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted, watch } from "vue";
+import { ref, reactive, onMounted, watch, computed } from "vue";
 import { ElMessage } from "element-plus";
 import { useUserStore } from "@/store/user.js";
 import { useI18n } from "@/utils/i18n.js";
@@ -596,7 +596,8 @@ export default {
   },
   setup(props, { emit }) {
     const userStore = useUserStore();
-    const { t } = useI18n();
+    const { t, locale } = useI18n();
+    const isEnglish = computed(() => locale.value === 'en-US');
     const router = useRouter();
     const route = useRoute();
 

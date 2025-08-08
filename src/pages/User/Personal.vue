@@ -182,7 +182,7 @@
       </div>
     </div>
 
-    <!-- 我的偏好详细展示 -->
+    <!-- 我的偏好（摘要） -->
     <div class="my-preferences-section">
       <div class="section-header">
         <h3 class="section-title">{{ t('personal.myPreferences') }}</h3>
@@ -191,255 +191,92 @@
           type="primary"
           plain
           class="edit-preferences-btn"
-          @click="goToPreferences"
+          @click="openPrefDrawer"
         >
           <el-icon><Setting /></el-icon>
           {{ t('personal.editPreferences') }}
         </el-button>
       </div>
 
-      <div v-if="hasPreferences" class="preferences-grid">
-        <!-- 旅行类型偏好 -->
-        <div
-          v-if="
-            parsedPreferences.selectedTags &&
-            parsedPreferences.selectedTags.length > 0
-          "
-          class="preference-card"
-        >
-          <div class="card-header">
-            <el-icon class="card-icon">
-              <Tickets />
-            </el-icon>
-            <h4>{{ t('personal.card.travelTypes') }}</h4>
-          </div>
-          <div class="card-content">
-            <div class="tags-display">
-              <el-tag
-                v-for="tag in parsedPreferences.selectedTags"
-                :key="tag"
-                size="small"
-                class="preference-tag"
-              >
-                {{ getTravelTagLabel(tag) }}
-              </el-tag>
+      <template v-if="hasPreferences">
+        <div class="preferences-grid">
+          <!-- 标签摘要 -->
+          <div
+            v-if="parsedPreferences.selectedTags && parsedPreferences.selectedTags.length"
+            class="preference-card"
+          >
+            <div class="card-header">
+              <el-icon class="card-icon"><Tickets /></el-icon>
+              <h4>{{ t('personal.card.travelTypes') }}</h4>
             </div>
-          </div>
-        </div>
-
-        <!-- 日均预算 -->
-        <div v-if="parsedPreferences.budget" class="preference-card">
-          <div class="card-header">
-            <el-icon class="card-icon">
-              <Tools />
-            </el-icon>
-            <h4>{{ t('personal.card.dailyBudget') }}</h4>
-          </div>
-          <div class="card-content">
-            <div class="budget-display">
-              <span class="budget-amount">¥{{ parsedPreferences.budget }}</span>
-              <span class="budget-unit">{{ t('personal.perDay') }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- MBTI性格类型 -->
-        <div v-if="parsedPreferences.mbtiType" class="preference-card">
-          <div class="card-header">
-            <el-icon class="card-icon">
-              <User />
-            </el-icon>
-            <h4>{{ t('personal.card.mbti') }}</h4>
-          </div>
-          <div class="card-content mbti-card-content">
-            <div class="mbti-display">
-              <div class="mbti-avatar">
-                <img
-                  :src="`/images/mbti/${parsedPreferences.mbtiType}.png`"
-                  :alt="parsedPreferences.mbtiType"
-                />
-              </div>
-              <div class="mbti-details">
-                <h5 class="mbti-type">
-                  {{ parsedPreferences.mbtiType }}
-                </h5>
-                <p class="mbti-name">
-                  {{ getMbtiDisplayName(parsedPreferences.mbtiType) }}
-                </p>
-                <p class="mbti-description">
-                  {{
-                    getMbtiTravelDescriptionShort(parsedPreferences.mbtiType)
-                  }}
-                </p>
+            <div class="card-content">
+              <div class="tags-display">
+                <el-tag v-for="tag in topTags" :key="tag" size="small" class="preference-tag">
+                  {{ getTravelTagLabel(tag) }}
+                </el-tag>
+                <el-tag v-if="moreTagCount > 0" size="small" type="info">+{{ moreTagCount }}</el-tag>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- 出行方式 -->
-        <div
-          v-if="
-            parsedPreferences.selectedTransports &&
-            parsedPreferences.selectedTransports.length > 0
-          "
-          class="preference-card"
-        >
-          <div class="card-header">
-            <el-icon class="card-icon">
-              <MapLocation />
-            </el-icon>
-            <h4>{{ t('personal.card.transport') }}</h4>
-          </div>
-          <div class="card-content">
-            <div class="transport-display">
-              <span
-                v-for="transport in parsedPreferences.selectedTransports"
-                :key="transport"
-                class="transport-item"
-              >
-                {{ getTransportLabel(transport) }}
-              </span>
+          <!-- 预算摘要 -->
+          <div v-if="parsedPreferences.budget" class="preference-card">
+            <div class="card-header">
+              <el-icon class="card-icon"><Tools /></el-icon>
+              <h4>{{ t('personal.card.dailyBudget') }}</h4>
             </div>
-          </div>
-        </div>
-
-        <!-- 住宿偏好 -->
-        <div v-if="parsedPreferences.accommodationType" class="preference-card">
-          <div class="card-header">
-            <el-icon class="card-icon">
-              <UserFilled />
-            </el-icon>
-            <h4>{{ t('personal.card.accommodation') }}</h4>
-          </div>
-          <div class="card-content">
-            <div class="accommodation-display">
-              <span class="accommodation-type">{{
-                getAccommodationLabel(parsedPreferences.accommodationType)
-              }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 饮食偏好 -->
-        <div v-if="hasFoodPreferences" class="preference-card">
-          <div class="card-header">
-            <el-icon class="card-icon">
-              <Calendar />
-            </el-icon>
-            <h4>{{ t('personal.card.diet') }}</h4>
-          </div>
-          <div class="card-content">
-            <div class="food-display">
-              <div
-                v-if="
-                  parsedPreferences.foodTastes &&
-                  parsedPreferences.foodTastes.length > 0
-                "
-                class="food-category"
-              >
-                <span class="category-label">{{ t('personal.card.taste') }}：</span>
-                <span class="food-items">{{
-                  getFoodTastesText(parsedPreferences.foodTastes)
-                }}</span>
-              </div>
-              <div
-                v-if="
-                  parsedPreferences.dietaryRestrictions &&
-                  parsedPreferences.dietaryRestrictions.length > 0
-                "
-                class="food-category"
-              >
-                <span class="category-label">{{ t('personal.card.restrictions') }}：</span>
-                <span class="food-items">{{
-                  getDietaryRestrictionsText(
-                    parsedPreferences.dietaryRestrictions
-                  )
-                }}</span>
+            <div class="card-content">
+              <div class="budget-display">
+                <span class="budget-amount">¥{{ parsedPreferences.budget }}</span>
+                <span class="budget-unit">{{ t('personal.perDay') }}</span>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- 活动时间 -->
-        <div
-          v-if="
-            parsedPreferences.preferredTimes &&
-            parsedPreferences.preferredTimes.length > 0
-          "
-          class="preference-card"
-        >
-          <div class="card-header">
-            <el-icon class="card-icon">
-              <DocumentCopy />
-            </el-icon>
-            <h4>{{ t('personal.card.activityTime') }}</h4>
+          <!-- MBTI摘要 -->
+          <div v-if="parsedPreferences.mbtiType" class="preference-card mbti-summary">
+            <div class="card-header">
+              <el-icon class="card-icon"><User /></el-icon>
+              <h4>{{ t('personal.card.mbti') }}</h4>
+            </div>
+            <div class="card-content mbti-compact">
+              <img class="mbti-badge" :src="`/images/mbti/${parsedPreferences.mbtiType}.png`" :alt="parsedPreferences.mbtiType" />
+              <span class="pace-text">{{ parsedPreferences.mbtiType }} · {{ getMbtiDisplayName(parsedPreferences.mbtiType) }}</span>
+            </div>
           </div>
-          <div class="card-content">
-            <div class="time-display">
-              <span
-                v-for="time in parsedPreferences.preferredTimes"
-                :key="time"
-                class="time-item"
-              >
-                {{ getTimeLabel(time) }}
-              </span>
+
+          <!-- 快速概览：出行方式/节奏/饮食 -->
+          <div v-if="hasAnyQuickSummary" class="preference-card quick-summary">
+            <div class="quick-row" v-if="summaryTransportText">
+              <el-icon class="qs-icon"><MapLocation /></el-icon>
+              <span class="qs-label">{{ t('personal.card.transport') }}</span>
+              <span class="qs-text">{{ summaryTransportText }}</span>
+            </div>
+            <div class="quick-row" v-if="summaryPaceText">
+              <el-icon class="qs-icon"><Tools /></el-icon>
+              <span class="qs-label">{{ t('personal.card.travelPace') }}</span>
+              <span class="qs-text">{{ summaryPaceText }}</span>
+            </div>
+            <div class="quick-row" v-if="summaryDietText">
+              <el-icon class="qs-icon"><Coffee /></el-icon>
+              <span class="qs-label">{{ t('personal.card.diet') }}</span>
+              <span class="qs-text">{{ summaryDietText }}</span>
             </div>
           </div>
         </div>
+      </template>
 
-        <!-- 旅行节奏 -->
-        <div v-if="parsedPreferences.travelPace" class="preference-card">
-          <div class="card-header">
-            <el-icon class="card-icon">
-              <Tools />
-            </el-icon>
-            <h4>{{ t('personal.card.travelPace') }}</h4>
-          </div>
-          <div class="card-content">
-            <div class="pace-display">
-              <span class="pace-text">{{
-                getTravelPaceText(parsedPreferences.travelPace)
-              }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 其他偏好 -->
-        <div v-if="hasOtherPreferences" class="preference-card">
-          <div class="card-header">
-            <el-icon class="card-icon">
-              <Setting />
-            </el-icon>
-            <h4>{{ t('personal.card.others') }}</h4>
-          </div>
-          <div class="card-content">
-            <div class="other-display">
-              <div
-                v-for="(value, key) in activeOtherPreferences"
-                :key="key"
-                class="other-item"
-              >
-                <span class="other-label">{{
-                  getOtherPreferenceLabel(key)
-                }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 无偏好数据时的提示 -->
       <div v-else class="no-preferences">
-        <el-icon size="48" color="#C0C4CC">
-          <Setting />
-        </el-icon>
+        <el-icon size="48" color="#C0C4CC"><Setting /></el-icon>
         <p>{{ t('personal.noPreferences') }}</p>
-        <el-button type="primary" @click="goToPreferences">
-          {{ t('personal.setNow') }}
-        </el-button>
+        <el-button type="primary" @click="openPrefDrawer">{{ t('personal.setNow') }}</el-button>
       </div>
     </div>
-
+    
+    <!-- 偏好设置抽屉（放在同一模板内） -->
+    <el-drawer v-model="showPrefDrawer" :title="t('settings.preferences')" size="60%">
+      <Preferences embedded @saved="onPrefSaved" />
+    </el-drawer>
 
   </div>
 </template>
@@ -474,9 +311,11 @@ import AvatarUploader from "@/components/Common/AvatarUploader.vue";
 import { convertBackendTripToFrontend } from "@/utils/tripDataConverter.js";
 import { handleApiError, handleSuccess } from "@/utils/errorHandler.js";
 import { translateTag, getMbtiName } from "@/utils/tagMapping.js";
+import Preferences from '@/pages/User/Preferences.vue';
 export default {
   name: "Personal",
   components: {
+    Preferences,
     UserFilled,
     Calendar,
     MapLocation,
@@ -490,6 +329,12 @@ export default {
     AvatarUploader,
   },
   setup() {
+    const showPrefDrawer = ref(false);
+    const openPrefDrawer = () => { showPrefDrawer.value = true; };
+    const onPrefSaved = async () => {
+      showPrefDrawer.value = false;
+      await loadUserData();
+    };
     const router = useRouter();
     const route = useRoute();
     const userStore = useUserStore();
@@ -624,6 +469,26 @@ export default {
       return translateTag(key);
     };
 
+    // 概览文案
+    const summaryTransportText = computed(() => {
+      const transports = parsedPreferences.value.selectedTransports || [];
+      if (!transports.length) return '';
+      return transports.slice(0, 3).map(t => translateTag(t)).join('、');
+    });
+    const summaryPaceText = computed(() => {
+      const pace = parsedPreferences.value.travelPace;
+      return pace ? translateTag(pace) : '';
+    });
+    const summaryDietText = computed(() => {
+      const tastes = parsedPreferences.value.foodTastes || [];
+      const restrictions = parsedPreferences.value.dietaryRestrictions || [];
+      const parts = [];
+      if (tastes.length) parts.push(tastes.slice(0,2).map(t => translateTag(t)).join('、'));
+      if (restrictions.length) parts.push(restrictions.slice(0,2).map(r => translateTag(r, 'dietary')).join('、'));
+      return parts.join(' · ');
+    });
+    const hasAnyQuickSummary = computed(() => !!(summaryTransportText.value || summaryPaceText.value || summaryDietText.value));
+
     // MBTI相关辅助函数 - 使用统一的标签映射
     const getMbtiDisplayName = (type) => {
       return getMbtiName(type);
@@ -706,9 +571,7 @@ export default {
       router.push("/destinations");
     };
 
-    const goToPreferences = () => {
-      router.push("/preferences");
-    };
+    const goToPreferences = () => { openPrefDrawer(); };
 
     const viewTrips = () => {
       // 滚动到我的行程部分
@@ -1014,8 +877,23 @@ export default {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     });
 
+    // 顶部标签摘要计算
+    const topTags = computed(() => {
+      const tags = parsedPreferences.value.selectedTags || [];
+      return tags.slice(0, 6);
+    });
+    const moreTagCount = computed(() => {
+      const tags = parsedPreferences.value.selectedTags || [];
+      return Math.max(0, tags.length - 6);
+    });
+
     return {
       t,
+      showPrefDrawer,
+      openPrefDrawer,
+      onPrefSaved,
+      topTags,
+      moreTagCount,
       userInfo,
       userStats,
       userPreferences,
@@ -1440,6 +1318,9 @@ export default {
   flex-direction: column;
 }
 
+/* MBTI 摘要卡片：白色背景以突出透明PNG头像 */
+.preference-card.mbti-summary { background: #fff; }
+
 .preference-card:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transform: translateY(-2px);
@@ -1472,6 +1353,16 @@ export default {
   align-items: center;
   min-height: 40px;
 }
+
+.mbti-compact { gap: 10px; }
+.mbti-badge { width: 64px; height: 64px; border-radius: 10px; object-fit: cover; background: #fff; filter: drop-shadow(0 2px 6px rgba(0,0,0,.12)); }
+
+/* 快速概览样式 */
+.quick-summary { gap: 6px; }
+.quick-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+.qs-icon { color: #409eff; }
+.qs-label { color: #909399; font-size: 13px; }
+.qs-text { color: #303133; font-weight: 500; }
 
 /* 标签展示 */
 .tags-display {
@@ -1797,3 +1688,4 @@ export default {
   }
 }
 </style>
+
