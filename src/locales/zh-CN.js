@@ -1,4 +1,20 @@
 export default {
+    route: {
+        login: '登录',
+        register: '注册',
+        personal: '个人中心',
+        accountSettings: '账户设置',
+        preferences: '偏好设置',
+        destinations: '选择目的地',
+        tripCreate: '创建行程',
+        tripDetail: '行程详情',
+        aiTripEdit: '编辑AI行程',
+        attractionDetail: '景点详情',
+        restaurantList: '餐厅列表',
+        search: '搜索结果',
+        tripShare: '行程分享',
+        notFound: '页面不存在'
+    },
     // 通用
     common: {
         confirm: '确认',
@@ -176,6 +192,10 @@ export default {
 
     // 行程相关
     trip: {
+        baseInfo: {
+            title: '行程基础信息',
+            subtitle: '完善您的出行计划，我们将为您量身定制专属行程'
+        },
         createTrip: '创建行程',
         editTrip: '编辑行程',
         tripDetails: '行程详情',
@@ -235,6 +255,27 @@ export default {
         yuan: '元',
         noTripData: '未找到行程数据',
         saveTrip: '保存行程',
+        viewDetails: '查看行程详情',
+        generated: '行程生成完成！',
+        prepareGenerate: '准备生成您的专属行程',
+        prepareGenerateDesc: '基于您的偏好和要求，AI将为您精心规划行程路线',
+        fillBasicInfo: '请填写基本信息（目的地、天数、日期等）',
+        personalPreferences: '个人偏好',
+        noUserPreferences: '未设置个人偏好，可前往“个人中心-偏好设置”进行设置',
+        thisTripPreferences: '本次行程偏好',
+        setPreferencesInStep: '请在“个性化偏好”步骤中设置本次行程偏好',
+        dietaryRestrictions: '饮食禁忌',
+        weatherSuggestion: '天气建议',
+        weatherForecast: '天气预报',
+        mustSee: '必去景点',
+        noMustSeeSelected: '未选择必去景点，可以从推荐景点中添加',
+        mustEat: '必去餐厅',
+        noMustEatSelected: '未选择必去餐厅，可以从推荐餐厅中添加',
+        daysAutoByDate: '根据日期自动计算',
+        daysAutoTip: '天数将根据您选择的日期范围自动计算',
+        selectedDateRange: '已选择日期范围',
+        selectDateRangeTip: '请选择您计划出行的日期范围',
+        travelersTip: '人数会影响餐厅和住宿推荐',
         styles: {
             table: '表格',
             narrative: '叙述',

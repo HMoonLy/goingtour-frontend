@@ -125,7 +125,7 @@ class="city-section hot-city-section">
               class="nav-button hot-button"
               circle
               size="small"
-              @click="scrollToLetter('热门')"
+              @click="scrollToLetter(hotLabel)"
             >
               <el-icon><Top /></el-icon>
             </el-button>
@@ -213,7 +213,7 @@ export default {
     const loading = ref(true);
     const isSearchMode = ref(false);
     const searchResults = ref([]);
-    const hotLabel = '热门';
+    const hotLabel = t('destinations.hot');
     const activeLetter = ref(hotLabel);
     const citiesContent = ref(null);
     const letterSections = ref([]);

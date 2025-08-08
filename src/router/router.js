@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useUserStore } from "@/store/user";
+import { t } from "@/utils/i18n.js";
 
 const routes = [
     // ========== 认证相关页面（无需登录） ==========
@@ -9,7 +10,7 @@ const routes = [
         component: () =>
             import ("../pages/User/Login.vue"),
         meta: {
-            title: "登录",
+            titleKey: "route.login",
             requiresAuth: false,
         },
     },
@@ -19,7 +20,7 @@ const routes = [
         component: () =>
             import ("../pages/User/Register.vue"),
         meta: {
-            title: "注册",
+            titleKey: "route.register",
             requiresAuth: false,
         },
     },
@@ -43,7 +44,7 @@ const routes = [
                 component: () =>
                     import ("../pages/User/Personal.vue"),
                 meta: {
-                    title: "个人中心",
+                    titleKey: "route.personal",
                     requiresAuth: true,
                 },
             },
@@ -53,7 +54,7 @@ const routes = [
                 component: () =>
                     import ("../pages/User/AccountSettings.vue"),
                 meta: {
-                    title: "账户设置",
+                    titleKey: "route.accountSettings",
                     requiresAuth: true,
                 },
             },
@@ -63,7 +64,7 @@ const routes = [
                 component: () =>
                     import ("../pages/User/Preferences.vue"),
                 meta: {
-                    title: "偏好设置",
+                    titleKey: "route.preferences",
                     requiresAuth: true,
                 },
             },
@@ -75,7 +76,7 @@ const routes = [
                 component: () =>
                     import ("../pages/Trip/Destinations.vue"),
                 meta: {
-                    title: "选择目的地",
+                    titleKey: "route.destinations",
                     requiresAuth: true,
                 },
             },
@@ -85,7 +86,7 @@ const routes = [
                 component: () =>
                     import ("../pages/Trip/TripCreate.vue"),
                 meta: {
-                    title: "创建行程",
+                    titleKey: "route.tripCreate",
                     requiresAuth: true,
                     requiresDestination: true, // 需要先选择目的地
                 },
@@ -97,7 +98,7 @@ const routes = [
                     import ("../pages/Trip/TripDetail.vue"),
                 props: true,
                 meta: {
-                    title: "行程详情",
+                    titleKey: "route.tripDetail",
                     requiresAuth: true,
                 },
             },
@@ -108,7 +109,7 @@ const routes = [
                     import ("../pages/Trip/AiTripEdit.vue"),
                 props: true,
                 meta: {
-                    title: "编辑AI行程",
+                    titleKey: "route.aiTripEdit",
                     requiresAuth: true,
                 },
             },
@@ -121,7 +122,7 @@ const routes = [
                     import ("../pages/Data/AttractionDetail.vue"),
                 props: true,
                 meta: {
-                    title: "景点详情",
+                    titleKey: "route.attractionDetail",
                     requiresAuth: false, // 景点详情可以不登录查看
                 },
             },
@@ -131,7 +132,7 @@ const routes = [
                 component: () =>
                     import ("../pages/Data/RestaurantList.vue"),
                 meta: {
-                    title: "餐厅列表",
+                    titleKey: "route.restaurantList",
                     requiresAuth: false,
                 },
             },
@@ -141,7 +142,7 @@ const routes = [
                 component: () =>
                     import ("../pages/Data/Search.vue"),
                 meta: {
-                    title: "搜索结果",
+                    titleKey: "route.search",
                     requiresAuth: false,
                 },
             },
@@ -156,7 +157,7 @@ const routes = [
             import ("../pages/Trip/TripShare.vue"),
         props: true,
         meta: {
-            title: "行程分享",
+            titleKey: "route.tripShare",
             requiresAuth: false,
         },
     },
@@ -168,7 +169,7 @@ const routes = [
         component: () =>
             import ("../pages/Error/NotFound.vue"),
         meta: {
-            title: "页面不存在",
+            titleKey: "route.notFound",
             requiresAuth: false,
         },
     },
@@ -191,8 +192,10 @@ const router = createRouter({
 router.beforeEach(async(to, from, next) => {
     const userStore = useUserStore();
 
-    // 设置页面标题
-    document.title = to.meta.title ? `${to.meta.title} - GoingTour` : "GoingTour";
+    // 设置页面标题 (i18n)
+    const titleKey = to.meta.titleKey;
+    const translated = titleKey ? t(titleKey) : "GoingTour";
+    document.title = `${translated} - GoingTour`;
 
     // 检查是否需要登录
     if (to.meta.requiresAuth) {

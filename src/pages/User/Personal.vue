@@ -159,7 +159,7 @@
               plain
               @click.stop="editTrip(trip)"
             >
-              编辑
+              {{ t('common.edit') }}
             </el-button>
             <el-button
               size="small"
@@ -167,7 +167,7 @@
               plain
               @click.stop="deleteTrip(trip.id)"
             >
-              删除
+              {{ t('common.delete') }}
             </el-button>
           </div>
         </div>

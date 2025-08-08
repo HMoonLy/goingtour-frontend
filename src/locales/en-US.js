@@ -1,8 +1,25 @@
 export default {
+    route: {
+        login: "Login",
+        register: "Register",
+        personal: "Personal Center",
+        accountSettings: "Account Settings",
+        preferences: "Preferences",
+        destinations: "Choose Destination",
+        tripCreate: "Create Trip",
+        tripDetail: "Trip Detail",
+        aiTripEdit: "Edit AI Trip",
+        attractionDetail: "Attraction Detail",
+        restaurantList: "Restaurant List",
+        search: "Search Results",
+        tripShare: "Trip Share",
+        notFound: "Page Not Found"
+    },
     // Common
     common: {
         confirm: 'Confirm',
         cancel: 'Cancel',
+        confirmRemove: 'Are you sure to remove this item?',
         save: 'Save',
         delete: 'Delete',
         edit: 'Edit',
@@ -22,7 +39,13 @@ export default {
         yes: 'Yes',
         no: 'No',
         required: 'Required',
-        optional: 'Optional'
+        optional: 'Optional',
+        selected: 'Selected',
+        to: 'to',
+        startDate: 'Start Date',
+        endDate: 'End Date',
+        dateFormatYMD: 'YYYY-MM-DD',
+        weekdayPrefix: 'Week '
     },
 
     // Navigation and Menu
@@ -179,6 +202,10 @@ export default {
         createTrip: 'Create Trip',
         editTrip: 'Edit Trip',
         tripDetails: 'Trip Details',
+        baseInfo: {
+            title: 'Trip Basic Information',
+            subtitle: 'Complete your plan and we will tailor a trip for you'
+        },
         destination: 'Destination',
         startDate: 'Start Date',
         endDate: 'End Date',
@@ -235,6 +262,112 @@ export default {
         yuan: 'CNY',
         noTripData: 'No trip data found',
         saveTrip: 'Save Trip',
+        viewDetails: 'View Trip Details',
+        generated: 'Trip generated successfully!',
+        prepareGenerate: 'Get ready to generate your exclusive trip',
+        prepareGenerateDesc: 'Based on your preferences and requirements, AI will plan the route for you',
+        fillBasicInfo: 'Please fill in basic information (destination, days, dates, etc.)',
+        personalPreferences: 'Personal Preferences',
+        noUserPreferences: 'No preferences set. Go to Profile > Preferences to set up',
+        thisTripPreferences: 'Preferences for This Trip',
+        setPreferencesInStep: 'Please set preferences in the "Personalized Preferences" step',
+        dietaryRestrictions: 'Dietary Restrictions',
+        weatherSuggestion: 'Weather Suggestions',
+        weatherForecast: 'Weather Forecast',
+        mustSee: 'Must-see Attractions',
+        noMustSeeSelected: 'No must-see attractions selected. Add from recommended list',
+        mustEat: 'Must-eat Restaurants',
+        noMustEatSelected: 'No must-eat restaurants selected. Add from recommended list',
+        generation: {
+            format: 'Format',
+            styles: {
+                table: 'Table',
+                narrative: 'Narrative',
+                card: 'Card',
+                checklist: 'Checklist'
+            },
+            styleDesc: {
+                table: 'Clear timeline',
+                narrative: 'Vivid details',
+                card: 'Modern and beautiful',
+                checklist: 'Easy to execute'
+            }
+        },
+        actions: {
+            viewFullPrompt: 'View Full Prompt',
+            generateUsingPrompt: 'Generate with this prompt',
+            generating: 'Generating...'
+        },
+        aiPrompt: {
+            preview: 'AI Prompt Preview',
+            viewFull: 'View full prompt'
+        },
+        dialog: {
+            fullPromptTitle: 'Full AI Prompt',
+            copyPrompt: 'Copy Prompt',
+            close: 'Close',
+            copyAndClose: 'Copy & Close'
+        },
+        messages: {
+            fullPromptReady: 'Full prompt generated. You can copy it to test in AI tools',
+            copySuccess: 'Copied to clipboard!',
+            copyFailed: 'Copy failed, please copy manually',
+            cancelling: 'Cancelling generation...',
+            cancelled: 'Generation cancelled'
+        },
+        warnings: {
+            completeBasicInfo: 'Please complete the basic information first'
+        },
+        progress: {
+            start: '🚀 Starting AI trip planner...',
+            analyzingPrefs: '📊 Analyzing your preferences...',
+            buildPrompt: '📝 Building your tailored prompt...',
+            connectAi: '🤖 Connecting to AI service...',
+            deepAnalyze: '🧠 AI is deeply analyzing your needs...',
+            sending: '🌐 Sending request to AI server...',
+            generating: '⚡ AI is generating your trip...',
+            formatting: '📋 Formatting trip content...'
+        },
+        errors: {
+            generateFailed: 'Generation failed',
+            generateFailedRetry: 'Generation failed, please try again later',
+            timeout: 'AI service timed out, please try again',
+            paymentRequired: 'AI service balance is insufficient. Please contact admin',
+            network: 'Network error, please retry',
+            withMessage: 'Error:'
+        },
+        generating: {
+            aiWorking: 'AI is carefully planning your trip...',
+            timeRemaining: 'About {s}s remaining'
+        },
+        recommendedCounts: 'Recommended {attractions} attractions and {restaurants} restaurants',
+        weather: {
+            amapApi: 'Amap Weather API',
+            noticeTitle: 'Weather Notice',
+            outOfRangeAdvice: 'For dates beyond the forecast, please watch local real-time weather and prepare flexible clothes.',
+            noAccurateForecast: 'Selected dates are out of the current forecast range, accurate forecast is unavailable.',
+            checkBeforeTravel: 'Please check the destination weather before departure.',
+            suitableActivitiesPrefix: 'Suitable for ',
+            suitableActivitiesSuffix: ' and other activities.',
+            tips: 'Tips: ',
+            cautions: 'Cautions: ',
+            detail: 'Forecast Details',
+            partialForecastPrefix: 'Available forecast (first ',
+            daysSuffix: ' days)',
+            referenceForecast: 'Reference Forecast',
+            historicalSim: 'Simulated from historical data',
+            amapApiForecast: 'Amap API forecast',
+            dateOutOfRange: 'Date out of forecast range',
+            afterDayNeedsAttention: 'From day {day} and onward, please check real-time weather',
+            loading: 'Fetching weather...',
+            outOfRangeWithDate: 'Selected date range ({date}) is out of forecast range, the info below is for reference',
+            forecastInsufficient: 'Your trip has {days} days but the forecast only has {forecastDays} days',
+            windLevel: ' level',
+            tempRange: 'Temperature Range',
+            forecastDays: 'Forecast Days',
+            dataSource: 'Data Source',
+            travelTips: 'Travel Tips'
+        },
         styles: {
             table: 'Table',
             narrative: 'Narrative',

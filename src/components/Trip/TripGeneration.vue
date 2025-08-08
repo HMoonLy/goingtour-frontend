@@ -8,13 +8,13 @@
             <el-icon size="18">
               <MagicStick />
             </el-icon>
-            <span>AI提示词预览</span>
+            <span>{{ t('trip.aiPrompt.preview') }}</span>
             <el-tag size="small" :type="getPromptCompletionClass()">
               {{ getPromptCompletionText() }}
             </el-tag>
           </div>
           <div class="header-right">
-            <el-tooltip content="查看完整提示词" placement="top">
+            <el-tooltip :content="t('trip.aiPrompt.viewFull')" placement="top">
               <el-button type="info" link @click="showFullPrompt">
                 <el-icon><ViewIcon /></el-icon>
               </el-button>
@@ -29,15 +29,15 @@
             <el-icon size="48" color="#409EFF">
               <MagicStick />
             </el-icon>
-            <h3>准备生成您的专属行程</h3>
-            <p>基于您的偏好和要求，AI将为您精心规划行程路线</p>
+            <h3>{{ t('trip.prepareGenerate') }}</h3>
+            <p>{{ t('trip.prepareGenerateDesc') }}</p>
           </div>
 
           <div class="prompt-sections">
             <div class="prompt-section">
               <div class="section-header">
                 <el-icon><MapLocation /></el-icon>
-                <h4>基本信息</h4>
+                <h4>{{ t('trip.basicInfo') }}</h4>
               </div>
               <div v-if="baseForm.destination && baseForm.days" class="prompt-text">
                 为我规划一次前往
@@ -51,14 +51,14 @@
                 >。
               </div>
               <div v-else class="prompt-placeholder">
-                请填写基本信息（目的地、天数、日期等）
+                {{ t('trip.fillBasicInfo') }}
               </div>
             </div>
 
             <div class="prompt-section">
               <div class="section-header">
                 <el-icon><User /></el-icon>
-                <h4>个人偏好</h4>
+                <h4>{{ t('trip.personalPreferences') }}</h4>
               </div>
               <div v-if="hasUserPreferences" class="prompt-text">
                 我的旅行偏好是<span class="highlight">{{
@@ -94,14 +94,14 @@
                 </template>
               </div>
               <div v-else class="prompt-placeholder">
-                未设置个人偏好，可以在"个人中心-偏好设置"中设置
+                {{ t('trip.noUserPreferences') }}
               </div>
             </div>
 
             <div class="prompt-section">
               <div class="section-header">
                 <el-icon><MagicStick /></el-icon>
-                <h4>本次行程偏好</h4>
+                <h4>{{ t('trip.thisTripPreferences') }}</h4>
               </div>
               <div
                 v-if="
@@ -149,13 +149,13 @@
                   >。
                 </template>
                 <template v-if="preferenceForm.specialRequirements">
-                  特殊需求：<span class="highlight">{{
+                  {{ t('trip.specialRequests') }}：<span class="highlight">{{
                     preferenceForm.specialRequirements
                   }}</span>
                 </template>
               </div>
               <div v-else class="prompt-placeholder">
-                请在"个性化偏好"步骤中设置本次行程偏好
+                {{ t('trip.setPreferencesInStep') }}
               </div>
             </div>
 
@@ -170,7 +170,7 @@
             >
               <div class="section-header">
                 <el-icon><Food /></el-icon>
-                <h4>饮食禁忌</h4>
+                <h4>{{ t('trip.dietaryRestrictions') }}</h4>
               </div>
               <div class="prompt-text">
                 <span
@@ -201,7 +201,7 @@
             <div v-if="weatherSuggestion" class="prompt-section">
               <div class="section-header">
                 <el-icon><Sunny /></el-icon>
-                <h4>天气建议</h4>
+                <h4>{{ t('trip.weatherSuggestion') }}</h4>
                 <el-tag
                   v-if="weatherSuggestion.isHistorical"
                   size="small"
@@ -211,7 +211,7 @@
                   {{ weatherSuggestion.dataSource }}
                 </el-tag>
                 <el-tag v-else size="small" type="success" effect="plain">
-                  高德天气API
+                  {{ t('trip.weather.amapApi') }}
                 </el-tag>
               </div>
               <div class="prompt-text">
@@ -273,7 +273,7 @@
                         baseForm.days > (weatherSuggestion.forecast?.length || 0)
                       "
                     >
-                      <p class="notice-title">🌤️ 天气预报说明</p>
+                       <p class="notice-title">🌤️ {{ t('trip.weather.noticeTitle') }}</p>
                       <p>
                         您的<span class="highlight">{{ baseForm.days }}天</span
                         >行程中，我们仅能提供前<span class="highlight"
@@ -297,16 +297,16 @@
                         </p>
                       </template>
                       <p class="notice-suggestion">
-                        超出预报范围的日期建议您关注当地实时天气预报，并准备适应性较强的衣物。
+                         {{ t('trip.weather.outOfRangeAdvice') }}
                       </p>
                     </template>
                     <template v-else>
-                      <p class="notice-title">⚠️ 天气预报说明</p>
+                       <p class="notice-title">⚠️ {{ t('trip.weather.noticeTitle') }}</p>
                       <p>
-                        由于您选择的出行日期与当前天气预报时间范围不匹配，无法提供准确的天气预报。
+                         {{ t('trip.weather.noAccurateForecast') }}
                       </p>
                       <p class="notice-suggestion">
-                        建议您在出行前关注目的地的实时天气预报。
+                         {{ t('trip.weather.checkBeforeTravel') }}
                       </p>
                     </template>
                   </div>
@@ -318,12 +318,12 @@
                     weatherSuggestion.activities.length > 0
                   "
                 >
-                  <p>
-                    适合安排<span class="highlight">{{
-                      weatherSuggestion.activities.join("、")
-                    }}</span
-                    >等活动。
-                  </p>
+                   <p>
+                     {{ t('trip.weather.suitableActivitiesPrefix') }}<span class="highlight">{{
+                       weatherSuggestion.activities.join("、")
+                     }}</span
+                     >{{ t('trip.weather.suitableActivitiesSuffix') }}
+                   </p>
                 </template>
                 <template
                   v-if="
@@ -332,12 +332,12 @@
                     isDateWithinForecastRange()
                   "
                 >
-                  <p>
-                    建议：<span class="highlight">{{
-                      weatherSuggestion.tips.join("；")
-                    }}</span
-                    >。
-                  </p>
+                   <p>
+                     {{ t('trip.weather.tips') }}<span class="highlight">{{
+                       weatherSuggestion.tips.join("；")
+                     }}</span
+                     >。
+                   </p>
                 </template>
                 <template
                   v-if="
@@ -346,12 +346,12 @@
                     isDateWithinForecastRange()
                   "
                 >
-                  <p>
-                    注意事项：<span class="highlight">{{
-                      weatherSuggestion.avoid.join("；")
-                    }}</span
-                    >。
-                  </p>
+                   <p>
+                     {{ t('trip.weather.cautions') }}<span class="highlight">{{
+                       weatherSuggestion.avoid.join("；")
+                     }}</span
+                     >。
+                   </p>
                 </template>
 
                 <!-- 天气预报详情展示 -->
@@ -363,8 +363,8 @@
                   <div class="weather-forecast">
                     <h5>
                       <el-icon><Calendar /></el-icon>
-                      <template v-if="isDateWithinForecastRange()">
-                        天气预报详情
+                       <template v-if="isDateWithinForecastRange()">
+                         {{ t('trip.weather.detail') }}
                       </template>
                       <template
                         v-else-if="
@@ -374,23 +374,23 @@
                           baseForm.days > weatherSuggestion.forecast.length
                         "
                       >
-                        可获取的天气预报（前{{ weatherSuggestion.forecast.length }}天）
+                         {{ t('trip.weather.partialForecastPrefix') }}{{ weatherSuggestion.forecast.length }}{{ t('trip.weather.daysSuffix') }}
                       </template>
-                      <template v-else> 参考天气预报 </template>
+                       <template v-else> {{ t('trip.weather.referenceForecast') }} </template>
                       <el-tag
                         v-if="weatherSuggestion.isHistorical"
                         size="small"
                         type="info"
                       >
-                        基于历史数据模拟
+                         {{ t('trip.weather.historicalSim') }}
                       </el-tag>
-                      <el-tag v-else size="small" type="success"> 高德API预报 </el-tag>
+                       <el-tag v-else size="small" type="success"> {{ t('trip.weather.amapApiForecast') }} </el-tag>
                       <el-tag
                         v-if="!isDateWithinForecastRange()"
                         size="small"
                         type="warning"
                       >
-                        日期超出预报范围
+                         {{ t('trip.weather.dateOutOfRange') }}
                       </el-tag>
                     </h5>
                     <div class="forecast-list">
@@ -433,13 +433,9 @@
                         baseForm.days > weatherSuggestion.forecast.length
                       "
                     >
-                      <div class="forecast-limitation-notice">
+                       <div class="forecast-limitation-notice">
                         <el-icon><Warning /></el-icon>
-                        <span
-                          >第{{
-                            weatherSuggestion.forecast.length + 1
-                          }}天及之后的天气情况需要关注实时预报</span
-                        >
+                         <span>{{ t('trip.weather.afterDayNeedsAttention', { day: weatherSuggestion.forecast.length + 1 }) }}</span>
                       </div>
                     </template>
                   </div>
@@ -468,32 +464,32 @@
             </div>
 
             <div class="prompt-section">
-              <div class="section-header">
+            <div class="section-header">
                 <el-icon><Location /></el-icon>
-                <h4>必去景点</h4>
+              <h4>{{ t('trip.mustSee') }}</h4>
               </div>
               <div v-if="selectedAttractions.length > 0" class="prompt-text">
-                必去景点：<span class="highlight">{{
+              {{ t('trip.mustSee') }}：<span class="highlight">{{
                   selectedAttractions.map((a) => a.name).join("、")
                 }}</span>
               </div>
               <div v-else class="prompt-placeholder">
-                未选择必去景点，可以从推荐景点中添加
+              {{ t('trip.noMustSeeSelected') }}
               </div>
             </div>
 
             <div class="prompt-section">
-              <div class="section-header">
+            <div class="section-header">
                 <el-icon><Shop /></el-icon>
-                <h4>必去餐厅</h4>
+              <h4>{{ t('trip.mustEat') }}</h4>
               </div>
               <div v-if="selectedRestaurants.length > 0" class="prompt-text">
-                必去餐厅：<span class="highlight">{{
+              {{ t('trip.mustEat') }}：<span class="highlight">{{
                   selectedRestaurants.map((r) => r.name).join("、")
                 }}</span>
               </div>
               <div v-else class="prompt-placeholder">
-                未选择必去餐厅，可以从推荐餐厅中添加
+              {{ t('trip.noMustEatSelected') }}
               </div>
             </div>
           </div>
@@ -501,27 +497,27 @@
           <!-- 生成选项 -->
           <div class="generation-options">
             <div class="option-group">
-              <span class="option-label">生成格式：</span>
+            <span class="option-label">{{ t('trip.generation.format') }}</span>
               <el-radio-group
                 v-model="selectedGenerationStyle"
                 size="small"
                 class="inline-style-options"
               >
                 <el-radio value="table">
-                  <span class="style-name">表格</span>
-                  <span class="style-desc">时间清晰</span>
+                <span class="style-name">{{ t('trip.generation.styles.table') }}</span>
+                <span class="style-desc">{{ t('trip.generation.styleDesc.table') }}</span>
                 </el-radio>
                 <el-radio value="narrative">
-                  <span class="style-name">叙述</span>
-                  <span class="style-desc">生动详细</span>
+                <span class="style-name">{{ t('trip.generation.styles.narrative') }}</span>
+                <span class="style-desc">{{ t('trip.generation.styleDesc.narrative') }}</span>
                 </el-radio>
                 <el-radio value="card">
-                  <span class="style-name">卡片</span>
-                  <span class="style-desc">现代美观</span>
+                <span class="style-name">{{ t('trip.generation.styles.card') }}</span>
+                <span class="style-desc">{{ t('trip.generation.styleDesc.card') }}</span>
                 </el-radio>
                 <el-radio value="checklist">
-                  <span class="style-name">清单</span>
-                  <span class="style-desc">便于执行</span>
+                <span class="style-name">{{ t('trip.generation.styles.checklist') }}</span>
+                <span class="style-desc">{{ t('trip.generation.styleDesc.checklist') }}</span>
                 </el-radio>
               </el-radio-group>
             </div>
@@ -530,7 +526,7 @@
           <div class="prompt-actions">
             <el-button type="success" size="large" @click="showFullPrompt">
               <el-icon><ViewIcon /></el-icon>
-              查看完整提示词
+            {{ t('trip.actions.viewFullPrompt') }}
             </el-button>
             <el-button
               v-if="!generating"
@@ -540,7 +536,7 @@
               @click="generateTrip"
             >
               <el-icon><MagicStick /></el-icon>
-              使用此提示词生成行程
+            {{ t('trip.actions.generateUsingPrompt') }}
             </el-button>
             
             <!-- 生成中的状态 -->
@@ -551,7 +547,7 @@
                 loading
                 disabled
               >
-                正在生成行程...
+              {{ t('trip.actions.generating') }}
               </el-button>
               <el-button
                 type="danger"
@@ -559,7 +555,7 @@
                 @click="cancelGeneration"
               >
                 <el-icon><Close /></el-icon>
-                取消生成
+              {{ t('common.cancel') }}
               </el-button>
             </template>
           </div>
@@ -590,12 +586,12 @@
         </div>
 
         <div v-if="generating" class="generating">
-          <div class="generating-animation">
+        <div class="generating-animation">
             <el-icon size="80" color="#409EFF" class="rotating">
               <Loading />
             </el-icon>
             <div class="generating-content">
-              <h3>✨ AI正在為您精心规划行程...</h3>
+            <h3>✨ {{ t('trip.generating.aiWorking') }}</h3>
               <p class="progress-text">{{ generationProgress }}</p>
               <el-progress
                 :percentage="progressPercent"
@@ -604,10 +600,9 @@
               />
               <div class="progress-info">
                 <span class="progress-percentage">{{ progressPercent }}%</span>
-                <span class="progress-desc"
-                  >预计还需
-                  {{ Math.max(0, Math.ceil((100 - progressPercent) * 1.2)) }} 秒</span
-                >
+              <span class="progress-desc">
+                {{ t('trip.generating.timeRemaining', { s: Math.max(0, Math.ceil((100 - progressPercent) * 1.2)) }) }}
+              </span>
               </div>
             </div>
           </div>
@@ -617,13 +612,12 @@
           <el-icon size="48" color="#67C23A">
             <Check />
           </el-icon>
-          <h3>行程生成完成！</h3>
-          <p>
-            为您推荐了 {{ generatedTrip?.attractions?.length || 0 }} 个景点和
-            {{ generatedTrip?.restaurants?.length || 0 }} 家餐厅
-          </p>
+        <h3>{{ t('trip.generated') }}</h3>
+        <p>
+          {{ t('trip.recommendedCounts', { attractions: generatedTrip?.attractions?.length || 0, restaurants: generatedTrip?.restaurants?.length || 0 }) }}
+        </p>
           <el-button type="primary" size="large" @click="$emit('next-step')">
-            查看行程详情
+          {{ t('trip.viewDetails') }}
             <el-icon><ArrowRight /></el-icon>
           </el-button>
         </div>
@@ -641,7 +635,7 @@
     <!-- 完整提示词弹窗 -->
     <el-dialog
       v-model="fullPromptVisible"
-      title="完整AI生成提示词"
+      :title="t('trip.dialog.fullPromptTitle')"
       width="80%"
       max-width="800px"
       :show-close="true"
@@ -654,7 +648,7 @@
           </el-tag>
           <el-button type="primary" @click="copyPromptToClipboard">
             <el-icon><DocumentCopy /></el-icon>
-            复制提示词
+            {{ t('trip.dialog.copyPrompt') }}
           </el-button>
         </div>
         <div class="prompt-text-area">
@@ -663,8 +657,8 @@
       </div>
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="fullPromptVisible = false">关闭</el-button>
-          <el-button type="primary" @click="copyPromptAndClose"> 复制并关闭 </el-button>
+          <el-button @click="fullPromptVisible = false">{{ t('trip.dialog.close') }}</el-button>
+          <el-button type="primary" @click="copyPromptAndClose"> {{ t('trip.dialog.copyAndClose') }} </el-button>
         </div>
       </template>
     </el-dialog>
@@ -674,6 +668,7 @@
 <script>
 import { computed, onMounted, watch, nextTick, ref } from "vue";
 import { ElMessage } from "element-plus";
+import { useI18n } from "@/utils/i18n.js";
 import {
   MapLocation,
   User,
@@ -801,6 +796,7 @@ export default {
     "prev-step",
   ],
   setup(props, { emit }) {
+    const { t } = useI18n();
     // 获取用户store
     const userStore = useUserStore();
 
@@ -1366,7 +1362,7 @@ export default {
       fullPromptText.value = generatePromptText();
       fullPromptVisible.value = true;
       ElMessage({
-        message: "完整提示词已生成，您可以复制后在AI工具中测试",
+        message: t('trip.messages.fullPromptReady'),
         type: "success",
         duration: 3000,
       });
@@ -1377,7 +1373,7 @@ export default {
       try {
         await navigator.clipboard.writeText(fullPromptText.value);
         ElMessage({
-          message: "提示词已复制到剪贴板！",
+          message: t('trip.messages.copySuccess'),
           type: "success",
           duration: 2000,
         });
@@ -1390,13 +1386,13 @@ export default {
         try {
           document.execCommand("copy");
           ElMessage({
-            message: "提示词已复制到剪贴板！",
+            message: t('trip.messages.copySuccess'),
             type: "success",
             duration: 2000,
           });
         } catch (err) {
           ElMessage({
-            message: "复制失败，请手动复制",
+            message: t('trip.messages.copyFailed'),
             type: "error",
             duration: 3000,
           });
@@ -1618,20 +1614,20 @@ export default {
         }
 
       if (!canGenerateTrip.value) {
-        ElMessage.warning("请先完善基本信息");
+        ElMessage.warning(t('trip.warnings.completeBasicInfo'));
         return;
       }
 
       try {
         // 通过emit通知父组件更新状态
         emit("update:generating", true);
-        emit("update:generationProgress", "🚀 启动AI行程规划助手...");
+        emit("update:generationProgress", t('trip.progress.start'));
         emit("update:progressPercent", 5);
 
         // 等待一下让用户看到开始状态
         await new Promise((resolve) => setTimeout(resolve, 800));
 
-        emit("update:generationProgress", "📊 正在分析您的旅行偏好...");
+        emit("update:generationProgress", t('trip.progress.analyzingPrefs'));
         emit("update:progressPercent", 15);
 
         // 构建AI请求数据
@@ -1695,21 +1691,21 @@ export default {
         };
 
         // 数据准备完成
-        emit("update:generationProgress", "📝 构建专属行程提示词...");
+        emit("update:generationProgress", t('trip.progress.buildPrompt'));
         emit("update:progressPercent", 25);
 
         await new Promise((resolve) => setTimeout(resolve, 600));
 
-        emit("update:generationProgress", "🤖 连接DeepSeek AI服务...");
+        emit("update:generationProgress", t('trip.progress.connectAi'));
         emit("update:progressPercent", 35);
 
         await new Promise((resolve) => setTimeout(resolve, 500));
 
-        emit("update:generationProgress", "🧠 AI正在深度分析您的需求...");
+        emit("update:generationProgress", t('trip.progress.deepAnalyze'));
         emit("update:progressPercent", 45);
 
         // 调用后端AI接口
-        emit("update:generationProgress", "🌐 发送请求到AI服务器...");
+        emit("update:generationProgress", t('trip.progress.sending'));
         emit("update:progressPercent", 55);
 
         // 创建取消控制器
@@ -1724,7 +1720,7 @@ export default {
           signal: abortController.signal,
         });
 
-         emit("update:generationProgress", "⚡ AI正在生成您的专属行程...");
+         emit("update:generationProgress", t('trip.progress.generating'));
          emit("update:progressPercent", 75);
  
          // 检查响应状态
@@ -1746,11 +1742,11 @@ export default {
            throw new Error("服务器响应格式错误，请稍后重试");
          }
 
-        emit("update:generationProgress", "📋 正在整理行程内容...");
+        emit("update:generationProgress", t('trip.progress.formatting'));
         emit("update:progressPercent", 90);
 
         if (result.code === 200) {
-          emit("update:generationProgress", "🎉 行程生成完成！");
+          emit("update:generationProgress", t('trip.generated'));
           emit("update:progressPercent", 100);
 
           // 处理成功结果
@@ -1771,24 +1767,22 @@ export default {
           emit("generation-complete", tripData);
 
           ElMessage.success({
-            message: `🎯 AI行程生成成功！质量评分：${
-              result.data.qualityScore
-            }/100，用时${Math.round(result.data.processingTime / 1000)}秒`,
+            message: t('trip.messages.generateSuccess', { score: result.data.qualityScore, seconds: Math.round(result.data.processingTime / 1000) }),
             duration: 5000,
             showClose: true,
           });
         } else {
-          throw new Error(result.msg || "生成失败");
+          throw new Error(result.msg || t('trip.errors.generateFailed'));
         }
       } catch (error) {
         console.error("生成行程失败:", error);
         
         // 检查是否是用户主动取消
         if (error.name === 'AbortError') {
-          emit("update:generationProgress", "⏹️ 已取消生成");
+          emit("update:generationProgress", t('trip.messages.cancelled'));
           emit("update:progressPercent", 0);
           ElMessage.info({
-            message: "已取消行程生成",
+            message: t('trip.messages.cancelled'),
             duration: 3000,
           });
           emit("update:generating", false);
@@ -1796,25 +1790,25 @@ export default {
           return;
         }
         
-        emit("update:generationProgress", "❌ 生成失败，请稍后重试");
+        emit("update:generationProgress", t('trip.errors.generateFailedRetry'));
         emit("update:progressPercent", 0);
 
         // 根据错误类型提供不同的提示
-        let errorMessage = "生成行程失败";
+        let errorMessage = t('trip.errors.generateFailed');
         if (
           error.message.includes("timeout") ||
           error.message.includes("TimeoutException")
         ) {
-          errorMessage = "⏰ AI服务响应超时，请稍后重试";
+          errorMessage = t('trip.errors.timeout');
         } else if (
           error.message.includes("402") ||
           error.message.includes("Payment Required")
         ) {
-          errorMessage = "💳 AI服务余额不足，请联系管理员";
+          errorMessage = t('trip.errors.paymentRequired');
         } else if (error.message.includes("Failed to fetch")) {
-          errorMessage = "🌐 网络连接失败，请检查网络后重试";
+          errorMessage = t('trip.errors.network');
         } else {
-          errorMessage = `❌ ${error.message}`;
+          errorMessage = `${t('trip.errors.withMessage')} ${error.message}`;
         }
 
         ElMessage.error({
@@ -1836,7 +1830,7 @@ export default {
       if (abortController) {
         abortController.abort();
         ElMessage.info({
-          message: "正在取消生成...",
+          message: t('trip.messages.cancelling'),
           duration: 2000,
         });
       }
@@ -2056,6 +2050,7 @@ export default {
     );
 
     return {
+      t,
       generatePromptText,
       showFullPrompt,
       copyPromptToClipboard,

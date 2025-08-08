@@ -81,7 +81,7 @@ type="primary" size="large"
                         <el-icon><Refresh /></el-icon>
                       </el-button>
                       <el-popconfirm
-                        title="确定要移除此活动吗？"
+                        :title="t('common.confirmRemove')"
                         @confirm="removeActivity(index, activityIndex)"
                       >
                         <template #reference>
