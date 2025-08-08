@@ -837,8 +837,16 @@ export default {
       // 从旅行类型标签中提取并转换为中文 - 兼容多种数据格式
       const travelTags = preferences.selectedTags || preferences.tags || [];
       if (Array.isArray(travelTags) && travelTags.length > 0) {
+        const tripFocus = (props.preferenceForm && Array.isArray(props.preferenceForm.focusAreas)) ? props.preferenceForm.focusAreas : [];
+        const isTripFocusSet = tripFocus.length > 0;
         travelTags.forEach((tag) => {
-          const chineseTag = tagMapping.value[tag] || tag;
+          // 若用户在本次行程中设置了 focusAreas，则对于属于体验重点域的标签，按本次行程为准：
+          // - 如果该标签是体验重点域的键，且未被本次行程选择，则不纳入“个人偏好”集合，避免与本次选择冲突
+          const isFocusDomainTag = !!(focusAreaMapping[tag]);
+          if (isTripFocusSet && isFocusDomainTag && !tripFocus.includes(tag)) {
+            return; // 跳过与本次勾选相冲突的通用/历史标签
+          }
+          const chineseTag = tagMapping.value[tag] || focusAreaMapping[tag] || tag;
           tags.push(chineseTag);
         });
       }
@@ -858,8 +866,8 @@ export default {
         if (chineseTag) tags.push(chineseTag);
       }
 
-      // 旅行节奏
-      if (preferences.travelPace) {
+      // 旅行节奏（如果本次行程已显式设置 pacePreference，则不再从个人偏好回填）
+      if (preferences.travelPace && !(props.preferenceForm && props.preferenceForm.pacePreference)) {
         const chineseTag = tagMapping.value[preferences.travelPace];
         if (chineseTag) tags.push(chineseTag);
       }

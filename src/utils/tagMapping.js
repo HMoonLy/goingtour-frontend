@@ -225,17 +225,25 @@ export const focusAreaMapping = {
     // 自然风光类
     natural_scenery: "自然风光",
     nature: "自然风光",
+    mountain: "山地风光",
+    mountains: "山地风光",
+    viewpoint: "观景台/观景点",
     outdoor_adventure: "户外探险",
 
     // 美食体验类
     local_cuisine: "地道美食",
     food_experience: "美食体验",
     food: "美食体验",
+    market: "市集/集市",
+    cafe: "咖啡馆",
 
     // 都市生活类
     urban_lifestyle: "都市生活",
     urban_life: "都市风情",
+    city_life: "都市生活",
+    urban: "都市风情",
     modern_technology: "现代科技",
+    modern_attractions: "现代景点",
     nightlife: "夜生活",
 
     // 休闲娱乐类
@@ -250,6 +258,10 @@ export const focusAreaMapping = {
 
     // 健康养生类
     wellness: "健康养生",
+
+    // 文化体验补充
+    culture: "文化体验",
+    landmark: "地标景点",
 };
 
 // 饮食禁忌映射
@@ -326,100 +338,6 @@ export const budgetMapping = {
     luxury: { text: "豪华奢华", price: "约1500元/天" },
 };
 
-// 城市信息数据库
-export const cityInfoDatabase = {
-    // 一线城市
-    beijing: {
-        name: "北京",
-        description: "千年古都，文化底蕴深厚",
-        region: "华北",
-        features: ["历史文化", "政治中心", "现代都市"],
-    },
-    shanghai: {
-        name: "上海",
-        description: "国际化大都市，东西文化交汇",
-        region: "华东",
-        features: ["现代都市", "金融中心", "海派文化"],
-    },
-    guangzhou: {
-        name: "广州",
-        description: "岭南文化之都，美食天堂",
-        region: "华南",
-        features: ["岭南文化", "美食天堂", "商贸中心"],
-    },
-    shenzhen: {
-        name: "深圳",
-        description: "改革开放窗口，科技创新之城",
-        region: "华南",
-        features: ["科技创新", "现代都市", "改革开放"],
-    },
-
-    // 历史文化名城
-    xian: {
-        name: "西安",
-        description: "古都长安，丝绸之路起点",
-        region: "西北",
-        features: ["历史文化", "古都", "丝绸之路"],
-    },
-    nanjing: {
-        name: "南京",
-        description: "六朝古都，江南文化重镇",
-        region: "华东",
-        features: ["历史文化", "江南文化", "古都"],
-    },
-    hangzhou: {
-        name: "杭州",
-        description: "人间天堂，西湖美景",
-        region: "华东",
-        features: ["自然风光", "江南文化", "西湖"],
-    },
-    suzhou: {
-        name: "苏州",
-        description: "园林之城，江南水乡",
-        region: "华东",
-        features: ["园林文化", "江南水乡", "传统文化"],
-    },
-
-    // 自然风光城市
-    chengdu: {
-        name: "成都",
-        description: "天府之国，休闲之都",
-        region: "西南",
-        features: ["休闲文化", "美食天堂", "熊猫故乡"],
-    },
-    kunming: {
-        name: "昆明",
-        description: "春城花都，高原明珠",
-        region: "西南",
-        features: ["自然风光", "春城", "高原"],
-    },
-    lhasa: {
-        name: "拉萨",
-        description: "雪域高原，藏传佛教圣地",
-        region: "西南",
-        features: ["藏传佛教", "高原风光", "民族文化"],
-    },
-
-    // 海滨城市
-    qingdao: {
-        name: "青岛",
-        description: "海滨城市，啤酒之都",
-        region: "华东",
-        features: ["海滨风光", "啤酒文化", "德式建筑"],
-    },
-    dalian: {
-        name: "大连",
-        description: "浪漫之都，海滨花园",
-        region: "东北",
-        features: ["海滨风光", "现代都市", "花园城市"],
-    },
-    xiamen: {
-        name: "厦门",
-        description: "海上花园，文艺之城",
-        region: "华东",
-        features: ["海滨风光", "文艺氛围", "闽南文化"],
-    },
-};
 
 // 工具函数
 
