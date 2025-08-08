@@ -8,7 +8,7 @@ const routes = [
         path: "/login",
         name: "Login",
         component: () =>
-            import ("../pages/User/Login.vue"),
+            import ("../pages/User/Auth/Login.vue"),
         meta: {
             titleKey: "route.login",
             requiresAuth: false,
@@ -18,7 +18,7 @@ const routes = [
         path: "/register",
         name: "Register",
         component: () =>
-            import ("../pages/User/Register.vue"),
+            import ("../pages/User/Auth/Register.vue"),
         meta: {
             titleKey: "route.register",
             requiresAuth: false,
@@ -52,7 +52,7 @@ const routes = [
                 path: "personal",
                 name: "Personal",
                 component: () =>
-                    import ("../pages/User/Profile.vue"),
+                    import ("../pages/User/Profile/Profile.vue"),
                 meta: {
                     titleKey: "route.personal",
                     requiresAuth: true,
@@ -62,7 +62,7 @@ const routes = [
                 path: "personal/profile",
                 name: "PersonalProfile",
                 component: () =>
-                    import ("../pages/User/Profile.vue"),
+                    import ("../pages/User/Profile/Profile.vue"),
                 meta: {
                     titleKey: "route.personal",
                     requiresAuth: true,
@@ -72,7 +72,7 @@ const routes = [
                 path: "personal/security",
                 name: "PersonalSecurity",
                 component: () =>
-                    import ("../pages/User/Security.vue"),
+                    import ("../pages/User/Settings/Security.vue"),
                 meta: {
                     titleKey: "settings.securitySettings",
                     requiresAuth: true,
@@ -82,7 +82,7 @@ const routes = [
                 path: "personal/preferences",
                 name: "PersonalPreferences",
                 component: () =>
-                    import ("../pages/User/Preferences.vue"),
+                    import ("../pages/User/Settings/Preferences.vue"),
                 meta: {
                     titleKey: "settings.preferences",
                     requiresAuth: true,
@@ -92,7 +92,7 @@ const routes = [
                 path: "personal/notifications",
                 name: "PersonalNotifications",
                 component: () =>
-                    import ("../pages/User/Notifications.vue"),
+                    import ("../pages/User/Settings/Notifications.vue"),
                 meta: {
                     titleKey: "settings.notifications",
                     requiresAuth: true,
@@ -102,7 +102,7 @@ const routes = [
                 path: "personal/system",
                 name: "PersonalSystem",
                 component: () =>
-                    import ("../pages/User/SystemSettings.vue"),
+                    import ("../pages/User/Settings/SystemSettings.vue"),
                 meta: {
                     titleKey: "settings.systemSettings",
                     requiresAuth: true,
@@ -112,7 +112,7 @@ const routes = [
                 path: "personal/history",
                 name: "PersonalHistory",
                 component: () =>
-                    import ("../pages/User/LoginHistory.vue"),
+                    import ("../pages/User/Settings/LoginHistory.vue"),
                 meta: {
                     titleKey: "settings.loginHistory",
                     requiresAuth: true,
@@ -122,7 +122,7 @@ const routes = [
                 path: "personal/data",
                 name: "PersonalData",
                 component: () =>
-                    import ("../pages/User/DataAndPrivacy.vue"),
+                    import ("../pages/User/Settings/DataAndPrivacy.vue"),
                 meta: {
                     titleKey: "settings.exportData",
                     requiresAuth: true,
@@ -132,7 +132,7 @@ const routes = [
                 path: "personal/danger",
                 name: "PersonalDanger",
                 component: () =>
-                    import ("../pages/User/DangerZone.vue"),
+                    import ("../pages/User/Settings/DangerZone.vue"),
                 meta: {
                     titleKey: "settings.deleteAccount",
                     requiresAuth: true,
@@ -142,7 +142,7 @@ const routes = [
                 path: "account-settings",
                 name: "AccountSettings",
                 component: () =>
-                    import ("../pages/User/AccountSettings.vue"),
+                    import ("../pages/User/Profile/AccountSettings.vue"),
                 meta: {
                     titleKey: "route.accountSettings",
                     requiresAuth: true,
@@ -152,7 +152,7 @@ const routes = [
                 path: "preferences",
                 name: "Preferences",
                 component: () =>
-                    import ("../pages/User/Preferences.vue"),
+                    import ("../pages/User/Settings/Preferences.vue"),
                 meta: {
                     titleKey: "route.preferences",
                     requiresAuth: true,

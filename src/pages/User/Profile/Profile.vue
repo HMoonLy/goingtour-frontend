@@ -177,13 +177,13 @@ import {
 } from "@element-plus/icons-vue";
 import UserCenterNav from "@/components/User/UserCenterNav.vue";
 import { translateTag, getMbtiName } from "@/utils/tagMapping.js";
-import Preferences from "@/pages/User/Preferences.vue";
-import Security from "@/pages/User/Security.vue";
-import Notifications from "@/pages/User/Notifications.vue";
-import SystemSettings from "@/pages/User/SystemSettings.vue";
-import LoginHistory from "@/pages/User/LoginHistory.vue";
-import DataAndPrivacy from "@/pages/User/DataAndPrivacy.vue";
-import DangerZone from "@/pages/User/DangerZone.vue";
+import Preferences from "../Settings/Preferences.vue";
+import Security from "../Settings/Security.vue";
+import Notifications from "../Settings/Notifications.vue";
+import SystemSettings from "../Settings/SystemSettings.vue";
+import LoginHistory from "../Settings/LoginHistory.vue";
+import DataAndPrivacy from "../Settings/DataAndPrivacy.vue";
+import DangerZone from "../Settings/DangerZone.vue";
 
 export default {
   name: "Profile",
