@@ -222,6 +222,7 @@ export default {
             others: '其他偏好'
         },
         perDay: '/ 天',
+        perDaySuffix: '每人/天',
         noPreferences: '还没有设置偏好信息',
         setNow: '立即设置',
         accountSettingsDesc: '安全设置和隐私管理',

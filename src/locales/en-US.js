@@ -184,6 +184,7 @@ export default {
             others: 'Other Preferences'
         },
         perDay: ' / day',
+        perDaySuffix: 'per person/day',
         noPreferences: 'No preferences set yet',
         setNow: 'Set now',
         myTripsDesc: 'View and manage your trip history',
