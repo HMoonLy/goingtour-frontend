@@ -450,7 +450,7 @@ const loadTripData = async () => {
     }
   } catch (error) {
     handleApiError(error, "加载行程数据失败，请重试");
-    router.push("/personal");
+    router.push("/home");
   } finally {
     loading.value = false;
   }
@@ -517,13 +517,13 @@ const goBack = () => {
   if (!isReadOnly.value && hasUnsavedChanges()) {
     confirmUnsavedChanges()
     .then(() => {
-      router.push("/personal");
+      router.push("/home");
     })
     .catch(() => {
       // 用户选择继续编辑
     });
   } else {
-    router.push("/personal");
+    router.push("/home");
   }
 };
 

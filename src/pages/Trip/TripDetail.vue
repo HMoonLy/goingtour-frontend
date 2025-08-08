@@ -452,12 +452,12 @@ export default {
           console.log("✅ 从本地存储加载行程数据成功:", trip);
         } else {
           ElMessage.error(t('messages.notFound'));
-          router.push("/personal");
+          router.push("/home");
         }
       } catch (error) {
         console.error("❌ 加载行程数据失败:", error);
         ElMessage.error(t('messages.updateFailed'));
-        router.push("/personal");
+        router.push("/home");
       } finally {
         loading.value = false;
       }
@@ -475,14 +475,14 @@ export default {
             type: "warning",
           },
         )
-          .then(() => {
-            router.push("/personal");
+            .then(() => {
+            router.push("/home");
           })
           .catch(() => {
             // 用户选择取消
           });
       } else {
-        router.push("/personal");
+        router.push("/home");
       }
     };
 
@@ -496,7 +496,7 @@ export default {
     const cancelEdit = () => {
       isEditing.value = false;
       editedTrip.value = JSON.parse(JSON.stringify(tripData.value));
-      router.push("/personal");
+      router.push("/home");
     };
 
     // 解析预算字符串为数字（处理格式化字符串如"约 ¥1,600"）
@@ -561,7 +561,7 @@ export default {
 
             // 确保数据保存完成后再跳转
             setTimeout(() => {
-              router.push("/personal");
+              router.push("/home");
             }, 500);
             return;
           }
@@ -595,8 +595,8 @@ export default {
           console.log("💾 本地保存行程成功:", editedTrip.value.title);
 
           // 确保数据保存完成后再跳转
-          setTimeout(() => {
-            router.push("/personal");
+            setTimeout(() => {
+            router.push("/home");
           }, 500);
         }
       } catch (error) {
@@ -919,7 +919,7 @@ export default {
 
           // 确保删除操作完成后再跳转
           setTimeout(() => {
-            router.push("/personal");
+            router.push("/home");
           }, 500);
           return;
         } catch (apiError) {
@@ -938,7 +938,7 @@ export default {
 
         // 确保删除操作完成后再跳转
         setTimeout(() => {
-          router.push("/personal");
+          router.push("/home");
         }, 500);
       } catch (error) {
         if (error === "cancel") {

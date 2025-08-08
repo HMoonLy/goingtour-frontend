@@ -326,7 +326,7 @@ export default {
         const redirectPath =
           userStore.getAndClearRedirectPath() ||
           route.query.redirect ||
-          "/personal";
+          "/home";
 
         await router.push(redirectPath);
       } catch (error) {
@@ -354,7 +354,7 @@ export default {
     // 组件挂载
     onMounted(() => {
       if (userStore.isLoggedIn) {
-        router.push("/personal");
+        router.push("/home");
       }
     });
 

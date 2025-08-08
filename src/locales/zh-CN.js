@@ -3,6 +3,7 @@ export default {
         login: '登录',
         register: '注册',
         personal: '个人中心',
+        home: '首页',
         accountSettings: '账户设置',
         preferences: '偏好设置',
         destinations: '选择目的地',
@@ -249,6 +250,24 @@ export default {
 
     // 行程相关
     trip: {
+        aiPrompt: {
+            preview: 'AI提示词预览',
+            viewFull: '查看完整提示词'
+        },
+        messages: {
+            fullPromptReady: '已生成完整提示词，可复制到 AI 工具中测试',
+            copySuccess: '已复制到剪贴板！',
+            copyFailed: '复制失败，请手动复制',
+            cancelling: '正在取消生成...',
+            cancelled: '已取消生成'
+        },
+        messages: {
+            fullPromptReady: '已生成完整提示词，可复制到 AI 工具中测试',
+            copySuccess: '已复制到剪贴板！',
+            copyFailed: '复制失败，请手动复制',
+            cancelling: '正在取消生成...',
+            cancelled: '已取消生成'
+        },
         baseInfo: {
             title: '行程基础信息',
             subtitle: '完善您的出行计划，我们将为您量身定制专属行程'
@@ -454,6 +473,7 @@ export default {
 
     // 偏好小文案（TripPreferences 内使用）
     preferences: {
+        perDay: '每人/天',
         smartPrefilled: '已为您智能预填推荐选项',
         recommendedCount: '已为您推荐{count}项',
         pace: { title: '行程节奏偏好', desc: '选择符合您这次旅行的时间安排和体验深度' },

@@ -349,9 +349,9 @@ const saveTrip = async () => {
         saved: true
       });
       
-      // 延迟跳转到个人中心
+      // 延迟跳转到首页
       setTimeout(() => {
-        router.push("/personal");
+        router.push("/home");
       }, 1500);
     } else {
       throw new Error(response.msg || "保存失败");

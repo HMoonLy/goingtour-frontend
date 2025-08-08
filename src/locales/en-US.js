@@ -3,6 +3,7 @@ export default {
         login: "Login",
         register: "Register",
         personal: "Personal Center",
+        home: "Home",
         accountSettings: "Account Settings",
         preferences: "Preferences",
         destinations: "Choose Destination",

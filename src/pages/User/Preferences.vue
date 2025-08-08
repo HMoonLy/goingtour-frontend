@@ -1015,8 +1015,8 @@ export default {
               router.push(returnTo);
             }
           } else {
-            // 默认跳转到个人中心
-            router.push("/personal");
+            // 默认跳转到首页
+            router.push("/home");
           }
         }, 1000);
       } catch (error) {

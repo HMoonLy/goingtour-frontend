@@ -31,18 +31,28 @@ const routes = [
         component: () =>
             import ("../layouts/DefaultLayout.vue"),
         children: [
-            // 默认重定向到个人中心
+            // 默认重定向到首页
             {
                 path: "",
-                redirect: "/personal",
+                redirect: "/home",
             },
 
             // 用户模块
             {
+                path: "home",
+                name: "Home",
+                component: () =>
+                    import ("../pages/User/Personal.vue"),
+                meta: {
+                    titleKey: "route.home",
+                    requiresAuth: true,
+                },
+            },
+            {
                 path: "personal",
                 name: "Personal",
                 component: () =>
-                    import ("../pages/User/Personal.vue"),
+                    import ("../pages/User/Profile.vue"),
                 meta: {
                     titleKey: "route.personal",
                     requiresAuth: true,
@@ -245,12 +255,12 @@ router.beforeEach(async(to, from, next) => {
         }
     }
 
-    // 如果已登录用户访问登录页，重定向到个人中心
+    // 如果已登录用户访问登录页，重定向到首页
     if (
         userStore.isLoggedIn &&
         (to.path === "/login" || to.path === "/register")
     ) {
-        next("/personal");
+        next("/home");
         return;
     }
 

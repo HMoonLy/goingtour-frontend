@@ -3,14 +3,22 @@
     <!-- 顶部导航栏 -->
     <header class="layout-header">
       <div class="header-container">
-                <div
-          class="header-logo" @click="$router.push('/destinations')"
+        <div
+          class="header-logo" @click="$router.push('/home')"
         >
           <h2>GoingTour</h2>
         </div>
 
         <nav class="header-nav">
           <div class="nav-menu">
+            <div
+              class="nav-item"
+              :class="{ 'is-active': activeMenu === '/home' }"
+              @click="$router.push('/home')"
+            >
+              <el-icon><MapLocation /></el-icon>
+              <span>{{ t('nav.home') }}</span>
+            </div>
             <div
               class="nav-item"
               :class="{ 'is-active': activeMenu === '/destinations' }"
@@ -113,6 +121,7 @@ export default {
     // 当前激活的菜单项
     const activeMenu = computed(() => {
       const path = route.path;
+      if (path === '/' || path.startsWith('/home')) return '/home';
       if (path.startsWith("/destinations")) return "/destinations";
       if (path.startsWith("/trip/create")) return "/trip/create";
       // 其他页面不激活任何主导航菜单项

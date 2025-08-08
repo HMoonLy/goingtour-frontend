@@ -932,14 +932,13 @@ export default {
     watch(
       () => route.path,
       (newPath, oldPath) => {
-        // 当切换到个人中心页面时，检查是否需要刷新数据
+        // 当切换回首页（仪表盘）时，检查是否需要刷新数据
         if (
-          newPath === "/personal" &&
+          (newPath === "/home" || newPath === "/") &&
           oldPath &&
           (oldPath.includes("/preferences") || oldPath.includes("/trip/"))
         ) {
-          console.log("🔄 从其他页面返回个人中心，刷新数据");
-          // 延迟执行，确保页面完全加载
+          console.log("🔄 从其他页面返回首页，刷新数据");
           setTimeout(() => {
             loadUserData();
           }, 100);

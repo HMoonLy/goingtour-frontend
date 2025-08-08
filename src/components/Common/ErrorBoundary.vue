@@ -106,7 +106,7 @@ const handleRetry = async () => {
 
 // 返回首页
 const handleGoHome = () => {
-  router.push('/personal');
+  router.push('/home');
 };
 
 // 重置错误状态的方法，供外部调用

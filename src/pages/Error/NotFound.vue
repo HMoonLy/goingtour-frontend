@@ -61,9 +61,9 @@ size="120" color="#E6A23C"
           <el-link
             type="primary"
             :underline="false"
-            @click="$router.push('/personal')"
+            @click="$router.push('/home')"
           >
-            {{ t('nav.profile') }}
+            {{ t('nav.home') }}
           </el-link>
         </div>
       </div>

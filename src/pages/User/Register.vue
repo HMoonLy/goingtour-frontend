@@ -398,7 +398,7 @@ export default {
 
         // 注册成功后自动登录并跳转
         setTimeout(() => {
-          router.push("/personal");
+          router.push("/home");
         }, 1500);
       } catch (error) {
         console.error("注册失败:", error);
@@ -468,7 +468,7 @@ export default {
     // 组件挂载
     onMounted(() => {
       if (userStore.isLoggedIn) {
-        router.push("/personal");
+        router.push("/home");
       }
     });
 
