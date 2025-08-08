@@ -35,6 +35,15 @@
 
       <!-- 步骤内容 -->
       <div class="step-container">
+      <!-- 顶部引导条 -->
+      <el-alert
+        class="onboarding-hint"
+        type="success"
+        show-icon
+        closable
+        :title="t('trip.onboarding.title') || '创建向导'"
+        :description="t('trip.onboarding.desc') || '按步骤完成基础信息、偏好设置和AI生成；你可以随时返回修改。'"
+      />
       <!-- 第一步：基础信息 -->
       <TripBaseInfo
         v-show="currentStep === 0"

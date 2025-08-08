@@ -57,6 +57,8 @@ export const aiScenarios = [{
         title: '上海周末美食 · 2天',
         desc: '本帮菜+市集/咖啡，夜宵/夜生活',
         city: { adcode: '310000', name: '上海市' },
+        // 首页卡片可选配封面图（尺寸建议 600x300 或 3:2）
+        cover: '/images/scenarios/shanghai_food.jpg',
         preset: {
             baseForm: { days: 2 },
             preferenceForm: {

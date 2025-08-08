@@ -70,3 +70,10 @@ button:focus-visible {
 
 
 /* 颜色与背景由 styles/themes.css 控制，这里不再根据系统偏好强制覆盖 */
+
+
+/* 全局消息避免遮挡顶部导航（默认导航64px，高度+间距取72px） */
+
+.el-message {
+    top: 72px !important;
+}
