@@ -173,9 +173,18 @@ export default {
 
 <style scoped>
 .profile-page {
-  max-width: 960px;
-  margin: 24px auto;
-  padding: 0 16px;
+  position: fixed !important;
+  top: 64px !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: calc(100vh - 64px) !important;
+  margin: 0 !important;
+  padding: 20px !important;
+  background: #f5f7fa !important;
+  overflow-y: auto !important;
+  z-index: 1 !important;
 }
 .profile-header {
   display: flex;
