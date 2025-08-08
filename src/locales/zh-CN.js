@@ -373,6 +373,11 @@ export default {
             card: '现代美观',
             checklist: '便于执行'
         },
+        promptQuality: {
+            high: '完善度高',
+            medium: '基本完善',
+            low: '需完善'
+        },
         noAlternativeAttractions: '暂无其他景点可供替换',
         noAlternativeRestaurants: '暂无其他餐厅可供替换',
         noAttractionsToAdd: '暂无可添加的景点',

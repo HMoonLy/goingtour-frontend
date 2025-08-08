@@ -1052,9 +1052,9 @@ export default {
     // 获取提示词完成度文本
     const getPromptCompletionText = () => {
       const score = getPromptCompletionScore();
-      if (score >= 80) return "完善度高";
-      if (score >= 50) return "基本完善";
-      return "需完善";
+      if (score >= 80) return t('trip.promptQuality.high');
+      if (score >= 50) return t('trip.promptQuality.medium');
+      return t('trip.promptQuality.low');
     };
 
     // 生成完整提示词文本

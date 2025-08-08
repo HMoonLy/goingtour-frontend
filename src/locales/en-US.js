@@ -327,7 +327,9 @@ export default {
             fullPromptTitle: 'Full AI Prompt',
             copyPrompt: 'Copy Prompt',
             close: 'Close',
-            copyAndClose: 'Copy & Close'
+            copyAndClose: 'Copy & Close',
+            regenerateTitle: 'Confirm Regenerate',
+            regenerateMessage: 'Regenerating will overwrite the current trip. Continue?'
         },
         messages: {
             fullPromptReady: 'Full prompt generated. You can copy it to test in AI tools',
@@ -410,10 +412,6 @@ export default {
             submitFeedback: 'Submit Feedback',
             thanksRating: 'Thanks for your {n}-star rating!'
         },
-        dialog: {
-            regenerateTitle: 'Confirm Regenerate',
-            regenerateMessage: 'Regenerating will overwrite the current trip. Continue?'
-        },
         styles: {
             table: 'Table',
             narrative: 'Narrative',
@@ -425,6 +423,11 @@ export default {
             narrative: 'Rich details',
             card: 'Modern layout',
             checklist: 'Easy to follow'
+        },
+        promptQuality: {
+            high: 'High completeness',
+            medium: 'Basically complete',
+            low: 'Needs improvement'
         }
     },
 
