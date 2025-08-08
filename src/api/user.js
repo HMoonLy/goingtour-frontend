@@ -180,4 +180,34 @@ export const userApi = {
     deleteAccount(userId, data) {
         return http.delete(`/user/${userId}/account`, data);
     },
+
+    // ========== 登录记录 ==========
+
+    /**
+     * 获取登录记录
+     * @param {number} userId - 用户ID
+     * @param {number} page - 页码
+     * @param {number} size - 页大小
+     */
+    getLoginHistory(userId, page = 1, size = 10) {
+        return http.get(`/user/${userId}/login-history`, {
+            params: { page, size }
+        });
+    },
+
+    /**
+     * 获取登录统计
+     * @param {number} userId - 用户ID
+     */
+    getLoginStats(userId) {
+        return http.get(`/user/${userId}/login-stats`);
+    },
+
+    /**
+     * 清除登录记录
+     * @param {number} userId - 用户ID
+     */
+    clearLoginHistory(userId) {
+        return http.delete(`/user/${userId}/login-history`);
+    }
 };

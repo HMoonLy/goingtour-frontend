@@ -525,7 +525,7 @@ export default {
 
 /* ========== 左侧品牌展示区 ========== */
 .register-brand {
-  flex: 1;
+  flex: 0 0 35%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 40px;
   display: flex;
@@ -681,7 +681,7 @@ export default {
 
 /* ========== 右侧注册表单区 ========== */
 .register-form-section {
-  flex: 0 0 600px;
+  flex: 1;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   display: flex;

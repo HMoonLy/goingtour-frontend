@@ -6,8 +6,7 @@
         <!-- Logo和品牌名 -->
         <div class="brand-header">
           <div class="brand-logo">
-            <el-icon size="60"
-color="#ffffff">
+            <el-icon size="60" color="#ffffff">
               <MapLocation />
             </el-icon>
           </div>
@@ -19,8 +18,7 @@ color="#ffffff">
         <div class="features">
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32"
-color="#ffffff">
+              <el-icon size="32" color="#ffffff">
                 <Location />
               </el-icon>
             </div>
@@ -32,8 +30,7 @@ color="#ffffff">
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32"
-color="#ffffff">
+              <el-icon size="32" color="#ffffff">
                 <DataAnalysis />
               </el-icon>
             </div>
@@ -45,8 +42,7 @@ color="#ffffff">
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32"
-color="#ffffff">
+              <el-icon size="32" color="#ffffff">
                 <Share />
               </el-icon>
             </div>
@@ -83,8 +79,7 @@ color="#ffffff">
           @submit.prevent="handleLogin"
         >
           <!-- 邮箱输入 -->
-          <el-form-item prop="email"
-class="form-item">
+          <el-form-item prop="email" class="form-item">
             <label class="form-label">邮箱</label>
             <el-input
               v-model="loginForm.email"
@@ -100,8 +95,7 @@ class="form-item">
           </el-form-item>
 
           <!-- 验证码输入 -->
-          <el-form-item prop="code"
-class="form-item">
+          <el-form-item prop="code" class="form-item">
             <label class="form-label">验证码</label>
             <div class="code-input-group">
               <el-input
@@ -197,11 +191,9 @@ class="form-item">
         <div class="agreement">
           <p>
             登录即表示同意
-            <el-link
-type="primary" :underline="false"> 《用户协议》 </el-link>
+            <el-link type="primary" :underline="false"> 《用户协议》 </el-link>
             和
-            <el-link
-type="primary" :underline="false"> 《隐私政策》 </el-link>
+            <el-link type="primary" :underline="false"> 《隐私政策》 </el-link>
           </p>
         </div>
       </div>
@@ -328,7 +320,7 @@ export default {
         const user = await userStore.login(loginForm.email, loginForm.code);
 
         handleSuccess(`欢迎回来，${user.nickname || "用户"}！`, {
-          showNotification: true
+          showNotification: true,
         });
 
         const redirectPath =
@@ -416,7 +408,7 @@ export default {
 
 /* ========== 左侧品牌展示区 ========== */
 .login-brand {
-  flex: 1;
+  flex: 0 0 35%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 40px;
   display: flex;
@@ -427,13 +419,17 @@ export default {
 }
 
 .login-brand::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -50%;
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.1) 1px,
+    transparent 1px
+  );
   background-size: 50px 50px;
   animation: float-dots 20s linear infinite;
 }
@@ -554,7 +550,7 @@ export default {
 
 /* ========== 右侧登录表单区 ========== */
 .login-form-section {
-  flex: 0 0 600px;
+  flex: 1;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   display: flex;
@@ -566,16 +562,18 @@ export default {
 }
 
 .login-form-section::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, 
-    rgba(255, 255, 255, 0.9) 0%, 
-    rgba(255, 255, 255, 0.8) 50%, 
-    rgba(255, 255, 255, 0.9) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0.9) 100%
+  );
   z-index: 1;
 }
 
@@ -652,7 +650,9 @@ export default {
 .form-input :deep(.el-input.is-focus .el-input__wrapper) {
   border-color: #667eea;
   background: rgba(255, 255, 255, 1);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1), 0 4px 16px rgba(102, 126, 234, 0.15);
+  box-shadow:
+    0 0 0 3px rgba(102, 126, 234, 0.1),
+    0 4px 16px rgba(102, 126, 234, 0.15);
   transform: translateY(-2px);
 }
 
@@ -673,7 +673,7 @@ export default {
   font-size: 13px;
   font-weight: 500;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background:#0070f8;
+  background: #0070f8;
   border: none;
   color: white;
 }
@@ -681,7 +681,6 @@ export default {
 .send-code-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-
 }
 
 .login-btn {
@@ -699,13 +698,18 @@ export default {
 }
 
 .login-btn::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
   transition: left 0.5s;
 }
 
@@ -751,7 +755,7 @@ export default {
 }
 
 .social-btn::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;
@@ -825,11 +829,11 @@ export default {
   .login-brand {
     padding: 30px;
   }
-  
+
   .brand-title {
     font-size: 48px;
   }
-  
+
   .login-form-section {
     flex: 0 0 500px;
   }
@@ -841,25 +845,25 @@ export default {
     height: auto;
     min-height: calc(100vh - 64px);
   }
-  
+
   .login-brand {
     flex: 0 0 40vh;
     min-height: 300px;
     padding: 20px;
   }
-  
+
   .brand-title {
     font-size: 36px;
   }
-  
+
   .brand-subtitle {
     font-size: 16px;
   }
-  
+
   .features {
     display: none;
   }
-  
+
   .login-form-section {
     flex: 1;
     min-height: 60vh;
@@ -873,33 +877,33 @@ export default {
     min-height: 250px;
     padding: 15px;
   }
-  
+
   .brand-title {
     font-size: 28px;
     letter-spacing: 1px;
   }
-  
+
   .brand-subtitle {
     font-size: 14px;
   }
-  
+
   .form-container {
     max-width: 320px;
   }
-  
+
   .form-title {
     font-size: 24px;
   }
-  
+
   .form-subtitle {
     font-size: 14px;
   }
-  
+
   .code-input-group {
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .send-code-btn {
     width: 100%;
   }
@@ -910,45 +914,45 @@ export default {
     top: 0 !important;
     height: 100vh !important;
   }
-  
+
   .login-brand {
     flex: 0 0 25vh;
     min-height: 200px;
     padding: 10px;
   }
-  
+
   .brand-header {
     margin-bottom: 20px;
   }
-  
+
   .brand-title {
     font-size: 24px;
   }
-  
+
   .brand-subtitle {
     font-size: 12px;
   }
-  
+
   .form-container {
     max-width: 280px;
   }
-  
+
   .form-header {
     margin-bottom: 30px;
   }
-  
+
   .form-title {
     font-size: 20px;
   }
-  
+
   .form-item {
     margin-bottom: 20px;
   }
-  
+
   .social-login {
     gap: 12px;
   }
-  
+
   .social-btn {
     width: 44px;
     height: 44px;
@@ -997,7 +1001,7 @@ export default {
   .form-input :deep(.el-input__wrapper) {
     border-width: 3px;
   }
-  
+
   .login-btn {
     border: 2px solid #333;
   }

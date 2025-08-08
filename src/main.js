@@ -7,9 +7,12 @@ import * as ElementPlusIconsVue from "@element-plus/icons-vue";
 import App from "./App.vue";
 import router from "./router/router.js";
 import { useUserStore } from "./store/user.js";
+import { initI18n } from "./utils/i18n.js";
+import { initTheme } from "./utils/theme.js";
 
 // 导入全局样式
 import "./style.css";
+import "./styles/themes.css";
 
 // 创建Vue应用实例
 const app = createApp(App);
@@ -61,12 +64,18 @@ if (
 
 // 初始化应用
 const initApp = async() => {
+    // 初始化国际化
+    initI18n();
+
+    // 初始化主题
+    initTheme();
+
     // 初始化用户状态（包括JWT令牌恢复）
     const userStore = useUserStore();
     userStore.init();
 
     // 如果用户已登录，刷新用户信息
-    if (userStore.isLoggedIn && userStore.currentUser?.id) {
+    if (userStore.isLoggedIn && userStore.currentUser ? .id) {
         try {
             await userStore.fetchUserInfo();
         } catch (error) {

@@ -260,13 +260,17 @@
               <!-- 语言设置 -->
               <div class="setting-item">
                 <div class="item-label">
-                  <span class="label-text">语言</span>
-                  <span class="label-desc">选择系统显示语言</span>
+                  <span class="label-text">{{ t('settings.language') }}</span>
+                  <span class="label-desc">{{ t('common.optional') }}</span>
                 </div>
                 <div class="item-control">
-                  <el-select v-model="systemSettings.language" @change="updateSystemSettings">
-                    <el-option label="简体中文" value="zh-CN" />
-                    <el-option label="English" value="en" />
+                  <el-select v-model="currentLanguage" size="small" @change="handleLanguageChange">
+                    <el-option 
+                      v-for="(label, code) in supportedLocales" 
+                      :key="code"
+                      :label="label" 
+                      :value="code" 
+                    />
                   </el-select>
                 </div>
               </div>
@@ -274,14 +278,18 @@
               <!-- 主题设置 -->
               <div class="setting-item">
                 <div class="item-label">
-                  <span class="label-text">主题</span>
-                  <span class="label-desc">选择界面主题</span>
+                  <span class="label-text">{{ t('settings.theme') }}</span>
+                  <span class="label-desc">{{ t('common.optional') }}</span>
                 </div>
                 <div class="item-control">
-                  <el-radio-group v-model="systemSettings.theme" @change="updateSystemSettings">
-                    <el-radio value="light">浅色</el-radio>
-                    <el-radio value="dark">深色</el-radio>
-                    <el-radio value="auto">跟随系统</el-radio>
+                  <el-radio-group v-model="selectedTheme" @change="handleThemeChange">
+                    <el-radio 
+                      v-for="(option, key) in themeOptions" 
+                      :key="key"
+                      :value="option.value"
+                    >
+                      {{ option.label }}
+                    </el-radio>
                   </el-radio-group>
                 </div>
               </div>
@@ -433,6 +441,112 @@
       </template>
     </el-dialog>
 
+    <!-- 登录记录对话框 -->
+    <el-dialog
+      v-model="showLoginHistoryDialog"
+      title="登录记录"
+      width="80%"
+      :close-on-click-modal="false"
+    >
+      <!-- 统计信息 -->
+      <div class="login-stats-summary" v-if="loginStats.totalLogins">
+        <el-row :gutter="20">
+          <el-col :span="6">
+            <div class="stat-item">
+              <div class="stat-value">{{ loginStats.totalLogins || 0 }}</div>
+              <div class="stat-label">总登录次数</div>
+            </div>
+          </el-col>
+          <el-col :span="6">
+            <div class="stat-item">
+              <div class="stat-value">{{ loginStats.recentLogins || 0 }}</div>
+              <div class="stat-label">近30天登录</div>
+            </div>
+          </el-col>
+          <el-col :span="6">
+            <div class="stat-item">
+              <div class="stat-value">{{ formatLoginTime(loginStats.lastLoginTime) }}</div>
+              <div class="stat-label">最近登录</div>
+            </div>
+          </el-col>
+          <el-col :span="6">
+            <div class="stat-item">
+              <div class="stat-value">{{ loginStats.lastLoginDevice || '-' }}</div>
+              <div class="stat-label">常用设备</div>
+            </div>
+          </el-col>
+        </el-row>
+      </div>
+
+      <!-- 操作按钮 -->
+      <div class="history-actions">
+        <el-button type="danger" plain @click="clearLoginHistory">
+          清除所有记录
+        </el-button>
+      </div>
+
+      <!-- 登录记录表格 -->
+      <el-table 
+        :data="loginHistoryData" 
+        v-loading="loginHistoryLoading"
+        style="width: 100%"
+        empty-text="暂无登录记录"
+      >
+        <el-table-column prop="loginTime" label="登录时间" width="160">
+          <template #default="{ row }">
+            {{ formatLoginTime(row.loginTime) }}
+          </template>
+        </el-table-column>
+        
+        <el-table-column prop="status" label="状态" width="80">
+          <template #default="{ row }">
+            <el-tag :type="getStatusColor(row.status)" size="small">
+              {{ getStatusText(row.status) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        
+        <el-table-column prop="loginMethod" label="登录方式" width="100">
+          <template #default="{ row }">
+            {{ row.loginMethod === 'EMAIL_CODE' ? '邮箱验证码' : '密码登录' }}
+          </template>
+        </el-table-column>
+        
+        <el-table-column prop="ipAddress" label="IP地址" width="140" />
+        
+        <el-table-column prop="location" label="地理位置" width="100" />
+        
+        <el-table-column prop="deviceType" label="设备类型" width="80" />
+        
+        <el-table-column prop="browser" label="浏览器" width="100" />
+        
+        <el-table-column prop="operatingSystem" label="操作系统" width="120" />
+        
+        <el-table-column prop="sessionDuration" label="会话时长" width="100">
+          <template #default="{ row }">
+            {{ row.sessionDuration ? `${row.sessionDuration}分钟` : '-' }}
+          </template>
+        </el-table-column>
+        
+        <el-table-column prop="failureReason" label="失败原因" min-width="150">
+          <template #default="{ row }">
+            {{ row.failureReason || '-' }}
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 分页 -->
+      <div class="history-pagination">
+        <el-pagination
+          v-model:current-page="historyPagination.page"
+          :page-size="historyPagination.size"
+          :total="historyPagination.total"
+          layout="prev, pager, next, jumper"
+          @current-change="handlePageChange"
+        />
+      </div>
+    </el-dialog>
+
     <!-- 注销账户确认对话框 -->
     <el-dialog
       v-model="showDeleteAccountDialog"
@@ -483,6 +597,8 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useI18n } from '@/utils/i18n.js'
+import { useTheme } from '@/utils/theme.js'
 import { ArrowLeft } from '@element-plus/icons-vue'
 import { useUserStore } from '@/store/user.js'
 import AvatarUploader from '@/components/Common/AvatarUploader.vue'
@@ -496,6 +612,8 @@ export default {
   setup() {
     const router = useRouter()
     const userStore = useUserStore()
+    const { t, locale, setLocale, supportedLocales } = useI18n()
+    const { currentTheme, setTheme, themeOptions } = useTheme()
 
     // 响应式数据
     const activeTab = ref('profile')
@@ -609,6 +727,16 @@ export default {
       // 这里需要从用户信息中判断是否已设置密码
       // 由于安全原因，后端不会返回实际密码，我们需要添加一个标识字段
       return userInfo.value.hasPassword || false
+    })
+
+    const currentLanguage = computed({
+      get: () => locale.value,
+      set: (value) => setLocale(value)
+    })
+
+    const selectedTheme = computed({
+      get: () => currentTheme.value,
+      set: (value) => setTheme(value)
     })
 
     // 方法
@@ -727,8 +855,120 @@ export default {
       }
     }
 
-    const showLoginHistory = () => {
-      ElMessage.info('登录记录功能开发中，敬请期待')
+    // 登录记录相关状态
+    const showLoginHistoryDialog = ref(false)
+    const loginHistoryLoading = ref(false)
+    const loginHistoryData = ref([])
+    const loginStats = ref({})
+    const historyPagination = reactive({
+      page: 1,
+      size: 10,
+      total: 0
+    })
+
+    const showLoginHistory = async () => {
+      showLoginHistoryDialog.value = true
+      await loadLoginHistory()
+      await loadLoginStats()
+    }
+
+    const loadLoginHistory = async () => {
+      try {
+        loginHistoryLoading.value = true
+        const { userApi } = await import('@/api/user.js')
+        const response = await userApi.getLoginHistory(
+          userInfo.value.id, 
+          historyPagination.page, 
+          historyPagination.size
+        )
+        
+        loginHistoryData.value = response.data.records || []
+        historyPagination.total = response.data.total || 0
+      } catch (error) {
+        ElMessage.error('获取登录记录失败')
+      } finally {
+        loginHistoryLoading.value = false
+      }
+    }
+
+    const loadLoginStats = async () => {
+      try {
+        const { userApi } = await import('@/api/user.js')
+        const response = await userApi.getLoginStats(userInfo.value.id)
+        loginStats.value = response.data || {}
+      } catch (error) {
+        console.warn('获取登录统计失败:', error)
+      }
+    }
+
+    const handlePageChange = (page) => {
+      historyPagination.page = page
+      loadLoginHistory()
+    }
+
+    const clearLoginHistory = async () => {
+      try {
+        await ElMessageBox.confirm(
+          '清除登录记录后，您将无法查看历史登录信息，确定继续吗？',
+          '清除登录记录',
+          {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }
+        )
+        
+        const { userApi } = await import('@/api/user.js')
+        await userApi.clearLoginHistory(userInfo.value.id)
+        ElMessage.success('登录记录已清除')
+        
+        // 重新加载数据
+        await loadLoginHistory()
+        await loadLoginStats()
+      } catch (error) {
+        if (error !== 'cancel') {
+          ElMessage.error('清除登录记录失败')
+        }
+      }
+    }
+
+    const formatLoginTime = (time) => {
+      if (!time) return '-'
+      return new Date(time).toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    }
+
+    const getStatusColor = (status) => {
+      switch (status) {
+        case 'SUCCESS': return 'success'
+        case 'FAILED': return 'danger'
+        case 'BLOCKED': return 'warning'
+        default: return 'info'
+      }
+    }
+
+    const getStatusText = (status) => {
+      switch (status) {
+        case 'SUCCESS': return '成功'
+        case 'FAILED': return '失败'
+        case 'BLOCKED': return '阻止'
+        default: return status
+      }
+    }
+
+    const handleLanguageChange = (newLanguage) => {
+      setLocale(newLanguage)
+      ElMessage.success(t('messages.updateSuccess'))
+    }
+
+    const handleThemeChange = (newTheme) => {
+      setTheme(newTheme)
+      ElMessage.success(t('messages.updateSuccess'))
     }
 
     const exportUserData = async () => {
@@ -860,7 +1100,12 @@ export default {
       showSetPasswordDialog,
       showChangePasswordDialog,
       showDeleteAccountDialog,
+      showLoginHistoryDialog,
       deleteConfirmEmail,
+      loginHistoryLoading,
+      loginHistoryData,
+      loginStats,
+      historyPagination,
       userInfo,
       profileForm,
       setPasswordForm,
@@ -872,6 +1117,11 @@ export default {
       notificationSettings,
       isProfileChanged,
       hasPassword,
+      currentLanguage,
+      supportedLocales,
+      selectedTheme,
+      themeOptions,
+      t,
       goBack,
       formatJoinDate,
       handleAvatarChange,
@@ -881,6 +1131,15 @@ export default {
       changePassword,
       clearPassword,
       showLoginHistory,
+      loadLoginHistory,
+      loadLoginStats,
+      handlePageChange,
+      clearLoginHistory,
+      formatLoginTime,
+      getStatusColor,
+      getStatusText,
+      handleLanguageChange,
+      handleThemeChange,
       exportUserData,
       clearUserData,
       updatePrivacySettings,
@@ -1106,5 +1365,39 @@ export default {
   .label-desc {
     font-size: 13px;
   }
+}
+
+/* 登录记录对话框样式 */
+.login-stats-summary {
+  margin-bottom: 20px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--primary-color);
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #999;
+}
+
+.history-actions {
+  margin-bottom: 16px;
+  text-align: right;
+}
+
+.history-pagination {
+  margin-top: 20px;
+  text-align: center;
 }
 </style>
