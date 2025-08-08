@@ -163,7 +163,7 @@ export default {
       } else if (command === "personal") {
         router.push("/personal");
       } else if (command === "preferences") {
-        router.push("/preferences");
+        router.push("/personal/preferences");
       }
     };
 

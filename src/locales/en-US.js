@@ -20,6 +20,7 @@ export default {
     common: {
         confirm: 'Confirm',
         cancel: 'Cancel',
+        refresh: 'Refresh',
         confirmRemove: 'Are you sure to remove this item?',
         save: 'Save',
         delete: 'Delete',

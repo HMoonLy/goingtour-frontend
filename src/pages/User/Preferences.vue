@@ -46,6 +46,7 @@
 
     <!-- 主要内容 -->
     <div v-else class="preferences-container">
+      <UserCenterNav />
       <div class="page-header">
         <h1>{{ t('settings.preferences') }}</h1>
         <p>{{ t('personal.preferencesDesc') }}</p>
@@ -291,7 +292,7 @@
               <el-icon class="accommodation-icon">
                 <House />
               </el-icon>
-              <span class="accommodation-title">{{ t('personal.card.accommodation') }}</span>
+              <span class="accommodation-title">{{ translateTag('budget') }}</span>
               <span class="accommodation-desc">Budget</span>
             </div>
 
@@ -305,7 +306,7 @@
               <el-icon class="accommodation-icon">
                 <Monitor />
               </el-icon>
-              <span class="accommodation-title">Comfort</span>
+              <span class="accommodation-title">{{ translateTag('comfort') }}</span>
               <span class="accommodation-desc">3-star / Boutique</span>
             </div>
 
@@ -319,7 +320,7 @@
               <el-icon class="accommodation-icon">
                 <Coffee />
               </el-icon>
-              <span class="accommodation-title">B&B</span>
+              <span class="accommodation-title">{{ translateTag('bnb') }}</span>
               <span class="accommodation-desc">Local homestay</span>
             </div>
 
@@ -333,7 +334,7 @@
               <el-icon class="accommodation-icon">
                 <Trophy />
               </el-icon>
-              <span class="accommodation-title">Luxury</span>
+              <span class="accommodation-title">{{ translateTag('luxury') }}</span>
               <span class="accommodation-desc">5-star / Resort</span>
             </div>
           </div>
@@ -357,11 +358,11 @@
               v-model="preferences.foodTastes"
               class="taste-group"
             >
-              <el-checkbox value="spicy">Spicy</el-checkbox>
-              <el-checkbox value="sweet">Sweet</el-checkbox>
-              <el-checkbox value="sour">Sour</el-checkbox>
-              <el-checkbox value="light">Light</el-checkbox>
-              <el-checkbox value="heavy">Rich</el-checkbox>
+            <el-checkbox value="spicy">{{ translateTag('spicy') }}</el-checkbox>
+            <el-checkbox value="sweet">{{ translateTag('sweet') }}</el-checkbox>
+            <el-checkbox value="sour">{{ translateTag('sour') }}</el-checkbox>
+            <el-checkbox value="light">{{ translateTag('light') }}</el-checkbox>
+            <el-checkbox value="heavy">{{ translateTag('heavy') }}</el-checkbox>
             </el-checkbox-group>
           </div>
 
@@ -371,15 +372,15 @@
               v-model="preferences.dietaryRestrictions"
               class="restriction-group"
             >
-              <el-checkbox value="halal">Halal</el-checkbox>
-              <el-checkbox value="vegetarian">Vegetarian</el-checkbox>
-              <el-checkbox value="vegan">Vegan</el-checkbox>
-              <el-checkbox value="no_pork">No Pork</el-checkbox>
-              <el-checkbox value="no_beef">No Beef</el-checkbox>
-              <el-checkbox value="no_seafood">No Seafood</el-checkbox>
-              <el-checkbox value="no_spicy">No Spicy</el-checkbox>
-              <el-checkbox value="gluten_free">Gluten-free</el-checkbox>
-              <el-checkbox value="no_alcohol">No Alcohol</el-checkbox>
+              <el-checkbox value="halal">{{ translateTag('halal', 'dietary') }}</el-checkbox>
+              <el-checkbox value="vegetarian">{{ translateTag('vegetarian', 'dietary') }}</el-checkbox>
+              <el-checkbox value="vegan">{{ translateTag('vegan', 'dietary') }}</el-checkbox>
+              <el-checkbox value="no_pork">{{ translateTag('no_pork', 'dietary') }}</el-checkbox>
+              <el-checkbox value="no_beef">{{ translateTag('no_beef', 'dietary') }}</el-checkbox>
+              <el-checkbox value="no_seafood">{{ translateTag('no_seafood', 'dietary') }}</el-checkbox>
+              <el-checkbox value="no_spicy">{{ translateTag('no_spicy', 'dietary') }}</el-checkbox>
+              <el-checkbox value="gluten_free">{{ translateTag('gluten_free', 'dietary') }}</el-checkbox>
+              <el-checkbox value="no_alcohol">{{ translateTag('no_alcohol', 'dietary') }}</el-checkbox>
             </el-checkbox-group>
           </div>
 
@@ -416,7 +417,7 @@
           >
             <el-icon><Sunrise /></el-icon>
             <div class="time-info">
-              <span class="time-title">Early</span>
+              <span class="time-title">{{ translateTag('morning') }}</span>
               <span class="time-desc">6:00-10:00</span>
             </div>
           </div>
@@ -430,7 +431,7 @@
           >
             <el-icon><Trophy /></el-icon>
             <div class="time-info">
-              <span class="time-title">Noon</span>
+              <span class="time-title">{{ translateTag('afternoon') }}</span>
               <span class="time-desc">10:00-16:00</span>
             </div>
           </div>
@@ -444,7 +445,7 @@
           >
             <el-icon><Camera /></el-icon>
             <div class="time-info">
-              <span class="time-title">Night</span>
+              <span class="time-title">{{ translateTag('evening') }}</span>
               <span class="time-desc">16:00-22:00</span>
             </div>
           </div>
@@ -479,13 +480,7 @@
             class="pace-slider"
           />
 
-          <div class="pace-description">
-            <span v-if="preferences.travelPace === 1">🐌</span>
-            <span v-else-if="preferences.travelPace === 2">🚶</span>
-            <span v-else-if="preferences.travelPace === 3">⚖️</span>
-            <span v-else-if="preferences.travelPace === 4">🏃</span>
-            <span v-else>⚡</span>
-          </div>
+          <div class="pace-description">{{ translateTag(preferences.travelPace) }}</div>
         </div>
       </div>
 
@@ -508,27 +503,27 @@
           </div>
 
           <div class="preference-item">
-            <span>Avoid crowds</span>
+            <span>{{ translateTag('avoidCrowds') }}</span>
             <el-switch v-model="preferences.avoidCrowds" />
           </div>
 
           <div class="preference-item">
-            <span>Shopping</span>
+            <span>{{ translateTag('includeShopping') }}</span>
             <el-switch v-model="preferences.includeShopping" />
           </div>
 
           <div class="preference-item">
-            <span>{{ t('personal.card.transport') }}</span>
+            <span>{{ translateTag('preferPublicTransport') }}</span>
             <el-switch v-model="preferences.preferPublicTransport" />
           </div>
 
           <div class="preference-item">
-            <span>Kids friendly</span>
+            <span>{{ translateTag('includeKidsActivities') }}</span>
             <el-switch v-model="preferences.includeKidsActivities" />
           </div>
 
           <div class="preference-item">
-            <span>Accessibility</span>
+            <span>{{ translateTag('needAccessibility') }}</span>
             <el-switch v-model="preferences.needAccessibility" />
           </div>
         </div>
@@ -574,10 +569,12 @@ import {
 } from "@element-plus/icons-vue";
 import { useRouter, useRoute } from "vue-router";
 import { getMbtiName, getMbtiTravelDescription, translateTag } from "@/utils/tagMapping.js";
+import UserCenterNav from '@/components/User/UserCenterNav.vue';
 
 export default {
   name: "Preferences",
   components: {
+    UserCenterNav,
     Collection,
     Money,
     Setting,
@@ -1076,6 +1073,7 @@ export default {
       handleMbtiChange,
       getMbtiName,
       getMbtiTravelDescription,
+      translateTag,
     };
   },
 };

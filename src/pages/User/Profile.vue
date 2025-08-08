@@ -8,12 +8,33 @@
       </div>
     </div>
 
-    <div class="profile-actions">
-      <el-button type="primary" @click="goAccountSettings">
-        {{ t('settings.accountSettings') }}
-      </el-button>
-      <el-button @click="goPreferences">{{ t('settings.preferences') }}</el-button>
-    </div>
+    <!-- 移除顶部重复按钮，避免与下方功能卡片重复 -->
+
+    <el-card class="quick-nav">
+      <div class="grid">
+        <div class="grid-item" @click="goTo('/personal/security')">
+          <span class="title">{{ t('settings.securitySettings') }}</span>
+        </div>
+        <div class="grid-item" @click="goTo('/personal/preferences')">
+          <span class="title">{{ t('settings.preferences') }}</span>
+        </div>
+        <div class="grid-item" @click="goTo('/personal/notifications')">
+          <span class="title">{{ t('settings.notifications') }}</span>
+        </div>
+        <div class="grid-item" @click="goTo('/personal/system')">
+          <span class="title">{{ t('settings.systemSettings') }}</span>
+        </div>
+        <div class="grid-item" @click="goTo('/personal/history')">
+          <span class="title">{{ t('settings.loginHistory') }}</span>
+        </div>
+        <div class="grid-item" @click="goTo('/personal/data')">
+          <span class="title">{{ t('settings.privacySettings') }}</span>
+        </div>
+        <div class="grid-item danger" @click="goTo('/personal/danger')">
+          <span class="title">{{ t('settings.deleteAccount') }}</span>
+        </div>
+      </div>
+    </el-card>
 
     <el-divider />
 
@@ -46,9 +67,11 @@ import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/store/user.js';
 import { useI18n, formatDate as i18nFormatDate } from '@/utils/i18n.js';
+import UserCenterNav from '@/components/User/UserCenterNav.vue';
 
 export default {
   name: 'Profile',
+  components: { UserCenterNav },
   setup() {
     const router = useRouter();
     const userStore = useUserStore();
@@ -67,13 +90,14 @@ export default {
     });
 
     const goAccountSettings = () => router.push('/account-settings');
-    const goPreferences = () => router.push('/preferences');
+    const goPreferences = () => router.push('/personal/preferences');
+    const goTo = (path) => router.push(path);
 
     onMounted(() => {
       if (!userStore.isLoggedIn) router.push('/login');
     });
 
-    return { userStore, t, joinDateText, goAccountSettings, goPreferences };
+    return { userStore, t, joinDateText, goAccountSettings, goPreferences, goTo };
   },
 };
 </script>
@@ -96,6 +120,29 @@ export default {
 .row { display: flex; justify-content: space-between; padding: 8px 0; }
 .label { color: #909399; }
 .value { color: #303133; }
+
+.quick-nav { margin-top: 16px; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+.grid-item {
+  border: 1px solid #ebeef5;
+  border-radius: 10px;
+  padding: 14px 12px;
+  cursor: pointer;
+  transition: all .2s;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.grid-item:hover {
+  border-color: #409eff;
+  box-shadow: 0 4px 12px rgba(0,0,0,.06);
+  transform: translateY(-2px);
+}
+.grid-item .title { font-weight: 600; color: #303133; }
+.grid-item .desc { color: #909399; font-size: 12px; }
+.grid-item.danger { border-color: #f56c6c; }
 </style>
 
 

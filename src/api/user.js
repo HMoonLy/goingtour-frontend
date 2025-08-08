@@ -178,7 +178,7 @@ export const userApi = {
      * @param {Object} data - {email: string, confirmText: string}
      */
     deleteAccount(userId, data) {
-        return http.delete(`/user/${userId}/account`, data);
+        return http.delete(`/user/${userId}/account`, { data });
     },
 
     // ========== 登录记录 ==========
@@ -190,9 +190,7 @@ export const userApi = {
      * @param {number} size - 页大小
      */
     getLoginHistory(userId, page = 1, size = 10) {
-        return http.get(`/user/${userId}/login-history`, {
-            params: { page, size }
-        });
+        return http.get(`/user/${userId}/login-history`, { page, size });
     },
 
     /**

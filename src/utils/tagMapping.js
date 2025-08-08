@@ -3,8 +3,10 @@
  * 统一管理所有组件中使用的标签映射关系
  */
 
-// 完整的标签映射表
-export const tagMapping = {
+import { getLocale } from '@/utils/i18n.js';
+
+// 完整的标签映射表（中文）
+export const tagMappingZh = {
     // 旅行类型和兴趣
     nature: "自然风光",
     culture: "文化体验",
@@ -115,6 +117,99 @@ export const tagMapping = {
     needAccessibility: "需要无障碍设施",
 };
 
+// 英文标签映射（仅覆盖常用项，缺失时回退为原键名）
+export const tagMappingEn = {
+    // Travel types & interests
+    nature: 'Nature',
+    culture: 'Culture',
+    relaxation: 'Relaxation',
+    food: 'Food',
+    shopping: 'Shopping',
+    nightlife: 'Nightlife',
+    adventure: 'Adventure',
+    photography: 'Photography',
+    history: 'History',
+    historical: 'Historical',
+    art: 'Art',
+    sports: 'Sports',
+    family: 'Family',
+    couple: 'Couple',
+    solo: 'Solo',
+    group: 'Group',
+    luxury: 'Luxury',
+    budget: 'Budget',
+    local_life: 'Local Life',
+    festivals: 'Festivals',
+    beaches: 'Beaches',
+    mountains: 'Mountains',
+    cities: 'Cities',
+    countryside: 'Countryside',
+    urban: 'Urban',
+
+    // Transport
+    public: 'Public transport',
+    walk: 'Walk',
+    walking: 'Walk',
+    bicycle: 'Bicycle',
+    bike: 'Bicycle',
+    taxi: 'Taxi',
+    car: 'Car',
+    driving: 'Driving',
+    metro: 'Metro',
+    bus: 'Bus',
+    shared: 'Ride sharing',
+    motorcycle: 'Motorcycle',
+    train: 'Train',
+    flight: 'Flight',
+
+    // Accommodation
+    comfort: 'Comfort',
+    hotel: 'Hotel',
+    hostel: 'Hostel',
+    apartment: 'Apartment',
+    bnb: 'B&B',
+    resort: 'Resort',
+    guesthouse: 'Guesthouse',
+
+    // Pace
+    slow: 'Slow',
+    medium: 'Medium',
+    fast: 'Fast',
+    relaxed: 'Relaxed',
+    moderate: 'Moderate',
+    intensive: 'Intensive',
+    1: '🐌 Slow',
+    2: '🚶 Leisurely',
+    3: '⚖️ Balanced',
+    4: '🏃 Compact',
+    5: '⚡ Fast-paced',
+
+    // Food tastes
+    spicy: 'Spicy',
+    sweet: 'Sweet',
+    sour: 'Sour',
+    bitter: 'Bitter',
+    salty: 'Salty',
+    light: 'Light',
+    heavy: 'Rich',
+    umami: 'Umami',
+
+    // Times of day
+    morning: 'Morning',
+    afternoon: 'Noon',
+    evening: 'Night',
+    night: 'Night',
+
+    // Other prefs
+    popularFirst: 'Popular first',
+    includeFood: 'Include food',
+    avoidCrowds: 'Avoid crowds',
+    includeShopping: 'Shopping',
+    preferPublicTransport: 'Prefer public transport',
+    includeKidsActivities: 'Kids friendly',
+    needAccessibility: 'Accessibility',
+};
+
 // 体验重点映射
 export const focusAreaMapping = {
     // 文化体验类
@@ -158,7 +253,7 @@ export const focusAreaMapping = {
 };
 
 // 饮食禁忌映射
-export const dietaryRestrictionMapping = {
+export const dietaryRestrictionMappingZh = {
     // 宗教饮食
     halal: "清真饮食",
     kosher: "犹太洁食",
@@ -179,6 +274,20 @@ export const dietaryRestrictionMapping = {
     gluten_free: "无麸质",
     no_alcohol: "不饮酒",
     dairy_free: "无乳制品",
+};
+
+export const dietaryRestrictionMappingEn = {
+    halal: 'Halal',
+    kosher: 'Kosher',
+    vegetarian: 'Vegetarian',
+    vegan: 'Vegan',
+    no_pork: 'No Pork',
+    no_beef: 'No Beef',
+    no_seafood: 'No Seafood',
+    no_spicy: 'No Spicy',
+    gluten_free: 'Gluten-free',
+    no_alcohol: 'No Alcohol',
+    dairy_free: 'Dairy-free',
 };
 
 // 行程风格映射
@@ -323,13 +432,14 @@ export const cityInfoDatabase = {
 export function translateTag(tag, type = 'general') {
     if (!tag) return '';
 
+    const isEn = getLocale && getLocale() === 'en-US';
     let mapping;
     switch (type) {
         case 'focus':
             mapping = focusAreaMapping;
             break;
         case 'dietary':
-            mapping = dietaryRestrictionMapping;
+            mapping = isEn ? dietaryRestrictionMappingEn : dietaryRestrictionMappingZh;
             break;
         case 'style':
             mapping = tripStyleMapping;
@@ -341,7 +451,7 @@ export function translateTag(tag, type = 'general') {
             mapping = specialExperienceMapping;
             break;
         default:
-            mapping = tagMapping;
+            mapping = isEn ? tagMappingEn : tagMappingZh;
     }
 
     return mapping[tag] || tag;
@@ -520,9 +630,11 @@ export function translateTagsToString(tags, type = 'general', separator = '、')
 }
 
 export default {
-    tagMapping,
+    tagMappingZh,
+    tagMappingEn,
     focusAreaMapping,
-    dietaryRestrictionMapping,
+    dietaryRestrictionMappingZh,
+    dietaryRestrictionMappingEn,
     tripStyleMapping,
     intensityMapping,
     specialExperienceMapping,

@@ -27,6 +27,7 @@ export default {
         add: '添加',
         search: '搜索',
         loading: '加载中...',
+        refresh: '刷新',
         success: '成功',
         error: '错误',
         warning: '警告',

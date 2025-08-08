@@ -59,6 +59,86 @@ const routes = [
                 },
             },
             {
+                path: "personal/profile",
+                name: "PersonalProfile",
+                component: () =>
+                    import ("../pages/User/Profile.vue"),
+                meta: {
+                    titleKey: "route.personal",
+                    requiresAuth: true,
+                },
+            },
+            {
+                path: "personal/security",
+                name: "PersonalSecurity",
+                component: () =>
+                    import ("../pages/User/Security.vue"),
+                meta: {
+                    titleKey: "settings.securitySettings",
+                    requiresAuth: true,
+                },
+            },
+            {
+                path: "personal/preferences",
+                name: "PersonalPreferences",
+                component: () =>
+                    import ("../pages/User/Preferences.vue"),
+                meta: {
+                    titleKey: "settings.preferences",
+                    requiresAuth: true,
+                },
+            },
+            {
+                path: "personal/notifications",
+                name: "PersonalNotifications",
+                component: () =>
+                    import ("../pages/User/Notifications.vue"),
+                meta: {
+                    titleKey: "settings.notifications",
+                    requiresAuth: true,
+                },
+            },
+            {
+                path: "personal/system",
+                name: "PersonalSystem",
+                component: () =>
+                    import ("../pages/User/SystemSettings.vue"),
+                meta: {
+                    titleKey: "settings.systemSettings",
+                    requiresAuth: true,
+                },
+            },
+            {
+                path: "personal/history",
+                name: "PersonalHistory",
+                component: () =>
+                    import ("../pages/User/LoginHistory.vue"),
+                meta: {
+                    titleKey: "settings.loginHistory",
+                    requiresAuth: true,
+                },
+            },
+            {
+                path: "personal/data",
+                name: "PersonalData",
+                component: () =>
+                    import ("../pages/User/DataAndPrivacy.vue"),
+                meta: {
+                    titleKey: "settings.exportData",
+                    requiresAuth: true,
+                },
+            },
+            {
+                path: "personal/danger",
+                name: "PersonalDanger",
+                component: () =>
+                    import ("../pages/User/DangerZone.vue"),
+                meta: {
+                    titleKey: "settings.deleteAccount",
+                    requiresAuth: true,
+                },
+            },
+            {
                 path: "account-settings",
                 name: "AccountSettings",
                 component: () =>
