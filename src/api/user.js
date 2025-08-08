@@ -135,4 +135,49 @@ export const userApi = {
     getUserStats() {
         return http.get("/user/stats");
     },
+
+    // ========== 账户设置 ==========
+
+    /**
+     * 设置密码
+     * @param {number} userId - 用户ID
+     * @param {Object} data - {password: string, confirmPassword: string}
+     */
+    setPassword(userId, data) {
+        return http.post(`/user/${userId}/password`, data);
+    },
+
+    /**
+     * 修改密码
+     * @param {number} userId - 用户ID
+     * @param {Object} data - {currentPassword: string, newPassword: string, confirmPassword: string}
+     */
+    changePassword(userId, data) {
+        return http.put(`/user/${userId}/password`, data);
+    },
+
+    /**
+     * 清除密码
+     * @param {number} userId - 用户ID
+     */
+    clearPassword(userId) {
+        return http.delete(`/user/${userId}/password`);
+    },
+
+    /**
+     * 导出用户数据
+     * @param {number} userId - 用户ID
+     */
+    exportUserData(userId) {
+        return http.get(`/user/${userId}/export`);
+    },
+
+    /**
+     * 注销账户
+     * @param {number} userId - 用户ID
+     * @param {Object} data - {email: string, confirmText: string}
+     */
+    deleteAccount(userId, data) {
+        return http.delete(`/user/${userId}/account`, data);
+    },
 };

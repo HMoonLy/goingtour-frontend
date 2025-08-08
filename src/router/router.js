@@ -48,6 +48,16 @@ const routes = [
                 },
             },
             {
+                path: "account-settings",
+                name: "AccountSettings",
+                component: () =>
+                    import ("../pages/User/AccountSettings.vue"),
+                meta: {
+                    title: "账户设置",
+                    requiresAuth: true,
+                },
+            },
+            {
                 path: "preferences",
                 name: "Preferences",
                 component: () =>

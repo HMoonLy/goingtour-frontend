@@ -506,8 +506,17 @@ export default {
 <style scoped>
 
 .register-page {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
   display: flex !important;
-  min-height: 600px;
+  z-index: 1000 !important;
 }
 
 .register-page * {

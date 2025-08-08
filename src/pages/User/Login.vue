@@ -394,10 +394,19 @@ export default {
 </script>
 
 <style scoped>
-/* 统一的页面布局 - 与Personal.vue保持一致 */
+/* 统一的页面布局 - 修复全屏显示 */
 .login-page {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
   display: flex !important;
-  min-height: 600px;
+  z-index: 1000 !important;
 }
 
 /* 重置可能影响布局的样式 */

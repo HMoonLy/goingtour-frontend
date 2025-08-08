@@ -713,7 +713,7 @@ export default {
     };
 
     const accountSettings = () => {
-      ElMessage.info("账户设置功能开发中，敬请期待！");
+      router.push("/account-settings");
     };
 
     // 更新用户统计数据
