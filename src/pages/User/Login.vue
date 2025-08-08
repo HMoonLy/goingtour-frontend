@@ -11,7 +11,7 @@
             </el-icon>
           </div>
           <h1 class="brand-title">GoingTour</h1>
-          <p class="brand-subtitle">个性化旅行规划助手</p>
+          <p class="brand-subtitle">{{ t('brand.tagline') }}</p>
         </div>
 
         <!-- 产品特性展示 -->
@@ -23,8 +23,8 @@
               </el-icon>
             </div>
             <div class="feature-text">
-              <h3>智能行程规划</h3>
-              <p>AI驱动的个性化旅行路线推荐</p>
+              <h3>{{ t('brand.features.smartPlanning.title') }}</h3>
+              <p>{{ t('brand.features.smartPlanning.desc') }}</p>
             </div>
           </div>
 
@@ -35,8 +35,8 @@
               </el-icon>
             </div>
             <div class="feature-text">
-              <h3>数据分析优化</h3>
-              <p>基于用户偏好的精准景点匹配</p>
+              <h3>{{ t('brand.features.dataAnalysis.title') }}</h3>
+              <p>{{ t('brand.features.dataAnalysis.desc') }}</p>
             </div>
           </div>
 
@@ -47,15 +47,15 @@
               </el-icon>
             </div>
             <div class="feature-text">
-              <h3>行程分享协作</h3>
-              <p>与朋友轻松分享和共同规划旅程</p>
+              <h3>{{ t('brand.features.tripSharing.title') }}</h3>
+              <p>{{ t('brand.features.tripSharing.desc') }}</p>
             </div>
           </div>
         </div>
 
         <!-- 底部装饰 -->
         <div class="brand-footer">
-          <p>&copy; 2024 GoingTour. 让每一次旅行都充满惊喜</p>
+          <p>&copy; 2024 GoingTour. {{ t('brand.copyright') }}</p>
         </div>
       </div>
     </div>
@@ -65,8 +65,8 @@
       <div class="form-container">
         <!-- 表单头部 -->
         <div class="form-header">
-          <h2 class="form-title">欢迎回来</h2>
-          <p class="form-subtitle">请登录您的账户，继续您的旅行规划</p>
+          <h2 class="form-title">{{ t('auth.welcome') }}</h2>
+          <p class="form-subtitle">{{ t('auth.login') }} - {{ t('brand.tagline') }}</p>
         </div>
 
         <!-- 登录表单 -->
@@ -80,10 +80,10 @@
         >
           <!-- 邮箱输入 -->
           <el-form-item prop="email" class="form-item">
-            <label class="form-label">邮箱</label>
+            <label class="form-label">{{ t('auth.email') }}</label>
             <el-input
               v-model="loginForm.email"
-              placeholder="请输入邮箱地址"
+              :placeholder="t('auth.email')"
               clearable
               class="form-input"
               @input="handleEmailInput"
@@ -96,11 +96,11 @@
 
           <!-- 验证码输入 -->
           <el-form-item prop="code" class="form-item">
-            <label class="form-label">验证码</label>
+            <label class="form-label">{{ t('auth.verificationCode') }}</label>
             <div class="code-input-group">
               <el-input
                 v-model="loginForm.code"
-                placeholder="请输入验证码"
+                :placeholder="t('auth.verificationCode')"
                 clearable
                 maxlength="6"
                 class="form-input"
@@ -120,7 +120,7 @@
                 plain
                 @click="sendVerificationCode"
               >
-                {{ countdown > 0 ? `${countdown}s后重发` : "发送验证码" }}
+                {{ countdown > 0 ? t('auth.resendIn', { s: countdown }) : t('auth.sendCode') }}
               </el-button>
             </div>
           </el-form-item>
@@ -137,14 +137,14 @@
               <el-icon v-if="!loggingIn">
                 <User />
               </el-icon>
-              {{ loggingIn ? "登录中..." : "立即登录" }}
+              {{ loggingIn ? t('auth.loggingIn') : t('auth.login') }}
             </el-button>
           </el-form-item>
 
           <!-- 其他登录方式 -->
           <div class="other-login">
             <el-divider>
-              <span class="divider-text">其他登录方式</span>
+              <span class="divider-text">{{ t('auth.otherLoginMethods') }}</span>
             </el-divider>
 
             <div class="social-login">
@@ -175,14 +175,14 @@
 
           <!-- 注册链接 -->
           <div class="register-section">
-            <span class="register-text">还没有账号？</span>
+            <span class="register-text">{{ t('auth.noAccount') }}</span>
             <el-link
               type="primary"
               :underline="false"
               class="register-link"
               @click="goToRegister"
             >
-              立即注册
+              {{ t('auth.goToRegister') }}
             </el-link>
           </div>
         </el-form>
@@ -190,10 +190,9 @@
         <!-- 协议条款 -->
         <div class="agreement">
           <p>
-            登录即表示同意
-            <el-link type="primary" :underline="false"> 《用户协议》 </el-link>
-            和
-            <el-link type="primary" :underline="false"> 《隐私政策》 </el-link>
+            {{ t('auth.agreementText') }}
+            <el-link type="primary" :underline="false"> {{ t('auth.userAgreement') }} </el-link>
+            <el-link type="primary" :underline="false"> {{ t('auth.privacyPolicy') }} </el-link>
           </p>
         </div>
       </div>
@@ -218,6 +217,7 @@ import {
 } from "@element-plus/icons-vue";
 import { formRules } from "@/utils/validation.js";
 import { handleApiError, handleSuccess } from "@/utils/errorHandler.js";
+import { useI18n } from "@/utils/i18n.js";
 
 export default {
   name: "Login",
@@ -235,6 +235,7 @@ export default {
     const router = useRouter();
     const route = useRoute();
     const userStore = useUserStore();
+    const { t } = useI18n();
 
     // 表单引用
     const loginFormRef = ref();
@@ -275,7 +276,7 @@ export default {
     // 发送验证码
     const sendVerificationCode = async () => {
       if (!canSendCode.value) {
-        ElMessage.warning("请输入正确的邮箱地址");
+        ElMessage.warning(t('validation.email'));
         return;
       }
 
@@ -284,13 +285,12 @@ export default {
 
         await userStore.sendVerificationCode(loginForm.email, "login");
 
-        ElMessage.success("验证码已发送到您的邮箱，请查收");
+        ElMessage.success(t('auth.codeResent'));
 
         // 开始倒计时
         startCountdown(60);
       } catch (error) {
-        console.error("发送验证码失败:", error);
-        ElMessage.error(error.message || "验证码发送失败，请重试");
+        ElMessage.error(error.message || t('messages.operationFailed'));
       } finally {
         sendingCode.value = false;
       }
@@ -319,7 +319,7 @@ export default {
 
         const user = await userStore.login(loginForm.email, loginForm.code);
 
-        handleSuccess(`欢迎回来，${user.nickname || "用户"}！`, {
+        handleSuccess(t('auth.welcomeBack', { name: user.nickname || t('personal.userDefault') }), {
           showNotification: true,
         });
 
@@ -330,7 +330,7 @@ export default {
 
         await router.push(redirectPath);
       } catch (error) {
-        handleApiError(error, "登录失败，请检查邮箱和验证码");
+        handleApiError(error, t('messages.operationFailed'));
       } finally {
         loggingIn.value = false;
       }
@@ -338,12 +338,12 @@ export default {
 
     // 微信登录
     const handleWechatLogin = () => {
-      ElMessage.info("微信登录功能开发中，敬请期待！");
+      ElMessage.info('WeChat Login WIP');
     };
 
     // QQ登录
     const handleQQLogin = () => {
-      ElMessage.info("QQ登录功能开发中，敬请期待！");
+      ElMessage.info('QQ Login WIP');
     };
 
     // 跳转注册
@@ -366,6 +366,7 @@ export default {
     });
 
     return {
+      t,
       loginFormRef,
       loginForm,
       loginRules,
