@@ -37,7 +37,7 @@
             <div class="prompt-section">
               <div class="section-header">
                 <el-icon><MapLocation /></el-icon>
-                <h4>{{ t('trip.basicInfo') }}</h4>
+              <h4>{{ t('trip.baseInfo.title') }}</h4>
               </div>
               <div v-if="baseForm.destination && baseForm.days" class="prompt-text">
                 为我规划一次前往
@@ -447,19 +447,19 @@
             <div v-else-if="loadingWeather" class="prompt-section">
               <div class="section-header">
                 <el-icon><Loading /></el-icon>
-                <h4>天气建议</h4>
+                <h4>{{ t('trip.weatherSuggestion') }}</h4>
               </div>
-              <div class="prompt-text loading-text">正在获取天气数据，请稍候...</div>
+              <div class="prompt-text loading-text">{{ t('trip.weather.loading') }}</div>
             </div>
 
             <!-- 天气错误状态 -->
             <div v-else-if="weatherError" class="prompt-section">
               <div class="section-header">
                 <el-icon><Warning /></el-icon>
-                <h4>天气建议</h4>
+                <h4>{{ t('trip.weatherSuggestion') }}</h4>
               </div>
               <div class="prompt-text error-text">
-                获取天气数据失败: {{ weatherError }}
+                {{ t('trip.weather.fetchFailedPrefix') }} {{ weatherError }}
               </div>
             </div>
 
@@ -628,7 +628,7 @@
     <div v-if="!generating && !generatedTrip" class="step-actions">
       <el-button size="large" @click="$emit('prev-step')">
         <el-icon><ArrowLeft /></el-icon>
-        上一步
+        {{ t('common.previous') }}
       </el-button>
     </div>
 
@@ -685,7 +685,6 @@ import {
   ArrowRight,
   View as ViewIcon,
   DocumentCopy,
-  Close,
 } from "@element-plus/icons-vue";
 import {
   tagMapping,
@@ -1890,132 +1889,6 @@ export default {
       return paceMapping[pacePreference] || "moderate";
     };
 
-    // 创建优化的每日计划 (简化版)
-    const createOptimizedDailyPlan = (attractions, restaurants) => {
-      const days = props.baseForm.days || 1;
-      const plans = [];
-
-      // 简单分配景点和餐厅
-      for (let dayIndex = 0; dayIndex < days; dayIndex++) {
-        const activities = [];
-
-        // 上午景点
-        if (attractions[dayIndex % attractions.length]) {
-          const attraction = attractions[dayIndex % attractions.length];
-          activities.push({
-            time: "09:00",
-            name: attraction.name,
-            description: attraction.description || "精彩景点等你探索",
-            tags: attraction.tags || ["景点"],
-            type: "attraction",
-            data: attraction,
-          });
-        }
-
-        // 午餐
-        if (restaurants[dayIndex % restaurants.length]) {
-          const restaurant = restaurants[dayIndex % restaurants.length];
-          activities.push({
-            time: "12:00",
-            name: restaurant.name,
-            description: restaurant.description || "美味佳肴等你品尝",
-            tags: restaurant.tags || ["餐厅"],
-            type: "restaurant",
-            data: restaurant,
-          });
-        }
-
-        // 下午景点 (如果有足够的景点)
-        if (attractions[(dayIndex + 1) % attractions.length]) {
-          const attraction = attractions[(dayIndex + 1) % attractions.length];
-          activities.push({
-            time: "14:30",
-            name: attraction.name,
-            description: attraction.description || "精彩景点等你探索",
-            tags: attraction.tags || ["景点"],
-            type: "attraction",
-            data: attraction,
-          });
-        }
-
-        plans.push({ activities });
-      }
-
-      return plans;
-    };
-
-    // 分析用户偏好
-    const analyzePreferences = async () => {
-      // 分析用户偏好中...
-      return Promise.resolve();
-    };
-
-    // 获取景点数据 (简化版)
-    const fetchAttractions = async () => {
-      return {
-        attractions: [
-          {
-            id: "1",
-            name: "故宫博物院",
-            description:
-              "中国明清两代的皇家宫殿，世界上现存规模最大、保存最为完整的木质结构古建筑之一。",
-            rating: "4.8",
-            tags: ["历史古迹", "博物馆", "宫殿"],
-          },
-          {
-            id: "2",
-            name: "长城",
-            description: "中国古代的伟大防御工程，是中华民族的象征之一。",
-            rating: "4.9",
-            tags: ["历史古迹", "自然风光", "世界遗产"],
-          },
-          {
-            id: "3",
-            name: "颐和园",
-            description:
-              "中国清朝时期的皇家园林，以昆明湖、万寿山为基址，以杭州西湖为蓝本。",
-            rating: "4.7",
-            tags: ["园林", "湖泊", "历史景点"],
-          },
-        ],
-      };
-    };
-
-    // 获取餐厅数据 (简化版)
-    const fetchRestaurants = async () => {
-      return {
-        restaurants: [
-          {
-            id: "1",
-            name: "全聚德烤鸭店",
-            description: "北京著名的烤鸭老字号，以其独特的挂炉烤鸭而闻名。",
-            rating: "4.6",
-            tags: ["中餐", "烤鸭", "老字号"],
-          },
-          {
-            id: "2",
-            name: "南锣鼓巷小吃街",
-            description: "汇集了众多北京传统小吃的美食街区。",
-            rating: "4.5",
-            tags: ["小吃", "传统美食", "街区"],
-          },
-        ],
-      };
-    };
-
-    // 优化路线
-    const optimizeRoute = async () => {
-      // 优化路线中...
-      return Promise.resolve();
-    };
-
-    // 构建每日计划
-    const buildDailyPlan = async () => {
-      // 构建每日计划中...
-      return Promise.resolve();
-    };
-
-    // 注意：generating, generationProgress, progressPercent 这些状态通过 props 传递，不需要在这里定义
 
     // 组件挂载时的处理
     onMounted(async () => {

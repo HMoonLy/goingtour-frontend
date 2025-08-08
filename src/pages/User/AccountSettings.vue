@@ -481,7 +481,7 @@
       <!-- 操作按钮 -->
       <div class="history-actions">
         <el-button type="danger" plain @click="clearLoginHistory">
-          清除所有记录
+          {{ t('settings.clearAllRecords') }}
         </el-button>
       </div>
 
@@ -490,15 +490,15 @@
         :data="loginHistoryData" 
         v-loading="loginHistoryLoading"
         style="width: 100%"
-        empty-text="暂无登录记录"
+        :empty-text="t('settings.noLoginRecords')"
       >
-        <el-table-column prop="loginTime" label="登录时间" width="160">
+        <el-table-column prop="loginTime" :label="t('settings.loginTime')" width="160">
           <template #default="{ row }">
             {{ formatLoginTime(row.loginTime) }}
           </template>
         </el-table-column>
         
-        <el-table-column prop="status" label="状态" width="80">
+        <el-table-column prop="status" :label="t('settings.status')" width="80">
           <template #default="{ row }">
             <el-tag :type="getStatusColor(row.status)" size="small">
               {{ getStatusText(row.status) }}
@@ -506,23 +506,23 @@
           </template>
         </el-table-column>
         
-        <el-table-column prop="loginMethod" label="登录方式" width="100">
+        <el-table-column prop="loginMethod" :label="t('settings.loginMethod')" width="100">
           <template #default="{ row }">
             {{ row.loginMethod === 'EMAIL_CODE' ? '邮箱验证码' : '密码登录' }}
           </template>
         </el-table-column>
         
-        <el-table-column prop="ipAddress" label="IP地址" width="140" />
+        <el-table-column prop="ipAddress" :label="t('settings.ipAddress')" width="140" />
         
-        <el-table-column prop="location" label="地理位置" width="100" />
+        <el-table-column prop="location" :label="t('settings.location')" width="100" />
         
-        <el-table-column prop="deviceType" label="设备类型" width="80" />
+        <el-table-column prop="deviceType" :label="t('settings.deviceType')" width="80" />
         
-        <el-table-column prop="browser" label="浏览器" width="100" />
+        <el-table-column prop="browser" :label="t('settings.browser')" width="100" />
         
-        <el-table-column prop="operatingSystem" label="操作系统" width="120" />
+        <el-table-column prop="operatingSystem" :label="t('settings.operatingSystem')" width="120" />
         
-        <el-table-column prop="sessionDuration" label="会话时长" width="100">
+        <el-table-column prop="sessionDuration" :label="t('settings.sessionDuration')" width="100">
           <template #default="{ row }">
             {{ row.sessionDuration ? `${row.sessionDuration}分钟` : '-' }}
           </template>

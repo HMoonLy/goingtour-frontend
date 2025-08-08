@@ -45,7 +45,8 @@ export default {
         startDate: 'Start Date',
         endDate: 'End Date',
         dateFormatYMD: 'YYYY-MM-DD',
-        weekdayPrefix: 'Week '
+        weekdayPrefix: 'Week ',
+        none: 'None'
     },
 
     // Navigation and Menu
@@ -136,7 +137,18 @@ export default {
         deleteAccount: 'Delete Account',
         darkMode: 'Dark Mode',
         lightMode: 'Light Mode',
-        systemMode: 'Follow System'
+        systemMode: 'Follow System',
+        clearAllRecords: 'Clear all records',
+        noLoginRecords: 'No login records',
+        loginTime: 'Login Time',
+        status: 'Status',
+        loginMethod: 'Login Method',
+        ipAddress: 'IP Address',
+        location: 'Location',
+        deviceType: 'Device Type',
+        browser: 'Browser',
+        operatingSystem: 'Operating System',
+        sessionDuration: 'Session Duration'
     },
 
     // Personal (Profile) Page
@@ -262,6 +274,8 @@ export default {
         yuan: 'CNY',
         noTripData: 'No trip data found',
         saveTrip: 'Save Trip',
+        add: 'Add to plan',
+        added: 'Added',
         viewDetails: 'View Trip Details',
         generated: 'Trip generated successfully!',
         prepareGenerate: 'Get ready to generate your exclusive trip',
@@ -274,6 +288,11 @@ export default {
         dietaryRestrictions: 'Dietary Restrictions',
         weatherSuggestion: 'Weather Suggestions',
         weatherForecast: 'Weather Forecast',
+        daysAutoByDate: 'Auto-calc by date range',
+        daysAutoTip: 'Days will be calculated from the selected date range',
+        selectedDateRange: 'Selected date range',
+        selectDateRangeTip: 'Please select the date range of your trip',
+        travelersTip: 'Traveler count affects restaurant and hotel recommendations',
         mustSee: 'Must-see Attractions',
         noMustSeeSelected: 'No must-see attractions selected. Add from recommended list',
         mustEat: 'Must-eat Restaurants',
@@ -296,7 +315,9 @@ export default {
         actions: {
             viewFullPrompt: 'View Full Prompt',
             generateUsingPrompt: 'Generate with this prompt',
-            generating: 'Generating...'
+            generating: 'Generating...',
+            copy: 'Copy Trip',
+            regenerate: 'Regenerate'
         },
         aiPrompt: {
             preview: 'AI Prompt Preview',
@@ -360,6 +381,7 @@ export default {
             dateOutOfRange: 'Date out of forecast range',
             afterDayNeedsAttention: 'From day {day} and onward, please check real-time weather',
             loading: 'Fetching weather...',
+            fetchFailedPrefix: 'Failed to fetch weather:',
             outOfRangeWithDate: 'Selected date range ({date}) is out of forecast range, the info below is for reference',
             forecastInsufficient: 'Your trip has {days} days but the forecast only has {forecastDays} days',
             windLevel: ' level',
@@ -367,6 +389,30 @@ export default {
             forecastDays: 'Forecast Days',
             dataSource: 'Data Source',
             travelTips: 'Travel Tips'
+        },
+        noAlternativeAttractions: 'No other attractions to replace',
+        noAlternativeRestaurants: 'No other restaurants to replace',
+        noAttractionsToAdd: 'No attractions available to add',
+        noRestaurantsToAdd: 'No restaurants available to add',
+        aiDisplay: {
+            titleSuffix: ' Trip Plan',
+            subtitle: 'AI-tailored {days}-day trip in {city}',
+            feedbackTitle: 'Trip Feedback',
+            overallSatisfaction: 'Overall satisfaction:',
+            rating: {
+                veryBad: 'Very Bad',
+                bad: 'Bad',
+                ok: 'OK',
+                good: 'Good',
+                excellent: 'Excellent'
+            },
+            feedbackPlaceholder: 'Any suggestions or thoughts about this trip? (optional)',
+            submitFeedback: 'Submit Feedback',
+            thanksRating: 'Thanks for your {n}-star rating!'
+        },
+        dialog: {
+            regenerateTitle: 'Confirm Regenerate',
+            regenerateMessage: 'Regenerating will overwrite the current trip. Continue?'
         },
         styles: {
             table: 'Table',
@@ -379,6 +425,52 @@ export default {
             narrative: 'Rich details',
             card: 'Modern layout',
             checklist: 'Easy to follow'
+        }
+    },
+
+    // Lightweight search translations used in TripPreferences
+    search: {
+        attractionPlaceholder: 'Search attraction name, type...',
+        restaurantPlaceholder: 'Search restaurant name, cuisine...',
+        sortBy: 'Sort by',
+        sort: { default: 'Default', rating: 'Highest Rating', distance: 'Nearest' },
+        resultsFor: "Results for '{keyword}' ({count} attractions)",
+        resultsForRestaurant: "Results for '{keyword}' ({count} restaurants)",
+        backToRecommend: 'Back to recommendations',
+        noAttraction: 'No recommended attractions for now',
+        noRestaurant: 'No recommended restaurants for now',
+        noAddress: 'No address info',
+        viewMoreAttraction: 'View more attractions',
+        viewMoreRestaurant: 'View more restaurants',
+        foundCount: 'Found {count} results',
+        noResults: 'No related results, try another keyword',
+        enterKeyword: 'Please enter a keyword',
+        recommendationFor: 'Recommended in {city}'
+    },
+
+    // Preferences mini labels used inside TripPreferences
+    preferences: {
+        smartPrefilled: 'Smart suggestions prefilled',
+        recommendedCount: 'Recommended {count} items',
+        pace: { title: 'Pace Preference', desc: 'Choose a pace that fits your time and depth of experience' },
+        social: { title: 'Social Environment', desc: 'Choose the environment and vibe you prefer' },
+        photo: {
+            title: 'Photo Taking',
+            desc: 'Tell us how much you value photo taking and sharing',
+            must: 'Must-have',
+            mustDesc: 'Popular photo spots first',
+            casual: 'Casual',
+            casualDesc: 'Natural scenery is fine',
+            minimal: 'Not important',
+            minimalDesc: 'Experience first'
+        },
+        dietary: {
+            desc: 'Let us know your dietary restrictions to recommend proper restaurants',
+            placeholder: 'Other dietary restrictions or special needs, e.g., religious taboos, allergens, etc.'
+        },
+        special: {
+            desc: 'Tell us any special conditions to consider',
+            placeholder: 'e.g., limited mobility, with kids, with pets, accessibility required, etc.'
         }
     },
 
@@ -438,9 +530,17 @@ export default {
             price: 'Sort by price',
             distance: 'Distance filter',
             cuisine: 'Cuisine categories',
-            reviews: 'User reviews'
+            reviews: 'User reviews',
+            recommended: 'Signature dishes'
         },
-        stayTuned: 'Stay tuned!'
+        stayTuned: 'Stay tuned!',
+        perCapita: 'Per capita: ¥{price}'
+    },
+
+    // Common category labels
+    category: {
+        scenic: 'Scenic Spot',
+        catering: 'Catering Service'
     },
 
     // Destinations Page

@@ -23,7 +23,7 @@
         <div class="form-section">
             <div class="section-title">
             <el-icon><MapLocation /></el-icon>
-              <span>{{ t('trip.basicInfo') }}</span>
+              <span>{{ t('trip.baseInfo.title') }}</span>
           </div>
           
           <el-row :gutter="24">
@@ -329,7 +329,7 @@
           size="large"
           @click="goToNextStep"
         >
-          下一步
+          {{ t('common.next') }}
           <el-icon><ArrowRight /></el-icon>
         </el-button>
       </div>

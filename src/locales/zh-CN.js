@@ -99,6 +99,43 @@ export default {
                 desc: '与朋友实时分享和协同规划'
             }
         },
+        aiPrompt: {
+            preview: 'AI提示词预览',
+            viewFull: '查看完整提示词'
+        },
+        messages: {
+            fullPromptReady: '已生成完整提示词，可复制到 AI 工具中测试',
+            copySuccess: '已复制到剪贴板！',
+            copyFailed: '复制失败，请手动复制',
+            cancelling: '正在取消生成...',
+            cancelled: '已取消生成'
+        },
+        warnings: {
+            completeBasicInfo: '请先完善基础信息'
+        },
+        progress: {
+            start: '🚀 启动智能行程规划...',
+            analyzingPrefs: '📊 正在分析您的偏好...',
+            buildPrompt: '📝 正在构建专属提示词...',
+            connectAi: '🤖 正在连接 AI 服务...',
+            deepAnalyze: '🧠 AI 正在深度分析您的需求...',
+            sending: '🌐 正在向 AI 服务器发送请求...',
+            generating: '⚡ AI 正在生成行程...',
+            formatting: '📋 正在整理行程内容...'
+        },
+        errors: {
+            generateFailed: '生成失败',
+            generateFailedRetry: '生成失败，请稍后重试',
+            timeout: 'AI 服务超时，请重试',
+            paymentRequired: 'AI 服务余额不足，请联系管理员',
+            network: '网络错误，请重试',
+            withMessage: '错误：'
+        },
+        generating: {
+            aiWorking: 'AI 正在为您仔细规划行程...',
+            timeRemaining: '预计还需 {s} 秒'
+        },
+        recommendedCounts: '已为您推荐{attractions}个景点和{restaurants}家餐厅',
         copyright: '© 2024 GoingTour. 让每一次旅行都充满惊喜'
     },
 
@@ -129,7 +166,18 @@ export default {
         deleteAccount: '注销账户',
         darkMode: '深色模式',
         lightMode: '浅色模式',
-        systemMode: '跟随系统'
+        systemMode: '跟随系统',
+        clearAllRecords: '清除所有记录',
+        noLoginRecords: '暂无登录记录',
+        loginTime: '登录时间',
+        status: '状态',
+        loginMethod: '登录方式',
+        ipAddress: 'IP地址',
+        location: '地理位置',
+        deviceType: '设备类型',
+        browser: '浏览器',
+        operatingSystem: '操作系统',
+        sessionDuration: '会话时长'
     },
 
     // 个人中心页面
@@ -206,6 +254,13 @@ export default {
         travelers: '出行人数',
         preferences: '偏好',
         aiGeneration: '智能生成',
+        actions: {
+            viewFullPrompt: '查看完整提示词',
+            generateUsingPrompt: '使用该提示词生成',
+            generating: '正在生成...',
+            copy: '复制行程',
+            regenerate: '重新生成'
+        },
         generationStyle: '生成格式',
         generateTrip: '生成行程',
         cancelGeneration: '取消生成',
@@ -255,6 +310,8 @@ export default {
         yuan: '元',
         noTripData: '未找到行程数据',
         saveTrip: '保存行程',
+        add: '添加到计划',
+        added: '已添加',
         viewDetails: '查看行程详情',
         generated: '行程生成完成！',
         prepareGenerate: '准备生成您的专属行程',
@@ -267,6 +324,34 @@ export default {
         dietaryRestrictions: '饮食禁忌',
         weatherSuggestion: '天气建议',
         weatherForecast: '天气预报',
+        weather: {
+            amapApi: '高德天气API',
+            noticeTitle: '天气提示',
+            outOfRangeAdvice: '对于超出预报范围的日期，请关注当地实时天气，并准备适应性衣物。',
+            noAccurateForecast: '选择的日期超出当前天气预报范围，无法提供准确预报。',
+            checkBeforeTravel: '出发前请再次查看目的地天气。',
+            suitableActivitiesPrefix: '适合安排',
+            suitableActivitiesSuffix: '等活动。',
+            tips: '建议：',
+            cautions: '注意事项：',
+            detail: '预报详情',
+            partialForecastPrefix: '可获取的天气预报（前',
+            daysSuffix: '天）',
+            referenceForecast: '参考预报',
+            historicalSim: '基于历史数据模拟',
+            amapApiForecast: '高德API预报',
+            dateOutOfRange: '日期超出预报范围',
+            afterDayNeedsAttention: '第{day}天及以后请关注实时天气',
+            loading: '正在获取天气信息...',
+            fetchFailedPrefix: '获取天气数据失败:',
+            outOfRangeWithDate: '所选日期范围（{date}）超出预报范围，以下信息仅供参考',
+            forecastInsufficient: '您的行程有{days}天，但预报仅有{forecastDays}天',
+            windLevel: '级',
+            tempRange: '温度范围',
+            forecastDays: '预报天数',
+            dataSource: '数据来源',
+            travelTips: '出行建议'
+        },
         mustSee: '必去景点',
         noMustSeeSelected: '未选择必去景点，可以从推荐景点中添加',
         mustEat: '必去餐厅',
@@ -287,6 +372,80 @@ export default {
             narrative: '生动详细',
             card: '现代美观',
             checklist: '便于执行'
+        },
+        noAlternativeAttractions: '暂无其他景点可供替换',
+        noAlternativeRestaurants: '暂无其他餐厅可供替换',
+        noAttractionsToAdd: '暂无可添加的景点',
+        noRestaurantsToAdd: '暂无可添加的餐厅',
+        aiDisplay: {
+            titleSuffix: '旅游计划',
+            subtitle: 'AI为您精心规划的{days}天{city}行程',
+            feedbackTitle: '行程评价',
+            overallSatisfaction: '整体满意度：',
+            rating: {
+                veryBad: '很差',
+                bad: '一般',
+                ok: '还行',
+                good: '不错',
+                excellent: '很棒'
+            },
+            feedbackPlaceholder: '对这个行程有什么建议或想法？（可选）',
+            submitFeedback: '提交反馈',
+            thanksRating: '感谢您的{n}星评价！'
+        },
+        dialog: {
+            fullPromptTitle: '完整 AI 提示词',
+            copyPrompt: '复制提示词',
+            close: '关闭',
+            copyAndClose: '复制并关闭',
+            regenerateTitle: '确认重新生成',
+            regenerateMessage: '重新生成将覆盖当前行程，确定要继续吗？'
+        }
+    },
+
+    // 轻量搜索文案（TripPreferences 内使用）
+    search: {
+        attractionPlaceholder: '搜索景点名称、类型...',
+        restaurantPlaceholder: '搜索餐厅名称、菜系...',
+        sortBy: '排序方式',
+        sort: { default: '默认排序', rating: '评分最高', distance: '距离最近' },
+        resultsFor: "搜索'{keyword}'的结果（{count}个景点）",
+        resultsForRestaurant: "搜索'{keyword}'的结果（{count}家餐厅）",
+        backToRecommend: '返回推荐',
+        noAttraction: '暂无推荐景点',
+        noRestaurant: '暂无推荐餐厅',
+        noAddress: '暂无地址信息',
+        viewMoreAttraction: '查看更多景点',
+        viewMoreRestaurant: '查看更多餐厅',
+        foundCount: '找到 {count} 个搜索结果',
+        noResults: '未找到相关结果，请尝试其他关键词',
+        enterKeyword: '请输入搜索关键词',
+        recommendationFor: '{city}推荐内容'
+    },
+
+    // 偏好小文案（TripPreferences 内使用）
+    preferences: {
+        smartPrefilled: '已为您智能预填推荐选项',
+        recommendedCount: '已为您推荐{count}项',
+        pace: { title: '行程节奏偏好', desc: '选择符合您这次旅行的时间安排和体验深度' },
+        social: { title: '社交环境偏好', desc: '选择您更喜欢的旅行环境和氛围' },
+        photo: {
+            title: '拍照打卡需求',
+            desc: '告诉我们您对拍照和分享的重视程度',
+            must: '必须有',
+            mustDesc: '网红打卡点优先',
+            casual: '随性拍拍',
+            casualDesc: '自然美景即可',
+            minimal: '不太在意',
+            minimalDesc: '体验优先'
+        },
+        dietary: {
+            desc: '请告知我们您的饮食限制，确保为您推荐合适的餐厅',
+            placeholder: '请输入其他饮食禁忌或特殊需求，如宗教禁忌、过敏原等'
+        },
+        special: {
+            desc: '告诉我们任何需要特别考虑的情况',
+            placeholder: '如：行动不便、带小孩、带宠物、无障碍设施需求等'
         }
     },
 
@@ -357,9 +516,17 @@ export default {
             price: '按价格排序',
             distance: '距离筛选',
             cuisine: '菜系分类',
-            reviews: '用户评价'
+            reviews: '用户评价',
+            recommended: '招牌菜'
         },
-        stayTuned: '敬请期待！'
+        stayTuned: '敬请期待！',
+        perCapita: '人均￥{price}'
+    },
+
+    // 通用类别标签
+    category: {
+        scenic: '风景名胜',
+        catering: '餐饮服务'
     },
 
     // 表单验证

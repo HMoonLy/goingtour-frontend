@@ -1061,7 +1061,7 @@ export default {
             .slice(0, 5); // 最多5个备选
 
           if (alternatives.length === 0) {
-            ElMessage.warning("暂无其他景点可供替换");
+            ElMessage.warning(t('trip.noAlternativeAttractions'));
             return;
           }
 
@@ -1163,7 +1163,7 @@ export default {
             .slice(0, 5); // 最多5个备选
 
           if (alternatives.length === 0) {
-            ElMessage.warning("暂无其他餐厅可供替换");
+            ElMessage.warning(t('trip.noAlternativeRestaurants'));
             return;
           }
 
@@ -1300,7 +1300,7 @@ export default {
             .slice(0, 5);
 
           if (availableAttractions.length === 0) {
-            ElMessage.warning("暂无可添加的景点");
+            ElMessage.warning(t('trip.noAttractionsToAdd'));
             return;
           }
 
@@ -1373,7 +1373,7 @@ export default {
             .slice(0, 5);
 
           if (availableRestaurants.length === 0) {
-            ElMessage.warning("暂无可添加的餐厅");
+            ElMessage.warning(t('trip.noRestaurantsToAdd'));
             return;
           }
 

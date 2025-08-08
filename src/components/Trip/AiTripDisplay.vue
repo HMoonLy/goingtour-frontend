@@ -7,13 +7,11 @@
           <div class="title-with-icon">
             <el-icon class="ai-icon" color="#409eff"><Cpu /></el-icon>
             <h1 class="trip-main-title">
-              {{ tripData?.destinationInfo?.name }}旅游计划
+              {{ (tripData?.destinationInfo?.name || '') + t('trip.aiDisplay.titleSuffix') }}
             </h1>
           </div>
           <p class="trip-subtitle" v-if="tripData?.destinationInfo">
-            AI为您精心规划的{{ tripData?.tripBasicInfo?.days || 3 }}天{{
-              tripData?.destinationInfo?.name || "智能"
-            }}行程
+            {{ t('trip.aiDisplay.subtitle', { days: tripData?.tripBasicInfo?.days || 3, city: tripData?.destinationInfo?.name || t('trip.destination') }) }}
           </p>
         </div>
         
@@ -27,7 +25,7 @@
               <div class="stat-number">
                 {{ tripData?.tripBasicInfo?.days || 0 }}
               </div>
-              <div class="stat-label">天数</div>
+              <div class="stat-label">{{ t('trip.daysLabel') }}</div>
             </div>
           </div>
           <div class="stat-card">
@@ -38,7 +36,7 @@
               <div class="stat-number">
                 {{ tripData?.tripBasicInfo?.travelers || 0 }}
               </div>
-              <div class="stat-label">人数</div>
+              <div class="stat-label">{{ t('trip.travelersLabel') }}</div>
             </div>
           </div>
           <div class="stat-card">
@@ -47,7 +45,7 @@
             </div>
             <div class="stat-content">
               <div class="stat-number">{{ tripData?.qualityScore || 0 }}</div>
-              <div class="stat-label">质量分</div>
+              <div class="stat-label">{{ t('trip.qualityScore') }}</div>
             </div>
           </div>
           <div class="stat-card">
@@ -58,7 +56,7 @@
               <div class="stat-number">
                 {{ formatProcessingTime(tripData?.processingTime) }}
               </div>
-              <div class="stat-label">用时</div>
+              <div class="stat-label">{{ t('trip.durationLabel') }}</div>
             </div>
           </div>
         </div>
@@ -75,19 +73,19 @@
       <div class="action-buttons">
         <el-button @click="copyToClipboard" :loading="copying">
           <el-icon><DocumentCopy /></el-icon>
-          复制行程
+          {{ t('trip.actions.copy') }}
         </el-button>
         <el-button type="primary" @click="saveTrip" :loading="saving">
           <el-icon><Folder /></el-icon>
-          保存行程
+          {{ t('trip.saveTrip') }}
         </el-button>
         <el-button type="success" @click="shareTrip" :loading="sharing">
           <el-icon><Share /></el-icon>
-          分享行程
+          {{ t('trip.share') }}
         </el-button>
         <el-button type="warning" @click="regenerateTrip">
           <el-icon><Refresh /></el-icon>
-          重新生成
+          {{ t('trip.actions.regenerate') }}
         </el-button>
       </div>
     </el-card>
@@ -97,19 +95,25 @@
       <template #header>
         <div class="card-title">
           <el-icon color="#67c23a"><ChatDotSquare /></el-icon>
-          <span>行程评价</span>
+          <span>{{ t('trip.aiDisplay.feedbackTitle') }}</span>
         </div>
       </template>
       
       <div class="feedback-content">
         <div class="rating-section">
-          <span class="rating-label">整体满意度:</span>
+          <span class="rating-label">{{ t('trip.aiDisplay.overallSatisfaction') }}</span>
           <el-rate
             v-model="userRating"
             :colors="['#F7BA2A', '#F7BA2A', '#F7BA2A']"
             @change="submitRating"
             show-text
-            :texts="['很差', '一般', '还行', '不错', '很棒']"
+            :texts="[
+              t('trip.aiDisplay.rating.veryBad'),
+              t('trip.aiDisplay.rating.bad'),
+              t('trip.aiDisplay.rating.ok'),
+              t('trip.aiDisplay.rating.good'),
+              t('trip.aiDisplay.rating.excellent')
+            ]"
           />
         </div>
         
@@ -117,7 +121,7 @@
           v-model="userFeedback"
           type="textarea"
           :rows="3"
-          placeholder="对这个行程有什么建议或想法？（可选）"
+          :placeholder="t('trip.aiDisplay.feedbackPlaceholder')"
           maxlength="200"
           show-word-limit
           class="feedback-input"
@@ -129,9 +133,9 @@
             @click="submitFeedback"
             :disabled="!userFeedback.trim()"
           >
-            提交反馈
+            {{ t('trip.aiDisplay.submitFeedback') }}
           </el-button>
-          <el-button size="small" link @click="clearFeedback"> 清空 </el-button>
+          <el-button size="small" link @click="clearFeedback"> {{ t('common.reset') }} </el-button>
         </div>
       </div>
     </el-card>
@@ -158,6 +162,7 @@ import {
 } from "@element-plus/icons-vue";
 import MarkdownIt from "markdown-it";
 import { sanitizeMarkdownHtml } from "@/utils/xssFilter.js";
+import { useI18n } from "@/utils/i18n.js";
 
 const props = defineProps({
   tripData: {
@@ -171,6 +176,7 @@ const emit = defineEmits(["save", "share", "regenerate"]);
 // 获取用户store和路由
 const userStore = useUserStore();
 const router = useRouter();
+const { t } = useI18n();
 
 // 响应式数据
 const copying = ref(false);
@@ -201,7 +207,7 @@ md.renderer.rules.strong_close = () => "</p>";
 
 // 计算属性：渲染完整的markdown内容
 const renderedContent = computed(() => {
-  if (!props.tripData?.content) return "<p>暂无行程数据</p>";
+  if (!props.tripData?.content) return `<p>${t('trip.noTripData')}</p>`;
   let html = md.render(props.tripData.content);
 
   // 删除餐饮信息前的时间点 - 通用方法处理各种HTML结构
@@ -297,9 +303,9 @@ const copyToClipboard = async () => {
   try {
     const content = props.tripData?.content || "";
     await navigator.clipboard.writeText(content);
-    ElMessage.success("行程内容已复制到剪贴板！");
+    ElMessage.success(t('trip.messages.copySuccess'));
   } catch (err) {
-    ElMessage.error("复制失败，请手动选择复制");
+    ElMessage.error(t('trip.messages.copyFailed'));
   } finally {
     copying.value = false;
   }
@@ -336,7 +342,7 @@ const saveTrip = async () => {
     const response = await http.post("/ai/trip/save", saveRequest);
     
     if (response.code === 200) {
-      ElMessage.success("行程已成功保存到我的行程中！");
+      ElMessage.success(t('messages.updateSuccess'));
       emit("save", {
         ...props.tripData,
         savedTripId: response.data.id,
@@ -351,7 +357,7 @@ const saveTrip = async () => {
       throw new Error(response.msg || "保存失败");
     }
   } catch (err) {
-    ElMessage.error(err.message || "保存失败，请重试");
+    ElMessage.error(err.message || t('messages.updateFailed'));
   } finally {
     saving.value = false;
   }
@@ -363,7 +369,7 @@ const shareTrip = async () => {
   try {
     // 模拟分享操作
     await new Promise((resolve) => setTimeout(resolve, 800));
-    ElMessage.success("分享链接已生成！");
+    ElMessage.success(t('messages.updateSuccess'));
     emit("share", props.tripData);
   } catch (err) {
     ElMessage.error("分享失败，请重试");
@@ -375,11 +381,11 @@ const shareTrip = async () => {
 // 重新生成行程
 const regenerateTrip = () => {
   ElMessageBox.confirm(
-    "重新生成将覆盖当前行程，确定要继续吗？",
-    "确认重新生成",
+    t('trip.dialog.regenerateMessage'),
+    t('trip.dialog.regenerateTitle'),
     {
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: "warning",
     }
   )
@@ -394,7 +400,7 @@ const regenerateTrip = () => {
 // 提交评分
 const submitRating = () => {
   if (userRating.value > 0) {
-    ElMessage.success(`感谢您的${userRating.value}星评价！`);
+    ElMessage.success(t('trip.aiDisplay.thanksRating', { n: userRating.value }));
   }
 };
 
@@ -402,7 +408,7 @@ const submitRating = () => {
 const submitFeedback = () => {
   if (!userFeedback.value.trim()) return;
 
-  ElMessage.success("感谢您的宝贵反馈！");
+  ElMessage.success(t('messages.updateSuccess'));
   userFeedback.value = "";
 };
 

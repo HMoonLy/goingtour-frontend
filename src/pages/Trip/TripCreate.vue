@@ -108,7 +108,7 @@
       <!-- 空状态展示 -->
       <div v-else-if="currentStep === 3" class="empty-trip-state">
           <el-empty 
-          :description="t('messages.operationFailed') || '暂无行程数据'"
+          :description="t('trip.noTripData')"
           :image-size="200"
         >
           <el-button type="primary" @click="regenerateTrip">
