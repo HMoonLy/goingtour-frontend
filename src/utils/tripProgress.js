@@ -24,7 +24,7 @@ class TripProgressManager {
             localStorage.setItem(this.storageKey, JSON.stringify(saveData));
             console.log('💾 行程进度已保存:', {
                 step: progressData.currentStep,
-                destination: progressData.baseForm ? .destinationName,
+                destination: progressData.baseForm?.destinationName,
                 timestamp: new Date().toLocaleString()
             });
 
@@ -65,7 +65,7 @@ class TripProgressManager {
 
             console.log('📂 恢复行程进度:', {
                 step: progressData.currentStep,
-                destination: progressData.baseForm ? .destinationName,
+                destination: progressData.baseForm?.destinationName,
                 savedTime: new Date(progressData.timestamp).toLocaleString()
             });
 
@@ -138,7 +138,7 @@ class TripProgressManager {
             return {
                 step: progressData.currentStep,
                 stepName: this.getStepName(progressData.currentStep),
-                destination: progressData.baseForm ? .destinationName || '未选择',
+                destination: progressData.baseForm?.destinationName || '未选择',
                 savedTime: new Date(progressData.timestamp).toLocaleString(),
                 timeAgo: this.getTimeAgo(progressData.timestamp)
             };

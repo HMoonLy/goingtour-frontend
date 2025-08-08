@@ -47,7 +47,8 @@
                 出行， 预算约
                 <span class="highlight">{{ getBudgetText() }}</span>
                 。出行日期为
-                <span class="highlight">{{formatDateRange(baseForm.dateRange)}}</span>。
+                <span class="highlight">{{ formatDateRange(baseForm.dateRange) }}</span
+                >。
               </div>
               <div v-else class="prompt-placeholder">
                 请填写基本信息（目的地、天数、日期等）
@@ -62,22 +63,26 @@
               <div v-if="hasUserPreferences" class="prompt-text">
                 我的旅行偏好是<span class="highlight">{{
                   selectedPreferenceTags.join("、")
-                }}</span>。
+                }}</span
+                >。
                 <template v-if="currentUserPreferences.accommodationType">
                   住宿偏好<span class="highlight">{{
                     tagMapping[currentUserPreferences.accommodationType] ||
                     currentUserPreferences.accommodationType
-                  }}</span>。
+                  }}</span
+                  >。
                 </template>
                 <template v-if="currentUserPreferences.travelPace">
                   旅行节奏偏好<span class="highlight">{{
-                    tagMapping[currentUserPreferences.travelPace] || currentUserPreferences.travelPace
+                    tagMapping[currentUserPreferences.travelPace] ||
+                    currentUserPreferences.travelPace
                   }}</span
                   >。
                 </template>
                 <template
                   v-if="
-                    currentUserPreferences.foodTastes && currentUserPreferences.foodTastes.length > 0
+                    currentUserPreferences.foodTastes &&
+                    currentUserPreferences.foodTastes.length > 0
                   "
                 >
                   饮食偏好<span class="highlight">{{
@@ -109,32 +114,39 @@
                 "
                 class="prompt-text"
               >
-                <template v-if="preferenceForm.tripGoals && preferenceForm.tripGoals.length > 0">
+                <template
+                  v-if="preferenceForm.tripGoals && preferenceForm.tripGoals.length > 0"
+                >
                   本次行程目标是<span class="highlight">{{
                     getTripGoalsText(preferenceForm.tripGoals)
-                  }}</span>。
+                  }}</span
+                  >。
                 </template>
                 <template v-if="preferenceForm.pacePreference">
                   行程节奏偏好<span class="highlight">{{
                     getPacePreferenceText(preferenceForm.pacePreference)
-                  }}</span>。
+                  }}</span
+                  >。
                 </template>
                 <template v-if="preferenceForm.socialPreference">
                   社交环境偏好<span class="highlight">{{
                     getSocialPreferenceText(preferenceForm.socialPreference)
-                  }}</span>。
+                  }}</span
+                  >。
                 </template>
                 <template v-if="preferenceForm.photoPreference">
                   拍照打卡需求<span class="highlight">{{
                     getPhotoPreferenceText(preferenceForm.photoPreference)
-                  }}</span>。
+                  }}</span
+                  >。
                 </template>
                 <template
                   v-if="preferenceForm.focusAreas && preferenceForm.focusAreas.length > 0"
                 >
                   重点体验<span class="highlight">{{
                     getFocusAreasText(preferenceForm.focusAreas)
-                  }}</span>。
+                  }}</span
+                  >。
                 </template>
                 <template v-if="preferenceForm.specialRequirements">
                   特殊需求：<span class="highlight">{{
@@ -185,27 +197,20 @@
               </div>
             </div>
 
-
-
             <!-- 天气建议部分 -->
             <div v-if="weatherSuggestion" class="prompt-section">
               <div class="section-header">
                 <el-icon><Sunny /></el-icon>
                 <h4>天气建议</h4>
-                <el-tag 
-                  v-if="weatherSuggestion.isHistorical" 
-                  size="small" 
+                <el-tag
+                  v-if="weatherSuggestion.isHistorical"
+                  size="small"
                   type="info"
                   effect="plain"
                 >
                   {{ weatherSuggestion.dataSource }}
                 </el-tag>
-                <el-tag 
-                  v-else
-                  size="small" 
-                  type="success"
-                  effect="plain"
-                >
+                <el-tag v-else size="small" type="success" effect="plain">
                   高德天气API
                 </el-tag>
               </div>
@@ -217,46 +222,92 @@
                       基于历史气候数据，出行期间天气预计<span class="highlight">{{
                         weatherSuggestion.weatherDesc
                       }}</span
-                      >， 气温<span class="highlight">{{ weatherSuggestion.tempRange }}</span
+                      >， 气温<span class="highlight">{{
+                        weatherSuggestion.tempRange
+                      }}</span
                       >。
                       <template v-if="weatherSuggestion.rainProbability">
-                        降雨概率约<span class="highlight">{{ weatherSuggestion.rainProbability }}</span>。
+                        降雨概率约<span class="highlight">{{
+                          weatherSuggestion.rainProbability
+                        }}</span
+                        >。
                       </template>
                       <template v-if="weatherSuggestion.season">
-                        <span class="highlight">{{ weatherSuggestion.season }}</span>时节特点明显。
+                        <span class="highlight">{{ weatherSuggestion.season }}</span
+                        >时节特点明显。
                       </template>
                     </template>
                     <template v-else>
                       根据高德天气API实时数据，出行期间天气预计<span class="highlight">{{
                         weatherSuggestion.weatherDesc
                       }}</span
-                      >， 气温<span class="highlight">{{ weatherSuggestion.tempRange }}</span
+                      >， 气温<span class="highlight">{{
+                        weatherSuggestion.tempRange
+                      }}</span
                       >。
                       <template v-if="weatherSuggestion.humidity">
-                        湿度<span class="highlight">{{ weatherSuggestion.humidity }}</span>。
+                        湿度<span class="highlight">{{ weatherSuggestion.humidity }}</span
+                        >。
                       </template>
-                      <template v-if="weatherSuggestion.windDirection && weatherSuggestion.windPower">
-                        风向<span class="highlight">{{ weatherSuggestion.windDirection }}{{ weatherSuggestion.windPower }}级</span>。
+                      <template
+                        v-if="
+                          weatherSuggestion.windDirection && weatherSuggestion.windPower
+                        "
+                      >
+                        风向<span class="highlight"
+                          >{{ weatherSuggestion.windDirection
+                          }}{{ weatherSuggestion.windPower }}级</span
+                        >。
                       </template>
                     </template>
                   </p>
                 </template>
-                
+
                 <!-- 日期超出预报范围的说明 -->
                 <template v-else>
                   <div class="weather-limitation-notice">
-                    <template v-if="baseForm && baseForm.days && baseForm.days > (weatherSuggestion.forecast?.length || 0)">
+                    <template
+                      v-if="
+                        baseForm &&
+                        baseForm.days &&
+                        baseForm.days > (weatherSuggestion.forecast?.length || 0)
+                      "
+                    >
                       <p class="notice-title">🌤️ 天气预报说明</p>
-                      <p>您的<span class="highlight">{{ baseForm.days }}天</span>行程中，我们仅能提供前<span class="highlight">{{ weatherSuggestion.forecast?.length || 0 }}天</span>的准确天气预报。</p>
-                      <template v-if="weatherSuggestion.forecast && weatherSuggestion.forecast.length > 0">
-                        <p>已知的天气情况：<span class="highlight">{{ weatherSuggestion.weatherDesc }}</span>，气温<span class="highlight">{{ weatherSuggestion.tempRange }}</span>。</p>
+                      <p>
+                        您的<span class="highlight">{{ baseForm.days }}天</span
+                        >行程中，我们仅能提供前<span class="highlight"
+                          >{{ weatherSuggestion.forecast?.length || 0 }}天</span
+                        >的准确天气预报。
+                      </p>
+                      <template
+                        v-if="
+                          weatherSuggestion.forecast &&
+                          weatherSuggestion.forecast.length > 0
+                        "
+                      >
+                        <p>
+                          已知的天气情况：<span class="highlight">{{
+                            weatherSuggestion.weatherDesc
+                          }}</span
+                          >，气温<span class="highlight">{{
+                            weatherSuggestion.tempRange
+                          }}</span
+                          >。
+                        </p>
                       </template>
-                      <p class="notice-suggestion">超出预报范围的日期建议您关注当地实时天气预报，并准备适应性较强的衣物。</p>
+                      <p class="notice-suggestion">
+                        超出预报范围的日期建议您关注当地实时天气预报，并准备适应性较强的衣物。
+                      </p>
                     </template>
                     <template v-else>
                       <p class="notice-title">⚠️ 天气预报说明</p>
-                      <p>由于您选择的出行日期与当前天气预报时间范围不匹配，无法提供准确的天气预报。</p>
-                      <p class="notice-suggestion">建议您在出行前关注目的地的实时天气预报。</p>
+                      <p>
+                        由于您选择的出行日期与当前天气预报时间范围不匹配，无法提供准确的天气预报。
+                      </p>
+                      <p class="notice-suggestion">
+                        建议您在出行前关注目的地的实时天气预报。
+                      </p>
                     </template>
                   </div>
                 </template>
@@ -275,7 +326,11 @@
                   </p>
                 </template>
                 <template
-                  v-if="weatherSuggestion.tips && weatherSuggestion.tips.length > 0 && isDateWithinForecastRange()"
+                  v-if="
+                    weatherSuggestion.tips &&
+                    weatherSuggestion.tips.length > 0 &&
+                    isDateWithinForecastRange()
+                  "
                 >
                   <p>
                     建议：<span class="highlight">{{
@@ -285,7 +340,11 @@
                   </p>
                 </template>
                 <template
-                  v-if="weatherSuggestion.avoid && weatherSuggestion.avoid.length > 0 && isDateWithinForecastRange()"
+                  v-if="
+                    weatherSuggestion.avoid &&
+                    weatherSuggestion.avoid.length > 0 &&
+                    isDateWithinForecastRange()
+                  "
                 >
                   <p>
                     注意事项：<span class="highlight">{{
@@ -294,34 +353,49 @@
                     >。
                   </p>
                 </template>
-                
+
                 <!-- 天气预报详情展示 -->
-                <template v-if="weatherSuggestion.forecast && weatherSuggestion.forecast.length > 0">
+                <template
+                  v-if="
+                    weatherSuggestion.forecast && weatherSuggestion.forecast.length > 0
+                  "
+                >
                   <div class="weather-forecast">
                     <h5>
                       <el-icon><Calendar /></el-icon>
                       <template v-if="isDateWithinForecastRange()">
                         天气预报详情
                       </template>
-                      <template v-else-if="baseForm && baseForm.days && weatherSuggestion.forecast && baseForm.days > weatherSuggestion.forecast.length">
+                      <template
+                        v-else-if="
+                          baseForm &&
+                          baseForm.days &&
+                          weatherSuggestion.forecast &&
+                          baseForm.days > weatherSuggestion.forecast.length
+                        "
+                      >
                         可获取的天气预报（前{{ weatherSuggestion.forecast.length }}天）
                       </template>
-                      <template v-else>
-                        参考天气预报
-                      </template>
-                      <el-tag v-if="weatherSuggestion.isHistorical" size="small" type="info">
+                      <template v-else> 参考天气预报 </template>
+                      <el-tag
+                        v-if="weatherSuggestion.isHistorical"
+                        size="small"
+                        type="info"
+                      >
                         基于历史数据模拟
                       </el-tag>
-                      <el-tag v-else size="small" type="success">
-                        高德API预报
-                      </el-tag>
-                      <el-tag v-if="!isDateWithinForecastRange()" size="small" type="warning">
+                      <el-tag v-else size="small" type="success"> 高德API预报 </el-tag>
+                      <el-tag
+                        v-if="!isDateWithinForecastRange()"
+                        size="small"
+                        type="warning"
+                      >
                         日期超出预报范围
                       </el-tag>
                     </h5>
                     <div class="forecast-list">
-                      <div 
-                        v-for="(day, index) in weatherSuggestion.forecast" 
+                      <div
+                        v-for="(day, index) in weatherSuggestion.forecast"
                         :key="index"
                         class="forecast-item"
                         :class="{ 'forecast-outdated': !isDateWithinForecastRange() }"
@@ -329,13 +403,20 @@
                         <div class="forecast-date">{{ day.date }}</div>
                         <div class="forecast-weather">
                           <span class="day-weather">{{ day.dayWeather }}</span>
-                          <span v-if="day.nightWeather && day.nightWeather !== day.dayWeather" class="night-weather">
+                          <span
+                            v-if="day.nightWeather && day.nightWeather !== day.dayWeather"
+                            class="night-weather"
+                          >
                             / {{ day.nightWeather }}
                           </span>
                         </div>
-                        <div class="forecast-temp">{{ day.dayTemp }}℃/{{ day.nightTemp }}℃</div>
+                        <div class="forecast-temp">
+                          {{ day.dayTemp }}℃/{{ day.nightTemp }}℃
+                        </div>
                         <div v-if="day.dayWind || day.nightWind" class="forecast-wind">
-                          <template v-if="day.dayWind">{{ day.dayWind }}{{ day.dayPower }}级</template>
+                          <template v-if="day.dayWind"
+                            >{{ day.dayWind }}{{ day.dayPower }}级</template
+                          >
                           <template v-if="day.nightWind && day.nightWind !== day.dayWind">
                             / {{ day.nightWind }}{{ day.nightPower }}级
                           </template>
@@ -343,10 +424,22 @@
                       </div>
                     </div>
                     <!-- 超出预报范围的提醒 -->
-                    <template v-if="!isDateWithinForecastRange() && baseForm && baseForm.days && weatherSuggestion.forecast && baseForm.days > weatherSuggestion.forecast.length">
+                    <template
+                      v-if="
+                        !isDateWithinForecastRange() &&
+                        baseForm &&
+                        baseForm.days &&
+                        weatherSuggestion.forecast &&
+                        baseForm.days > weatherSuggestion.forecast.length
+                      "
+                    >
                       <div class="forecast-limitation-notice">
                         <el-icon><Warning /></el-icon>
-                        <span>第{{ weatherSuggestion.forecast.length + 1 }}天及之后的天气情况需要关注实时预报</span>
+                        <span
+                          >第{{
+                            weatherSuggestion.forecast.length + 1
+                          }}天及之后的天气情况需要关注实时预报</span
+                        >
                       </div>
                     </template>
                   </div>
@@ -405,43 +498,90 @@
             </div>
           </div>
 
+          <!-- 生成选项 -->
+          <div class="generation-options">
+            <div class="option-group">
+              <span class="option-label">生成格式：</span>
+              <el-radio-group
+                v-model="selectedGenerationStyle"
+                size="small"
+                class="inline-style-options"
+              >
+                <el-radio value="table">
+                  <span class="style-name">表格</span>
+                  <span class="style-desc">时间清晰</span>
+                </el-radio>
+                <el-radio value="narrative">
+                  <span class="style-name">叙述</span>
+                  <span class="style-desc">生动详细</span>
+                </el-radio>
+                <el-radio value="card">
+                  <span class="style-name">卡片</span>
+                  <span class="style-desc">现代美观</span>
+                </el-radio>
+                <el-radio value="checklist">
+                  <span class="style-name">清单</span>
+                  <span class="style-desc">便于执行</span>
+                </el-radio>
+              </el-radio-group>
+            </div>
+          </div>
+
           <div class="prompt-actions">
-            <el-button
-              type="success"
-              size="large"
-              @click="showFullPrompt"
-            >
+            <el-button type="success" size="large" @click="showFullPrompt">
               <el-icon><ViewIcon /></el-icon>
               查看完整提示词
             </el-button>
             <el-button
+              v-if="!generating"
               type="primary"
               size="large"
-              :disabled="!canGenerateTrip || generating"
-              :loading="generating"
+              :disabled="!canGenerateTrip"
               @click="generateTrip"
             >
-              <el-icon v-if="!generating"><MagicStick /></el-icon>
-              {{ generating ? '正在生成行程...' : '使用此提示词生成行程' }}
+              <el-icon><MagicStick /></el-icon>
+              使用此提示词生成行程
             </el-button>
+            
+            <!-- 生成中的状态 -->
+            <template v-else>
+              <el-button
+                type="primary"
+                size="large"
+                loading
+                disabled
+              >
+                正在生成行程...
+              </el-button>
+              <el-button
+                type="danger"
+                size="large"
+                @click="cancelGeneration"
+              >
+                <el-icon><Close /></el-icon>
+                取消生成
+              </el-button>
+            </template>
           </div>
         </div>
 
         <!-- 数据验证提示 -->
         <div v-if="!canGenerateTrip && baseForm.destination" class="validation-hints">
           <el-alert
-            v-for="error in validateTripData().errors"
-            :key="error"
-            :title="error"
+            v-for="(error, index) in validateTripData().errors"
+            :key="`error-${index}`"
+            :title="typeof error === 'string' ? error : error.message"
+            :description="typeof error === 'object' ? error.suggestion : undefined"
             type="error"
             :closable="false"
             show-icon
             class="validation-error"
           />
           <el-alert
-            v-for="warning in validateTripData().warnings"
-            :key="warning"
-            :title="warning"
+            v-for="(warning, index) in validateTripData().warnings"
+            :key="`warning-${index}`"
+            :title="typeof warning === 'string' ? warning : warning.message"
+            :description="typeof warning === 'object' ? warning.suggestion : undefined"
             type="warning"
             :closable="false"
             show-icon
@@ -457,14 +597,17 @@
             <div class="generating-content">
               <h3>✨ AI正在為您精心规划行程...</h3>
               <p class="progress-text">{{ generationProgress }}</p>
-              <el-progress 
-                :percentage="progressPercent" 
-                :stroke-width="12" 
+              <el-progress
+                :percentage="progressPercent"
+                :stroke-width="12"
                 :show-text="false"
               />
               <div class="progress-info">
                 <span class="progress-percentage">{{ progressPercent }}%</span>
-                <span class="progress-desc">预计还需 {{ Math.max(0, Math.ceil((100 - progressPercent) * 1.2)) }} 秒</span>
+                <span class="progress-desc"
+                  >预计还需
+                  {{ Math.max(0, Math.ceil((100 - progressPercent) * 1.2)) }} 秒</span
+                >
               </div>
             </div>
           </div>
@@ -521,9 +664,7 @@
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="fullPromptVisible = false">关闭</el-button>
-          <el-button type="primary" @click="copyPromptAndClose">
-            复制并关闭
-          </el-button>
+          <el-button type="primary" @click="copyPromptAndClose"> 复制并关闭 </el-button>
         </div>
       </template>
     </el-dialog>
@@ -549,6 +690,7 @@ import {
   ArrowRight,
   View as ViewIcon,
   DocumentCopy,
+  Close,
 } from "@element-plus/icons-vue";
 import {
   tagMapping,
@@ -649,25 +791,31 @@ export default {
     },
   },
   emits: [
-    "update:extraRequirements", 
+    "update:extraRequirements",
     "update:generatedTrip",
     "update:generating",
-    "update:generationProgress", 
+    "update:generationProgress",
     "update:progressPercent",
-    "generation-complete", 
-    "next-step", 
-    "prev-step"
+    "generation-complete",
+    "next-step",
+    "prev-step",
   ],
   setup(props, { emit }) {
     // 获取用户store
     const userStore = useUserStore();
-    
+
+        // 生成风格选择
+    const selectedGenerationStyle = ref("table"); // 默认表格式
+ 
     // 完整提示词弹窗显示状态
     const fullPromptVisible = ref(false);
-    
+ 
     // 完整提示词文本
     const fullPromptText = ref("");
     
+    // 取消生成的控制器
+    let abortController = null;
+
     // 注意：generatedTrip 通过 props 传递，直接使用 props.generatedTrip
 
     // 获取实时的用户偏好数据，优先使用store中的数据
@@ -682,7 +830,7 @@ export default {
     const selectedPreferenceTags = computed(() => {
       const preferences = currentUserPreferences.value;
       if (!preferences) return [];
-      
+
       const tags = [];
 
       // 从旅行类型标签中提取并转换为中文 - 兼容多种数据格式
@@ -740,13 +888,13 @@ export default {
 
       // 检查是否有任何偏好设置
       const hasPrefs = !!(
-        (preferences.selectedTags?.length > 0) ||
-        (preferences.tags?.length > 0) ||
-        (preferences.selectedTransports?.length > 0) ||
+        preferences.selectedTags?.length > 0 ||
+        preferences.tags?.length > 0 ||
+        preferences.selectedTransports?.length > 0 ||
         preferences.accommodationType ||
         preferences.travelPace ||
-        (preferences.foodTastes?.length > 0) ||
-        (preferences.dietaryRestrictions?.length > 0) ||
+        preferences.foodTastes?.length > 0 ||
+        preferences.dietaryRestrictions?.length > 0 ||
         preferences.mbtiType ||
         preferences.budget ||
         preferences.dailyBudget
@@ -764,7 +912,12 @@ export default {
 
     // 格式化日期范围显示
     const formatDateRange = () => {
-      if (!props || !props.baseForm || !props.baseForm.dateRange || props.baseForm.dateRange.length !== 2) {
+      if (
+        !props ||
+        !props.baseForm ||
+        !props.baseForm.dateRange ||
+        props.baseForm.dateRange.length !== 2
+      ) {
         return "未设置";
       }
       const startDate = new Date(props.baseForm.dateRange[0]);
@@ -809,7 +962,7 @@ export default {
       if (!goals || goals.length === 0) return "";
       const goalMapping = {
         celebration: "庆祝节日/生日",
-        business: "商务出差顺便游玩", 
+        business: "商务出差顺便游玩",
         family: "家庭亲子游",
         romantic: "情侣蜜月游",
         friendship: "朋友聚会游",
@@ -817,17 +970,17 @@ export default {
         learning: "学习文化知识",
         relaxation: "放松减压",
         adventure: "寻求刺激冒险",
-        photography: "摄影创作"
+        photography: "摄影创作",
       };
-      return goals.map(goal => goalMapping[goal] || goal).join("、");
+      return goals.map((goal) => goalMapping[goal] || goal).join("、");
     };
 
     // 新增：获取节奏偏好文本
     const getPacePreferenceText = (pace) => {
       const paceMapping = {
         slow: "慢节奏（深度体验，充分休息）",
-        balanced: "平衡型（景点与休息并重）", 
-        fast: "紧凑型（多看多玩，充实行程）"
+        balanced: "平衡型（景点与休息并重）",
+        fast: "紧凑型（多看多玩，充实行程）",
       };
       return paceMapping[pace] || pace;
     };
@@ -837,7 +990,7 @@ export default {
       const socialMapping = {
         lively: "热闹有趣（人气餐厅、热门景点）",
         quiet: "安静私密（小众场所、人少景点）",
-        mixed: "灵活搭配（热门与小众结合）"
+        mixed: "灵活搭配（热门与小众结合）",
       };
       return socialMapping[social] || social;
     };
@@ -847,20 +1000,16 @@ export default {
       const photoMapping = {
         essential: "必须有（网红打卡点优先）",
         casual: "随性拍拍（自然美景即可）",
-        minimal: "不太在意（体验优先）"
+        minimal: "不太在意（体验优先）",
       };
       return photoMapping[photo] || photo;
     };
-
-
-
-
 
     // 生成提示词完整度评估
     const getPromptCompletionScore = () => {
       // 安全检查：确保props已经初始化
       if (!props || !props.baseForm || !props.preferenceForm) return 0;
-      
+
       let score = 0;
 
       // 基本信息 (40分)
@@ -870,8 +1019,10 @@ export default {
       if (props.baseForm.budget) score += 10;
 
       // 个人偏好 (20分)
-      if (currentUserPreferences.value && selectedPreferenceTags.value.length > 0) score += 10;
-      if (currentUserPreferences.value && currentUserPreferences.value.travelPace) score += 5;
+      if (currentUserPreferences.value && selectedPreferenceTags.value.length > 0)
+        score += 10;
+      if (currentUserPreferences.value && currentUserPreferences.value.travelPace)
+        score += 5;
       if (
         currentUserPreferences.value &&
         currentUserPreferences.value.foodTastes &&
@@ -880,11 +1031,13 @@ export default {
         score += 5;
 
       // 本次行程偏好 (30分)
-      if (props.preferenceForm.tripGoals && props.preferenceForm.tripGoals.length > 0) score += 6;
+      if (props.preferenceForm.tripGoals && props.preferenceForm.tripGoals.length > 0)
+        score += 6;
       if (props.preferenceForm.pacePreference) score += 6;
       if (props.preferenceForm.socialPreference) score += 4;
       if (props.preferenceForm.photoPreference) score += 4;
-      if (props.preferenceForm.focusAreas && props.preferenceForm.focusAreas.length > 0) score += 10;
+      if (props.preferenceForm.focusAreas && props.preferenceForm.focusAreas.length > 0)
+        score += 10;
 
       // 必去景点和餐厅 (10分)
       if (props.selectedAttractions.length > 0) score += 5;
@@ -913,7 +1066,7 @@ export default {
     const generatePromptText = () => {
       // 安全检查：确保props已经初始化
       if (!props || !props.baseForm || !props.preferenceForm) return "";
-      
+
       let prompt = "";
 
       // 基本信息
@@ -948,89 +1101,103 @@ export default {
           currentUserPreferences.value.foodTastes &&
           currentUserPreferences.value.foodTastes.length > 0
         ) {
-          prompt += `饮食偏好${currentUserPreferences.value.foodTastes.map(taste => tagMapping[taste] || taste).join("、")}。`;
+          prompt += `饮食偏好${currentUserPreferences.value.foodTastes
+            .map((taste) => tagMapping[taste] || taste)
+            .join("、")}。`;
         }
         prompt += "\n\n";
       }
 
       // 本次行程偏好
-      const hasAnyPreference = 
+      const hasAnyPreference =
         (props.preferenceForm.tripGoals && props.preferenceForm.tripGoals.length > 0) ||
         props.preferenceForm.pacePreference ||
         props.preferenceForm.socialPreference ||
         props.preferenceForm.photoPreference ||
         (props.preferenceForm.focusAreas && props.preferenceForm.focusAreas.length > 0) ||
         props.preferenceForm.specialRequirements;
-      
+
       if (hasAnyPreference) {
         // 行程目标
         if (props.preferenceForm.tripGoals && props.preferenceForm.tripGoals.length > 0) {
           prompt += `本次行程目标是${getTripGoalsText(props.preferenceForm.tripGoals)}。`;
         }
-        
+
         // 行程节奏偏好
         if (props.preferenceForm.pacePreference) {
-          prompt += `行程节奏偏好${getPacePreferenceText(props.preferenceForm.pacePreference)}。`;
+          prompt += `行程节奏偏好${getPacePreferenceText(
+            props.preferenceForm.pacePreference
+          )}。`;
         }
-        
+
         // 社交环境偏好
         if (props.preferenceForm.socialPreference) {
-          prompt += `社交环境偏好${getSocialPreferenceText(props.preferenceForm.socialPreference)}。`;
+          prompt += `社交环境偏好${getSocialPreferenceText(
+            props.preferenceForm.socialPreference
+          )}。`;
         }
-        
+
         // 拍照打卡需求
         if (props.preferenceForm.photoPreference) {
-          prompt += `拍照打卡需求${getPhotoPreferenceText(props.preferenceForm.photoPreference)}。`;
+          prompt += `拍照打卡需求${getPhotoPreferenceText(
+            props.preferenceForm.photoPreference
+          )}。`;
         }
-        
+
         // 重点体验内容
-        if (props.preferenceForm.focusAreas && props.preferenceForm.focusAreas.length > 0) {
+        if (
+          props.preferenceForm.focusAreas &&
+          props.preferenceForm.focusAreas.length > 0
+        ) {
           prompt += `重点体验${getFocusAreasText(props.preferenceForm.focusAreas)}。`;
         }
-        
+
         // 特殊需求
         if (props.preferenceForm.specialRequirements) {
           prompt += `特殊需求：${props.preferenceForm.specialRequirements}。`;
         }
-        
+
         prompt += "\n\n";
       }
-
-
 
       // 天气建议
       if (props.weatherSuggestion) {
         const isDateInRange = isDateWithinForecastRange();
         const tripDays = props.baseForm.days || 1;
-        const forecastDays = props.weatherSuggestion.forecast ? props.weatherSuggestion.forecast.length : 0;
-        
+        const forecastDays = props.weatherSuggestion.forecast
+          ? props.weatherSuggestion.forecast.length
+          : 0;
+
         // 根据日期范围和数据来源添加前缀说明
         if (isDateInRange) {
           // 日期在预报范围内
           if (props.weatherSuggestion.isHistorical) {
             prompt += `基于历史气候数据分析，出行期间天气预计${props.weatherSuggestion.weatherDesc}，气温${props.weatherSuggestion.tempRange}。`;
-            
+
             // 如果有降雨概率信息，添加到提示中
             if (props.weatherSuggestion.rainProbability) {
               prompt += `降雨概率约${props.weatherSuggestion.rainProbability}。`;
             }
-            
+
             // 添加季节信息
             if (props.weatherSuggestion.season) {
               prompt += `${props.weatherSuggestion.season}时节特点明显。`;
             }
           } else {
             prompt += `根据高德天气API实时数据，出行期间天气预计${props.weatherSuggestion.weatherDesc}，气温${props.weatherSuggestion.tempRange}。`;
-            
+
             // 添加高德API提供的详细天气信息
             if (props.weatherSuggestion.humidity) {
               prompt += `湿度${props.weatherSuggestion.humidity}。`;
             }
-            
-            if (props.weatherSuggestion.windDirection && props.weatherSuggestion.windPower) {
+
+            if (
+              props.weatherSuggestion.windDirection &&
+              props.weatherSuggestion.windPower
+            ) {
               prompt += `风向${props.weatherSuggestion.windDirection}${props.weatherSuggestion.windPower}级。`;
             }
-            
+
             // 如果有当前温度信息
             if (props.weatherSuggestion.currentTemp) {
               prompt += `当前温度${props.weatherSuggestion.currentTemp}℃。`;
@@ -1040,7 +1207,10 @@ export default {
           // 日期超出预报范围，给出说明
           if (tripDays > forecastDays) {
             prompt += `🌤️ 天气预报说明：您的${tripDays}天行程中，我们仅能提供前${forecastDays}天的准确天气预报。`;
-            if (props.weatherSuggestion.forecast && props.weatherSuggestion.forecast.length > 0) {
+            if (
+              props.weatherSuggestion.forecast &&
+              props.weatherSuggestion.forecast.length > 0
+            ) {
               prompt += `已知的天气情况：${props.weatherSuggestion.weatherDesc}，气温${props.weatherSuggestion.tempRange}。`;
             }
             prompt += `超出预报范围的日期建议您关注当地实时天气预报，并准备适应性较强的衣物。`;
@@ -1050,33 +1220,52 @@ export default {
         }
 
         // 只有在日期范围内时才添加活动建议
-        if (isDateInRange && props.weatherSuggestion.activities && props.weatherSuggestion.activities.length > 0) {
+        if (
+          isDateInRange &&
+          props.weatherSuggestion.activities &&
+          props.weatherSuggestion.activities.length > 0
+        ) {
           prompt += `适合安排${props.weatherSuggestion.activities.join("、")}等活动。`;
         }
 
         // 只有在日期范围内时才添加建议和注意事项
-        if (isDateInRange && props.weatherSuggestion.tips && props.weatherSuggestion.tips.length > 0) {
+        if (
+          isDateInRange &&
+          props.weatherSuggestion.tips &&
+          props.weatherSuggestion.tips.length > 0
+        ) {
           prompt += `建议：${props.weatherSuggestion.tips.join("；")}。`;
         }
 
-        if (isDateInRange && props.weatherSuggestion.avoid && props.weatherSuggestion.avoid.length > 0) {
+        if (
+          isDateInRange &&
+          props.weatherSuggestion.avoid &&
+          props.weatherSuggestion.avoid.length > 0
+        ) {
           prompt += `注意事项：${props.weatherSuggestion.avoid.join("；")}。`;
         }
 
         // 详细天气预报：根据日期覆盖情况调整
-        if (props.weatherSuggestion.forecast && props.weatherSuggestion.forecast.length > 0) {
+        if (
+          props.weatherSuggestion.forecast &&
+          props.weatherSuggestion.forecast.length > 0
+        ) {
           if (isDateInRange) {
             prompt += `具体天气预报：`;
-            const forecastSummary = props.weatherSuggestion.forecast.map(day => 
-              `${day.date}${day.dayWeather}，${day.dayTemp}℃/${day.nightTemp}℃`
-            ).join("；");
+            const forecastSummary = props.weatherSuggestion.forecast
+              .map(
+                (day) => `${day.date}${day.dayWeather}，${day.dayTemp}℃/${day.nightTemp}℃`
+              )
+              .join("；");
             prompt += forecastSummary + "。";
           } else if (tripDays > forecastDays) {
             // 部分日期有预报
             prompt += `可获取的天气预报（前${forecastDays}天）：`;
-            const forecastSummary = props.weatherSuggestion.forecast.map(day => 
-              `${day.date}${day.dayWeather}，${day.dayTemp}℃/${day.nightTemp}℃`
-            ).join("；");
+            const forecastSummary = props.weatherSuggestion.forecast
+              .map(
+                (day) => `${day.date}${day.dayWeather}，${day.dayTemp}℃/${day.nightTemp}℃`
+              )
+              .join("；");
             prompt += forecastSummary + "。";
             prompt += `第${forecastDays + 1}天及之后的天气情况需要关注实时预报。`;
           }
@@ -1135,7 +1324,7 @@ export default {
       prompt += "3. 实用出行提示（最佳游览时间、避坑指南、当地文化注意事项）\n";
       prompt += "4. 备选方案（雨天室内活动、行程调整建议）\n";
       prompt += "5. 必备物品清单\n\n";
-      
+
       prompt += "请确保：\n";
       prompt += "- 行程安排合理，时间充裕，避免过度紧张\n";
       prompt += "- 推荐的景点和餐厅具有当地特色和良好口碑\n";
@@ -1149,18 +1338,25 @@ export default {
 
     // 检查用户选择的日期是否在天气预报范围内
     const isDateWithinForecastRange = () => {
-      if (!props || !props.weatherSuggestion || !props.weatherSuggestion.forecast || !props.baseForm || !props.baseForm.dateRange || !props.baseForm.dateRange.length) {
+      if (
+        !props ||
+        !props.weatherSuggestion ||
+        !props.weatherSuggestion.forecast ||
+        !props.baseForm ||
+        !props.baseForm.dateRange ||
+        !props.baseForm.dateRange.length
+      ) {
         return false;
       }
-      
+
       const userStartDate = new Date(props.baseForm.dateRange[0]);
       const userEndDate = new Date(props.baseForm.dateRange[1]);
-      
+
       // 获取天气预报的日期范围
-      const forecastDates = props.weatherSuggestion.forecast.map(f => new Date(f.date));
+      const forecastDates = props.weatherSuggestion.forecast.map((f) => new Date(f.date));
       const forecastStartDate = new Date(Math.min(...forecastDates));
       const forecastEndDate = new Date(Math.max(...forecastDates));
-      
+
       // 检查用户选择的日期是否与天气预报日期有重叠
       return userStartDate <= forecastEndDate && userEndDate >= forecastStartDate;
     };
@@ -1219,10 +1415,11 @@ export default {
     const canGenerateTrip = computed(() => {
       // 安全检查：确保props已经初始化
       if (!props || !props.baseForm) return false;
-      
-      const basicInfoValid = props.baseForm.destination && props.baseForm.days && props.baseForm.travelers;
+
+      const basicInfoValid =
+        props.baseForm.destination && props.baseForm.days && props.baseForm.travelers;
       if (!basicInfoValid) return false;
-      
+
       // 验证数据逻辑一致性
       const validation = validateTripData();
       return validation.isValid;
@@ -1232,25 +1429,25 @@ export default {
     const validateTripData = () => {
       const errors = [];
       const warnings = [];
-      
+
       // 安全检查：确保props已经初始化
       if (!props || !props.baseForm || !props.preferenceForm) {
         return {
           isValid: false,
           errors: [],
-          warnings: []
+          warnings: [],
         };
       }
-      
+
       // 检查基础信息
       const travelers = props.baseForm.travelers;
       const userPrefs = currentUserPreferences.value;
       const prefForm = props.preferenceForm;
-      
+
       // 获取实际的标签数据（可能是英文或中文）
       const rawTags = userPrefs?.selectedTags || userPrefs?.tags || [];
       const chineseTags = selectedPreferenceTags.value || [];
-      
+
       // console.log('🔍 数据验证检查:', {
       //   travelers,
       //   rawTags,
@@ -1258,102 +1455,129 @@ export default {
       //   userPrefs,
       //   prefForm
       // });
-      
+
       // 定义标签检查函数（同时检查英文和中文标签）
       const hasTag = (englishTag, chineseTag) => {
-        return rawTags.includes(englishTag) || 
-               rawTags.includes(chineseTag) || 
-               chineseTags.includes(chineseTag);
+        return (
+          rawTags.includes(englishTag) ||
+          rawTags.includes(chineseTag) ||
+          chineseTags.includes(chineseTag)
+        );
       };
-      
-      // 1. 检查人数与行程目标的匹配
+
+      // 1. 严重错误检查（阻止生成）
       if (prefForm.tripGoals && Array.isArray(prefForm.tripGoals)) {
-        if (prefForm.tripGoals.includes('family') && travelers < 3) {
-          errors.push('选择了"家庭亲子游"目标，建议至少3人出行');
+        if (prefForm.tripGoals.includes("family") && travelers < 3) {
+          errors.push({
+            type: 'mismatch',
+            message: '家庭亲子游通常需要至少3人（包含大人和小孩）',
+            suggestion: '调整人数为3人或以上，或选择其他行程目标',
+            allowIgnore: true
+          });
         }
-        if (prefForm.tripGoals.includes('romantic') && travelers !== 2) {
-          errors.push('选择了"情侣蜜月游"目标，建议2人出行');
+        if (prefForm.tripGoals.includes("romantic") && travelers !== 2) {
+          errors.push({
+            type: 'mismatch', 
+            message: '情侣蜜月游适合2人出行，当前设置不匹配',
+            suggestion: '调整人数为2人，或选择其他行程目标',
+            allowIgnore: true
+          });
         }
-        if (prefForm.tripGoals.includes('solo') && travelers > 1) {
-          errors.push('选择了"个人独旅"目标，但设置了多人出行');
-        }
-        if (prefForm.tripGoals.includes('business') && travelers > 3) {
-          warnings.push('商务出差通常不超过3人，请确认人数设置');
-        }
-      }
-      
-      // 2. 检查传统标签与人数匹配（向后兼容）
-      if (hasTag('family', '亲子出游') && travelers < 3) {
-        errors.push('用户偏好标签"亲子出游"与人数不匹配，建议至少3人出行');
-      }
-      if (hasTag('couple', '情侣出行') && travelers !== 2) {
-        errors.push('用户偏好标签"情侣出行"与人数不匹配，建议2人出行');
-      }
-      if (hasTag('solo', '独行') && travelers > 1) {
-        errors.push('用户偏好标签"独行"与人数不匹配，应为1人出行');
-      }
-      if (hasTag('business', '商务') && travelers > 3) {
-        warnings.push('用户偏好标签"商务"通常不超过3人');
-      }
-
-      // 3. 检查行程节奏与天数的匹配
-      if (prefForm.pacePreference && props.baseForm.days) {
-        const days = props.baseForm.days;
-        if (prefForm.pacePreference === 'fast' && days > 10) {
-          warnings.push('选择了紧凑节奏但行程较长，建议考虑平衡型节奏');
-        }
-        if (prefForm.pacePreference === 'slow' && days < 3) {
-          warnings.push('选择了慢节奏但行程较短，建议考虑平衡型或紧凑型节奏');
+        if (prefForm.tripGoals.includes("solo") && travelers > 1) {
+          errors.push({
+            type: 'mismatch',
+            message: '个人独旅是一个人的旅行体验',
+            suggestion: '调整人数为1人，或选择"朋友聚会游"等其他目标',
+            allowIgnore: false
+          });
         }
       }
 
-      // 4. 检查社交偏好与人数的匹配
-      if (prefForm.socialPreference && travelers) {
-        if (prefForm.socialPreference === 'quiet' && travelers > 4) {
-          warnings.push('选择了安静私密环境但人数较多，可能难以找到合适场所');
-        }
-        if (prefForm.socialPreference === 'lively' && travelers === 1) {
-          warnings.push('选择了热闹环境但只有1人，建议考虑灵活搭配');
-        }
+      // 2. 检查传统标签与人数匹配（向后兼容，但不强制）
+      if (hasTag("family", "亲子出游") && travelers < 3) {
+        warnings.push({
+          type: 'legacy_mismatch',
+          message: '用户偏好标签"亲子出游"与人数不匹配',
+          suggestion: '建议至少3人出行，或调整个人偏好设置',
+          allowIgnore: true
+        });
       }
 
-      // 5. 检查拍照需求与行程目标的匹配
-      if (prefForm.photoPreference === 'essential' && 
-          prefForm.tripGoals && 
-          prefForm.tripGoals.includes('relaxation') && 
-          !prefForm.tripGoals.includes('photography')) {
-        warnings.push('选择了放松减压但要求网红打卡点，目标可能冲突');
+      // 6. 预算合理性检查
+      const budget = props.baseForm.budget;
+      const days = props.baseForm.days;
+      if (budget && days && travelers) {
+        const budgetMatch = budget.match(/(\d+)/g);
+        if (budgetMatch && budgetMatch.length > 0) {
+          const avgBudget = parseInt(budgetMatch[0]);
+          const perPersonPerDay = avgBudget / (days * travelers);
+          
+          if (perPersonPerDay < 200) {
+            warnings.push({
+              type: 'budget',
+              message: `人均每日预算约${Math.round(perPersonPerDay)}元，可能偏低`,
+              suggestion: '建议适当增加预算或调整行程期望，确保旅行体验质量',
+              allowIgnore: true
+            });
+          } else if (perPersonPerDay > 2000) {
+            warnings.push({
+              type: 'budget',
+              message: `人均每日预算约${Math.round(perPersonPerDay)}元，属于高端旅行`,
+              suggestion: 'AI将为您推荐高品质的景点、餐厅和体验项目',
+              allowIgnore: true
+            });
+          }
+        }
+      } else if (days > 7 && !budget) {
+        warnings.push({
+          type: 'budget',
+          message: '长途旅行建议设置预算范围',
+          suggestion: '设置预算有助于AI推荐更符合您消费水平的景点和餐厅',
+          allowIgnore: true
+        });
       }
 
-      // 6. 检查预算与偏好的合理性
-      if (props.baseForm.days > 10 && !props.baseForm.budget) {
-        warnings.push('长途旅行建议设置预算范围');
-      }
-      
-      // 7. 检查重点体验与其他偏好的一致性
+      // 7. 体验类型冲突检查（更清晰的说明）
       if (prefForm.focusAreas && Array.isArray(prefForm.focusAreas)) {
-        const hasNatureExperience = prefForm.focusAreas.some(area => 
-          ['natural_scenery', 'outdoor_adventure'].includes(area)
+        const hasNature = prefForm.focusAreas.some((area) =>
+          ["natural_scenery", "outdoor_adventure"].includes(area)
         );
-        const hasUrbanExperience = prefForm.focusAreas.some(area => 
-          ['urban_lifestyle', 'shopping', 'nightlife'].includes(area)
+        const hasUrban = prefForm.focusAreas.some((area) =>
+          ["urban_lifestyle", "shopping", "nightlife"].includes(area)
         );
-        
-        if (hasNatureExperience && hasUrbanExperience && props.baseForm.days < 5) {
-          warnings.push('选择了自然和城市体验但行程较短，建议重点选择一种类型');
+
+        if (hasNature && hasUrban && days < 5) {
+          warnings.push({
+            type: 'experience_conflict',
+            message: '您同时选择了自然风光和城市体验',
+            suggestion: `${days}天行程建议重点选择一种：自然风光（山水景观、户外活动）或城市体验（购物、夜生活、都市文化）`,
+            allowIgnore: true
+          });
         }
       }
-      
+
+      // 8. 其他建议性检查
+      if (prefForm.pacePreference && days) {
+        if (prefForm.pacePreference === "fast" && days > 10) {
+          warnings.push({
+            type: 'pace_mismatch',
+            message: '长途旅行选择紧凑节奏可能比较辛苦',
+            suggestion: '建议选择"平衡型"节奏，既能多看景点又有充分休息',
+            allowIgnore: true
+          });
+        }
+      }
+
       // console.log('✅ 验证结果:', {
       //   isValid: errors.length === 0,
       //   errors,
       //   warnings
       // });
-      
+
       return {
         isValid: errors.length === 0,
         errors,
-        warnings
+        warnings,
       };
     };
 
@@ -1361,22 +1585,38 @@ export default {
     const generateTrip = async () => {
       // 数据验证
       const validation = validateTripData();
-      
-      if (!validation.isValid) {
-        // 显示具体的验证错误
-        validation.errors.forEach(error => {
-          ElMessage.error(error);
-        });
-        return;
-      }
-      
-      // 显示警告（但不阻止生成）
-      if (validation.warnings.length > 0) {
-        validation.warnings.forEach(warning => {
-          ElMessage.warning(warning);
-        });
-      }
-      
+
+              if (!validation.isValid) {
+          // 显示具体的验证错误
+          validation.errors.forEach((error) => {
+            if (typeof error === 'string') {
+              ElMessage.error(error);
+            } else {
+              ElMessage.error({
+                message: error.message,
+                duration: 6000,
+                showClose: true
+              });
+            }
+          });
+          return;
+        }
+
+        // 显示警告（但不阻止生成）
+        if (validation.warnings.length > 0) {
+          validation.warnings.forEach((warning) => {
+            if (typeof warning === 'string') {
+              ElMessage.warning(warning);
+            } else {
+              ElMessage.warning({
+                message: `${warning.message}\n建议：${warning.suggestion}`,
+                duration: 8000,
+                showClose: true
+              });
+            }
+          });
+        }
+
       if (!canGenerateTrip.value) {
         ElMessage.warning("请先完善基本信息");
         return;
@@ -1389,7 +1629,7 @@ export default {
         emit("update:progressPercent", 5);
 
         // 等待一下让用户看到开始状态
-        await new Promise(resolve => setTimeout(resolve, 800));
+        await new Promise((resolve) => setTimeout(resolve, 800));
 
         emit("update:generationProgress", "📊 正在分析您的旅行偏好...");
         emit("update:progressPercent", 15);
@@ -1404,7 +1644,8 @@ export default {
           budget: getBudgetText(),
           startDate: props.baseForm.dateRange?.[0],
           endDate: props.baseForm.dateRange?.[1],
-          
+          generationStyle: selectedGenerationStyle.value,
+
           // 用户偏好
           travelTags: selectedPreferenceTags.value,
           transports: currentUserPreferences.value?.selectedTransports,
@@ -1413,7 +1654,7 @@ export default {
           foodTastes: currentUserPreferences.value?.foodTastes,
           dietaryRestrictions: props.preferenceForm.dietaryRestrictions,
           customDietaryNotes: props.preferenceForm.customDietaryNotes,
-          
+
           // 行程偏好 - 修复字段映射
           tripGoals: props.preferenceForm.tripGoals,
           pacePreference: props.preferenceForm.pacePreference,
@@ -1421,46 +1662,48 @@ export default {
           photoPreference: props.preferenceForm.photoPreference,
           focusAreas: props.preferenceForm.focusAreas,
           specialRequirements: props.preferenceForm.specialRequirements,
-          
+
           // 为了兼容后端，也发送映射后的字段
           tripStyle: mapTripGoalsToStyle(props.preferenceForm.tripGoals),
           intensity: mapPaceToIntensity(props.preferenceForm.pacePreference),
-          
+
           // 必去景点和餐厅
-          selectedAttractions: props.selectedAttractions?.map(a => ({
+          selectedAttractions: props.selectedAttractions?.map((a) => ({
             name: a.name,
             description: a.description,
-            address: a.address
+            address: a.address,
           })),
-          selectedRestaurants: props.selectedRestaurants?.map(r => ({
+          selectedRestaurants: props.selectedRestaurants?.map((r) => ({
             name: r.name,
             description: r.description,
-            address: r.address
+            address: r.address,
           })),
-          
+
           // 天气信息
-          weatherInfo: props.weatherSuggestion ? {
-            weatherDesc: props.weatherSuggestion.weatherDesc,
-            tempRange: props.weatherSuggestion.tempRange,
-            tips: props.weatherSuggestion.tips,
-            avoid: props.weatherSuggestion.avoid,
-            isHistorical: props.weatherSuggestion.isHistorical
-          } : null,
-          
+          weatherInfo: props.weatherSuggestion
+            ? {
+                weatherDesc: props.weatherSuggestion.weatherDesc,
+                tempRange: props.weatherSuggestion.tempRange,
+                tips: props.weatherSuggestion.tips,
+                avoid: props.weatherSuggestion.avoid,
+                isHistorical: props.weatherSuggestion.isHistorical,
+              }
+            : null,
+
           // 用户类型判断
-          userType: determineUserType()
+          userType: determineUserType(),
         };
 
         // 数据准备完成
         emit("update:generationProgress", "📝 构建专属行程提示词...");
         emit("update:progressPercent", 25);
-        
-        await new Promise(resolve => setTimeout(resolve, 600));
+
+        await new Promise((resolve) => setTimeout(resolve, 600));
 
         emit("update:generationProgress", "🤖 连接DeepSeek AI服务...");
         emit("update:progressPercent", 35);
-        
-        await new Promise(resolve => setTimeout(resolve, 500));
+
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
         emit("update:generationProgress", "🧠 AI正在深度分析您的需求...");
         emit("update:progressPercent", 45);
@@ -1468,27 +1711,48 @@ export default {
         // 调用后端AI接口
         emit("update:generationProgress", "🌐 发送请求到AI服务器...");
         emit("update:progressPercent", 55);
-        
-        const response = await fetch('/api/ai/trip/generate', {
-          method: 'POST',
+
+        // 创建取消控制器
+        abortController = new AbortController();
+
+        const response = await fetch("/api/ai/trip/generate", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(requestData)
+          body: JSON.stringify(requestData),
+          signal: abortController.signal,
         });
 
-        emit("update:generationProgress", "⚡ AI正在生成您的专属行程...");
-        emit("update:progressPercent", 75);
-        
-        const result = await response.json();
-        
+         emit("update:generationProgress", "⚡ AI正在生成您的专属行程...");
+         emit("update:progressPercent", 75);
+ 
+         // 检查响应状态
+         if (!response.ok) {
+           const errorText = await response.text();
+           throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
+         }
+         
+         // 安全地解析JSON
+         let result;
+         try {
+           const responseText = await response.text();
+           if (!responseText.trim()) {
+             throw new Error("服务器返回空响应");
+           }
+           result = JSON.parse(responseText);
+         } catch (jsonError) {
+           console.error("JSON解析错误:", jsonError);
+           throw new Error("服务器响应格式错误，请稍后重试");
+         }
+
         emit("update:generationProgress", "📋 正在整理行程内容...");
         emit("update:progressPercent", 90);
 
         if (result.code === 200) {
           emit("update:generationProgress", "🎉 行程生成完成！");
           emit("update:progressPercent", 100);
-          
+
           // 处理成功结果
           const tripData = {
             id: result.data.tripId,
@@ -1497,51 +1761,84 @@ export default {
             processingTime: result.data.processingTime,
             qualityScore: result.data.qualityScore,
             destinationInfo: result.data.destinationInfo,
-            tripBasicInfo: result.data.tripBasicInfo
+            tripBasicInfo: result.data.tripBasicInfo,
           };
-          
+
           // 给用户一点时间看到完成状态
-          await new Promise(resolve => setTimeout(resolve, 800));
-          
+          await new Promise((resolve) => setTimeout(resolve, 800));
+
           emit("update:generatedTrip", tripData);
           emit("generation-complete", tripData);
-          
+
           ElMessage.success({
-            message: `🎯 AI行程生成成功！质量评分：${result.data.qualityScore}/100，用时${Math.round(result.data.processingTime/1000)}秒`,
+            message: `🎯 AI行程生成成功！质量评分：${
+              result.data.qualityScore
+            }/100，用时${Math.round(result.data.processingTime / 1000)}秒`,
             duration: 5000,
-            showClose: true
+            showClose: true,
           });
         } else {
-          throw new Error(result.msg || '生成失败');
+          throw new Error(result.msg || "生成失败");
         }
-
       } catch (error) {
         console.error("生成行程失败:", error);
+        
+        // 检查是否是用户主动取消
+        if (error.name === 'AbortError') {
+          emit("update:generationProgress", "⏹️ 已取消生成");
+          emit("update:progressPercent", 0);
+          ElMessage.info({
+            message: "已取消行程生成",
+            duration: 3000,
+          });
+          emit("update:generating", false);
+          abortController = null;
+          return;
+        }
+        
         emit("update:generationProgress", "❌ 生成失败，请稍后重试");
         emit("update:progressPercent", 0);
-        
+
         // 根据错误类型提供不同的提示
         let errorMessage = "生成行程失败";
-        if (error.message.includes('timeout') || error.message.includes('TimeoutException')) {
+        if (
+          error.message.includes("timeout") ||
+          error.message.includes("TimeoutException")
+        ) {
           errorMessage = "⏰ AI服务响应超时，请稍后重试";
-        } else if (error.message.includes('402') || error.message.includes('Payment Required')) {
+        } else if (
+          error.message.includes("402") ||
+          error.message.includes("Payment Required")
+        ) {
           errorMessage = "💳 AI服务余额不足，请联系管理员";
-        } else if (error.message.includes('Failed to fetch')) {
+        } else if (error.message.includes("Failed to fetch")) {
           errorMessage = "🌐 网络连接失败，请检查网络后重试";
         } else {
           errorMessage = `❌ ${error.message}`;
         }
-        
+
         ElMessage.error({
           message: errorMessage,
           duration: 6000,
-          showClose: true
+          showClose: true,
         });
       } finally {
         // 延迟一下再关闭loading，让用户看到完成状态
         setTimeout(() => {
           emit("update:generating", false);
+          abortController = null;
         }, 2000);
+      }
+    };
+
+    // 取消生成
+    const cancelGeneration = () => {
+      if (abortController) {
+        abortController.abort();
+        ElMessage.info({
+          message: "正在取消生成...",
+          duration: 2000,
+        });
       }
     };
 
@@ -1558,45 +1855,45 @@ export default {
       if (!tripGoals || !Array.isArray(tripGoals) || tripGoals.length === 0) {
         return null;
       }
-      
+
       // 根据主要目标确定行程风格
-      if (tripGoals.includes('learning') || tripGoals.includes('culture')) {
-        return 'cultural'; // 文化深度游
+      if (tripGoals.includes("learning") || tripGoals.includes("culture")) {
+        return "cultural"; // 文化深度游
       }
-      if (tripGoals.includes('relaxation')) {
-        return 'leisure'; // 休闲游
+      if (tripGoals.includes("relaxation")) {
+        return "leisure"; // 休闲游
       }
-      if (tripGoals.includes('adventure')) {
-        return 'adventure'; // 探险游
+      if (tripGoals.includes("adventure")) {
+        return "adventure"; // 探险游
       }
-      if (tripGoals.includes('photography')) {
-        return 'photo'; // 摄影游
+      if (tripGoals.includes("photography")) {
+        return "photo"; // 摄影游
       }
-      if (tripGoals.includes('business')) {
-        return 'business'; // 商务游
+      if (tripGoals.includes("business")) {
+        return "business"; // 商务游
       }
-      if (tripGoals.includes('family')) {
-        return 'family'; // 家庭游
+      if (tripGoals.includes("family")) {
+        return "family"; // 家庭游
       }
-      if (tripGoals.includes('romantic')) {
-        return 'romantic'; // 浪漫游
+      if (tripGoals.includes("romantic")) {
+        return "romantic"; // 浪漫游
       }
-      
+
       // 默认综合游
-      return 'comprehensive';
+      return "comprehensive";
     };
 
     // 映射新的节奏偏好到旧的强度字段
     const mapPaceToIntensity = (pacePreference) => {
       if (!pacePreference) return null;
-      
+
       const paceMapping = {
-        'slow': 'light', // 慢节奏 -> 轻松
-        'balanced': 'moderate', // 平衡型 -> 适中
-        'fast': 'intensive' // 紧凑型 -> 紧凑
+        slow: "light", // 慢节奏 -> 轻松
+        balanced: "moderate", // 平衡型 -> 适中
+        fast: "intensive", // 紧凑型 -> 紧凑
       };
-      
-      return paceMapping[pacePreference] || 'moderate';
+
+      return paceMapping[pacePreference] || "moderate";
     };
 
     // 创建优化的每日计划 (简化版)
@@ -1729,13 +2026,16 @@ export default {
     // 组件挂载时的处理
     onMounted(async () => {
       // TripGeneration组件挂载
-      
+
       // 如果用户已登录但没有偏好数据，尝试从API获取
-      if (userStore.isLoggedIn && (!props.userPreferences || Object.keys(props.userPreferences).length === 0)) {
+      if (
+        userStore.isLoggedIn &&
+        (!props.userPreferences || Object.keys(props.userPreferences).length === 0)
+      ) {
         try {
           // 尝试获取用户偏好数据
           await userStore.fetchUserPreferences();
-          
+
           // 等待下一个tick确保数据更新完成
           await nextTick();
           // 用户偏好数据获取完成
@@ -1786,6 +2086,10 @@ export default {
       currentUserPreferences,
       tagMapping,
       isDateWithinForecastRange,
+      // 风格选择相关
+      selectedGenerationStyle,
+      // 取消生成
+      cancelGeneration,
     };
   },
 };
@@ -1914,7 +2218,7 @@ export default {
 }
 
 .generating::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
@@ -1925,8 +2229,12 @@ export default {
 }
 
 @keyframes shimmer {
-  0% { left: -100%; }
-  100% { left: 100%; }
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
 }
 
 .generating-animation {
@@ -2206,7 +2514,8 @@ export default {
   white-space: pre-wrap;
   word-wrap: break-word;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+    Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   font-size: 14px;
   line-height: 1.6;
   color: #2c3e50;
@@ -2225,13 +2534,111 @@ export default {
     gap: 12px;
     align-items: stretch;
   }
-  
+
   .prompt-text-area {
     max-height: 300px;
     padding: 12px;
   }
-  
+
   .prompt-text-area pre {
+    font-size: 13px;
+  }
+}
+
+/* 生成选项样式 - 融入prompt内容区域 */
+.generation-options {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0 20px 0;
+}
+
+.option-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.option-label {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.inline-style-options {
+  display: flex;
+  gap: 20px;
+}
+
+.inline-style-options :deep(.el-radio) {
+  margin-right: 0;
+}
+
+.inline-style-options :deep(.el-radio__label) {
+  font-size: 14px;
+  color: #4b5563;
+  padding-left: 8px;
+  font-weight: 400;
+}
+
+.inline-style-options :deep(.el-radio.is-checked .el-radio__label) {
+  color: #059669;
+  font-weight: 500;
+}
+
+.inline-style-options :deep(.el-radio__input.is-checked .el-radio__inner) {
+  border-color: #059669;
+  background-color: #059669;
+}
+
+.inline-style-options :deep(.el-radio__input.is-checked + .el-radio__label) {
+  color: #059669;
+}
+
+/* 风格选择样式增强 */
+.inline-style-options :deep(.el-radio__label) {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
+.style-name {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.style-desc {
+  font-size: 11px;
+  color: #909399;
+  margin-top: 2px;
+}
+
+.inline-style-options :deep(.el-radio.is-checked .style-desc) {
+  color: #059669;
+  opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+  .generation-options {
+    padding: 12px;
+    margin: 12px 0 16px 0;
+  }
+  
+  .option-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .inline-style-options {
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  
+  .inline-style-options :deep(.el-radio__label) {
     font-size: 13px;
   }
 }

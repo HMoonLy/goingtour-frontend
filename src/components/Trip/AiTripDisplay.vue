@@ -668,7 +668,7 @@ const clearFeedback = () => {
   border-radius: 4px;
   font-weight: 500;
   color: #667eea;
-  border: 1px solid #e2e8f0;
+  /* border: 1px solid #e2e8f0; */
 }
 
 /* 专门针对时间段的样式 */

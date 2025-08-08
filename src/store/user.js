@@ -16,8 +16,10 @@ export const useUserStore = defineStore("user", {
             budget: 500,
         },
 
-        // Token信息（如果后期需要JWT）
-        token: null,
+        // JWT Token信息
+        accessToken: null,
+        refreshToken: null,
+        tokenExpiry: null,
 
         // 登录页重定向路径
         redirectPath: null,
@@ -62,13 +64,13 @@ export const useUserStore = defineStore("user", {
         // ========== 验证码相关 ==========
         /**
          * 发送验证码
-         * @param {string} phone 手机号
+         * @param {string} email 邮箱地址
          * @param {string} type 验证码类型 (login/register/reset)
          */
-        async sendVerificationCode(phone, type = "login") {
+        async sendVerificationCode(email, type = "login") {
             try {
                 const response = await userApi.sendCode({
-                    phone,
+                    email,
                     type,
                 });
                 return response.data;
@@ -81,32 +83,36 @@ export const useUserStore = defineStore("user", {
         // ========== 用户认证 ==========
         /**
          * 用户登录
-         * @param {string} phone 手机号
+         * @param {string} email 邮箱地址
          * @param {string} code 验证码
          */
-        async login(phone, code) {
+        async login(email, code) {
             try {
                 const response = await userApi.login({
-                    phone,
+                    email,
                     code,
                 });
 
-                const user = response.data;
+                const authData = response.data;
+
+                // 保存JWT令牌信息
+                this.accessToken = authData.accessToken;
+                this.refreshToken = authData.refreshToken;
+                this.tokenExpiry = Date.now() + authData.expiresIn;
 
                 // 保存用户信息到状态
-                this.currentUser = user;
+                this.currentUser = authData.userInfo;
                 this.isLoggedIn = true;
 
-                // 如果有token，保存到本地存储
-                if (user.token) {
-                    this.token = user.token;
-                    localStorage.setItem("goingtour_token", user.token);
-                }
+                // 保存令牌到本地存储
+                localStorage.setItem("goingtour_token", authData.accessToken);
+                localStorage.setItem("goingtour_refresh_token", authData.refreshToken);
+                localStorage.setItem("goingtour_token_expiry", this.tokenExpiry.toString());
 
                 // 保存登录状态到本地存储
                 this.saveToStorage();
 
-                return user;
+                return authData.userInfo;
             } catch (error) {
                 console.error("登录失败:", error);
                 throw error;
@@ -115,36 +121,118 @@ export const useUserStore = defineStore("user", {
 
         /**
          * 用户注册
-         * @param {string} phone 手机号
+         * @param {string} email 邮箱地址
          * @param {string} code 验证码
          * @param {string} nickname 昵称
          */
-        async register(phone, code, nickname) {
+        async register(email, code, nickname) {
             try {
                 const response = await userApi.register({
-                    phone,
+                    email,
                     code,
                     nickname,
                 });
 
-                const user = response.data;
+                const authData = response.data;
 
-                // 注册成功后自动登录
-                this.currentUser = user;
+                // 保存JWT令牌信息
+                this.accessToken = authData.accessToken;
+                this.refreshToken = authData.refreshToken;
+                this.tokenExpiry = Date.now() + authData.expiresIn;
+
+                // 保存用户信息到状态
+                this.currentUser = authData.userInfo;
                 this.isLoggedIn = true;
 
-                if (user.token) {
-                    this.token = user.token;
-                    localStorage.setItem("goingtour_token", user.token);
-                }
+                // 保存令牌到本地存储
+                localStorage.setItem("goingtour_token", authData.accessToken);
+                localStorage.setItem("goingtour_refresh_token", authData.refreshToken);
+                localStorage.setItem("goingtour_token_expiry", this.tokenExpiry.toString());
 
+                // 保存登录状态到本地存储
                 this.saveToStorage();
 
-                return user;
+                return authData.userInfo;
             } catch (error) {
                 console.error("注册失败:", error);
                 throw error;
             }
+        },
+
+        /**
+         * 刷新访问令牌
+         */
+        async refreshAccessToken() {
+            try {
+                if (!this.refreshToken) {
+                    throw new Error("没有刷新令牌");
+                }
+
+                const response = await userApi.refreshToken(this.refreshToken);
+                const authData = response.data;
+
+                // 更新访问令牌
+                this.accessToken = authData.accessToken;
+                this.tokenExpiry = Date.now() + authData.expiresIn;
+
+                // 更新本地存储
+                localStorage.setItem("goingtour_token", authData.accessToken);
+                localStorage.setItem("goingtour_token_expiry", this.tokenExpiry.toString());
+
+                return authData.accessToken;
+            } catch (error) {
+                console.error("刷新令牌失败:", error);
+                // 刷新失败，清除所有令牌信息
+                this.logout();
+                throw error;
+            }
+        },
+
+        /**
+         * 检查令牌是否即将过期并自动刷新
+         */
+        async checkAndRefreshToken() {
+            if (!this.accessToken || !this.tokenExpiry) {
+                return false;
+            }
+
+            // 如果令牌在5分钟内过期，自动刷新
+            const fiveMinutes = 5 * 60 * 1000;
+            if (Date.now() + fiveMinutes >= this.tokenExpiry) {
+                try {
+                    await this.refreshAccessToken();
+                    return true;
+                } catch (error) {
+                    return false;
+                }
+            }
+
+            return true;
+        },
+
+        /**
+         * 退出登录
+         */
+        logout() {
+            // 清除状态
+            this.isLoggedIn = false;
+            this.currentUser = null;
+            this.accessToken = null;
+            this.refreshToken = null;
+            this.tokenExpiry = null;
+            this.userPreferences = {
+                tags: [],
+                budget: 500,
+            };
+
+            // 清除本地存储
+            localStorage.removeItem("goingtour_token");
+            localStorage.removeItem("goingtour_refresh_token");
+            localStorage.removeItem("goingtour_token_expiry");
+            localStorage.removeItem("goingtour_user");
+            localStorage.removeItem("goingtour_preferences");
+
+            ElMessage.info("已退出登录");
         },
 
         /**
@@ -387,6 +475,81 @@ export const useUserStore = defineStore("user", {
             const path = this.redirectPath;
             this.redirectPath = null;
             return path;
+        },
+
+        // ========== 本地存储管理 ==========
+        /**
+         * 保存状态到本地存储
+         */
+        saveToStorage() {
+            try {
+                if (this.currentUser) {
+                    localStorage.setItem("goingtour_user", JSON.stringify(this.currentUser));
+                }
+                if (this.userPreferences) {
+                    localStorage.setItem("goingtour_preferences", JSON.stringify(this.userPreferences));
+                }
+            } catch (error) {
+                console.error("保存用户状态到本地存储失败:", error);
+            }
+        },
+
+        /**
+         * 从本地存储恢复状态
+         */
+        loadFromStorage() {
+            try {
+                // 恢复JWT令牌信息
+                const token = localStorage.getItem("goingtour_token");
+                const refreshToken = localStorage.getItem("goingtour_refresh_token");
+                const tokenExpiry = localStorage.getItem("goingtour_token_expiry");
+
+                if (token && refreshToken && tokenExpiry) {
+                    this.accessToken = token;
+                    this.refreshToken = refreshToken;
+                    this.tokenExpiry = parseInt(tokenExpiry);
+
+                    // 检查令牌是否已过期
+                    if (Date.now() < this.tokenExpiry) {
+                        this.isLoggedIn = true;
+                    } else {
+                        // 令牌已过期，清除相关信息
+                        this.logout();
+                        return;
+                    }
+                }
+
+                // 恢复用户信息
+                const userStr = localStorage.getItem("goingtour_user");
+                if (userStr) {
+                    this.currentUser = JSON.parse(userStr);
+                }
+
+                // 恢复用户偏好
+                const preferencesStr = localStorage.getItem("goingtour_preferences");
+                if (preferencesStr) {
+                    this.userPreferences = JSON.parse(preferencesStr);
+                }
+            } catch (error) {
+                console.error("从本地存储恢复用户状态失败:", error);
+                // 如果恢复失败，清除可能损坏的数据
+                this.logout();
+            }
+        },
+
+        /**
+         * 初始化用户状态（应用启动时调用）
+         */
+        init() {
+            this.loadFromStorage();
+
+            // 如果已登录，检查令牌有效性
+            if (this.isLoggedIn && this.accessToken) {
+                this.checkAndRefreshToken().catch((error) => {
+                    console.error("初始化时令牌检查失败:", error);
+                    this.logout();
+                });
+            }
         },
     },
 });

@@ -30,6 +30,14 @@ export const userApi = {
         return http.post("/user/login", data);
     },
 
+    /**
+     * 刷新访问令牌
+     * @param {string} refreshToken - 刷新令牌
+     */
+    refreshToken(refreshToken) {
+        return http.post("/user/refresh-token", { refreshToken });
+    },
+
     // ========== 用户信息管理 ==========
 
     /**

@@ -38,6 +38,9 @@ if (
     window.clearUserState = () => {
         localStorage.removeItem("goingtour_user");
         localStorage.removeItem("goingtour_token");
+        localStorage.removeItem("goingtour_refresh_token");
+        localStorage.removeItem("goingtour_token_expiry");
+        localStorage.removeItem("goingtour_preferences");
         console.log("✅ 用户状态已清理，请刷新页面");
         window.location.reload();
     };
@@ -46,17 +49,21 @@ if (
     window.checkUserState = () => {
         const userData = localStorage.getItem("goingtour_user");
         const token = localStorage.getItem("goingtour_token");
+        const refreshToken = localStorage.getItem("goingtour_refresh_token");
+        const tokenExpiry = localStorage.getItem("goingtour_token_expiry");
         console.log("📊 当前用户状态:");
         console.log("- userData:", userData ? JSON.parse(userData) : null);
-        console.log("- token:", token);
+        console.log("- accessToken:", token);
+        console.log("- refreshToken:", refreshToken);
+        console.log("- tokenExpiry:", tokenExpiry ? new Date(parseInt(tokenExpiry)) : null);
     };
 }
 
 // 初始化应用
 const initApp = async() => {
-    // 恢复用户登录状态
+    // 初始化用户状态（包括JWT令牌恢复）
     const userStore = useUserStore();
-    userStore.restoreFromStorage();
+    userStore.init();
 
     // 如果用户已登录，刷新用户信息
     if (userStore.isLoggedIn && userStore.currentUser?.id) {
