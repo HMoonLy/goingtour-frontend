@@ -6,7 +6,10 @@
 class TripProgressManager {
     constructor() {
         this.storageKey = 'goingtour_trip_progress';
+        this.draftStorageKey = 'goingtour_trip_drafts'; // 草稿存储键
         this.maxSaveTime = 24 * 60 * 60 * 1000; // 24小时有效期
+        this.maxDraftSaveTime = 7 * 24 * 60 * 60 * 1000; // 草稿保存7天
+        this.maxDrafts = 10; // 最多保存10个草稿
     }
 
     /**
@@ -279,6 +282,235 @@ class TripProgressManager {
             currentStep: savedData.currentStep,
             differences: differences,
             isDifferent: differences.length > 0
+        };
+    }
+
+    /**
+     * 保存行程草稿
+     * @param {Object} draftData - 草稿数据
+     * @param {string} draftName - 草稿名称（可选）
+     * @returns {string|null} 草稿ID
+     */
+    saveDraft(draftData, draftName = null) {
+        try {
+            const draftId = `draft_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            const timestamp = Date.now();
+            const saveData = {
+                id: draftId,
+                name: draftName || `草稿 - ${draftData.baseForm?.destinationName || '未命名目的地'}`,
+                ...draftData,
+                isDraft: true,
+                timestamp: timestamp,
+                createdAt: timestamp,
+                updatedAt: timestamp,
+                version: '1.0'
+            };
+
+            // 获取现有草稿列表
+            const existingDrafts = this.getAllDrafts();
+            existingDrafts.push(saveData);
+
+            // 限制草稿数量，保留最新的
+            if (existingDrafts.length > this.maxDrafts) {
+                existingDrafts.sort((a, b) => b.timestamp - a.timestamp);
+                existingDrafts.splice(this.maxDrafts);
+            }
+
+            localStorage.setItem(this.draftStorageKey, JSON.stringify(existingDrafts));
+            console.log('📝 行程草稿已保存:', {
+                id: draftId,
+                name: saveData.name,
+                step: draftData.currentStep,
+                destination: draftData.baseForm?.destinationName,
+                timestamp: new Date().toLocaleString()
+            });
+
+            return draftId;
+        } catch (error) {
+            console.error('❌ 保存行程草稿失败:', error);
+            return null;
+        }
+    }
+
+    /**
+     * 获取所有草稿
+     * @returns {Array} 草稿列表
+     */
+    getAllDrafts() {
+        try {
+            const draftsData = localStorage.getItem(this.draftStorageKey);
+            if (!draftsData) return [];
+
+            const drafts = JSON.parse(draftsData);
+            // 过滤过期草稿
+            const validDrafts = drafts.filter(draft => 
+                Date.now() - draft.timestamp <= this.maxDraftSaveTime
+            );
+
+            // 如果有草稿被过期清理，更新存储
+            if (validDrafts.length !== drafts.length) {
+                localStorage.setItem(this.draftStorageKey, JSON.stringify(validDrafts));
+            }
+
+            return validDrafts.sort((a, b) => b.timestamp - a.timestamp); // 按时间降序排列
+        } catch (error) {
+            console.error('❌ 获取草稿列表失败:', error);
+            return [];
+        }
+    }
+
+    /**
+     * 获取特定草稿
+     * @param {string} draftId - 草稿ID
+     * @returns {Object|null} 草稿数据
+     */
+    getDraft(draftId) {
+        const drafts = this.getAllDrafts();
+        return drafts.find(draft => draft.id === draftId) || null;
+    }
+
+    /**
+     * 删除草稿
+     * @param {string} draftId - 草稿ID
+     * @returns {boolean} 是否删除成功
+     */
+    deleteDraft(draftId) {
+        try {
+            const drafts = this.getAllDrafts();
+            const updatedDrafts = drafts.filter(draft => draft.id !== draftId);
+            
+            localStorage.setItem(this.draftStorageKey, JSON.stringify(updatedDrafts));
+            console.log('🗑️ 草稿已删除:', draftId);
+            return true;
+        } catch (error) {
+            console.error('❌ 删除草稿失败:', error);
+            return false;
+        }
+    }
+
+    /**
+     * 重命名草稿
+     * @param {string} draftId - 草稿ID
+     * @param {string} newName - 新名称
+     * @returns {boolean} 是否重命名成功
+     */
+    renameDraft(draftId, newName) {
+        try {
+            const drafts = this.getAllDrafts();
+            const draftIndex = drafts.findIndex(draft => draft.id === draftId);
+            
+            if (draftIndex === -1) return false;
+            
+            drafts[draftIndex].name = newName;
+            drafts[draftIndex].updatedAt = Date.now();
+            
+            localStorage.setItem(this.draftStorageKey, JSON.stringify(drafts));
+            console.log('✏️ 草稿已重命名:', { id: draftId, newName });
+            return true;
+        } catch (error) {
+            console.error('❌ 重命名草稿失败:', error);
+            return false;
+        }
+    }
+
+    /**
+     * 复制草稿
+     * @param {string} draftId - 源草稿ID
+     * @param {string} newName - 新草稿名称（可选）
+     * @returns {string|null} 新草稿ID
+     */
+    copyDraft(draftId, newName = null) {
+        try {
+            const sourceDraft = this.getDraft(draftId);
+            if (!sourceDraft) return null;
+
+            const copyData = { ...sourceDraft };
+            delete copyData.id;
+            delete copyData.timestamp;
+            delete copyData.createdAt;
+            delete copyData.updatedAt;
+
+            const copyName = newName || `${sourceDraft.name} - 副本`;
+            return this.saveDraft(copyData, copyName);
+        } catch (error) {
+            console.error('❌ 复制草稿失败:', error);
+            return null;
+        }
+    }
+
+    /**
+     * 清空所有草稿
+     */
+    clearAllDrafts() {
+        try {
+            localStorage.removeItem(this.draftStorageKey);
+            console.log('🗑️ 所有草稿已清除');
+            return true;
+        } catch (error) {
+            console.error('❌ 清除草稿失败:', error);
+            return false;
+        }
+    }
+
+    /**
+     * 获取草稿摘要信息
+     * @param {string} draftId - 草稿ID
+     * @returns {Object|null} 草稿摘要
+     */
+    getDraftSummary(draftId) {
+        const draft = this.getDraft(draftId);
+        if (!draft) return null;
+
+        return {
+            id: draft.id,
+            name: draft.name,
+            destination: draft.baseForm?.destinationName || '未选择',
+            step: draft.currentStep,
+            stepName: this.getStepName(draft.currentStep),
+            createdTime: new Date(draft.createdAt).toLocaleString(),
+            updatedTime: new Date(draft.updatedAt).toLocaleString(),
+            timeAgo: this.getTimeAgo(draft.updatedAt)
+        };
+    }
+
+    /**
+     * 检查草稿数据是否有效
+     * @param {Object} draftData - 草稿数据
+     * @returns {boolean}
+     */
+    isValidDraft(draftData) {
+        if (!draftData || typeof draftData !== 'object') return false;
+        
+        // 必须有基础结构
+        if (typeof draftData.currentStep !== 'number' || 
+            !draftData.baseForm || 
+            !draftData.preferenceForm) {
+            return false;
+        }
+
+        // 必须有目的地信息（至少一个步骤完成）
+        if (!draftData.baseForm.destinationName) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 获取草稿统计信息
+     * @returns {Object} 统计信息
+     */
+    getDraftStats() {
+        const drafts = this.getAllDrafts();
+        const now = Date.now();
+        
+        return {
+            total: drafts.length,
+            recentCount: drafts.filter(d => now - d.updatedAt < 24 * 60 * 60 * 1000).length,
+            oldestDate: drafts.length ? Math.min(...drafts.map(d => d.createdAt)) : null,
+            newestDate: drafts.length ? Math.max(...drafts.map(d => d.updatedAt)) : null,
+            destinations: [...new Set(drafts.map(d => d.baseForm?.destinationName).filter(Boolean))],
+            storageUsed: localStorage.getItem(this.draftStorageKey)?.length || 0
         };
     }
 }

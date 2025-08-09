@@ -31,6 +31,34 @@
           <el-step :title="t('trip.aiGeneration') || '智能生成'" />
           <el-step :title="t('trip.tripDetails') || '行程预览'" />
         </el-steps>
+        
+        <!-- 草稿操作区域 -->
+        <div class="draft-actions" v-if="baseForm.destinationName">
+          <div class="draft-actions-left">
+            <el-button 
+              size="small" 
+              type="info" 
+              plain 
+              @click="showDraftList = true"
+              :disabled="generating"
+            >
+              <el-icon><Folder /></el-icon>
+              我的草稿 ({{ drafts.length }})
+            </el-button>
+          </div>
+          <div class="draft-actions-right">
+            <el-button 
+              size="small" 
+              type="primary" 
+              plain 
+              @click="saveDraftDialog = true"
+              :disabled="generating || !canSaveDraft"
+            >
+              <el-icon><Document /></el-icon>
+              保存草稿
+            </el-button>
+          </div>
+        </div>
       </el-card>
 
       <!-- 步骤内容 -->
@@ -127,14 +155,192 @@
       </div>
       </div>
     </template>
+
+    <!-- 保存草稿对话框 -->
+    <el-dialog 
+      v-model="saveDraftDialog" 
+      title="保存草稿" 
+      width="400px"
+      :before-close="handleCloseSaveDraftDialog"
+    >
+      <el-form label-width="80px">
+        <el-form-item label="草稿名称">
+          <el-input 
+            v-model="draftName" 
+            placeholder="请输入草稿名称"
+            maxlength="50"
+            show-word-limit
+            @keyup.enter="handleSaveDraft"
+          />
+        </el-form-item>
+        <el-form-item label="当前进度">
+          <el-tag type="info" size="small">
+            第{{ currentStep + 1 }}步：{{ getStepName(currentStep) }}
+          </el-tag>
+        </el-form-item>
+        <el-form-item label="目的地">
+          <span class="draft-destination">{{ baseForm.destinationName }}</span>
+        </el-form-item>
+      </el-form>
+      
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="saveDraftDialog = false">取消</el-button>
+          <el-button type="primary" @click="handleSaveDraft" :loading="savingDraft">
+            <el-icon><Document /></el-icon>
+            保存草稿
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+    <!-- 草稿列表对话框 -->
+    <el-dialog 
+      v-model="showDraftList" 
+      title="我的草稿" 
+      width="700px"
+      :before-close="handleCloseDraftList"
+    >
+      <div class="draft-list-container">
+        <div v-if="drafts.length === 0" class="empty-drafts">
+          <el-empty description="暂无保存的草稿" image-size="120">
+            <el-button type="primary" @click="showDraftList = false">
+              开始创建行程
+            </el-button>
+          </el-empty>
+        </div>
+        
+        <div v-else class="draft-grid">
+          <div 
+            v-for="draft in drafts" 
+            :key="draft.id" 
+            class="draft-item"
+            :class="{ 'draft-item-loading': loadingDraftId === draft.id }"
+          >
+            <div class="draft-content">
+              <div class="draft-header">
+                <h4 class="draft-title">{{ draft.name }}</h4>
+                <el-dropdown @command="handleDraftAction" trigger="click">
+                  <el-button type="text" size="small" class="draft-menu-btn">
+                    <el-icon><MoreFilled /></el-icon>
+                  </el-button>
+                  <template #dropdown>
+                    <el-dropdown-menu>
+                      <el-dropdown-item :command="{action: 'load', id: draft.id}">
+                        <el-icon><Folder /></el-icon>
+                        加载草稿
+                      </el-dropdown-item>
+                      <el-dropdown-item :command="{action: 'rename', id: draft.id}">
+                        <el-icon><Edit /></el-icon>
+                        重命名
+                      </el-dropdown-item>
+                      <el-dropdown-item :command="{action: 'copy', id: draft.id}">
+                        <el-icon><CopyDocument /></el-icon>
+                        复制
+                      </el-dropdown-item>
+                      <el-dropdown-item :command="{action: 'delete', id: draft.id}" divided>
+                        <el-icon><Delete /></el-icon>
+                        删除
+                      </el-dropdown-item>
+                    </el-dropdown-menu>
+                  </template>
+                </el-dropdown>
+              </div>
+              
+              <div class="draft-info">
+                <div class="draft-destination">
+                  <el-icon><Location /></el-icon>
+                  {{ draft.baseForm?.destinationName || '未知目的地' }}
+                </div>
+                <div class="draft-step">
+                  <el-icon><List /></el-icon>
+                  {{ getStepName(draft.currentStep) }}
+                </div>
+                <div class="draft-time">
+                  <el-icon><Clock /></el-icon>
+                  {{ getDraftTimeAgo(draft.updatedAt) }}
+                </div>
+              </div>
+              
+              <div class="draft-actions">
+                <el-button 
+                  type="primary" 
+                  size="small" 
+                  @click="handleLoadDraft(draft.id)"
+                  :loading="loadingDraftId === draft.id"
+                >
+                  <el-icon><Folder /></el-icon>
+                  加载草稿
+                </el-button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 草稿统计信息 -->
+        <div v-if="drafts.length > 0" class="draft-stats">
+          <el-divider />
+          <div class="stats-row">
+            <span>共 {{ drafts.length }} 个草稿</span>
+            <el-button 
+              type="danger" 
+              size="small" 
+              plain 
+              @click="handleClearAllDrafts"
+            >
+              <el-icon><Delete /></el-icon>
+              清空所有草稿
+            </el-button>
+          </div>
+        </div>
+      </div>
+    </el-dialog>
+
+    <!-- 重命名草稿对话框 -->
+    <el-dialog 
+      v-model="renameDraftDialog" 
+      title="重命名草稿" 
+      width="400px"
+    >
+      <el-form label-width="80px">
+        <el-form-item label="草稿名称">
+          <el-input 
+            v-model="newDraftName" 
+            placeholder="请输入新的草稿名称"
+            maxlength="50"
+            show-word-limit
+            @keyup.enter="handleConfirmRename"
+          />
+        </el-form-item>
+      </el-form>
+      
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="renameDraftDialog = false">取消</el-button>
+          <el-button type="primary" @click="handleConfirmRename" :loading="renamingDraft">
+            确认重命名
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { ref, reactive, onMounted, watch, onBeforeUnmount } from "vue";
+import { ref, reactive, computed, onMounted, watch, onBeforeUnmount } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { Location } from "@element-plus/icons-vue";
+import { 
+  Location, 
+  Folder, 
+  Document, 
+  MoreFilled, 
+  Edit, 
+  CopyDocument, 
+  Delete, 
+  List, 
+  Clock 
+} from "@element-plus/icons-vue";
 import { useI18n } from "@/utils/i18n.js";
 import { useUserStore } from "@/store/user.js";
 import { weatherApi } from "@/api/weather.js";
@@ -154,6 +360,14 @@ export default {
     TripPreview,
     AiTripDisplay,
     Location,
+    Folder,
+    Document,
+    MoreFilled,
+    Edit,
+    CopyDocument,
+    Delete,
+    List,
+    Clock,
   },
 
   setup() {
@@ -210,6 +424,23 @@ export default {
 
     // 进度恢复状态
     const isRestoringProgress = ref(false);
+
+    // 草稿相关状态
+    const saveDraftDialog = ref(false);
+    const showDraftList = ref(false);
+    const renameDraftDialog = ref(false);
+    const draftName = ref("");
+    const newDraftName = ref("");
+    const drafts = ref([]);
+    const loadingDraftId = ref("");
+    const savingDraft = ref(false);
+    const renamingDraft = ref(false);
+    const currentRenamingDraftId = ref("");
+
+    // 计算属性：是否可以保存草稿
+    const canSaveDraft = computed(() => {
+      return baseForm.destinationName && !generating.value;
+    });
 
     // 步骤控制
     const nextStep = () => {
@@ -414,15 +645,7 @@ export default {
           const payload = JSON.parse(decodeURIComponent(route.query.preset))
           const { type, id } = payload || {}
           if (type && id) {
-            if (type === 'template') {
-              const { findTemplateById } = await import('@/data/tripTemplates.js')
-              const tpl = findTemplateById(id)
-              if (tpl?.preset) {
-                Object.assign(baseForm, { ...baseForm, ...(tpl.preset.baseForm || {}) })
-                Object.assign(preferenceForm, { ...preferenceForm, ...(tpl.preset.preferenceForm || {}) })
-                ElMessage.success(`已应用模板：${tpl.title}`)
-              }
-            } else if (type === 'scenario') {
+            if (type === 'scenario') {
               const { findScenarioById } = await import('@/data/aiScenarios.js')
               const sc = findScenarioById(id)
               if (sc?.preset) {
@@ -479,6 +702,282 @@ export default {
       }
     });
 
+    // 初始化草稿列表
+    const loadDrafts = () => {
+      drafts.value = tripProgressManager.getAllDrafts();
+    };
+
+    // 草稿相关方法
+    const handleSaveDraft = async () => {
+      if (!canSaveDraft.value) return;
+      
+      savingDraft.value = true;
+      try {
+        const progressData = {
+          currentStep: currentStep.value,
+          baseForm: JSON.parse(JSON.stringify(baseForm)),
+          preferenceForm: JSON.parse(JSON.stringify(preferenceForm)),
+          selectedAttractions: selectedAttractions.value,
+          selectedRestaurants: selectedRestaurants.value,
+          extraRequirements: extraRequirements.value,
+          weatherSuggestion: weatherSuggestion.value
+        };
+        
+        const draftId = tripProgressManager.saveDraft(progressData, draftName.value);
+        if (draftId) {
+          ElMessage.success('草稿保存成功！');
+          saveDraftDialog.value = false;
+          draftName.value = '';
+          loadDrafts();
+        } else {
+          ElMessage.error('草稿保存失败！');
+        }
+      } catch (error) {
+        console.error('保存草稿失败:', error);
+        ElMessage.error('草稿保存失败！');
+      } finally {
+        savingDraft.value = false;
+      }
+    };
+
+    const handleLoadDraft = async (draftId) => {
+      loadingDraftId.value = draftId;
+      try {
+        const draft = tripProgressManager.getDraft(draftId);
+        if (!draft) {
+          ElMessage.error('草稿不存在！');
+          return;
+        }
+
+        // 确认是否加载草稿
+        await ElMessageBox.confirm(
+          `确定要加载草稿"${draft.name}"吗？当前的进度将会被覆盖。`,
+          '加载草稿',
+          {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }
+        );
+
+        // 加载草稿数据
+        currentStep.value = draft.currentStep;
+        Object.keys(baseForm).forEach(key => delete baseForm[key]);
+        Object.assign(baseForm, draft.baseForm);
+        Object.keys(preferenceForm).forEach(key => delete preferenceForm[key]);
+        Object.assign(preferenceForm, draft.preferenceForm);
+        selectedAttractions.value = draft.selectedAttractions || [];
+        selectedRestaurants.value = draft.selectedRestaurants || [];
+        extraRequirements.value = draft.extraRequirements || '';
+        weatherSuggestion.value = draft.weatherSuggestion || null;
+
+        ElMessage.success(`已加载草稿：${draft.name}`);
+        showDraftList.value = false;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+      } catch (error) {
+        if (error === 'cancel') {
+          // 用户取消，不做处理
+        } else {
+          console.error('加载草稿失败:', error);
+          ElMessage.error('加载草稿失败！');
+        }
+      } finally {
+        loadingDraftId.value = '';
+      }
+    };
+
+    const handleDraftAction = (command) => {
+      const { action, id } = command;
+      
+      switch (action) {
+        case 'load':
+          handleLoadDraft(id);
+          break;
+        case 'rename':
+          handleRenameDraft(id);
+          break;
+        case 'copy':
+          handleCopyDraft(id);
+          break;
+        case 'delete':
+          handleDeleteDraft(id);
+          break;
+      }
+    };
+
+    const handleRenameDraft = (draftId) => {
+      const draft = tripProgressManager.getDraft(draftId);
+      if (!draft) return;
+      
+      currentRenamingDraftId.value = draftId;
+      newDraftName.value = draft.name;
+      renameDraftDialog.value = true;
+    };
+
+    const handleConfirmRename = async () => {
+      if (!newDraftName.value.trim()) {
+        ElMessage.warning('请输入草稿名称！');
+        return;
+      }
+
+      renamingDraft.value = true;
+      try {
+        const success = tripProgressManager.renameDraft(currentRenamingDraftId.value, newDraftName.value.trim());
+        if (success) {
+          ElMessage.success('重命名成功！');
+          renameDraftDialog.value = false;
+          loadDrafts();
+        } else {
+          ElMessage.error('重命名失败！');
+        }
+      } catch (error) {
+        console.error('重命名草稿失败:', error);
+        ElMessage.error('重命名失败！');
+      } finally {
+        renamingDraft.value = false;
+      }
+    };
+
+    const handleCopyDraft = async (draftId) => {
+      try {
+        const draft = tripProgressManager.getDraft(draftId);
+        if (!draft) return;
+
+        const newDraftId = tripProgressManager.copyDraft(draftId);
+        if (newDraftId) {
+          ElMessage.success('草稿复制成功！');
+          loadDrafts();
+        } else {
+          ElMessage.error('草稿复制失败！');
+        }
+      } catch (error) {
+        console.error('复制草稿失败:', error);
+        ElMessage.error('草稿复制失败！');
+      }
+    };
+
+    const handleDeleteDraft = async (draftId) => {
+      try {
+        const draft = tripProgressManager.getDraft(draftId);
+        if (!draft) return;
+
+        await ElMessageBox.confirm(
+          `确定要删除草稿"${draft.name}"吗？删除后无法恢复。`,
+          '删除草稿',
+          {
+            confirmButtonText: '确定删除',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }
+        );
+
+        const success = tripProgressManager.deleteDraft(draftId);
+        if (success) {
+          ElMessage.success('草稿删除成功！');
+          loadDrafts();
+        } else {
+          ElMessage.error('草稿删除失败！');
+        }
+      } catch (error) {
+        if (error === 'cancel') {
+          // 用户取消，不做处理
+        } else {
+          console.error('删除草稿失败:', error);
+          ElMessage.error('草稿删除失败！');
+        }
+      }
+    };
+
+    const handleClearAllDrafts = async () => {
+      try {
+        await ElMessageBox.confirm(
+          '确定要删除所有草稿吗？删除后无法恢复。',
+          '清空所有草稿',
+          {
+            confirmButtonText: '确定删除',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }
+        );
+
+        const success = tripProgressManager.clearAllDrafts();
+        if (success) {
+          ElMessage.success('所有草稿已清空！');
+          loadDrafts();
+        } else {
+          ElMessage.error('清空草稿失败！');
+        }
+      } catch (error) {
+        if (error === 'cancel') {
+          // 用户取消，不做处理
+        } else {
+          console.error('清空草稿失败:', error);
+          ElMessage.error('清空草稿失败！');
+        }
+      }
+    };
+
+    const handleCloseSaveDraftDialog = () => {
+      draftName.value = '';
+      saveDraftDialog.value = false;
+    };
+
+    const handleCloseDraftList = () => {
+      showDraftList.value = false;
+    };
+
+    // 获取步骤名称
+    const getStepName = (step) => {
+      return tripProgressManager.getStepName(step);
+    };
+
+    // 获取相对时间
+    const getDraftTimeAgo = (timestamp) => {
+      return tripProgressManager.getTimeAgo(timestamp);
+    };
+
+    // 检查是否有直接加载草稿的请求
+    const handleDirectDraftLoad = async () => {
+      const loadDraftId = route.query.loadDraft;
+      if (loadDraftId) {
+        try {
+          const draft = tripProgressManager.getDraft(loadDraftId);
+          if (draft) {
+            // 直接加载草稿数据，不需要确认
+            currentStep.value = draft.currentStep;
+            Object.keys(baseForm).forEach(key => delete baseForm[key]);
+            Object.assign(baseForm, draft.baseForm);
+            Object.keys(preferenceForm).forEach(key => delete preferenceForm[key]);
+            Object.assign(preferenceForm, draft.preferenceForm);
+            selectedAttractions.value = draft.selectedAttractions || [];
+            selectedRestaurants.value = draft.selectedRestaurants || [];
+            extraRequirements.value = draft.extraRequirements || '';
+            weatherSuggestion.value = draft.weatherSuggestion || null;
+
+            ElMessage.success(`已加载草稿：${draft.name}`);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // 清除URL参数
+            router.replace({ path: '/trip/create' });
+          } else {
+            ElMessage.error('草稿不存在或已过期！');
+            router.replace({ path: '/trip/create' });
+          }
+        } catch (error) {
+          console.error('加载草稿失败:', error);
+          ElMessage.error('加载草稿失败！');
+          router.replace({ path: '/trip/create' });
+        }
+      }
+    };
+
+    // 组件挂载时加载草稿列表和处理直接加载
+    onMounted(async () => {
+      loadDrafts();
+      await handleDirectDraftLoad();
+    });
+
     return {
       t,
       currentStep,
@@ -505,6 +1004,30 @@ export default {
       fetchWeatherForTrip,
       isRestoringProgress,
       goToDestinations,
+      // 草稿相关
+      saveDraftDialog,
+      showDraftList,
+      renameDraftDialog,
+      draftName,
+      newDraftName,
+      drafts,
+      loadingDraftId,
+      savingDraft,
+      renamingDraft,
+      currentRenamingDraftId,
+      canSaveDraft,
+      handleSaveDraft,
+      handleLoadDraft,
+      handleDraftAction,
+      handleRenameDraft,
+      handleConfirmRename,
+      handleCopyDraft,
+      handleDeleteDraft,
+      handleClearAllDrafts,
+      handleCloseSaveDraftDialog,
+      handleCloseDraftList,
+      getStepName,
+      getDraftTimeAgo,
     };
   },
 };
@@ -714,6 +1237,173 @@ export default {
   .step-container {
     padding: 12px;
     margin-bottom: 16px;
+  }
+}
+
+/* 草稿相关样式 */
+.draft-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e4e7ed;
+}
+
+.draft-actions-left,
+.draft-actions-right {
+  display: flex;
+  gap: 12px;
+}
+
+.draft-destination {
+  color: #606266;
+  font-weight: 500;
+}
+
+/* 草稿列表样式 */
+.draft-list-container {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.empty-drafts {
+  padding: 40px;
+  text-align: center;
+}
+
+.draft-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.draft-item {
+  border: 1px solid #e4e7ed;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  background: #fff;
+}
+
+.draft-item:hover {
+  border-color: #409eff;
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.draft-item-loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.draft-content {
+  padding: 16px;
+}
+
+.draft-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.draft-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+  line-height: 1.4;
+  word-break: break-word;
+  flex: 1;
+  margin-right: 8px;
+}
+
+.draft-menu-btn {
+  color: #909399;
+  padding: 4px;
+  min-height: auto;
+}
+
+.draft-menu-btn:hover {
+  color: #409eff;
+}
+
+.draft-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.draft-destination,
+.draft-step,
+.draft-time {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #606266;
+}
+
+.draft-destination .el-icon,
+.draft-step .el-icon,
+.draft-time .el-icon {
+  color: #909399;
+  font-size: 16px;
+}
+
+.draft-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.draft-stats {
+  margin-top: 20px;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #606266;
+  font-size: 14px;
+}
+
+/* 对话框内表单样式 */
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .draft-actions {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .draft-actions-left,
+  .draft-actions-right {
+    justify-content: center;
+  }
+
+  .draft-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .draft-header {
+    align-items: center;
+  }
+
+  .stats-row {
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
   }
 }
 </style>

@@ -113,6 +113,10 @@
               <el-icon><Calendar /></el-icon
               ><span>{{ trip.days }}{{ t("personal.daysSuffix") }}</span>
             </div>
+            <div v-if="trip.isDraft" class="trip-detail">
+              <el-icon><List /></el-icon>
+              <span>{{ getStepName(trip.currentStep) }}</span>
+            </div>
             <div class="trip-detail">
               <el-icon><User /></el-icon
               ><span>{{ trip.travelers }}{{ t("personal.travelersSuffix") }}</span>
@@ -201,6 +205,7 @@ import {
   Plus,
   User,
   DocumentCopy,
+  List,
 } from "@element-plus/icons-vue";
 import { useUserStore } from "@/store/user.js";
 import { useI18n } from "@/utils/i18n.js";
@@ -240,6 +245,63 @@ export default {
     const refreshProgress = () => {
       hasProgress.value = tripProgressManager.hasProgress();
       progressSummary.value = tripProgressManager.getProgressSummary() || {};
+    };
+
+    // 草稿相关状态
+    const drafts = ref([]);
+    const draftStats = ref({});
+
+    // 加载草稿列表
+    const loadDrafts = () => {
+      drafts.value = tripProgressManager.getAllDrafts();
+      draftStats.value = tripProgressManager.getDraftStats();
+    };
+
+    // 删除草稿
+    const handleDeleteDraft = async (draftId) => {
+      try {
+        const draft = tripProgressManager.getDraft(draftId);
+        if (!draft) return;
+
+        await ElMessageBox.confirm(
+          `确定要删除草稿"${draft.name}"吗？删除后无法恢复。`,
+          '删除草稿',
+          {
+            confirmButtonText: '确定删除',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }
+        );
+
+        const success = tripProgressManager.deleteDraft(draftId);
+        if (success) {
+          ElMessage.success('草稿删除成功！');
+          loadDrafts();
+        } else {
+          ElMessage.error('草稿删除失败！');
+        }
+      } catch (error) {
+        if (error !== 'cancel') {
+          console.error('删除草稿失败:', error);
+          ElMessage.error('草稿删除失败！');
+        }
+      }
+    };
+
+    // 加载草稿
+    const handleLoadDraft = (draftId) => {
+      // 将草稿ID作为查询参数传递给TripCreate页面
+      router.push(`/trip/create?loadDraft=${draftId}`);
+    };
+
+    // 获取步骤名称
+    const getStepName = (step) => {
+      return tripProgressManager.getStepName(step);
+    };
+
+    // 获取相对时间
+    const getDraftTimeAgo = (timestamp) => {
+      return tripProgressManager.getTimeAgo(timestamp);
     };
 
     const goToCreate = () => router.push("/destinations");
@@ -287,6 +349,23 @@ export default {
     };
 
     const displayTrips = computed(() => {
+      if (tripTab.value === "drafts") {
+        // 返回草稿数据，转换为与trips兼容的格式
+        return drafts.value.map(draft => ({
+          id: draft.id,
+          title: draft.name,
+          destinationName: draft.baseForm?.destinationName || '未知目的地',
+          days: draft.baseForm?.days || 0,
+          status: 'draft',
+          createdAt: draft.createdAt,
+          updatedAt: draft.updatedAt,
+          currentStep: draft.currentStep,
+          isDraft: true,
+          // 添加草稿特有的数据
+          draftData: draft
+        }));
+      }
+      
       const list = [...savedTrips.value];
       // 最近优先：按更新时间/创建时间倒序
       list.sort(
@@ -294,12 +373,17 @@ export default {
           new Date(b.updatedAt || b.createdAt || 0) -
           new Date(a.updatedAt || a.createdAt || 0)
       );
-      if (tripTab.value === "drafts") return list.filter((x) => x.status === "draft");
       return list.slice(0, 8);
     });
 
     const viewTripDetail = (trip) => {
       try {
+        // 如果是草稿，直接加载草稿
+        if (trip.isDraft) {
+          handleLoadDraft(trip.id);
+          return;
+        }
+        
         if (trip.aiGenerated) {
           router.push({
             name: "AiTripEdit",
@@ -363,6 +447,7 @@ export default {
       }
       await loadSavedTrips();
       refreshProgress();
+      loadDrafts();
       // 天气速览：优先使用进度中的目的地，否则取最近行程的目的地
       let city =
         progressSummary.value?.destination || savedTrips.value[0]?.destinationName;
@@ -412,6 +497,14 @@ export default {
       weather,
       scenarios,
       applyScenario,
+      // 草稿相关
+      drafts,
+      draftStats,
+      loadDrafts,
+      handleDeleteDraft,
+      handleLoadDraft,
+      getStepName,
+      getDraftTimeAgo,
     };
   },
 };
