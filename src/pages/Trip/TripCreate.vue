@@ -319,8 +319,8 @@ export default {
     const saveProgress = () => {
       const progressData = {
         currentStep: currentStep.value,
-        baseForm: { ...baseForm },
-        preferenceForm: { ...preferenceForm },
+        baseForm: JSON.parse(JSON.stringify(baseForm)), // 使用JSON深拷贝确保数据完整性
+        preferenceForm: JSON.parse(JSON.stringify(preferenceForm)), // 使用JSON深拷贝确保数据完整性
         selectedAttractions: selectedAttractions.value,
         selectedRestaurants: selectedRestaurants.value,
         extraRequirements: extraRequirements.value,
@@ -351,10 +351,17 @@ export default {
 
         const progressData = tripProgressManager.restoreProgress();
         if (progressData) {
-          // 恢复数据
+          // 恢复数据 - 使用更安全的方式更新reactive对象
           currentStep.value = progressData.currentStep;
+          
+          // 清空并重新设置baseForm
+          Object.keys(baseForm).forEach(key => delete baseForm[key]);
           Object.assign(baseForm, progressData.baseForm);
+          
+          // 清空并重新设置preferenceForm
+          Object.keys(preferenceForm).forEach(key => delete preferenceForm[key]);
           Object.assign(preferenceForm, progressData.preferenceForm);
+          
           selectedAttractions.value = progressData.selectedAttractions || [];
           selectedRestaurants.value = progressData.selectedRestaurants || [];
           extraRequirements.value = progressData.extraRequirements || "";

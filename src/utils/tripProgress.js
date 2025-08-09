@@ -83,16 +83,33 @@ class TripProgressManager {
      * @returns {boolean}
      */
     isValidProgress(progressData) {
-        return (
-            progressData &&
-            typeof progressData.currentStep === 'number' &&
-            progressData.currentStep >= 0 &&
-            progressData.currentStep <= 3 &&
-            progressData.baseForm &&
-            progressData.preferenceForm &&
-            progressData.timestamp &&
-            typeof progressData.timestamp === 'number'
-        );
+        // 基础结构检查
+        if (
+            !progressData ||
+            typeof progressData.currentStep !== 'number' ||
+            progressData.currentStep < 0 ||
+            progressData.currentStep > 3 ||
+            !progressData.baseForm ||
+            !progressData.preferenceForm ||
+            !progressData.timestamp ||
+            typeof progressData.timestamp !== 'number'
+        ) {
+            return false;
+        }
+
+        // 基础表单数据检查
+        if (!progressData.baseForm.destinationName || !progressData.baseForm.destination) {
+            console.warn('进度数据缺少必要的目的地信息');
+            return false;
+        }
+
+        // 偏好表单数据检查
+        if (!progressData.preferenceForm || typeof progressData.preferenceForm !== 'object') {
+            console.warn('进度数据缺少偏好表单信息');
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -216,23 +233,53 @@ class TripProgressManager {
     }
 
     /**
-     * 导入进度数据（用于恢复备份）
-     * @param {string} jsonString - JSON字符串
-     * @returns {boolean} 是否成功
+     * 调试：比较当前数据与保存的进度数据
+     * @param {Object} currentData - 当前的表单数据
+     * @returns {Object} 比较结果
      */
-    importProgress(jsonString) {
-        try {
-            const progressData = JSON.parse(jsonString);
-
-            if (!this.isValidProgress(progressData)) {
-                throw new Error('无效的进度数据格式');
-            }
-
-            return this.saveProgress(progressData);
-        } catch (error) {
-            console.error('❌ 导入进度数据失败:', error);
-            return false;
+    debugCompareData(currentData) {
+        const savedData = this.restoreProgress();
+        if (!savedData) {
+            return { hasSaved: false, message: '没有保存的进度数据' };
         }
+
+        const differences = [];
+        
+        // 比较baseForm
+        if (currentData.baseForm && savedData.baseForm) {
+            Object.keys(currentData.baseForm).forEach(key => {
+                if (JSON.stringify(currentData.baseForm[key]) !== JSON.stringify(savedData.baseForm[key])) {
+                    differences.push({
+                        type: 'baseForm',
+                        field: key,
+                        current: currentData.baseForm[key],
+                        saved: savedData.baseForm[key]
+                    });
+                }
+            });
+        }
+
+        // 比较preferenceForm
+        if (currentData.preferenceForm && savedData.preferenceForm) {
+            Object.keys(currentData.preferenceForm).forEach(key => {
+                if (JSON.stringify(currentData.preferenceForm[key]) !== JSON.stringify(savedData.preferenceForm[key])) {
+                    differences.push({
+                        type: 'preferenceForm',
+                        field: key,
+                        current: currentData.preferenceForm[key],
+                        saved: savedData.preferenceForm[key]
+                    });
+                }
+            });
+        }
+
+        return {
+            hasSaved: true,
+            savedTime: new Date(savedData.timestamp).toLocaleString(),
+            currentStep: savedData.currentStep,
+            differences: differences,
+            isDifferent: differences.length > 0
+        };
     }
 }
 
