@@ -91,6 +91,7 @@
         :user-preferences="userStore.userPreferences"
         :selected-attractions="selectedAttractions"
         :selected-restaurants="selectedRestaurants"
+        :is-from-draft="isFromDraft"
         @update:selected-attractions="selectedAttractions = $event"
         @update:selected-restaurants="selectedRestaurants = $event"
         @next-step="nextStep"
@@ -327,7 +328,7 @@
 </template>
 
 <script>
-import { ref, reactive, computed, onMounted, watch, onBeforeUnmount } from "vue";
+import { ref, reactive, computed, onMounted, watch, onBeforeUnmount, nextTick } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { 
@@ -344,7 +345,7 @@ import {
 import { useI18n } from "@/utils/i18n.js";
 import { useUserStore } from "@/store/user.js";
 import { weatherApi } from "@/api/weather.js";
-import { tripProgressManager } from "@/utils/tripProgress.js";
+import { draftManager } from "@/utils/draftManager.js";
 import TripBaseInfo from "@/components/Trip/TripBaseInfo.vue";
 import TripPreferences from "@/components/Trip/TripPreferences.vue";
 import TripGeneration from "@/components/Trip/TripGeneration.vue";
@@ -424,6 +425,9 @@ export default {
 
     // 进度恢复状态
     const isRestoringProgress = ref(false);
+    
+    // 草稿状态标识
+    const isFromDraft = ref(false);
 
     // 草稿相关状态
     const saveDraftDialog = ref(false);
@@ -524,6 +528,8 @@ export default {
 
     // 跳转到目的地选择页面
     const goToDestinations = () => {
+      // 重置草稿状态，因为用户开始新的行程创建
+      isFromDraft.value = false;
       router.push('/destinations');
     };
 
@@ -546,8 +552,11 @@ export default {
       { immediate: true }
     );
 
-    // 进度保存功能
+    // 进度自动保存功能
     const saveProgress = () => {
+      // 只有在有目的地信息时才保存
+      if (!baseForm.destinationName) return;
+
       const progressData = {
         currentStep: currentStep.value,
         baseForm: JSON.parse(JSON.stringify(baseForm)), // 使用JSON深拷贝确保数据完整性
@@ -558,17 +567,23 @@ export default {
         weatherSuggestion: weatherSuggestion.value
       };
       
-      tripProgressManager.autoSave(progressData);
+      // 使用新的防抖自动保存
+      draftManager.autoSave(progressData);
     };
 
-    // 恢复进度功能
+    // 恢复进度功能（基于新的草稿系统）
     const restoreProgress = async () => {
-      if (!tripProgressManager.hasProgress()) return false;
+      // 检查是否有自动草稿
+      if (!(await draftManager.hasAutoDraft())) {
+        return false;
+      }
 
       isRestoringProgress.value = true;
       
       try {
-        const progressSummary = tripProgressManager.getProgressSummary();
+        // 获取自动草稿摘要
+        const progressSummary = await draftManager.getAutoDraftSummary();
+        if (!progressSummary) return false;
         
         await ElMessageBox.confirm(
           `发现您有未完成的行程创建进度：\n目的地：${progressSummary.destination}\n步骤：${progressSummary.stepName}\n保存时间：${progressSummary.timeAgo}\n\n是否继续之前的进度？`,
@@ -580,30 +595,38 @@ export default {
           }
         );
 
-        const progressData = tripProgressManager.restoreProgress();
-        if (progressData) {
+        // 获取自动草稿数据
+        const autoDraft = await draftManager.getAutoDraft();
+        
+        if (autoDraft) {
           // 恢复数据 - 使用更安全的方式更新reactive对象
-          currentStep.value = progressData.currentStep;
+          currentStep.value = autoDraft.currentStep;
           
           // 清空并重新设置baseForm
           Object.keys(baseForm).forEach(key => delete baseForm[key]);
-          Object.assign(baseForm, progressData.baseForm);
+          Object.assign(baseForm, autoDraft.baseForm);
           
           // 清空并重新设置preferenceForm
           Object.keys(preferenceForm).forEach(key => delete preferenceForm[key]);
-          Object.assign(preferenceForm, progressData.preferenceForm);
+          Object.assign(preferenceForm, autoDraft.preferenceForm);
           
-          selectedAttractions.value = progressData.selectedAttractions || [];
-          selectedRestaurants.value = progressData.selectedRestaurants || [];
-          extraRequirements.value = progressData.extraRequirements || "";
-          weatherSuggestion.value = progressData.weatherSuggestion || null;
+          selectedAttractions.value = autoDraft.selectedAttractions || [];
+          selectedRestaurants.value = autoDraft.selectedRestaurants || [];
+          extraRequirements.value = autoDraft.extraRequirements || "";
+          weatherSuggestion.value = autoDraft.weatherSuggestion || null;
 
-          ElMessage.success(`已恢复到第${progressData.currentStep + 1}步：${progressSummary.stepName}`);
+          // 设置草稿状态
+          isFromDraft.value = true;
+
+          ElMessage.success(`已恢复到第${autoDraft.currentStep + 1}步：${progressSummary.stepName}`);
           return true;
         }
       } catch {
-        // 用户选择重新开始
-        tripProgressManager.clearProgress();
+        // 用户选择重新开始，删除自动草稿
+        const autoDraft = await draftManager.getAutoDraft();
+        if (autoDraft) {
+          await draftManager.deleteDraft(autoDraft.id);
+        }
         ElMessage.info('已开始新的行程创建');
       } finally {
         isRestoringProgress.value = false;
@@ -621,6 +644,12 @@ export default {
         dateRange: baseForm.dateRange,
         days: baseForm.days
       });
+
+      // 首先加载草稿列表
+      loadDrafts();
+
+      // 检查是否有直接草稿加载请求
+      await handleDirectDraftLoad();
 
       // 确保用户偏好数据已加载
       if (userStore.isLoggedIn && userStore.currentUser?.id) {
@@ -703,8 +732,8 @@ export default {
     });
 
     // 初始化草稿列表
-    const loadDrafts = () => {
-      drafts.value = tripProgressManager.getAllDrafts();
+    const loadDrafts = async () => {
+      drafts.value = await draftManager.getAllDrafts();
     };
 
     // 草稿相关方法
@@ -723,14 +752,11 @@ export default {
           weatherSuggestion: weatherSuggestion.value
         };
         
-        const draftId = tripProgressManager.saveDraft(progressData, draftName.value);
+        const draftId = await draftManager.saveDraft(progressData, draftName.value, false);
         if (draftId) {
-          ElMessage.success('草稿保存成功！');
           saveDraftDialog.value = false;
           draftName.value = '';
-          loadDrafts();
-        } else {
-          ElMessage.error('草稿保存失败！');
+          await loadDrafts();
         }
       } catch (error) {
         console.error('保存草稿失败:', error);
@@ -743,7 +769,7 @@ export default {
     const handleLoadDraft = async (draftId) => {
       loadingDraftId.value = draftId;
       try {
-        const draft = tripProgressManager.getDraft(draftId);
+        const draft = await draftManager.getDraft(draftId);
         if (!draft) {
           ElMessage.error('草稿不存在！');
           return;
@@ -760,6 +786,9 @@ export default {
           }
         );
 
+        // 设置草稿状态标识
+        isFromDraft.value = true;
+        
         // 加载草稿数据
         currentStep.value = draft.currentStep;
         Object.keys(baseForm).forEach(key => delete baseForm[key]);
@@ -771,8 +800,19 @@ export default {
         extraRequirements.value = draft.extraRequirements || '';
         weatherSuggestion.value = draft.weatherSuggestion || null;
 
+        console.log('✅ 手动草稿加载完成，当前表单状态:', {
+          baseForm,
+          preferenceForm,
+          currentStep: currentStep.value,
+          isFromDraft: isFromDraft.value
+        });
+
+        // 等待数据传递给子组件
+        await nextTick();
+
         ElMessage.success(`已加载草稿：${draft.name}`);
         showDraftList.value = false;
+        await loadDrafts(); // 重新加载草稿列表
         window.scrollTo({ top: 0, behavior: 'smooth' });
         
       } catch (error) {
@@ -806,8 +846,8 @@ export default {
       }
     };
 
-    const handleRenameDraft = (draftId) => {
-      const draft = tripProgressManager.getDraft(draftId);
+    const handleRenameDraft = async (draftId) => {
+      const draft = await draftManager.getDraft(draftId);
       if (!draft) return;
       
       currentRenamingDraftId.value = draftId;
@@ -823,7 +863,7 @@ export default {
 
       renamingDraft.value = true;
       try {
-        const success = tripProgressManager.renameDraft(currentRenamingDraftId.value, newDraftName.value.trim());
+        const success = await draftManager.renameDraft(currentRenamingDraftId.value, newDraftName.value.trim());
         if (success) {
           ElMessage.success('重命名成功！');
           renameDraftDialog.value = false;
@@ -841,10 +881,10 @@ export default {
 
     const handleCopyDraft = async (draftId) => {
       try {
-        const draft = tripProgressManager.getDraft(draftId);
+        const draft = await draftManager.getDraft(draftId);
         if (!draft) return;
 
-        const newDraftId = tripProgressManager.copyDraft(draftId);
+        const newDraftId = await draftManager.copyDraft(draftId);
         if (newDraftId) {
           ElMessage.success('草稿复制成功！');
           loadDrafts();
@@ -859,7 +899,7 @@ export default {
 
     const handleDeleteDraft = async (draftId) => {
       try {
-        const draft = tripProgressManager.getDraft(draftId);
+        const draft = await draftManager.getDraft(draftId);
         if (!draft) return;
 
         await ElMessageBox.confirm(
@@ -872,7 +912,7 @@ export default {
           }
         );
 
-        const success = tripProgressManager.deleteDraft(draftId);
+        const success = await draftManager.deleteDraft(draftId);
         if (success) {
           ElMessage.success('草稿删除成功！');
           loadDrafts();
@@ -901,7 +941,7 @@ export default {
           }
         );
 
-        const success = tripProgressManager.clearAllDrafts();
+        const success = await draftManager.clearAllDrafts();
         if (success) {
           ElMessage.success('所有草稿已清空！');
           loadDrafts();
@@ -929,12 +969,12 @@ export default {
 
     // 获取步骤名称
     const getStepName = (step) => {
-      return tripProgressManager.getStepName(step);
+      return draftManager.getStepName(step);
     };
 
     // 获取相对时间
     const getDraftTimeAgo = (timestamp) => {
-      return tripProgressManager.getTimeAgo(timestamp);
+      return draftManager.getTimeAgo(new Date(timestamp));
     };
 
     // 检查是否有直接加载草稿的请求
@@ -942,8 +982,13 @@ export default {
       const loadDraftId = route.query.loadDraft;
       if (loadDraftId) {
         try {
-          const draft = tripProgressManager.getDraft(loadDraftId);
+          const draft = await draftManager.getDraft(loadDraftId);
           if (draft) {
+            console.log('📂 开始加载草稿数据:', draft);
+            
+            // 设置草稿状态标识
+            isFromDraft.value = true;
+            
             // 直接加载草稿数据，不需要确认
             currentStep.value = draft.currentStep;
             Object.keys(baseForm).forEach(key => delete baseForm[key]);
@@ -955,6 +1000,16 @@ export default {
             extraRequirements.value = draft.extraRequirements || '';
             weatherSuggestion.value = draft.weatherSuggestion || null;
 
+            console.log('✅ 草稿数据加载完成，当前表单状态:', {
+              baseForm,
+              preferenceForm,
+              currentStep: currentStep.value,
+              isFromDraft: isFromDraft.value
+            });
+
+            // 等待下一个tick确保数据已经传递给子组件
+            await nextTick();
+            
             ElMessage.success(`已加载草稿：${draft.name}`);
             window.scrollTo({ top: 0, behavior: 'smooth' });
             
@@ -972,11 +1027,7 @@ export default {
       }
     };
 
-    // 组件挂载时加载草稿列表和处理直接加载
-    onMounted(async () => {
-      loadDrafts();
-      await handleDirectDraftLoad();
-    });
+    // 在主要的onMounted中已经处理了草稿加载逻辑，删除重复的挂载钩子
 
     return {
       t,
@@ -1028,6 +1079,7 @@ export default {
       handleCloseDraftList,
       getStepName,
       getDraftTimeAgo,
+      isFromDraft,
     };
   },
 };

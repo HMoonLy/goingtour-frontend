@@ -924,6 +924,11 @@ export default {
       type: Array,
       default: () => [],
     },
+    // 是否来自草稿
+    isFromDraft: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: [
     "update:preferenceForm",
@@ -941,6 +946,12 @@ export default {
 
     // 应用用户偏好默认值 - 更新为新的字段结构
     const applyUserPreferences = () => {
+      // 如果是从草稿恢复的数据，跳过用户偏好应用，保留草稿中的所有设置
+      if (props.isFromDraft) {
+        console.log('🔒 检测到草稿状态，跳过用户偏好自动应用，保留草稿设置');
+        return;
+      }
+
       if (
         props.userPreferences &&
         Object.keys(props.userPreferences).length > 0
@@ -1121,13 +1132,33 @@ export default {
     watch(
       () => props.preferenceForm,
       (newVal) => {
-        if (
-          JSON.stringify(newVal) !== JSON.stringify(localPreferenceForm.value)
-        ) {
+        if (newVal && typeof newVal === 'object') {
+          // 强制同步父组件数据，确保草稿加载时能正确显示
+          console.log('🔄 TripPreferences接收到新的preferenceForm数据:', newVal);
           localPreferenceForm.value = { ...newVal };
+          
+          // 确保数组字段被正确初始化
+          if (!localPreferenceForm.value.tripGoals) {
+            localPreferenceForm.value.tripGoals = [];
+          }
+          if (!localPreferenceForm.value.focusAreas) {
+            localPreferenceForm.value.focusAreas = [];
+          }
+          if (!localPreferenceForm.value.dietaryRestrictions) {
+            localPreferenceForm.value.dietaryRestrictions = [];
+          }
+          
+          console.log('✅ 本地数据已更新，当前选择状态:', {
+            tripGoals: localPreferenceForm.value.tripGoals,
+            focusAreas: localPreferenceForm.value.focusAreas,
+            pacePreference: localPreferenceForm.value.pacePreference,
+            socialPreference: localPreferenceForm.value.socialPreference,
+            photoPreference: localPreferenceForm.value.photoPreference,
+            dietaryRestrictions: localPreferenceForm.value.dietaryRestrictions
+          });
         }
       },
-      { deep: true }
+      { deep: true, immediate: true }
     );
 
     // 城市信息相关状态
@@ -2118,6 +2149,12 @@ export default {
 
     // 应用智能推荐 - 更新为新的字段结构
     const applySmartRecommendations = () => {
+      // 如果是从草稿恢复的数据，跳过智能推荐，保留草稿设置
+      if (props.isFromDraft) {
+        console.log('🔒 检测到草稿状态，跳过智能推荐，保留草稿设置');
+        return;
+      }
+
       console.log("🤖 应用智能推荐...");
 
       // 推荐体验重点（合并而不是覆盖）

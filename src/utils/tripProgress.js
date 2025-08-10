@@ -18,13 +18,19 @@ class TripProgressManager {
      */
     saveProgress(progressData) {
         try {
+            // 同时保存为临时进度和自动草稿
             const saveData = {
                 ...progressData,
                 timestamp: Date.now(),
                 version: '1.0' // 用于兼容性检查
             };
 
+            // 保存临时进度（保持向后兼容）
             localStorage.setItem(this.storageKey, JSON.stringify(saveData));
+            
+            // 同时保存或更新自动草稿
+            this.saveOrUpdateAutoDraft(progressData);
+
             console.log('💾 行程进度已保存:', {
                 step: progressData.currentStep,
                 destination: progressData.baseForm?.destinationName,
@@ -512,6 +518,135 @@ class TripProgressManager {
             destinations: [...new Set(drafts.map(d => d.baseForm?.destinationName).filter(Boolean))],
             storageUsed: localStorage.getItem(this.draftStorageKey)?.length || 0
         };
+    }
+
+    /**
+     * 保存或更新自动草稿
+     * @param {Object} progressData - 进度数据
+     * @returns {string|null} 自动草稿ID
+     */
+    saveOrUpdateAutoDraft(progressData) {
+        try {
+            // 检查是否已存在自动草稿
+            const existingAutoDraft = this.getAutoDraft();
+            const timestamp = Date.now();
+            
+            if (existingAutoDraft) {
+                // 更新现有自动草稿
+                const updatedDraft = {
+                    ...existingAutoDraft,
+                    ...progressData,
+                    updatedAt: timestamp,
+                    version: '1.0'
+                };
+                
+                const drafts = this.getAllDrafts();
+                const draftIndex = drafts.findIndex(d => d.id === existingAutoDraft.id);
+                
+                if (draftIndex !== -1) {
+                    drafts[draftIndex] = updatedDraft;
+                    localStorage.setItem(this.draftStorageKey, JSON.stringify(drafts));
+                    console.log('🔄 自动草稿已更新:', updatedDraft.id);
+                    return updatedDraft.id;
+                }
+            }
+            
+            // 创建新的自动草稿
+            const autoDraftId = `draft_auto_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            const newAutoDraft = {
+                id: autoDraftId,
+                name: `自动保存 - ${progressData.baseForm?.destinationName || '临时进度'}`,
+                ...progressData,
+                isDraft: true,
+                isAuto: true, // 标记为自动草稿
+                timestamp: timestamp,
+                createdAt: timestamp,
+                updatedAt: timestamp,
+                version: '1.0'
+            };
+
+            const drafts = this.getAllDrafts();
+            drafts.unshift(newAutoDraft); // 添加到开头
+
+            // 限制草稿数量
+            if (drafts.length > this.maxDrafts) {
+                drafts.sort((a, b) => b.timestamp - a.timestamp);
+                drafts.splice(this.maxDrafts);
+            }
+
+            localStorage.setItem(this.draftStorageKey, JSON.stringify(drafts));
+            console.log('📝 新自动草稿已创建:', autoDraftId);
+            return autoDraftId;
+        } catch (error) {
+            console.error('❌ 保存自动草稿失败:', error);
+            return null;
+        }
+    }
+
+    /**
+     * 获取自动草稿
+     * @returns {Object|null} 自动草稿数据
+     */
+    getAutoDraft() {
+        const drafts = this.getAllDrafts();
+        return drafts.find(draft => draft.isAuto === true) || null;
+    }
+
+    /**
+     * 检查是否有自动草稿（等同于原来的hasProgress）
+     * @returns {boolean}
+     */
+    hasAutoDraft() {
+        const autoDraft = this.getAutoDraft();
+        return autoDraft && this.isValidDraft(autoDraft);
+    }
+
+    /**
+     * 获取自动草稿摘要（等同于原来的getProgressSummary）
+     * @returns {Object|null} 自动草稿摘要
+     */
+    getAutoDraftSummary() {
+        const autoDraft = this.getAutoDraft();
+        if (!autoDraft) return null;
+
+        return {
+            step: autoDraft.currentStep,
+            stepName: this.getStepName(autoDraft.currentStep),
+            destination: autoDraft.baseForm?.destinationName || '未选择',
+            savedTime: new Date(autoDraft.updatedAt).toLocaleString(),
+            timeAgo: this.getTimeAgo(autoDraft.updatedAt)
+        };
+    }
+
+    /**
+     * 将临时进度迁移到自动草稿系统
+     * 用于平滑过渡和数据迁移
+     */
+    migrateProgressToAutoDraft() {
+        try {
+            const savedData = localStorage.getItem(this.storageKey);
+            if (!savedData) return false;
+
+            const progressData = JSON.parse(savedData);
+            if (!this.isValidProgress(progressData)) return false;
+
+            // 检查是否已有自动草稿
+            if (this.hasAutoDraft()) return false;
+
+            // 创建自动草稿
+            const autoDraftId = this.saveOrUpdateAutoDraft(progressData);
+            
+            if (autoDraftId) {
+                console.log('📦 临时进度已迁移到自动草稿:', autoDraftId);
+                // 保持临时进度以向后兼容，但优先使用草稿系统
+                return true;
+            }
+            
+            return false;
+        } catch (error) {
+            console.error('❌ 进度迁移失败:', error);
+            return false;
+        }
     }
 }
 

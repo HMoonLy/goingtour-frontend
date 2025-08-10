@@ -88,6 +88,8 @@
           v-for="trip in displayTrips"
           :key="trip.id"
           class="trip-card"
+          :class="{ 'draft-card': trip.isDraft }"
+          :data-auto-draft="trip.draftData?.isAuto || false"
           @click="viewTripDetail(trip)"
         >
           <div class="trip-header">
@@ -96,11 +98,17 @@
               <el-tag v-if="trip.aiGenerated" type="primary" size="small" class="ai-tag">
                 {{ t("personal.aiGenerated") }}
               </el-tag>
-              <el-tag :type="trip.status === 'draft' ? 'info' : 'success'" size="small">
+              <el-tag 
+                :type="trip.isDraft ? (trip.draftData?.isAuto ? 'info' : 'warning') : (trip.status === 'draft' ? 'info' : 'success')" 
+                size="small"
+                :effect="trip.isDraft ? 'plain' : 'dark'"
+              >
                 {{
-                  trip.status === "draft"
-                    ? t("personal.status.draft")
-                    : t("personal.status.completed")
+                  trip.isDraft
+                    ? (trip.draftData?.isAuto ? "自动保存" : "草稿")
+                    : (trip.status === "draft"
+                      ? t("personal.status.draft")
+                      : t("personal.status.completed"))
                 }}
               </el-tag>
             </div>
@@ -123,16 +131,40 @@
             </div>
           </div>
           <div class="trip-actions">
-            <el-button size="small" type="primary" plain @click.stop="editTrip(trip)">{{
-              t("common.edit")
-            }}</el-button>
-            <el-button
-              size="small"
-              type="danger"
-              plain
-              @click.stop="deleteTrip(trip.id)"
-              >{{ t("common.delete") }}</el-button
-            >
+            <template v-if="trip.isDraft">
+              <!-- 草稿操作 -->
+              <el-button 
+                size="small" 
+                type="primary" 
+                @click.stop="handleLoadDraft(trip.id)"
+              >
+                <el-icon><EditPen /></el-icon>
+                继续编辑
+              </el-button>
+              <el-button
+                size="small"
+                type="danger"
+                plain
+                @click.stop="deleteTrip(trip.id)"
+              >
+                <el-icon><Delete /></el-icon>
+                {{ t("common.delete") }}
+              </el-button>
+            </template>
+            <template v-else>
+              <!-- 真实行程操作 -->
+              <el-button size="small" type="primary" plain @click.stop="editTrip(trip)">
+                {{ t("common.edit") }}
+              </el-button>
+              <el-button
+                size="small"
+                type="danger"
+                plain
+                @click.stop="deleteTrip(trip.id)"
+              >
+                {{ t("common.delete") }}
+              </el-button>
+            </template>
           </div>
         </div>
       </div>
@@ -206,10 +238,12 @@ import {
   User,
   DocumentCopy,
   List,
+  EditPen,
+  Delete,
 } from "@element-plus/icons-vue";
 import { useUserStore } from "@/store/user.js";
 import { useI18n } from "@/utils/i18n.js";
-import { tripProgressManager } from "@/utils/tripProgress.js";
+import { draftManager } from "@/utils/draftManager.js";
 import { convertBackendTripToFrontend } from "@/utils/tripDataConverter.js";
 import { handleApiError, handleSuccess } from "@/utils/errorHandler.js";
 import { aiScenarios } from "@/data/aiScenarios.js";
@@ -242,9 +276,10 @@ export default {
       },
     ]);
 
-    const refreshProgress = () => {
-      hasProgress.value = tripProgressManager.hasProgress();
-      progressSummary.value = tripProgressManager.getProgressSummary() || {};
+    const refreshProgress = async () => {
+      // 检查是否有自动草稿（新的进度检查方式）
+      hasProgress.value = await draftManager.hasAutoDraft();
+      progressSummary.value = await draftManager.getAutoDraftSummary() || {};
     };
 
     // 草稿相关状态
@@ -252,15 +287,15 @@ export default {
     const draftStats = ref({});
 
     // 加载草稿列表
-    const loadDrafts = () => {
-      drafts.value = tripProgressManager.getAllDrafts();
-      draftStats.value = tripProgressManager.getDraftStats();
+    const loadDrafts = async () => {
+      drafts.value = await draftManager.getAllDrafts();
+      draftStats.value = await draftManager.getDraftStats();
     };
 
     // 删除草稿
     const handleDeleteDraft = async (draftId) => {
       try {
-        const draft = tripProgressManager.getDraft(draftId);
+        const draft = await draftManager.getDraft(draftId);
         if (!draft) return;
 
         await ElMessageBox.confirm(
@@ -273,7 +308,7 @@ export default {
           }
         );
 
-        const success = tripProgressManager.deleteDraft(draftId);
+        const success = await draftManager.deleteDraft(draftId);
         if (success) {
           ElMessage.success('草稿删除成功！');
           loadDrafts();
@@ -296,16 +331,24 @@ export default {
 
     // 获取步骤名称
     const getStepName = (step) => {
-      return tripProgressManager.getStepName(step);
+      return draftManager.getStepName(step);
     };
 
     // 获取相对时间
     const getDraftTimeAgo = (timestamp) => {
-      return tripProgressManager.getTimeAgo(timestamp);
+      return draftManager.getTimeAgo(new Date(timestamp));
     };
 
     const goToCreate = () => router.push("/destinations");
-    const resumeProgress = () => router.push("/trip/create");
+    const resumeProgress = async () => {
+      // 获取自动草稿并直接加载
+      const autoDraft = await draftManager.getAutoDraft();
+      if (autoDraft) {
+        router.push(`/trip/create?loadDraft=${autoDraft.id}`);
+      } else {
+        router.push("/trip/create");
+      }
+    };
     const discardProgress = async () => {
       try {
         await ElMessageBox.confirm(t("home.discardConfirm"), t("common.warning"), {
@@ -313,8 +356,15 @@ export default {
           cancelButtonText: t("common.cancel"),
           type: "warning",
         });
-        tripProgressManager.clearProgress();
+        
+        // 删除自动草稿
+        const autoDraft = await draftManager.getAutoDraft();
+        if (autoDraft) {
+          await draftManager.deleteDraft(autoDraft.id);
+        }
+        
         refreshProgress();
+        loadDrafts(); // 重新加载草稿列表
         ElMessage.success(t("messages.updateSuccess"));
       } catch {}
     };
@@ -416,6 +466,14 @@ export default {
 
     const deleteTrip = async (tripId) => {
       try {
+        // 检查是否是草稿
+        if (typeof tripId === 'string' && tripId.startsWith('draft_')) {
+          // 这是一个草稿，调用草稿删除方法
+          await handleDeleteDraft(tripId);
+          return;
+        }
+
+        // 这是一个真实行程，调用后端API
         await ElMessageBox.confirm(
           t("personal.dialog.deleteTripMessage"),
           t("personal.dialog.deleteTripTitle"),
@@ -446,8 +504,8 @@ export default {
         return;
       }
       await loadSavedTrips();
-      refreshProgress();
-      loadDrafts();
+      await refreshProgress();
+      await loadDrafts();
       // 天气速览：优先使用进度中的目的地，否则取最近行程的目的地
       let city =
         progressSummary.value?.destination || savedTrips.value[0]?.destinationName;
@@ -833,6 +891,37 @@ export default {
 .f-temp {
   font-size: 12px;
   color: #909399;
+}
+
+/* 草稿卡片样式 */
+.draft-card {
+  border: 2px dashed #e6a23c !important;
+  background: linear-gradient(135deg, #fdf6ec, #fefefe) !important;
+  position: relative;
+}
+
+/* 自动草稿特殊样式 */
+.trip-card[data-auto-draft="true"] {
+  border: 2px dashed #409eff !important;
+  background: linear-gradient(135deg, #ecf5ff, #fefefe) !important;
+}
+
+.draft-card::before {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  background: linear-gradient(135deg, #e6a23c, #f39c12);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 0 6px 0 8px;
+  z-index: 1;
+}
+
+.draft-card:hover {
+  border-color: #cf9236 !important;
+  box-shadow: 0 4px 12px rgba(230, 162, 60, 0.15) !important;
 }
 
 @media (max-width: 768px) {
