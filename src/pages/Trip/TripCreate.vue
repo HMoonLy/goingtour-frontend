@@ -329,7 +329,7 @@
 
 <script>
 import { ref, reactive, computed, onMounted, watch, onBeforeUnmount, nextTick } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { 
   Location, 
@@ -552,23 +552,23 @@ export default {
       { immediate: true }
     );
 
-    // 进度自动保存功能
-    const saveProgress = () => {
-      // 只有在有目的地信息时才保存
+    // 标记数据已更改
+    const markDataChanged = () => {
+      // 只有在有目的地信息时才标记更改
       if (!baseForm.destinationName) return;
 
       const progressData = {
         currentStep: currentStep.value,
-        baseForm: JSON.parse(JSON.stringify(baseForm)), // 使用JSON深拷贝确保数据完整性
-        preferenceForm: JSON.parse(JSON.stringify(preferenceForm)), // 使用JSON深拷贝确保数据完整性
+        baseForm: JSON.parse(JSON.stringify(baseForm)),
+        preferenceForm: JSON.parse(JSON.stringify(preferenceForm)),
         selectedAttractions: selectedAttractions.value,
         selectedRestaurants: selectedRestaurants.value,
         extraRequirements: extraRequirements.value,
         weatherSuggestion: weatherSuggestion.value
       };
       
-      // 使用新的防抖自动保存
-      draftManager.autoSave(progressData);
+      // 标记数据已更改
+      draftManager.markAsChanged(progressData);
     };
 
     // 恢复进度功能（基于新的草稿系统）
@@ -706,29 +706,43 @@ export default {
       }
     });
 
-    // 监听数据变化，自动保存进度
+    // 监听数据变化，标记为已更改
     watch([currentStep, baseForm, preferenceForm, selectedAttractions, selectedRestaurants, extraRequirements], 
       () => {
-        // 只有在有基本信息时才保存进度
+        // 只有在有基本信息时才标记更改
         if (baseForm.destinationName) {
-          saveProgress();
+          markDataChanged();
         }
       }, 
       { deep: true }
     );
 
-    // 成功保存行程后清除进度
+    // 成功保存行程后重置更改状态
     const originalHandleTripSaved = handleTripSaved;
     const enhancedHandleTripSaved = () => {
-      tripProgressManager.clearProgress();
+      draftManager.resetChangeState();
       originalHandleTripSaved();
     };
 
-    // 组件卸载时保存进度
-    onBeforeUnmount(() => {
-      if (baseForm.destinationName && currentStep.value < 3) {
-        saveProgress();
+    // 路由离开前确认
+    onBeforeRouteLeave(async (to, from) => {
+      if (generating.value) {
+        ElMessage.warning('行程正在生成中，请稍候...');
+        return false;
       }
+
+      const progressData = {
+        currentStep: currentStep.value,
+        baseForm: JSON.parse(JSON.stringify(baseForm)),
+        preferenceForm: JSON.parse(JSON.stringify(preferenceForm)),
+        selectedAttractions: selectedAttractions.value,
+        selectedRestaurants: selectedRestaurants.value,
+        extraRequirements: extraRequirements.value,
+        weatherSuggestion: weatherSuggestion.value
+      };
+
+      const canLeave = await draftManager.confirmBeforeExit(progressData);
+      return canLeave;
     });
 
     // 初始化草稿列表
@@ -754,9 +768,11 @@ export default {
         
         const draftId = await draftManager.saveDraft(progressData, draftName.value, false);
         if (draftId) {
+          draftManager.resetChangeState(); // 重置更改状态
           saveDraftDialog.value = false;
           draftName.value = '';
           await loadDrafts();
+          ElMessage.success('草稿保存成功！');
         }
       } catch (error) {
         console.error('保存草稿失败:', error);
@@ -789,21 +805,47 @@ export default {
         // 设置草稿状态标识
         isFromDraft.value = true;
         
-        // 加载草稿数据
-        currentStep.value = draft.currentStep;
-        Object.keys(baseForm).forEach(key => delete baseForm[key]);
-        Object.assign(baseForm, draft.baseForm);
-        Object.keys(preferenceForm).forEach(key => delete preferenceForm[key]);
-        Object.assign(preferenceForm, draft.preferenceForm);
+        // 安全地更新reactive对象数据
+        currentStep.value = draft.currentStep || 0;
+        
+        // 安全更新baseForm
+        if (draft.baseForm) {
+          Object.keys(baseForm).forEach(key => {
+            if (draft.baseForm.hasOwnProperty(key)) {
+              baseForm[key] = draft.baseForm[key];
+            }
+          });
+        }
+        
+        // 安全更新preferenceForm
+        if (draft.preferenceForm) {
+          Object.keys(preferenceForm).forEach(key => {
+            if (draft.preferenceForm.hasOwnProperty(key)) {
+              preferenceForm[key] = draft.preferenceForm[key];
+            }
+          });
+        }
+        
         selectedAttractions.value = draft.selectedAttractions || [];
         selectedRestaurants.value = draft.selectedRestaurants || [];
         extraRequirements.value = draft.extraRequirements || '';
         weatherSuggestion.value = draft.weatherSuggestion || null;
 
-        console.log('✅ 手动草稿加载完成，当前表单状态:', {
-          baseForm,
-          preferenceForm,
-          currentStep: currentStep.value,
+        console.log('✅ 手动草稿加载完成，对比数据:', {
+          '原始草稿数据': {
+            currentStep: draft.currentStep,
+            baseForm: draft.baseForm,
+            preferenceForm: draft.preferenceForm,
+            selectedAttractions: draft.selectedAttractions,
+            selectedRestaurants: draft.selectedRestaurants
+          },
+          '加载后表单状态': {
+            currentStep: currentStep.value,
+            baseForm: JSON.parse(JSON.stringify(baseForm)),
+            preferenceForm: JSON.parse(JSON.stringify(preferenceForm)),
+            selectedAttractions: selectedAttractions.value,
+            selectedRestaurants: selectedRestaurants.value
+          },
           isFromDraft: isFromDraft.value
         });
 
@@ -811,6 +853,7 @@ export default {
         await nextTick();
 
         ElMessage.success(`已加载草稿：${draft.name}`);
+        draftManager.resetChangeState(); // 加载草稿后重置更改状态
         showDraftList.value = false;
         await loadDrafts(); // 重新加载草稿列表
         window.scrollTo({ top: 0, behavior: 'smooth' });

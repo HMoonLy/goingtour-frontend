@@ -5,15 +5,14 @@
 
 import { draftApi } from '@/api/draft.js'
 import { useUserStore } from '@/store/user.js'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 class DraftManager {
   constructor() {
     this.currentDraft = null
     this.draftList = []
-    this.isAutoSaving = false
-    this.autoSaveTimer = null
-    this.autoSaveDelay = 2000 // 2秒防抖
+    this.hasUnsavedChanges = false
+    this.originalData = null
   }
 
   /**
@@ -67,13 +66,56 @@ class DraftManager {
 
     try {
       const response = await draftApi.getDraft(draftId, userId)
-      console.log('📂 获取草稿成功:', response.data?.name)
-      return response.data
+      const draft = response.data
+      
+      if (!draft) {
+        ElMessage.error('草稿不存在')
+        return null
+      }
+      
+      // 验证草稿数据完整性
+      if (!this.validateDraftData(draft)) {
+        console.warn('⚠️ 草稿数据不完整，可能导致加载问题:', draft)
+        ElMessage.warning('草稿数据可能不完整，请检查加载结果')
+      }
+      
+      console.log('📂 获取草稿成功:', draft.name)
+      console.log('📄 草稿详细数据:', {
+        id: draft.id,
+        name: draft.name,
+        currentStep: draft.currentStep,
+        baseForm: draft.baseForm,
+        preferenceForm: draft.preferenceForm,
+        hasAttractions: !!draft.selectedAttractions,
+        hasRestaurants: !!draft.selectedRestaurants
+      })
+      
+      return draft
     } catch (error) {
       console.error('❌ 获取草稿失败:', error)
-      ElMessage.error('获取草稿失败')
+      ElMessage.error('获取草稿失败: ' + error.message)
       return null
     }
+  }
+
+  /**
+   * 验证草稿数据完整性
+   * @param {Object} draft - 草稿数据
+   * @returns {boolean} 数据是否有效
+   */
+  validateDraftData(draft) {
+    if (!draft) return false
+    
+    // 检查必要字段
+    if (typeof draft.currentStep !== 'number') return false
+    if (!draft.baseForm || typeof draft.baseForm !== 'object') return false
+    if (!draft.preferenceForm || typeof draft.preferenceForm !== 'object') return false
+    
+    // 检查baseForm必要字段
+    const baseForm = draft.baseForm
+    if (!baseForm.destinationName && !baseForm.destination) return false
+    
+    return true
   }
 
   /**
@@ -251,51 +293,124 @@ class DraftManager {
   }
 
   /**
-   * 自动保存（防抖）
-   * @param {Object} draftData - 草稿数据
+   * 标记数据已更改
+   * @param {Object} draftData - 当前草稿数据
    */
-  autoSave(draftData) {
-    // 清除之前的定时器
-    if (this.autoSaveTimer) {
-      clearTimeout(this.autoSaveTimer)
+  markAsChanged(draftData) {
+    this.hasUnsavedChanges = true
+    
+    // 如果没有原始数据，保存当前作为原始数据
+    if (!this.originalData) {
+      this.originalData = JSON.parse(JSON.stringify(draftData))
     }
-
-    // 设置新的定时器
-    this.autoSaveTimer = setTimeout(async () => {
-      if (!this.isAutoSaving) {
-        this.isAutoSaving = true
-        try {
-          await this.saveOrUpdateAutoDraft(draftData)
-        } finally {
-          this.isAutoSaving = false
-        }
-      }
-    }, this.autoSaveDelay)
   }
 
   /**
-   * 保存或更新自动草稿
-   * @param {Object} draftData - 草稿数据
-   * @returns {Promise<number|null>} 草稿ID
+   * 重置更改状态
    */
-  async saveOrUpdateAutoDraft(draftData) {
-    const userId = this.validateUser()
-    if (!userId) return null
+  resetChangeState() {
+    this.hasUnsavedChanges = false
+    this.originalData = null
+  }
+
+  /**
+   * 检查是否有未保存的更改
+   * @returns {boolean} 是否有未保存的更改
+   */
+  checkUnsavedChanges() {
+    return this.hasUnsavedChanges
+  }
+
+  /**
+   * 退出前询问是否保存
+   * @param {Object} draftData - 当前草稿数据
+   * @returns {Promise<boolean>} 是否可以退出
+   */
+  async confirmBeforeExit(draftData) {
+    if (!this.hasUnsavedChanges) {
+      return true
+    }
 
     try {
-      const response = await draftApi.getOrCreateAutoDraft(userId, draftData)
-      const draftId = response.data?.id
-      
-      if (draftId) {
-        console.log('🔄 自动草稿已更新:', draftId)
-        return draftId
+      const action = await ElMessageBox.confirm(
+        '您有未保存的行程数据，是否要保存为草稿？',
+        '提示',
+        {
+          confirmButtonText: '保存草稿',
+          cancelButtonText: '不保存',
+          type: 'warning',
+          showClose: true,
+          closeOnClickModal: false,
+          closeOnPressEscape: false
+        }
+      )
+
+      if (action === 'confirm') {
+        // 用户选择保存
+        const saved = await this.showSaveDraftDialog(draftData)
+        return saved // 只有成功保存才允许退出
       }
       
-      return null
+      // 用户选择不保存，直接退出
+      return true
     } catch (error) {
-      console.error('❌ 自动保存失败:', error)
-      return null
+      // 用户点击了关闭或取消，不退出
+      return false
     }
+  }
+
+  /**
+   * 显示保存草稿对话框
+   * @param {Object} draftData - 草稿数据
+   * @returns {Promise<boolean>} 是否保存成功
+   */
+  async showSaveDraftDialog(draftData) {
+    try {
+      const { value: draftName } = await ElMessageBox.prompt(
+        '请输入草稿名称：',
+        '保存草稿',
+        {
+          confirmButtonText: '保存',
+          cancelButtonText: '取消',
+          inputValue: this.generateDraftName(draftData),
+          inputValidator: (value) => {
+            if (!value || value.trim().length === 0) {
+              return '草稿名称不能为空'
+            }
+            if (value.trim().length > 50) {
+              return '草稿名称不能超过50个字符'
+            }
+            return true
+          }
+        }
+      )
+
+      if (draftName && draftName.trim()) {
+        const draftId = await this.saveDraft(draftData, draftName.trim())
+        if (draftId) {
+          this.resetChangeState()
+          ElMessage.success('草稿保存成功')
+          return true
+        }
+      }
+      return false
+    } catch (error) {
+      console.log('用户取消了保存操作')
+      return false
+    }
+  }
+
+  /**
+   * 生成默认草稿名称
+   * @param {Object} draftData - 草稿数据
+   * @returns {string} 草稿名称
+   */
+  generateDraftName(draftData) {
+    const destination = draftData.baseForm?.destinationName || draftData.baseForm?.destination || '未知目的地'
+    const days = draftData.baseForm?.days || 0
+    const today = new Date().toLocaleDateString('zh-CN')
+    
+    return `${destination}${days > 0 ? days + '日' : ''}行程 - ${today}`
   }
 
   /**
@@ -459,12 +574,9 @@ class DraftManager {
    * 销毁管理器，清理定时器
    */
   destroy() {
-    if (this.autoSaveTimer) {
-      clearTimeout(this.autoSaveTimer)
-      this.autoSaveTimer = null
-    }
     this.currentDraft = null
     this.draftList = []
+    this.resetChangeState()
   }
 }
 

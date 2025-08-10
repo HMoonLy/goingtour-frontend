@@ -1,7 +1,7 @@
 /**
  * 行程草稿相关API接口
  */
-import { apiClient } from './base.js'
+import { http } from './request.js'
 
 export const draftApi = {
   /**
@@ -10,7 +10,7 @@ export const draftApi = {
    * @returns {Promise} 草稿列表
    */
   getUserDrafts(userId) {
-    return apiClient.get(`/api/drafts/user/${userId}`)
+    return http.get(`/drafts/user/${userId}`)
   },
 
   /**
@@ -20,9 +20,7 @@ export const draftApi = {
    * @returns {Promise} 草稿详情
    */
   getDraft(draftId, userId) {
-    return apiClient.get(`/api/drafts/${draftId}`, {
-      params: { userId }
-    })
+    return http.get(`/drafts/${draftId}`, { params: { userId } })
   },
 
   /**
@@ -32,9 +30,7 @@ export const draftApi = {
    */
   createDraft(draftData) {
     const { userId, ...requestBody } = draftData;
-    return apiClient.post('/api/drafts', requestBody, {
-      params: { userId }
-    })
+    return http.post('/drafts', requestBody, { params: { userId } })
   },
 
   /**
@@ -45,9 +41,7 @@ export const draftApi = {
    */
   updateDraft(draftId, draftData) {
     const { userId, ...requestBody } = draftData;
-    return apiClient.put(`/api/drafts/${draftId}`, requestBody, {
-      params: { userId }
-    })
+    return http.put(`/drafts/${draftId}`, requestBody, { params: { userId } })
   },
 
   /**
@@ -57,9 +51,7 @@ export const draftApi = {
    * @returns {Promise} 删除结果
    */
   deleteDraft(draftId, userId) {
-    return apiClient.delete(`/api/drafts/${draftId}`, {
-      params: { userId }
-    })
+    return http.delete(`/drafts/${draftId}`, { params: { userId } })
   },
 
   /**
@@ -70,11 +62,9 @@ export const draftApi = {
    * @returns {Promise} 重命名结果
    */
   renameDraft(draftId, newName, userId) {
-    return apiClient.patch(`/api/drafts/${draftId}/rename`, {
+    return http.put(`/drafts/${draftId}/rename`, {
       name: newName
-    }, {
-      params: { userId }
-    })
+    }, { params: { userId } })
   },
 
   /**
@@ -85,9 +75,7 @@ export const draftApi = {
    * @returns {Promise} 复制结果
    */
   copyDraft(draftId, newName, userId) {
-    return apiClient.post(`/api/drafts/${draftId}/copy`, null, {
-      params: { userId, newName }
-    })
+    return http.post(`/drafts/${draftId}/copy`, {}, { params: { userId, newName } })
   },
 
   /**
@@ -98,9 +86,7 @@ export const draftApi = {
    * @returns {Promise} 自动草稿
    */
   getOrCreateAutoDraft(userId, draftData) {
-    return apiClient.post('/api/drafts/auto', draftData, {
-      params: { userId }
-    })
+    return http.post('/drafts/auto', draftData, { params: { userId } })
   },
 
   /**
@@ -110,9 +96,7 @@ export const draftApi = {
    * @returns {Promise} 更新结果
    */
   updateAutoDraft(userId, draftData) {
-    return apiClient.put('/api/drafts/auto', draftData, {
-      params: { userId }
-    })
+    return http.put('/drafts/auto', draftData, { params: { userId } })
   },
 
   /**
@@ -121,7 +105,7 @@ export const draftApi = {
    * @returns {Promise} 统计信息
    */
   getDraftStats(userId) {
-    return apiClient.get(`/api/drafts/user/${userId}/stats`)
+    return http.get(`/drafts/user/${userId}/stats`)
   },
 
   /**
@@ -131,7 +115,7 @@ export const draftApi = {
    * @returns {Promise} 删除结果
    */
   batchDeleteDrafts(draftIds, userId) {
-    return apiClient.delete('/api/drafts/batch', {
+    return http.delete('/drafts/batch', {
       params: { userId },
       data: { draftIds }
     })
@@ -143,6 +127,6 @@ export const draftApi = {
    * @returns {Promise} 清理结果
    */
   cleanupExpiredDrafts(userId) {
-    return apiClient.post(`/api/drafts/user/${userId}/cleanup`)
+    return http.post(`/drafts/user/${userId}/cleanup`)
   }
 }

@@ -4,7 +4,9 @@
       "Bash(npm run lint)",
       "Bash(rm:*)",
       "Bash(mkdir:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(curl -X GET \"http://localhost:8080/api/drafts/user/1/stats\")",
+      "Bash(curl -X GET \"http://localhost:8080/api/drafts/1\" -G -d \"userId=1\")"
     ],
     "deny": []
   }
