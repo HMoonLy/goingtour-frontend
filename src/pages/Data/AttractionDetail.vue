@@ -1,33 +1,32 @@
 <template>
   <div class="attraction-detail-page">
     <div class="page-header">
-      <h1>{{ t('attraction.title') }}</h1>
-      <p>{{ t('attraction.subtitle') }}</p>
+      <h1>景点详情</h1>
+      <p>了解景点详细信息，添加到您的行程中</p>
     </div>
 
     <div class="coming-soon-card">
-      <el-icon
-size="64" color="#409EFF"
->
+      <el-icon size="64" color="#409EFF">
         <Camera />
       </el-icon>
-      <h3>{{ t('attraction.comingTitle') }}</h3>
-      <p>{{ t('attraction.comingDesc') }}</p>
+      <h3>景点详情功能开发中</h3>
+      <p>我们正在努力完善景点详情功能，包括：</p>
       <ul class="feature-list">
-        <li>{{ t('attraction.features.intro') }}</li>
-        <li>{{ t('attraction.features.hours') }}</li>
-        <li>{{ t('attraction.features.ticket') }}</li>
-        <li>{{ t('attraction.features.reviews') }}</li>
-        <li>{{ t('attraction.features.add') }}</li>
+        <li>景点详细介绍</li>
+        <li>开放时间信息</li>
+        <li>门票价格</li>
+        <li>用户评价</li>
+        <li>添加到行程</li>
       </ul>
-      <p class="stay-tuned">{{ t('attraction.stayTuned') }}</p>
+      <p class="stay-tuned">
+        敬请期待！
+      </p>
     </div>
   </div>
 </template>
 
 <script>
 import { Camera } from "@element-plus/icons-vue";
-import { useI18n } from "@/utils/i18n.js";
 
 export default {
   name: "AttractionDetail",
@@ -35,8 +34,6 @@ export default {
     Camera,
   },
   setup() {
-    const { t } = useI18n();
-    return { t };
   },
 };
 </script>

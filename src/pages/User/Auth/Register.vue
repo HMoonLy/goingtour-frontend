@@ -6,56 +6,62 @@
         <!-- Logo和品牌名 -->
         <div class="brand-header">
           <div class="brand-logo">
-            <el-icon size="60" color="#ffffff">
+            <el-icon size="60"
+color="#ffffff">
               <MapLocation />
             </el-icon>
           </div>
           <h1 class="brand-title">GoingTour</h1>
-          <p class="brand-subtitle">{{ t('brand.tagline') }}</p>
+          <p class="brand-subtitle">
+            智能旅行规划专家
+          </p>
         </div>
 
         <!-- 注册页面特有的展示内容 -->
         <div class="features">
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32" color="#ffffff">
+              <el-icon size="32"
+color="#ffffff">
                 <UserFilled />
               </el-icon>
             </div>
             <div class="feature-text">
-              <h3>{{ t('auth.register') }}</h3>
-              <p>{{ t('personal.createTripDesc') }}</p>
+              <h3>注册</h3>
+              <p>创建您的专属旅行计划</p>
             </div>
           </div>
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32" color="#ffffff">
+              <el-icon size="32"
+color="#ffffff">
                 <Setting />
               </el-icon>
             </div>
             <div class="feature-text">
-              <h3>{{ t('settings.preferences') }}</h3>
-              <p>{{ t('personal.preferencesDesc') }}</p>
+              <h3>个性化设置</h3>
+              <p>根据您的喜好定制旅行方案</p>
             </div>
           </div>
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32" color="#ffffff">
+              <el-icon size="32"
+color="#ffffff">
                 <Star />
               </el-icon>
             </div>
             <div class="feature-text">
-              <h3>{{ t('brand.features.smartPlanning.title') }}</h3>
-              <p>{{ t('brand.features.smartPlanning.desc') }}</p>
+              <h3>智能规划</h3>
+              <p>AI算法帮您制定最佳行程</p>
             </div>
           </div>
         </div>
 
         <!-- 底部装饰 -->
         <div class="brand-footer">
-          <p>&copy; 2024 GoingTour. {{ t('brand.copyright') }}</p>
+          <p>&copy; 2024 GoingTour. 版权所有</p>
         </div>
       </div>
     </div>
@@ -65,8 +71,12 @@
       <div class="form-container">
         <!-- 表单头部 -->
         <div class="form-header">
-          <h2 class="form-title">{{ t('auth.register') }}</h2>
-          <p class="form-subtitle">{{ t('brand.tagline') }}</p>
+          <h2 class="form-title">
+            注册
+          </h2>
+          <p class="form-subtitle">
+            智能旅行规划专家
+          </p>
         </div>
 
         <!-- 注册表单 -->
@@ -79,11 +89,12 @@
           @submit.prevent="handleRegister"
         >
           <!-- 邮箱输入 -->
-          <el-form-item prop="email" class="form-item">
-            <label class="form-label">{{ t('auth.email') }}</label>
+          <el-form-item prop="email"
+class="form-item">
+            <label class="form-label">邮箱</label>
             <el-input
               v-model="registerForm.email"
-              :placeholder="t('auth.email')"
+              :placeholder="邮箱"
               clearable
               class="form-input"
               @input="handleEmailInput"
@@ -95,12 +106,13 @@
           </el-form-item>
 
           <!-- 验证码输入 -->
-          <el-form-item prop="code" class="form-item code-form-item">
-            <label class="form-label">{{ t('auth.verificationCode') }}</label>
+          <el-form-item prop="code"
+class="form-item code-form-item">
+            <label class="form-label">验证码</label>
             <div class="code-input-group">
               <el-input
                 v-model="registerForm.code"
-                :placeholder="t('auth.verificationCode')"
+                :placeholder="验证码"
                 clearable
                 maxlength="6"
                 class="form-input"
@@ -120,17 +132,23 @@
                 plain
                 @click="sendVerificationCode"
               >
-                {{ countdown > 0 ? t('auth.resendIn', { s: countdown }) : t('auth.sendCode') }}
+                {{
+                  countdown > 0
+                    ? `${countdown}秒后重发`
+                    : "发送验证码"
+                }}
               </el-button>
             </div>
           </el-form-item>
 
           <!-- 昵称输入（可选） -->
-          <el-form-item prop="nickname" class="form-item">
-            <label class="form-label">{{ t('auth.nickname') }} <span class="optional">({{ t('common.optional') }})</span></label>
+          <el-form-item prop="nickname"
+class="form-item">
+            <label class="form-label">昵称
+              <span class="optional">(可选)</span></label>
             <el-input
               v-model="registerForm.nickname"
-              :placeholder="t('auth.nickname')"
+              :placeholder="昵称"
               clearable
               maxlength="20"
               class="form-input"
@@ -142,18 +160,19 @@
           </el-form-item>
 
           <!-- 用户协议确认 -->
-          <el-form-item prop="agreement" class="form-item agreement-item">
+          <el-form-item prop="agreement"
+class="form-item agreement-item">
             <el-checkbox
               v-model="registerForm.agreement"
               class="agreement-checkbox"
             >
-              {{ t('common.info') }}
+              我已阅读并同意
               <el-link
                 type="primary"
                 :underline="false"
                 @click="showUserAgreement"
               >
-                {{ t('auth.userAgreement') }}
+                用户协议
               </el-link>
               和
               <el-link
@@ -161,7 +180,7 @@
                 :underline="false"
                 @click="showPrivacyPolicy"
               >
-                {{ t('auth.privacyPolicy') }}
+                隐私政策
               </el-link>
             </el-checkbox>
           </el-form-item>
@@ -178,14 +197,16 @@
               <el-icon v-if="!registering">
                 <UserFilled />
               </el-icon>
-              {{ registering ? t('auth.registering') : t('auth.register') }}
+              {{ registering ? "注册中..." : "注册" }}
             </el-button>
           </el-form-item>
 
           <!-- 其他注册方式 -->
           <div class="other-register">
             <el-divider>
-              <span class="divider-text">{{ t('auth.otherRegisterMethods') }}</span>
+              <span class="divider-text">{{
+                "其他注册方式"
+              }}</span>
             </el-divider>
 
             <div class="social-register">
@@ -216,14 +237,14 @@
 
           <!-- 登录链接 -->
           <div class="login-section">
-            <span class="login-text">{{ t('auth.hasAccount') }}</span>
+            <span class="login-text">已有账户？</span>
             <el-link
               type="primary"
               :underline="false"
               class="login-link"
               @click="goToLogin"
             >
-              {{ t('auth.goToLogin') }}
+              立即登录
             </el-link>
           </div>
         </el-form>
@@ -236,7 +257,6 @@
 import { ref, reactive, computed, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/user";
-import { useI18n } from "@/utils/i18n.js";
 import { ElMessage, ElNotification, ElMessageBox } from "element-plus";
 import {
   MapLocation,
@@ -264,7 +284,6 @@ export default {
   setup() {
     const router = useRouter();
     const userStore = useUserStore();
-    const { t } = useI18n();
 
     // 表单引用
     const registerFormRef = ref();
@@ -341,7 +360,7 @@ export default {
     // 发送验证码
     const sendVerificationCode = async () => {
       if (!canSendCode.value) {
-        ElMessage.warning(t('validation.email'));
+        ElMessage.warning("请输入正确的邮箱地址");
         return;
       }
 
@@ -350,12 +369,12 @@ export default {
 
         await userStore.sendVerificationCode(registerForm.email, "register");
 
-        ElMessage.success(t('auth.codeResent'));
+        ElMessage.success("验证码已发送");
 
         // 开始倒计时
         startCountdown(60);
       } catch (error) {
-        ElMessage.error(error.message || t('messages.operationFailed'));
+        ElMessage.error(error.message || "操作失败");
       } finally {
         sendingCode.value = false;
       }
@@ -385,16 +404,16 @@ export default {
         const user = await userStore.register(
           registerForm.email,
           registerForm.code,
-          registerForm.nickname || undefined
+          registerForm.nickname || undefined,
         );
 
         ElNotification({
-          title: t('auth.registerSuccess'),
-          message: t('auth.welcomeBack', { name: user.nickname }),
+          title: "注册成功",
+          message: `欢迎加入，${user.nickname}！`,
           type: "success",
           duration: 3000,
         });
-        ElMessage.success(t('auth.registerSuccess'));
+        ElMessage.success("注册成功");
 
         // 注册成功后自动登录并跳转
         setTimeout(() => {
@@ -425,7 +444,7 @@ export default {
         {
           confirmButtonText: "我知道了",
           dangerouslyUseHTMLString: true,
-        }
+        },
       );
     };
 
@@ -446,7 +465,7 @@ export default {
         {
           confirmButtonText: "我知道了",
           dangerouslyUseHTMLString: true,
-        }
+        },
       );
     };
 
@@ -502,7 +521,6 @@ export default {
 </script>
 
 <style scoped>
-
 .register-page {
   position: fixed !important;
   top: 0 !important;
@@ -534,13 +552,17 @@ export default {
 }
 
 .register-brand::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -50%;
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.1) 1px,
+    transparent 1px
+  );
   background-size: 50px 50px;
   animation: float-dots 20s linear infinite;
 }
@@ -712,7 +734,6 @@ export default {
 
 .form-header {
   text-align: center;
-
 }
 
 .form-title {
@@ -734,7 +755,6 @@ export default {
   font-size: 14px;
   font-weight: 500;
   color: #606266;
-
 }
 
 .optional {
@@ -763,7 +783,9 @@ export default {
 .form-input :deep(.el-input.is-focus .el-input__wrapper) {
   border-color: #667eea;
   background: rgba(255, 255, 255, 1);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1), 0 4px 16px rgba(102, 126, 234, 0.15);
+  box-shadow:
+    0 0 0 3px rgba(102, 126, 234, 0.1),
+    0 4px 16px rgba(102, 126, 234, 0.15);
   transform: translateY(-2px);
 }
 
@@ -785,20 +807,17 @@ export default {
   font-weight: 500;
   white-space: nowrap;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background:#0070f8;
+  background: #0070f8;
   border: none;
   color: white;
 }
 
-
 .send-code-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  
 }
 
 .agreement-item {
-
 }
 
 .agreement-checkbox {
@@ -831,7 +850,12 @@ export default {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
   transition: left 0.5s;
 }
 
@@ -876,7 +900,7 @@ export default {
 }
 
 .social-btn::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;
@@ -948,11 +972,11 @@ export default {
   .register-brand {
     padding: 30px;
   }
-  
+
   .brand-title {
     font-size: 48px;
   }
-  
+
   .register-form-section {
     flex: 0 0 500px;
   }
@@ -964,25 +988,25 @@ export default {
     height: auto;
     min-height: calc(100vh - 64px);
   }
-  
+
   .register-brand {
     flex: 0 0 35vh;
     min-height: 280px;
     padding: 20px;
   }
-  
+
   .brand-title {
     font-size: 36px;
   }
-  
+
   .brand-subtitle {
     font-size: 16px;
   }
-  
+
   .features {
     display: none;
   }
-  
+
   .register-form-section {
     flex: 1;
     min-height: 65vh;
@@ -996,37 +1020,37 @@ export default {
     min-height: 200px;
     padding: 15px;
   }
-  
+
   .brand-title {
     font-size: 28px;
     letter-spacing: 1px;
   }
-  
+
   .brand-subtitle {
     font-size: 14px;
   }
-  
+
   .form-container {
     max-width: 320px;
   }
-  
+
   .form-title {
     font-size: 24px;
   }
-  
+
   .form-subtitle {
     font-size: 14px;
   }
-  
+
   .code-input-group {
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .send-code-btn {
     width: 100%;
   }
-  
+
   .agreement-checkbox :deep(.el-checkbox__label) {
     font-size: 12px;
   }
@@ -1037,45 +1061,45 @@ export default {
     top: 0 !important;
     height: 100vh !important;
   }
-  
+
   .register-brand {
     flex: 0 0 20vh;
     min-height: 150px;
     padding: 10px;
   }
-  
+
   .brand-header {
     margin-bottom: 15px;
   }
-  
+
   .brand-title {
     font-size: 24px;
   }
-  
+
   .brand-subtitle {
     font-size: 12px;
   }
-  
+
   .form-container {
     max-width: 280px;
   }
-  
+
   .form-header {
     margin-bottom: 30px;
   }
-  
+
   .form-title {
     font-size: 20px;
   }
-  
+
   .form-item {
     margin-bottom: 20px;
   }
-  
+
   .social-register {
     gap: 12px;
   }
-  
+
   .social-btn {
     width: 44px;
     height: 44px;
@@ -1095,7 +1119,7 @@ export default {
   .form-input :deep(.el-input__wrapper) {
     border-width: 3px;
   }
-  
+
   .register-btn {
     border: 2px solid #333;
   }

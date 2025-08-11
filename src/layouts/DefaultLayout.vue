@@ -3,9 +3,7 @@
     <!-- 顶部导航栏 -->
     <header class="layout-header">
       <div class="header-container">
-        <div
-          class="header-logo" @click="$router.push('/home')"
-        >
+        <div class="header-logo" @click="$router.push('/home')">
           <h2>GoingTour</h2>
         </div>
 
@@ -17,7 +15,7 @@
               @click="$router.push('/home')"
             >
               <el-icon><MapLocation /></el-icon>
-              <span>{{ t('nav.home') }}</span>
+              <span>{{ "首页" }}</span>
             </div>
             <div
               class="nav-item"
@@ -25,7 +23,7 @@
               @click="$router.push('/destinations')"
             >
               <el-icon><MapLocation /></el-icon>
-              <span>{{ t('trip.destination') }}</span>
+              <span>{{ "目的地" }}</span>
             </div>
             <div
               class="nav-item"
@@ -33,7 +31,7 @@
               @click="$router.push('/trip/create')"
             >
               <el-icon><Calendar /></el-icon>
-              <span>{{ t('trip.createTrip') }}</span>
+              <span>{{ "创建行程" }}</span>
             </div>
           </div>
         </nav>
@@ -41,11 +39,10 @@
         <div class="header-user">
           <el-dropdown @command="handleUserCommand">
             <div class="user-info">
-              <el-avatar
-:src="userStore.avatar" :size="32"
->
-                <img
-src="../assets/images/default-avatar.jpg" alt="avatar" />
+              <el-avatar :src="userStore.avatar" :size="32">
+                <img src="../assets/images/default-avatar.jpg"
+alt="avatar"
+/>
               </el-avatar>
               <span class="username">{{ userStore.nickname }}</span>
               <el-icon class="dropdown-icon">
@@ -55,15 +52,13 @@ src="../assets/images/default-avatar.jpg" alt="avatar" />
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item command="personal">
-                  <el-icon><User /></el-icon>{{ t('nav.profile') }}
+                  <el-icon><User /></el-icon>{{ "个人资料" }}
                 </el-dropdown-item>
                 <el-dropdown-item command="preferences">
-                  <el-icon><Setting /></el-icon>{{ t('nav.settings') }}
+                  <el-icon><Setting /></el-icon>{{ "设置" }}
                 </el-dropdown-item>
-                <el-dropdown-item
-divided command="logout"
->
-                  <el-icon><SwitchButton /></el-icon>{{ t('nav.logout') }}
+                <el-dropdown-item divided command="logout">
+                  <el-icon><SwitchButton /></el-icon>{{ "退出登录" }}
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -92,7 +87,6 @@ import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useUserStore } from "@/store/user.js";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { useI18n } from "@/utils/i18n.js";
 import {
   MapLocation,
   Calendar,
@@ -116,12 +110,11 @@ export default {
     const route = useRoute();
     const router = useRouter();
     const userStore = useUserStore();
-    const { t } = useI18n();
 
     // 当前激活的菜单项
     const activeMenu = computed(() => {
       const path = route.path;
-      if (path === '/' || path.startsWith('/home')) return '/home';
+      if (path === "/" || path.startsWith("/home")) return "/home";
       if (path.startsWith("/destinations")) return "/destinations";
       if (path.startsWith("/trip/create")) return "/trip/create";
       // 其他页面不激活任何主导航菜单项
@@ -137,22 +130,30 @@ export default {
 
     // 检查是否是TripDetail页面
     const isTripDetailPage = computed(() => {
-      return route.path.startsWith("/trip/") && route.params.id && !route.path.includes("/ai-trip/");
+      return (
+        route.path.startsWith("/trip/") &&
+        route.params.id &&
+        !route.path.includes("/ai-trip/")
+      );
     });
 
     // 处理用户命令
     const handleUserCommand = async (command) => {
       if (command === "logout") {
         try {
-          await ElMessageBox.confirm(t('messages.confirmLogout'), t('common.warning'), {
-            confirmButtonText: t('common.confirm'),
-            cancelButtonText: t('common.cancel'),
-            type: "warning",
-          });
+          await ElMessageBox.confirm(
+            "确定要退出登录吗？",
+            "警告",
+            {
+              confirmButtonText: "确定",
+              cancelButtonText: "取消",
+              type: "warning",
+            },
+          );
 
           // 执行退出登录
           userStore.logout();
-          ElMessage.success(t('messages.updateSuccess'));
+          ElMessage.success("退出成功");
 
           // 跳转到登录页
           router.push("/login");
@@ -173,13 +174,12 @@ export default {
       userStore,
       handleUserCommand,
       isTripDetailPage,
-      t,
     };
   },
 };
 </script>
 
-  <style scoped>
+<style scoped>
 .default-layout {
   min-height: 100vh;
   display: flex;
@@ -277,7 +277,9 @@ export default {
 }
 
 /* 桌面端隐藏顶部导航的图标，仅保留文字（scoped 下需要深度选择器） */
-.header-nav :deep(.nav-item .el-icon) { display: none; }
+.header-nav :deep(.nav-item .el-icon) {
+  display: none;
+}
 
 /* 用户信息区域 */
 .header-user {
@@ -403,7 +405,9 @@ export default {
   }
 
   /* 移动端显示图标，配合更紧凑的文字 */
-  .header-nav :deep(.nav-item .el-icon) { display: inline-flex; }
+  .header-nav :deep(.nav-item .el-icon) {
+    display: inline-flex;
+  }
 
   .layout-main {
     min-height: calc(100vh - 56px); /* 移动端导航栏可能更矮 */

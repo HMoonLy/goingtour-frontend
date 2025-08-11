@@ -1,10 +1,13 @@
 <template>
   <div class="profile-page">
     <div class="profile-header">
-      <el-avatar :src="userStore.avatar" :size="72" />
+      <el-avatar :src="userStore.avatar"
+:size="72" />
       <div class="profile-basic">
         <h2>{{ userStore.nickname }}</h2>
-        <p class="email" v-if="userStore.email">{{ userStore.email }}</p>
+        <p v-if="userStore.email" class="email">
+          {{ userStore.email }}
+        </p>
       </div>
     </div>
 
@@ -12,33 +15,40 @@
 
     <el-card class="quick-nav">
       <div class="grid">
-        <div class="grid-item" @click="openSecurity()">
+        <div class="grid-item"
+@click="openSecurity()">
           <el-icon><Lock /></el-icon>
-          <span class="title">{{ t("settings.securitySettings") }}</span>
+          <span class="title">安全设置</span>
         </div>
-        <div class="grid-item" @click="openPreferences()">
+        <div class="grid-item"
+@click="openPreferences()">
           <el-icon><Setting /></el-icon>
-          <span class="title">{{ t("settings.preferences") }}</span>
+          <span class="title">个性化设置</span>
         </div>
-        <div class="grid-item" @click="openNotifications()">
+        <div class="grid-item"
+@click="openNotifications()">
           <el-icon><Bell /></el-icon>
-          <span class="title">{{ t("settings.notifications") }}</span>
+          <span class="title">通知设置</span>
         </div>
-        <div class="grid-item" @click="openSystem()">
+        <div class="grid-item"
+@click="openSystem()">
           <el-icon><Cpu /></el-icon>
-          <span class="title">{{ t("settings.systemSettings") }}</span>
+          <span class="title">系统设置</span>
         </div>
-        <div class="grid-item" @click="openHistory()">
+        <div class="grid-item"
+@click="openHistory()">
           <el-icon><Timer /></el-icon>
-          <span class="title">{{ t("settings.loginHistory") }}</span>
+          <span class="title">登录历史</span>
         </div>
-        <div class="grid-item" @click="openData()">
+        <div class="grid-item"
+@click="openData()">
           <el-icon><Document /></el-icon>
-          <span class="title">{{ t("settings.privacySettings") }}</span>
+          <span class="title">隐私设置</span>
         </div>
-        <div class="grid-item danger" @click="openDanger()">
+        <div class="grid-item danger"
+@click="openDanger()">
           <el-icon><Warning /></el-icon>
-          <span class="title">{{ t("settings.deleteAccount") }}</span>
+          <span class="title">删除账户</span>
         </div>
       </div>
     </el-card>
@@ -46,21 +56,21 @@
       <el-card class="section-card">
         <template #header>
           <div class="card-header">
-            <span>{{ t("settings.profileSettings") }}</span>
+            <span>个人资料设置</span>
           </div>
         </template>
         <div class="row">
-          <span class="label">{{ t("settings.nickname") }}</span>
+          <span class="label">昵称</span>
           <span class="value">{{ userStore.nickname }}</span>
         </div>
         <div class="row">
-          <span class="label">{{ t("settings.phone") }}</span>
+          <span class="label">手机号</span>
           <span class="value">{{
-            userStore.currentUser?.phone || t("personal.noPhone")
+            userStore.currentUser?.phone || "未绑定"
           }}</span>
         </div>
         <div class="row">
-          <span class="label">{{ t("settings.joinDate") }}</span>
+          <span class="label">加入时间</span>
           <span class="value">{{ joinDateText }}</span>
         </div>
       </el-card>
@@ -69,10 +79,10 @@
       <el-card class="section-card">
         <template #header>
           <div class="card-header">
-            <span>{{ t("personal.myPreferences") }}</span>
+            <span>我的偏好</span>
           </div>
         </template>
-        <div class="summary-row" v-if="parsedPreferences.mbtiType">
+        <div v-if="parsedPreferences.mbtiType" class="summary-row">
           <img
             class="mbti-badge"
             :src="`/images/mbti/${parsedPreferences.mbtiType}.png`"
@@ -82,16 +92,16 @@
             {{ getMbtiName(parsedPreferences.mbtiType) }}
           </span>
         </div>
-        <div class="summary-row" v-if="summaryTransportText">
-          <span class="summary-label">{{ t("personal.card.transport") }}</span>
+        <div v-if="summaryTransportText" class="summary-row">
+          <span class="summary-label">交通方式</span>
           <span class="summary-text">{{ summaryTransportText }}</span>
         </div>
-        <div class="summary-row" v-if="summaryPaceText">
-          <span class="summary-label">{{ t("personal.card.travelPace") }}</span>
+        <div v-if="summaryPaceText" class="summary-row">
+          <span class="summary-label">旅行节奏</span>
           <span class="summary-text">{{ summaryPaceText }}</span>
         </div>
-        <div class="summary-row" v-if="summaryDietText">
-          <span class="summary-label">{{ t("personal.card.diet") }}</span>
+        <div v-if="summaryDietText" class="summary-row">
+          <span class="summary-label">饮食偏好</span>
           <span class="summary-text">{{ summaryDietText }}</span>
         </div>
       </el-card>
@@ -99,16 +109,17 @@
   </div>
   <el-drawer
     v-model="showPref"
-    :title="t('settings.preferences')"
+    title="个性化设置"
     size="60%"
     destroy-on-close
   >
-    <Preferences embedded @saved="onPrefSaved" />
+    <Preferences embedded
+@saved="onPrefSaved" />
   </el-drawer>
 
   <el-drawer
     v-model="showSecurity"
-    :title="t('settings.securitySettings')"
+    title="安全设置"
     size="60%"
     destroy-on-close
   >
@@ -117,7 +128,7 @@
 
   <el-drawer
     v-model="showNotifications"
-    :title="t('settings.notifications')"
+    title="通知设置"
     size="60%"
     destroy-on-close
   >
@@ -126,7 +137,7 @@
 
   <el-drawer
     v-model="showSystem"
-    :title="t('settings.systemSettings')"
+    title="系统设置"
     size="60%"
     destroy-on-close
   >
@@ -135,7 +146,7 @@
 
   <el-drawer
     v-model="showHistory"
-    :title="t('settings.loginHistory')"
+    title="登录历史"
     size="60%"
     destroy-on-close
   >
@@ -144,7 +155,7 @@
 
   <el-drawer
     v-model="showData"
-    :title="t('settings.privacySettings')"
+    title="隐私设置"
     size="60%"
     destroy-on-close
   >
@@ -153,7 +164,7 @@
 
   <el-drawer
     v-model="showDanger"
-    :title="t('settings.deleteAccount')"
+    title="删除账户"
     size="60%"
     destroy-on-close
   >
@@ -165,7 +176,19 @@
 import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/user.js";
-import { useI18n, formatDate as i18nFormatDate } from "@/utils/i18n.js";
+// 自定义日期格式化函数
+const formatDate = (date, options = {}) => {
+  if (!date) return "";
+  const defaultOptions = { year: "numeric", month: "long", day: "numeric" };
+  try {
+    return new Intl.DateTimeFormat("zh-CN", {
+      ...defaultOptions,
+      ...options,
+    }).format(new Date(date));
+  } catch {
+    return String(date);
+  }
+};
 import {
   Lock,
   Setting,
@@ -207,7 +230,6 @@ export default {
   setup() {
     const router = useRouter();
     const userStore = useUserStore();
-    const { t } = useI18n();
     const showPref = ref(false);
     const showSecurity = ref(false);
     const showNotifications = ref(false);
@@ -221,8 +243,8 @@ export default {
       if (!ts) return "";
       try {
         const date = new Date(ts);
-        const pretty = i18nFormatDate(date, { year: "numeric", month: "long" });
-        return t("personal.joinedAt", { date: pretty });
+        const pretty = formatDate(date, { year: "numeric", month: "long" });
+        return `加入于 ${pretty}`;
       } catch (e) {
         return "";
       }
@@ -248,7 +270,9 @@ export default {
       try {
         const preferences = userStore.currentUser?.preferences;
         if (!preferences) return {};
-        return typeof preferences === "string" ? JSON.parse(preferences) : preferences;
+        return typeof preferences === "string"
+          ? JSON.parse(preferences)
+          : preferences;
       } catch {
         return {};
       }
@@ -275,14 +299,14 @@ export default {
           tastes
             .slice(0, 2)
             .map((x) => translateTag(x))
-            .join("、")
+            .join("、"),
         );
       if (restrictions.length)
         parts.push(
           restrictions
             .slice(0, 2)
             .map((x) => translateTag(x, "dietary"))
-            .join("、")
+            .join("、"),
         );
       return parts.join(" · ");
     });
@@ -293,7 +317,6 @@ export default {
 
     return {
       userStore,
-      t,
       joinDateText,
       goAccountSettings,
       goPreferences,
@@ -366,7 +389,9 @@ export default {
   filter: blur(2px);
 }
 .profile-header :deep(.el-avatar) {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18), 0 0 0 4px rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.18),
+    0 0 0 4px rgba(255, 255, 255, 0.35);
 }
 .profile-basic h2 {
   margin: 0;
@@ -508,7 +533,11 @@ export default {
 }
 /* 卡片头部强调条 */
 .section-card :deep(.el-card__header) {
-  background: linear-gradient(90deg, rgba(102, 126, 234, 0.12), rgba(118, 75, 162, 0.06));
+  background: linear-gradient(
+    90deg,
+    rgba(102, 126, 234, 0.12),
+    rgba(118, 75, 162, 0.06)
+  );
 }
 .card-header {
   position: relative;

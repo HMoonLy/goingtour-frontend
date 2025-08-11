@@ -3,9 +3,7 @@
     <div class="not-found-content">
       <!-- 404图标 -->
       <div class="error-icon">
-        <el-icon
-size="120" color="#E6A23C"
->
+        <el-icon size="120" color="#E6A23C">
           <Warning />
         </el-icon>
       </div>
@@ -13,11 +11,17 @@ size="120" color="#E6A23C"
       <!-- 错误信息 -->
       <div class="error-info">
         <h1 class="error-code">404</h1>
-        <h2 class="error-title">{{ t('messages.notFound') || '页面不存在' }}</h2>
+        <h2 class="error-title">
+          {{ "页面不存在" }}
+        </h2>
         <p class="error-description">
-          {{ t('messages.notFoundDesc') || '抱歉，您访问的页面不存在或已被移除。' }}
-          <br >
-          {{ t('messages.notFoundHelp') || '请检查网址是否正确，或返回首页继续浏览。' }}
+          {{
+            "抱歉，您访问的页面不存在或已被移除。"
+          }}
+          <br>
+          {{
+            "请检查网址是否正确，或返回首页继续浏览。"
+          }}
         </p>
       </div>
 
@@ -30,40 +34,43 @@ size="120" color="#E6A23C"
           @click="goHome"
         >
           <el-icon><House /></el-icon>
-          {{ t('common.back') || '返回首页' }}
+          {{ "返回首页" }}
         </el-button>
 
         <el-button size="large"
-@click="goBack" class="action-btn">
+@click="goBack" class="action-btn"
+>
           <el-icon><Back /></el-icon>
-          {{ t('common.previous') || '返回上页' }}
+          {{ "返回上页" }}
         </el-button>
       </div>
 
       <!-- 建议链接 -->
       <div class="suggestions">
-        <p class="suggestions-title">{{ t('messages.maybeLookingFor') || '您可能在寻找：' }}</p>
+        <p class="suggestions-title">
+          {{ "您可能在寻找：" }}
+        </p>
         <div class="suggestions-links">
           <el-link
             type="primary"
             :underline="false"
             @click="$router.push('/login')"
           >
-            {{ t('auth.login') }}
+            {{ "登录" }}
           </el-link>
           <el-link
             type="primary"
             :underline="false"
             @click="$router.push('/destinations')"
           >
-            {{ t('trip.destination') }}
+            {{ "选择目的地" }}
           </el-link>
           <el-link
             type="primary"
             :underline="false"
             @click="$router.push('/home')"
           >
-            {{ t('nav.home') }}
+            {{ "首页" }}
           </el-link>
         </div>
       </div>
@@ -73,7 +80,6 @@ size="120" color="#E6A23C"
 
 <script>
 import { useRouter } from "vue-router";
-import { useI18n } from "@/utils/i18n.js";
 import { Warning, House, Back } from "@element-plus/icons-vue";
 
 export default {
@@ -85,7 +91,6 @@ export default {
   },
   setup() {
     const router = useRouter();
-    const { t } = useI18n();
 
     const goHome = () => {
       router.push("/");
@@ -102,7 +107,6 @@ export default {
     return {
       goHome,
       goBack,
-      t,
     };
   },
 };

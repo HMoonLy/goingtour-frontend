@@ -3,9 +3,10 @@
     <!-- 页面头部 -->
     <div class="page-header">
       <div class="header-left">
-        <el-button type="text" @click="goBack" class="back-btn">
+        <el-button type="text"
+@click="goBack" class="back-btn">
           <el-icon><ArrowLeft /></el-icon>
-          {{ t('trip.backToList') }}
+          返回列表
         </el-button>
       </div>
       <div class="header-right">
@@ -16,24 +17,24 @@
           @click="toggleEdit"
         >
           <el-icon><Edit /></el-icon>
-          {{ t('trip.editTrip') }}
+          编辑行程
         </el-button>
         <template v-else>
-          <el-button @click="cancelEdit">{{ t('common.cancel') }}</el-button>
-          <el-button type="primary" @click="saveChanges">{{ t('trip.saveChanges') }}</el-button>
+          <el-button @click="cancelEdit"> 取消
+</el-button>
+          <el-button type="primary"
+@click="saveChanges">
+            保存修改
+          </el-button>
         </template>
       </div>
     </div>
 
     <!-- 行程概览卡片 -->
-    <el-card
-class="trip-overview-card" shadow="hover"
->
+    <el-card class="trip-overview-card" shadow="hover">
       <div class="trip-header">
         <div class="trip-title-section">
-          <h1
-v-if="!isEditing" class="trip-title"
->
+          <h1 v-if="!isEditing" class="trip-title">
             {{ tripData.title }}
           </h1>
           <el-input
@@ -41,42 +42,46 @@ v-if="!isEditing" class="trip-title"
             v-model="editedTrip.title"
             size="large"
             class="title-input"
-            :placeholder="t('trip.inputTitle')"
+            placeholder="请输入标题"
           />
           <div class="trip-status">
             <el-tag :type="tripData.status === 'draft' ? 'info' : 'success'">
-              {{ tripData.status === 'draft' ? t('personal.status.draft') : t('personal.status.completed') }}
+              {{
+                tripData.status === "draft"
+                  ? "草稿"
+                  : "已完成"
+              }}
             </el-tag>
-             <span class="create-time">{{ t('trip.createdAt', { date: formatDate(tripData.createdAt) }) }}</span>
+            <span class="create-time">创建于 {{
+              formatDate(tripData.createdAt)
+            }}</span>
           </div>
         </div>
         <div class="trip-actions">
           <el-button @click="shareTrip">
             <el-icon><Share /></el-icon>
-            {{ t('trip.share') }}
+            分享
           </el-button>
           <el-button @click="exportTrip">
             <el-icon><Download /></el-icon>
-            {{ t('trip.export') }}
+            导出
           </el-button>
           <el-dropdown @command="handleMoreAction">
             <el-button>
-              {{ t('trip.more') }}<el-icon class="el-icon--right">
+              更多<el-icon class="el-icon--right">
                 <ArrowDown />
               </el-icon>
             </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item command="duplicate">
-                  {{ t('trip.duplicate') }}
+                  复制行程
                 </el-dropdown-item>
                 <el-dropdown-item command="template">
-                  {{ t('trip.saveAsTemplate') }}
+                  保存为模板
                 </el-dropdown-item>
-                <el-dropdown-item
-command="delete" divided
->
-                  {{ t('trip.deleteTrip') }}
+                <el-dropdown-item command="delete" divided>
+                  删除行程
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -91,7 +96,7 @@ command="delete" divided
             <MapLocation />
           </el-icon>
           <div class="info-content">
-            <h4>{{ t('trip.destination') }}</h4>
+            <h4>目的地</h4>
             <p>{{ tripData.city }}</p>
           </div>
         </div>
@@ -100,7 +105,7 @@ command="delete" divided
             <Calendar />
           </el-icon>
           <div class="info-content">
-            <h4>{{ t('trip.tripTime') }}</h4>
+            <h4>出行时间</h4>
             <p>{{ formatDateRange(tripData.createTime) }}</p>
           </div>
         </div>
@@ -109,7 +114,7 @@ command="delete" divided
             <User />
           </el-icon>
           <div class="info-content">
-            <h4>{{ t('trip.travelers') }}</h4>
+            <h4>出行人数</h4>
             <p>{{ tripData.mate }}人</p>
           </div>
         </div>
@@ -118,7 +123,7 @@ command="delete" divided
             <Money />
           </el-icon>
           <div class="info-content">
-            <h4>{{ t('trip.budgetRange') }}</h4>
+            <h4>预算范围</h4>
             <p>{{ tripData.totalBudget }}</p>
           </div>
         </div>
@@ -127,7 +132,7 @@ command="delete" divided
             <DataLine />
           </el-icon>
           <div class="info-content">
-            <h4>{{ t('trip.estimatedCost') }}</h4>
+            <h4>预计费用</h4>
             <p>{{ tripData.totalBudget }}</p>
           </div>
         </div>
@@ -136,10 +141,11 @@ command="delete" divided
             <Collection />
           </el-icon>
           <div class="info-content">
-            <h4>{{ t('trip.contentStats') }}</h4>
+            <h4>内容统计</h4>
             <p>
-              {{ t('trip.attractionCount', { count: tripData.attractions?.length || 0 }) }} ·
-              {{ t('trip.restaurantCount', { count: tripData.restaurants?.length || 0 }) }}
+              {{ (tripData.attractions?.length || 0) + '个景点' }}
+              ·
+              {{ (tripData.restaurants?.length || 0) + '家餐厅' }}
             </p>
           </div>
         </div>
@@ -150,7 +156,7 @@ command="delete" divided
     <div class="daily-itinerary">
       <h2 class="section-title">
         <el-icon><Clock /></el-icon>
-        {{ t('trip.dailySchedule') }}
+        每日行程安排
       </h2>
 
       <div class="days-container">
@@ -161,11 +167,11 @@ command="delete" divided
         >
           <div class="day-header">
             <div class="day-info">
-              <h3>{{ t('trip.dayN', { n: dayIndex + 1 }) }}</h3>
-             <span class="day-date">{{ formatDayDate(dayIndex) }}</span>
+              <h3>第{{ dayIndex + 1 }}天</h3>
+              <span class="day-date">{{ formatDayDate(dayIndex) }}</span>
             </div>
             <div class="day-stats">
-              <span>{{ t('trip.activitiesCount', { count: day.activities?.length || 0 }) }}</span>
+              <span>{{ (day.activities?.length || 0) + '个活动' }}</span>
             </div>
           </div>
 
@@ -193,8 +199,8 @@ command="delete" divided
                     >
                       {{ getActivityTypeText(activity.type) }}
                     </el-tag>
-                    <span
-v-if="activity.price" class="activity-price"
+                    <span v-if="activity.price"
+class="activity-price"
                     >¥{{ activity.price }}</span>
                   </div>
                 </div>
@@ -215,22 +221,20 @@ v-if="activity.price" class="activity-price"
                 </div>
 
                 <!-- 编辑模式下的操作按钮 -->
-                <div
-v-if="isEditing" class="activity-actions"
->
+                <div v-if="isEditing" class="activity-actions">
                   <el-button
                     size="small"
                     @click="editActivity(dayIndex, actIndex)"
                   >
                     <el-icon><Edit /></el-icon>
-                    {{ t('common.edit') }}
+                    编辑
                   </el-button>
                   <el-button
                     size="small"
                     @click="replaceActivity(dayIndex, actIndex)"
                   >
                     <el-icon><Refresh /></el-icon>
-                    {{ t('common.edit') }}
+                    替换
                   </el-button>
                   <el-button
                     size="small"
@@ -238,21 +242,17 @@ v-if="isEditing" class="activity-actions"
                     @click="removeActivity(dayIndex, actIndex)"
                   >
                     <el-icon><Delete /></el-icon>
-                    {{ t('common.delete') }}
+                    删除
                   </el-button>
                 </div>
               </div>
             </div>
 
             <!-- 添加活动按钮（编辑模式） -->
-            <div
-v-if="isEditing" class="add-activity"
->
-              <el-button
-type="dashed" @click="addActivity(dayIndex)"
->
+            <div v-if="isEditing" class="add-activity">
+              <el-button type="dashed" @click="addActivity(dayIndex)">
                 <el-icon><Plus /></el-icon>
-                {{ t('common.add') }}
+                添加活动
               </el-button>
             </div>
           </div>
@@ -261,21 +261,19 @@ type="dashed" @click="addActivity(dayIndex)"
     </div>
 
     <!-- 行程偏好设置 -->
-    <el-card
-class="preferences-card" shadow="hover"
->
+    <el-card class="preferences-card" shadow="hover">
       <template #header>
         <div class="card-header">
           <h3>
             <el-icon><Setting /></el-icon>
-            {{ t('trip.preferences') }}
+            行程偏好
           </h3>
         </div>
       </template>
 
       <div class="preferences-content">
         <div class="preference-group">
-          <h4>{{ t('trip.intensity') }}</h4>
+          <h4>行程强度</h4>
           <el-tag>
             {{ getIntensityText(tripData.preferences?.intensity) }}
           </el-tag>
@@ -285,7 +283,7 @@ class="preferences-card" shadow="hover"
           v-if="tripData.preferences?.experiences?.length > 0"
           class="preference-group"
         >
-          <h4>{{ t('trip.specialExperiences') }}</h4>
+          <h4>特殊体验</h4>
           <div class="tags-row">
             <el-tag
               v-for="exp in tripData.preferences.experiences"
@@ -301,7 +299,7 @@ class="preferences-card" shadow="hover"
           v-if="tripData.preferences?.transport?.length > 0"
           class="preference-group"
         >
-          <h4>{{ t('trip.transportPreferences') }}</h4>
+          <h4>交通偏好</h4>
           <div class="tags-row">
             <el-tag
               v-for="transport in tripData.preferences.transport"
@@ -317,7 +315,7 @@ class="preferences-card" shadow="hover"
           v-if="tripData.preferences?.specialRequests"
           class="preference-group"
         >
-          <h4>{{ t('trip.specialRequests') }}</h4>
+          <h4>特殊需求</h4>
           <p class="special-requests">
             {{ tripData.preferences.specialRequests }}
           </p>
@@ -350,7 +348,6 @@ import {
   Setting,
 } from "@element-plus/icons-vue";
 import { useUserStore } from "@/store/user.js";
-import { useI18n } from "@/utils/i18n.js";
 import {
   convertBackendTripToFrontend,
   convertFrontendTripToBackend,
@@ -379,7 +376,6 @@ export default {
   setup() {
     const router = useRouter();
     const route = useRoute();
-    const { t } = useI18n();
 
     // 响应式数据
     const tripData = ref({});
@@ -451,12 +447,12 @@ export default {
 
           console.log("✅ 从本地存储加载行程数据成功:", trip);
         } else {
-          ElMessage.error(t('messages.notFound'));
+          ElMessage.error("找不到该行程");
           router.push("/home");
         }
       } catch (error) {
         console.error("❌ 加载行程数据失败:", error);
-        ElMessage.error(t('messages.updateFailed'));
+        ElMessage.error("加载失败，请重试");
         router.push("/home");
       } finally {
         loading.value = false;
@@ -475,7 +471,7 @@ export default {
             type: "warning",
           },
         )
-            .then(() => {
+          .then(() => {
             router.push("/home");
           })
           .catch(() => {
@@ -556,7 +552,7 @@ export default {
               });
             }
 
-            ElMessage.success(t('messages.updateSuccess'));
+            ElMessage.success("保存成功！");
             console.log("💾 API保存行程成功:", convertedTrip.title);
 
             // 确保数据保存完成后再跳转
@@ -591,17 +587,17 @@ export default {
             });
           }
 
-          ElMessage.success(t('messages.updateSuccess'));
+          ElMessage.success("保存成功！");
           console.log("💾 本地保存行程成功:", editedTrip.value.title);
 
           // 确保数据保存完成后再跳转
-            setTimeout(() => {
+          setTimeout(() => {
             router.push("/home");
           }, 500);
         }
       } catch (error) {
         console.error("❌ 保存失败:", error);
-        ElMessage.error(t('messages.updateFailed'));
+        ElMessage.error("加载失败，请重试");
       } finally {
         loading.value = false;
       }
@@ -611,7 +607,7 @@ export default {
       try {
         return new Date(dateString).toLocaleDateString("zh-CN");
       } catch {
-        return '';
+        return "";
       }
     };
 
@@ -625,32 +621,32 @@ export default {
 
           const start = startDate.toLocaleDateString("zh-CN");
           const end = endDate.toLocaleDateString("zh-CN");
-           return `${start} - ${end}`;
+          return `${start} - ${end}`;
         } catch {
-          return '';
+          return "";
         }
       }
 
       // 原有逻辑：使用dateRange
       if (!tripData.value.dateRange || tripData.value.dateRange.length !== 2) {
-        return '';
+        return "";
       }
       try {
         const start = new Date(tripData.value.dateRange[0]).toLocaleDateString(
-          navigator.language || 'en-US',
+          navigator.language || "en-US",
         );
         const end = new Date(tripData.value.dateRange[1]).toLocaleDateString(
-          navigator.language || 'en-US',
+          navigator.language || "en-US",
         );
         return `${start} - ${end}`;
       } catch {
-        return '';
+        return "";
       }
     };
 
     const formatDayDate = (dayIndex) => {
       if (!tripData.value.dateRange || tripData.value.dateRange.length !== 2) {
-        return t('trip.dayN', { n: dayIndex + 1 });
+        return `第${dayIndex + 1}天`;
       }
       try {
         const startDate = new Date(tripData.value.dateRange[0]);
@@ -661,7 +657,7 @@ export default {
         const day = currentDate.getDate();
         return `${month}/${day}`;
       } catch {
-        return t('trip.dayN', { n: dayIndex + 1 });
+        return `第${dayIndex + 1}天`;
       }
     };
 
@@ -677,12 +673,12 @@ export default {
 
     const getActivityTypeText = (type) => {
       const texts = {
-        attraction: t('trip.activityTypes.attraction'),
-        restaurant: t('trip.activityTypes.restaurant'),
-        transport: t('trip.activityTypes.transport'),
-        hotel: t('trip.activityTypes.hotel'),
+        attraction: "景点",
+        restaurant: "餐厅",
+        transport: "交通",
+        hotel: "酒店",
       };
-      return texts[type] || t('trip.activityTypes.other');
+      return texts[type] || "其他";
     };
 
     const getIntensityText = (intensity) => {
@@ -1061,7 +1057,7 @@ export default {
             .slice(0, 5); // 最多5个备选
 
           if (alternatives.length === 0) {
-            ElMessage.warning(t('trip.noAlternativeAttractions'));
+            ElMessage.warning("没有更多备选景点");
             return;
           }
 
@@ -1163,7 +1159,7 @@ export default {
             .slice(0, 5); // 最多5个备选
 
           if (alternatives.length === 0) {
-            ElMessage.warning(t('trip.noAlternativeRestaurants'));
+            ElMessage.warning("没有更多备选餐厅");
             return;
           }
 
@@ -1300,7 +1296,7 @@ export default {
             .slice(0, 5);
 
           if (availableAttractions.length === 0) {
-            ElMessage.warning(t('trip.noAttractionsToAdd'));
+            ElMessage.warning("没有景点可添加");
             return;
           }
 
@@ -1373,7 +1369,7 @@ export default {
             .slice(0, 5);
 
           if (availableRestaurants.length === 0) {
-            ElMessage.warning(t('trip.noRestaurantsToAdd'));
+            ElMessage.warning("没有餐厅可添加");
             return;
           }
 
@@ -1494,7 +1490,6 @@ export default {
     };
 
     return {
-      t,
       tripData,
       editedTrip,
       isEditing,

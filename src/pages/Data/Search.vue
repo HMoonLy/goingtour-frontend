@@ -1,33 +1,32 @@
 <template>
   <div class="search-page">
     <div class="page-header">
-      <h1>{{ t('dataSearch.title') }}</h1>
-      <p>{{ t('dataSearch.subtitle') }}</p>
+      <h1>搜索结果</h1>
+      <p>找到您感兴趣的景点和目的地</p>
     </div>
 
     <div class="coming-soon-card">
-      <el-icon
-size="64" color="#409EFF"
->
+      <el-icon size="64" color="#409EFF">
         <Search />
       </el-icon>
-      <h3>{{ t('dataSearch.comingTitle') }}</h3>
-      <p>{{ t('dataSearch.comingDesc') }}</p>
+      <h3>搜索功能开发中</h3>
+      <p>我们正在努力完善搜索功能，包括：</p>
       <ul class="feature-list">
-        <li>{{ t('dataSearch.features.attraction') }}</li>
-        <li>{{ t('dataSearch.features.city') }}</li>
-        <li>{{ t('dataSearch.features.smart') }}</li>
-        <li>{{ t('dataSearch.features.filter') }}</li>
-        <li>{{ t('dataSearch.features.history') }}</li>
+        <li>景点搜索</li>
+        <li>城市搜索</li>
+        <li>智能推荐</li>
+        <li>筛选功能</li>
+        <li>搜索历史</li>
       </ul>
-      <p class="stay-tuned">{{ t('dataSearch.stayTuned') }}</p>
+      <p class="stay-tuned">
+        敬请期待！
+      </p>
     </div>
   </div>
 </template>
 
 <script>
 import { Search } from "@element-plus/icons-vue";
-import { useI18n } from "@/utils/i18n.js";
 
 export default {
   name: "Search",
@@ -35,8 +34,6 @@ export default {
     Search,
   },
   setup() {
-    const { t } = useI18n();
-    return { t };
   },
 };
 </script>

@@ -8,13 +8,13 @@
             <el-icon size="18">
               <MagicStick />
             </el-icon>
-            <span>{{ t('trip.aiPrompt.preview') }}</span>
+            <span>AI提示词预览</span>
             <el-tag size="small" :type="getPromptCompletionClass()">
               {{ getPromptCompletionText() }}
             </el-tag>
           </div>
           <div class="header-right">
-            <el-tooltip :content="t('trip.aiPrompt.viewFull')" placement="top">
+            <el-tooltip content="查看完整提示词" placement="top">
               <el-button type="info" link @click="showFullPrompt">
                 <el-icon><ViewIcon /></el-icon>
               </el-button>
@@ -29,17 +29,20 @@
             <el-icon size="48" color="#409EFF">
               <MagicStick />
             </el-icon>
-            <h3>{{ t('trip.prepareGenerate') }}</h3>
-            <p>{{ t('trip.prepareGenerateDesc') }}</p>
+            <h3>准备生成您的个性化行程</h3>
+            <p>根据您的偏好，我们将为您定制一份精彩的旅行计划</p>
           </div>
 
           <div class="prompt-sections">
             <div class="prompt-section">
               <div class="section-header">
                 <el-icon><MapLocation /></el-icon>
-              <h4>{{ t('trip.baseInfo.title') }}</h4>
+                <h4>基本信息</h4>
               </div>
-              <div v-if="baseForm.destination && baseForm.days" class="prompt-text">
+              <div
+                v-if="baseForm.destination && baseForm.days"
+                class="prompt-text"
+              >
                 为我规划一次前往
                 <span class="highlight">{{ getSelectedCityName() }}</span>
                 的 <span class="highlight">{{ baseForm.days }}天</span>行程， 共
@@ -47,18 +50,20 @@
                 出行， 预算约
                 <span class="highlight">{{ getBudgetText() }}</span>
                 。出行日期为
-                <span class="highlight">{{ formatDateRange(baseForm.dateRange) }}</span
+                <span class="highlight">{{
+                  formatDateRange(baseForm.dateRange)
+                }}</span
                 >。
               </div>
               <div v-else class="prompt-placeholder">
-                {{ t('trip.fillBasicInfo') }}
+                {{ "请填写基本信息" }}
               </div>
             </div>
 
             <div class="prompt-section">
               <div class="section-header">
                 <el-icon><User /></el-icon>
-                <h4>{{ t('trip.personalPreferences') }}</h4>
+                <h4>个人偏好</h4>
               </div>
               <div v-if="hasUserPreferences" class="prompt-text">
                 我的旅行偏好是<span class="highlight">{{
@@ -94,28 +99,33 @@
                 </template>
               </div>
               <div v-else class="prompt-placeholder">
-                {{ t('trip.noUserPreferences') }}
+                {{ "请在设置中配置您的偏好" }}
               </div>
             </div>
 
             <div class="prompt-section">
               <div class="section-header">
                 <el-icon><MagicStick /></el-icon>
-                <h4>{{ t('trip.thisTripPreferences') }}</h4>
+                <h4>本次行程偏好</h4>
               </div>
               <div
                 v-if="
-                  (preferenceForm.tripGoals && preferenceForm.tripGoals.length > 0) ||
+                  (preferenceForm.tripGoals &&
+                    preferenceForm.tripGoals.length > 0) ||
                   preferenceForm.pacePreference ||
                   preferenceForm.socialPreference ||
                   preferenceForm.photoPreference ||
-                  (preferenceForm.focusAreas && preferenceForm.focusAreas.length > 0) ||
+                  (preferenceForm.focusAreas &&
+                    preferenceForm.focusAreas.length > 0) ||
                   preferenceForm.specialRequirements
                 "
                 class="prompt-text"
               >
                 <template
-                  v-if="preferenceForm.tripGoals && preferenceForm.tripGoals.length > 0"
+                  v-if="
+                    preferenceForm.tripGoals &&
+                    preferenceForm.tripGoals.length > 0
+                  "
                 >
                   本次行程目标是<span class="highlight">{{
                     getTripGoalsText(preferenceForm.tripGoals)
@@ -141,7 +151,10 @@
                   >。
                 </template>
                 <template
-                  v-if="preferenceForm.focusAreas && preferenceForm.focusAreas.length > 0"
+                  v-if="
+                    preferenceForm.focusAreas &&
+                    preferenceForm.focusAreas.length > 0
+                  "
                 >
                   重点体验<span class="highlight">{{
                     getFocusAreasText(preferenceForm.focusAreas)
@@ -149,13 +162,13 @@
                   >。
                 </template>
                 <template v-if="preferenceForm.specialRequirements">
-                  {{ t('trip.specialRequests') }}：<span class="highlight">{{
+                  特殊需求：<span class="highlight">{{
                     preferenceForm.specialRequirements
                   }}</span>
                 </template>
               </div>
               <div v-else class="prompt-placeholder">
-                {{ t('trip.setPreferencesInStep') }}
+                {{ "请在上一步设置您的偏好" }}
               </div>
             </div>
 
@@ -170,7 +183,7 @@
             >
               <div class="section-header">
                 <el-icon><Food /></el-icon>
-                <h4>{{ t('trip.dietaryRestrictions') }}</h4>
+                <h4>{{ "饮食禁忌" }}</h4>
               </div>
               <div class="prompt-text">
                 <span
@@ -180,7 +193,9 @@
                   "
                   class="highlight"
                   >{{
-                    getDietaryRestrictionsText(preferenceForm.dietaryRestrictions)
+                    getDietaryRestrictionsText(
+                      preferenceForm.dietaryRestrictions
+                    )
                   }}</span
                 >
                 <template v-if="preferenceForm.customDietaryNotes">
@@ -192,7 +207,9 @@
                   >
                     ，
                   </template>
-                  <span class="highlight">{{ preferenceForm.customDietaryNotes }}</span>
+                  <span class="highlight">{{
+                    preferenceForm.customDietaryNotes
+                  }}</span>
                 </template>
               </div>
             </div>
@@ -201,7 +218,7 @@
             <div v-if="weatherSuggestion" class="prompt-section">
               <div class="section-header">
                 <el-icon><Sunny /></el-icon>
-                <h4>{{ t('trip.weatherSuggestion') }}</h4>
+                <h4>{{ "天气建议" }}</h4>
                 <el-tag
                   v-if="weatherSuggestion.isHistorical"
                   size="small"
@@ -211,7 +228,7 @@
                   {{ weatherSuggestion.dataSource }}
                 </el-tag>
                 <el-tag v-else size="small" type="success" effect="plain">
-                  {{ t('trip.weather.amapApi') }}
+                  {{ "高德天气API" }}
                 </el-tag>
               </div>
               <div class="prompt-text">
@@ -219,9 +236,9 @@
                 <template v-if="isDateWithinForecastRange()">
                   <p>
                     <template v-if="weatherSuggestion.isHistorical">
-                      基于历史气候数据，出行期间天气预计<span class="highlight">{{
-                        weatherSuggestion.weatherDesc
-                      }}</span
+                      基于历史气候数据，出行期间天气预计<span
+                        class="highlight"
+                        >{{ weatherSuggestion.weatherDesc }}</span
                       >， 气温<span class="highlight">{{
                         weatherSuggestion.tempRange
                       }}</span
@@ -233,25 +250,30 @@
                         >。
                       </template>
                       <template v-if="weatherSuggestion.season">
-                        <span class="highlight">{{ weatherSuggestion.season }}</span
+                        <span class="highlight">{{
+                          weatherSuggestion.season
+                        }}</span
                         >时节特点明显。
                       </template>
                     </template>
                     <template v-else>
-                      根据高德天气API实时数据，出行期间天气预计<span class="highlight">{{
-                        weatherSuggestion.weatherDesc
-                      }}</span
+                      根据高德天气API实时数据，出行期间天气预计<span
+                        class="highlight"
+                        >{{ weatherSuggestion.weatherDesc }}</span
                       >， 气温<span class="highlight">{{
                         weatherSuggestion.tempRange
                       }}</span
                       >。
                       <template v-if="weatherSuggestion.humidity">
-                        湿度<span class="highlight">{{ weatherSuggestion.humidity }}</span
+                        湿度<span class="highlight">{{
+                          weatherSuggestion.humidity
+                        }}</span
                         >。
                       </template>
                       <template
                         v-if="
-                          weatherSuggestion.windDirection && weatherSuggestion.windPower
+                          weatherSuggestion.windDirection &&
+                          weatherSuggestion.windPower
                         "
                       >
                         风向<span class="highlight"
@@ -270,10 +292,11 @@
                       v-if="
                         baseForm &&
                         baseForm.days &&
-                        baseForm.days > (weatherSuggestion.forecast?.length || 0)
+                        baseForm.days >
+                          (weatherSuggestion.forecast?.length || 0)
                       "
                     >
-                       <p class="notice-title">🌤️ {{ t('trip.weather.noticeTitle') }}</p>
+                      <p class="notice-title">🌤️ {{ "天气预报说明" }}</p>
                       <p>
                         您的<span class="highlight">{{ baseForm.days }}天</span
                         >行程中，我们仅能提供前<span class="highlight"
@@ -297,16 +320,20 @@
                         </p>
                       </template>
                       <p class="notice-suggestion">
-                         {{ t('trip.weather.outOfRangeAdvice') }}
+                        
+                      超出预报范围的日期建议您关注当地实时天气预报，并准备适应性较强的衣物。
+                        
                       </p>
                     </template>
                     <template v-else>
-                       <p class="notice-title">⚠️ {{ t('trip.weather.noticeTitle') }}</p>
+                      <p class="notice-title">⚠️ {{ "天气预报说明" }}</p>
                       <p>
-                         {{ t('trip.weather.noAccurateForecast') }}
+                        {{
+                          "由于您选择的出行日期与当前天气预报时间范围不匹配，无法提供准确的天气预报。"
+                        }}
                       </p>
                       <p class="notice-suggestion">
-                         {{ t('trip.weather.checkBeforeTravel') }}
+                        {{ "建议您在出行前关注目的地的实时天气预报。" }}
                       </p>
                     </template>
                   </div>
@@ -318,12 +345,13 @@
                     weatherSuggestion.activities.length > 0
                   "
                 >
-                   <p>
-                     {{ t('trip.weather.suitableActivitiesPrefix') }}<span class="highlight">{{
-                       weatherSuggestion.activities.join("、")
-                     }}</span
-                     >{{ t('trip.weather.suitableActivitiesSuffix') }}
-                   </p>
+                  <p>
+                    {{ "适合安排"
+                    }}<span class="highlight">{{
+                      weatherSuggestion.activities.join("、")
+                    }}</span
+                    >等活动。
+                  </p>
                 </template>
                 <template
                   v-if="
@@ -332,12 +360,13 @@
                     isDateWithinForecastRange()
                   "
                 >
-                   <p>
-                     {{ t('trip.weather.tips') }}<span class="highlight">{{
-                       weatherSuggestion.tips.join("；")
-                     }}</span
-                     >。
-                   </p>
+                  <p>
+                    {{ "建议："
+                    }}<span class="highlight">{{
+                      weatherSuggestion.tips.join("；")
+                    }}</span
+                    >。
+                  </p>
                 </template>
                 <template
                   v-if="
@@ -346,25 +375,27 @@
                     isDateWithinForecastRange()
                   "
                 >
-                   <p>
-                     {{ t('trip.weather.cautions') }}<span class="highlight">{{
-                       weatherSuggestion.avoid.join("；")
-                     }}</span
-                     >。
-                   </p>
+                  <p>
+                    {{ "注意事项："
+                    }}<span class="highlight">{{
+                      weatherSuggestion.avoid.join("；")
+                    }}</span
+                    >。
+                  </p>
                 </template>
 
                 <!-- 天气预报详情展示 -->
                 <template
                   v-if="
-                    weatherSuggestion.forecast && weatherSuggestion.forecast.length > 0
+                    weatherSuggestion.forecast &&
+                    weatherSuggestion.forecast.length > 0
                   "
                 >
                   <div class="weather-forecast">
                     <h5>
                       <el-icon><Calendar /></el-icon>
-                       <template v-if="isDateWithinForecastRange()">
-                         {{ t('trip.weather.detail') }}
+                      <template v-if="isDateWithinForecastRange()">
+                        {{ "具体天气预报" }}
                       </template>
                       <template
                         v-else-if="
@@ -374,23 +405,28 @@
                           baseForm.days > weatherSuggestion.forecast.length
                         "
                       >
-                         {{ t('trip.weather.partialForecastPrefix') }}{{ weatherSuggestion.forecast.length }}{{ t('trip.weather.daysSuffix') }}
+                        {{ "部分天气预报（前"
+                        }}{{ weatherSuggestion.forecast.length }}天）
                       </template>
-                       <template v-else> {{ t('trip.weather.referenceForecast') }} </template>
+                      <template v-else>
+                        {{ "参考天气预报" }}
+                      </template>
                       <el-tag
                         v-if="weatherSuggestion.isHistorical"
                         size="small"
                         type="info"
                       >
-                         {{ t('trip.weather.historicalSim') }}
+                        {{ "历史气候模拟" }}
                       </el-tag>
-                       <el-tag v-else size="small" type="success"> {{ t('trip.weather.amapApiForecast') }} </el-tag>
+                      <el-tag v-else size="small" type="success">
+                        {{ "高德API实时预报" }}
+                      </el-tag>
                       <el-tag
                         v-if="!isDateWithinForecastRange()"
                         size="small"
                         type="warning"
                       >
-                         {{ t('trip.weather.dateOutOfRange') }}
+                        {{ "日期超出范围" }}
                       </el-tag>
                     </h5>
                     <div class="forecast-list">
@@ -398,13 +434,20 @@
                         v-for="(day, index) in weatherSuggestion.forecast"
                         :key="index"
                         class="forecast-item"
-                        :class="{ 'forecast-outdated': !isDateWithinForecastRange() }"
+                        :class="{
+                          'forecast-outdated': !isDateWithinForecastRange(),
+                        }"
                       >
-                        <div class="forecast-date">{{ day.date }}</div>
+                        <div class="forecast-date">
+                          {{ day.date }}
+                        </div>
                         <div class="forecast-weather">
                           <span class="day-weather">{{ day.dayWeather }}</span>
                           <span
-                            v-if="day.nightWeather && day.nightWeather !== day.dayWeather"
+                            v-if="
+                              day.nightWeather &&
+                              day.nightWeather !== day.dayWeather
+                            "
                             class="night-weather"
                           >
                             / {{ day.nightWeather }}
@@ -413,11 +456,18 @@
                         <div class="forecast-temp">
                           {{ day.dayTemp }}℃/{{ day.nightTemp }}℃
                         </div>
-                        <div v-if="day.dayWind || day.nightWind" class="forecast-wind">
-                          <template v-if="day.dayWind"
-                            >{{ day.dayWind }}{{ day.dayPower }}级</template
+                        <div
+                          v-if="day.dayWind || day.nightWind"
+                          class="forecast-wind"
+                        >
+                          <template v-if="day.dayWind">
+                            {{ day.dayWind }}{{ day.dayPower }}级
+                          </template>
+                          <template
+                            v-if="
+                              day.nightWind && day.nightWind !== day.dayWind
+                            "
                           >
-                          <template v-if="day.nightWind && day.nightWind !== day.dayWind">
                             / {{ day.nightWind }}{{ day.nightPower }}级
                           </template>
                         </div>
@@ -433,9 +483,11 @@
                         baseForm.days > weatherSuggestion.forecast.length
                       "
                     >
-                       <div class="forecast-limitation-notice">
+                      <div class="forecast-limitation-notice">
                         <el-icon><Warning /></el-icon>
-                         <span>{{ t('trip.weather.afterDayNeedsAttention', { day: weatherSuggestion.forecast.length + 1 }) }}</span>
+                        <span>{{
+                          `第${weatherSuggestion.forecast.length + 1}天及之后需要特别关注天气变化`
+                        }}</span>
                       </div>
                     </template>
                   </div>
@@ -447,49 +499,51 @@
             <div v-else-if="loadingWeather" class="prompt-section">
               <div class="section-header">
                 <el-icon><Loading /></el-icon>
-                <h4>{{ t('trip.weatherSuggestion') }}</h4>
+                <h4>{{ "天气建议" }}</h4>
               </div>
-              <div class="prompt-text loading-text">{{ t('trip.weather.loading') }}</div>
+              <div class="prompt-text loading-text">
+                {{ "正在加载天气信息..." }}
+              </div>
             </div>
 
             <!-- 天气错误状态 -->
             <div v-else-if="weatherError" class="prompt-section">
               <div class="section-header">
                 <el-icon><Warning /></el-icon>
-                <h4>{{ t('trip.weatherSuggestion') }}</h4>
+                <h4>{{ "天气建议" }}</h4>
               </div>
               <div class="prompt-text error-text">
-                {{ t('trip.weather.fetchFailedPrefix') }} {{ weatherError }}
+                {{ "天气信息获取失败：" }} {{ weatherError }}
               </div>
             </div>
 
             <div class="prompt-section">
-            <div class="section-header">
+              <div class="section-header">
                 <el-icon><Location /></el-icon>
-              <h4>{{ t('trip.mustSee') }}</h4>
+                <h4>{{ "必去景点" }}</h4>
               </div>
               <div v-if="selectedAttractions.length > 0" class="prompt-text">
-              {{ t('trip.mustSee') }}：<span class="highlight">{{
+                {{ "必去景点" }}：<span class="highlight">{{
                   selectedAttractions.map((a) => a.name).join("、")
                 }}</span>
               </div>
               <div v-else class="prompt-placeholder">
-              {{ t('trip.noMustSeeSelected') }}
+                {{ "请选择您必须去的景点" }}
               </div>
             </div>
 
             <div class="prompt-section">
-            <div class="section-header">
+              <div class="section-header">
                 <el-icon><Shop /></el-icon>
-              <h4>{{ t('trip.mustEat') }}</h4>
+                <h4>{{ "必吃美食" }}</h4>
               </div>
               <div v-if="selectedRestaurants.length > 0" class="prompt-text">
-              {{ t('trip.mustEat') }}：<span class="highlight">{{
+                {{ "必吃美食" }}：<span class="highlight">{{
                   selectedRestaurants.map((r) => r.name).join("、")
                 }}</span>
               </div>
               <div v-else class="prompt-placeholder">
-              {{ t('trip.noMustEatSelected') }}
+                {{ "请选择您必须尝试的美食" }}
               </div>
             </div>
           </div>
@@ -497,27 +551,27 @@
           <!-- 生成选项 -->
           <div class="generation-options">
             <div class="option-group">
-            <span class="option-label">{{ t('trip.generation.format') }}</span>
+              <span class="option-label">{{ "生成格式" }}</span>
               <el-radio-group
                 v-model="selectedGenerationStyle"
                 size="small"
                 class="inline-style-options"
               >
                 <el-radio value="table">
-                <span class="style-name">{{ t('trip.generation.styles.table') }}</span>
-                <span class="style-desc">{{ t('trip.generation.styleDesc.table') }}</span>
+                  <span class="style-name">{{ "表格式" }}</span>
+                  <span class="style-desc">{{ "清晰的时间表格" }}</span>
                 </el-radio>
                 <el-radio value="narrative">
-                <span class="style-name">{{ t('trip.generation.styles.narrative') }}</span>
-                <span class="style-desc">{{ t('trip.generation.styleDesc.narrative') }}</span>
+                  <span class="style-name">{{ "叙述式" }}</span>
+                  <span class="style-desc">{{ "详细的文字描述" }}</span>
                 </el-radio>
                 <el-radio value="card">
-                <span class="style-name">{{ t('trip.generation.styles.card') }}</span>
-                <span class="style-desc">{{ t('trip.generation.styleDesc.card') }}</span>
+                  <span class="style-name">{{ "卡片式" }}</span>
+                  <span class="style-desc">{{ "精美的卡片布局" }}</span>
                 </el-radio>
                 <el-radio value="checklist">
-                <span class="style-name">{{ t('trip.generation.styles.checklist') }}</span>
-                <span class="style-desc">{{ t('trip.generation.styleDesc.checklist') }}</span>
+                  <span class="style-name">{{ "清单式" }}</span>
+                  <span class="style-desc">{{ "简洁的检查清单" }}</span>
                 </el-radio>
               </el-radio-group>
             </div>
@@ -526,7 +580,7 @@
           <div class="prompt-actions">
             <el-button type="success" size="large" @click="showFullPrompt">
               <el-icon><ViewIcon /></el-icon>
-            {{ t('trip.actions.viewFullPrompt') }}
+              {{ "查看完整提示词" }}
             </el-button>
             <el-button
               v-if="!generating"
@@ -536,38 +590,34 @@
               @click="generateTrip"
             >
               <el-icon><MagicStick /></el-icon>
-            {{ t('trip.actions.generateUsingPrompt') }}
+              {{ "生成行程" }}
             </el-button>
-            
+
             <!-- 生成中的状态 -->
             <template v-else>
-              <el-button
-                type="primary"
-                size="large"
-                loading
-                disabled
-              >
-              {{ t('trip.actions.generating') }}
+              <el-button type="primary" size="large" loading disabled>
+                {{ "正在生成..." }}
               </el-button>
-              <el-button
-                type="danger"
-                size="large"
-                @click="cancelGeneration"
-              >
+              <el-button type="danger" size="large" @click="cancelGeneration">
                 <el-icon><Close /></el-icon>
-              {{ t('common.cancel') }}
+                {{ "取消" }}
               </el-button>
             </template>
           </div>
         </div>
 
         <!-- 数据验证提示 -->
-        <div v-if="!canGenerateTrip && baseForm.destination" class="validation-hints">
+        <div
+          v-if="!canGenerateTrip && baseForm.destination"
+          class="validation-hints"
+        >
           <el-alert
             v-for="(error, index) in validateTripData().errors"
             :key="`error-${index}`"
             :title="typeof error === 'string' ? error : error.message"
-            :description="typeof error === 'object' ? error.suggestion : undefined"
+            :description="
+              typeof error === 'object' ? error.suggestion : undefined
+            "
             type="error"
             :closable="false"
             show-icon
@@ -577,7 +627,9 @@
             v-for="(warning, index) in validateTripData().warnings"
             :key="`warning-${index}`"
             :title="typeof warning === 'string' ? warning : warning.message"
-            :description="typeof warning === 'object' ? warning.suggestion : undefined"
+            :description="
+              typeof warning === 'object' ? warning.suggestion : undefined
+            "
             type="warning"
             :closable="false"
             show-icon
@@ -586,13 +638,15 @@
         </div>
 
         <div v-if="generating" class="generating">
-        <div class="generating-animation">
+          <div class="generating-animation">
             <el-icon size="80" color="#409EFF" class="rotating">
               <Loading />
             </el-icon>
             <div class="generating-content">
-            <h3>✨ {{ t('trip.generating.aiWorking') }}</h3>
-              <p class="progress-text">{{ generationProgress }}</p>
+              <h3>✨ {{ "AI正在为您工作..." }}</h3>
+              <p class="progress-text">
+                {{ generationProgress }}
+              </p>
               <el-progress
                 :percentage="progressPercent"
                 :stroke-width="12"
@@ -600,9 +654,11 @@
               />
               <div class="progress-info">
                 <span class="progress-percentage">{{ progressPercent }}%</span>
-              <span class="progress-desc">
-                {{ t('trip.generating.timeRemaining', { s: Math.max(0, Math.ceil((100 - progressPercent) * 1.2)) }) }}
-              </span>
+                <span class="progress-desc">
+                  {{
+                    `预计剩余时间：${Math.max(0, Math.ceil((100 - progressPercent) * 1.2))}秒`
+                  }}
+                </span>
               </div>
             </div>
           </div>
@@ -612,12 +668,14 @@
           <el-icon size="48" color="#67C23A">
             <Check />
           </el-icon>
-        <h3>{{ t('trip.generated') }}</h3>
-        <p>
-          {{ t('trip.recommendedCounts', { attractions: generatedTrip?.attractions?.length || 0, restaurants: generatedTrip?.restaurants?.length || 0 }) }}
-        </p>
+          <h3>{{ "行程生成完成" }}</h3>
+          <p>
+            {{
+              `已为您推荐${generatedTrip?.attractions?.length || 0}个景点和${generatedTrip?.restaurants?.length || 0}家餐厅`
+            }}
+          </p>
           <el-button type="primary" size="large" @click="$emit('next-step')">
-          {{ t('trip.viewDetails') }}
+            {{ "查看详情" }}
             <el-icon><ArrowRight /></el-icon>
           </el-button>
         </div>
@@ -628,14 +686,14 @@
     <div v-if="!generating && !generatedTrip" class="step-actions">
       <el-button size="large" @click="$emit('prev-step')">
         <el-icon><ArrowLeft /></el-icon>
-        {{ t('common.previous') }}
+        {{ "上一步" }}
       </el-button>
     </div>
 
     <!-- 完整提示词弹窗 -->
     <el-dialog
       v-model="fullPromptVisible"
-      :title="t('trip.dialog.fullPromptTitle')"
+      :title="'完整提示词预览'"
       width="80%"
       max-width="800px"
       :show-close="true"
@@ -644,11 +702,13 @@
       <div class="full-prompt-content">
         <div class="prompt-stats">
           <el-tag :type="getPromptCompletionClass()" size="large">
-            {{ getPromptCompletionText() }} ({{ getPromptCompletionScore() }}/100)
+            {{ getPromptCompletionText() }} ({{
+              getPromptCompletionScore()
+            }}/100)
           </el-tag>
           <el-button type="primary" @click="copyPromptToClipboard">
             <el-icon><DocumentCopy /></el-icon>
-            {{ t('trip.dialog.copyPrompt') }}
+            {{ "复制提示词" }}
           </el-button>
         </div>
         <div class="prompt-text-area">
@@ -657,8 +717,12 @@
       </div>
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="fullPromptVisible = false">{{ t('trip.dialog.close') }}</el-button>
-          <el-button type="primary" @click="copyPromptAndClose"> {{ t('trip.dialog.copyAndClose') }} </el-button>
+          <el-button @click="fullPromptVisible = false">
+            {{ "关闭" }}
+          </el-button>
+          <el-button type="primary" @click="copyPromptAndClose">
+            {{ "复制并关闭" }}
+          </el-button>
         </div>
       </template>
     </el-dialog>
@@ -668,7 +732,6 @@
 <script>
 import { computed, onMounted, watch, nextTick, ref } from "vue";
 import { ElMessage } from "element-plus";
-import { useI18n } from "@/utils/i18n.js";
 import {
   MapLocation,
   User,
@@ -797,19 +860,18 @@ export default {
     "prev-step",
   ],
   setup(props, { emit }) {
-    const { t, locale } = useI18n();
     // 获取用户store
     const userStore = useUserStore();
 
-        // 生成风格选择
+    // 生成风格选择
     const selectedGenerationStyle = ref("table"); // 默认表格式
- 
+
     // 完整提示词弹窗显示状态
     const fullPromptVisible = ref(false);
- 
+
     // 完整提示词文本
     const fullPromptText = ref("");
-    
+
     // 取消生成的控制器
     let abortController = null;
 
@@ -824,8 +886,10 @@ export default {
     });
 
     // 语言映射对象（用于模板中的直接索引）
-    const tagMapping = computed(() => (locale.value === 'en-US' ? tagMappingEn : tagMappingZh));
-    const dietaryRestrictionMapping = computed(() => (locale.value === 'en-US' ? dietaryRestrictionMappingEn : dietaryRestrictionMappingZh));
+    const tagMapping = computed(() => tagMappingZh);
+    const dietaryRestrictionMapping = computed(
+      () => dietaryRestrictionMappingZh
+    );
 
     // 计算用户偏好标签的中文显示
     const selectedPreferenceTags = computed(() => {
@@ -837,16 +901,20 @@ export default {
       // 从旅行类型标签中提取并转换为中文 - 兼容多种数据格式
       const travelTags = preferences.selectedTags || preferences.tags || [];
       if (Array.isArray(travelTags) && travelTags.length > 0) {
-        const tripFocus = (props.preferenceForm && Array.isArray(props.preferenceForm.focusAreas)) ? props.preferenceForm.focusAreas : [];
+        const tripFocus =
+          props.preferenceForm && Array.isArray(props.preferenceForm.focusAreas)
+            ? props.preferenceForm.focusAreas
+            : [];
         const isTripFocusSet = tripFocus.length > 0;
         travelTags.forEach((tag) => {
           // 若用户在本次行程中设置了 focusAreas，则对于属于体验重点域的标签，按本次行程为准：
           // - 如果该标签是体验重点域的键，且未被本次行程选择，则不纳入“个人偏好”集合，避免与本次选择冲突
-          const isFocusDomainTag = !!(focusAreaMapping[tag]);
+          const isFocusDomainTag = !!focusAreaMapping[tag];
           if (isTripFocusSet && isFocusDomainTag && !tripFocus.includes(tag)) {
             return; // 跳过与本次勾选相冲突的通用/历史标签
           }
-          const chineseTag = tagMapping.value[tag] || focusAreaMapping[tag] || tag;
+          const chineseTag =
+            tagMapping.value[tag] || focusAreaMapping[tag] || tag;
           tags.push(chineseTag);
         });
       }
@@ -867,7 +935,10 @@ export default {
       }
 
       // 旅行节奏（如果本次行程已显式设置 pacePreference，则不再从个人偏好回填）
-      if (preferences.travelPace && !(props.preferenceForm && props.preferenceForm.pacePreference)) {
+      if (
+        preferences.travelPace &&
+        !(props.preferenceForm && props.preferenceForm.pacePreference)
+      ) {
         const chineseTag = tagMapping.value[preferences.travelPace];
         if (chineseTag) tags.push(chineseTag);
       }
@@ -876,7 +947,11 @@ export default {
       const foodTastes = preferences.foodTastes || [];
       if (Array.isArray(foodTastes) && foodTastes.length > 0) {
         foodTastes.forEach((taste) => {
-          const chineseTag = tagMapping.value[taste] || focusAreaMapping[taste] || tagMappingZh[taste] || taste;
+          const chineseTag =
+            tagMapping.value[taste] ||
+            focusAreaMapping[taste] ||
+            tagMappingZh[taste] ||
+            taste;
           tags.push(chineseTag);
         });
       }
@@ -916,7 +991,10 @@ export default {
     // 获取城市名称
     const getSelectedCityName = () => {
       if (!props || !props.baseForm) return "未设置";
-      return getCityName(props.baseForm?.destination, props.baseForm?.destinationName);
+      return getCityName(
+        props.baseForm?.destination,
+        props.baseForm?.destinationName
+      );
     };
 
     // 格式化日期范围显示
@@ -958,7 +1036,9 @@ export default {
 
     const getSpecialExperiencesText = (experiences) => {
       if (!experiences || experiences.length === 0) return "";
-      return experiences.map((exp) => specialExperienceMapping[exp] || exp).join("、");
+      return experiences
+        .map((exp) => specialExperienceMapping[exp] || exp)
+        .join("、");
     };
 
     const getDietaryRestrictionsText = (restrictions) => {
@@ -1025,13 +1105,20 @@ export default {
       // 基本信息 (40分)
       if (props.baseForm.destination) score += 10;
       if (props.baseForm.days) score += 10;
-      if (props.baseForm.dateRange && props.baseForm.dateRange.length === 2) score += 10;
+      if (props.baseForm.dateRange && props.baseForm.dateRange.length === 2)
+        score += 10;
       if (props.baseForm.budget) score += 10;
 
       // 个人偏好 (20分)
-      if (currentUserPreferences.value && selectedPreferenceTags.value.length > 0)
+      if (
+        currentUserPreferences.value &&
+        selectedPreferenceTags.value.length > 0
+      )
         score += 10;
-      if (currentUserPreferences.value && currentUserPreferences.value.travelPace)
+      if (
+        currentUserPreferences.value &&
+        currentUserPreferences.value.travelPace
+      )
         score += 5;
       if (
         currentUserPreferences.value &&
@@ -1041,12 +1128,18 @@ export default {
         score += 5;
 
       // 本次行程偏好 (30分)
-      if (props.preferenceForm.tripGoals && props.preferenceForm.tripGoals.length > 0)
+      if (
+        props.preferenceForm.tripGoals &&
+        props.preferenceForm.tripGoals.length > 0
+      )
         score += 6;
       if (props.preferenceForm.pacePreference) score += 6;
       if (props.preferenceForm.socialPreference) score += 4;
       if (props.preferenceForm.photoPreference) score += 4;
-      if (props.preferenceForm.focusAreas && props.preferenceForm.focusAreas.length > 0)
+      if (
+        props.preferenceForm.focusAreas &&
+        props.preferenceForm.focusAreas.length > 0
+      )
         score += 10;
 
       // 必去景点和餐厅 (10分)
@@ -1067,9 +1160,9 @@ export default {
     // 获取提示词完成度文本
     const getPromptCompletionText = () => {
       const score = getPromptCompletionScore();
-      if (score >= 80) return t('trip.promptQuality.high');
-      if (score >= 50) return t('trip.promptQuality.medium');
-      return t('trip.promptQuality.low');
+      if (score >= 80) return "信息完整度高";
+      if (score >= 50) return "信息完整度中等";
+      return "信息完整度较低";
     };
 
     // 生成完整提示词文本
@@ -1093,7 +1186,10 @@ export default {
       }
 
       // 个人偏好
-      if (currentUserPreferences.value && selectedPreferenceTags.value.length > 0) {
+      if (
+        currentUserPreferences.value &&
+        selectedPreferenceTags.value.length > 0
+      ) {
         prompt += `我的旅行偏好是${selectedPreferenceTags.value.join("、")}。`;
         if (currentUserPreferences.value.accommodationType) {
           prompt += `住宿偏好${
@@ -1120,20 +1216,25 @@ export default {
 
       // 本次行程偏好
       const hasAnyPreference =
-        (props.preferenceForm.tripGoals && props.preferenceForm.tripGoals.length > 0) ||
+        (props.preferenceForm.tripGoals &&
+          props.preferenceForm.tripGoals.length > 0) ||
         props.preferenceForm.pacePreference ||
         props.preferenceForm.socialPreference ||
         props.preferenceForm.photoPreference ||
-        (props.preferenceForm.focusAreas && props.preferenceForm.focusAreas.length > 0) ||
+        (props.preferenceForm.focusAreas &&
+          props.preferenceForm.focusAreas.length > 0) ||
         props.preferenceForm.specialRequirements;
 
       if (hasAnyPreference) {
         // 行程目标
-        if (props.preferenceForm.tripGoals && props.preferenceForm.tripGoals.length > 0) {
+        if (
+          props.preferenceForm.tripGoals &&
+          props.preferenceForm.tripGoals.length > 0
+        ) {
           // 优先翻译通用标签（如 food、hiking）
           const goalsText = getTripGoalsText(props.preferenceForm.tripGoals)
             .replace(/food/g, tagMappingZh.food)
-            .replace(/hiking/g, '徒步');
+            .replace(/hiking/g, "徒步");
           prompt += `本次行程目标是${goalsText}。`;
         }
 
@@ -1268,7 +1369,8 @@ export default {
             prompt += `具体天气预报：`;
             const forecastSummary = props.weatherSuggestion.forecast
               .map(
-                (day) => `${day.date}${day.dayWeather}，${day.dayTemp}℃/${day.nightTemp}℃`
+                (day) =>
+                  `${day.date}${day.dayWeather}，${day.dayTemp}℃/${day.nightTemp}℃`
               )
               .join("；");
             prompt += forecastSummary + "。";
@@ -1277,7 +1379,8 @@ export default {
             prompt += `可获取的天气预报（前${forecastDays}天）：`;
             const forecastSummary = props.weatherSuggestion.forecast
               .map(
-                (day) => `${day.date}${day.dayWeather}，${day.dayTemp}℃/${day.nightTemp}℃`
+                (day) =>
+                  `${day.date}${day.dayWeather}，${day.dayTemp}℃/${day.nightTemp}℃`
               )
               .join("；");
             prompt += forecastSummary + "。";
@@ -1305,7 +1408,9 @@ export default {
           props.preferenceForm.dietaryRestrictions &&
           props.preferenceForm.dietaryRestrictions.length > 0
         ) {
-          prompt += getDietaryRestrictionsText(props.preferenceForm.dietaryRestrictions);
+          prompt += getDietaryRestrictionsText(
+            props.preferenceForm.dietaryRestrictions
+          );
         }
         if (props.preferenceForm.customDietaryNotes) {
           if (
@@ -1367,12 +1472,16 @@ export default {
       const userEndDate = new Date(props.baseForm.dateRange[1]);
 
       // 获取天气预报的日期范围
-      const forecastDates = props.weatherSuggestion.forecast.map((f) => new Date(f.date));
+      const forecastDates = props.weatherSuggestion.forecast.map(
+        (f) => new Date(f.date)
+      );
       const forecastStartDate = new Date(Math.min(...forecastDates));
       const forecastEndDate = new Date(Math.max(...forecastDates));
 
       // 检查用户选择的日期是否与天气预报日期有重叠
-      return userStartDate <= forecastEndDate && userEndDate >= forecastStartDate;
+      return (
+        userStartDate <= forecastEndDate && userEndDate >= forecastStartDate
+      );
     };
 
     // 显示完整提示词弹窗
@@ -1380,7 +1489,7 @@ export default {
       fullPromptText.value = generatePromptText();
       fullPromptVisible.value = true;
       ElMessage({
-        message: t('trip.messages.fullPromptReady'),
+        message: "完整提示词已准备就绪",
         type: "success",
         duration: 3000,
       });
@@ -1391,7 +1500,7 @@ export default {
       try {
         await navigator.clipboard.writeText(fullPromptText.value);
         ElMessage({
-          message: t('trip.messages.copySuccess'),
+          message: "复制成功",
           type: "success",
           duration: 2000,
         });
@@ -1404,13 +1513,13 @@ export default {
         try {
           document.execCommand("copy");
           ElMessage({
-            message: t('trip.messages.copySuccess'),
+            message: "复制成功",
             type: "success",
             duration: 2000,
           });
         } catch (err) {
           ElMessage({
-            message: t('trip.messages.copyFailed'),
+            message: "复制失败，请手动复制",
             type: "error",
             duration: 3000,
           });
@@ -1431,7 +1540,9 @@ export default {
       if (!props || !props.baseForm) return false;
 
       const basicInfoValid =
-        props.baseForm.destination && props.baseForm.days && props.baseForm.travelers;
+        props.baseForm.destination &&
+        props.baseForm.days &&
+        props.baseForm.travelers;
       if (!basicInfoValid) return false;
 
       // 验证数据逻辑一致性
@@ -1483,26 +1594,26 @@ export default {
       if (prefForm.tripGoals && Array.isArray(prefForm.tripGoals)) {
         if (prefForm.tripGoals.includes("family") && travelers < 3) {
           errors.push({
-            type: 'mismatch',
-            message: '家庭亲子游通常需要至少3人（包含大人和小孩）',
-            suggestion: '调整人数为3人或以上，或选择其他行程目标',
-            allowIgnore: true
+            type: "mismatch",
+            message: "家庭亲子游通常需要至少3人（包含大人和小孩）",
+            suggestion: "调整人数为3人或以上，或选择其他行程目标",
+            allowIgnore: true,
           });
         }
         if (prefForm.tripGoals.includes("romantic") && travelers !== 2) {
           errors.push({
-            type: 'mismatch', 
-            message: '情侣蜜月游适合2人出行，当前设置不匹配',
-            suggestion: '调整人数为2人，或选择其他行程目标',
-            allowIgnore: true
+            type: "mismatch",
+            message: "情侣蜜月游适合2人出行，当前设置不匹配",
+            suggestion: "调整人数为2人，或选择其他行程目标",
+            allowIgnore: true,
           });
         }
         if (prefForm.tripGoals.includes("solo") && travelers > 1) {
           errors.push({
-            type: 'mismatch',
-            message: '个人独旅是一个人的旅行体验',
+            type: "mismatch",
+            message: "个人独旅是一个人的旅行体验",
             suggestion: '调整人数为1人，或选择"朋友聚会游"等其他目标',
-            allowIgnore: false
+            allowIgnore: false,
           });
         }
       }
@@ -1510,10 +1621,10 @@ export default {
       // 2. 检查传统标签与人数匹配（向后兼容，但不强制）
       if (hasTag("family", "亲子出游") && travelers < 3) {
         warnings.push({
-          type: 'legacy_mismatch',
+          type: "legacy_mismatch",
           message: '用户偏好标签"亲子出游"与人数不匹配',
-          suggestion: '建议至少3人出行，或调整个人偏好设置',
-          allowIgnore: true
+          suggestion: "建议至少3人出行，或调整个人偏好设置",
+          allowIgnore: true,
         });
       }
 
@@ -1525,29 +1636,29 @@ export default {
         if (budgetMatch && budgetMatch.length > 0) {
           const avgBudget = parseInt(budgetMatch[0]);
           const perPersonPerDay = avgBudget / (days * travelers);
-          
+
           if (perPersonPerDay < 200) {
             warnings.push({
-              type: 'budget',
+              type: "budget",
               message: `人均每日预算约${Math.round(perPersonPerDay)}元，可能偏低`,
-              suggestion: '建议适当增加预算或调整行程期望，确保旅行体验质量',
-              allowIgnore: true
+              suggestion: "建议适当增加预算或调整行程期望，确保旅行体验质量",
+              allowIgnore: true,
             });
           } else if (perPersonPerDay > 2000) {
             warnings.push({
-              type: 'budget',
+              type: "budget",
               message: `人均每日预算约${Math.round(perPersonPerDay)}元，属于高端旅行`,
-              suggestion: 'AI将为您推荐高品质的景点、餐厅和体验项目',
-              allowIgnore: true
+              suggestion: "AI将为您推荐高品质的景点、餐厅和体验项目",
+              allowIgnore: true,
             });
           }
         }
       } else if (days > 7 && !budget) {
         warnings.push({
-          type: 'budget',
-          message: '长途旅行建议设置预算范围',
-          suggestion: '设置预算有助于AI推荐更符合您消费水平的景点和餐厅',
-          allowIgnore: true
+          type: "budget",
+          message: "长途旅行建议设置预算范围",
+          suggestion: "设置预算有助于AI推荐更符合您消费水平的景点和餐厅",
+          allowIgnore: true,
         });
       }
 
@@ -1562,10 +1673,10 @@ export default {
 
         if (hasNature && hasUrban && days < 5) {
           warnings.push({
-            type: 'experience_conflict',
-            message: '您同时选择了自然风光和城市体验',
+            type: "experience_conflict",
+            message: "您同时选择了自然风光和城市体验",
             suggestion: `${days}天行程建议重点选择一种：自然风光（山水景观、户外活动）或城市体验（购物、夜生活、都市文化）`,
-            allowIgnore: true
+            allowIgnore: true,
           });
         }
       }
@@ -1574,10 +1685,10 @@ export default {
       if (prefForm.pacePreference && days) {
         if (prefForm.pacePreference === "fast" && days > 10) {
           warnings.push({
-            type: 'pace_mismatch',
-            message: '长途旅行选择紧凑节奏可能比较辛苦',
+            type: "pace_mismatch",
+            message: "长途旅行选择紧凑节奏可能比较辛苦",
             suggestion: '建议选择"平衡型"节奏，既能多看景点又有充分休息',
-            allowIgnore: true
+            allowIgnore: true,
           });
         }
       }
@@ -1600,52 +1711,52 @@ export default {
       // 数据验证
       const validation = validateTripData();
 
-              if (!validation.isValid) {
-          // 显示具体的验证错误
-          validation.errors.forEach((error) => {
-            if (typeof error === 'string') {
-              ElMessage.error(error);
-            } else {
-              ElMessage.error({
-                message: error.message,
-                duration: 6000,
-                showClose: true
-              });
-            }
-          });
-          return;
-        }
+      if (!validation.isValid) {
+        // 显示具体的验证错误
+        validation.errors.forEach((error) => {
+          if (typeof error === "string") {
+            ElMessage.error(error);
+          } else {
+            ElMessage.error({
+              message: error.message,
+              duration: 6000,
+              showClose: true,
+            });
+          }
+        });
+        return;
+      }
 
-        // 显示警告（但不阻止生成）
-        if (validation.warnings.length > 0) {
-          validation.warnings.forEach((warning) => {
-            if (typeof warning === 'string') {
-              ElMessage.warning(warning);
-            } else {
-              ElMessage.warning({
-                message: `${warning.message}\n建议：${warning.suggestion}`,
-                duration: 8000,
-                showClose: true
-              });
-            }
-          });
-        }
+      // 显示警告（但不阻止生成）
+      if (validation.warnings.length > 0) {
+        validation.warnings.forEach((warning) => {
+          if (typeof warning === "string") {
+            ElMessage.warning(warning);
+          } else {
+            ElMessage.warning({
+              message: `${warning.message}\n建议：${warning.suggestion}`,
+              duration: 8000,
+              showClose: true,
+            });
+          }
+        });
+      }
 
       if (!canGenerateTrip.value) {
-        ElMessage.warning(t('trip.warnings.completeBasicInfo'));
+        ElMessage.warning("请先完成基本信息填写");
         return;
       }
 
       try {
         // 通过emit通知父组件更新状态
         emit("update:generating", true);
-        emit("update:generationProgress", t('trip.progress.start'));
+        emit("update:generationProgress", "开始生成行程...");
         emit("update:progressPercent", 5);
 
         // 等待一下让用户看到开始状态
         await new Promise((resolve) => setTimeout(resolve, 800));
 
-        emit("update:generationProgress", t('trip.progress.analyzingPrefs'));
+        emit("update:generationProgress", "分析用户偏好...");
         emit("update:progressPercent", 15);
 
         // 构建AI请求数据
@@ -1709,21 +1820,21 @@ export default {
         };
 
         // 数据准备完成
-        emit("update:generationProgress", t('trip.progress.buildPrompt'));
+        emit("update:generationProgress", "构建提示词...");
         emit("update:progressPercent", 25);
 
         await new Promise((resolve) => setTimeout(resolve, 600));
 
-        emit("update:generationProgress", t('trip.progress.connectAi'));
+        emit("update:generationProgress", "连接AI服务...");
         emit("update:progressPercent", 35);
 
         await new Promise((resolve) => setTimeout(resolve, 500));
 
-        emit("update:generationProgress", t('trip.progress.deepAnalyze'));
+        emit("update:generationProgress", "深度分析中...");
         emit("update:progressPercent", 45);
 
         // 调用后端AI接口
-        emit("update:generationProgress", t('trip.progress.sending'));
+        emit("update:generationProgress", "发送请求...");
         emit("update:progressPercent", 55);
 
         // 创建取消控制器
@@ -1738,33 +1849,35 @@ export default {
           signal: abortController.signal,
         });
 
-         emit("update:generationProgress", t('trip.progress.generating'));
-         emit("update:progressPercent", 75);
- 
-         // 检查响应状态
-         if (!response.ok) {
-           const errorText = await response.text();
-           throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
-         }
-         
-         // 安全地解析JSON
-         let result;
-         try {
-           const responseText = await response.text();
-           if (!responseText.trim()) {
-             throw new Error("服务器返回空响应");
-           }
-           result = JSON.parse(responseText);
-         } catch (jsonError) {
-           console.error("JSON解析错误:", jsonError);
-           throw new Error("服务器响应格式错误，请稍后重试");
-         }
+        emit("update:generationProgress", "AI正在生成行程...");
+        emit("update:progressPercent", 75);
 
-        emit("update:generationProgress", t('trip.progress.formatting'));
+        // 检查响应状态
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(
+            `HTTP ${response.status}: ${errorText || response.statusText}`
+          );
+        }
+
+        // 安全地解析JSON
+        let result;
+        try {
+          const responseText = await response.text();
+          if (!responseText.trim()) {
+            throw new Error("服务器返回空响应");
+          }
+          result = JSON.parse(responseText);
+        } catch (jsonError) {
+          console.error("JSON解析错误:", jsonError);
+          throw new Error("服务器响应格式错误，请稍后重试");
+        }
+
+        emit("update:generationProgress", "正在格式化结果...");
         emit("update:progressPercent", 90);
 
         if (result.code === 200) {
-          emit("update:generationProgress", t('trip.generated'));
+          emit("update:generationProgress", "行程生成完成");
           emit("update:progressPercent", 100);
 
           // 处理成功结果
@@ -1785,48 +1898,48 @@ export default {
           emit("generation-complete", tripData);
 
           ElMessage.success({
-            message: t('trip.messages.generateSuccess', { score: result.data.qualityScore, seconds: Math.round(result.data.processingTime / 1000) }),
+            message: `行程生成成功！质量评分：${result.data.qualityScore}，耗时：${Math.round(result.data.processingTime / 1000)}秒`,
             duration: 5000,
             showClose: true,
           });
         } else {
-          throw new Error(result.msg || t('trip.errors.generateFailed'));
+          throw new Error(result.msg || "行程生成失败");
         }
       } catch (error) {
         console.error("生成行程失败:", error);
-        
+
         // 检查是否是用户主动取消
-        if (error.name === 'AbortError') {
-          emit("update:generationProgress", t('trip.messages.cancelled'));
+        if (error.name === "AbortError") {
+          emit("update:generationProgress", "已取消生成");
           emit("update:progressPercent", 0);
           ElMessage.info({
-            message: t('trip.messages.cancelled'),
+            message: "已取消行程生成",
             duration: 3000,
           });
           emit("update:generating", false);
           abortController = null;
           return;
         }
-        
-        emit("update:generationProgress", t('trip.errors.generateFailedRetry'));
+
+        emit("update:generationProgress", "行程生成失败，请重试");
         emit("update:progressPercent", 0);
 
         // 根据错误类型提供不同的提示
-        let errorMessage = t('trip.errors.generateFailed');
+        let errorMessage = "行程生成失败";
         if (
           error.message.includes("timeout") ||
           error.message.includes("TimeoutException")
         ) {
-          errorMessage = t('trip.errors.timeout');
+          errorMessage = "请求超时，请稍后重试";
         } else if (
           error.message.includes("402") ||
           error.message.includes("Payment Required")
         ) {
-          errorMessage = t('trip.errors.paymentRequired');
+          errorMessage = "余额不足，请检查账户余额";
         } else if (error.message.includes("Failed to fetch")) {
-          errorMessage = t('trip.errors.network');
+          errorMessage = "网络连接失败，请检查网络连接";
         } else {
-          errorMessage = `${t('trip.errors.withMessage')} ${error.message}`;
+          errorMessage = `错误详情： ${error.message}`;
         }
 
         ElMessage.error({
@@ -1848,7 +1961,7 @@ export default {
       if (abortController) {
         abortController.abort();
         ElMessage.info({
-          message: t('trip.messages.cancelling'),
+          message: "正在取消生成...",
           duration: 2000,
         });
       }
@@ -1856,7 +1969,8 @@ export default {
 
     // 判断用户类型的辅助方法
     const determineUserType = () => {
-      if (!props || !props.baseForm || !props.baseForm.travelers) return "INDIVIDUAL";
+      if (!props || !props.baseForm || !props.baseForm.travelers)
+        return "INDIVIDUAL";
       if (props.baseForm.travelers > 2) return "FAMILY";
       if (props.baseForm.travelers === 2) return "COUPLE";
       return "INDIVIDUAL";
@@ -1908,7 +2022,6 @@ export default {
       return paceMapping[pacePreference] || "moderate";
     };
 
-
     // 组件挂载时的处理
     onMounted(async () => {
       // TripGeneration组件挂载
@@ -1916,7 +2029,8 @@ export default {
       // 如果用户已登录但没有偏好数据，尝试从API获取
       if (
         userStore.isLoggedIn &&
-        (!props.userPreferences || Object.keys(props.userPreferences).length === 0)
+        (!props.userPreferences ||
+          Object.keys(props.userPreferences).length === 0)
       ) {
         try {
           // 尝试获取用户偏好数据
@@ -1942,7 +2056,6 @@ export default {
     );
 
     return {
-      t,
       generatePromptText,
       showFullPrompt,
       copyPromptToClipboard,
@@ -2111,7 +2224,12 @@ export default {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
   animation: shimmer 2s infinite;
 }
 
@@ -2401,7 +2519,8 @@ export default {
   white-space: pre-wrap;
   word-wrap: break-word;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
     Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   font-size: 14px;
   line-height: 1.6;
@@ -2513,18 +2632,18 @@ export default {
     padding: 12px;
     margin: 12px 0 16px 0;
   }
-  
+
   .option-group {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
-  
+
   .inline-style-options {
     gap: 16px;
     flex-wrap: wrap;
   }
-  
+
   .inline-style-options :deep(.el-radio__label) {
     font-size: 13px;
   }

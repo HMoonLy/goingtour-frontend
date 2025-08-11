@@ -1,38 +1,40 @@
 <template>
   <div class="step-content">
-    <el-card
-class="info-card" shadow="hover"
->
-      <div
-v-if="tripData" class="trip-preview"
->
+    <el-card class="info-card" shadow="hover">
+      <div v-if="tripData" class="trip-preview">
         <!-- 行程概述 -->
         <div class="trip-summary">
           <div class="summary-header">
             <div class="summary-title">
-              <h3>{{ getSelectedCityName() }} {{ baseForm?.days || 0 }}{{ t('personal.daysSuffix') }}</h3>
+              <h3>
+                {{ getSelectedCityName() }} {{ baseForm?.days || 0
+                }}天
+              </h3>
               <div class="summary-stats">
                 <div class="stat-item">
                   <el-icon><MapLocation /></el-icon>
-                  <span>{{ t('trip.attractionCount', { count: tripData?.attractions?.length || 0 }) }}</span>
+                  <span>{{
+                    `${tripData?.attractions?.length || 0}个景点`
+                  }}</span>
                 </div>
                 <div class="stat-item">
                   <el-icon><Shop /></el-icon>
-                  <span>{{ t('trip.restaurantCount', { count: tripData?.restaurants?.length || 0 }) }}</span>
+                  <span>{{
+                    `${tripData?.restaurants?.length || 0}家餐厅`
+                  }}</span>
                 </div>
                 <div class="stat-item">
                   <el-icon><Money /></el-icon>
-                  <span>{{ t('trip.estimatedCost') }}：{{ getEstimatedCost() }}</span>
+                  <span>{{ "预计花费" }}：{{
+                    getEstimatedCost()
+                  }}</span>
                 </div>
               </div>
             </div>
             <div class="summary-actions">
-              <el-button
-type="primary" size="large"
-@click="shareTrip"
->
+              <el-button type="primary" size="large" @click="shareTrip">
                 <el-icon><Share /></el-icon>
-                {{ t('trip.share') }}
+                {{ "分享" }}
               </el-button>
             </div>
           </div>
@@ -45,7 +47,7 @@ type="primary" size="large"
               class="day-plan"
             >
               <div class="day-header">
-                 <h4>{{ t('trip.dayN', { n: index + 1 }) }}</h4>
+                <h4>{{ `第${index + 1}天` }}</h4>
                 <span class="day-date">{{ formatDayDate(index) }}</span>
               </div>
               <div class="day-activities">
@@ -81,14 +83,11 @@ type="primary" size="large"
                         <el-icon><Refresh /></el-icon>
                       </el-button>
                       <el-popconfirm
-                        :title="t('common.confirmRemove')"
+                        :title="'确定要删除吗？'"
                         @confirm="removeActivity(index, activityIndex)"
                       >
                         <template #reference>
-                          <el-button
-size="small" circle
-type="danger"
->
+                          <el-button size="small" circle type="danger">
                             <el-icon><Delete /></el-icon>
                           </el-button>
                         </template>
@@ -103,23 +102,15 @@ type="danger"
       </div>
 
       <!-- 加载中状态 -->
-      <div
-v-else-if="isLoading" class="no-trip-data"
->
-        <el-skeleton
-:rows="10" animated
-/>
+      <div v-else-if="isLoading" class="no-trip-data">
+        <el-skeleton :rows="10" animated />
       </div>
 
       <!-- 无数据状态 -->
-      <div
-v-else class="no-trip-data"
->
-         <el-empty :description="t('trip.noTripData')">
-          <el-button
-type="primary" @click="$emit('prev-step')"
->
-            {{ t('trip.generateTrip') }}
+      <div v-else class="no-trip-data">
+        <el-empty :description="'暂无行程数据'">
+          <el-button type="primary" @click="$emit('prev-step')">
+            {{ "生成行程" }}
           </el-button>
         </el-empty>
       </div>
@@ -127,11 +118,9 @@ type="primary" @click="$emit('prev-step')"
 
     <!-- 步骤操作按钮 -->
     <div class="step-actions">
-      <el-button
-size="large" @click="$emit('prev-step')"
->
+      <el-button size="large" @click="$emit('prev-step')">
         <el-icon><ArrowLeft /></el-icon>
-        {{ t('common.previous') }}
+        {{ "上一步" }}
       </el-button>
 
       <el-button
@@ -140,7 +129,7 @@ size="large" @click="$emit('prev-step')"
         :disabled="!tripData"
         @click="saveTrip"
       >
-        {{ t('trip.saveTrip') }}
+        {{ "保存行程" }}
       </el-button>
     </div>
   </div>
@@ -149,7 +138,6 @@ size="large" @click="$emit('prev-step')"
 <script>
 import { ref, computed, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { useI18n } from "@/utils/i18n.js";
 import {
   MapLocation,
   Shop,
@@ -194,7 +182,6 @@ export default {
   },
   emits: ["regenerate", "saved", "prev-step"],
   setup(props, { emit }) {
-    const { t } = useI18n();
     // 城市信息数据库
     const cityInfoDatabase = {
       beijing: {
@@ -340,7 +327,6 @@ export default {
     });
 
     return {
-      t,
       getSelectedCityName,
       formatDayDate,
       getBudgetText,

@@ -40,19 +40,20 @@ let UPLOAD_CONFIG = {
 };
 
 // 尝试加载配置文件
-try {
-    const configModule = await
-    import ('@/config/oss.config.js');
-    if (configModule.OSS_CONFIG) {
-        OSS_CONFIG = {...OSS_CONFIG, ...configModule.OSS_CONFIG };
+(async () => {
+    try {
+        const configModule = await import('@/config/oss.config.js');
+        if (configModule.OSS_CONFIG) {
+            OSS_CONFIG = {...OSS_CONFIG, ...configModule.OSS_CONFIG };
+        }
+        if (configModule.UPLOAD_CONFIG) {
+            UPLOAD_CONFIG = {...UPLOAD_CONFIG, ...configModule.UPLOAD_CONFIG };
+        }
+        console.log('✅ OSS配置文件加载成功');
+    } catch (error) {
+        console.warn('⚠️ OSS配置文件不存在，使用默认配置。请复制 oss.config.example.js 为 oss.config.js 并配置相关信息');
     }
-    if (configModule.UPLOAD_CONFIG) {
-        UPLOAD_CONFIG = {...UPLOAD_CONFIG, ...configModule.UPLOAD_CONFIG };
-    }
-    console.log('✅ OSS配置文件加载成功');
-} catch (error) {
-    console.warn('⚠️ OSS配置文件不存在，使用默认配置。请复制 oss.config.example.js 为 oss.config.js 并配置相关信息');
-}
+})();
 
 class OSSUploader {
     constructor() {

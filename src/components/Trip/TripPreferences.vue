@@ -3,10 +3,16 @@
     <!-- 页面标题区域 -->
     <div class="page-title">
       <div class="title-content">
-        <el-icon class="title-icon"><MagicStick /></el-icon>
+        <el-icon class="title-icon">
+          <MagicStick />
+        </el-icon>
         <div class="title-text">
-          <h2 class="main-title">{{ t('trip.personalPreferences') }}</h2>
-          <p class="subtitle">{{ t('trip.prepareGenerateDesc') }}</p>
+          <h2 class="main-title">
+            个人偏好
+          </h2>
+          <p class="subtitle">
+            准备生成您的专属行程
+          </p>
         </div>
       </div>
     </div>
@@ -15,7 +21,9 @@
     <div class="form-section">
       <div class="section-title">
         <el-icon><Location /></el-icon>
-        <span>{{ t('search.recommendationFor', { city: cityInfo?.destinationName || t('trip.destination') }) }}</span>
+        <span>{{
+          (cityInfo?.destinationName || "目的地") + "推荐内容"
+        }}</span>
       </div>
 
       <!-- 切换标签 -->
@@ -29,8 +37,10 @@
           "
         >
           <el-icon><Location /></el-icon>
-          <span>{{ t('trip.mustSee') }}</span>
-          <el-tag size="small" type="success">{{ t('trip.weather.amapApi') }}</el-tag>
+          <span>必去景点</span>
+          <el-tag size="small" type="success">
+            高德天气API
+          </el-tag>
         </div>
         <div
           class="tab-item"
@@ -41,8 +51,10 @@
           "
         >
           <el-icon><Food /></el-icon>
-          <span>{{ t('trip.mustEat') }}</span>
-          <el-tag size="small" type="warning">{{ t('trip.weather.amapApi') }}</el-tag>
+          <span>必去餐厅</span>
+          <el-tag size="small" type="warning">
+            高德天气API
+          </el-tag>
         </div>
       </div>
 
@@ -51,7 +63,11 @@
         <div class="search-input-group">
           <el-input
             v-model="searchKeyword"
-            :placeholder="SisShow ? t('search.attractionPlaceholder') : t('search.restaurantPlaceholder')"
+            :placeholder="
+              SisShow
+                ? '请输入景点名称或关键词'
+                : '请输入餐厅名称或关键词'
+            "
             clearable
             @keyup.enter="handleSearch"
             @clear="handleClearSearch"
@@ -62,19 +78,19 @@
           </el-input>
           <el-button type="primary" :loading="searching" @click="handleSearch">
             <el-icon><Search /></el-icon>
-            {{ t('common.search') }}
+            搜索
           </el-button>
         </div>
         <div class="search-filters">
           <el-select
             v-model="sortBy"
-            :placeholder="t('search.sortBy')"
+            placeholder="排序方式"
             size="small"
             style="width: 120px"
           >
-            <el-option :label="t('search.sort.default')" value="default" />
-            <el-option :label="t('search.sort.rating')" value="rating" />
-            <el-option :label="t('search.sort.distance')" value="distance" />
+            <el-option label="默认排序" value="default" />
+            <el-option label="评分优先" value="rating" />
+            <el-option label="距离优先" value="distance" />
           </el-select>
         </div>
       </div>
@@ -87,13 +103,15 @@
           class="search-mode-tip"
         >
           <el-alert
-            :title="t('search.resultsFor', { keyword: searchKeyword, count: searchResults.filter((item)=>item.isAttraction).length })"
+            :title="'搜索结果：' + searchKeyword + '（共 ' + searchResults.filter((item) => item.isAttraction).length + ' 个景点）'"
             type="info"
             :closable="false"
             show-icon
           />
           <div style="margin-top: 8px">
-            <el-button size="small" @click="handleClearSearch">{{ t('search.backToRecommend') }}</el-button>
+            <el-button size="small" @click="handleClearSearch">
+              返回推荐
+            </el-button>
           </div>
         </div>
 
@@ -105,7 +123,7 @@
           v-else-if="recommendedAttractions.length === 0 && !apiError"
           class="empty-state"
         >
-          <el-empty :description="t('search.noAttraction')" />
+          <el-empty :description="暂无推荐景点" />
         </div>
 
         <div v-else-if="apiError" class="error-state">
@@ -133,7 +151,7 @@
                 @error="
                   (e) =>
                     (e.target.src =
-                   'https://via.placeholder.com/300x200?text=Attraction')
+                      'https://via.placeholder.com/300x200?text=Attraction')
                 "
               />
               <div v-else class="no-image">
@@ -153,7 +171,9 @@
                 <span class="rating-value">{{ attraction.rating }}</span>
               </div>
               <div class="recommendation-tags">
-                <el-tag size="small" type="success" class="category-tag">{{ t('category.scenic') }}</el-tag>
+                <el-tag size="small" type="success" class="category-tag">
+                  风景名胜 
+                </el-tag>
                 <el-tag size="small" class="tag-item">
                   {{ attraction.type }}
                 </el-tag>
@@ -163,7 +183,7 @@
               <div class="attraction-tags">
                 <p class="tags-title">
                   <el-icon><Star /></el-icon>
-                  {{ t('restaurant.features.recommended') }}:
+                   推荐 :
                 </p>
                 <div
                   v-if="extractAttractionTags(attraction).length > 0"
@@ -189,7 +209,7 @@
                     type="info"
                     class="feature-tag empty-tag"
                   >
-                    {{ t('common.none') || 'N/A' }}
+                    无 
                   </el-tag>
                 </div>
               </div>
@@ -197,7 +217,7 @@
               <p class="recommendation-address">
                 <el-icon><Location /></el-icon>
                 <span class="address-text">{{
-                  attraction.address || t('search.noAddress')
+                  attraction.address || "暂无地址信息"
                 }}</span>
               </p>
 
@@ -211,7 +231,7 @@
                   @click="addAttractionToPlan(attraction)"
                 >
                   <el-icon><Plus /></el-icon>
-                  {{ t('trip.add') || t('common.add') }}
+                   添加到计划 
                 </el-button>
                 <el-button
                   v-else
@@ -220,7 +240,7 @@
                   @click="removeAttractionFromPlan(attraction)"
                 >
                   <el-icon><Check /></el-icon>
-                  {{ t('trip.added') || t('common.selected') }}
+                   已添加 
                 </el-button>
               </div>
             </div>
@@ -238,7 +258,7 @@
             @click="loadMoreAttractions"
           >
             <el-icon><More /></el-icon>
-            {{ t('search.viewMoreAttraction') }}
+             查看更多景点 
           </el-button>
         </div>
       </div>
@@ -251,13 +271,18 @@
           class="search-mode-tip"
         >
           <el-alert
-            :title="t('search.resultsForRestaurant', { keyword: searchKeyword, count: searchResults.filter((item)=>!item.isAttraction).length })"
+            :title="
+              '搜索\'' + searchKeyword + '\'\u7684结果（' +
+                searchResults.filter((item) => !item.isAttraction).length + '家餐厅）'
+            "
             type="info"
             :closable="false"
             show-icon
           />
           <div style="margin-top: 8px">
-            <el-button size="small" @click="handleClearSearch">{{ t('search.backToRecommend') }}</el-button>
+            <el-button size="small" @click="handleClearSearch">
+              返回推荐
+            </el-button>
           </div>
         </div>
 
@@ -269,7 +294,7 @@
           v-else-if="recommendedRestaurants.length === 0 && !apiError"
           class="empty-state"
         >
-          <el-empty :description="t('search.noRestaurant')" />
+          <el-empty description="暂无推荐餐厅" />
         </div>
 
         <div
@@ -300,7 +325,7 @@
                 @error="
                   (e) =>
                     (e.target.src =
-                       'https://via.placeholder.com/300x200?text=Food')
+                      'https://via.placeholder.com/300x200?text=Food')
                 "
               />
               <div v-else class="no-image">
@@ -320,8 +345,12 @@
                 <span class="rating-value">{{ restaurant.rating }}</span>
               </div>
               <div class="recommendation-tags">
-                <el-tag size="small" type="danger" class="price-tag">{{ t('restaurant.perCapita', { price: restaurant.price }) }}</el-tag>
-                <el-tag size="small" type="warning" class="category-tag">{{ t('category.catering') }}</el-tag>
+                <el-tag size="small" type="danger" class="price-tag">
+                  人均￥{{ restaurant.price }}
+                </el-tag>
+                <el-tag size="small" type="warning" class="category-tag">
+                  餐饮服务
+                </el-tag>
                 <el-tag size="small" class="tag-item">
                   {{ restaurant.type }}
                 </el-tag>
@@ -331,7 +360,7 @@
               <div class="signature-dishes">
                 <p class="signature-title">
                   <el-icon><Star /></el-icon>
-                  {{ t('restaurant.features.recommended') || 'Signature:' }}
+                  {{ "推荐" || "Signature:" }}
                 </p>
                 <div
                   v-if="extractSignatureDishes(restaurant).length > 0"
@@ -357,7 +386,7 @@
                     type="success"
                     class="dish-tag empty-tag"
                   >
-                    {{ t('common.none') || 'N/A' }}
+                    {{ "无" }}
                   </el-tag>
                 </div>
               </div>
@@ -365,7 +394,7 @@
               <p class="recommendation-address">
                 <el-icon><Location /></el-icon>
                 <span class="address-text">{{
-                  restaurant.address || t('search.noAddress')
+                  restaurant.address || "暂无地址信息"
                 }}</span>
               </p>
 
@@ -379,7 +408,7 @@
                   @click="addRestaurantToPlan(restaurant)"
                 >
                   <el-icon><Plus /></el-icon>
-                  {{ t('trip.add') || t('common.add') }}
+                  添加到计划 
                 </el-button>
                 <el-button
                   v-else
@@ -388,7 +417,7 @@
                   @click="removeRestaurantFromPlan(restaurant)"
                 >
                   <el-icon><Check /></el-icon>
-                  {{ t('trip.added') || t('common.selected') }}
+                  已添加 
                 </el-button>
               </div>
             </div>
@@ -406,7 +435,7 @@
             @click="loadMoreRestaurants"
           >
             <el-icon><More /></el-icon>
-            {{ t('search.viewMoreRestaurant') }}
+            查看更多餐厅
           </el-button>
         </div>
       </div>
@@ -415,12 +444,12 @@
     <div class="form-sections">
       <!-- 选择摘要区域 -->
       <div
-        class="form-section"
         v-if="selectedAttractions.length > 0 || selectedRestaurants.length > 0"
+        class="form-section"
       >
         <div class="section-title">
           <el-icon><Check /></el-icon>
-          <span>{{ t('common.selected') }}</span>
+          <span>已选择</span>
           <el-tag size="small" type="primary">
             {{ selectedAttractions.length + selectedRestaurants.length }}
           </el-tag>
@@ -435,11 +464,12 @@
                 class="selected-section"
               >
                 <div class="section-header">
-                  <el-icon class="section-icon" color="#409EFF"
-                    ><Location
-                  /></el-icon>
+                  <el-icon class="section-icon" color="#409EFF">
+                    <Location />
+                    />
+                  </el-icon>
                   <h4 class="section-title">
-                    {{ t('trip.mustSee') }} ({{ selectedAttractions.length }})
+                    必去景点 ({{ selectedAttractions.length }})
                   </h4>
                 </div>
                 <div class="selected-list">
@@ -469,11 +499,12 @@
                 class="selected-section"
               >
                 <div class="section-header">
-                  <el-icon class="section-icon" color="#E6A23C"
-                    ><Food
-                  /></el-icon>
+                  <el-icon class="section-icon" color="#E6A23C">
+                    <Food />
+                    />
+                  </el-icon>
                   <h4 class="section-title">
-                    {{ t('trip.mustEat') }} ({{ selectedRestaurants.length }})
+                    必去餐厅 ({{ selectedRestaurants.length }})
                   </h4>
                 </div>
                 <div class="selected-list">
@@ -499,7 +530,9 @@
 
               <!-- 操作按钮 -->
               <div class="summary-actions">
-                <el-button type="danger" link @click="clearAllSelections">{{ t('common.reset') }}</el-button>
+                <el-button type="danger" link @click="clearAllSelections">
+                  重置
+                </el-button>
               </div>
             </div>
           </el-card>
@@ -509,13 +542,15 @@
       <div class="form-section">
         <div class="section-title">
           <el-icon><MagicStick /></el-icon>
-          <span>{{ t('trip.personalPreferences') }}</span>
+          <span>个人偏好</span>
           <div
             v-if="userPreferences && Object.keys(userPreferences).length > 0"
             class="section-subtitle"
           >
             <el-icon><Star /></el-icon>
-            <span>{{ t('preferences.smartPrefilled') || 'Smart suggestions prefilled' }}</span>
+            <span>
+              已为您智能预填推荐选项
+            </span>
           </div>
         </div>
 
@@ -531,8 +566,12 @@
                 <el-icon><Trophy /></el-icon>
               </div>
               <div class="group-info">
-                <h4 class="group-title">{{ t('trip.thisTripPreferences') }}</h4>
-                <p class="group-desc">{{ t('trip.setPreferencesInStep') }}</p>
+                <h4 class="group-title">
+                  本次行程偏好
+                </h4>
+                <p class="group-desc">
+                  请在“个性化偏好”步骤中设置本次行程偏好
+                </p>
               </div>
             </div>
             <div class="option-cards">
@@ -565,8 +604,12 @@
                 <el-icon><Timer /></el-icon>
               </div>
               <div class="group-info">
-                <h4 class="group-title">{{ t('preferences.pace.title') || 'Pace Preference' }}</h4>
-                <p class="group-desc">{{ t('preferences.pace.desc') || '' }}</p>
+                <h4 class="group-title">
+                  行程节奏偏好
+                </h4>
+                <p class="group-desc">
+                  选择符合您这次旅行的时间安排和体验深度
+                </p>
               </div>
             </div>
             <div class="pace-cards">
@@ -583,8 +626,12 @@
                   {{ pace.icon }}
                 </div>
                 <div class="pace-content">
-                <div class="pace-title">{{ pace.title }}</div>
-                <div class="pace-desc">{{ pace.desc }}</div>
+                  <div class="pace-title">
+                    {{ pace.title }}
+                  </div>
+                  <div class="pace-desc">
+                    {{ pace.desc }}
+                  </div>
                 </div>
                 <div
                   v-if="localPreferenceForm.pacePreference === pace.value"
@@ -603,7 +650,9 @@
                 <el-icon><Star /></el-icon>
               </div>
               <div class="group-info">
-                <h4 class="group-title">{{ t('trip.specialExperiences') }}</h4>
+                <h4 class="group-title">
+                  特殊体验
+                </h4>
                 <p class="group-desc">
                   选择本次行程最想体验的内容（最多5项）
                   <span
@@ -611,7 +660,7 @@
                     class="smart-tip"
                   >
                     <el-icon><Star /></el-icon>
-                    {{ t('preferences.recommendedCount', { count: recommendedFocusAreas.length }) || '' }}
+                    已为您推荐 {{ recommendedFocusAreas.length }} 项体验重点
                   </span>
                 </p>
               </div>
@@ -646,7 +695,8 @@
               </div>
             </div>
             <div class="selection-counter">
-              {{ t('common.selected') }} {{ localPreferenceForm.focusAreas.length }}/5
+              已选择 
+              {{ localPreferenceForm.focusAreas.length }}/5
             </div>
           </div>
 
@@ -657,8 +707,12 @@
                 <el-icon><UserFilled /></el-icon>
               </div>
               <div class="group-info">
-                <h4 class="group-title">{{ t('preferences.social.title') || 'Social Preference' }}</h4>
-                <p class="group-desc">{{ t('preferences.social.desc') || '' }}</p>
+                <h4 class="group-title">
+                  社交环境偏好
+                </h4>
+                <p class="group-desc">
+                  选择您更喜欢的旅行环境和氛围
+                </p>
               </div>
             </div>
             <div class="social-cards">
@@ -711,8 +765,12 @@
                 <el-icon><Camera /></el-icon>
               </div>
               <div class="group-info">
-                <h4 class="group-title">{{ t('preferences.photo.title') || 'Photo Preference' }}</h4>
-                <p class="group-desc">{{ t('preferences.photo.desc') || '' }}</p>
+                <h4 class="group-title">
+                  拍照打卡需求
+                </h4>
+                <p class="group-desc">
+                  告诉我们您对拍照和分享的重视程度
+                </p>
               </div>
             </div>
             <div class="photo-cards">
@@ -725,8 +783,12 @@
               >
                 <div class="photo-emoji">📸</div>
                 <div class="photo-content">
-                  <div class="photo-title">{{ t('preferences.photo.must') || 'Must-have' }}</div>
-                  <div class="photo-desc">{{ t('preferences.photo.mustDesc') || '' }}</div>
+                  <div class="photo-title">
+                    必须有
+                  </div>
+                  <div class="photo-desc">
+                    网红打卡点优先
+                  </div>
                 </div>
               </div>
               <div
@@ -738,8 +800,12 @@
               >
                 <div class="photo-emoji">🌅</div>
                 <div class="photo-content">
-                  <div class="photo-title">{{ t('preferences.photo.casual') || 'Casual' }}</div>
-                  <div class="photo-desc">{{ t('preferences.photo.casualDesc') || '' }}</div>
+                  <div class="photo-title">
+                    随性拍拍
+                  </div>
+                  <div class="photo-desc">
+                    自然美景即可
+                  </div>
                 </div>
               </div>
               <div
@@ -751,8 +817,12 @@
               >
                 <div class="photo-emoji">👁️</div>
                 <div class="photo-content">
-                  <div class="photo-title">{{ t('preferences.photo.minimal') || 'Minimal' }}</div>
-                  <div class="photo-desc">{{ t('preferences.photo.minimalDesc') || '' }}</div>
+                  <div class="photo-title">
+                    不太在意
+                  </div>
+                  <div class="photo-desc">
+                    体验优先
+                  </div>
                 </div>
               </div>
             </div>
@@ -766,10 +836,14 @@
               </div>
               <div class="group-info">
                 <h4 class="group-title">
-                  {{ t('trip.dietaryRestrictions') }}
-                  <el-tag type="danger" size="small">{{ t('common.warning') }}</el-tag>
+                  饮食禁忌
+                  <el-tag type="danger" size="small">
+                    警告
+                  </el-tag>
                 </h4>
-                <p class="group-desc">{{ t('preferences.dietary.desc') || '' }}</p>
+                <p class="group-desc">
+                  请告知我们您的饮食限制，确保为您推荐合适的餐厅
+                </p>
               </div>
             </div>
             <div class="dietary-tags">
@@ -799,12 +873,14 @@
             </div>
 
             <div class="custom-dietary">
-                <h5 class="custom-title"><el-icon><Edit /></el-icon>{{ t('trip.specialRequests') }}</h5>
+              <h5 class="custom-title">
+                <el-icon><Edit /></el-icon>特殊请求
+              </h5>
               <el-input
                 v-model="localPreferenceForm.customDietaryNotes"
                 type="textarea"
                 :rows="2"
-                :placeholder="t('preferences.dietary.placeholder') || ''"
+                :placeholder="'请输入其他饮食禁忌或特殊需求，如宗教禁忌、过敏原等'"
                 class="custom-input"
               />
             </div>
@@ -817,15 +893,19 @@
                 <el-icon><Setting /></el-icon>
               </div>
               <div class="group-info">
-                <h4 class="group-title">{{ t('trip.specialRequests') }}</h4>
-                <p class="group-desc">{{ t('preferences.special.desc') || '' }}</p>
+                <h4 class="group-title">
+                  特殊请求
+                </h4>
+                <p class="group-desc">
+                  告诉我们任何需要特别考虑的情况
+                </p>
               </div>
             </div>
             <el-input
               v-model="localPreferenceForm.specialRequirements"
               type="textarea"
               :rows="3"
-              :placeholder="t('preferences.special.placeholder') || ''"
+              :placeholder="'如：行动不便、带小孩、带宠物、无障碍设施需求等'"
               class="special-input"
             />
           </div>
@@ -836,10 +916,10 @@
       <div class="action-section">
         <el-button size="large" @click="$emit('prev-step')">
           <el-icon><ArrowLeft /></el-icon>
-          {{ t('common.previous') }}
+          上一步
         </el-button>
         <el-button type="primary" size="large" @click="$emit('next-step')">
-          {{ t('common.next') }}
+          下一步
           <el-icon><ArrowRight /></el-icon>
         </el-button>
       </div>
@@ -849,7 +929,6 @@
 
 <script>
 import { ref, computed, watch, onMounted } from "vue";
-import { useI18n } from "@/utils/i18n.js";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
   Location,
@@ -877,6 +956,8 @@ import {
 } from "@/api/amap.js";
 import { translateTag } from "@/utils/tagMapping.js";
 import { dataCache } from "@/utils/dataCache.js";
+import { usePreferenceStore } from "@/store/preference.js";
+import { useUserStore } from "@/store/user.js";
 export default {
   name: "TripPreferences",
   components: {
@@ -938,224 +1019,80 @@ export default {
     "next-step",
   ],
   setup(props, { emit }) {
-    const { t } = useI18n();
-    // remove duplicate t declaration
+    // 使用统一的偏好管理store
+    const preferenceStore = usePreferenceStore();
+    const userStore = useUserStore();
+    
+    // 计算属性：直接从store获取偏好表单数据
+    const localPreferenceForm = computed({
+      get: () => preferenceStore.tripPreferenceForm,
+      set: (value) => preferenceStore.updateTripPreferences(value)
+    });
 
-    // 使用父组件传递的值初始化本地数据
-    const localPreferenceForm = ref({ ...props.preferenceForm });
-
-    // 应用用户偏好默认值 - 更新为新的字段结构
-    const applyUserPreferences = () => {
-      // 如果是从草稿恢复的数据，跳过用户偏好应用，保留草稿中的所有设置
+    // 初始化偏好设置（替代原来的applyUserPreferences）
+    const initializePreferences = () => {
       if (props.isFromDraft) {
-        console.log('🔒 检测到草稿状态，跳过用户偏好自动应用，保留草稿设置');
+        console.log("🔒 检测到草稿状态，跳过用户偏好初始化");
         return;
       }
-
-      if (
-        props.userPreferences &&
-        Object.keys(props.userPreferences).length > 0
-      ) {
-        // 应用行程节奏偏好（基于旅行节奏和MBTI）
-        if (
-          props.userPreferences.travelPace &&
-          !localPreferenceForm.value.pacePreference
-        ) {
-          const pace = parseInt(props.userPreferences.travelPace);
-          let pacePreference = "balanced"; // 默认平衡型
-
-          if (pace <= 2) {
-            pacePreference = "slow"; // 慢节奏
-          } else if (pace >= 4) {
-            pacePreference = "fast"; // 快节奏
-          }
-
-          localPreferenceForm.value.pacePreference = pacePreference;
-          console.log("✅ 应用行程节奏偏好:", pace, "-> 节奏:", pacePreference);
-        }
-
-        // 基于MBTI推荐行程目标
-        if (
-          props.userPreferences.mbtiType &&
-          localPreferenceForm.value.tripGoals.length === 0
-        ) {
-          const mbti = props.userPreferences.mbtiType;
-          const mbtiGoalMapping = {
-            INTJ: ["learning", "solo"],
-            INFP: ["relaxation", "photography"],
-            ENFP: ["friendship", "adventure"],
-            ESFP: ["friendship", "photography"],
-            ISFJ: ["family", "relaxation"],
-            ESTJ: ["business", "learning"],
-            ENTP: ["adventure", "learning"],
-            ISTP: ["solo", "adventure"],
-          };
-
-          const suggestedGoals = mbtiGoalMapping[mbti] || ["relaxation"];
-          localPreferenceForm.value.tripGoals = [...suggestedGoals];
-          console.log(
-            "✅ 基于MBTI推荐行程目标:",
-            mbti,
-            "-> 目标:",
-            suggestedGoals
-          );
-        }
-
-        // 应用重点体验偏好（基于用户标签）
-        if (
-          props.userPreferences.selectedTags &&
-          Array.isArray(props.userPreferences.selectedTags)
-        ) {
-          if (!localPreferenceForm.value.focusAreas) {
-            localPreferenceForm.value.focusAreas = [];
-          }
-
-          // 映射用户标签到新的体验偏好 - 使用统一的标签映射
-          const tagToFocusAreaMapping = {
-            historical: "historical_culture",
-            nature: "natural_scenery",
-            food: "local_cuisine",
-            photography: "photo_spots",
-            culture: "art_culture",
-            relaxation: "leisure_entertainment",
-            adventure: "outdoor_adventure",
-            urban: "urban_lifestyle",
-            shopping: "shopping",
-            nightlife: "nightlife",
-          };
-
-          const mappedExperiences = props.userPreferences.selectedTags
-            .map((tag) => tagToFocusAreaMapping[tag])
-            .filter(
-              (exp) =>
-                exp && !localPreferenceForm.value.focusAreas.includes(exp)
-            );
-
-          localPreferenceForm.value.focusAreas.push(...mappedExperiences);
-          console.log("✅ 应用体验偏好:", mappedExperiences);
-        }
-
-        // 应用社交偏好（基于MBTI外向性）
-        if (
-          props.userPreferences.mbtiType &&
-          !localPreferenceForm.value.socialPreference
-        ) {
-          const mbti = props.userPreferences.mbtiType;
-          const isExtrovert = mbti.startsWith("E");
-          localPreferenceForm.value.socialPreference = isExtrovert
-            ? "lively"
-            : "quiet";
-          console.log(
-            "✅ 基于MBTI应用社交偏好:",
-            mbti,
-            "-> 偏好:",
-            localPreferenceForm.value.socialPreference
-          );
-        }
-
-        // 应用拍照偏好（基于用户标签）
-        if (
-          props.userPreferences.selectedTags &&
-          !localPreferenceForm.value.photoPreference
-        ) {
-          const hasPhotoTags = props.userPreferences.selectedTags.some((tag) =>
-            ["photography", "urban", "modern"].includes(tag)
-          );
-          localPreferenceForm.value.photoPreference = hasPhotoTags
-            ? "essential"
-            : "casual";
-          console.log(
-            "✅ 应用拍照偏好:",
-            hasPhotoTags ? "essential" : "casual"
-          );
-        }
-
-        // 应用饮食禁忌偏好
-        if (
-          props.userPreferences.dietaryRestrictions &&
-          Array.isArray(props.userPreferences.dietaryRestrictions)
-        ) {
-          if (!localPreferenceForm.value.dietaryRestrictions) {
-            localPreferenceForm.value.dietaryRestrictions = [];
-          }
-
-          const restrictionMapping = {
-            halal: "halal",
-            vegetarian: "vegetarian",
-            vegan: "vegan",
-            no_pork: "no_pork",
-            no_beef: "no_beef",
-            no_seafood: "no_seafood",
-            no_spicy: "no_spicy",
-            gluten_free: "gluten_free",
-          };
-
-          const mappedRestrictions = props.userPreferences.dietaryRestrictions
-            .map((restriction) => restrictionMapping[restriction])
-            .filter(
-              (res) =>
-                res &&
-                !localPreferenceForm.value.dietaryRestrictions.includes(res)
-            );
-
-          localPreferenceForm.value.dietaryRestrictions.push(
-            ...mappedRestrictions
-          );
-          console.log("✅ 应用饮食禁忌偏好:", mappedRestrictions);
-        }
-
-        // 应用其他饮食需求
-        if (
-          props.userPreferences.customDietaryNotes &&
-          !localPreferenceForm.value.customDietaryNotes
-        ) {
-          localPreferenceForm.value.customDietaryNotes =
-            props.userPreferences.customDietaryNotes;
-          console.log(
-            "✅ 应用其他饮食需求:",
-            props.userPreferences.customDietaryNotes
-          );
-        }
-      }
+      
+      console.log("🔄 初始化偏好设置，使用preferenceStore");
+      preferenceStore.initializeTripPreferences();
     };
 
-    // 监听localPreferenceForm的变化，同步到父组件
+    // 监听store中偏好表单的变化，同步到父组件
     watch(
-      localPreferenceForm,
+      () => preferenceStore.tripPreferenceForm,
       (newVal) => {
         emit("update:preferenceForm", newVal);
       },
-      { deep: true }
+      { deep: true, immediate: true }
     );
 
-    // 监听props.preferenceForm的变化，同步到本地
+    // 监听props.preferenceForm的变化，同步到store
     watch(
       () => props.preferenceForm,
-      (newVal) => {
-        if (newVal && typeof newVal === 'object') {
-          // 强制同步父组件数据，确保草稿加载时能正确显示
-          console.log('🔄 TripPreferences接收到新的preferenceForm数据:', newVal);
-          localPreferenceForm.value = { ...newVal };
+      (newVal, oldVal) => {
+        console.log("🔄 TripPreferences watch触发，props变化检测:", {
+          newVal,
+          oldVal,
+          isFromDraft: props.isFromDraft,
+          hasNewVal: !!newVal,
+          hasOldVal: !!oldVal
+        });
+
+        if (newVal && typeof newVal === "object") {
+          // 检查是否真的有数据变化，避免无意义的更新
+          const hasRealChange = JSON.stringify(newVal) !== JSON.stringify(oldVal);
+          const isInitialLoad = !oldVal || Object.keys(oldVal).length === 0;
           
-          // 确保数组字段被正确初始化
-          if (!localPreferenceForm.value.tripGoals) {
-            localPreferenceForm.value.tripGoals = [];
-          }
-          if (!localPreferenceForm.value.focusAreas) {
-            localPreferenceForm.value.focusAreas = [];
-          }
-          if (!localPreferenceForm.value.dietaryRestrictions) {
-            localPreferenceForm.value.dietaryRestrictions = [];
-          }
-          
-          console.log('✅ 本地数据已更新，当前选择状态:', {
-            tripGoals: localPreferenceForm.value.tripGoals,
-            focusAreas: localPreferenceForm.value.focusAreas,
-            pacePreference: localPreferenceForm.value.pacePreference,
-            socialPreference: localPreferenceForm.value.socialPreference,
-            photoPreference: localPreferenceForm.value.photoPreference,
-            dietaryRestrictions: localPreferenceForm.value.dietaryRestrictions
+          console.log("🔍 数据变化分析:", {
+            hasRealChange,
+            isInitialLoad,
+            isFromDraft: props.isFromDraft,
+            newValKeys: Object.keys(newVal),
+            oldValKeys: oldVal ? Object.keys(oldVal) : []
           });
+          
+          if (hasRealChange || isInitialLoad) {
+            console.log("🔄 TripPreferences接收到preferenceForm数据变化，同步到store");
+            
+            if (props.isFromDraft) {
+              // 如果是从草稿加载，使用store的草稿加载方法
+              console.log("🔒 从草稿加载偏好数据到store");
+              preferenceStore.loadDraftPreferences(newVal);
+            } else {
+              // 否则直接更新store中的偏好表单
+              console.log("📋 更新store中的偏好表单数据");
+              preferenceStore.updateTripPreferences(newVal);
+            }
+          } else {
+            console.log("🔄 数据无变化，跳过更新");
+          }
+        } else if (newVal === null || newVal === undefined) {
+          // 如果传入空值，重置store
+          console.log("🔄 接收到空的preferenceForm，重置store");
+          preferenceStore.resetPreferences();
         }
       },
       { deep: true, immediate: true }
@@ -1316,46 +1253,10 @@ export default {
       return [...new Set(tags)].slice(0, 15);
     });
 
-    // 根据用户偏好推荐体验重点
+    // 根据用户偏好推荐体验重点 - 使用store中的映射方法
     const recommendedFocusAreas = computed(() => {
       if (!props.userPreferences?.selectedTags?.length) return [];
-
-      const tags = props.userPreferences.selectedTags;
-      const recommendations = [];
-
-      if (
-        tags.some((tag) =>
-          ["culture", "history", "art", "historical", "cultural"].includes(tag)
-        )
-      ) {
-        recommendations.push("local_culture", "historical_sites");
-      }
-
-      if (
-        tags.some((tag) =>
-          ["food", "local_cuisine", "street_food"].includes(tag)
-        )
-      ) {
-        recommendations.push("food_experience");
-      }
-
-      if (
-        tags.some((tag) =>
-          ["nature", "mountains", "scenic", "outdoor"].includes(tag)
-        )
-      ) {
-        recommendations.push("natural_scenery");
-      }
-
-      if (
-        tags.some((tag) =>
-          ["cities", "urban", "modern", "shopping"].includes(tag)
-        )
-      ) {
-        recommendations.push("urban_life", "modern_attractions");
-      }
-
-      return recommendations;
+      return preferenceStore.mapUserTagsToFocusAreas(props.userPreferences.selectedTags);
     });
 
     // 判断是否为推荐的体验重点
@@ -1886,12 +1787,12 @@ export default {
     // 搜索功能
     const handleSearch = async () => {
       if (!searchKeyword.value.trim()) {
-        ElMessage.warning(t('search.enterKeyword') || 'Please enter keyword');
+        ElMessage.warning("请输入搜索关键词");
         return;
       }
 
       if (!cityInfo.value?.destinationName) {
-        ElMessage.warning(t('trip.destination'));
+        ElMessage.warning("目的地");
         return;
       }
 
@@ -1943,16 +1844,18 @@ export default {
           const sortedResults = sortSearchResults(results, sortBy.value);
           searchResults.value = sortedResults;
 
-          ElMessage.success(t('search.foundCount', { count: results.length }) || `Found ${results.length} results`);
+          ElMessage.success(
+            `找到 ${results.length} 个搜索结果`
+          );
         } else {
           searchResults.value = [];
-          ElMessage.info(t('search.noResults') || 'No results');
+          ElMessage.info("未找到相关结果，请尝试其他关键词");
         }
       } catch (error) {
         console.error("❌ 搜索失败:", error);
-        apiError.value = t('messages.operationFailed');
+        apiError.value = "操作失败";
         searchResults.value = [];
-        ElMessage.error(t('messages.operationFailed'));
+        ElMessage.error("操作失败");
       } finally {
         searching.value = false;
       }
@@ -2079,7 +1982,7 @@ export default {
       if (!isAttractionSelected(attraction)) {
         const updatedAttractions = [...props.selectedAttractions, attraction];
         emit("update:selectedAttractions", updatedAttractions);
-        ElMessage.success(t('messages.operationSuccess'));
+        ElMessage.success("操作成功");
       }
     };
 
@@ -2091,7 +1994,7 @@ export default {
         const updatedAttractions = [...props.selectedAttractions];
         updatedAttractions.splice(index, 1);
         emit("update:selectedAttractions", updatedAttractions);
-        ElMessage.info(t('messages.deleteSuccess'));
+        ElMessage.info("删除成功");
       }
     };
 
@@ -2103,7 +2006,7 @@ export default {
       if (!isRestaurantSelected(restaurant)) {
         const updatedRestaurants = [...props.selectedRestaurants, restaurant];
         emit("update:selectedRestaurants", updatedRestaurants);
-        ElMessage.success(t('messages.operationSuccess'));
+        ElMessage.success("操作成功");
       }
     };
 
@@ -2115,7 +2018,7 @@ export default {
         const updatedRestaurants = [...props.selectedRestaurants];
         updatedRestaurants.splice(index, 1);
         emit("update:selectedRestaurants", updatedRestaurants);
-        ElMessage.info(t('messages.deleteSuccess'));
+        ElMessage.info("删除成功");
       }
     };
 
@@ -2123,14 +2026,18 @@ export default {
     const clearAllSelections = async () => {
       try {
         await ElMessageBox.confirm(
-          t('preferences.clearConfirm', { a: props.selectedAttractions.length, r: props.selectedRestaurants.length }) || 'Clear all selections?',
-          t('common.warning'),
-          { confirmButtonText: t('common.confirm'), cancelButtonText: t('common.cancel'), type: 'warning' }
+          `确定要清空所有选择吗？共 ${props.selectedAttractions.length} 个景点和 ${props.selectedRestaurants.length} 家餐厅。`,
+          "警告",
+          {
+            confirmButtonText: "确认",
+            cancelButtonText: "取消",
+            type: "warning",
+          }
         );
 
         emit("update:selectedAttractions", []);
         emit("update:selectedRestaurants", []);
-        ElMessage.success(t('messages.operationSuccess'));
+        ElMessage.success("操作成功");
       } catch {
         // 用户取消
       }
@@ -2147,81 +2054,83 @@ export default {
       { immediate: true }
     );
 
-    // 应用智能推荐 - 更新为新的字段结构
+    // 应用智能推荐（简化版本，主要逻辑由store处理）
     const applySmartRecommendations = () => {
-      // 如果是从草稿恢复的数据，跳过智能推荐，保留草稿设置
       if (props.isFromDraft) {
-        console.log('🔒 检测到草稿状态，跳过智能推荐，保留草稿设置');
+        console.log("🔒 检测到草稿状态，跳过智能推荐，保留草稿设置");
         return;
       }
 
-      console.log("🤖 应用智能推荐...");
-
-      // 推荐体验重点（合并而不是覆盖）
-      if (recommendedFocusAreas.value.length > 0) {
-        const currentAreas = localPreferenceForm.value.focusAreas || [];
-        const newAreas = [
-          ...new Set([...currentAreas, ...recommendedFocusAreas.value]),
-        ];
-        if (newAreas.length !== currentAreas.length) {
-          localPreferenceForm.value.focusAreas = newAreas;
-          console.log("🎯 推荐体验重点:", recommendedFocusAreas.value);
-        }
-      }
+      console.log("🤖 使用store应用智能推荐...");
+      // store的初始化方法已经包含了智能推荐逻辑
     };
 
     // 切换行程目标选择
     const toggleTripGoal = (goalValue) => {
-      const goals = localPreferenceForm.value.tripGoals;
+      const goals = [...preferenceStore.tripPreferenceForm.tripGoals];
       const index = goals.indexOf(goalValue);
       if (index > -1) {
         goals.splice(index, 1);
       } else {
         goals.push(goalValue);
       }
+      preferenceStore.updateTripPreference('tripGoals', goals);
     };
 
     // 切换体验重点选择
     const toggleFocusArea = (areaValue) => {
-      const areas = localPreferenceForm.value.focusAreas;
+      const areas = [...preferenceStore.tripPreferenceForm.focusAreas];
       const index = areas.indexOf(areaValue);
       if (index > -1) {
         areas.splice(index, 1);
       } else if (areas.length < 5) {
         areas.push(areaValue);
       }
+      preferenceStore.updateTripPreference('focusAreas', areas);
     };
 
     // 切换饮食禁忌选择
     const toggleDietaryRestriction = (restrictionValue) => {
-      const restrictions = localPreferenceForm.value.dietaryRestrictions;
+      const restrictions = [...preferenceStore.tripPreferenceForm.dietaryRestrictions];
       const index = restrictions.indexOf(restrictionValue);
       if (index > -1) {
         restrictions.splice(index, 1);
       } else {
         restrictions.push(restrictionValue);
       }
+      preferenceStore.updateTripPreference('dietaryRestrictions', restrictions);
     };
 
     // 监听用户偏好变化，动态应用默认值
     watch(
       () => props.userPreferences,
       (newPreferences) => {
+        // 如果是草稿状态，跳过用户偏好应用
+        if (props.isFromDraft) {
+          console.log("🔒 草稿状态中，跳过用户偏好变化处理");
+          return;
+        }
+        
         if (newPreferences && Object.keys(newPreferences).length > 0) {
           console.log(
             "🔄 检测到用户偏好数据变化，重新应用默认值:",
             newPreferences
           );
-          applyUserPreferences();
+          initializePreferences();
         }
       },
-      { deep: true, immediate: true }
+      { deep: true, immediate: false }
     );
 
     // 组件加载时初始化
     onMounted(() => {
-      // 应用用户偏好默认值
-      applyUserPreferences();
+      // 根据状态初始化偏好设置
+      if (!props.isFromDraft) {
+        console.log("🔄 非草稿状态，初始化偏好设置");
+        initializePreferences();
+      } else {
+        console.log("🔒 草稿状态，偏好已通过store加载");
+      }
 
       // 如果有目的地，加载相关信息
       if (props.baseForm) {
@@ -2231,12 +2140,11 @@ export default {
         }, 1000);
       }
 
-      // 应用推荐的行程风格和强度（只在用户未设置时）
+      // 应用智能推荐
       applySmartRecommendations();
     });
 
     return {
-      t,
       localPreferenceForm,
       cityInfo,
       recommendedAttractions,

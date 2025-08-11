@@ -3,11 +3,11 @@
     <!-- 搜索部分 -->
     <div class="search-section">
       <div class="search-container">
-        <h1>{{ t('destinations.title') }}</h1>
-        
+        <h1>去哪里旅行</h1>
+
         <el-input
           v-model="searchKeyword"
-          :placeholder="t('destinations.searchPlaceholder')"
+          placeholder="搜索城市、地区..."
           size="large"
           class="search-input"
           clearable
@@ -24,31 +24,25 @@
     <!-- 城市展示区域 -->
     <div class="cities-content-wrapper">
       <!-- 滚动指示器 -->
-      <div
-class="scroll-indicator" :class="{ visible: showScrollIndicator }"
->
+      <div class="scroll-indicator" :class="{ visible: showScrollIndicator }">
         {{ activeLetter }}
       </div>
 
       <div ref="citiesContent"
-class="cities-content" @scroll="handleScroll">
-        <!-- 加载状态 -->
-        <div
-v-if="loading" class="loading-container"
+class="cities-content" @scroll="handleScroll"
 >
-          <el-skeleton
-:rows="10" animated
-/>
+        <!-- 加载状态 -->
+        <div v-if="loading" class="loading-container">
+          <el-skeleton :rows="10" animated />
         </div>
 
         <!-- 搜索结果 -->
-        <div
-v-else-if="isSearchMode" class="search-results"
->
+        <div v-else-if="isSearchMode" class="search-results">
           <h2 v-if="searchResults.length > 0">
-            {{ t('destinations.searchResults') }} ({{ searchResults.length }})
+            搜索结果 ({{ searchResults.length }})
           </h2>
-          <el-empty v-else :description="t('destinations.noMatch')" />
+          <el-empty v-else
+description="未找到匹配的城市，请尝试其他关键词" />
 
           <div class="city-grid">
             <div
@@ -73,8 +67,11 @@ v-else-if="isSearchMode" class="search-results"
         <template v-else>
           <!-- 热门城市 -->
           <div id="hot-cities"
-class="city-section hot-city-section">
-            <h2><i class="hot-icon">🔥</i> {{ t('destinations.hotCities') }}</h2>
+class="city-section hot-city-section"
+>
+            <h2>
+              <i class="hot-icon">🔥</i> 热门城市
+            </h2>
             <div class="city-grid">
               <div
                 v-for="city in hotCities"
@@ -120,7 +117,11 @@ class="city-section hot-city-section">
 
         <!-- 导航辅助按钮组 -->
         <div class="nav-assist-buttons">
-          <el-tooltip :content="t('destinations.hotCities')" placement="left" :offset="10">
+          <el-tooltip
+            content="热门城市"
+            placement="left"
+            :offset="10"
+          >
             <el-button
               class="nav-button hot-button"
               circle
@@ -131,16 +132,17 @@ class="city-section hot-city-section">
             </el-button>
           </el-tooltip>
 
-          <el-backtop
-target=".cities-content" :right="50"
-:bottom="100"
->
+          <el-backtop target=".cities-content" :right="50" :bottom="100">
             <div class="back-top">
               <el-icon><Top /></el-icon>
             </div>
           </el-backtop>
 
-          <el-tooltip :content="t('destinations.jumpTo', { letter: 'Z' })" placement="left" :offset="10">
+          <el-tooltip
+            content="跳至Z"
+            placement="left"
+            :offset="10"
+          >
             <el-button
               class="nav-button z-button"
               circle
@@ -158,10 +160,10 @@ target=".cities-content" :right="50"
         <div
           class="letter-item special"
           :class="{ active: activeLetter === hotLabel }"
-          :title="t('destinations.hotCities')"
+          title="热门城市"
           @click="scrollToLetter(hotLabel)"
         >
-          {{ t('destinations.hot') }}
+          热门
         </div>
 
         <div class="letter-section">
@@ -182,18 +184,12 @@ target=".cities-content" :right="50"
 </template>
 
 <script>
-import {
-  ref,
-  computed,
-  onMounted,
-  onBeforeUnmount,
-} from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
 import { Search, Top, Bottom } from "@element-plus/icons-vue";
 import pinyin from "pinyin";
 import { createCachedRequest, debounce } from "@/utils/apiOptimizer.js";
-  import { useI18n } from "@/utils/i18n.js";
 
 export default {
   name: "Destinations",
@@ -205,7 +201,6 @@ export default {
   setup() {
     const router = useRouter();
     const route = useRoute();
-    const { t } = useI18n();
 
     // 响应式数据
     const searchKeyword = ref("");
@@ -213,7 +208,7 @@ export default {
     const loading = ref(true);
     const isSearchMode = ref(false);
     const searchResults = ref([]);
-    const hotLabel = t('destinations.hot');
+    const hotLabel = "热门";
     const activeLetter = ref(hotLabel);
     const citiesContent = ref(null);
     const letterSections = ref([]);
@@ -277,9 +272,9 @@ export default {
 
     // 带缓存的城市数据加载函数
     const cachedFetchCityData = createCachedRequest(fetchCityData, {
-      cacheKey: 'city-data',
+      cacheKey: "city-data",
       ttl: 30 * 60 * 1000, // 缓存30分钟
-      enableCache: true
+      enableCache: true,
     });
 
     // 加载城市数据
@@ -287,7 +282,7 @@ export default {
       loading.value = true;
       try {
         const cityData = await cachedFetchCityData();
-        
+
         if (import.meta.env.DEV) {
           console.log(`加载了 ${cityData.length} 条城市数据`);
         }
@@ -466,7 +461,7 @@ export default {
       let letterChanged = false;
 
       // 如果滚动到顶部，激活热门
-        if (citiesContent.value.scrollTop < 10) {
+      if (citiesContent.value.scrollTop < 10) {
         if (activeLetter.value !== hotLabel) {
           newActiveLetter = hotLabel;
           letterChanged = true;
@@ -557,7 +552,7 @@ export default {
     // 获取字母导航项的title
     const getLetterTitle = (letter) => {
       if (letter === hotLabel) {
-        return t('destinations.hotCities');
+        return "热门城市";
       }
       return letter;
     };
@@ -625,7 +620,7 @@ export default {
         ElMessage.warning({
           message: route.query.message,
           duration: 4000,
-          showClose: true
+          showClose: true,
         });
       }
     });
@@ -636,7 +631,6 @@ export default {
     });
 
     return {
-      t,
       searchKeyword,
       hotCities,
       cityGroups,
@@ -1281,13 +1275,13 @@ export default {
   .redirect-notice {
     margin-bottom: 16px;
   }
-  
+
   .alert-content {
     flex-direction: column;
     text-align: center;
     gap: 12px;
   }
-  
+
   .alert-icon {
     margin-left: 0;
   }

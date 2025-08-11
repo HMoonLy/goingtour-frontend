@@ -2,29 +2,37 @@
   <div class="home-page">
     <!-- 快捷操作 -->
     <section class="quick-actions">
-      <h3 class="section-title">{{ t("home.quickActions") }}</h3>
+      <h3 class="section-title">
+        快捷操作
+      </h3>
       <div class="action-grid">
         <!-- 仅保留 AI 行程生成入口：直接进入创建流程 -->
-        <div class="action-card" @click="goToCreate">
+        <div class="action-card"
+@click="goToCreate">
           <div class="action-icon violet">
-            <el-icon size="24"><Cpu /></el-icon>
+            <el-icon size="24">
+              <Cpu />
+            </el-icon>
           </div>
-          <h4>{{ t("home.aiEntry") }}</h4>
-          <p>{{ t("home.aiEntryDesc") }}</p>
+          <h4>AI智能规划</h4>
+          <p>智能生成个性化行程</p>
         </div>
       </div>
     </section>
 
     <!-- 继续未完成进度 -->
-    <section v-if="hasProgress" class="progress-section">
-      <el-card class="progress-card" shadow="hover">
+    <section v-if="hasProgress"
+class="progress-section">
+      <el-card class="progress-card"
+shadow="hover">
         <div class="progress-content">
           <div class="progress-texts">
-            <h4>{{ t("home.continueProgress") }}</h4>
+            <h4>继续未完成的行程</h4>
             <p class="progress-desc">
-              <el-tag size="small" type="info" effect="plain">{{
-                progressSummary.destination || t("common.none")
-              }}</el-tag>
+              <el-tag size="small"
+type="info" effect="plain">
+                {{ progressSummary.destination || "无" }}
+              </el-tag>
               <span class="dot" />
               <span>{{ progressSummary.stepName }}</span>
               <span class="dot" />
@@ -32,12 +40,14 @@
             </p>
           </div>
           <div class="progress-actions">
-            <el-button type="primary" @click="resumeProgress">{{
-              t("home.resume")
-            }}</el-button>
-            <el-button type="danger" plain @click="discardProgress">{{
-              t("home.discard")
-            }}</el-button>
+            <el-button type="primary"
+@click="resumeProgress">
+              继续
+            </el-button>
+            <el-button type="danger"
+plain @click="discardProgress">
+              舍弃
+            </el-button>
           </div>
         </div>
       </el-card>
@@ -45,7 +55,9 @@
 
     <!-- AI 场景推荐（4条） -->
     <section class="templates-section">
-      <h3 class="section-title">{{ t("home.scenarios.title") }}</h3>
+      <h3 class="section-title">
+        推荐场景
+      </h3>
       <div class="tpl-grid">
         <div
           v-for="sc in scenarios.slice(0, 4)"
@@ -53,11 +65,18 @@
           class="tpl-card tpl-card--scenario"
           @click="applyScenario(sc)"
         >
-          <div class="tpl-cover" :style="sc.cover ? { backgroundImage: `url(${sc.cover})` } : {}">
-            <div class="tpl-cover-mask"></div>
+          <div
+            class="tpl-cover"
+            :style="sc.cover ? { backgroundImage: `url(${sc.cover})` } : {}"
+          >
+            <div class="tpl-cover-mask" />
             <div class="tpl-cover-text">
-              <div class="tpl-title">{{ sc.title }}</div>
-              <div class="tpl-desc">{{ sc.desc }}</div>
+              <div class="tpl-title">
+                {{ sc.title }}
+              </div>
+              <div class="tpl-desc">
+                {{ sc.desc }}
+              </div>
             </div>
           </div>
         </div>
@@ -67,9 +86,12 @@
     <!-- 我的行程 -->
     <section class="my-trips-section">
       <div class="section-header">
-        <h3 class="section-title">{{ t("personal.myTrips") }}</h3>
+        <h3 class="section-title">
+          我的行程
+        </h3>
         <div class="header-actions">
-          <el-segmented v-model="tripTab" :options="tripTabs" size="small" />
+          <el-segmented v-model="tripTab"
+:options="tripTabs" size="small" />
         </div>
         <el-button
           size="small"
@@ -79,11 +101,12 @@
           @click="goToCreate"
         >
           <el-icon><Plus /></el-icon>
-          {{ t("personal.createNewTrip") }}
+          新建行程
         </el-button>
       </div>
 
-      <div v-if="displayTrips.length > 0" class="trips-grid">
+      <div v-if="displayTrips.length > 0"
+class="trips-grid">
         <div
           v-for="trip in displayTrips"
           :key="trip.id"
@@ -95,20 +118,35 @@
           <div class="trip-header">
             <h4>{{ trip.title }}</h4>
             <div class="trip-tags">
-              <el-tag v-if="trip.aiGenerated" type="primary" size="small" class="ai-tag">
-                {{ t("personal.aiGenerated") }}
+              <el-tag
+                v-if="trip.aiGenerated"
+                type="primary"
+                size="small"
+                class="ai-tag"
+              >
+                AI生成
               </el-tag>
-              <el-tag 
-                :type="trip.isDraft ? (trip.draftData?.isAuto ? 'info' : 'warning') : (trip.status === 'draft' ? 'info' : 'success')" 
+              <el-tag
+                :type="
+                  trip.isDraft
+                    ? trip.draftData?.isAuto
+                      ? 'info'
+                      : 'warning'
+                    : trip.status === 'draft'
+                      ? 'info'
+                      : 'success'
+                "
                 size="small"
                 :effect="trip.isDraft ? 'plain' : 'dark'"
               >
                 {{
                   trip.isDraft
-                    ? (trip.draftData?.isAuto ? "自动保存" : "草稿")
-                    : (trip.status === "draft"
-                      ? t("personal.status.draft")
-                      : t("personal.status.completed"))
+                    ? trip.draftData?.isAuto
+                      ? "自动保存"
+                      : "草稿"
+                    : trip.status === "draft"
+                      ? "草稿"
+                      : "已完成"
                 }}
               </el-tag>
             </div>
@@ -118,24 +156,23 @@
               <el-icon><MapLocation /></el-icon><span>{{ trip.destinationName }}</span>
             </div>
             <div class="trip-detail">
-              <el-icon><Calendar /></el-icon
-              ><span>{{ trip.days }}{{ t("personal.daysSuffix") }}</span>
+              <el-icon><Calendar /></el-icon><span>{{ trip.days }}天</span>
             </div>
-            <div v-if="trip.isDraft" class="trip-detail">
+            <div v-if="trip.isDraft"
+class="trip-detail">
               <el-icon><List /></el-icon>
               <span>{{ getStepName(trip.currentStep) }}</span>
             </div>
             <div class="trip-detail">
-              <el-icon><User /></el-icon
-              ><span>{{ trip.travelers }}{{ t("personal.travelersSuffix") }}</span>
+              <el-icon><User /></el-icon><span>{{ trip.travelers }}人</span>
             </div>
           </div>
           <div class="trip-actions">
             <template v-if="trip.isDraft">
               <!-- 草稿操作 -->
-              <el-button 
-                size="small" 
-                type="primary" 
+              <el-button
+                size="small"
+                type="primary"
                 @click.stop="handleLoadDraft(trip.id)"
               >
                 <el-icon><EditPen /></el-icon>
@@ -145,51 +182,70 @@
                 size="small"
                 type="danger"
                 plain
-                @click.stop="deleteTrip(trip.id)"
+                @click.stop="deleteTrip(trip)"
               >
                 <el-icon><Delete /></el-icon>
-                {{ t("common.delete") }}
+                删除
               </el-button>
             </template>
             <template v-else>
               <!-- 真实行程操作 -->
-              <el-button size="small" type="primary" plain @click.stop="editTrip(trip)">
-                {{ t("common.edit") }}
+              <el-button
+                size="small"
+                type="primary"
+                plain
+                @click.stop="editTrip(trip)"
+              >
+                编辑
               </el-button>
               <el-button
                 size="small"
                 type="danger"
                 plain
-                @click.stop="deleteTrip(trip.id)"
+                @click.stop="deleteTrip(trip)"
               >
-                {{ t("common.delete") }}
+                删除
               </el-button>
             </template>
           </div>
         </div>
       </div>
 
-      <div v-else class="no-trips">
-        <el-icon size="48" color="#C0C4CC"><DocumentCopy /></el-icon>
-        <p>{{ t("personal.noTrips") }}</p>
-        <el-button type="primary" @click="goToCreate">{{
-          t("personal.createNow")
-        }}</el-button>
+      <div v-else
+class="no-trips">
+        <el-icon size="48"
+color="#C0C4CC">
+          <DocumentCopy />
+        </el-icon>
+        <p>暂无行程</p>
+        <el-button
+type="primary" @click="goToCreate">
+          立即创建
+        </el-button>
       </div>
     </section>
 
     <!-- 天气速览 -->
     <section class="weather-section">
-      <h3 class="section-title">{{ t("home.weather.title") }}</h3>
-      <el-card v-if="weather" class="weather-card" shadow="hover">
+      <h3 class="section-title">
+        天气预览
+      </h3>
+      <el-card v-if="weather"
+class="weather-card" shadow="hover">
         <div class="weather-top">
           <div class="w-left">
-            <div class="w-city">{{ weather.city }}</div>
-            <div class="w-desc">{{ weather.weatherDesc }}</div>
+            <div class="w-city">
+              {{ weather.city }}
+            </div>
+            <div class="w-desc">
+              {{ weather.weatherDesc }}
+            </div>
           </div>
           <div class="w-right">
             <div class="w-temp">{{ weather.currentTemp }}°C</div>
-            <div class="w-range">{{ weather.tempRange }}</div>
+            <div class="w-range">
+              {{ weather.tempRange }}
+            </div>
           </div>
         </div>
         <div class="forecast">
@@ -198,20 +254,30 @@
             :key="i"
             class="f-item"
           >
-            <div class="f-date">{{ f.date }}</div>
-            <div class="f-weather">{{ f.dayWeather }}</div>
+            <div class="f-date">
+              {{ f.date }}
+            </div>
+            <div class="f-weather">
+              {{ f.dayWeather }}
+            </div>
             <div class="f-temp">{{ f.dayTemp }} / {{ f.nightTemp }}</div>
           </div>
         </div>
       </el-card>
-      <el-empty v-else :description="t('home.weather.none')" />
+      <el-empty v-else
+description="暂无天气信息" />
     </section>
 
     <!-- 公告/发现 -->
     <section class="ann-section">
-      <h3 class="section-title">{{ t("home.announcements") }}</h3>
+      <h3 class="section-title">
+        公告通知
+      </h3>
       <div class="ann-list">
-        <el-empty v-if="announcements.length === 0" :description="t('common.none')" />
+        <el-empty
+          v-if="announcements.length === 0"
+          description="暂无公告"
+        />
         <el-alert
           v-for="(item, idx) in announcements"
           :key="idx"
@@ -242,8 +308,8 @@ import {
   Delete,
 } from "@element-plus/icons-vue";
 import { useUserStore } from "@/store/user.js";
-import { useI18n } from "@/utils/i18n.js";
 import { draftManager } from "@/utils/draftManager.js";
+import { useDraftStore } from "@/store/draft.js";
 import { convertBackendTripToFrontend } from "@/utils/tripDataConverter.js";
 import { handleApiError, handleSuccess } from "@/utils/errorHandler.js";
 import { aiScenarios } from "@/data/aiScenarios.js";
@@ -255,7 +321,6 @@ export default {
   setup() {
     const router = useRouter();
     const userStore = useUserStore();
-    const { t } = useI18n();
 
     const savedTrips = ref([]);
     const hasProgress = ref(false);
@@ -264,14 +329,14 @@ export default {
     const weather = ref(null);
     const tripTab = ref("recent");
     const tripTabs = [
-      { label: t("home.trips.recent"), value: "recent" },
-      { label: t("home.trips.drafts"), value: "drafts" },
+      { label: "最近", value: "recent" },
+      { label: "草稿", value: "drafts" },
     ];
 
     const announcements = ref([
       {
-        title: t("home.ann.sample1.title"),
-        desc: t("home.ann.sample1.desc"),
+        title: "欢迎使用GoingTour",
+        desc: "开始您的智能旅行规划之旅！",
         type: "info",
       },
     ]);
@@ -279,7 +344,7 @@ export default {
     const refreshProgress = async () => {
       // 检查是否有自动草稿（新的进度检查方式）
       hasProgress.value = await draftManager.hasAutoDraft();
-      progressSummary.value = await draftManager.getAutoDraftSummary() || {};
+      progressSummary.value = (await draftManager.getAutoDraftSummary()) || {};
     };
 
     // 草稿相关状态
@@ -300,33 +365,48 @@ export default {
 
         await ElMessageBox.confirm(
           `确定要删除草稿"${draft.name}"吗？删除后无法恢复。`,
-          '删除草稿',
+          "删除草稿",
           {
-            confirmButtonText: '确定删除',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }
+            confirmButtonText: "确定删除",
+            cancelButtonText: "取消",
+            type: "warning",
+          },
         );
 
         const success = await draftManager.deleteDraft(draftId);
         if (success) {
-          ElMessage.success('草稿删除成功！');
+          ElMessage.success("草稿删除成功！");
           loadDrafts();
         } else {
-          ElMessage.error('草稿删除失败！');
+          ElMessage.error("草稿删除失败！");
         }
       } catch (error) {
-        if (error !== 'cancel') {
-          console.error('删除草稿失败:', error);
-          ElMessage.error('草稿删除失败！');
+        if (error !== "cancel") {
+          console.error("删除草稿失败:", error);
+          ElMessage.error("草稿删除失败！");
         }
       }
     };
 
     // 加载草稿
-    const handleLoadDraft = (draftId) => {
-      // 将草稿ID作为查询参数传递给TripCreate页面
-      router.push(`/trip/create?loadDraft=${draftId}`);
+    const handleLoadDraft = async (draftId) => {
+      try {
+        console.log("🔄 点击继续编辑，草稿ID:", draftId);
+        
+        const draftStore = useDraftStore();
+        
+        // 加载草稿到store
+        const success = await draftStore.loadDraft(draftId);
+        if (success) {
+          // 跳转到创建页面
+          router.push('/trip/create');
+          console.log("✅ 草稿已加载到store，跳转到创建页面");
+        }
+        
+      } catch (error) {
+        console.error("❌ 加载草稿失败:", error);
+        ElMessage.error("加载草稿失败，请重试");
+      }
     };
 
     // 获取步骤名称
@@ -351,21 +431,25 @@ export default {
     };
     const discardProgress = async () => {
       try {
-        await ElMessageBox.confirm(t("home.discardConfirm"), t("common.warning"), {
-          confirmButtonText: t("common.confirm"),
-          cancelButtonText: t("common.cancel"),
-          type: "warning",
-        });
-        
+        await ElMessageBox.confirm(
+          "确定要舍弃当前进度吗？此操作无法撤销。",
+          "警告",
+          {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning",
+          },
+        );
+
         // 删除自动草稿
         const autoDraft = await draftManager.getAutoDraft();
         if (autoDraft) {
           await draftManager.deleteDraft(autoDraft.id);
         }
-        
+
         refreshProgress();
         loadDrafts(); // 重新加载草稿列表
-        ElMessage.success(t("messages.updateSuccess"));
+        ElMessage.success("操作成功！");
       } catch {}
     };
 
@@ -401,27 +485,27 @@ export default {
     const displayTrips = computed(() => {
       if (tripTab.value === "drafts") {
         // 返回草稿数据，转换为与trips兼容的格式
-        return drafts.value.map(draft => ({
+        return drafts.value.map((draft) => ({
           id: draft.id,
           title: draft.name,
-          destinationName: draft.baseForm?.destinationName || '未知目的地',
+          destinationName: draft.baseForm?.destinationName || "未知目的地",
           days: draft.baseForm?.days || 0,
-          status: 'draft',
+          status: "draft",
           createdAt: draft.createdAt,
           updatedAt: draft.updatedAt,
           currentStep: draft.currentStep,
           isDraft: true,
           // 添加草稿特有的数据
-          draftData: draft
+          draftData: draft,
         }));
       }
-      
+
       const list = [...savedTrips.value];
       // 最近优先：按更新时间/创建时间倒序
       list.sort(
         (a, b) =>
           new Date(b.updatedAt || b.createdAt || 0) -
-          new Date(a.updatedAt || a.createdAt || 0)
+          new Date(a.updatedAt || a.createdAt || 0),
       );
       return list.slice(0, 8);
     });
@@ -433,7 +517,7 @@ export default {
           handleLoadDraft(trip.id);
           return;
         }
-        
+
         if (trip.aiGenerated) {
           router.push({
             name: "AiTripEdit",
@@ -444,7 +528,7 @@ export default {
           router.push({ name: "TripDetail", params: { id: trip.id } });
         }
       } catch {
-        ElMessage.error(t("personal.messages.navigationFail"));
+        ElMessage.error("跳转失败，请重试");
       }
     };
 
@@ -460,40 +544,40 @@ export default {
           });
         }
       } catch {
-        ElMessage.error(t("personal.messages.navigationFail"));
+        ElMessage.error("跳转失败，请重试");
       }
     };
 
-    const deleteTrip = async (tripId) => {
+    const deleteTrip = async (trip) => {
       try {
         // 检查是否是草稿
-        if (typeof tripId === 'string' && tripId.startsWith('draft_')) {
+        if (trip.isDraft) {
           // 这是一个草稿，调用草稿删除方法
-          await handleDeleteDraft(tripId);
+          await handleDeleteDraft(trip.id);
           return;
         }
 
         // 这是一个真实行程，调用后端API
         await ElMessageBox.confirm(
-          t("personal.dialog.deleteTripMessage"),
-          t("personal.dialog.deleteTripTitle"),
+          "确定要删除这个行程吗？删除后无法恢复。",
+          "删除行程",
           {
-            confirmButtonText: t("common.delete"),
-            cancelButtonText: t("common.cancel"),
+            confirmButtonText: "删除",
+            cancelButtonText: "取消",
             type: "warning",
-          }
+          },
         );
         if (!userStore.currentUser?.id) {
-          ElMessage.error(t("personal.messages.notLoggedIn"));
+          ElMessage.error("请先登录");
           return;
         }
         const { tripApi } = await import("@/api/trip.js");
-        await tripApi.deleteTrip(tripId, userStore.currentUser.id);
+        await tripApi.deleteTrip(trip.id, userStore.currentUser.id);
         await loadSavedTrips();
-        handleSuccess(t("personal.messages.tripDeleteSuccess"));
+        handleSuccess("行程删除成功！");
       } catch (error) {
         if (error === "cancel") return;
-        handleApiError(error, t("personal.messages.tripDeleteFail"));
+        handleApiError(error, "删除行程失败");
       }
     };
 
@@ -508,10 +592,15 @@ export default {
       await loadDrafts();
       // 天气速览：优先使用进度中的目的地，否则取最近行程的目的地
       let city =
-        progressSummary.value?.destination || savedTrips.value[0]?.destinationName;
+        progressSummary.value?.destination ||
+        savedTrips.value[0]?.destinationName;
       if (city) {
         try {
-          const ws = await weatherApi.getWeatherSuggestions(city, new Date(), 3);
+          const ws = await weatherApi.getWeatherSuggestions(
+            city,
+            new Date(),
+            3,
+          );
           weather.value = ws;
         } catch (e) {
           console.warn("获取天气失败", e);
@@ -521,7 +610,9 @@ export default {
 
     // 应用模板/场景：通过 query 传递预填信息到创建页
     const applyScenario = (sc) => {
-      const preset = encodeURIComponent(JSON.stringify({ type: "scenario", id: sc.id }));
+      const preset = encodeURIComponent(
+        JSON.stringify({ type: "scenario", id: sc.id }),
+      );
       // 若场景自带城市，则直达创建页；否则先选目的地
       if (sc.city && sc.city.adcode && sc.city.name) {
         router.push({
@@ -538,7 +629,6 @@ export default {
     };
 
     return {
-      t,
       savedTrips,
       hasProgress,
       progressSummary,
@@ -800,7 +890,7 @@ export default {
 .tpl-cover {
   position: relative;
   height: 132px;
-  background: linear-gradient(135deg,#e9eef3,#f5f7fa);
+  background: linear-gradient(135deg, #e9eef3, #f5f7fa);
   background-size: cover;
   background-position: center;
   border-radius: 10px;
@@ -808,7 +898,11 @@ export default {
 .tpl-cover-mask {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,0.45) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 30%,
+    rgba(0, 0, 0, 0.45) 100%
+  );
 }
 .tpl-cover-text {
   position: absolute;
@@ -825,7 +919,7 @@ export default {
 .tpl-desc {
   margin-top: 4px;
   font-size: 12px;
-  opacity: .9;
+  opacity: 0.9;
 }
 
 /* 模板快捷区 */

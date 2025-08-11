@@ -1,8 +1,10 @@
 <template>
   <div :class="embedded ? 'preferences-embedded' : 'preferences-page'">
     <!-- 加载提示 -->
-    <div v-if="loading" class="loading-section">
-      <el-skeleton animated :loading="true">
+    <div v-if="loading"
+class="loading-section">
+      <el-skeleton animated
+:loading="true">
         <template #template>
           <div class="preferences-container">
             <el-skeleton-item
@@ -45,20 +47,23 @@
     </div>
 
     <!-- 主要内容 -->
-    <div v-else class="preferences-container">
+    <div v-else
+class="preferences-container">
       <UserCenterNav v-if="!embedded" />
       <div class="page-header">
-        <h1>{{ t('settings.preferences') }}</h1>
-        <p>{{ t('personal.preferencesDesc') }}</p>
+        <h1>偏好设置</h1>
+        <p>个性化的旅行规划助手</p>
       </div>
 
       <!-- 旅行偏好标签 -->
       <div class="preference-section">
         <h3 class="section-title">
           <el-icon><Collection /></el-icon>
-          {{ t('personal.card.travelTypes') }}
+          旅行偏好标签
         </h3>
-        <p class="section-desc">{{ t('personal.preferencesDesc') }}</p>
+        <p class="section-desc">
+          选择您感兴趣的旅行类型
+        </p>
 
         <div class="tags-grid">
           <el-check-tag
@@ -81,7 +86,7 @@
       <div class="preference-section">
         <h3 class="section-title">
           <el-icon><User /></el-icon>
-          {{ t('personal.card.mbti') }}
+          MBTI性格类型
         </h3>
         <p class="section-desc">
           选择您的MBTI性格类型，我们将据此为您推荐合适的旅行体验
@@ -95,25 +100,29 @@
             @change="handleMbtiChange"
           >
             <el-option-group label="分析家 (NT)">
-              <el-option label="INTJ - 建筑师" value="INTJ">
+              <el-option label="INTJ - 建筑师"
+value="INTJ">
                 <div class="mbti-option">
                   <span class="mbti-code">INTJ</span>
                   <span class="mbti-name">建筑师</span>
                 </div>
               </el-option>
-              <el-option label="INTP - 逻辑学家" value="INTP">
+              <el-option label="INTP - 逻辑学家"
+value="INTP">
                 <div class="mbti-option">
                   <span class="mbti-code">INTP</span>
                   <span class="mbti-name">逻辑学家</span>
                 </div>
               </el-option>
-              <el-option label="ENTJ - 指挥官" value="ENTJ">
+              <el-option label="ENTJ - 指挥官"
+value="ENTJ">
                 <div class="mbti-option">
                   <span class="mbti-code">ENTJ</span>
                   <span class="mbti-name">指挥官</span>
                 </div>
               </el-option>
-              <el-option label="ENTP - 辩论家" value="ENTP">
+              <el-option label="ENTP - 辩论家"
+value="ENTP">
                 <div class="mbti-option">
                   <span class="mbti-code">ENTP</span>
                   <span class="mbti-name">辩论家</span>
@@ -122,25 +131,29 @@
             </el-option-group>
 
             <el-option-group label="外交家 (NF)">
-              <el-option label="INFJ - 提倡者" value="INFJ">
+              <el-option label="INFJ - 提倡者"
+value="INFJ">
                 <div class="mbti-option">
                   <span class="mbti-code">INFJ</span>
                   <span class="mbti-name">提倡者</span>
                 </div>
               </el-option>
-              <el-option label="INFP - 调停者" value="INFP">
+              <el-option label="INFP - 调停者"
+value="INFP">
                 <div class="mbti-option">
                   <span class="mbti-code">INFP</span>
                   <span class="mbti-name">调停者</span>
                 </div>
               </el-option>
-              <el-option label="ENFJ - 主人公" value="ENFJ">
+              <el-option label="ENFJ - 主人公"
+value="ENFJ">
                 <div class="mbti-option">
                   <span class="mbti-code">ENFJ</span>
                   <span class="mbti-name">主人公</span>
                 </div>
               </el-option>
-              <el-option label="ENFP - 活动家" value="ENFP">
+              <el-option label="ENFP - 活动家"
+value="ENFP">
                 <div class="mbti-option">
                   <span class="mbti-code">ENFP</span>
                   <span class="mbti-name">活动家</span>
@@ -149,25 +162,29 @@
             </el-option-group>
 
             <el-option-group label="守护者 (SJ)">
-              <el-option label="ISTJ - 物流师" value="ISTJ">
+              <el-option label="ISTJ - 物流师"
+value="ISTJ">
                 <div class="mbti-option">
                   <span class="mbti-code">ISTJ</span>
                   <span class="mbti-name">物流师</span>
                 </div>
               </el-option>
-              <el-option label="ISFJ - 守护者" value="ISFJ">
+              <el-option label="ISFJ - 守护者"
+value="ISFJ">
                 <div class="mbti-option">
                   <span class="mbti-code">ISFJ</span>
                   <span class="mbti-name">守护者</span>
                 </div>
               </el-option>
-              <el-option label="ESTJ - 总经理" value="ESTJ">
+              <el-option label="ESTJ - 总经理"
+value="ESTJ">
                 <div class="mbti-option">
                   <span class="mbti-code">ESTJ</span>
                   <span class="mbti-name">总经理</span>
                 </div>
               </el-option>
-              <el-option label="ESFJ - 执政官" value="ESFJ">
+              <el-option label="ESFJ - 执政官"
+value="ESFJ">
                 <div class="mbti-option">
                   <span class="mbti-code">ESFJ</span>
                   <span class="mbti-name">执政官</span>
@@ -176,25 +193,29 @@
             </el-option-group>
 
             <el-option-group label="探险家 (SP)">
-              <el-option label="ISTP - 鉴赏家" value="ISTP">
+              <el-option label="ISTP - 鉴赏家"
+value="ISTP">
                 <div class="mbti-option">
                   <span class="mbti-code">ISTP</span>
                   <span class="mbti-name">鉴赏家</span>
                 </div>
               </el-option>
-              <el-option label="ISFP - 探险家" value="ISFP">
+              <el-option label="ISFP - 探险家"
+value="ISFP">
                 <div class="mbti-option">
                   <span class="mbti-code">ISFP</span>
                   <span class="mbti-name">探险家</span>
                 </div>
               </el-option>
-              <el-option label="ESTP - 企业家" value="ESTP">
+              <el-option label="ESTP - 企业家"
+value="ESTP">
                 <div class="mbti-option">
                   <span class="mbti-code">ESTP</span>
                   <span class="mbti-name">企业家</span>
                 </div>
               </el-option>
-              <el-option label="ESFP - 娱乐家" value="ESFP">
+              <el-option label="ESFP - 娱乐家"
+value="ESFP">
                 <div class="mbti-option">
                   <span class="mbti-code">ESFP</span>
                   <span class="mbti-name">娱乐家</span>
@@ -203,7 +224,8 @@
             </el-option-group>
           </el-select>
 
-          <div v-if="mbtiType" class="mbti-preview">
+          <div v-if="mbtiType"
+class="mbti-preview">
             <div class="mbti-avatar">
               <img :src="`/images/mbti/${mbtiType}.png`"
 :alt="mbtiType"
@@ -221,14 +243,16 @@
       <div class="preference-section">
         <h3 class="section-title">
           <el-icon><Money /></el-icon>
-          {{ t('personal.card.dailyBudget') }}
+          日均预算
         </h3>
-        <p class="section-desc">{{ t('personal.preferencesDesc') }}</p>
+        <p class="section-desc">
+          设置您的预期花费范围
+        </p>
 
         <div class="budget-container">
           <div class="budget-display">
             <span class="budget-amount">¥{{ budget }}</span>
-            <span class="budget-unit">{{ t('personal.perDay') }}</span>
+            <span class="budget-unit">每天</span>
           </div>
 
           <el-slider
@@ -251,9 +275,11 @@
       <div class="preference-section">
         <h3 class="section-title">
           <el-icon><Trophy /></el-icon>
-          {{ t('personal.card.transport') }}
+          出行方式
         </h3>
-        <p class="section-desc">{{ t('personal.preferencesDesc') }}</p>
+        <p class="section-desc">
+          选择您关心的内容
+        </p>
 
         <div class="transport-grid">
           <div
@@ -265,7 +291,8 @@
             }"
             @click="toggleTransport(transport.value)"
           >
-            <component :is="transport.icon" class="transport-icon" />
+            <component :is="transport.icon"
+class="transport-icon" />
             <span class="transport-label">{{ transport.label }}</span>
             <span class="transport-desc">{{ transport.desc }}</span>
           </div>
@@ -276,9 +303,11 @@
       <div class="preference-section">
         <h3 class="section-title">
           <el-icon><House /></el-icon>
-          {{ t('personal.card.accommodation') }}
+          住宿偏好
         </h3>
-        <p class="section-desc">{{ t('personal.preferencesDesc') }}</p>
+        <p class="section-desc">
+          选择您的住宿需求
+        </p>
 
         <div class="accommodation-options">
           <div class="accommodation-grid">
@@ -292,8 +321,11 @@
               <el-icon class="accommodation-icon">
                 <House />
               </el-icon>
-              <span class="accommodation-title">{{ translateTag('budget') }}</span>
-              <span v-if="isEnglish" class="accommodation-desc">Budget</span>
+              <span class="accommodation-title">{{
+                translateTag("budget")
+              }}</span>
+              <span v-if="false"
+class="accommodation-desc">Budget</span>
             </div>
 
             <div
@@ -306,8 +338,12 @@
               <el-icon class="accommodation-icon">
                 <Monitor />
               </el-icon>
-              <span class="accommodation-title">{{ translateTag('comfort') }}</span>
-              <span v-if="isEnglish" class="accommodation-desc">3-star / Boutique</span>
+              <span class="accommodation-title">{{
+                translateTag("comfort")
+              }}</span>
+              <span
+                v-if="false" class="accommodation-desc"
+              >3-star / Boutique</span>
             </div>
 
             <div
@@ -320,8 +356,10 @@
               <el-icon class="accommodation-icon">
                 <Coffee />
               </el-icon>
-              <span class="accommodation-title">{{ translateTag('bnb') }}</span>
-              <span v-if="isEnglish" class="accommodation-desc">Local homestay</span>
+              <span class="accommodation-title">{{ translateTag("bnb") }}</span>
+              <span
+v-if="false" class="accommodation-desc"
+              >Local homestay</span>
             </div>
 
             <div
@@ -334,8 +372,12 @@
               <el-icon class="accommodation-icon">
                 <Trophy />
               </el-icon>
-              <span class="accommodation-title">{{ translateTag('luxury') }}</span>
-              <span v-if="isEnglish" class="accommodation-desc">5-star / Resort</span>
+              <span class="accommodation-title">{{
+                translateTag("luxury")
+              }}</span>
+              <span
+v-if="false" class="accommodation-desc"
+              >5-star / Resort</span>
             </div>
           </div>
         </div>
@@ -345,7 +387,7 @@
       <div class="preference-section">
         <h3 class="section-title">
           <el-icon><Coffee /></el-icon>
-          {{ t('personal.card.diet') }}
+          饮食偏好
         </h3>
         <p class="section-desc">
 告诉我们您的饮食习惯和偏好
@@ -353,45 +395,73 @@
 
         <div class="food-preferences">
           <div class="food-category">
-            <h4>{{ t('personal.card.taste') }}</h4>
+            <h4>口味</h4>
             <el-checkbox-group
               v-model="preferences.foodTastes"
               class="taste-group"
             >
-            <el-checkbox value="spicy">{{ translateTag('spicy') }}</el-checkbox>
-            <el-checkbox value="sweet">{{ translateTag('sweet') }}</el-checkbox>
-            <el-checkbox value="sour">{{ translateTag('sour') }}</el-checkbox>
-            <el-checkbox value="light">{{ translateTag('light') }}</el-checkbox>
-            <el-checkbox value="heavy">{{ translateTag('heavy') }}</el-checkbox>
+              <el-checkbox value="spicy">
+                {{ translateTag("spicy") }}
+              </el-checkbox>
+              <el-checkbox value="sweet">
+                {{ translateTag("sweet") }}
+              </el-checkbox>
+              <el-checkbox value="sour">
+                {{ translateTag("sour") }}
+              </el-checkbox>
+              <el-checkbox value="light">
+                {{ translateTag("light") }}
+              </el-checkbox>
+              <el-checkbox value="heavy">
+                {{ translateTag("heavy") }}
+              </el-checkbox>
             </el-checkbox-group>
           </div>
 
           <div class="food-category">
-            <h4>{{ t('personal.card.restrictions') }}</h4>
+            <h4>饮食限制</h4>
             <el-checkbox-group
               v-model="preferences.dietaryRestrictions"
               class="restriction-group"
             >
-              <el-checkbox value="halal">{{ translateTag('halal', 'dietary') }}</el-checkbox>
-              <el-checkbox value="vegetarian">{{ translateTag('vegetarian', 'dietary') }}</el-checkbox>
-              <el-checkbox value="vegan">{{ translateTag('vegan', 'dietary') }}</el-checkbox>
-              <el-checkbox value="no_pork">{{ translateTag('no_pork', 'dietary') }}</el-checkbox>
-              <el-checkbox value="no_beef">{{ translateTag('no_beef', 'dietary') }}</el-checkbox>
-              <el-checkbox value="no_seafood">{{ translateTag('no_seafood', 'dietary') }}</el-checkbox>
-              <el-checkbox value="no_spicy">{{ translateTag('no_spicy', 'dietary') }}</el-checkbox>
-              <el-checkbox value="gluten_free">{{ translateTag('gluten_free', 'dietary') }}</el-checkbox>
-              <el-checkbox value="no_alcohol">{{ translateTag('no_alcohol', 'dietary') }}</el-checkbox>
+              <el-checkbox value="halal">
+                {{ translateTag("halal", "dietary") }}
+              </el-checkbox>
+              <el-checkbox value="vegetarian">
+                {{ translateTag("vegetarian", "dietary") }}
+              </el-checkbox>
+              <el-checkbox value="vegan">
+                {{ translateTag("vegan", "dietary") }}
+              </el-checkbox>
+              <el-checkbox value="no_pork">
+                {{ translateTag("no_pork", "dietary") }}
+              </el-checkbox>
+              <el-checkbox value="no_beef">
+                {{ translateTag("no_beef", "dietary") }}
+              </el-checkbox>
+              <el-checkbox value="no_seafood">
+                {{ translateTag("no_seafood", "dietary") }}
+              </el-checkbox>
+              <el-checkbox value="no_spicy">
+                {{ translateTag("no_spicy", "dietary") }}
+              </el-checkbox>
+              <el-checkbox value="gluten_free">
+                {{ translateTag("gluten_free", "dietary") }}
+              </el-checkbox>
+              <el-checkbox value="no_alcohol">
+                translateTag("no_alcohol", "dietary")
+              </el-checkbox>
             </el-checkbox-group>
           </div>
 
           <!-- 其他饮食禁忌或特殊需求 -->
           <div class="food-category">
-            <h4>{{ t('personal.card.others') }}</h4>
+            <h4>其他需求</h4>
             <el-input
               v-model="preferences.customDietaryNotes"
               type="textarea"
               :rows="2"
-              :placeholder="t('personal.preferencesDesc')"
+              :placeholder="描述您的特殊饮食需求"
             />
           </div>
         </div>
@@ -401,7 +471,7 @@
       <div class="preference-section">
         <h3 class="section-title">
           <el-icon><Sunrise /></el-icon>
-          {{ t('personal.card.activityTime') }}
+          活动时间偏好
         </h3>
         <p class="section-desc">
 选择您喜欢的活动时间安排
@@ -417,7 +487,7 @@
           >
             <el-icon><Sunrise /></el-icon>
             <div class="time-info">
-              <span class="time-title">{{ translateTag('morning') }}</span>
+              <span class="time-title">{{ translateTag("morning") }}</span>
               <span class="time-desc">6:00-10:00</span>
             </div>
           </div>
@@ -431,7 +501,7 @@
           >
             <el-icon><Trophy /></el-icon>
             <div class="time-info">
-              <span class="time-title">{{ translateTag('afternoon') }}</span>
+              <span class="time-title">{{ translateTag("afternoon") }}</span>
               <span class="time-desc">10:00-16:00</span>
             </div>
           </div>
@@ -445,7 +515,7 @@
           >
             <el-icon><Camera /></el-icon>
             <div class="time-info">
-              <span class="time-title">{{ translateTag('evening') }}</span>
+              <span class="time-title">{{ translateTag("evening") }}</span>
               <span class="time-desc">16:00-22:00</span>
             </div>
           </div>
@@ -456,7 +526,7 @@
       <div class="preference-section">
         <h3 class="section-title">
           <el-icon><MapLocation /></el-icon>
-          {{ t('personal.card.travelPace') }}
+          旅行节奏偏好
         </h3>
         <p class="section-desc">
 选择适合您的旅行节奏
@@ -480,7 +550,9 @@
             class="pace-slider"
           />
 
-          <div class="pace-description">{{ translateTag(preferences.travelPace) }}</div>
+          <div class="pace-description">
+            {{ translateTag(preferences.travelPace) }}
+          </div>
         </div>
       </div>
 
@@ -488,42 +560,42 @@
       <div class="preference-section">
         <h3 class="section-title">
           <el-icon><Setting /></el-icon>
-          {{ t('personal.card.others') }}
+          其他偏好
         </h3>
 
         <div class="other-preferences">
           <div class="preference-item">
-            <span>{{ t('personal.card.others') }}</span>
+            <span>热门景点优先</span>
             <el-switch v-model="preferences.popularFirst" />
           </div>
 
           <div class="preference-item">
-            <span>{{ t('personal.card.diet') }}</span>
+            <span>包含美食推荐</span>
             <el-switch v-model="preferences.includeFood" />
           </div>
 
           <div class="preference-item">
-            <span>{{ translateTag('avoidCrowds') }}</span>
+            <span>{{ translateTag("avoidCrowds") }}</span>
             <el-switch v-model="preferences.avoidCrowds" />
           </div>
 
           <div class="preference-item">
-            <span>{{ translateTag('includeShopping') }}</span>
+            <span>{{ translateTag("includeShopping") }}</span>
             <el-switch v-model="preferences.includeShopping" />
           </div>
 
           <div class="preference-item">
-            <span>{{ translateTag('preferPublicTransport') }}</span>
+            <span>{{ translateTag("preferPublicTransport") }}</span>
             <el-switch v-model="preferences.preferPublicTransport" />
           </div>
 
           <div class="preference-item">
-            <span>{{ translateTag('includeKidsActivities') }}</span>
+            <span>{{ translateTag("includeKidsActivities") }}</span>
             <el-switch v-model="preferences.includeKidsActivities" />
           </div>
 
           <div class="preference-item">
-            <span>{{ translateTag('needAccessibility') }}</span>
+            <span>{{ translateTag("needAccessibility") }}</span>
             <el-switch v-model="preferences.needAccessibility" />
           </div>
         </div>
@@ -539,7 +611,7 @@
           @click="savePreferences"
         >
           <el-icon><Check /></el-icon>
-          {{ t('common.save') }}
+          保存
         </el-button>
       </div>
     </div>
@@ -550,7 +622,6 @@
 import { ref, reactive, onMounted, watch, computed } from "vue";
 import { ElMessage } from "element-plus";
 import { useUserStore } from "@/store/user.js";
-import { useI18n } from "@/utils/i18n.js";
 import {
   Collection,
   Money,
@@ -568,15 +639,15 @@ import {
   User,
 } from "@element-plus/icons-vue";
 import { useRouter, useRoute } from "vue-router";
-import { getMbtiName, getMbtiTravelDescription, translateTag } from "@/utils/tagMapping.js";
-import UserCenterNav from '@/components/User/UserCenterNav.vue';
+import {
+  getMbtiName,
+  getMbtiTravelDescription,
+  translateTag,
+} from "@/utils/tagMapping.js";
+import UserCenterNav from "@/components/User/UserCenterNav.vue";
 
 export default {
   name: "Preferences",
-  props: {
-    embedded: { type: Boolean, default: false },
-  },
-  emits: ['saved', 'close'],
   components: {
     UserCenterNav,
     Collection,
@@ -594,10 +665,12 @@ export default {
     Bicycle,
     User,
   },
+  props: {
+    embedded: { type: Boolean, default: false },
+  },
+  emits: ["saved", "close"],
   setup(props, { emit }) {
     const userStore = useUserStore();
-    const { t, locale } = useI18n();
-    const isEnglish = computed(() => locale.value === 'en-US');
     const router = useRouter();
     const route = useRoute();
 
@@ -630,7 +703,11 @@ export default {
       { label: translateTag("historical"), value: "historical", icon: School },
       { label: translateTag("nature"), value: "nature", icon: Sunrise },
       { label: translateTag("food"), value: "food", icon: Coffee },
-      { label: translateTag("photography"), value: "photography", icon: Camera },
+      {
+        label: translateTag("photography"),
+        value: "photography",
+        icon: Camera,
+      },
       { label: translateTag("family"), value: "family", icon: Trophy },
       { label: translateTag("urban"), value: "urban", icon: MapLocation },
       { label: translateTag("culture"), value: "culture", icon: School },
@@ -839,14 +916,11 @@ export default {
     // 加载用户偏好
     const loadPreferences = async () => {
       if (!userStore.currentUser?.id) {
-
         loading.value = false;
         return;
       }
 
       try {
-
-
         // 首先尝试从API获取最新的偏好数据
         try {
           await userStore.fetchUserPreferences();
@@ -1000,7 +1074,7 @@ export default {
 
         // 嵌入模式下不跳转，发出事件交给父级关闭抽屉
         if (props.embedded) {
-          emit('saved');
+          emit("saved");
         } else {
           // 根据query参数决定跳转目标
           const returnTo = route.query.returnTo;
@@ -1060,7 +1134,6 @@ export default {
     );
 
     return {
-      t,
       selectedTags,
       budget,
       saving,

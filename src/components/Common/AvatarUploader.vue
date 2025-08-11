@@ -1,7 +1,8 @@
 <template>
   <div class="avatar-uploader">
     <!-- 当前头像显示 -->
-    <div class="current-avatar" @click="openUploader">
+    <div class="current-avatar"
+@click="openUploader">
       <div class="avatar-container">
         <img
           v-if="currentAvatar"
@@ -9,11 +10,14 @@
           alt="用户头像"
           class="avatar-image"
         />
-        <div v-else class="default-avatar">
+        <div v-else
+class="default-avatar">
           <span class="avatar-text">{{ getInitials(userName) }}</span>
         </div>
         <div class="avatar-overlay">
-          <el-icon class="upload-icon"><Plus /></el-icon>
+          <el-icon class="upload-icon">
+            <Plus />
+          </el-icon>
           <span class="upload-text">更换头像</span>
         </div>
       </div>
@@ -29,9 +33,11 @@
     >
       <div class="upload-container">
         <!-- 上传选项卡 -->
-        <el-tabs v-model="activeTab" class="upload-tabs">
+        <el-tabs v-model="activeTab"
+class="upload-tabs">
           <!-- 上传头像 -->
-          <el-tab-pane label="上传头像" name="upload">
+          <el-tab-pane label="上传头像"
+name="upload">
             <div class="upload-section">
               <el-upload
                 v-if="!rawImage && !uploadSuccess"
@@ -44,30 +50,45 @@
                 class="upload-dragger"
               >
                 <div class="upload-content">
-                  <el-icon class="upload-icon-large"><Upload /></el-icon>
+                  <el-icon class="upload-icon-large">
+                    <Upload />
+                  </el-icon>
                   <div class="upload-text-large">
                     <p>点击或拖拽图片到此处上传</p>
-                    <p class="upload-tip">支持 PNG、JPG、JPEG、GIF 格式，大小不超过 5MB</p>
+                    <p class="upload-tip">
+                      支持 PNG、JPG、JPEG、GIF 格式，大小不超过 5MB
+                    </p>
                   </div>
                 </div>
               </el-upload>
-              
+
               <!-- 图片预览区域 -->
-              <div v-if="rawImage && !uploadSuccess" class="preview-section">
+              <div v-if="rawImage && !uploadSuccess"
+class="preview-section">
                 <div class="image-preview">
-                  <img :src="rawImage" alt="预览图片" class="preview-image" />
+                  <img
+:src="rawImage" alt="预览图片" class="preview-image" />
                 </div>
                 <div class="preview-actions">
-                  <el-button @click="resetImageSelection" size="small" type="info" plain>
+                  <el-button
+                    size="small"
+                    type="info"
+                    plain
+                    @click="resetImageSelection"
+                  >
                     重新选择
                   </el-button>
                 </div>
               </div>
-              
+
               <!-- 上传成功提示 -->
-              <div v-if="uploadSuccess" class="upload-success-section">
+              <div v-if="uploadSuccess"
+class="upload-success-section">
                 <div class="success-icon">
-                  <el-icon size="48" color="#67c23a"><CircleCheck /></el-icon>
+                  <el-icon size="48"
+color="#67c23a">
+                    <CircleCheck />
+                  </el-icon>
                 </div>
                 <div class="success-info">
                   <h3>头像上传成功！</h3>
@@ -78,7 +99,8 @@
           </el-tab-pane>
 
           <!-- 默认头像 -->
-          <el-tab-pane label="默认头像" name="default">
+          <el-tab-pane label="默认头像"
+name="default">
             <div class="default-avatars">
               <div
                 v-for="(avatar, index) in defaultAvatars"
@@ -87,13 +109,15 @@
                 :class="{ selected: selectedDefaultAvatar === avatar }"
                 @click="selectDefaultAvatar(avatar)"
               >
-                <img :src="avatar" :alt="`默认头像${index + 1}`" />
+                <img
+:src="avatar" :alt="`默认头像${index + 1}`" />
               </div>
             </div>
           </el-tab-pane>
 
           <!-- 个性头像 -->
-          <el-tab-pane label="个性头像" name="generated">
+          <el-tab-pane label="个性头像"
+name="generated">
             <div class="generated-avatars">
               <div class="avatar-generator">
                 <h4>基于用户名生成</h4>
@@ -105,7 +129,10 @@
                     :class="{ selected: selectedGeneratedStyle === style }"
                     @click="selectGeneratedStyle(style)"
                   >
-                    <div class="generated-avatar" :style="getGeneratedAvatarStyle(style)">
+                    <div
+                      class="generated-avatar"
+                      :style="getGeneratedAvatarStyle(style)"
+                    >
                       {{ getInitials(userName) }}
                     </div>
                     <span class="style-name">{{ style.name }}</span>
@@ -122,8 +149,10 @@
           <div class="preview-container">
             <div class="preview-item">
               <div class="preview-avatar large">
-                <img v-if="previewAvatar" :src="previewAvatar" alt="预览" />
-                <div v-else class="preview-placeholder">
+                <img
+v-if="previewAvatar" :src="previewAvatar" alt="预览" />
+                <div v-else
+class="preview-placeholder">
                   <span>{{ getInitials(userName) }}</span>
                 </div>
               </div>
@@ -131,8 +160,10 @@
             </div>
             <div class="preview-item">
               <div class="preview-avatar medium">
-                <img v-if="previewAvatar" :src="previewAvatar" alt="预览" />
-                <div v-else class="preview-placeholder">
+                <img
+v-if="previewAvatar" :src="previewAvatar" alt="预览" />
+                <div v-else
+class="preview-placeholder">
                   <span>{{ getInitials(userName) }}</span>
                 </div>
               </div>
@@ -140,8 +171,10 @@
             </div>
             <div class="preview-item">
               <div class="preview-avatar small">
-                <img v-if="previewAvatar" :src="previewAvatar" alt="预览" />
-                <div v-else class="preview-placeholder">
+                <img
+v-if="previewAvatar" :src="previewAvatar" alt="预览" />
+                <div v-else
+class="preview-placeholder">
                   <span>{{ getInitials(userName) }}</span>
                 </div>
               </div>
@@ -153,8 +186,9 @@
 
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="handleClose">取消</el-button>
-          <el-button type="primary" @click="saveAvatar" :loading="saving">
+          <el-button @click="handleClose"> 取消 </el-button>
+          <el-button type="primary"
+@click="saveAvatar" :loading="saving">
             保存头像
           </el-button>
         </div>
@@ -164,31 +198,31 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { ElMessage } from 'element-plus';
-import { Plus, Upload, CircleCheck } from '@element-plus/icons-vue';
-import { uploadAvatar } from '@/utils/ossUpload.js';
+import { ref, computed } from "vue";
+import { ElMessage } from "element-plus";
+import { Plus, Upload, CircleCheck } from "@element-plus/icons-vue";
+import { uploadAvatar } from "@/utils/ossUpload.js";
 
 const props = defineProps({
   avatar: {
     type: String,
-    default: ''
+    default: "",
   },
   userName: {
     type: String,
-    default: '用户'
+    default: "用户",
   },
   size: {
     type: String,
-    default: 'large' // large, medium, small
-  }
+    default: "large", // large, medium, small
+  },
 });
 
-const emit = defineEmits(['update:avatar']);
+const emit = defineEmits(["update:avatar"]);
 
 // 响应式数据
 const dialogVisible = ref(false);
-const activeTab = ref('upload');
+const activeTab = ref("upload");
 const saving = ref(false);
 const uploadRef = ref();
 
@@ -197,7 +231,7 @@ const rawImage = ref(null);
 const uploadSuccess = ref(false);
 
 // 选择状态
-const selectedDefaultAvatar = ref('');
+const selectedDefaultAvatar = ref("");
 const selectedGeneratedStyle = ref(null);
 
 // 当前头像
@@ -205,11 +239,11 @@ const currentAvatar = computed(() => props.avatar);
 
 // 预览头像
 const previewAvatar = computed(() => {
-  if (activeTab.value === 'upload' && rawImage.value) {
+  if (activeTab.value === "upload" && rawImage.value) {
     return rawImage.value;
-  } else if (activeTab.value === 'default' && selectedDefaultAvatar.value) {
+  } else if (activeTab.value === "default" && selectedDefaultAvatar.value) {
     return selectedDefaultAvatar.value;
-  } else if (activeTab.value === 'generated' && selectedGeneratedStyle.value) {
+  } else if (activeTab.value === "generated" && selectedGeneratedStyle.value) {
     return generateAvatarDataURL(selectedGeneratedStyle.value);
   }
   return currentAvatar.value;
@@ -217,54 +251,54 @@ const previewAvatar = computed(() => {
 
 // 默认头像列表 - 使用在线头像资源
 const defaultAvatars = ref([
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Felix&backgroundColor=b6e3f4',
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Aneka&backgroundColor=c0aede',
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Lucky&backgroundColor=d1d4f9',
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Princess&backgroundColor=ffd5dc',
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Scooter&backgroundColor=ffdfbf',
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Midnight&backgroundColor=c7d2fe',
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Chester&backgroundColor=fecaca',
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Tigger&backgroundColor=a7f3d0'
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=Felix&backgroundColor=b6e3f4",
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=Aneka&backgroundColor=c0aede",
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=Lucky&backgroundColor=d1d4f9",
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=Princess&backgroundColor=ffd5dc",
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=Scooter&backgroundColor=ffdfbf",
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=Midnight&backgroundColor=c7d2fe",
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=Chester&backgroundColor=fecaca",
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=Tigger&backgroundColor=a7f3d0",
 ]);
 
 // 生成头像样式
 const generatedStyles = ref([
   {
-    name: '经典蓝',
-    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    color: '#ffffff'
+    name: "经典蓝",
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    color: "#ffffff",
   },
   {
-    name: '温暖橙',
-    background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-    color: '#ffffff'
+    name: "温暖橙",
+    background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+    color: "#ffffff",
   },
   {
-    name: '清新绿',
-    background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-    color: '#ffffff'
+    name: "清新绿",
+    background: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+    color: "#ffffff",
   },
   {
-    name: '优雅紫',
-    background: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
-    color: '#333333'
+    name: "优雅紫",
+    background: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
+    color: "#333333",
   },
   {
-    name: '活力红',
-    background: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
-    color: '#333333'
+    name: "活力红",
+    background: "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)",
+    color: "#333333",
   },
   {
-    name: '深邃黑',
-    background: 'linear-gradient(135deg, #434343 0%, #000000 100%)',
-    color: '#ffffff'
-  }
+    name: "深邃黑",
+    background: "linear-gradient(135deg, #434343 0%, #000000 100%)",
+    color: "#ffffff",
+  },
 ]);
 
 // 方法
 const getInitials = (name) => {
-  if (!name) return 'U';
-  const names = name.trim().split(' ');
+  if (!name) return "U";
+  const names = name.trim().split(" ");
   if (names.length >= 2) {
     return (names[0][0] + names[1][0]).toUpperCase();
   }
@@ -277,10 +311,10 @@ const openUploader = () => {
 };
 
 const resetStates = () => {
-  activeTab.value = 'upload';
+  activeTab.value = "upload";
   rawImage.value = null;
   uploadSuccess.value = false;
-  selectedDefaultAvatar.value = '';
+  selectedDefaultAvatar.value = "";
   selectedGeneratedStyle.value = null;
 };
 
@@ -291,10 +325,10 @@ const handleClose = () => {
 
 const handleFileChange = (file) => {
   const { raw } = file;
-  
+
   // 检查文件大小
   if (raw.size > 5 * 1024 * 1024) {
-    ElMessage.error('文件大小不能超过 5MB');
+    ElMessage.error("文件大小不能超过 5MB");
     return;
   }
 
@@ -302,7 +336,7 @@ const handleFileChange = (file) => {
   reader.onload = (e) => {
     rawImage.value = e.target.result;
     // 直接使用原图，不进行裁剪处理
-    console.log('✅ 图片加载成功，将使用完整图片');
+    console.log("✅ 图片加载成功，将使用完整图片");
   };
   reader.readAsDataURL(raw);
 };
@@ -317,8 +351,6 @@ const resetImageSelection = () => {
   }
 };
 
-
-
 const selectDefaultAvatar = (avatar) => {
   selectedDefaultAvatar.value = avatar;
   selectedGeneratedStyle.value = null;
@@ -326,28 +358,28 @@ const selectDefaultAvatar = (avatar) => {
 
 const selectGeneratedStyle = (style) => {
   selectedGeneratedStyle.value = style;
-  selectedDefaultAvatar.value = '';
+  selectedDefaultAvatar.value = "";
 };
 
 const getGeneratedAvatarStyle = (style) => {
   return {
     background: style.background,
-    color: style.color
+    color: style.color,
   };
 };
 
 // 压缩图片以适应数据库存储
 const compressImageForStorage = (dataURL) => {
   return new Promise((resolve) => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
     const img = new Image();
-    
+
     img.onload = () => {
       // 设置最大尺寸
       const maxSize = 300;
       let { width, height } = img;
-      
+
       // 计算缩放比例
       if (width > height) {
         if (width > maxSize) {
@@ -360,36 +392,36 @@ const compressImageForStorage = (dataURL) => {
           height = maxSize;
         }
       }
-      
+
       canvas.width = width;
       canvas.height = height;
-      
+
       // 绘制压缩后的图片
       ctx.drawImage(img, 0, 0, width, height);
-      
+
       // 输出为JPEG格式，减少文件大小
-      resolve(canvas.toDataURL('image/jpeg', 0.8));
+      resolve(canvas.toDataURL("image/jpeg", 0.8));
     };
-    
+
     img.src = dataURL;
   });
 };
 
 const generateAvatarDataURL = (style) => {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
   const size = 80; // 大幅减小尺寸，确保Base64数据在数据库限制内
-  
+
   canvas.width = size;
   canvas.height = size;
-  
+
   // 确保画布有不透明背景，避免格子问题
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, size, size);
-  
+
   // 简化背景处理，直接使用纯色
-  let backgroundColor = '#667eea'; // 默认颜色
-  
+  let backgroundColor = "#667eea"; // 默认颜色
+
   try {
     // 尝试提取渐变中的主色调
     const gradientMatch = style.background.match(/linear-gradient\(([^)]+)\)/);
@@ -399,104 +431,107 @@ const generateAvatarDataURL = (style) => {
       if (colorMatch) {
         backgroundColor = colorMatch[0];
       }
-    } else if (style.background.includes('#')) {
+    } else if (style.background.includes("#")) {
       const colorMatch = style.background.match(/#[0-9a-fA-F]{6}/);
       if (colorMatch) {
         backgroundColor = colorMatch[0];
       }
     }
   } catch (error) {
-    console.warn('解析颜色失败，使用默认颜色:', error);
+    console.warn("解析颜色失败，使用默认颜色:", error);
   }
-  
+
   // 绘制纯色背景
   ctx.fillStyle = backgroundColor;
   ctx.fillRect(0, 0, size, size);
-  
+
   // 绘制文字
-  ctx.fillStyle = style.color || '#ffffff';
+  ctx.fillStyle = style.color || "#ffffff";
   ctx.font = `bold ${Math.floor(size * 0.45)}px Arial, sans-serif`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
   const initials = getInitials(props.userName);
   ctx.fillText(initials, size / 2, size / 2);
-  
+
   // 使用JPEG格式，低质量压缩以减少数据大小
-  return canvas.toDataURL('image/jpeg', 0.6);
+  return canvas.toDataURL("image/jpeg", 0.6);
 };
 
 const saveAvatar = async () => {
   try {
     saving.value = true;
-    
-    let avatarUrl = '';
-    
-    if (activeTab.value === 'upload' && rawImage.value) {
+
+    let avatarUrl = "";
+
+    if (activeTab.value === "upload" && rawImage.value) {
       // 用户上传的图片 - 直接使用原图
       try {
-        ElMessage.info('正在处理头像...');
-        
+        ElMessage.info("正在处理头像...");
+
         // 压缩图片以适应数据库存储
         const compressedImage = await compressImageForStorage(rawImage.value);
-        
+
         // 优先尝试OSS上传
         try {
           const response = await fetch(compressedImage);
           const blob = await response.blob();
-          const fileToUpload = new File([blob], `avatar_${Date.now()}.jpg`, { type: 'image/jpeg' });
-          
+          const fileToUpload = new File([blob], `avatar_${Date.now()}.jpg`, {
+            type: "image/jpeg",
+          });
+
           const uploadResult = await uploadAvatar(fileToUpload, {
             prefix: `user_${props.userName}_`,
             onProgress: (progress) => {
               console.log(`头像上传进度: ${Math.round(progress * 100)}%`);
-            }
+            },
           });
-          
+
           if (uploadResult.success) {
             avatarUrl = uploadResult.signedUrl || uploadResult.url;
-            console.log('✅ 头像上传成功:', {
+            console.log("✅ 头像上传成功:", {
               fileName: uploadResult.fileName,
               size: uploadResult.size,
-              url: avatarUrl
+              url: avatarUrl,
             });
           } else {
-            throw new Error(uploadResult.error || '上传失败');
+            throw new Error(uploadResult.error || "上传失败");
           }
         } catch (uploadError) {
-          console.warn('⚠️ OSS上传失败，使用本地存储:', uploadError);
+          console.warn("⚠️ OSS上传失败，使用本地存储:", uploadError);
           // OSS上传失败时，使用压缩后的图片
           avatarUrl = compressedImage;
-          ElMessage.warning('云端上传失败，已保存为本地头像');
+          ElMessage.warning("云端上传失败，已保存为本地头像");
         }
       } catch (error) {
-        console.error('图片处理失败:', error);
+        console.error("图片处理失败:", error);
         // 最后降级方案：使用原始图片
         avatarUrl = rawImage.value;
-        ElMessage.warning('图片处理失败，使用原始图片');
+        ElMessage.warning("图片处理失败，使用原始图片");
       }
-      
-    } else if (activeTab.value === 'default' && selectedDefaultAvatar.value) {
+    } else if (activeTab.value === "default" && selectedDefaultAvatar.value) {
       // 默认头像 - 直接使用URL，不上传
       avatarUrl = selectedDefaultAvatar.value;
-      
-    } else if (activeTab.value === 'generated' && selectedGeneratedStyle.value) {
+    } else if (
+      activeTab.value === "generated" &&
+      selectedGeneratedStyle.value
+    ) {
       // 个性头像 - 生成Base64，不上传到OSS
       avatarUrl = generateAvatarDataURL(selectedGeneratedStyle.value);
     }
-    
+
     if (!avatarUrl) {
-      ElMessage.warning('请选择或上传头像');
+      ElMessage.warning("请选择或上传头像");
       return;
     }
-    
+
     // 触发更新事件，传递最终的头像URL
-    emit('update:avatar', avatarUrl);
-    
-    ElMessage.success('头像更新成功！');
-    
+    emit("update:avatar", avatarUrl);
+
+    ElMessage.success("头像更新成功！");
+
     // 对于上传的图片，显示成功状态而不是立即关闭对话框
-    if (activeTab.value === 'upload') {
+    if (activeTab.value === "upload") {
       uploadSuccess.value = true;
       // 3秒后自动关闭对话框
       setTimeout(() => {
@@ -506,10 +541,9 @@ const saveAvatar = async () => {
       // 对于默认头像和个性头像，立即关闭对话框
       dialogVisible.value = false;
     }
-    
   } catch (error) {
-    console.error('❌ 保存头像失败:', error);
-    ElMessage.error('保存头像失败，请重试');
+    console.error("❌ 保存头像失败:", error);
+    ElMessage.error("保存头像失败，请重试");
   } finally {
     saving.value = false;
   }
@@ -879,49 +913,49 @@ const saveAvatar = async () => {
     width: 100px;
     height: 100px;
   }
-  
+
   .avatar-text {
     font-size: 32px;
   }
-  
+
   .upload-container {
     padding: 10px 0;
   }
-  
+
   .upload-content {
     padding: 20px 10px;
   }
-  
+
   .default-avatars {
     grid-template-columns: repeat(4, 1fr);
     gap: 12px;
     padding: 15px;
   }
-  
+
   .default-avatar-item {
     width: 60px;
     height: 60px;
   }
-  
+
   .generated-preview {
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
   }
-  
+
   .preview-container {
     gap: 20px;
   }
-  
+
   .preview-avatar.large {
     width: 60px;
     height: 60px;
   }
-  
+
   .preview-avatar.medium {
     width: 45px;
     height: 45px;
   }
-  
+
   .preview-avatar.small {
     width: 30px;
     height: 30px;

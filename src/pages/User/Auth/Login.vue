@@ -6,56 +6,62 @@
         <!-- Logo和品牌名 -->
         <div class="brand-header">
           <div class="brand-logo">
-            <el-icon size="60" color="#ffffff">
+            <el-icon size="60"
+color="#ffffff">
               <MapLocation />
             </el-icon>
           </div>
           <h1 class="brand-title">GoingTour</h1>
-          <p class="brand-subtitle">{{ t('brand.tagline') }}</p>
+          <p class="brand-subtitle">
+            智能旅行规划专家
+          </p>
         </div>
 
         <!-- 产品特性展示 -->
         <div class="features">
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32" color="#ffffff">
+              <el-icon size="32"
+color="#ffffff">
                 <Location />
               </el-icon>
             </div>
             <div class="feature-text">
-              <h3>{{ t('brand.features.smartPlanning.title') }}</h3>
-              <p>{{ t('brand.features.smartPlanning.desc') }}</p>
+              <h3>智能规划</h3>
+              <p>AI算法帮您制定最佳行程</p>
             </div>
           </div>
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32" color="#ffffff">
+              <el-icon size="32"
+color="#ffffff">
                 <DataAnalysis />
               </el-icon>
             </div>
             <div class="feature-text">
-              <h3>{{ t('brand.features.dataAnalysis.title') }}</h3>
-              <p>{{ t('brand.features.dataAnalysis.desc') }}</p>
+              <h3>数据分析</h3>
+              <p>优质旅游数据与内容推荐</p>
             </div>
           </div>
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32" color="#ffffff">
+              <el-icon size="32"
+color="#ffffff">
                 <Share />
               </el-icon>
             </div>
             <div class="feature-text">
-              <h3>{{ t('brand.features.tripSharing.title') }}</h3>
-              <p>{{ t('brand.features.tripSharing.desc') }}</p>
+              <h3>行程分享</h3>
+              <p>与朋友分享精彩旅行经历</p>
             </div>
           </div>
         </div>
 
         <!-- 底部装饰 -->
         <div class="brand-footer">
-          <p>&copy; 2024 GoingTour. {{ t('brand.copyright') }}</p>
+          <p>&copy; 2024 GoingTour. 版权所有</p>
         </div>
       </div>
     </div>
@@ -65,8 +71,12 @@
       <div class="form-container">
         <!-- 表单头部 -->
         <div class="form-header">
-          <h2 class="form-title">{{ t('auth.welcome') }}</h2>
-          <p class="form-subtitle">{{ t('auth.login') }} - {{ t('brand.tagline') }}</p>
+          <h2 class="form-title">
+            欢迎回来
+          </h2>
+          <p class="form-subtitle">
+            登录 - 智能旅行规划专家
+          </p>
         </div>
 
         <!-- 登录表单 -->
@@ -79,11 +89,12 @@
           @submit.prevent="handleLogin"
         >
           <!-- 邮箱输入 -->
-          <el-form-item prop="email" class="form-item">
-            <label class="form-label">{{ t('auth.email') }}</label>
+          <el-form-item prop="email"
+class="form-item">
+            <label class="form-label">邮箱</label>
             <el-input
               v-model="loginForm.email"
-              :placeholder="t('auth.email')"
+              :placeholder="邮箱"
               clearable
               class="form-input"
               @input="handleEmailInput"
@@ -95,12 +106,13 @@
           </el-form-item>
 
           <!-- 验证码输入 -->
-          <el-form-item prop="code" class="form-item">
-            <label class="form-label">{{ t('auth.verificationCode') }}</label>
+          <el-form-item prop="code"
+class="form-item">
+            <label class="form-label">验证码</label>
             <div class="code-input-group">
               <el-input
                 v-model="loginForm.code"
-                :placeholder="t('auth.verificationCode')"
+                :placeholder="验证码"
                 clearable
                 maxlength="6"
                 class="form-input"
@@ -120,7 +132,11 @@
                 plain
                 @click="sendVerificationCode"
               >
-                {{ countdown > 0 ? t('auth.resendIn', { s: countdown }) : t('auth.sendCode') }}
+                {{
+                  countdown > 0
+                    ? `${countdown}秒后重发`
+                    : "发送验证码"
+                }}
               </el-button>
             </div>
           </el-form-item>
@@ -137,14 +153,16 @@
               <el-icon v-if="!loggingIn">
                 <User />
               </el-icon>
-              {{ loggingIn ? t('auth.loggingIn') : t('auth.login') }}
+              {{ loggingIn ? "登录中..." : "登录" }}
             </el-button>
           </el-form-item>
 
           <!-- 其他登录方式 -->
           <div class="other-login">
             <el-divider>
-              <span class="divider-text">{{ t('auth.otherLoginMethods') }}</span>
+              <span class="divider-text">{{
+                "其他登录方式"
+              }}</span>
             </el-divider>
 
             <div class="social-login">
@@ -175,14 +193,14 @@
 
           <!-- 注册链接 -->
           <div class="register-section">
-            <span class="register-text">{{ t('auth.noAccount') }}</span>
+            <span class="register-text">还没有账户？</span>
             <el-link
               type="primary"
               :underline="false"
               class="register-link"
               @click="goToRegister"
             >
-              {{ t('auth.goToRegister') }}
+              立即注册
             </el-link>
           </div>
         </el-form>
@@ -190,9 +208,15 @@
         <!-- 协议条款 -->
         <div class="agreement">
           <p>
-            {{ t('auth.agreementText') }}
-            <el-link type="primary" :underline="false"> {{ t('auth.userAgreement') }} </el-link>
-            <el-link type="primary" :underline="false"> {{ t('auth.privacyPolicy') }} </el-link>
+            登录即表示您同意我们的
+            <el-link type="primary"
+:underline="false">
+              用户协议
+            </el-link>
+            <el-link type="primary"
+:underline="false">
+              隐私政策
+            </el-link>
           </p>
         </div>
       </div>
@@ -217,7 +241,6 @@ import {
 } from "@element-plus/icons-vue";
 import { formRules } from "@/utils/validation.js";
 import { handleApiError, handleSuccess } from "@/utils/errorHandler.js";
-import { useI18n } from "@/utils/i18n.js";
 
 export default {
   name: "Login",
@@ -235,7 +258,6 @@ export default {
     const router = useRouter();
     const route = useRoute();
     const userStore = useUserStore();
-    const { t } = useI18n();
 
     // 表单引用
     const loginFormRef = ref();
@@ -276,7 +298,7 @@ export default {
     // 发送验证码
     const sendVerificationCode = async () => {
       if (!canSendCode.value) {
-        ElMessage.warning(t('validation.email'));
+        ElMessage.warning("请输入正确的邮箱地址");
         return;
       }
 
@@ -285,12 +307,12 @@ export default {
 
         await userStore.sendVerificationCode(loginForm.email, "login");
 
-        ElMessage.success(t('auth.codeResent'));
+        ElMessage.success("验证码已发送");
 
         // 开始倒计时
         startCountdown(60);
       } catch (error) {
-        ElMessage.error(error.message || t('messages.operationFailed'));
+        ElMessage.error(error.message || "操作失败");
       } finally {
         sendingCode.value = false;
       }
@@ -319,9 +341,12 @@ export default {
 
         const user = await userStore.login(loginForm.email, loginForm.code);
 
-        handleSuccess(t('auth.welcomeBack', { name: user.nickname || t('personal.userDefault') }), {
-          showNotification: true,
-        });
+        handleSuccess(
+          `欢迎回来，${user.nickname || "用户"}！`,
+          {
+            showNotification: true,
+          },
+        );
 
         const redirectPath =
           userStore.getAndClearRedirectPath() ||
@@ -330,7 +355,7 @@ export default {
 
         await router.push(redirectPath);
       } catch (error) {
-        handleApiError(error, t('messages.operationFailed'));
+        handleApiError(error, "操作失败");
       } finally {
         loggingIn.value = false;
       }
@@ -338,12 +363,12 @@ export default {
 
     // 微信登录
     const handleWechatLogin = () => {
-      ElMessage.info('WeChat Login WIP');
+      ElMessage.info("WeChat Login WIP");
     };
 
     // QQ登录
     const handleQQLogin = () => {
-      ElMessage.info('QQ Login WIP');
+      ElMessage.info("QQ Login WIP");
     };
 
     // 跳转注册
@@ -366,7 +391,6 @@ export default {
     });
 
     return {
-      t,
       loginFormRef,
       loginForm,
       loginRules,
