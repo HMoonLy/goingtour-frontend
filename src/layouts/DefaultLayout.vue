@@ -77,7 +77,10 @@ command="logout">
     >
       <div
         class="main-container"
-        :class="{ 'trip-detail-container': isTripDetailPage, 'full-width': isFullWidthPage }"
+        :class="{
+          'trip-detail-container': isTripDetailPage,
+          'full-width': isFullWidthPage,
+        }"
       >
         <router-view />
       </div>
