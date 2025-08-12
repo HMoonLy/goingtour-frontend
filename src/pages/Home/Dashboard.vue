@@ -1,5 +1,5 @@
 <template>
-  <div class="home-page">
+  <div class="page-shell home-page">
     <!-- 快捷操作 -->
     <section class="quick-actions">
       <h3 class="section-title">快捷操作</h3>
@@ -739,24 +739,10 @@ export default {
 <style scoped>
 .global-sticky-hint {
   position: sticky;
-  top: 64px; /* 与顶部导航高度一致，避免遮挡 */
+  top: var(--header-height); /* 与顶部导航高度一致，避免遮挡 */
   z-index: 2;
 }
-.home-page {
-  position: fixed !important;
-  top: 64px !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  width: 100vw !important;
-  height: calc(100vh - 64px) !important;
-  margin: 0 !important;
-  padding: 20px !important;
-  background: #f5f7fa !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  z-index: 1 !important;
-}
+/* 使用全局 .page-shell 提供的滚动背景，无需额外规则 */
 
 .section-title {
   font-size: 20px;

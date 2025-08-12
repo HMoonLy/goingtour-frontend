@@ -77,7 +77,7 @@ command="logout">
     >
       <div
         class="main-container"
-        :class="{ 'trip-detail-container': isTripDetailPage }"
+        :class="{ 'trip-detail-container': isTripDetailPage, 'full-width': isFullWidthPage }"
       >
         <router-view />
       </div>
@@ -140,6 +140,12 @@ export default {
       );
     });
 
+    // 需要全宽布局的页面（如首页、目的地）
+    const isFullWidthPage = computed(() => {
+      const path = route.path;
+      return path.startsWith("/home") || path.startsWith("/destinations");
+    });
+
     // 处理用户命令
     const handleUserCommand = async (command) => {
       if (command === "logout") {
@@ -173,6 +179,7 @@ export default {
       userStore,
       handleUserCommand,
       isTripDetailPage,
+      isFullWidthPage,
     };
   },
 };
@@ -204,7 +211,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 64px;
+  height: var(--header-height);
   position: relative; /* 确保定位上下文 */
 }
 
@@ -316,9 +323,10 @@ export default {
 /* 主要内容区域 */
 .layout-main {
   flex: 1;
-  overflow-y: auto; /* 允许垂直滚动 */
+  overflow-y: auto !important; /* 允许垂直滚动 */
   overflow-x: hidden; /* 防止水平滚动 */
-  min-height: calc(100vh - 64px); /* 确保最小高度，减去导航栏高度 */
+  height: calc(100vh - var(--header-height)); /* 固定高度，作为唯一滚动容器 */
+  min-height: 0; /* 允许成为滚动容器（flex 子项常见问题） */
   position: relative;
   width: 100%;
 }
@@ -428,7 +436,7 @@ export default {
 
 @media (max-width: 480px) {
   .header-container {
-    height: 56px;
+    height: var(--header-height);
     padding: 0 12px;
   }
 
@@ -450,7 +458,7 @@ export default {
   }
 
   .layout-main {
-    min-height: calc(100vh - 56px); /* 超小屏幕的导航栏高度 */
+    height: calc(100vh - var(--header-height));
   }
 
   .main-container {

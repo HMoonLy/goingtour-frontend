@@ -1,5 +1,5 @@
 <template>
-  <div class="destinations">
+  <div class="page-shell destinations">
     <!-- 英雄横幅（大图+搜索） -->
     <section class="hero">
       <div class="hero-bg"></div>
@@ -935,22 +935,7 @@ export default {
 </script>
 
 <style scoped>
-/* 整体布局 */
-.destinations {
-  position: fixed !important;
-  top: 64px !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  width: 100vw !important;
-  height: calc(100vh - 64px) !important;
-  margin: 0 !important;
-  padding: 20px !important;
-  background: #f5f7fa !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  z-index: 1 !important;
-}
+/* 整体布局：使用全局 .page-shell 提供的滚动与背景，不再使用页面内 fixed 布局 */
 
 /* 英雄横幅（大图） */
 .hero {
@@ -1095,10 +1080,8 @@ export default {
 
 /* 字母导航 */
 .letter-nav {
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
+  position: sticky;
+  top: var(--header-height);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1344,23 +1327,47 @@ export default {
 /* 月份 tabs */
 .month-tabs {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0;
   margin-bottom: 12px;
+  border-bottom: 1px solid var(--border-color, #ebeef5);
+  padding-bottom: 6px;
 }
 .month-tab {
-  padding: 6px 10px;
-  border: 1px solid var(--border-color, #ebeef5);
-  background: var(--btn-bg, #fff);
+  position: relative;
+  background: transparent;
+  border: none;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 8px 10px;
   color: var(--text-secondary, #606266);
-  border-radius: 6px;
-  font-size: 12px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
 }
+.month-tab:hover {
+  color: var(--text-primary, #303133);
+}
 .month-tab.active {
-  background: var(--primary-color, #409eff);
-  border-color: var(--primary-color, #409eff);
-  color: #fff;
+  color: var(--warning-color, #f59e0b);
+}
+.month-tab::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -7px;
+  width: 24px;
+  height: 3px;
+  background: transparent;
+  border-radius: 2px;
+  transition: background-color 0.2s ease, width 0.2s ease;
+}
+.month-tab.active::after {
+  background: var(--warning-color, #f59e0b);
 }
 
 .letter-icon {
@@ -1489,8 +1496,7 @@ export default {
   display: none;
 }
 
-.city-card:hover {
-}
+/* 移除空规则：.city-card:hover */
 
 .city-name {
   font-size: 16px;
@@ -1939,18 +1945,15 @@ export default {
   transform: scale(1.02);
 }
 
-.city-item.in-wishlist .city-card {
-}
+/* 移除空规则：.city-item.in-wishlist .city-card */
 
 .city-actions {
   display: none;
 }
 
-.city-item:hover .city-actions {
-}
+/* 移除空规则：.city-item:hover .city-actions */
 
-.city-item.in-wishlist .city-actions {
-}
+/* 移除空规则：.city-item.in-wishlist .city-actions */
 
 .wishlist-btn {
   transition: all 0.3s ease;

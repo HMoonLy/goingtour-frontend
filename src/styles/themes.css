@@ -41,6 +41,11 @@
     --warning-color: #ffc107;
     --error-color: #dc3545;
     --info-color: #17a2b8;
+    /* 布局变量 */
+    --header-height: 64px;
+    --page-padding: 20px;
+    --content-max-width: 1200px;
+    --page-bg: #f5f7fa;
 }
 
 
@@ -83,6 +88,8 @@
     --warning-color: #ff9800;
     --error-color: #f44336;
     --info-color: #2196f3;
+    /* 布局变量（深色主题下的页面背景可与整体一致） */
+    --page-bg: var(--bg-color);
 }
 
 
@@ -95,6 +102,23 @@
 body {
     background-color: var(--bg-color);
     color: var(--text-primary);
+}
+
+
+/* 页面壳与内容容器（全局复用） */
+
+.page-shell {
+    position: relative;
+    min-height: calc(100vh - var(--header-height));
+    padding: var(--page-padding);
+    background: var(--page-bg);
+    overflow-x: hidden;
+    overflow-y: auto !important;
+}
+
+.page-content {
+    max-width: var(--content-max-width);
+    margin: 0 auto;
 }
 
 
@@ -233,8 +257,20 @@ body {
 /* 响应式适配 */
 
 @media (max-width: 768px) {
+    .page-shell {
+        padding: 12px;
+    }
     .dark-theme .login-page .login-form-section,
     .dark-theme .register-page .register-form-section {
         background: var(--bg-color);
+    }
+}
+
+
+/* 根据屏幕宽度调整头部高度变量，保证滚动区域计算准确 */
+
+@media (max-width: 480px) {
+     :root {
+        --header-height: 56px;
     }
 }
