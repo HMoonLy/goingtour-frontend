@@ -17,7 +17,6 @@
             </div>
             <h2 class="group-title">
               {{ getGroupTitle(group.letter) }}
-              <span class="city-count">({{ group.cities.length }})</span>
             </h2>
           </div>
         </div>
@@ -98,7 +97,7 @@ export default {
 
       // 根据字母返回相应的中文描述
       const letterDescriptions = {
-        A: "A字母开头",
+        A: "A",
         B: "B字母开头",
         C: "C字母开头",
         D: "D字母开头",
@@ -212,6 +211,7 @@ export default {
   align-items: center;
   gap: 16px;
   width: 100%;
+  margin-left: 10px;
 }
 
 .group-letter-badge {

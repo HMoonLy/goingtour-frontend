@@ -26,8 +26,8 @@ class="heart-icon">
           <svg
             :class="{ filled: isInWishlist }"
             viewBox="0 0 24 24"
-            width="18"
-            height="18"
+            width="14"
+            height="14"
           >
             <path
               d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
@@ -213,8 +213,8 @@ export default defineComponent({
   position: relative;
   background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 16px;
-  padding: 20px;
+  border-radius: 8px;
+  padding: 12px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
@@ -260,10 +260,10 @@ export default defineComponent({
 /* ===== 收藏按钮样式 ===== */
 .favorite-button {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 36px;
-  height: 36px;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
@@ -306,10 +306,21 @@ export default defineComponent({
   height: 100%;
 }
 
+.heart-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
 .heart-icon svg {
   transition: all 0.3s ease;
   fill: #9ca3af;
   stroke: none;
+  /* 确保SVG在容器中完全居中 */
+  display: block;
+  margin: 0;
 }
 
 .heart-icon svg.filled {
@@ -369,19 +380,19 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 120px;
+  min-height: 60px;
 }
 
 .city-header {
   flex: 1;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .city-name {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: #1f2937;
-  margin: 0 0 8px 0;
+  margin: 0 0 4px 0;
   line-height: 1.3;
   /* 防止文字过长 */
   overflow: hidden;
@@ -397,7 +408,7 @@ export default defineComponent({
 }
 
 .province-name {
-  font-size: 14px;
+  font-size: 12px;
   color: #6b7280;
   font-weight: 400;
 }
@@ -469,23 +480,23 @@ export default defineComponent({
 /* ===== 响应式设计 ===== */
 @media (max-width: 768px) {
   .city-card.modern {
-    padding: 16px;
-    min-height: 100px;
+    padding: 10px;
+    min-height: 50px;
   }
 
   .favorite-button {
-    width: 32px;
-    height: 32px;
-    top: 12px;
-    right: 12px;
+    width: 24px;
+    height: 24px;
+    top: 6px;
+    right: 6px;
   }
 
   .city-name {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .province-name {
-    font-size: 13px;
+    font-size: 11px;
   }
 }
 

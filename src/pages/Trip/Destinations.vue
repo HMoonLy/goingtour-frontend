@@ -1033,20 +1033,28 @@ export default {
 <style scoped>
 /* ===== 城市区域样式 ===== */
 .cities-section {
-  margin-bottom: 24px;
-  padding: 0 20px;
-  overflow: hidden;
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  margin: 0 0 24px 0; /* 与其他section保持一致 */
   padding: 20px;
   background: var(--card-bg, #fff);
   border-radius: 8px;
   border: 1px solid var(--border-color, #ebeef5);
-  margin-bottom: 20px;
+  transition: all 0.3s;
+}
+
+.section-header {
+  margin: 0 0 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ebeef5;
+}
+
+.section-header h2 {
+  font-size: 20px;
+  color: #303133;
+  margin: 0;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .section-header-with-toggle h2 {

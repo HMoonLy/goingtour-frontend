@@ -140,11 +140,11 @@ export default defineComponent({
 /* ===== 响应式网格布局 ===== */
 .city-grid {
   display: grid;
-  gap: 24px;
+  gap: 20px;
   width: 100%;
 
-  /* 桌面端：4列 */
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  /* 与当季推荐保持一致的网格设置 */
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
 
   /* 确保网格项目等高 */
   align-items: stretch;
@@ -185,7 +185,7 @@ export default defineComponent({
 .grid-item {
   width: 100%;
   height: 100%;
-  min-height: 160px;
+  min-height: 120px; /* 与缩小的卡片尺寸匹配 */
   
   /* 性能优化：减少重排重绘 */
   backface-visibility: hidden;
@@ -229,8 +229,8 @@ export default defineComponent({
 /* ===== 加载骨架屏样式 ===== */
 .loading-grid {
   display: grid;
-  gap: 24px;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
 }
 
 @media (max-width: 1024px) and (min-width: 640px) {
@@ -250,9 +250,9 @@ export default defineComponent({
 .skeleton-card {
   background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 16px;
-  padding: 20px;
-  min-height: 160px;
+  border-radius: 12px;
+  padding: 16px;
+  min-height: 120px;
   display: flex;
   flex-direction: column;
   animation: shimmer 1.5s ease-in-out infinite;
