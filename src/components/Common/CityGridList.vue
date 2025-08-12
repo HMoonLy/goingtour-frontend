@@ -140,11 +140,11 @@ export default defineComponent({
 /* ===== 响应式网格布局 ===== */
 .city-grid {
   display: grid;
-  gap: 20px;
+  gap: 16px;
   width: 100%;
 
-  /* 与当季推荐保持一致的网格设置 */
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  /* 一行放5个左右的紧凑布局 */
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
 
   /* 确保网格项目等高 */
   align-items: stretch;
@@ -157,27 +157,27 @@ export default defineComponent({
   contain: layout style paint;
 }
 
-/* 中等屏幕：3列 */
+/* 中等屏幕：一行4-5个 */
 @media (max-width: 1400px) and (min-width: 1024px) {
   .city-grid {
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+    gap: 14px;
   }
 }
 
-/* 平板屏幕：2列 */
+/* 平板屏幕：一行3-4个 */
 @media (max-width: 1024px) and (min-width: 640px) {
   .city-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
   }
 }
 
-/* 手机屏幕：1列 */
+/* 手机屏幕：一行2个 */
 @media (max-width: 640px) {
   .city-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
 }
 
@@ -185,7 +185,7 @@ export default defineComponent({
 .grid-item {
   width: 100%;
   height: 100%;
-  min-height: 120px; /* 与缩小的卡片尺寸匹配 */
+  min-height: 60px; /* 减少高度让卡片更紧凑 */
   
   /* 性能优化：减少重排重绘 */
   backface-visibility: hidden;
@@ -229,30 +229,30 @@ export default defineComponent({
 /* ===== 加载骨架屏样式 ===== */
 .loading-grid {
   display: grid;
-  gap: 20px;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
 }
 
 @media (max-width: 1024px) and (min-width: 640px) {
   .loading-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
   }
 }
 
 @media (max-width: 640px) {
   .loading-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
 }
 
 .skeleton-card {
   background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 12px;
-  padding: 16px;
-  min-height: 120px;
+  border-radius: 8px;
+  padding: 8px;
+  min-height: 60px;
   display: flex;
   flex-direction: column;
   animation: shimmer 1.5s ease-in-out infinite;

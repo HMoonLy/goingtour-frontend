@@ -15,9 +15,6 @@
             <div class="group-letter-badge">
               {{ group.letter }}
             </div>
-            <h2 class="group-title">
-              {{ getGroupTitle(group.letter) }}
-            </h2>
           </div>
         </div>
 
@@ -81,53 +78,6 @@ export default {
       return props.cityGroups;
     });
 
-    // 不再需要底部占位高度
-    const endSpacerHeight = computed(() => {
-      return 0; // 移除虚拟占位空间
-    });
-
-    // 获取分组标题
-    const getGroupTitle = (letter) => {
-      const cityCount =
-        props.cityGroups.find((g) => g.letter === letter)?.cities.length || 0;
-
-      if (letter === "热门") {
-        return "热门城市";
-      }
-
-      // 根据字母返回相应的中文描述
-      const letterDescriptions = {
-        A: "A",
-        B: "B字母开头",
-        C: "C字母开头",
-        D: "D字母开头",
-        E: "E字母开头",
-        F: "F字母开头",
-        G: "G字母开头",
-        H: "H字母开头",
-        I: "I字母开头",
-        J: "J字母开头",
-        K: "K字母开头",
-        L: "L字母开头",
-        M: "M字母开头",
-        N: "N字母开头",
-        O: "O字母开头",
-        P: "P字母开头",
-        Q: "Q字母开头",
-        R: "R字母开头",
-        S: "S字母开头",
-        T: "T字母开头",
-        U: "U字母开头",
-        V: "V字母开头",
-        W: "W字母开头",
-        X: "X字母开头",
-        Y: "Y字母开头",
-        Z: "Z字母开头",
-      };
-
-      return letterDescriptions[letter] || `${letter}字母开头`;
-    };
-
     // 移除原有的滚动处理逻辑
 
     // 简化生命周期钩子 - 移除滚动监听
@@ -151,7 +101,6 @@ export default {
     return {
       containerRef,
       visibleGroups,
-      getGroupTitle,
     };
   },
 };

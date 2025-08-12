@@ -26,7 +26,7 @@ class="heart-icon">
           <svg
             :class="{ filled: isInWishlist }"
             viewBox="0 0 24 24"
-            width="14"
+            width="14" 
             height="14"
           >
             <path
@@ -43,37 +43,6 @@ class="heart-icon">
         <h3 class="city-name">
           {{ city.中文名 }}
         </h3>
-        <div class="city-meta">
-          <span class="province-name">{{ provinceName }}</span>
-          <!-- 可扩展：添加热度标签等 -->
-          <div v-if="cityHotness"
-class="hotness-indicator">
-            <span class="hotness-badge">{{ cityHotness }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 底部状态指示 -->
-      <div class="card-footer">
-        <div class="status-indicator">
-          <span v-if="isInWishlist"
-class="wishlist-badge">已收藏</span>
-          <span v-else
-class="normal-badge">点击选择</span>
-        </div>
-        <div class="action-hint">
-          <svg width="14"
-height="14" viewBox="0 0 24 24" class="arrow-icon">
-            <path
-              d="M9 6l6 6-6 6"
-              stroke="currentColor"
-              stroke-width="2"
-              fill="none"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </div>
       </div>
     </div>
   </div>
@@ -213,8 +182,8 @@ export default defineComponent({
   position: relative;
   background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: 6px;
+  padding: 8px; /* 减小内边距让卡片更紧凑 */
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
@@ -260,9 +229,9 @@ export default defineComponent({
 /* ===== 收藏按钮样式 ===== */
 .favorite-button {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 28px;
+  top: 6px;
+  right: 6px;
+  width: 28px; /* 增大按钮尺寸 */
   height: 28px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.9);
@@ -346,10 +315,10 @@ export default defineComponent({
 }
 
 .loading-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top: 2px solid #ffffff;
+  width: 12px; /* 减小尺寸 */
+  height: 12px;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-top: 1.5px solid #ffffff;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -380,19 +349,20 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 60px;
+  min-height: 40px; /* 减小高度让卡片更紧凑 */
+  padding-right: 36px; /* 为更大的收藏按钮留出空间 */
 }
 
 .city-header {
   flex: 1;
-  margin-bottom: 8px;
+  margin-bottom: 4px; /* 减少间距 */
 }
 
 .city-name {
-  font-size: 16px;
+  font-size: 16px; /* 增大字体让文字更清晰 */
   font-weight: 600;
   color: #1f2937;
-  margin: 0 0 4px 0;
+  margin: 0 0 2px 0; /* 减小间距 */
   line-height: 1.3;
   /* 防止文字过长 */
   overflow: hidden;
@@ -408,7 +378,7 @@ export default defineComponent({
 }
 
 .province-name {
-  font-size: 12px;
+  font-size: 10px; /* 减小字体 */
   color: #6b7280;
   font-weight: 400;
 }
@@ -419,14 +389,14 @@ export default defineComponent({
 
 .hotness-badge {
   display: inline-block;
-  padding: 2px 8px;
+  padding: 1px 4px; /* 减小内边距 */
   background: linear-gradient(135deg, #ef4444, #dc2626);
   color: white;
-  font-size: 11px;
+  font-size: 9px; /* 减小字体 */
   font-weight: 500;
-  border-radius: 12px;
+  border-radius: 8px; /* 减小圆角 */
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
 }
 
 /* ===== 底部状态栏 ===== */
@@ -435,7 +405,7 @@ export default defineComponent({
   align-items: center;
   justify-content: space-between;
   margin-top: auto;
-  padding-top: 12px;
+  padding-top: 6px; /* 减小内边距 */
   border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
@@ -446,17 +416,17 @@ export default defineComponent({
 .wishlist-badge {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
+  padding: 2px 6px; /* 减小内边距 */
   background: rgba(34, 197, 94, 0.1);
   color: #059669;
-  font-size: 12px;
+  font-size: 10px; /* 减小字体 */
   font-weight: 500;
-  border-radius: 12px;
+  border-radius: 8px; /* 减小圆角 */
   border: 1px solid rgba(34, 197, 94, 0.2);
 }
 
 .normal-badge {
-  font-size: 12px;
+  font-size: 10px; /* 减小字体 */
   color: #9ca3af;
   font-weight: 400;
 }
@@ -480,23 +450,24 @@ export default defineComponent({
 /* ===== 响应式设计 ===== */
 @media (max-width: 768px) {
   .city-card.modern {
-    padding: 10px;
-    min-height: 50px;
+    padding: 6px; /* 手机上稍小的内边距 */
+    min-height: 42px; /* 适当的高度 */
   }
 
   .favorite-button {
-    width: 24px;
+    width: 24px; /* 手机上适中的尺寸 */
     height: 24px;
-    top: 6px;
-    right: 6px;
+    top: 4px;
+    right: 4px;
   }
 
   .city-name {
-    font-size: 14px;
+    font-size: 15px; /* 手机上稍大的字体 */
   }
 
-  .province-name {
-    font-size: 11px;
+  .city-info {
+    min-height: 32px;
+    padding-right: 30px;
   }
 }
 
