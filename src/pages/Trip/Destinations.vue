@@ -285,7 +285,7 @@ import {
 import pinyin from "pinyin";
 import { createCachedRequest, debounce } from "@/utils/apiOptimizer.js";
 import { useWishlistStore } from "@/store/wishlist.js";
-import { hotRegions, themeGroups, findCity } from "@/data/destinations.js";
+import { hotRegions,  findCity } from "@/data/destinations.js";
 import { hotCategories as hotCategoriesData } from "@/data/hotGroups.js";
 import { seasonalByMonth } from "@/data/seasonalCities.js";
 
