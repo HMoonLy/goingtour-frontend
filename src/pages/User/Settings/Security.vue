@@ -1,7 +1,5 @@
 <template>
-  <div
-class="personal-page simple" :class="{ embedded }"
->
+  <div class="personal-page simple" :class="{ embedded }">
     <UserCenterNav v-if="!embedded" />
     <h2 v-if="!embedded"
 class="title"
@@ -52,36 +50,29 @@ plain @click="clearPwd"
     </el-card>
 
     <!-- 设置密码对话框 -->
-    <el-dialog v-model="setVisible" title="设置密码" width="420px">
+    <el-dialog v-model="setVisible"
+title="设置密码" width="420px">
       <el-form label-width="120px">
         <el-form-item label="新密码">
-          <el-input
-v-model="setForm.password" type="password"
-show-password
-/>
+          <el-input v-model="setForm.password" type="password" show-password />
         </el-form-item>
         <el-form-item label="确认密码">
-          <el-input
-v-model="setForm.confirm" type="password"
-show-password
-/>
+          <el-input v-model="setForm.confirm" type="password" show-password />
         </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="setVisible = false">
 取消
 </el-button>
-        <el-button
-type="primary" :loading="loading"
-@click="submitSet"
->
+        <el-button type="primary" :loading="loading" @click="submitSet">
           确认
         </el-button>
       </template>
     </el-dialog>
 
     <!-- 修改密码对话框 -->
-    <el-dialog v-model="changeVisible" title="修改密码" width="420px">
+    <el-dialog v-model="changeVisible"
+title="修改密码" width="420px">
       <el-form label-width="120px">
         <el-form-item label="当前密码">
           <el-input
@@ -91,10 +82,7 @@ type="primary" :loading="loading"
           />
         </el-form-item>
         <el-form-item label="新密码">
-          <el-input
-v-model="changeForm.newPwd" type="password"
-show-password
-/>
+          <el-input v-model="changeForm.newPwd" type="password" show-password />
         </el-form-item>
         <el-form-item label="确认密码">
           <el-input
@@ -106,10 +94,7 @@ show-password
       </el-form>
       <template #footer>
         <el-button @click="changeVisible = false"> 取消 </el-button>
-        <el-button
-type="primary" :loading="loading"
-@click="submitChange"
->
+        <el-button type="primary" :loading="loading" @click="submitChange">
           确认
         </el-button>
       </template>

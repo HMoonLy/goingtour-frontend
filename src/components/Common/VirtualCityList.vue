@@ -1,6 +1,7 @@
 <template>
-  <div ref="containerRef"
-class="virtual-city-list">
+  <div
+ref="containerRef" class="virtual-city-list"
+>
     <!-- 虚拟滚动容器 -->
     <div
       class="virtual-scroll-container"
@@ -34,9 +35,7 @@ class="virtual-spacer" :style="{ height: offsetY + 'px' }" />
               'in-wishlist': wishlistStore.isCityInWishlist(city.adcode),
             }"
           >
-            <div
-class="city-left" @click="$emit('selectCity', city)"
->
+            <div class="city-left" @click="$emit('selectCity', city)">
               <span class="city-name">{{ city.中文名 }}</span>
               <span class="city-province">{{ getProvinceName(city) }}</span>
             </div>
@@ -69,9 +68,7 @@ class="city-left" @click="$emit('selectCity', city)"
       </div>
 
       <!-- 虚拟占位空间（底部） -->
-      <div
-class="virtual-spacer" :style="{ height: endSpacerHeight + 'px' }"
-/>
+      <div class="virtual-spacer" :style="{ height: endSpacerHeight + 'px' }" />
     </div>
   </div>
 </template>

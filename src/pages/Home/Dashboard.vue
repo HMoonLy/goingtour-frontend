@@ -5,7 +5,8 @@
       <h3 class="section-title">快捷操作</h3>
       <div class="action-grid">
         <!-- 仅保留 AI 行程生成入口：直接进入创建流程 -->
-        <div class="action-card" @click="goToCreate">
+        <div class="action-card"
+@click="goToCreate">
           <div class="action-icon violet">
             <el-icon size="24">
               <Cpu />
@@ -18,13 +19,16 @@
     </section>
 
     <!-- 继续未完成进度 -->
-    <section v-if="hasProgress" class="progress-section">
-      <el-card class="progress-card" shadow="hover">
+    <section v-if="hasProgress"
+class="progress-section">
+      <el-card class="progress-card"
+shadow="hover">
         <div class="progress-content">
           <div class="progress-texts">
             <h4>继续未完成的行程</h4>
             <p class="progress-desc">
-              <el-tag size="small" type="info" effect="plain">
+              <el-tag size="small"
+type="info" effect="plain">
                 {{ progressSummary.destination || "无" }}
               </el-tag>
               <span class="dot" />
@@ -36,7 +40,8 @@
           <div class="progress-actions">
             <el-button
 type="primary" @click="resumeProgress"> 继续 </el-button>
-            <el-button type="danger" plain @click="discardProgress">
+            <el-button type="danger"
+plain @click="discardProgress">
               舍弃
             </el-button>
           </div>
@@ -77,7 +82,8 @@ type="primary" @click="resumeProgress"> 继续 </el-button>
       <div class="section-header">
         <h3 class="section-title">我的行程</h3>
         <div class="header-actions">
-          <el-segmented v-model="tripTab" :options="tripTabs" size="small" />
+          <el-segmented v-model="tripTab"
+:options="tripTabs" size="small" />
         </div>
         <el-button
           size="small"
@@ -91,7 +97,8 @@ type="primary" @click="resumeProgress"> 继续 </el-button>
         </el-button>
       </div>
 
-      <div v-if="displayTrips.length > 0" class="trips-grid">
+      <div v-if="displayTrips.length > 0"
+class="trips-grid">
         <div
           v-for="trip in displayTrips"
           :key="trip.id"
@@ -143,7 +150,8 @@ type="primary" @click="resumeProgress"> 继续 </el-button>
             <div class="trip-detail">
               <el-icon><Calendar /></el-icon><span>{{ trip.days }}天</span>
             </div>
-            <div v-if="trip.isDraft" class="trip-detail">
+            <div v-if="trip.isDraft"
+class="trip-detail">
               <el-icon><List /></el-icon>
               <span>{{ getStepName(trip.currentStep) }}</span>
             </div>
@@ -195,8 +203,10 @@ type="primary" @click="resumeProgress"> 继续 </el-button>
         </div>
       </div>
 
-      <div v-else class="no-trips">
-        <el-icon size="48" color="#C0C4CC">
+      <div v-else
+class="no-trips">
+        <el-icon size="48"
+color="#C0C4CC">
           <DocumentCopy />
         </el-icon>
         <p>暂无行程</p>
@@ -214,7 +224,8 @@ type="primary" @click="goToCreate"> 立即创建 </el-button>
     <section class="weather-section">
       <div class="weather-header">
         <h3 class="section-title">天气预览</h3>
-        <div v-if="wishlistStore.hasCities" class="weather-controls">
+        <div v-if="wishlistStore.hasCities"
+class="weather-controls">
           <el-button
             size="small"
             type="primary"
@@ -237,7 +248,8 @@ type="primary" @click="goToCreate"> 立即创建 </el-button>
           </el-button>
         </div>
       </div>
-      <el-card v-if="weather" class="weather-card" shadow="hover">
+      <el-card v-if="weather"
+class="weather-card" shadow="hover">
         <div class="weather-top">
           <div class="w-left">
             <div class="w-city">
@@ -278,14 +290,16 @@ type="primary" @click="goToCreate"> 立即创建 </el-button>
           </div>
         </div>
       </el-card>
-      <el-empty v-else description="暂无天气信息" />
+      <el-empty v-else
+description="暂无天气信息" />
     </section>
 
     <!-- 公告/发现 -->
     <section class="ann-section">
       <h3 class="section-title">公告通知</h3>
       <div class="ann-list">
-        <el-empty v-if="announcements.length === 0" description="暂无公告" />
+        <el-empty v-if="announcements.length === 0"
+description="暂无公告" />
         <el-alert
           v-for="(item, idx) in announcements"
           :key="idx"

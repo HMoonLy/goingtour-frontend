@@ -6,8 +6,10 @@
           <el-icon><Star /></el-icon>
           我的愿望清单
         </h3>
-        <el-tag size="small"
-type="info" v-if="wishlistStore.wishlistCount > 0">
+        <el-tag
+size="small" type="info"
+v-if="wishlistStore.wishlistCount > 0"
+>
           {{ wishlistStore.wishlistCount }} 个城市
         </el-tag>
       </div>
@@ -37,9 +39,11 @@ type="info" v-if="wishlistStore.wishlistCount > 0">
     </div>
 
     <!-- 愿望清单列表 -->
-    <div v-loading="wishlistStore.loading" class="wishlist-content">
-      <div v-if="wishlistStore.hasCities"
-class="wishlist-grid">
+    <div v-loading="wishlistStore.loading"
+class="wishlist-content">
+      <div
+v-if="wishlistStore.hasCities" class="wishlist-grid"
+>
         <WishlistCard
           v-for="item in wishlistStore.wishlistItems"
           :key="item.id"
@@ -53,23 +57,28 @@ class="wishlist-grid">
       </div>
 
       <!-- 空状态 -->
-      <div v-else
-class="empty-wishlist">
-        <el-icon size="64"
-color="#C0C4CC">
+      <div
+v-else class="empty-wishlist"
+>
+        <el-icon
+size="64" color="#C0C4CC"
+>
           <Star />
         </el-icon>
         <h4>还没有心仪的目的地</h4>
         <p>添加你想去的城市，让我们为你提供天气信息和旅行建议</p>
 
         <div class="empty-actions">
-          <el-button type="primary"
-@click="showAddDialog = true">
+          <el-button
+type="primary" @click="showAddDialog = true"
+>
             <el-icon><Plus /></el-icon>
             添加第一个城市
           </el-button>
-          <el-button type="info"
-plain @click="showRecommendations = true">
+          <el-button
+type="info" plain
+@click="showRecommendations = true"
+>
             <el-icon><MagicStick /></el-icon>
             看看推荐
           </el-button>
@@ -90,8 +99,10 @@ plain @click="showRecommendations = true">
         :rules="addFormRules"
         label-position="top"
       >
-        <el-form-item label="选择城市"
-prop="cityCode" required>
+        <el-form-item
+label="选择城市" prop="cityCode"
+required
+>
           <el-select
             v-model="addForm.cityCode"
             placeholder="搜索城市名称"
@@ -118,8 +129,9 @@ prop="cityCode" required>
           </el-select>
         </el-form-item>
 
-        <el-form-item label="想去的原因"
-prop="reason">
+        <el-form-item
+label="想去的原因" prop="reason"
+>
           <el-input
             v-model="addForm.reason"
             type="textarea"
@@ -152,8 +164,10 @@ prop="reason">
               @keyup.enter="handleAddInputConfirm"
               @blur="handleAddInputConfirm"
             />
-            <el-button v-else
-size="small" @click="showAddInput">
+            <el-button
+v-else size="small"
+@click="showAddInput"
+>
               <el-icon><Plus /></el-icon>
               添加标签
             </el-button>
@@ -193,7 +207,8 @@ size="small" @click="showAddInput">
     </el-dialog>
 
     <!-- 推荐城市对话框 -->
-    <el-dialog v-model="showRecommendations" title="为你推荐" width="600px">
+    <el-dialog v-model="showRecommendations"
+title="为你推荐" width="600px">
       <div class="recommendations-content">
         <div class="recommendation-section">
           <h4>热门目的地</h4>

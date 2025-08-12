@@ -33,9 +33,12 @@
       </div>
 
       <div class="card-actions">
-        <el-dropdown placement="bottom-end" @command="handleCommand">
-          <el-button type="text"
-size="small" class="more-btn">
+        <el-dropdown placement="bottom-end"
+@command="handleCommand">
+          <el-button
+type="text" size="small"
+class="more-btn"
+>
             <el-icon><More /></el-icon>
           </el-button>
           <template #dropdown>
@@ -52,8 +55,9 @@ size="small" class="more-btn">
                 <el-icon><MapLocation /></el-icon>
                 规划行程
               </el-dropdown-item>
-              <el-dropdown-item command="remove"
-divided>
+              <el-dropdown-item
+command="remove" divided
+>
                 <el-icon><Delete /></el-icon>
                 移除
               </el-dropdown-item>
@@ -64,7 +68,8 @@ divided>
     </div>
 
     <div class="card-content">
-      <div v-if="wishlistItem.reason" class="reason">
+      <div v-if="wishlistItem.reason"
+class="reason">
         <p class="reason-text">
           {{ wishlistItem.reason }}
         </p>
@@ -76,7 +81,8 @@ divided>
           <span>{{ formatDate(wishlistItem.createdAt) }}</span>
         </div>
 
-        <div v-if="isCurrentWeatherCity" class="weather-indicator">
+        <div v-if="isCurrentWeatherCity"
+class="weather-indicator">
           <el-icon><View /></el-icon>
           <span>天气预览中</span>
         </div>
@@ -84,8 +90,10 @@ divided>
     </div>
 
     <!-- 编辑对话框 -->
-    <el-dialog v-model="editDialogVisible" title="编辑愿望清单" width="400px">
-      <el-form ref="editFormRef" :model="editForm" label-position="top">
+    <el-dialog v-model="editDialogVisible"
+title="编辑愿望清单" width="400px">
+      <el-form ref="editFormRef"
+:model="editForm" label-position="top">
         <el-form-item label="想去的原因">
           <el-input
             v-model="editForm.reason"
@@ -117,8 +125,10 @@ divided>
             @keyup.enter="handleInputConfirm"
             @blur="handleInputConfirm"
           />
-          <el-button v-else
-size="small" @click="showInput">
+          <el-button
+v-else size="small"
+@click="showInput"
+>
             <el-icon><Plus /></el-icon>
             添加标签
           </el-button>
@@ -128,8 +138,10 @@ size="small" @click="showInput">
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="editDialogVisible = false"> 取消 </el-button>
-          <el-button type="primary"
-@click="handleSave" :loading="saving">
+          <el-button
+type="primary" @click="handleSave"
+:loading="saving"
+>
             保存
           </el-button>
         </div>

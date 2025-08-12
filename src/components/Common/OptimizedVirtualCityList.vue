@@ -1,10 +1,9 @@
 <template>
-  <div ref="containerRef"
-class="optimized-virtual-city-list">
-    <!-- 虚拟滚动容器 -->
-    <div
-class="virtual-scroll-container" :style="containerStyle"
+  <div
+ref="containerRef" class="optimized-virtual-city-list"
 >
+    <!-- 虚拟滚动容器 -->
+    <div class="virtual-scroll-container" :style="containerStyle">
       <!-- 虚拟占位空间 -->
       <div
 class="virtual-spacer" :style="{ height: offsetY + 'px' }" />
@@ -36,9 +35,7 @@ class="virtual-spacer" :style="{ height: offsetY + 'px' }" />
       </div>
 
       <!-- 虚拟占位空间（底部） -->
-      <div
-class="virtual-spacer" :style="{ height: endSpacerHeight + 'px' }"
-/>
+      <div class="virtual-spacer" :style="{ height: endSpacerHeight + 'px' }" />
     </div>
   </div>
 </template>

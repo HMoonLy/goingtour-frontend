@@ -396,7 +396,6 @@
         </div>
       </el-form-item>
     </div>
-    </el-form>
 
     <!-- 操作按钮区域 -->
     <div class="action-section">
@@ -423,7 +422,6 @@
         </el-button>
       </div>
     </div>
-  </div>
   </div>
 </template>
 <script>

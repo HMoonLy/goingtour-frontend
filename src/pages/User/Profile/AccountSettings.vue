@@ -11,16 +11,19 @@
 个性化旅行规划助手
 </p>
         </div>
-        <el-button plain @click="goBack">
+        <el-button plain
+@click="goBack">
           <el-icon><ArrowLeft /></el-icon>
           返回
         </el-button>
       </div>
 
       <!-- 设置选项卡 -->
-      <el-tabs v-model="activeTab" class="settings-tabs">
+      <el-tabs v-model="activeTab"
+class="settings-tabs">
         <!-- 个人信息 -->
-        <el-tab-pane label="个人信息" name="profile">
+        <el-tab-pane label="个人信息"
+name="profile">
           <div class="tab-content">
             <div class="setting-section">
               <h3 class="section-title">个人信息设置</h3>
@@ -73,7 +76,8 @@
                   <span class="label-desc">信息</span>
                 </div>
                 <div class="item-control">
-                  <el-input :value="userInfo.email" readonly disabled />
+                  <el-input :value="userInfo.email"
+readonly disabled />
                   <el-tag type="info"
 size="small"
 >
@@ -99,7 +103,8 @@ size="small"
         </el-tab-pane>
 
         <!-- 安全设置 -->
-        <el-tab-pane label="安全设置" name="security">
+        <el-tab-pane label="安全设置"
+name="security">
           <div class="tab-content">
             <div class="setting-section">
               <h3 class="section-title">
@@ -118,7 +123,8 @@ size="small"
 >
 成功
 </el-tag>
-                  <el-button plain size="small" @click="testEmailVerification">
+                  <el-button plain
+size="small" @click="testEmailVerification">
                     提交
                   </el-button>
                 </div>
@@ -131,7 +137,8 @@ size="small"
                   <span class="label-desc">可选的备用登录方式</span>
                 </div>
                 <div class="item-control">
-                  <el-tag v-if="hasPassword" type="primary" size="small">
+                  <el-tag v-if="hasPassword"
+type="primary" size="small">
                     已设置
                   </el-tag>
                   <el-tag v-else
@@ -176,7 +183,8 @@ type="info" size="small"
                   <span class="label-desc">查看最近的登录活动</span>
                 </div>
                 <div class="item-control">
-                  <el-button plain @click="showLoginHistory">
+                  <el-button plain
+@click="showLoginHistory">
                     查看记录
                   </el-button>
                 </div>
@@ -209,7 +217,8 @@ type="info" size="small"
         </el-tab-pane>
 
         <!-- 隐私设置 -->
-        <el-tab-pane label="隐私设置" name="privacy">
+        <el-tab-pane label="隐私设置"
+name="privacy">
           <div class="tab-content">
             <div class="setting-section">
               <h3 class="section-title">
@@ -293,7 +302,8 @@ type="info" size="small"
         </el-tab-pane>
 
         <!-- 系统设置 -->
-        <el-tab-pane label="系统设置" name="system">
+        <el-tab-pane label="系统设置"
+name="system">
           <div class="tab-content">
             <div class="setting-section">
               <h3 class="section-title">
@@ -388,7 +398,8 @@ type="info" size="small"
         :rules="setPasswordRules"
         label-width="80px"
       >
-        <el-form-item label="新密码" prop="password">
+        <el-form-item label="新密码"
+prop="password">
           <el-input
             v-model="setPasswordForm.password"
             type="password"
@@ -396,7 +407,8 @@ type="info" size="small"
             show-password
           />
         </el-form-item>
-        <el-form-item label="确认密码" prop="confirmPassword">
+        <el-form-item label="确认密码"
+prop="confirmPassword">
           <el-input
             v-model="setPasswordForm.confirmPassword"
             type="password"
@@ -432,7 +444,8 @@ type="info" size="small"
         :rules="changePasswordRules"
         label-width="80px"
       >
-        <el-form-item label="当前密码" prop="currentPassword">
+        <el-form-item label="当前密码"
+prop="currentPassword">
           <el-input
             v-model="changePasswordForm.currentPassword"
             type="password"
@@ -440,7 +453,8 @@ type="info" size="small"
             show-password
           />
         </el-form-item>
-        <el-form-item label="新密码" prop="newPassword">
+        <el-form-item label="新密码"
+prop="newPassword">
           <el-input
             v-model="changePasswordForm.newPassword"
             type="password"
@@ -448,7 +462,8 @@ type="info" size="small"
             show-password
           />
         </el-form-item>
-        <el-form-item label="确认密码" prop="confirmPassword">
+        <el-form-item label="确认密码"
+prop="confirmPassword">
           <el-input
             v-model="changePasswordForm.confirmPassword"
             type="password"
@@ -479,7 +494,8 @@ type="info" size="small"
       :close-on-click-modal="false"
     >
       <!-- 统计信息 -->
-      <div v-if="loginStats.totalLogins" class="login-stats-summary">
+      <div v-if="loginStats.totalLogins"
+class="login-stats-summary">
         <el-row :gutter="20">
           <el-col :span="6">
             <div class="stat-item">
@@ -526,7 +542,8 @@ type="info" size="small"
 
       <!-- 操作按钮 -->
       <div class="history-actions">
-        <el-button type="danger" plain @click="clearLoginHistory">
+        <el-button type="danger"
+plain @click="clearLoginHistory">
           清除所有记录
         </el-button>
       </div>
@@ -538,43 +555,54 @@ type="info" size="small"
         style="width: 100%"
         empty-text="暂无登录记录"
       >
-        <el-table-column prop="loginTime" label="登录时间" width="160">
+        <el-table-column prop="loginTime"
+label="登录时间" width="160">
           <template #default="{ row }">
             {{ formatLoginTime(row.loginTime) }}
           </template>
         </el-table-column>
 
-        <el-table-column prop="status" label="状态" width="80">
+        <el-table-column prop="status"
+label="状态" width="80">
           <template #default="{ row }">
-            <el-tag :type="getStatusColor(row.status)" size="small">
+            <el-tag :type="getStatusColor(row.status)"
+size="small">
               {{ getStatusText(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
 
-        <el-table-column prop="loginMethod" label="登录方式" width="100">
+        <el-table-column prop="loginMethod"
+label="登录方式" width="100">
           <template #default="{ row }">
             {{ row.loginMethod === "EMAIL_CODE" ? "邮箱验证码" : "密码登录" }}
           </template>
         </el-table-column>
 
-        <el-table-column prop="ipAddress" label="IP地址" width="140" />
+        <el-table-column prop="ipAddress"
+label="IP地址" width="140" />
 
-        <el-table-column prop="location" label="位置" width="100" />
+        <el-table-column prop="location"
+label="位置" width="100" />
 
-        <el-table-column prop="deviceType" label="设备类型" width="80" />
+        <el-table-column prop="deviceType"
+label="设备类型" width="80" />
 
-        <el-table-column prop="browser" label="浏览器" width="100" />
+        <el-table-column prop="browser"
+label="浏览器" width="100" />
 
-        <el-table-column prop="operatingSystem" label="操作系统" width="120" />
+        <el-table-column prop="operatingSystem"
+label="操作系统" width="120" />
 
-        <el-table-column prop="sessionDuration" label="会话时长" width="100">
+        <el-table-column prop="sessionDuration"
+label="会话时长" width="100">
           <template #default="{ row }">
             {{ row.sessionDuration ? `${row.sessionDuration}分钟` : "-" }}
           </template>
         </el-table-column>
 
-        <el-table-column prop="failureReason" label="失败原因" min-width="150">
+        <el-table-column prop="failureReason"
+label="失败原因" min-width="150">
           <template #default="{ row }">
             {{ row.failureReason || "-" }}
           </template>
@@ -601,7 +629,8 @@ type="info" size="small"
       :close-on-click-modal="false"
     >
       <div class="delete-account-content">
-        <el-alert title="警告" type="error" :closable="false" show-icon>
+        <el-alert title="警告"
+type="error" :closable="false" show-icon>
           <p>注销账户是不可逆的操作，将会：</p>
           <ul>
             <li>永久删除您的所有行程数据</li>
@@ -611,7 +640,8 @@ type="info" size="small"
         </el-alert>
         <div class="confirmation-input">
           <p>请输入您的邮箱地址确认注销：</p>
-          <el-input v-model="deleteConfirmEmail" placeholder="请输入邮箱地址" />
+          <el-input v-model="deleteConfirmEmail"
+placeholder="请输入邮箱地址" />
         </div>
       </div>
       <template #footer>

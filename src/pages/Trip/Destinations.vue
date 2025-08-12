@@ -42,8 +42,8 @@
 
         <!-- 搜索结果 -->
         <div v-else-if="isSearchMode" class="search-results">
-          <h2 v-if="searchResults.length > 0">
-            搜索结果 ({{ searchResults.length }})
+          <h2 v-if="searchResults?.length > 0">
+            搜索结果 ({{ searchResults?.length || 0 }})
           </h2>
           <el-empty v-else description="未找到匹配的城市，请尝试其他关键词" />
 
@@ -68,7 +68,7 @@
           <div class="city-section hot-destinations-section">
             <h2><i class="hot-icon">🔥</i> 热门目的地</h2>
             <div
-              v-if="hotDestinations.length > 0"
+              v-if="hotDestinations?.length > 0"
               class="hot-destinations-grid"
             >
               <div
@@ -106,19 +106,13 @@
                 </div>
               </div>
             </div>
-            <div
-v-else class="loading-placeholder"
->
-              <el-skeleton
-:rows="3" animated
-/>
+            <div v-else class="loading-placeholder">
+              <el-skeleton :rows="3" animated />
             </div>
           </div>
 
           <!-- 热门目的地（分组标签云 - 隐藏） -->
-          <div
-class="city-section hot-group-section" style="display: none"
->
+          <div class="city-section hot-group-section" style="display: none">
             <h2><i class="hot-icon">🔥</i> 热门目的地</h2>
             <div class="group-tabs">
               <button
@@ -219,13 +213,23 @@ class="city-section hot-group-section" style="display: none"
             </div>
           </div>
 
-          <!-- 按省份分组的城市（使用优化的虚拟滚动） -->
-          <OptimizedVirtualCityList
-            :city-groups="cityGroups"
-            :wishlist-items="wishlistStore.wishlistItems"
-            @select-city="selectCity"
-            @toggle-wishlist="toggleWishlist"
-          />
+          <!-- 全国城市（现代卡片网格布局） -->
+          <div class="cities-section">
+            <div class="section-header">
+              <h2>
+                <i class="letter-icon">城</i>
+                全国城市
+              </h2>
+            </div>
+
+            <!-- 现代卡片网格布局 -->
+            <VirtualCityGrid
+              :city-groups="cityGroups"
+              :wishlist-items="wishlistStore.wishlistItems"
+              @select-city="selectCity"
+              @toggle-wishlist="toggleWishlist"
+            />
+          </div>
         </template>
 
         <!-- 导航辅助按钮组（隐藏） -->
@@ -309,6 +313,8 @@ import { hotRegions, findCity, seasonalByMonth } from "@/data/destinations.js";
 import { hotCategories as hotCategoriesData } from "@/data/hotGroups.js";
 import LazyImage from "@/components/Common/LazyImage.vue";
 import OptimizedVirtualCityList from "@/components/Common/OptimizedVirtualCityList.vue";
+import VirtualCityGrid from "@/components/Common/VirtualCityGrid.vue";
+import CityGridList from "@/components/Common/CityGridList.vue";
 import {
   pagePerformance,
   imagePerformance,
@@ -331,6 +337,8 @@ export default {
     MagicStick,
     LazyImage,
     OptimizedVirtualCityList,
+    VirtualCityGrid,
+    CityGridList,
   },
   setup() {
     const router = useRouter();
@@ -339,7 +347,7 @@ export default {
 
     // 响应式数据
     const searchKeyword = ref("");
-    // 统一为整页流式样式，不提供卡片/列表切换
+    // 统一使用现代卡片布局
     const allCities = ref([]);
     const loading = ref(true);
     const isSearchMode = ref(false);
@@ -513,6 +521,10 @@ export default {
 
     // 按首字母分组城市数据
     const cityGroups = computed(() => {
+      if (!allCities.value || !Array.isArray(allCities.value)) {
+        return [];
+      }
+
       const groups = {};
 
       // 使用汉字拼音首字母作为分组键
@@ -543,7 +555,7 @@ export default {
 
       // 转换为数组并按字母排序
       return Object.values(groups).sort((a, b) =>
-        a.letter.localeCompare(b.letter),
+        a.letter.localeCompare(b.letter)
       );
     });
 
@@ -558,6 +570,11 @@ export default {
       isSearchMode.value = true;
 
       // 在城市名、省份、拼音等字段中搜索
+      if (!allCities.value || !Array.isArray(allCities.value)) {
+        searchResults.value = [];
+        return;
+      }
+
       searchResults.value = allCities.value.filter((city) => {
         const cityName = city.中文名 || "";
         const province = city.province || "";
@@ -865,7 +882,7 @@ export default {
             if (wishlistStore.isCityInWishlist(city.adcode)) {
               // 从愿望清单移除
               const wishlistItem = wishlistStore.getWishlistItemByCityCode(
-                city.adcode,
+                city.adcode
               );
               if (wishlistItem) {
                 await wishlistStore.removeFromWishlist(wishlistItem.id);
@@ -883,7 +900,7 @@ export default {
             console.error("愿望清单操作失败:", error);
             // 错误消息已在store中处理，这里不再重复显示
           }
-        },
+        }
       );
     }, 150);
 
@@ -896,7 +913,7 @@ export default {
       try {
         // 从热门城市中随机选择未添加的城市
         const availableHotCities = hotCities.value.filter(
-          (city) => !wishlistStore.isCityInWishlist(city.adcode),
+          (city) => !wishlistStore.isCityInWishlist(city.adcode)
         );
 
         // 从所有城市中随机选择一些有趣的城市
@@ -914,7 +931,7 @@ export default {
         ];
 
         const availableInterestingCities = interestingCities.filter(
-          (city) => !wishlistStore.isCityInWishlist(city.adcode),
+          (city) => !wishlistStore.isCityInWishlist(city.adcode)
         );
 
         // 合并所有可选城市
@@ -931,14 +948,14 @@ export default {
         // 随机选择3-5个城市
         const numToAdd = Math.min(
           Math.floor(Math.random() * 3) + 3,
-          allAvailableCities.length,
+          allAvailableCities.length
         );
         const citiesContainer = [...allAvailableCities];
         const citiesToAdd = [];
 
         for (let i = 0; i < numToAdd; i++) {
           const randomIndex = Math.floor(
-            Math.random() * citiesContainer.length,
+            Math.random() * citiesContainer.length
           );
           citiesToAdd.push(citiesContainer.splice(randomIndex, 1)[0]);
         }
@@ -950,7 +967,7 @@ export default {
             cityName: city.中文名,
             reason: "系统智能推荐",
             tags: ["智能推荐", "精选目的地"],
-          }),
+          })
         );
 
         await Promise.all(addPromises);
@@ -1014,7 +1031,101 @@ export default {
 </script>
 
 <style scoped>
-/* 整体布局：使用全局 .page-shell 提供的滚动与背景，不再使用页面内 fixed 布局 */
+/* ===== 城市区域样式 ===== */
+.cities-section {
+  margin-bottom: 24px;
+  padding: 0 20px;
+  overflow: hidden;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  background: var(--card-bg, #fff);
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #ebeef5);
+  margin-bottom: 20px;
+}
+
+.section-header-with-toggle h2 {
+  font-size: 20px;
+  color: #303133;
+  margin: 0;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.city-total-count {
+  font-size: 14px;
+  color: #909399;
+  font-weight: 400;
+  background: rgba(144, 147, 153, 0.1);
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
+.view-toggle-buttons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.04);
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.toggle-btn:hover {
+  background: rgba(64, 158, 255, 0.1);
+  color: #409eff;
+}
+
+.toggle-btn.active {
+  background: #ffffff;
+  color: #409eff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.toggle-btn svg {
+  transition: all 0.2s ease;
+}
+
+@media (max-width: 768px) {
+  .section-header {
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .section-header-with-toggle h2 {
+    font-size: 18px;
+    align-self: flex-start;
+  }
+
+  .view-toggle-buttons {
+    align-self: flex-end;
+  }
+}
+
+/* ===== 整体布局：使用全局 .page-shell 提供的滚动与背景，不再使用页面内 fixed 布局 ===== */
 
 /* 英雄横幅（大图） */
 .hero {
