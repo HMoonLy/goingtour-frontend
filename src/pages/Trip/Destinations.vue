@@ -27,17 +27,14 @@
       </div>
     </section>
 
-    <!-- 城市展示区域 -->
+    <!-- 内容区域 -->
     <div class="cities-content-wrapper">
-      <!-- 滚动指示器 -->
-      <div class="scroll-indicator"
-:class="{ visible: showScrollIndicator }">
+      <!-- 滚动指示器（隐藏） -->
+      <div class="scroll-indicator" style="display:none">
         {{ activeLetter }}
       </div>
 
-      <div ref="citiesContent"
-class="cities-content" @scroll="handleScroll"
->
+      <div ref="citiesContent" class="cities-content">
         <!-- 加载状态 -->
         <div v-if="loading"
 class="loading-container">
@@ -73,8 +70,73 @@ v-else description="未找到匹配的城市，请尝试其他关键词"
 
         <!-- 常规展示模式（整页流式） -->
         <template v-else>
+          <!-- 热门目的地（分组标签云） -->
+          <div class="city-section hot-group-section">
+            <h2><i class="hot-icon">🔥</i> 热门目的地</h2>
+            <div class="group-tabs">
+              <button
+                v-for="(cat, idx) in hotCats"
+                :key="cat.label"
+                class="group-tab"
+                :class="{ active: activeHotIdx === idx }"
+                @click="activeHotIdx = idx"
+              >
+                {{ cat.label }}
+              </button>
+            </div>
+            <div class="hot-tags">
+              <a
+                v-for="city in hotCats[activeHotIdx].cities"
+                :key="city.name"
+                class="hot-tag"
+                @click="handleCityClick(city.name)"
+              >
+                {{ city.name }}
+              </a>
+            </div>
+          </div>
+
+          <!-- 当季推荐 -->
+          <div class="city-section season-section">
+            <h2>
+              <i class="letter-icon">季</i>
+              当季推荐
+            </h2>
+            <div class="month-tabs">
+              <button
+                v-for="m in months"
+                :key="m"
+                class="month-tab"
+                :class="{ active: selectedMonth === m }"
+                @click="selectedMonth = m"
+                @mouseenter="handleMonthHover(m)"
+              >
+                {{ m }}月
+              </button>
+            </div>
+            <div class="dest-grid">
+              <div
+                v-for="item in seasonalWithMore"
+                :key="item.name || 'more'"
+                :class="['dest-card', { 'more-card': item.isMore }]"
+              >
+                <template v-if="!item.isMore">
+                  <div class="dest-cover" :style="getCoverStyle(item)"></div>
+                  <div class="dest-meta" @click="selectCity({ 中文名: item.name, adcode: item.adcode })">
+                    <div class="dest-title">{{ item.name }}</div>
+                    <div class="dest-sub">{{ item.province || '' }}</div>
+                  </div>
+                </template>
+                <template v-else>
+                  <div class="dest-cover dest-cover-more" @click="goMonthMore">
+                    <span>更多 ›</span>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
           <!-- 热门目的地（区域 tabs + 城市标签） -->
-          <div id="hot-cities" class="city-section hot-city-section">
+          <div v-if="false" id="hot-cities" class="city-section hot-city-section">
             <h2><i class="hot-icon">🔥</i> 热门目的地</h2>
             <div class="region-tabs">
               <button
@@ -229,7 +291,9 @@ import {
 import pinyin from "pinyin";
 import { createCachedRequest, debounce } from "@/utils/apiOptimizer.js";
 import { useWishlistStore } from "@/store/wishlist.js";
-import { hotRegions, seasonalByMonth, themeGroups, findCity } from "@/data/destinations.js";
+import { hotRegions, themeGroups, findCity } from "@/data/destinations.js";
+import { hotCategories as hotCategoriesData } from "@/data/hotGroups.js";
+import { seasonalByMonth } from "@/data/seasonalCities.js";
 
 export default {
   name: "Destinations",
@@ -264,6 +328,61 @@ export default {
     // 热门区域 tabs
     const regions = hotRegions;
     const activeRegionIdx = ref(0);
+    // 热门目的地分组云
+    const hotCats = hotCategoriesData;
+    const activeHotIdx = ref(0);
+
+    // 当季推荐静态数据
+    const months = Array.from({ length: 12 }, (_, i) => i + 1);
+    const selectedMonth = ref(new Date().getMonth() + 1);
+
+    const seasonalDisplayCities = computed(() => {
+      const names = seasonalByMonth[selectedMonth.value] || [];
+      // 在 hotRegions 或 themeGroups 中尝试匹配 adcode/封面
+      const mapped = names.map((n) => {
+        const hit = findCity(n);
+        return {
+          name: n,
+          adcode: hit?.adcode || "",
+          cover: hit?.cover || "",
+          province: "",
+        };
+      });
+      return mapped;
+    });
+
+    // 增加“更多”卡片（占位，点击跳转更多页，当前可复用热门或搜索）
+    const seasonalWithMore = computed(() => {
+      const arr = seasonalDisplayCities.value.slice(0, 5); // 显示前5个
+      return [...arr, { isMore: true }];
+    });
+
+    function handleMonthHover(m) {
+      selectedMonth.value = m;
+    }
+
+    function goMonthMore() {
+      // 暂跳到热门区域或触发搜索；此处简化为滚动到顶部
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function getCoverStyle(item) {
+      return item.cover
+        ? { backgroundImage: `url(${item.cover})`, backgroundSize: "cover", backgroundPosition: "center" }
+        : { background: "linear-gradient(135deg, #eef2ff, #f8fafc)" };
+    }
+
+    function handleCityClick(name) {
+      // 若是具体城市名称（含“市”或英文/拼音），直接进入创建行程，否则跳转二级页
+      const isConcreteCity = /市$/.test(name) || /[A-Za-z]/.test(name);
+      if (isConcreteCity) {
+        const hit = findCity(name) || { adcode: '', name };
+        selectCity({ 中文名: name, adcode: hit.adcode || '' });
+      } else {
+        // 类似“欧洲/海岛”等分类，跳到二级浏览
+        window.location.href = '/destinations/browse';
+      }
+    }
 
     // 批量操作相关状态
     const showWishlistQuickView = ref(false);
@@ -796,6 +915,10 @@ export default {
       // 热门区域 tabs
       regions,
       activeRegionIdx,
+      // 热门分组标签云
+      hotCats,
+      activeHotIdx,
+      handleCityClick,
       clearSearch,
       debouncedSearch,
       selectCity,
@@ -810,6 +933,14 @@ export default {
       showWishlistQuickView,
       addingRecommendations,
       addRandomRecommendations,
+      // 当季
+      months,
+      selectedMonth,
+      seasonalDisplayCities,
+      seasonalWithMore,
+      handleMonthHover,
+      goMonthMore,
+      getCoverStyle,
     };
   },
 };
@@ -1115,6 +1246,13 @@ export default {
   color: #f56c6c;
 }
 
+.group-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.group-tab { padding: 6px 10px; border: 1px solid var(--border-color, #ebeef5); background: var(--btn-bg, #fff); color: var(--text-secondary, #606266); border-radius: 6px; font-size: 12px; cursor: pointer; }
+.group-tab.active { background: var(--primary-color, #409eff); border-color: var(--primary-color, #409eff); color: #fff; }
+.hot-tags { display: flex; flex-wrap: wrap; gap: 10px 14px; }
+.hot-tag { color: #303133; font-size: 14px; padding: 4px 8px; border-radius: 6px; background: #f7f8fa; border: 1px solid var(--border-color, #ebeef5); cursor: pointer; }
+.hot-tag:hover { background: #ecf5ff; border-color: #b3d8ff; color: #409eff; }
+
 .region-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
 .region-tab { padding: 6px 10px; border: 1px solid var(--border-color, #ebeef5); background: var(--btn-bg, #fff); color: var(--text-secondary, #606266); border-radius: 6px; font-size: 12px; }
 .region-tab.active { background: var(--primary-color, #409eff); border-color: var(--primary-color, #409eff); color: #fff; }
@@ -1122,6 +1260,11 @@ export default {
 .city-tags { display: flex; flex-wrap: wrap; gap: 10px 14px; }
 .city-tag-link { color: #303133; font-size: 14px; padding: 4px 8px; border-radius: 6px; background: #f7f8fa; border: 1px solid var(--border-color, #ebeef5); cursor: pointer; }
 .city-tag-link:hover { background: #ecf5ff; border-color: #b3d8ff; color: #409eff; }
+
+/* 月份 tabs */
+.month-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.month-tab { padding: 6px 10px; border: 1px solid var(--border-color, #ebeef5); background: var(--btn-bg, #fff); color: var(--text-secondary, #606266); border-radius: 6px; font-size: 12px; cursor: pointer; }
+.month-tab.active { background: var(--primary-color, #409eff); border-color: var(--primary-color, #409eff); color: #fff; }
 
 .letter-icon {
   font-style: normal;
@@ -1169,7 +1312,7 @@ export default {
 .dest-cover {
   position: relative;
   background: linear-gradient(135deg, #eef2ff, #f8fafc);
-  height: 120px;
+  height: 150px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1181,6 +1324,9 @@ export default {
   font-weight: 700;
   opacity: 0.4;
 }
+
+.dest-cover-more { display: flex; align-items: center; justify-content: center; color: #fff; background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+.more-card span { font-weight: 600; letter-spacing: 1px; }
 
 .favorite-btn {
   position: absolute;
@@ -1228,10 +1374,8 @@ export default {
   transition: all 0.3s;
 }
 
-/* 旧卡片样式（已不使用）保留最小占位以避免影响其它区块 */
-.city-card {
-  display: none;
-}
+  /* 旧卡片样式（不再使用） */
+  .city-card { display: none; }
 
 .city-card:hover {
 }
