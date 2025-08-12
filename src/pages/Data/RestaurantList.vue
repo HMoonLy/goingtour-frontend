@@ -6,7 +6,8 @@
     </div>
 
     <div class="coming-soon-card">
-      <el-icon size="64" color="#409EFF">
+      <el-icon size="64"
+color="#409EFF">
         <Food />
       </el-icon>
       <h3>餐厅推荐功能开发中</h3>
@@ -19,8 +20,8 @@
         <li>用户评价</li>
       </ul>
       <p class="stay-tuned">
-        敬请期待！
-      </p>
+敬请期待！
+</p>
     </div>
   </div>
 </template>
@@ -33,8 +34,7 @@ export default {
   components: {
     Food,
   },
-  setup() {
-  },
+  setup() {},
 };
 </script>
 

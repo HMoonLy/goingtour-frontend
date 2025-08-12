@@ -15,7 +15,7 @@ export const draftApi = {
 
   /**
    * 获取特定草稿详情
-   * @param {number} draftId - 草稿ID  
+   * @param {number} draftId - 草稿ID
    * @param {number} userId - 用户ID
    * @returns {Promise} 草稿详情
    */

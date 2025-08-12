@@ -3,7 +3,8 @@
     <!-- 顶部导航栏 -->
     <header class="layout-header">
       <div class="header-container">
-        <div class="header-logo" @click="$router.push('/home')">
+        <div class="header-logo"
+@click="$router.push('/home')">
           <h2>GoingTour</h2>
         </div>
 
@@ -39,7 +40,8 @@
         <div class="header-user">
           <el-dropdown @command="handleUserCommand">
             <div class="user-info">
-              <el-avatar :src="userStore.avatar" :size="32">
+              <el-avatar :src="userStore.avatar"
+:size="32">
                 <img src="../assets/images/default-avatar.jpg"
 alt="avatar"
 />
@@ -57,7 +59,8 @@ alt="avatar"
                 <el-dropdown-item command="preferences">
                   <el-icon><Setting /></el-icon>{{ "设置" }}
                 </el-dropdown-item>
-                <el-dropdown-item divided command="logout">
+                <el-dropdown-item divided
+command="logout">
                   <el-icon><SwitchButton /></el-icon>{{ "退出登录" }}
                 </el-dropdown-item>
               </el-dropdown-menu>
@@ -141,15 +144,11 @@ export default {
     const handleUserCommand = async (command) => {
       if (command === "logout") {
         try {
-          await ElMessageBox.confirm(
-            "确定要退出登录吗？",
-            "警告",
-            {
-              confirmButtonText: "确定",
-              cancelButtonText: "取消",
-              type: "warning",
-            },
-          );
+          await ElMessageBox.confirm("确定要退出登录吗？", "警告", {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning",
+          });
 
           // 执行退出登录
           userStore.logout();

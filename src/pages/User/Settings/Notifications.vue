@@ -1,22 +1,28 @@
 <template>
-  <div class="personal-page simple"
-:class="{ embedded }">
+  <div
+class="personal-page simple" :class="{ embedded }"
+>
     <UserCenterNav v-if="!embedded" />
-    <h2 v-if="!embedded" class="title">
-      通知设置
-    </h2>
+    <h2 v-if="!embedded"
+class="title"
+>
+通知设置
+</h2>
     <el-card class="section">
       <div class="row">
-        <span>Email</span><el-switch v-model="email"
-@change="persist" />
+        <span>Email</span><el-switch
+v-model="email" @change="persist"
+/>
       </div>
       <div class="row">
-        <span>SMS</span><el-switch v-model="sms"
-@change="persist" />
+        <span>SMS</span><el-switch
+v-model="sms" @change="persist"
+/>
       </div>
       <div class="row">
-        <span>In-app</span><el-switch v-model="inapp"
-@change="persist" />
+        <span>In-app</span><el-switch
+v-model="inapp" @change="persist"
+/>
       </div>
     </el-card>
   </div>

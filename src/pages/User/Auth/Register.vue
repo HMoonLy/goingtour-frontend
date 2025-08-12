@@ -6,23 +6,25 @@
         <!-- Logo和品牌名 -->
         <div class="brand-header">
           <div class="brand-logo">
-            <el-icon size="60"
-color="#ffffff">
+            <el-icon
+size="60" color="#ffffff"
+>
               <MapLocation />
             </el-icon>
           </div>
           <h1 class="brand-title">GoingTour</h1>
           <p class="brand-subtitle">
-            智能旅行规划专家
-          </p>
+智能旅行规划专家
+</p>
         </div>
 
         <!-- 注册页面特有的展示内容 -->
         <div class="features">
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32"
-color="#ffffff">
+              <el-icon
+size="32" color="#ffffff"
+>
                 <UserFilled />
               </el-icon>
             </div>
@@ -34,8 +36,9 @@ color="#ffffff">
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32"
-color="#ffffff">
+              <el-icon
+size="32" color="#ffffff"
+>
                 <Setting />
               </el-icon>
             </div>
@@ -47,8 +50,9 @@ color="#ffffff">
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32"
-color="#ffffff">
+              <el-icon
+size="32" color="#ffffff"
+>
                 <Star />
               </el-icon>
             </div>
@@ -72,11 +76,11 @@ color="#ffffff">
         <!-- 表单头部 -->
         <div class="form-header">
           <h2 class="form-title">
-            注册
-          </h2>
+注册
+</h2>
           <p class="form-subtitle">
-            智能旅行规划专家
-          </p>
+智能旅行规划专家
+</p>
         </div>
 
         <!-- 注册表单 -->
@@ -89,8 +93,9 @@ color="#ffffff">
           @submit.prevent="handleRegister"
         >
           <!-- 邮箱输入 -->
-          <el-form-item prop="email"
-class="form-item">
+          <el-form-item
+prop="email" class="form-item"
+>
             <label class="form-label">邮箱</label>
             <el-input
               v-model="registerForm.email"
@@ -106,8 +111,9 @@ class="form-item">
           </el-form-item>
 
           <!-- 验证码输入 -->
-          <el-form-item prop="code"
-class="form-item code-form-item">
+          <el-form-item
+prop="code" class="form-item code-form-item"
+>
             <label class="form-label">验证码</label>
             <div class="code-input-group">
               <el-input
@@ -132,20 +138,16 @@ class="form-item code-form-item">
                 plain
                 @click="sendVerificationCode"
               >
-                {{
-                  countdown > 0
-                    ? `${countdown}秒后重发`
-                    : "发送验证码"
-                }}
+                {{ countdown > 0 ? `${countdown}秒后重发` : "发送验证码" }}
               </el-button>
             </div>
           </el-form-item>
 
           <!-- 昵称输入（可选） -->
-          <el-form-item prop="nickname"
-class="form-item">
-            <label class="form-label">昵称
-              <span class="optional">(可选)</span></label>
+          <el-form-item
+prop="nickname" class="form-item"
+>
+            <label class="form-label">昵称 <span class="optional">(可选)</span></label>
             <el-input
               v-model="registerForm.nickname"
               :placeholder="昵称"
@@ -160,8 +162,9 @@ class="form-item">
           </el-form-item>
 
           <!-- 用户协议确认 -->
-          <el-form-item prop="agreement"
-class="form-item agreement-item">
+          <el-form-item
+prop="agreement" class="form-item agreement-item"
+>
             <el-checkbox
               v-model="registerForm.agreement"
               class="agreement-checkbox"
@@ -204,9 +207,7 @@ class="form-item agreement-item">
           <!-- 其他注册方式 -->
           <div class="other-register">
             <el-divider>
-              <span class="divider-text">{{
-                "其他注册方式"
-              }}</span>
+              <span class="divider-text">{{ "其他注册方式" }}</span>
             </el-divider>
 
             <div class="social-register">

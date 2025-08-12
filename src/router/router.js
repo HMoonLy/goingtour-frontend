@@ -279,7 +279,7 @@ router.beforeEach(async (to, from, next) => {
     "settings.systemSettings": "系统设置",
     "settings.loginHistory": "登录记录",
     "settings.exportData": "导出数据",
-    "settings.deleteAccount": "注销账户"
+    "settings.deleteAccount": "注销账户",
   };
 
   const titleKey = to.meta.titleKey;
@@ -303,7 +303,7 @@ router.beforeEach(async (to, from, next) => {
     // 检查是否有城市参数或保存的进度
     const hasDestinationParam = to.query.city && to.query.cityName;
     const hasSavedProgress = localStorage.getItem("goingtour_trip_progress");
-    
+
     // 检查是否有草稿正在加载（通过Pinia store）
     let hasDraftToRestore = false;
     try {

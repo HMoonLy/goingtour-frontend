@@ -1,8 +1,10 @@
 <template>
-  <div class="personal-page simple"
-:class="{ embedded }">
+  <div
+class="personal-page simple" :class="{ embedded }"
+>
     <UserCenterNav v-if="!embedded" />
-    <h2 v-if="!embedded" class="title">
+    <h2 v-if="!embedded"
+class="title">
       {{ "登录历史" }}
     </h2>
     <el-card class="section">
@@ -15,53 +17,34 @@
         "
       >
         <el-button size="small"
-@click="load">
-          刷新
-        </el-button>
-        <el-popconfirm title="确定要删除吗？"
-@confirm="clearAll">
+@click="load"
+>
+刷新
+</el-button>
+        <el-popconfirm
+title="确定要删除吗？" @confirm="clearAll"
+>
           <template #reference>
-            <el-button size="small"
-type="danger">
+            <el-button
+size="small" type="danger"
+>
               {{ "清除所有记录" }}
             </el-button>
           </template>
         </el-popconfirm>
       </div>
-      <el-table :data="records"
-style="width: 100%">
+      <el-table
+:data="records" style="width: 100%"
+>
+        <el-table-column prop="loginTime" label="登录时间" width="180" />
+        <el-table-column prop="ipAddress" label="登录IP" width="160" />
         <el-table-column
-          prop="loginTime"
-          label="登录时间"
-          width="180"
-        />
-        <el-table-column
-          prop="ipAddress"
-          label="登录IP"
-          width="160"
-        />
-        <el-table-column prop="location"
-label="位置" />
-        <el-table-column
-          prop="deviceType"
-          label="设备类型"
-          width="120"
-        />
-        <el-table-column
-          prop="browser"
-          label="浏览器"
-          width="140"
-        />
-        <el-table-column
-          prop="operatingSystem"
-          label="操作系统"
-          width="140"
-        />
-        <el-table-column
-          prop="sessionDuration"
-          label="会话时长"
-          width="140"
-        />
+prop="location" label="位置"
+/>
+        <el-table-column prop="deviceType" label="设备类型" width="120" />
+        <el-table-column prop="browser" label="浏览器" width="140" />
+        <el-table-column prop="operatingSystem" label="操作系统" width="140" />
+        <el-table-column prop="sessionDuration" label="会话时长" width="140" />
       </el-table>
     </el-card>
   </div>

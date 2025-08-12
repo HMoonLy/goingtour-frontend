@@ -3,8 +3,10 @@
     <!-- 页面头部 -->
     <div class="page-header">
       <div class="header-left">
-        <el-button type="text"
-@click="goBack" class="back-btn">
+        <el-button
+type="text" @click="goBack"
+class="back-btn"
+>
           <el-icon><ArrowLeft /></el-icon>
           返回列表
         </el-button>
@@ -23,18 +25,21 @@
           <el-button @click="cancelEdit"> 取消
 </el-button>
           <el-button type="primary"
-@click="saveChanges">
-            保存修改
-          </el-button>
+@click="saveChanges"
+>
+保存修改
+</el-button>
         </template>
       </div>
     </div>
 
     <!-- 行程概览卡片 -->
-    <el-card class="trip-overview-card" shadow="hover">
+    <el-card class="trip-overview-card"
+shadow="hover">
       <div class="trip-header">
         <div class="trip-title-section">
-          <h1 v-if="!isEditing" class="trip-title">
+          <h1 v-if="!isEditing"
+class="trip-title">
             {{ tripData.title }}
           </h1>
           <el-input
@@ -46,15 +51,9 @@
           />
           <div class="trip-status">
             <el-tag :type="tripData.status === 'draft' ? 'info' : 'success'">
-              {{
-                tripData.status === "draft"
-                  ? "草稿"
-                  : "已完成"
-              }}
+              {{ tripData.status === "draft" ? "草稿" : "已完成" }}
             </el-tag>
-            <span class="create-time">创建于 {{
-              formatDate(tripData.createdAt)
-            }}</span>
+            <span class="create-time">创建于 {{ formatDate(tripData.createdAt) }}</span>
           </div>
         </div>
         <div class="trip-actions">
@@ -80,7 +79,8 @@
                 <el-dropdown-item command="template">
                   保存为模板
                 </el-dropdown-item>
-                <el-dropdown-item command="delete" divided>
+                <el-dropdown-item command="delete"
+divided>
                   删除行程
                 </el-dropdown-item>
               </el-dropdown-menu>
@@ -143,9 +143,9 @@
           <div class="info-content">
             <h4>内容统计</h4>
             <p>
-              {{ (tripData.attractions?.length || 0) + '个景点' }}
+              {{ (tripData.attractions?.length || 0) + "个景点" }}
               ·
-              {{ (tripData.restaurants?.length || 0) + '家餐厅' }}
+              {{ (tripData.restaurants?.length || 0) + "家餐厅" }}
             </p>
           </div>
         </div>
@@ -171,7 +171,7 @@
               <span class="day-date">{{ formatDayDate(dayIndex) }}</span>
             </div>
             <div class="day-stats">
-              <span>{{ (day.activities?.length || 0) + '个活动' }}</span>
+              <span>{{ (day.activities?.length || 0) + "个活动" }}</span>
             </div>
           </div>
 
@@ -221,7 +221,8 @@ class="activity-price"
                 </div>
 
                 <!-- 编辑模式下的操作按钮 -->
-                <div v-if="isEditing" class="activity-actions">
+                <div v-if="isEditing"
+class="activity-actions">
                   <el-button
                     size="small"
                     @click="editActivity(dayIndex, actIndex)"
@@ -249,8 +250,10 @@ class="activity-price"
             </div>
 
             <!-- 添加活动按钮（编辑模式） -->
-            <div v-if="isEditing" class="add-activity">
-              <el-button type="dashed" @click="addActivity(dayIndex)">
+            <div v-if="isEditing"
+class="add-activity">
+              <el-button type="dashed"
+@click="addActivity(dayIndex)">
                 <el-icon><Plus /></el-icon>
                 添加活动
               </el-button>
@@ -261,7 +264,8 @@ class="activity-price"
     </div>
 
     <!-- 行程偏好设置 -->
-    <el-card class="preferences-card" shadow="hover">
+    <el-card class="preferences-card"
+shadow="hover">
       <template #header>
         <div class="card-header">
           <h3>

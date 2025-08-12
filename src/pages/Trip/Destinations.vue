@@ -18,13 +18,70 @@
             <el-icon><Search /></el-icon>
           </template>
         </el-input>
+
+        <!-- 批量操作区域 -->
+        <div
+          v-if="!isSearchMode && wishlistStore.hasCities"
+          class="batch-actions"
+        >
+          <div class="batch-info">
+            <el-button
+              size="small"
+              type="info"
+              plain
+              @click="showWishlistQuickView = !showWishlistQuickView"
+            >
+              <el-icon><Star /></el-icon>
+              愿望清单 ({{ wishlistStore.wishlistCount }})
+              <el-icon>
+                <ArrowDown v-if="!showWishlistQuickView" /><ArrowUp v-else />
+              </el-icon>
+            </el-button>
+
+            <el-button
+              size="small"
+              type="success"
+              plain
+              :loading="addingRecommendations"
+              @click="addRandomRecommendations"
+            >
+              <el-icon><MagicStick /></el-icon>
+              添加推荐城市
+            </el-button>
+          </div>
+
+          <!-- 愿望清单快速预览 -->
+          <div v-show="showWishlistQuickView" class="wishlist-quick-view">
+            <div class="quick-view-cities">
+              <el-tag
+                v-for="city in wishlistStore.wishlistItems.slice(0, 8)"
+                :key="city.id"
+                size="small"
+                type="success"
+                effect="dark"
+                closable
+                style="margin-right: 8px; margin-bottom: 4px"
+                @close="wishlistStore.removeFromWishlist(city.id)"
+              >
+                {{ city.cityName }}
+              </el-tag>
+              <span
+                v-if="wishlistStore.wishlistCount > 8"
+                class="more-indicator"
+              >
+                +{{ wishlistStore.wishlistCount - 8 }} 更多...
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- 城市展示区域 -->
     <div class="cities-content-wrapper">
       <!-- 滚动指示器 -->
-      <div class="scroll-indicator" :class="{ visible: showScrollIndicator }">
+      <div class="scroll-indicator"
+:class="{ visible: showScrollIndicator }">
         {{ activeLetter }}
       </div>
 
@@ -32,32 +89,55 @@
 class="cities-content" @scroll="handleScroll"
 >
         <!-- 加载状态 -->
-        <div v-if="loading" class="loading-container">
-          <el-skeleton :rows="10" animated />
+        <div v-if="loading"
+class="loading-container">
+          <el-skeleton :rows="10"
+animated />
         </div>
 
         <!-- 搜索结果 -->
-        <div v-else-if="isSearchMode" class="search-results">
+        <div v-else-if="isSearchMode"
+class="search-results">
           <h2 v-if="searchResults.length > 0">
             搜索结果 ({{ searchResults.length }})
           </h2>
-          <el-empty v-else
-description="未找到匹配的城市，请尝试其他关键词" />
+          <el-empty
+v-else description="未找到匹配的城市，请尝试其他关键词"
+/>
 
-          <div class="city-grid">
+          <div class="city-rows">
             <div
               v-for="city in searchResults"
               :key="city.adcode"
-              class="city-item"
-              @click="selectCity(city)"
+              class="city-row"
+              :class="{
+                'in-wishlist': wishlistStore.isCityInWishlist(city.adcode),
+              }"
             >
-              <div class="city-card">
-                <div class="city-name">
-                  {{ city.中文名 }}
-                </div>
-                <div class="city-info">
-                  {{ getProvinceName(city) }}
-                </div>
+              <div class="city-left"
+@click="selectCity(city)">
+                <span class="city-name">{{ city.中文名 }}</span>
+                <span class="city-province">{{ getProvinceName(city) }}</span>
+              </div>
+              <div class="city-right">
+                <el-button
+                  type="default"
+                  size="small"
+                  circle
+                  class="wishlist-toggle"
+                  :class="{ active: wishlistStore.isCityInWishlist(city.adcode) }"
+                  :title="
+                    wishlistStore.isCityInWishlist(city.adcode)
+                      ? '从愿望清单移除'
+                      : '添加到愿望清单'
+                  "
+                  @click.stop="toggleWishlist(city)"
+                >
+                  <el-icon size="14">
+                    <StarFilled v-if="wishlistStore.isCityInWishlist(city.adcode)" />
+                    <Star v-else />
+                  </el-icon>
+                </el-button>
               </div>
             </div>
           </div>
@@ -69,23 +149,42 @@ description="未找到匹配的城市，请尝试其他关键词" />
           <div id="hot-cities"
 class="city-section hot-city-section"
 >
-            <h2>
-              <i class="hot-icon">🔥</i> 热门城市
-            </h2>
-            <div class="city-grid">
+            <h2><i class="hot-icon">🔥</i> 热门城市</h2>
+            <div class="city-rows">
               <div
                 v-for="city in hotCities"
                 :key="city.adcode"
-                class="city-item"
-                @click="selectCity(city)"
+                class="city-row"
+                :class="{
+                  'in-wishlist': wishlistStore.isCityInWishlist(city.adcode),
+                }"
               >
-                <div class="city-card hot-city-card">
-                  <div class="city-name">
-                    {{ city.中文名 }}
-                  </div>
-                  <div class="city-info">
-                    {{ getProvinceName(city) }}
-                  </div>
+                <div class="city-left"
+@click="selectCity(city)">
+                  <span class="city-name">{{ city.中文名 }}</span>
+                  <span class="city-province">{{ getProvinceName(city) }}</span>
+                </div>
+                <div class="city-right">
+                  <el-button
+                    type="default"
+                    size="small"
+                    circle
+                    class="wishlist-toggle"
+                    :class="{ active: wishlistStore.isCityInWishlist(city.adcode) }"
+                    :title="
+                      wishlistStore.isCityInWishlist(city.adcode)
+                        ? '从愿望清单移除'
+                        : '添加到愿望清单'
+                    "
+                    @click.stop="toggleWishlist(city)"
+                  >
+                    <el-icon size="14">
+                      <StarFilled
+                        v-if="wishlistStore.isCityInWishlist(city.adcode)"
+                      />
+                      <Star v-else />
+                    </el-icon>
+                  </el-button>
                 </div>
               </div>
             </div>
@@ -102,14 +201,42 @@ class="city-section hot-city-section"
             <h2>
               <i class="letter-icon">{{ group.letter }}</i>
             </h2>
-            <div class="cities-list">
+            <div class="city-rows">
               <div
                 v-for="city in group.cities"
                 :key="city.adcode"
-                class="city-tag"
-                @click="selectCity(city)"
+                class="city-row"
+                :class="{
+                  'in-wishlist': wishlistStore.isCityInWishlist(city.adcode),
+                }"
               >
-                {{ city.中文名 }}
+                <div class="city-left"
+@click="selectCity(city)">
+                  <span class="city-name">{{ city.中文名 }}</span>
+                  <span class="city-province">{{ getProvinceName(city) }}</span>
+                </div>
+                <div class="city-right">
+                  <el-button
+                    type="default"
+                    size="small"
+                    circle
+                    class="wishlist-toggle"
+                    :class="{ active: wishlistStore.isCityInWishlist(city.adcode) }"
+                    :title="
+                      wishlistStore.isCityInWishlist(city.adcode)
+                        ? '从愿望清单移除'
+                        : '添加到愿望清单'
+                    "
+                    @click.stop="toggleWishlist(city)"
+                  >
+                    <el-icon size="14">
+                      <StarFilled
+                        v-if="wishlistStore.isCityInWishlist(city.adcode)"
+                      />
+                      <Star v-else />
+                    </el-icon>
+                  </el-button>
+                </div>
               </div>
             </div>
           </div>
@@ -117,11 +244,7 @@ class="city-section hot-city-section"
 
         <!-- 导航辅助按钮组 -->
         <div class="nav-assist-buttons">
-          <el-tooltip
-            content="热门城市"
-            placement="left"
-            :offset="10"
-          >
+          <el-tooltip content="热门城市" placement="left" :offset="10">
             <el-button
               class="nav-button hot-button"
               circle
@@ -132,17 +255,14 @@ class="city-section hot-city-section"
             </el-button>
           </el-tooltip>
 
-          <el-backtop target=".cities-content" :right="50" :bottom="100">
+          <el-backtop target=".cities-content"
+:right="50" :bottom="100">
             <div class="back-top">
               <el-icon><Top /></el-icon>
             </div>
           </el-backtop>
 
-          <el-tooltip
-            content="跳至Z"
-            placement="left"
-            :offset="10"
-          >
+          <el-tooltip content="跳至Z" placement="left" :offset="10">
             <el-button
               class="nav-button z-button"
               circle
@@ -187,9 +307,19 @@ class="city-section hot-city-section"
 import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
-import { Search, Top, Bottom } from "@element-plus/icons-vue";
+import {
+  Search,
+  Top,
+  Bottom,
+  Star,
+  StarFilled,
+  ArrowDown,
+  ArrowUp,
+  MagicStick,
+} from "@element-plus/icons-vue";
 import pinyin from "pinyin";
 import { createCachedRequest, debounce } from "@/utils/apiOptimizer.js";
+import { useWishlistStore } from "@/store/wishlist.js";
 
 export default {
   name: "Destinations",
@@ -197,10 +327,16 @@ export default {
     Search,
     Top,
     Bottom,
+    Star,
+    StarFilled,
+    ArrowDown,
+    ArrowUp,
+    MagicStick,
   },
   setup() {
     const router = useRouter();
     const route = useRoute();
+    const wishlistStore = useWishlistStore();
 
     // 响应式数据
     const searchKeyword = ref("");
@@ -213,6 +349,10 @@ export default {
     const citiesContent = ref(null);
     const letterSections = ref([]);
     const showScrollIndicator = ref(false);
+
+    // 批量操作相关状态
+    const showWishlistQuickView = ref(false);
+    const addingRecommendations = ref(false);
 
     // 字母导航列表 - 单独定义每个字母
     const letterNavs = [
@@ -612,6 +752,9 @@ export default {
     onMounted(() => {
       loadCityData();
 
+      // 加载愿望清单数据
+      wishlistStore.loadWishlist();
+
       // 添加resize事件监听
       window.addEventListener("resize", handleScroll);
 
@@ -629,6 +772,112 @@ export default {
       // 移除resize事件监听
       window.removeEventListener("resize", handleScroll);
     });
+
+    // 愿望清单相关方法
+    const toggleWishlist = async (city) => {
+      try {
+        if (wishlistStore.isCityInWishlist(city.adcode)) {
+          // 从愿望清单移除
+          const wishlistItem = wishlistStore.getWishlistItemByCityCode(
+            city.adcode,
+          );
+          if (wishlistItem) {
+            await wishlistStore.removeFromWishlist(wishlistItem.id);
+          }
+        } else {
+          // 添加到愿望清单
+          await wishlistStore.addToWishlist({
+            cityCode: city.adcode,
+            cityName: city.中文名,
+            reason: "从目的地界面添加",
+            tags: ["目的地浏览"],
+          });
+        }
+      } catch (error) {
+        console.error("愿望清单操作失败:", error);
+        ElMessage.error("操作失败，请重试");
+      }
+    };
+
+    // 批量添加推荐城市
+    const addRandomRecommendations = async () => {
+      if (addingRecommendations.value) return;
+
+      addingRecommendations.value = true;
+
+      try {
+        // 从热门城市中随机选择未添加的城市
+        const availableHotCities = hotCities.filter(
+          (city) => !wishlistStore.isCityInWishlist(city.adcode),
+        );
+
+        // 从所有城市中随机选择一些有趣的城市
+        const interestingCities = [
+          { 中文名: "拉萨市", adcode: "540100" },
+          { 中文名: "乌鲁木齐市", adcode: "650100" },
+          { 中文名: "银川市", adcode: "640100" },
+          { 中文名: "兰州市", adcode: "620100" },
+          { 中文名: "呼和浩特市", adcode: "150100" },
+          { 中文名: "太原市", adcode: "140100" },
+          { 中文名: "贵阳市", adcode: "520100" },
+          { 中文名: "海口市", adcode: "460100" },
+          { 中文名: "长春市", adcode: "220100" },
+          { 中文名: "哈尔滨市", adcode: "230100" },
+        ];
+
+        const availableInterestingCities = interestingCities.filter(
+          (city) => !wishlistStore.isCityInWishlist(city.adcode),
+        );
+
+        // 合并所有可选城市
+        const allAvailableCities = [
+          ...availableHotCities,
+          ...availableInterestingCities,
+        ];
+
+        if (allAvailableCities.length === 0) {
+          ElMessage.info("已经添加了所有推荐城市！");
+          return;
+        }
+
+        // 随机选择3-5个城市
+        const numToAdd = Math.min(
+          Math.floor(Math.random() * 3) + 3,
+          allAvailableCities.length,
+        );
+        const citiesContainer = [...allAvailableCities];
+        const citiesToAdd = [];
+
+        for (let i = 0; i < numToAdd; i++) {
+          const randomIndex = Math.floor(
+            Math.random() * citiesContainer.length,
+          );
+          citiesToAdd.push(citiesContainer.splice(randomIndex, 1)[0]);
+        }
+
+        // 批量添加到愿望清单
+        const addPromises = citiesToAdd.map((city) =>
+          wishlistStore.addToWishlist({
+            cityCode: city.adcode,
+            cityName: city.中文名,
+            reason: "系统智能推荐",
+            tags: ["智能推荐", "精选目的地"],
+          }),
+        );
+
+        await Promise.all(addPromises);
+
+        ElMessage.success(`已为你推荐 ${citiesToAdd.length} 个精选城市！`);
+
+        // 自动展开愿望清单预览
+        showWishlistQuickView.value = true;
+      } catch (error) {
+        console.error("添加推荐城市失败:", error);
+        ElMessage.error("推荐失败，请重试");
+      } finally {
+        addingRecommendations.value = false;
+      }
+    };
 
     return {
       searchKeyword,
@@ -649,6 +898,13 @@ export default {
       handleScroll,
       getLetterTitle,
       getProvinceName,
+      // 愿望清单相关
+      wishlistStore,
+      toggleWishlist,
+      // 批量操作相关
+      showWishlistQuickView,
+      addingRecommendations,
+      addRandomRecommendations,
     };
   },
 };
@@ -668,9 +924,9 @@ export default {
 /* 搜索部分 */
 .search-section {
   display: flex;
-  background: #fff;
+  background: var(--card-bg, #fff);
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid var(--border-color, #ebeef5);
   z-index: 10;
   position: relative;
 }
@@ -718,6 +974,42 @@ export default {
   box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
 }
 
+/* 批量操作区域 */
+.batch-actions {
+  margin-top: 20px;
+  padding: 16px;
+  background: rgba(64, 158, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(64, 158, 255, 0.1);
+}
+
+.batch-info {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 0;
+}
+
+.wishlist-quick-view {
+  border-top: 1px solid rgba(64, 158, 255, 0.1);
+  padding-top: 12px;
+  margin-top: 12px;
+}
+
+.quick-view-cities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.more-indicator {
+  color: #909399;
+  font-size: 12px;
+  align-self: center;
+}
+
 /* 字母导航 */
 .letter-nav {
   position: absolute;
@@ -726,15 +1018,15 @@ export default {
   bottom: 0;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* 改为空间分布 */
-  background: #fff;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.9);
   z-index: 10;
   text-align: center;
-  width: 40px;
-  padding: 15px 0; /* 增大内边距 */
+  width: 32px; /* 瘦身，弱化抢占 */
+  padding: 10px 0;
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
-  box-shadow: -2px 0 20px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 1px 0 0 #ebeef5; /* 改为细分隔线，弱化存在感 */
   transition: all 0.3s ease;
   overflow-y: auto;
   overflow-x: hidden;
@@ -747,17 +1039,17 @@ export default {
 
 .letter-item {
   width: 100%;
-  height: 20px; /* 调小高度 */
+  height: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px; /* 调小字体 */
+  font-size: 12px;
   cursor: pointer;
   color: #606266;
   transition: all 0.2s;
   user-select: none;
   position: relative;
-  margin: 1px 0; /* 增加上下间距 */
+  margin: 1px 0;
 }
 
 .letter-item:after {
@@ -859,9 +1151,9 @@ export default {
 .city-section {
   margin-bottom: 24px;
   padding: 20px;
-  background: #fff;
-  border-radius: 4px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  background: var(--card-bg, #fff);
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #ebeef5);
   transition: all 0.3s;
 }
 
@@ -885,18 +1177,18 @@ export default {
 
 .letter-icon {
   font-style: normal;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #409eff;
-  color: #fff;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--bg-secondary, #f5f7fa);
+  border: 1px solid var(--border-color, #eaeef2);
+  color: var(--text-secondary, #606266);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   margin-right: 10px;
-  font-size: 16px;
-  font-weight: bold;
-  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
+  font-size: 12px;
+  font-weight: 600;
 }
 
 /* 热门城市网格 */
@@ -911,26 +1203,12 @@ export default {
   transition: all 0.3s;
 }
 
+/* 旧卡片样式（已不使用）保留最小占位以避免影响其它区块 */
 .city-card {
-  background: #fff;
-  border-radius: 4px;
-  padding: 16px;
-  height: 90px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  transition: all 0.3s;
-  border: 1px solid #ebeef5;
-  position: relative;
-  overflow: hidden;
+  display: none;
 }
 
 .city-card:hover {
-  background: #ecf5ff;
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(64, 158, 255, 0.15);
-  border-color: #b3d8ff;
 }
 
 .city-name {
@@ -972,10 +1250,71 @@ export default {
 }
 
 .cities-list {
+  display: none; /* 切换为行式列表后不再使用 */
+}
+
+.city-rows {
+  display: grid;
+  grid-template-columns: 1fr; /* 桌面端单列、移动端保持单列；如需双列可调为 1fr 1fr */
+  gap: 6px;
+}
+
+.city-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  min-height: 36px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.city-row:hover {
+  background: var(--bg-secondary, #f5f7fa);
+}
+
+.city-row.in-wishlist {
+  background: var(--bg-secondary, #f8f9fa);
+  border: 1px solid var(--border-color, #eaeef2);
+}
+
+.city-left {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  transition: all 0.3s ease;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.city-left .city-name {
+  font-size: 14px;
+  color: #303133;
+}
+
+.city-left .city-province {
+  font-size: 12px;
+  color: #909399;
+}
+
+.city-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wishlist-toggle {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-color, #eaeef2);
+  background: var(--btn-bg, #fff);
+  color: var(--text-secondary, #606266);
+}
+
+.wishlist-toggle.active {
+  background: var(--primary-color, #409eff);
+  border-color: var(--primary-color, #409eff);
+  color: #fff;
 }
 
 .city-tag {
@@ -1284,6 +1623,115 @@ export default {
 
   .alert-icon {
     margin-left: 0;
+  }
+}
+
+/* 愿望清单相关样式 */
+.city-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.city-item.in-wishlist {
+  transform: scale(1.02);
+}
+
+.city-item.in-wishlist .city-card {
+}
+
+.city-actions {
+  display: none;
+}
+
+.city-item:hover .city-actions {
+}
+
+.city-item.in-wishlist .city-actions {
+}
+
+.wishlist-btn {
+  transition: all 0.3s ease;
+}
+
+.wishlist-btn:hover {
+  transform: scale(1.1);
+}
+
+/* 字母分组城市的愿望清单样式 */
+.city-tag-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin: 0; /* 依赖父容器gap，避免双重间距导致不齐 */
+  padding: 0; /* 不为按钮预留额外空间，避免布局不齐 */
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+
+.city-tag-container:hover {
+  background: rgba(64, 158, 255, 0.1);
+}
+
+.city-tag-container.in-wishlist {
+  background: rgba(103, 194, 58, 0.1);
+  border: 1px solid rgba(103, 194, 58, 0.3);
+}
+
+.city-tag-container .city-tag {
+  flex: 0 0 auto; /* 仅按内容宽度展示，避免被拉伸 */
+  margin: 0;
+  cursor: pointer;
+  white-space: nowrap; /* 保持单行展示 */
+  padding-right: 22px; /* 为悬浮按钮预留少量内边距，不影响整体布局 */
+}
+
+.wishlist-btn-small {
+  position: absolute;
+  right: 2px; /* 覆盖在标签内部右缘，不挤占布局 */
+  top: 50%;
+  transform: translateY(-50%) scale(0.8);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  height: 24px;
+  width: 24px;
+  min-width: 24px;
+  z-index: 1;
+}
+
+.city-tag-container:hover .wishlist-btn-small,
+.city-tag-container.in-wishlist .wishlist-btn-small {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+  pointer-events: auto;
+}
+
+/* 愿望清单状态指示器 */
+.city-item.in-wishlist::before {
+  content: none;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .city-actions {
+    display: none;
+  }
+
+  .city-item.in-wishlist::before {
+    display: none;
   }
 }
 </style>

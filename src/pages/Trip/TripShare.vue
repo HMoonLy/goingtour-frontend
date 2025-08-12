@@ -34,8 +34,7 @@ export default {
   components: {
     Share,
   },
-  setup() {
-  },
+  setup() {},
 };
 </script>
 

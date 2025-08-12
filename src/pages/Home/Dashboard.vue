@@ -3,12 +3,13 @@
     <!-- 快捷操作 -->
     <section class="quick-actions">
       <h3 class="section-title">
-        快捷操作
-      </h3>
+快捷操作
+</h3>
       <div class="action-grid">
         <!-- 仅保留 AI 行程生成入口：直接进入创建流程 -->
-        <div class="action-card"
-@click="goToCreate">
+        <div
+class="action-card" @click="goToCreate"
+>
           <div class="action-icon violet">
             <el-icon size="24">
               <Cpu />
@@ -21,16 +22,20 @@
     </section>
 
     <!-- 继续未完成进度 -->
-    <section v-if="hasProgress"
-class="progress-section">
-      <el-card class="progress-card"
-shadow="hover">
+    <section
+v-if="hasProgress" class="progress-section"
+>
+      <el-card
+class="progress-card" shadow="hover"
+>
         <div class="progress-content">
           <div class="progress-texts">
             <h4>继续未完成的行程</h4>
             <p class="progress-desc">
-              <el-tag size="small"
-type="info" effect="plain">
+              <el-tag
+size="small" type="info"
+effect="plain"
+>
                 {{ progressSummary.destination || "无" }}
               </el-tag>
               <span class="dot" />
@@ -41,11 +46,14 @@ type="info" effect="plain">
           </div>
           <div class="progress-actions">
             <el-button type="primary"
-@click="resumeProgress">
-              继续
-            </el-button>
-            <el-button type="danger"
-plain @click="discardProgress">
+@click="resumeProgress"
+>
+继续
+</el-button>
+            <el-button
+type="danger" plain
+@click="discardProgress"
+>
               舍弃
             </el-button>
           </div>
@@ -56,8 +64,8 @@ plain @click="discardProgress">
     <!-- AI 场景推荐（4条） -->
     <section class="templates-section">
       <h3 class="section-title">
-        推荐场景
-      </h3>
+推荐场景
+</h3>
       <div class="tpl-grid">
         <div
           v-for="sc in scenarios.slice(0, 4)"
@@ -87,11 +95,13 @@ plain @click="discardProgress">
     <section class="my-trips-section">
       <div class="section-header">
         <h3 class="section-title">
-          我的行程
-        </h3>
+我的行程
+</h3>
         <div class="header-actions">
-          <el-segmented v-model="tripTab"
-:options="tripTabs" size="small" />
+          <el-segmented
+v-model="tripTab" :options="tripTabs"
+size="small"
+/>
         </div>
         <el-button
           size="small"
@@ -105,8 +115,9 @@ plain @click="discardProgress">
         </el-button>
       </div>
 
-      <div v-if="displayTrips.length > 0"
-class="trips-grid">
+      <div
+v-if="displayTrips.length > 0" class="trips-grid"
+>
         <div
           v-for="trip in displayTrips"
           :key="trip.id"
@@ -158,8 +169,9 @@ class="trips-grid">
             <div class="trip-detail">
               <el-icon><Calendar /></el-icon><span>{{ trip.days }}天</span>
             </div>
-            <div v-if="trip.isDraft"
-class="trip-detail">
+            <div
+v-if="trip.isDraft" class="trip-detail"
+>
               <el-icon><List /></el-icon>
               <span>{{ getStepName(trip.currentStep) }}</span>
             </div>
@@ -211,31 +223,73 @@ class="trip-detail">
         </div>
       </div>
 
-      <div v-else
-class="no-trips">
-        <el-icon size="48"
-color="#C0C4CC">
+      <div
+v-else class="no-trips"
+>
+        <el-icon
+size="48" color="#C0C4CC"
+>
           <DocumentCopy />
         </el-icon>
         <p>暂无行程</p>
-        <el-button
-type="primary" @click="goToCreate">
-          立即创建
-        </el-button>
+        <el-button type="primary"
+@click="goToCreate"
+>
+立即创建
+</el-button>
       </div>
+    </section>
+
+    <!-- 愿望清单管理 -->
+    <section class="wishlist-section">
+      <WishlistManager @weather-city-change="handleWeatherCityChange" />
     </section>
 
     <!-- 天气速览 -->
     <section class="weather-section">
-      <h3 class="section-title">
-        天气预览
-      </h3>
-      <el-card v-if="weather"
-class="weather-card" shadow="hover">
+      <div class="weather-header">
+        <h3 class="section-title">
+天气预览
+</h3>
+        <div v-if="wishlistStore.hasCities" class="weather-controls">
+          <el-button
+            size="small"
+            type="primary"
+            plain
+            :loading="loadingWeather"
+            @click="refreshWeatherFromWishlist"
+          >
+            <el-icon><Refresh /></el-icon>
+            随机切换
+          </el-button>
+          <el-button
+            size="small"
+            type="success"
+            plain
+            :class="{ 'auto-refresh-active': autoRefreshEnabled }"
+            @click="toggleAutoRefresh"
+          >
+            <el-icon><Timer /></el-icon>
+            {{ autoRefreshEnabled ? "停止自动" : "自动轮播" }}
+          </el-button>
+        </div>
+      </div>
+      <el-card
+v-if="weather" class="weather-card"
+shadow="hover"
+>
         <div class="weather-top">
           <div class="w-left">
             <div class="w-city">
               {{ weather.city }}
+              <el-tag
+                v-if="isWishlistWeather"
+                size="small"
+                type="success"
+                effect="plain"
+              >
+                愿望清单
+              </el-tag>
             </div>
             <div class="w-desc">
               {{ weather.weatherDesc }}
@@ -264,20 +318,18 @@ class="weather-card" shadow="hover">
           </div>
         </div>
       </el-card>
-      <el-empty v-else
-description="暂无天气信息" />
+      <el-empty
+v-else description="暂无天气信息"
+/>
     </section>
 
     <!-- 公告/发现 -->
     <section class="ann-section">
       <h3 class="section-title">
-        公告通知
-      </h3>
+公告通知
+</h3>
       <div class="ann-list">
-        <el-empty
-          v-if="announcements.length === 0"
-          description="暂无公告"
-        />
+        <el-empty v-if="announcements.length === 0" description="暂无公告" />
         <el-alert
           v-for="(item, idx) in announcements"
           :key="idx"
@@ -293,7 +345,7 @@ description="暂无天气信息" />
 </template>
 
 <script>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
@@ -306,27 +358,46 @@ import {
   List,
   EditPen,
   Delete,
+  Refresh,
+  Timer,
 } from "@element-plus/icons-vue";
 import { useUserStore } from "@/store/user.js";
+import { useWishlistStore } from "@/store/wishlist.js";
 import { draftManager } from "@/utils/draftManager.js";
 import { useDraftStore } from "@/store/draft.js";
 import { convertBackendTripToFrontend } from "@/utils/tripDataConverter.js";
 import { handleApiError, handleSuccess } from "@/utils/errorHandler.js";
 import { aiScenarios } from "@/data/aiScenarios.js";
 import { weatherApi } from "@/api/weather.js";
+import WishlistManager from "@/components/Common/WishlistManager.vue";
 
 export default {
   name: "HomeDashboard",
-  components: { MapLocation, Calendar, Cpu, Plus, User, DocumentCopy },
+  components: {
+    MapLocation,
+    Calendar,
+    Cpu,
+    Plus,
+    User,
+    DocumentCopy,
+    Refresh,
+    Timer,
+    WishlistManager,
+  },
   setup() {
     const router = useRouter();
     const userStore = useUserStore();
+    const wishlistStore = useWishlistStore();
 
     const savedTrips = ref([]);
     const hasProgress = ref(false);
     const progressSummary = ref({});
     const scenarios = ref(aiScenarios);
     const weather = ref(null);
+    const isWishlistWeather = ref(false);
+    const loadingWeather = ref(false);
+    const autoRefreshEnabled = ref(false);
+    const autoRefreshTimer = ref(null);
     const tripTab = ref("recent");
     const tripTabs = [
       { label: "最近", value: "recent" },
@@ -392,17 +463,16 @@ export default {
     const handleLoadDraft = async (draftId) => {
       try {
         console.log("🔄 点击继续编辑，草稿ID:", draftId);
-        
+
         const draftStore = useDraftStore();
-        
+
         // 加载草稿到store
         const success = await draftStore.loadDraft(draftId);
         if (success) {
           // 跳转到创建页面
-          router.push('/trip/create');
+          router.push("/trip/create");
           console.log("✅ 草稿已加载到store，跳转到创建页面");
         }
-        
       } catch (error) {
         console.error("❌ 加载草稿失败:", error);
         ElMessage.error("加载草稿失败，请重试");
@@ -581,30 +651,122 @@ export default {
       }
     };
 
+    // 天气相关方法
+    const loadWeatherForCity = async (
+      cityName,
+      cityCode = null,
+      fromWishlist = false,
+    ) => {
+      if (!cityName) return;
+
+      loadingWeather.value = true;
+      isWishlistWeather.value = fromWishlist;
+
+      try {
+        const ws = await weatherApi.getWeatherSuggestions(
+          cityCode || cityName,
+          new Date(),
+          3,
+        );
+        weather.value = ws;
+        console.log(`✅ 天气数据加载成功: ${cityName}`);
+      } catch (e) {
+        console.warn(`获取${cityName}天气失败:`, e);
+      } finally {
+        loadingWeather.value = false;
+      }
+    };
+
+    // 从愿望清单随机获取天气
+    const refreshWeatherFromWishlist = async () => {
+      if (!wishlistStore.hasCities) {
+        ElMessage.info("愿望清单为空，无法切换城市天气");
+        return;
+      }
+
+      const randomCity = wishlistStore.getRandomCity;
+      if (randomCity) {
+        await loadWeatherForCity(
+          randomCity.cityName,
+          randomCity.cityCode,
+          true,
+        );
+        wishlistStore.setCurrentWeatherCity(randomCity);
+        ElMessage.success(`已切换到 ${randomCity.cityName} 的天气`);
+      }
+    };
+
+    // 处理愿望清单天气城市变更
+    const handleWeatherCityChange = async (city) => {
+      await loadWeatherForCity(city.cityName, city.cityCode, true);
+    };
+
+    // 切换自动刷新
+    const toggleAutoRefresh = () => {
+      if (autoRefreshEnabled.value) {
+        // 停止自动刷新
+        if (autoRefreshTimer.value) {
+          clearInterval(autoRefreshTimer.value);
+          autoRefreshTimer.value = null;
+        }
+        autoRefreshEnabled.value = false;
+        ElMessage.info("天气自动轮播已停止");
+      } else {
+        // 开始自动刷新
+        if (!wishlistStore.hasCities) {
+          ElMessage.warning("愿望清单为空，无法开启自动轮播");
+          return;
+        }
+
+        autoRefreshEnabled.value = true;
+        autoRefreshTimer.value = setInterval(() => {
+          refreshWeatherFromWishlist();
+        }, 30000); // 30秒切换一次
+
+        ElMessage.success("天气自动轮播已开启，每30秒切换一次");
+      }
+    };
+
     onMounted(async () => {
       // 登录校验与数据加载
       if (!userStore.isLoggedIn) {
         router.push("/login");
         return;
       }
-      await loadSavedTrips();
-      await refreshProgress();
-      await loadDrafts();
-      // 天气速览：优先使用进度中的目的地，否则取最近行程的目的地
-      let city =
-        progressSummary.value?.destination ||
-        savedTrips.value[0]?.destinationName;
-      if (city) {
-        try {
-          const ws = await weatherApi.getWeatherSuggestions(
-            city,
-            new Date(),
-            3,
+
+      await Promise.all([
+        loadSavedTrips(),
+        refreshProgress(),
+        loadDrafts(),
+        wishlistStore.loadWishlist(),
+      ]);
+
+      // 天气速览优先级: 1.愿望清单随机城市 2.进度中的目的地 3.最近行程的目的地
+      if (wishlistStore.hasCities) {
+        const randomCity = wishlistStore.getRandomCity;
+        if (randomCity) {
+          await loadWeatherForCity(
+            randomCity.cityName,
+            randomCity.cityCode,
+            true,
           );
-          weather.value = ws;
-        } catch (e) {
-          console.warn("获取天气失败", e);
+          wishlistStore.setCurrentWeatherCity(randomCity);
         }
+      } else {
+        const city =
+          progressSummary.value?.destination ||
+          savedTrips.value[0]?.destinationName;
+        if (city) {
+          await loadWeatherForCity(city, null, false);
+        }
+      }
+    });
+
+    // 组件卸载时清理定时器
+    onBeforeUnmount(() => {
+      if (autoRefreshTimer.value) {
+        clearInterval(autoRefreshTimer.value);
+        autoRefreshTimer.value = null;
       }
     });
 
@@ -653,6 +815,14 @@ export default {
       handleLoadDraft,
       getStepName,
       getDraftTimeAgo,
+      // 愿望清单和天气相关
+      wishlistStore,
+      isWishlistWeather,
+      loadingWeather,
+      autoRefreshEnabled,
+      refreshWeatherFromWishlist,
+      handleWeatherCityChange,
+      toggleAutoRefresh,
     };
   },
 };
@@ -928,10 +1098,31 @@ export default {
   margin: 0 auto 24px;
 }
 
+/* 愿望清单 */
+.wishlist-section {
+  max-width: 1200px;
+  margin: 0 auto 24px;
+}
+
 /* 天气速览 */
 .weather-section {
   max-width: 1200px;
   margin: 0 auto 24px;
+}
+.weather-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.weather-controls {
+  display: flex;
+  gap: 8px;
+}
+.auto-refresh-active {
+  background: #f0f9ff !important;
+  border-color: #67c23a !important;
+  color: #67c23a !important;
 }
 .weather-card {
   border-radius: 12px;
@@ -945,6 +1136,9 @@ export default {
 .w-city {
   font-weight: 600;
   color: #303133;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .w-desc {
   color: #909399;

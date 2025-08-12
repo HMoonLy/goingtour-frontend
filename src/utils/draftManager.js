@@ -67,7 +67,7 @@ class DraftManager {
       console.log("🔍 开始获取草稿，draftId:", draftId, "userId:", userId);
       const response = await draftApi.getDraft(draftId, userId);
       console.log("🌐 服务器原始响应:", response);
-      
+
       const draft = response.data;
       console.log("📄 解析后的草稿数据:", draft);
 
@@ -84,18 +84,36 @@ class DraftManager {
         currentStep: draft.currentStep || draft.current_step,
         hasBaseForm: !!(draft.baseForm || draft.base_form),
         baseFormType: typeof (draft.baseForm || draft.base_form),
-        baseFormKeys: (draft.baseForm || draft.base_form) ? Object.keys(draft.baseForm || draft.base_form) : null,
+        baseFormKeys:
+          draft.baseForm || draft.base_form
+            ? Object.keys(draft.baseForm || draft.base_form)
+            : null,
         baseFormData: draft.baseForm || draft.base_form,
         hasPreferenceForm: !!(draft.preferenceForm || draft.preference_form),
-        preferenceFormType: typeof (draft.preferenceForm || draft.preference_form),
-        preferenceFormKeys: (draft.preferenceForm || draft.preference_form) ? Object.keys(draft.preferenceForm || draft.preference_form) : null,
+        preferenceFormType: typeof (
+          draft.preferenceForm || draft.preference_form
+        ),
+        preferenceFormKeys:
+          draft.preferenceForm || draft.preference_form
+            ? Object.keys(draft.preferenceForm || draft.preference_form)
+            : null,
         preferenceFormData: draft.preferenceForm || draft.preference_form,
-        hasAttractions: !!(draft.selectedAttractions || draft.selected_attractions),
-        attractionsCount: (draft.selectedAttractions || draft.selected_attractions) ? (draft.selectedAttractions || draft.selected_attractions).length : 0,
-        hasRestaurants: !!(draft.selectedRestaurants || draft.selected_restaurants),
-        restaurantsCount: (draft.selectedRestaurants || draft.selected_restaurants) ? (draft.selectedRestaurants || draft.selected_restaurants).length : 0,
+        hasAttractions: !!(
+          draft.selectedAttractions || draft.selected_attractions
+        ),
+        attractionsCount:
+          draft.selectedAttractions || draft.selected_attractions
+            ? (draft.selectedAttractions || draft.selected_attractions).length
+            : 0,
+        hasRestaurants: !!(
+          draft.selectedRestaurants || draft.selected_restaurants
+        ),
+        restaurantsCount:
+          draft.selectedRestaurants || draft.selected_restaurants
+            ? (draft.selectedRestaurants || draft.selected_restaurants).length
+            : 0,
         extraRequirements: draft.extraRequirements || draft.extra_requirements,
-        weatherSuggestion: draft.weatherSuggestion || draft.weather_suggestion
+        weatherSuggestion: draft.weatherSuggestion || draft.weather_suggestion,
       });
 
       // 标准化数据格式 - 处理数据库字段命名和前端命名的差异
@@ -115,7 +133,7 @@ class DraftManager {
       console.error("❌ 错误详情:", {
         message: error.message,
         response: error.response?.data,
-        status: error.response?.status
+        status: error.response?.status,
       });
       ElMessage.error("获取草稿失败: " + error.message);
       return null;
@@ -134,24 +152,30 @@ class DraftManager {
     }
 
     console.log("🔄 开始数据标准化，原始数据:", rawDraft);
-    
+
     const normalized = { ...rawDraft };
-    
+
     // 处理JSON字段解析
-    const jsonFields = ['baseForm', 'preferenceForm', 'selectedAttractions', 'selectedRestaurants', 'weatherSuggestion'];
-    
-    jsonFields.forEach(field => {
-      if (normalized[field] && typeof normalized[field] === 'string') {
+    const jsonFields = [
+      "baseForm",
+      "preferenceForm",
+      "selectedAttractions",
+      "selectedRestaurants",
+      "weatherSuggestion",
+    ];
+
+    jsonFields.forEach((field) => {
+      if (normalized[field] && typeof normalized[field] === "string") {
         try {
           normalized[field] = JSON.parse(normalized[field]);
           console.log(`✅ 成功解析JSON字段: ${field}`);
         } catch (error) {
           console.warn(`⚠️ 解析JSON字段失败: ${field}`, error);
-          normalized[field] = field.includes('Form') ? {} : [];
+          normalized[field] = field.includes("Form") ? {} : [];
         }
       }
     });
-    
+
     // 设置默认值
     const defaults = {
       currentStep: 0,
@@ -160,11 +184,11 @@ class DraftManager {
       preferenceForm: {},
       selectedAttractions: [],
       selectedRestaurants: [],
-      extraRequirements: '',
+      extraRequirements: "",
       weatherSuggestion: null,
-      version: '1.0'
+      version: "1.0",
     };
-    
+
     Object.entries(defaults).forEach(([key, defaultValue]) => {
       if (normalized[key] === undefined || normalized[key] === null) {
         normalized[key] = defaultValue;
@@ -175,9 +199,9 @@ class DraftManager {
       hasDestinationName: !!normalized.baseForm?.destinationName,
       destinationName: normalized.baseForm?.destinationName,
       currentStep: normalized.currentStep,
-      dataKeys: Object.keys(normalized)
+      dataKeys: Object.keys(normalized),
     });
-    
+
     return normalized;
   }
 
@@ -197,13 +221,13 @@ class DraftManager {
       console.log("⚠️ 草稿步骤号异常，使用默认值0");
       draft.currentStep = 0;
     }
-    
+
     // 检查baseForm（必需，但可以为空对象）
     if (!draft.baseForm || typeof draft.baseForm !== "object") {
       console.log("⚠️ 草稿baseForm缺失，使用默认对象");
       draft.baseForm = {};
     }
-    
+
     // 检查preferenceForm（必需，但可以为空对象）
     if (!draft.preferenceForm || typeof draft.preferenceForm !== "object") {
       console.log("⚠️ 草稿preferenceForm缺失，使用默认对象");
@@ -409,19 +433,23 @@ class DraftManager {
    */
   resetChangeState(clearAll = false) {
     console.log("🧹 重置更改状态, clearAll:", clearAll);
-    
+
     // 重置基本状态
     this.hasUnsavedChanges = false;
     this.originalData = null;
-    
+
     if (clearAll) {
       // 清理更多相关状态
       console.log("🧹 执行完整状态清理");
-      
+
       // 如果存在localStorage中的临时数据，也清理掉
       try {
-        const tempKeys = ['temp_trip_data', 'temp_preference_data', 'temp_draft_changes'];
-        tempKeys.forEach(key => {
+        const tempKeys = [
+          "temp_trip_data",
+          "temp_preference_data",
+          "temp_draft_changes",
+        ];
+        tempKeys.forEach((key) => {
           if (localStorage.getItem(key)) {
             localStorage.removeItem(key);
             console.log(`🗑️ 清理临时数据: ${key}`);
@@ -430,16 +458,18 @@ class DraftManager {
       } catch (error) {
         console.warn("清理localStorage时出错:", error);
       }
-      
+
       // 发送事件通知其他组件清理状态
-      if (typeof window !== 'undefined' && window.dispatchEvent) {
-        window.dispatchEvent(new CustomEvent('draftStateReset', { 
-          detail: { timestamp: Date.now() } 
-        }));
+      if (typeof window !== "undefined" && window.dispatchEvent) {
+        window.dispatchEvent(
+          new CustomEvent("draftStateReset", {
+            detail: { timestamp: Date.now() },
+          }),
+        );
         console.log("📢 发送草稿状态重置事件");
       }
     }
-    
+
     console.log("✅ 状态重置完成");
   }
 
@@ -457,8 +487,11 @@ class DraftManager {
    * @returns {Promise<boolean>} 是否可以退出
    */
   async confirmBeforeExit(draftData) {
-    console.log("🔍 confirmBeforeExit调用，hasUnsavedChanges:", this.hasUnsavedChanges);
-    
+    console.log(
+      "🔍 confirmBeforeExit调用，hasUnsavedChanges:",
+      this.hasUnsavedChanges,
+    );
+
     if (!this.hasUnsavedChanges) {
       console.log("✅ 没有未保存更改，直接允许退出");
       return true;
@@ -484,13 +517,12 @@ class DraftManager {
       const saved = await this.showSaveDraftDialog(draftData);
       console.log("💾 保存结果:", saved);
       return saved; // 只有成功保存才允许退出
-
     } catch (action) {
       console.log("📝 捕获到异常，action:", action);
-      
+
       // Element Plus的confirm在用户点击"不保存"时会抛出'cancel'
       // 在用户点击X或ESC时会抛出'close'或其他错误
-      if (action === 'cancel') {
+      if (action === "cancel") {
         // 用户选择"不保存"
         console.log("🚮 用户选择不保存，开始清理状态");
         this.resetChangeState(true); // 传入true进行完整清理
@@ -569,13 +601,14 @@ class DraftManager {
    */
   async getAutoDraft() {
     const drafts = await this.getAllDrafts();
-    const autoDraft = drafts.find((draft) => draft.isAuto || draft.is_auto) || null;
-    
+    const autoDraft =
+      drafts.find((draft) => draft.isAuto || draft.is_auto) || null;
+
     if (autoDraft) {
       // 对自动草稿也进行数据标准化
       return this.normalizeDraftData(autoDraft);
     }
-    
+
     return null;
   }
 

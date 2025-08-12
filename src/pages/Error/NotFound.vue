@@ -3,7 +3,8 @@
     <div class="not-found-content">
       <!-- 404图标 -->
       <div class="error-icon">
-        <el-icon size="120" color="#E6A23C">
+        <el-icon size="120"
+color="#E6A23C">
           <Warning />
         </el-icon>
       </div>
@@ -15,13 +16,9 @@
           {{ "页面不存在" }}
         </h2>
         <p class="error-description">
-          {{
-            "抱歉，您访问的页面不存在或已被移除。"
-          }}
-          <br>
-          {{
-            "请检查网址是否正确，或返回首页继续浏览。"
-          }}
+          {{ "抱歉，您访问的页面不存在或已被移除。" }}
+          <br />
+          {{ "请检查网址是否正确，或返回首页继续浏览。" }}
         </p>
       </div>
 

@@ -1,83 +1,87 @@
 <template>
-  <div class="personal-page simple"
-:class="{ embedded }">
+  <div
+class="personal-page simple" :class="{ embedded }"
+>
     <UserCenterNav v-if="!embedded" />
-    <h2 v-if="!embedded" class="title">
-      安全设置
-    </h2>
+    <h2 v-if="!embedded"
+class="title"
+>
+安全设置
+</h2>
 
     <el-card class="section">
       <div class="row">
         <div>
           <div class="row-title">
-            设置密码
-          </div>
+设置密码
+</div>
           <div class="row-desc">首次设置或重置登录密码</div>
         </div>
         <el-button type="primary"
-plain @click="openSet">
-          设置密码
-        </el-button>
+plain @click="openSet"
+>
+设置密码
+</el-button>
       </div>
       <div class="row">
         <div>
           <div class="row-title">
-            修改密码
-          </div>
+修改密码
+</div>
           <div class="row-desc">使用当前密码更改为新密码</div>
         </div>
         <el-button type="primary"
-@click="openChange">
-          修改密码
-        </el-button>
+@click="openChange"
+>
+修改密码
+</el-button>
       </div>
       <div class="row">
         <div>
           <div class="row-title">
-            清除密码
-          </div>
+清除密码
+</div>
           <div class="row-desc">清除已有密码（仅保留验证码登录）</div>
         </div>
         <el-button type="danger"
-plain @click="clearPwd">
-          清除密码
-        </el-button>
+plain @click="clearPwd"
+>
+清除密码
+</el-button>
       </div>
     </el-card>
 
     <!-- 设置密码对话框 -->
-    <el-dialog
-      v-model="setVisible"
-      title="设置密码"
-      width="420px"
-    >
+    <el-dialog v-model="setVisible" title="设置密码" width="420px">
       <el-form label-width="120px">
         <el-form-item label="新密码">
-          <el-input v-model="setForm.password"
-type="password" show-password />
+          <el-input
+v-model="setForm.password" type="password"
+show-password
+/>
         </el-form-item>
         <el-form-item label="确认密码">
-          <el-input v-model="setForm.confirm"
-type="password" show-password />
+          <el-input
+v-model="setForm.confirm" type="password"
+show-password
+/>
         </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="setVisible = false">
-          取消
-        </el-button>
-        <el-button type="primary"
-:loading="loading" @click="submitSet">
+取消
+</el-button>
+        <el-button
+type="primary" :loading="loading"
+@click="submitSet"
+>
           确认
         </el-button>
       </template>
     </el-dialog>
 
     <!-- 修改密码对话框 -->
-    <el-dialog
-      v-model="changeVisible"
-      title="修改密码"
-      width="420px"
-    >
+    <el-dialog v-model="changeVisible" title="修改密码" width="420px">
       <el-form label-width="120px">
         <el-form-item label="当前密码">
           <el-input
@@ -87,8 +91,10 @@ type="password" show-password />
           />
         </el-form-item>
         <el-form-item label="新密码">
-          <el-input v-model="changeForm.newPwd"
-type="password" show-password />
+          <el-input
+v-model="changeForm.newPwd" type="password"
+show-password
+/>
         </el-form-item>
         <el-form-item label="确认密码">
           <el-input
@@ -99,9 +105,11 @@ type="password" show-password />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="changeVisible = false">取消</el-button>
-        <el-button type="primary"
-:loading="loading" @click="submitChange">
+        <el-button @click="changeVisible = false"> 取消 </el-button>
+        <el-button
+type="primary" :loading="loading"
+@click="submitChange"
+>
           确认
         </el-button>
       </template>

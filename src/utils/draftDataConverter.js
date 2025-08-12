@@ -15,8 +15,8 @@ export function convertFrontendToDraft(frontendData) {
     selectedAttractions = [],
     selectedRestaurants = [],
     currentStep = 0,
-    extraRequirements = '',
-    weatherSuggestion = null
+    extraRequirements = "",
+    weatherSuggestion = null,
   } = frontendData;
 
   return {
@@ -26,9 +26,9 @@ export function convertFrontendToDraft(frontendData) {
     preferenceForm: cleanFormData(tripPreferenceForm),
     selectedAttractions: selectedAttractions.map(cleanAttractionData),
     selectedRestaurants: selectedRestaurants.map(cleanRestaurantData),
-    extraRequirements: extraRequirements || '',
+    extraRequirements: extraRequirements || "",
     weatherSuggestion,
-    version: '1.0'
+    version: "1.0",
   };
 }
 
@@ -46,31 +46,31 @@ export function convertDraftToFrontend(draftData) {
     selectedAttractions = [],
     selectedRestaurants = [],
     currentStep = 0,
-    extraRequirements = '',
-    weatherSuggestion = null
+    extraRequirements = "",
+    weatherSuggestion = null,
   } = draftData;
 
   return {
     // 基础表单数据
     baseForm: validateBaseForm(baseForm),
-    
+
     // 偏好表单数据
     tripPreferenceForm: validatePreferenceForm(preferenceForm),
-    
+
     // 选中的景点和餐厅
     selectedAttractions: selectedAttractions.filter(Boolean),
     selectedRestaurants: selectedRestaurants.filter(Boolean),
-    
+
     // 步骤和其他信息
     currentStep,
-    extraRequirements: extraRequirements || '',
+    extraRequirements: extraRequirements || "",
     weatherSuggestion,
-    
+
     // 元数据
     isFromDraft: true,
     draftId: draftData.id,
     draftName: draftData.name,
-    lastModified: draftData.updatedAt
+    lastModified: draftData.updatedAt,
   };
 }
 
@@ -80,22 +80,22 @@ export function convertDraftToFrontend(draftData) {
  * @returns {Object} 清理后的数据
  */
 function cleanFormData(formData) {
-  if (!formData || typeof formData !== 'object') {
+  if (!formData || typeof formData !== "object") {
     return {};
   }
 
   const cleaned = {};
-  
+
   Object.entries(formData).forEach(([key, value]) => {
     // 跳过空值、undefined、null
-    if (value === undefined || value === null || value === '') {
+    if (value === undefined || value === null || value === "") {
       return;
     }
-    
+
     // 处理数组：移除空元素
     if (Array.isArray(value)) {
-      const filteredArray = value.filter(item => 
-        item !== undefined && item !== null && item !== ''
+      const filteredArray = value.filter(
+        (item) => item !== undefined && item !== null && item !== "",
       );
       if (filteredArray.length > 0) {
         cleaned[key] = filteredArray;
@@ -104,7 +104,7 @@ function cleanFormData(formData) {
       cleaned[key] = value;
     }
   });
-  
+
   return cleaned;
 }
 
@@ -115,7 +115,7 @@ function cleanFormData(formData) {
  */
 function cleanAttractionData(attraction) {
   if (!attraction) return null;
-  
+
   return {
     id: attraction.id,
     name: attraction.name,
@@ -125,7 +125,7 @@ function cleanAttractionData(attraction) {
     image: attraction.image,
     rating: attraction.rating,
     openTime: attraction.openTime,
-    tags: attraction.tags || []
+    tags: attraction.tags || [],
   };
 }
 
@@ -136,7 +136,7 @@ function cleanAttractionData(attraction) {
  */
 function cleanRestaurantData(restaurant) {
   if (!restaurant) return null;
-  
+
   return {
     id: restaurant.id,
     name: restaurant.name,
@@ -147,7 +147,7 @@ function cleanRestaurantData(restaurant) {
     rating: restaurant.rating,
     openTime: restaurant.openTime,
     phone: restaurant.phone,
-    tags: restaurant.tags || []
+    tags: restaurant.tags || [],
   };
 }
 
@@ -158,15 +158,15 @@ function cleanRestaurantData(restaurant) {
  */
 function validateBaseForm(baseForm) {
   return {
-    destinationName: baseForm.destinationName || '',
-    destination: baseForm.destination || '',
+    destinationName: baseForm.destinationName || "",
+    destination: baseForm.destination || "",
     days: baseForm.days || 1,
     travelers: baseForm.travelers || 1,
     startDate: baseForm.startDate || null,
     endDate: baseForm.endDate || null,
-    budget: baseForm.budget || '',
-    budgetRange: baseForm.budgetRange || '',
-    ...baseForm
+    budget: baseForm.budget || "",
+    budgetRange: baseForm.budgetRange || "",
+    ...baseForm,
   };
 }
 
@@ -179,13 +179,13 @@ function validatePreferenceForm(preferenceForm) {
   return {
     tripGoals: preferenceForm.tripGoals || [],
     focusAreas: preferenceForm.focusAreas || [],
-    pacePreference: preferenceForm.pacePreference || '',
-    socialPreference: preferenceForm.socialPreference || '',
-    photoPreference: preferenceForm.photoPreference || '',
+    pacePreference: preferenceForm.pacePreference || "",
+    socialPreference: preferenceForm.socialPreference || "",
+    photoPreference: preferenceForm.photoPreference || "",
     dietaryRestrictions: preferenceForm.dietaryRestrictions || [],
-    customDietaryNotes: preferenceForm.customDietaryNotes || '',
-    specialRequirements: preferenceForm.specialRequirements || '',
-    ...preferenceForm
+    customDietaryNotes: preferenceForm.customDietaryNotes || "",
+    specialRequirements: preferenceForm.specialRequirements || "",
+    ...preferenceForm,
   };
 }
 
@@ -195,23 +195,27 @@ function validatePreferenceForm(preferenceForm) {
  * @returns {boolean} 是否包含有效信息
  */
 export function isDraftDataValid(draftData) {
-  if (!draftData || typeof draftData !== 'object') {
+  if (!draftData || typeof draftData !== "object") {
     return false;
   }
 
   // 检查是否有基础表单数据
-  const hasBaseForm = draftData.baseForm && 
-                      typeof draftData.baseForm === 'object' &&
-                      Object.keys(draftData.baseForm).length > 0;
+  const hasBaseForm =
+    draftData.baseForm &&
+    typeof draftData.baseForm === "object" &&
+    Object.keys(draftData.baseForm).length > 0;
 
   // 检查是否有偏好数据
-  const hasPreferences = draftData.preferenceForm && 
-                        typeof draftData.preferenceForm === 'object' &&
-                        Object.keys(draftData.preferenceForm).length > 0;
+  const hasPreferences =
+    draftData.preferenceForm &&
+    typeof draftData.preferenceForm === "object" &&
+    Object.keys(draftData.preferenceForm).length > 0;
 
   // 检查是否有选择的景点或餐厅
-  const hasSelections = (draftData.selectedAttractions && draftData.selectedAttractions.length > 0) ||
-                       (draftData.selectedRestaurants && draftData.selectedRestaurants.length > 0);
+  const hasSelections =
+    (draftData.selectedAttractions &&
+      draftData.selectedAttractions.length > 0) ||
+    (draftData.selectedRestaurants && draftData.selectedRestaurants.length > 0);
 
   // 至少要有其中一项有效数据
   return hasBaseForm || hasPreferences || hasSelections;
@@ -227,17 +231,19 @@ export function generateDraftSummary(draftData) {
 
   const baseForm = draftData.baseForm || {};
   const preferenceForm = draftData.preferenceForm || {};
-  
+
   return {
-    destination: baseForm.destinationName || '未选择目的地',
+    destination: baseForm.destinationName || "未选择目的地",
     days: baseForm.days || 0,
     travelers: baseForm.travelers || 1,
     currentStep: draftData.currentStep || 0,
     stepName: getStepName(draftData.currentStep || 0),
     hasPreferences: Object.keys(preferenceForm).length > 0,
-    hasSelections: (draftData.selectedAttractions?.length || 0) + (draftData.selectedRestaurants?.length || 0),
+    hasSelections:
+      (draftData.selectedAttractions?.length || 0) +
+      (draftData.selectedRestaurants?.length || 0),
     completeness: calculateCompleteness(draftData),
-    lastModified: draftData.updatedAt
+    lastModified: draftData.updatedAt,
   };
 }
 
@@ -248,12 +254,12 @@ export function generateDraftSummary(draftData) {
  */
 function getStepName(step) {
   const stepNames = {
-    0: '选择目的地',
-    1: '设置偏好',
-    2: '智能生成',
-    3: '行程预览'
+    0: "选择目的地",
+    1: "设置偏好",
+    2: "智能生成",
+    3: "行程预览",
   };
-  return stepNames[step] || '未知步骤';
+  return stepNames[step] || "未知步骤";
 }
 
 /**
@@ -267,13 +273,17 @@ function calculateCompleteness(draftData) {
 
   // 基础信息 (25%)
   if (draftData.baseForm?.destinationName) score += 1;
-  
+
   // 偏好设置 (25%)
-  if (draftData.preferenceForm && Object.keys(draftData.preferenceForm).length > 0) score += 1;
-  
+  if (
+    draftData.preferenceForm &&
+    Object.keys(draftData.preferenceForm).length > 0
+  )
+    score += 1;
+
   // 景点选择 (25%)
   if (draftData.selectedAttractions?.length > 0) score += 1;
-  
+
   // 餐厅选择 (25%)
   if (draftData.selectedRestaurants?.length > 0) score += 1;
 

@@ -6,7 +6,8 @@
     </div>
 
     <div class="coming-soon-card">
-      <el-icon size="64" color="#409EFF">
+      <el-icon size="64"
+color="#409EFF">
         <Search />
       </el-icon>
       <h3>搜索功能开发中</h3>
@@ -19,8 +20,8 @@
         <li>搜索历史</li>
       </ul>
       <p class="stay-tuned">
-        敬请期待！
-      </p>
+敬请期待！
+</p>
     </div>
   </div>
 </template>
@@ -33,8 +34,7 @@ export default {
   components: {
     Search,
   },
-  setup() {
-  },
+  setup() {},
 };
 </script>
 

@@ -3,16 +3,20 @@
     <!-- 页面头部 -->
     <div class="page-header">
       <div class="header-left">
-        <el-button type="text"
-@click="goBack" class="back-btn">
+        <el-button
+type="text" @click="goBack"
+class="back-btn"
+>
           <el-icon><ArrowLeft /></el-icon>
           返回个人中心
         </el-button>
       </div>
       <div class="header-right">
-        <div v-if="!isReadOnly"
-class="header-actions">
-          <el-button :loading="saving" @click="saveChanges" type="primary">
+        <div
+v-if="!isReadOnly" class="header-actions"
+>
+          <el-button :loading="saving"
+@click="saveChanges" type="primary">
             <el-icon><Edit /></el-icon>
             保存修改
           </el-button>
@@ -28,26 +32,31 @@ class="header-actions">
     </div>
 
     <!-- 加载状态 -->
-    <div v-if="loading"
-class="loading-container">
-      <el-skeleton :rows="8"
-animated />
+    <div
+v-if="loading" class="loading-container"
+>
+      <el-skeleton
+:rows="8" animated
+/>
     </div>
 
     <!-- 行程展示内容 -->
-    <div v-else-if="tripData && tripData.id"
-class="ai-trip-display">
+    <div
+v-else-if="tripData && tripData.id" class="ai-trip-display"
+>
       <!-- 行程标题卡片 - 使用自定义div -->
       <div class="trip-header-card-custom">
         <div class="trip-header-content">
           <div class="trip-title-section">
             <div class="title-with-icon">
-              <el-icon class="ai-icon"
-color="#409eff">
+              <el-icon
+class="ai-icon" color="#409eff"
+>
                 <Cpu />
               </el-icon>
-              <h1 v-if="isReadOnly"
-class="trip-main-title">
+              <h1
+v-if="isReadOnly" class="trip-main-title"
+>
                 {{ tripData.title }}
               </h1>
               <el-input
@@ -72,7 +81,8 @@ class="trip-main-title">
                 </el-icon>
               </div>
               <div class="stat-content">
-                <div v-if="isReadOnly" class="stat-number">
+                <div v-if="isReadOnly"
+class="stat-number">
                   {{ editedTrip?.days || tripData.days || 0 }}
                 </div>
                 <el-input-number
@@ -84,8 +94,8 @@ class="trip-main-title">
                   class="stat-input"
                 />
                 <div class="stat-label">
-                  天数
-                </div>
+天数
+</div>
               </div>
             </div>
             <div class="stat-card">
@@ -95,7 +105,8 @@ class="trip-main-title">
                 </el-icon>
               </div>
               <div class="stat-content">
-                <div v-if="isReadOnly" class="stat-number">
+                <div v-if="isReadOnly"
+class="stat-number">
                   {{ editedTrip?.mate || tripData.mate || 0 }}
                 </div>
                 <el-input-number
@@ -107,8 +118,8 @@ class="trip-main-title">
                   class="stat-input"
                 />
                 <div class="stat-label">
-                  人数
-                </div>
+人数
+</div>
               </div>
             </div>
             <div class="stat-card">
@@ -122,8 +133,8 @@ class="trip-main-title">
                   {{ tripData?.qualityScore || 0 }}
                 </div>
                 <div class="stat-label">
-                  质量分
-                </div>
+质量分
+</div>
               </div>
             </div>
             <div class="stat-card">
@@ -137,8 +148,8 @@ class="trip-main-title">
                   {{ formatProcessingTime(tripData?.processingTime) }}
                 </div>
                 <div class="stat-label">
-                  用时
-                </div>
+用时
+</div>
               </div>
             </div>
           </div>
@@ -235,16 +246,18 @@ class="trip-main-title">
       <!-- 完整的行程内容 - 使用自定义div -->
       <div class="content-card-custom">
         <!-- 编辑模式选择（仅在非只读模式显示） -->
-        <div v-if="!isReadOnly"
-class="editor-tabs">
-          <el-radio-group v-model="editMode"
-class="edit-mode-selector">
+        <div
+v-if="!isReadOnly" class="editor-tabs"
+>
+          <el-radio-group
+v-model="editMode" class="edit-mode-selector"
+>
             <el-radio-button label="preview">
-              预览模式
-            </el-radio-button>
+预览模式
+</el-radio-button>
             <el-radio-button label="markdown">
-              Markdown编辑
-            </el-radio-button>
+Markdown编辑
+</el-radio-button>
           </el-radio-group>
         </div>
 
@@ -271,8 +284,10 @@ class="edit-mode-selector">
         />
       </div>
 
-      <el-card v-if="!isReadOnly"
-class="budget-card" shadow="never">
+      <el-card
+v-if="!isReadOnly" class="budget-card"
+shadow="never"
+>
         <template #header>
           <div class="card-header">
             <el-icon class="header-icon">
@@ -295,8 +310,9 @@ class="budget-card" shadow="never">
       </el-card>
     </div>
 
-    <div v-else
-class="no-data">
+    <div
+v-else class="no-data"
+>
       <el-empty description="暂无行程数据" />
     </div>
   </div>
@@ -323,26 +339,26 @@ import MarkdownIt from "markdown-it";
 import { sanitizeMarkdownHtml } from "@/utils/xssFilter.js";
 import { handleApiError, handleSuccess } from "@/utils/errorHandler.js";
 
-// Add missing t function 
+// Add missing t function
 const t = (key) => {
   const translations = {
-    'trip.inputTitle': '请输入行程标题',
-    'trip.daysLabel': '天数',
-    'trip.travelersLabel': '人数',
-    'trip.qualityScore': '质量分',
-    'trip.durationLabel': '用时',
-    'trip.previewMode': '预览模式',
-    'trip.markdownEdit': 'Markdown编辑',
-    'trip.contentPlaceholder': '请输入行程内容...',
-    'trip.budgetSettings': '预算设置',
-    'trip.totalBudget': '总预算',
-    'trip.budgetPlaceholder': '请输入预算',
-    'trip.yuan': '元',
-    'trip.noTripData': '暂无行程数据',
-    'messages.unsavedMessage': '您有未保存的修改，确定要离开吗？',
-    'messages.unsavedTitle': '未保存的修改',
-    'messages.leave': '离开',
-    'messages.stay': '继续编辑'
+    "trip.inputTitle": "请输入行程标题",
+    "trip.daysLabel": "天数",
+    "trip.travelersLabel": "人数",
+    "trip.qualityScore": "质量分",
+    "trip.durationLabel": "用时",
+    "trip.previewMode": "预览模式",
+    "trip.markdownEdit": "Markdown编辑",
+    "trip.contentPlaceholder": "请输入行程内容...",
+    "trip.budgetSettings": "预算设置",
+    "trip.totalBudget": "总预算",
+    "trip.budgetPlaceholder": "请输入预算",
+    "trip.yuan": "元",
+    "trip.noTripData": "暂无行程数据",
+    "messages.unsavedMessage": "您有未保存的修改，确定要离开吗？",
+    "messages.unsavedTitle": "未保存的修改",
+    "messages.leave": "离开",
+    "messages.stay": "继续编辑",
   };
   return translations[key] || key;
 };

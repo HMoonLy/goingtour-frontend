@@ -1,25 +1,25 @@
 <template>
   <div class="ai-trip-display">
     <!-- 行程标题卡片 -->
-    <el-card class="trip-header-card"
-shadow="never">
+    <el-card
+class="trip-header-card" shadow="never"
+>
       <div class="trip-header-content">
         <div class="trip-title-section">
           <div class="title-with-icon">
-            <el-icon class="ai-icon"
-color="#409eff">
+            <el-icon
+class="ai-icon" color="#409eff"
+>
               <Cpu />
             </el-icon>
             <h1 class="trip-main-title">
-              {{
-                (tripData?.destinationInfo?.name || "") +
-                  "智能行程推荐"
-              }}
+              {{ (tripData?.destinationInfo?.name || "") + "智能行程推荐" }}
             </h1>
           </div>
-          <p v-if="tripData?.destinationInfo" class="trip-subtitle">
+          <p v-if="tripData?.destinationInfo"
+class="trip-subtitle">
             {{
-              `为您推荐${tripData?.tripBasicInfo?.days || 3}天${tripData?.destinationInfo?.name || '目的地'}的精彩行程`
+              `为您推荐${tripData?.tripBasicInfo?.days || 3}天${tripData?.destinationInfo?.name || "目的地"}的精彩行程`
             }}
           </p>
         </div>
@@ -37,8 +37,8 @@ color="#409eff">
                 {{ tripData?.tripBasicInfo?.days || 0 }}
               </div>
               <div class="stat-label">
-                天数
-              </div>
+天数
+</div>
             </div>
           </div>
           <div class="stat-card">
@@ -52,8 +52,8 @@ color="#409eff">
                 {{ tripData?.tripBasicInfo?.travelers || 0 }}
               </div>
               <div class="stat-label">
-                出行人数
-              </div>
+出行人数
+</div>
             </div>
           </div>
           <div class="stat-card">
@@ -67,8 +67,8 @@ color="#409eff">
                 {{ tripData?.qualityScore || 0 }}
               </div>
               <div class="stat-label">
-                质量评分
-              </div>
+质量评分
+</div>
             </div>
           </div>
           <div class="stat-card">
@@ -82,8 +82,8 @@ color="#409eff">
                 {{ formatProcessingTime(tripData?.processingTime) }}
               </div>
               <div class="stat-label">
-                用时
-              </div>
+用时
+</div>
             </div>
           </div>
         </div>
@@ -91,32 +91,42 @@ color="#409eff">
     </el-card>
 
     <!-- 完整的行程内容 -->
-    <el-card class="content-card"
-shadow="hover">
-      <div class="markdown-content"
-data-safe="true" v-html="renderedContent" />
+    <el-card
+class="content-card" shadow="hover"
+>
+      <div
+class="markdown-content" data-safe="true"
+v-html="renderedContent"
+/>
     </el-card>
 
     <!-- 操作按钮区域 -->
-    <el-card class="actions-card"
-shadow="never">
+    <el-card
+class="actions-card" shadow="never"
+>
       <div class="action-buttons">
-        <el-button :loading="copying" @click="copyToClipboard">
+        <el-button :loading="copying"
+@click="copyToClipboard">
           <el-icon><DocumentCopy /></el-icon>
           复制内容
         </el-button>
-        <el-button type="primary"
-@click="saveTrip" :loading="saving">
+        <el-button
+type="primary" @click="saveTrip"
+:loading="saving"
+>
           <el-icon><Folder /></el-icon>
           保存行程
         </el-button>
-        <el-button type="success"
-@click="shareTrip" :loading="sharing">
+        <el-button
+type="success" @click="shareTrip"
+:loading="sharing"
+>
           <el-icon><Share /></el-icon>
           分享
         </el-button>
-        <el-button type="warning"
-@click="regenerateTrip">
+        <el-button
+type="warning" @click="regenerateTrip"
+>
           <el-icon><Refresh /></el-icon>
           重新生成
         </el-button>
@@ -124,8 +134,9 @@ shadow="never">
     </el-card>
 
     <!-- 用户反馈区域 -->
-    <el-card class="feedback-card"
-shadow="hover">
+    <el-card
+class="feedback-card" shadow="hover"
+>
       <template #header>
         <div class="card-title">
           <el-icon color="#67c23a">
@@ -142,13 +153,7 @@ shadow="hover">
             v-model="userRating"
             :colors="['#F7BA2A', '#F7BA2A', '#F7BA2A']"
             show-text
-            :texts="[
-              '非常不好',
-              '不好',
-              '一般',
-              '好',
-              '非常好',
-            ]"
+            :texts="['非常不好', '不好', '一般', '好', '非常好']"
             @change="submitRating"
           />
         </div>
@@ -172,9 +177,10 @@ shadow="hover">
             提交反馈
           </el-button>
           <el-button size="small"
-link @click="clearFeedback">
-            重置
-          </el-button>
+link @click="clearFeedback"
+>
+重置
+</el-button>
         </div>
       </div>
     </el-card>
@@ -417,15 +423,11 @@ const shareTrip = async () => {
 
 // 重新生成行程
 const regenerateTrip = () => {
-  ElMessageBox.confirm(
-    "重新生成将替换当前行程，确定继续吗？",
-    "重新生成行程",
-    {
-      confirmButtonText: "确认",
-      cancelButtonText: "取消",
-      type: "warning",
-    },
-  )
+  ElMessageBox.confirm("重新生成将替换当前行程，确定继续吗？", "重新生成行程", {
+    confirmButtonText: "确认",
+    cancelButtonText: "取消",
+    type: "warning",
+  })
     .then(() => {
       emit("regenerate");
     })
@@ -437,9 +439,7 @@ const regenerateTrip = () => {
 // 提交评分
 const submitRating = () => {
   if (userRating.value > 0) {
-    ElMessage.success(
-      `感谢您的${userRating.value}星评价！`,
-    );
+    ElMessage.success(`感谢您的${userRating.value}星评价！`);
   }
 };
 

@@ -1,22 +1,28 @@
 <template>
-  <div class="personal-page simple"
-:class="{ embedded }">
+  <div
+class="personal-page simple" :class="{ embedded }"
+>
     <UserCenterNav v-if="!embedded" />
-    <h2 v-if="!embedded" class="title">
+    <h2 v-if="!embedded"
+class="title">
       {{ "数据与隐私" }}
     </h2>
     <el-card class="section">
       <div class="row">
         <span>{{ "导出数据" }}</span>
-        <el-button type="primary"
-plain @click="exportData">
+        <el-button
+type="primary" plain
+@click="exportData"
+>
           {{ "导出数据" }}
         </el-button>
       </div>
       <div class="row">
         <span>{{ "清除本地数据" }}</span>
-        <el-button type="danger"
-plain @click="clearLocal">
+        <el-button
+type="danger" plain
+@click="clearLocal"
+>
           {{ "清除本地数据" }}
         </el-button>
       </div>

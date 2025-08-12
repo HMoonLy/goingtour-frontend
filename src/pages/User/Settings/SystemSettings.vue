@@ -1,23 +1,26 @@
 <template>
-  <div class="personal-page simple"
-:class="{ embedded }">
+  <div
+class="personal-page simple" :class="{ embedded }"
+>
     <UserCenterNav v-if="!embedded" />
-    <h2 v-if="!embedded" class="title">
-      系统设置
-    </h2>
+    <h2 v-if="!embedded"
+class="title"
+>
+系统设置
+</h2>
     <el-card class="section">
       <div class="row">
         <span>主题模式</span>
         <el-radio-group v-model="theme">
           <el-radio-button label="light">
-            浅色模式
-          </el-radio-button>
+浅色模式
+</el-radio-button>
           <el-radio-button label="dark">
-            深色模式
-          </el-radio-button>
+深色模式
+</el-radio-button>
           <el-radio-button label="system">
-            跟随系统
-          </el-radio-button>
+跟随系统
+</el-radio-button>
         </el-radio-group>
       </div>
     </el-card>

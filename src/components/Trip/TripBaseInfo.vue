@@ -3,10 +3,16 @@
     <!-- 页面标题区域 -->
     <div class="page-title">
       <div class="title-content">
-        <el-icon class="title-icon"><MapLocation /></el-icon>
+        <el-icon class="title-icon">
+          <MapLocation />
+        </el-icon>
         <div class="title-text">
-          <h2 class="main-title">行程基础信息</h2>
-          <p class="subtitle">完善您的出行计划，我们将为您量身定制专属行程</p>
+          <h2 class="main-title">
+            行程基础信息
+          </h2>
+          <p class="subtitle">
+            完善您的出行计划，我们将为您量身定制专属行程
+          </p>
         </div>
       </div>
     </div>
@@ -21,25 +27,31 @@
       >
         <!-- 基本信息区域 -->
         <div class="form-section">
-            <div class="section-title">
+          <div class="section-title">
             <el-icon><MapLocation /></el-icon>
-              <span>行程基础信息</span>
+            <span>行程基础信息</span>
           </div>
-          
+
           <el-row :gutter="24">
             <!-- 目的地选择 -->
             <el-col :span="12">
-                <el-form-item label="目的地" prop="destination">
+              <el-form-item
+                label="目的地"
+                prop="destination"
+              >
                 <el-input
                   v-model="tripForm.destinationName"
-                    placeholder="搜索城市、地区..."
+                  placeholder="搜索城市、地区..."
                   size="large"
                   style="width: 100%"
                   disabled
                 />
                 <div class="selected-city-info">
-                  <el-tag type="success" size="small">
-                      {{ 已选择 }}: {{ tripForm.destinationName }}
+                  <el-tag
+                    type="success"
+                    size="small"
+                  >
+                    {{ 已选择 }}: {{ tripForm.destinationName }}
                   </el-tag>
                 </div>
               </el-form-item>
@@ -47,7 +59,10 @@
 
             <!-- 出行天数 -->
             <el-col :span="12">
-                <el-form-item label="天数" prop="days">
+              <el-form-item
+                label="天数"
+                prop="days"
+              >
                 <div class="days-input-container">
                   <el-input-number
                     v-model="tripForm.days"
@@ -55,14 +70,19 @@
                     :max="365"
                     size="large"
                     style="width: 100%"
-                      placeholder="根据日期自动计算"
+                    placeholder="根据日期自动计算"
                     disabled
                   />
                   <!-- 天数描述 -->
-                  <div v-if="tripForm.days" class="days-description">
+                  <div
+                    v-if="tripForm.days"
+                    class="days-description"
+                  >
                     <span class="days-text">{{ getDaysDescription() }}</span>
                   </div>
-                    <div class="form-tip">根据日期范围自动计算天数</div>
+                  <div class="form-tip">
+                    根据日期范围自动计算天数
+                  </div>
                 </div>
               </el-form-item>
             </el-col>
@@ -71,20 +91,20 @@
           <el-row :gutter="24">
             <!-- 出行日期 -->
             <el-col :span="12">
-                <el-form-item
-                  label="行程时间"
+              <el-form-item
+                label="行程时间"
                 prop="dateRange"
                 :error="dateRangeError"
               >
                 <el-date-picker
                   v-model="tripForm.dateRange"
                   type="daterange"
-                    range-separator="至"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
+                  range-separator="至"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
                   size="large"
                   style="width: 100%"
-                    format="YYYY-MM-DD"
+                  format="YYYY-MM-DD"
                   value-format="YYYY-MM-DD"
                   :disabled-date="disabledDate"
                   :clearable="true"
@@ -97,18 +117,23 @@
                     <div class="date-info">
                       <span class="date-match">
                         <el-icon><Check /></el-icon>
-                          已选择日期范围：{{ formatDateRange() }}
+                        已选择日期范围：{{ formatDateRange() }}
                       </span>
                     </div>
                   </template>
-                    <template v-else> 请选择您计划出行的日期范围 </template>
+                  <template v-else>
+                    请选择您计划出行的日期范围
+                  </template>
                 </div>
               </el-form-item>
             </el-col>
 
             <!-- 出行人数 -->
             <el-col :span="12">
-                <el-form-item label="人数" prop="travelers">
+              <el-form-item
+                label="人数"
+                prop="travelers"
+              >
                 <el-input-number
                   v-model="tripForm.travelers"
                   :min="1"
@@ -116,216 +141,280 @@
                   size="large"
                   style="width: 100%"
                 />
-                  <div class="form-tip">人数会影响餐厅和住宿推荐</div>
+                <div class="form-tip">
+                  人数会影响餐厅和住宿推荐
+                </div>
               </el-form-item>
             </el-col>
           </el-row>
         </div>
 
         <!-- 天气信息区域 -->
-        <div 
-          v-if="tripForm.destinationName && (loadingWeather || weatherError || weatherSuggestion)" 
+        <div
+          v-if="
+            tripForm.destinationName &&
+              (loadingWeather || weatherError || weatherSuggestion)
+          "
           class="form-section weather-section"
-          :class="{ 
+          :class="{
             'weather-disabled': isWeatherDisabled(),
-            'weather-outdated': isForecastOutdated() 
+            'weather-outdated': isForecastOutdated(),
           }"
         >
           <div class="section-title">
             <el-icon><Sunny /></el-icon>
             <span>天气预报</span>
-            <el-tag 
+            <el-tag
               v-if="weatherSuggestion"
-              :type="getWeatherTagType()" 
-              size="small" 
+              :type="getWeatherTagType()"
+              size="small"
               effect="plain"
               class="weather-source-tag"
             >
               {{ getWeatherSourceText() }}
             </el-tag>
           </div>
-          
+
           <!-- 天气加载状态 -->
-          <div v-if="loadingWeather" class="weather-loading">
-            <el-icon class="is-loading"><Loading /></el-icon>
+          <div
+            v-if="loadingWeather"
+            class="weather-loading"
+          >
+            <el-icon class="is-loading">
+              <Loading />
+            </el-icon>
             <span>正在获取天气信息...</span>
           </div>
-          
+
           <!-- 天气错误状态 -->
-          <div v-else-if="weatherError" class="weather-error">
+          <div
+            v-else-if="weatherError"
+            class="weather-error"
+          >
             <el-icon><Warning /></el-icon>
             <span>{{ weatherError }}</span>
           </div>
-          
+
           <!-- 天气信息显示 -->
-          <div v-else-if="weatherSuggestion" class="weather-content">
+          <div
+            v-else-if="weatherSuggestion"
+            class="weather-content"
+          >
             <!-- 失效提示 -->
-              <div v-if="isWeatherDisabled()" class="weather-disabled-notice">
+            <div
+              v-if="isWeatherDisabled()"
+              class="weather-disabled-notice"
+            >
               <el-icon><InfoFilled /></el-icon>
               <span v-if="isDateRangeOutOfForecast()">
                 所选日期超出天气预报范围（{{ formatDateRange() }}）
               </span>
               <span v-else-if="isForecastOutdated()">
-                行程天数（{{ tripForm.days }}天）超出预报范围（{{ weatherSuggestion.forecast.length }}天）
+                行程天数（{{ tripForm.days }}天）超出预报范围（{{
+                  weatherSuggestion.forecast.length
+                }}天）
               </span>
             </div>
-            
+
             <!-- 天气预报网格 -->
-            <div 
-              v-if="weatherSuggestion.forecast && weatherSuggestion.forecast.length > 0" 
+            <div
+              v-if="
+                weatherSuggestion.forecast &&
+                  weatherSuggestion.forecast.length > 0
+              "
               class="weather-forecast-grid"
             >
-              <div 
-                v-for="(forecast, index) in weatherSuggestion.forecast" 
+              <div
+                v-for="(forecast, index) in weatherSuggestion.forecast"
                 :key="index"
                 class="forecast-card"
-                :class="{ 'today': index === 0 }"
+                :class="{ today: index === 0 }"
               >
                 <div class="forecast-date">
-                  <div class="date-text">{{ forecast.date }}</div>
-                  <div class="week-text">周{{ forecast.week }}</div>
+                  <div class="date-text">
+                    {{ forecast.date }}
+                  </div>
+                  <div class="week-text">
+                    周{{ forecast.week }}
+                  </div>
                 </div>
-                
+
                 <div class="forecast-weather">
                   <div class="weather-icon-large">
                     {{ getWeatherEmoji(forecast.dayWeather) }}
                   </div>
-                  <div class="weather-desc">{{ forecast.dayWeather }}</div>
+                  <div class="weather-desc">
+                    {{ forecast.dayWeather }}
+                  </div>
                 </div>
-                
+
                 <div class="forecast-temp">
-                  <div class="temp-high">{{ forecast.dayTemp }}°</div>
-                  <div class="temp-low">{{ forecast.nightTemp }}°</div>
+                  <div class="temp-high">
+                    {{ forecast.dayTemp }}°
+                  </div>
+                  <div class="temp-low">
+                    {{ forecast.nightTemp }}°
+                  </div>
                 </div>
-                
+
                 <div class="forecast-wind">
-                  <div class="wind-info">{{ forecast.dayWind }} {{ forecast.dayPower }}级</div>
+                  <div class="wind-info">
+                    {{ forecast.dayWind }} {{ forecast.dayPower }}级
+                  </div>
                 </div>
-              </div>
-            </div>
-            
-            <!-- 天气综合信息 -->
-            <div class="weather-summary">
-              <div class="summary-item">
-                <span class="summary-label">温度范围</span>
-                <span class="summary-value">{{ weatherSuggestion.tempRange }}</span>
-              </div>
-              <div class="summary-item">
-                <span class="summary-label">预报天数</span>
-                <span class="summary-value">{{ weatherSuggestion.forecast.length }}天</span>
-              </div>
-              <div class="summary-item">
-                <span class="summary-label">数据来源</span>
-                <span class="summary-value">{{ getWeatherSourceText() }}</span>
-              </div>
-            </div>
-            
-            <!-- 出行建议 -->
-            <div v-if="getSmartTravelTips().length > 0" class="weather-tips">
-              <div class="tips-header">
-                <el-icon><InfoFilled /></el-icon>
-                <span class="tips-title">出行建议</span>
-              </div>
-              <div class="tips-content">
-                {{ getSmartTravelTips().slice(0, 2).join('；') }}
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- 预算选择区域 -->
-        <div class="form-section budget-section">
-          <div class="section-title">
-            <el-icon><Money /></el-icon>
-            <span>预算范围</span>
-            <span class="section-subtitle">每人/天</span>
+          <!-- 天气综合信息 -->
+          <div class="weather-summary">
+            <div class="summary-item">
+              <span class="summary-label">温度范围</span>
+              <span class="summary-value">{{
+                weatherSuggestion.tempRange
+              }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">预报天数</span>
+              <span class="summary-value">{{ weatherSuggestion.forecast.length }}天</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">数据来源</span>
+              <span class="summary-value">{{ getWeatherSourceText() }}</span>
+            </div>
           </div>
-          
-          <el-form-item prop="budget">
-            <div
-              v-if="userPreferences && userPreferences.budget"
-              class="preference-hint-banner"
-            >
-              <el-icon><Star /></el-icon>
-              <span>根据您的偏好，推荐预算：¥{{ userPreferences.budget }}/天</span>
-              <el-button
-                type="link"
-                size="small"
-                @click="applyRecommendedBudget"
-              >
-                应用推荐
-              </el-button>
-            </div>
 
-            <div class="budget-selector">
-              <div
-                v-for="option in budgetOptions"
-                :key="option.value"
-                class="budget-card"
-                :class="{
-                  selected: tripForm.budget === option.value,
-                  recommended: isRecommendedBudget(option.value),
-                }"
-                @click="selectBudget(option.value)"
-              >
-                <div class="budget-icon">
-                  <el-icon>
-                    <component :is="option.icon" />
-                  </el-icon>
-                </div>
-                <div class="budget-content">
-                  <h4 class="budget-title">
-                    {{ option.title }}
-                    <el-tag
-                      v-if="isRecommendedBudget(option.value)"
-                      size="small"
-                      type="success"
-                    >
-                      推荐
-                    </el-tag>
-                  </h4>
-                  <div class="budget-price">
-                    {{ option.price }}
-                  </div>
-                  <div class="budget-desc">
-                    {{ option.description }}
-                  </div>
-                </div>
-                <div
-                  v-if="tripForm.days && tripForm.travelers"
-                  class="budget-preview"
-                >
-                  <div class="preview-label">总预算</div>
-                  <div class="preview-amount">
-                    {{ calculateBudgetPreview(option.value) }}
-                  </div>
-                </div>
-                <div
-                  v-if="tripForm.budget === option.value"
-                  class="budget-check"
-                >
-                  <el-icon><Check /></el-icon>
-                </div>
-              </div>
+          <!-- 出行建议 -->
+          <div
+            v-if="getSmartTravelTips().length > 0"
+            class="weather-tips"
+          >
+            <div class="tips-header">
+              <el-icon><InfoFilled /></el-icon>
+              <span class="tips-title">出行建议</span>
             </div>
-            
-            <div v-if="shouldShowBudgetSummary()" class="budget-summary">
-              <div class="budget-info-row">
-                <span class="budget-label">{{ 已选择 }}：</span>
-                <span class="budget-value">{{ getBudgetText() }}</span>
-                <span v-if="tripForm.days && tripForm.travelers" class="budget-total">
-                  总预算：{{ getEstimatedCost() }}
-                </span>
-              </div>
+            <div class="tips-content">
+              {{ getSmartTravelTips().slice(0, 2).join("；") }}
             </div>
-          </el-form-item>
+          </div>
         </div>
       </el-form>
-      
-      <!-- 操作按钮区域 -->
-      <div class="action-section">
+    </div>
+
+    <!-- 预算选择区域 -->
+    <div class="form-section budget-section">
+      <div class="section-title">
+        <el-icon><Money /></el-icon>
+        <span>预算范围</span>
+        <span class="section-subtitle">每人/天</span>
+      </div>
+
+      <el-form-item prop="budget">
+        <div
+          v-if="userPreferences && userPreferences.budget"
+          class="preference-hint-banner"
+        >
+          <el-icon><Star /></el-icon>
+          <span>根据您的偏好，推荐预算：¥{{ userPreferences.budget }}/天</span>
+          <el-button
+            type="link"
+            size="small"
+            @click="applyRecommendedBudget"
+          >
+            应用推荐
+          </el-button>
+        </div>
+
+        <div class="budget-selector">
+          <div
+            v-for="option in budgetOptions"
+            :key="option.value"
+            class="budget-card"
+            :class="{
+              selected: tripForm.budget === option.value,
+              recommended: isRecommendedBudget(option.value),
+            }"
+            @click="selectBudget(option.value)"
+          >
+            <div class="budget-icon">
+              <el-icon>
+                <component :is="option.icon" />
+              </el-icon>
+            </div>
+            <div class="budget-content">
+              <h4 class="budget-title">
+                {{ option.title }}
+                <el-tag
+                  v-if="isRecommendedBudget(option.value)"
+                  size="small"
+                  type="success"
+                >
+                  推荐
+                </el-tag>
+              </h4>
+              <div class="budget-price">
+                {{ option.price }}
+              </div>
+              <div class="budget-desc">
+                {{ option.description }}
+              </div>
+            </div>
+            <div
+              v-if="tripForm.days && tripForm.travelers"
+              class="budget-preview"
+            >
+              <div class="preview-label">
+                总预算
+              </div>
+              <div class="preview-amount">
+                {{ calculateBudgetPreview(option.value) }}
+              </div>
+            </div>
+            <div
+              v-if="tripForm.budget === option.value"
+              class="budget-check"
+            >
+              <el-icon><Check /></el-icon>
+            </div>
+          </div>
+        </div>
+
+        <div
+          v-if="shouldShowBudgetSummary()"
+          class="budget-summary"
+        >
+          <div class="budget-info-row">
+            <span class="budget-label">{{ 已选择 }}：</span>
+            <span class="budget-value">{{ getBudgetText() }}</span>
+            <span
+              v-if="tripForm.days && tripForm.travelers"
+              class="budget-total"
+            >
+              总预算：{{ getEstimatedCost() }}
+            </span>
+          </div>
+        </div>
+      </el-form-item>
+    </div>
+    </el-form>
+
+    <!-- 操作按钮区域 -->
+    <div class="action-section">
+      <div class="action-left">
         <el-button
-          type="primary" 
+          size="large"
+          type="info"
+          plain
+          :loading="savingDraft"
+          @click="$emit('save-draft')"
+        >
+          <el-icon><Document /></el-icon>
+          保存草稿
+        </el-button>
+      </div>
+      <div class="action-right">
+        <el-button
+          type="primary"
           size="large"
           @click="goToNextStep"
         >
@@ -334,6 +423,7 @@
         </el-button>
       </div>
     </div>
+  </div>
   </div>
 </template>
 <script>
@@ -351,7 +441,8 @@ import {
   Loading,
   Sunny,
   InfoFilled,
-  } from "@element-plus/icons-vue";
+  Document,
+} from "@element-plus/icons-vue";
 
 // t函数已移除，所有文本已直接使用中文
 
@@ -369,6 +460,7 @@ export default {
     Loading,
     Sunny,
     InfoFilled,
+    Document,
   },
   props: {
     // 从父组件接收的行程表单数据
@@ -396,8 +488,19 @@ export default {
       type: String,
       default: null,
     },
+    // 保存草稿状态
+    savingDraft: {
+      type: Boolean,
+      default: false,
+    },
   },
-  emits: ["update:baseForm", "next-step", "formValid", "fetch-weather"],
+  emits: [
+    "update:baseForm",
+    "next-step",
+    "formValid",
+    "fetch-weather",
+    "save-draft",
+  ],
   setup(props, { emit }) {
     // 使用父组件传递的值初始化本地数据
     const tripForm = ref({ ...props.baseForm });
@@ -703,8 +806,6 @@ export default {
       return `¥${totalAmount.toLocaleString()}`;
     };
 
-
-
     // 预算推荐计算
     const budgetRecommendation = computed(() => {
       if (!props.userPreferences?.budget) return null;
@@ -766,7 +867,8 @@ export default {
       }
 
       const dailyBudget = getBudgetDailyAmount();
-      const totalCost = dailyBudget * tripForm.value.days * tripForm.value.travelers;
+      const totalCost =
+        dailyBudget * tripForm.value.days * tripForm.value.travelers;
       return `¥${totalCost.toLocaleString()}`;
     };
 
@@ -826,108 +928,113 @@ export default {
       return `${year}年${month}月${day}日`;
     };
 
-
-
     // 天气相关工具函数
     const getWeatherSourceText = () => {
-      if (!props.weatherSuggestion) return '';
-      
+      if (!props.weatherSuggestion) return "";
+
       if (props.weatherSuggestion.isHistorical) {
         if (props.weatherSuggestion.isFallback) {
-          return '季节性参考';
+          return "季节性参考";
         }
-        return '历史气候数据';
+        return "历史气候数据";
       }
-      return '高德实时数据';
+      return "高德实时数据";
     };
 
     const getWeatherValidityText = () => {
-      if (!props.weatherSuggestion) return '';
+      if (!props.weatherSuggestion) return "";
       if (props.weatherSuggestion.isHistorical) {
-        return '基于历史同期气候特征预测';
+        return "基于历史同期气候特征预测";
       }
-      
+
       // 实时数据的有效期计算
       return `数据更新时间：今日，预报范围：今日起3天内`;
     };
 
     const getWeatherTagType = () => {
-      if (!props.weatherSuggestion) return 'info';
-      
-      if (props.weatherSuggestion.isHistorical) {
-        return props.weatherSuggestion.isFallback ? 'warning' : 'info';
-      }
-      return 'success';
-    };
+      if (!props.weatherSuggestion) return "info";
 
+      if (props.weatherSuggestion.isHistorical) {
+        return props.weatherSuggestion.isFallback ? "warning" : "info";
+      }
+      return "success";
+    };
 
     // 根据天气类型返回对应的emoji
     const getWeatherEmoji = (weather) => {
-      if (!weather) return '☀️';
-      
+      if (!weather) return "☀️";
+
       const weatherEmojiMap = {
-        '晴': '☀️',
-        '多云': '⛅',
-        '阴': '☁️',
-        '小雨': '🌦️',
-        '中雨': '🌧️',
-        '大雨': '⛈️',
-        '暴雨': '⛈️',
-        '雷阵雨': '⛈️',
-        '阵雨': '🌦️',
-        '小雪': '❄️',
-        '中雪': '🌨️',
-        '大雪': '❄️',
-        '暴雪': '❄️',
-        '雨夹雪': '🌨️',
-        '雾': '🌫️',
-        '霾': '😷',
-        '沙尘暴': '💨',
-        '大风': '💨'
+        晴: "☀️",
+        多云: "⛅",
+        阴: "☁️",
+        小雨: "🌦️",
+        中雨: "🌧️",
+        大雨: "⛈️",
+        暴雨: "⛈️",
+        雷阵雨: "⛈️",
+        阵雨: "🌦️",
+        小雪: "❄️",
+        中雪: "🌨️",
+        大雪: "❄️",
+        暴雪: "❄️",
+        雨夹雪: "🌨️",
+        雾: "🌫️",
+        霾: "😷",
+        沙尘暴: "💨",
+        大风: "💨",
       };
-      
+
       // 尝试精确匹配
       if (weatherEmojiMap[weather]) {
         return weatherEmojiMap[weather];
       }
-      
+
       // 模糊匹配
       for (const [key, emoji] of Object.entries(weatherEmojiMap)) {
         if (weather.includes(key)) {
           return emoji;
         }
       }
-      
+
       // 默认返回太阳
-      return '☀️';
+      return "☀️";
     };
 
     // 检查用户选择的日期是否在天气预报范围内
     const isDateWithinForecastRange = () => {
-      if (!props.weatherSuggestion || !props.weatherSuggestion.forecast || !tripForm.value.dateRange || !tripForm.value.dateRange.length) {
-        console.log('⚠️ 天气日期检查：缺少必要数据');
+      if (
+        !props.weatherSuggestion ||
+        !props.weatherSuggestion.forecast ||
+        !tripForm.value.dateRange ||
+        !tripForm.value.dateRange.length
+      ) {
+        console.log("⚠️ 天气日期检查：缺少必要数据");
         return false;
       }
-      
+
       const userStartDate = new Date(tripForm.value.dateRange[0]);
       const userEndDate = new Date(tripForm.value.dateRange[1]);
-      
+
       // 获取天气预报的日期范围
-      const forecastDates = props.weatherSuggestion.forecast.map(f => new Date(f.date));
+      const forecastDates = props.weatherSuggestion.forecast.map(
+        (f) => new Date(f.date),
+      );
       const forecastStartDate = new Date(Math.min(...forecastDates));
       const forecastEndDate = new Date(Math.max(...forecastDates));
-      
-      console.log('🔍 天气日期检查：', {
+
+      console.log("🔍 天气日期检查：", {
         userStartDate: userStartDate.toDateString(),
         userEndDate: userEndDate.toDateString(),
         forecastStartDate: forecastStartDate.toDateString(),
-        forecastEndDate: forecastEndDate.toDateString()
+        forecastEndDate: forecastEndDate.toDateString(),
       });
-      
+
       // 检查用户选择的日期是否与天气预报日期有重叠
-      const hasOverlap = userStartDate <= forecastEndDate && userEndDate >= forecastStartDate;
-      console.log('📊 天气日期重叠结果：', hasOverlap);
-      
+      const hasOverlap =
+        userStartDate <= forecastEndDate && userEndDate >= forecastStartDate;
+      console.log("📊 天气日期重叠结果：", hasOverlap);
+
       return hasOverlap;
     };
 
@@ -936,118 +1043,137 @@ export default {
       if (!props.weatherSuggestion || !props.weatherSuggestion.forecast) {
         return [];
       }
-      
+
       // 检查用户选择的日期是否在天气预报范围内
       if (!isDateWithinForecastRange()) {
         return []; // 如果日期超出预报范围，不显示天气建议
       }
-      
+
       const tips = [];
       const forecasts = props.weatherSuggestion.forecast.slice(0, 4);
-      
+
       // 分析温度变化
-      const temps = forecasts.map(f => ({
+      const temps = forecasts.map((f) => ({
         day: parseInt(f.dayTemp) || 0,
-        night: parseInt(f.nightTemp) || 0
+        night: parseInt(f.nightTemp) || 0,
       }));
-      
-      const maxTemp = Math.max(...temps.map(t => t.day));
-      const minTemp = Math.min(...temps.map(t => t.night));
+
+      const maxTemp = Math.max(...temps.map((t) => t.day));
+      const minTemp = Math.min(...temps.map((t) => t.night));
       const tempDiff = maxTemp - minTemp;
-      
+
       // 温度建议
       if (tempDiff > 15) {
         tips.push(`温差较大（${tempDiff}℃），建议穿层次丰富的衣物`);
       } else if (maxTemp > 30) {
-        tips.push('气温较高，建议携带防晒用品和多补水');
+        tips.push("气温较高，建议携带防晒用品和多补水");
       } else if (minTemp < 5) {
-        tips.push('气温较低，请注意保暖，建议携带厚外套');
+        tips.push("气温较低，请注意保暖，建议携带厚外套");
       }
-      
+
       // 分析天气类型
       const weatherTypes = new Set();
-      forecasts.forEach(f => {
+      forecasts.forEach((f) => {
         if (f.dayWeather) weatherTypes.add(f.dayWeather);
         if (f.nightWeather) weatherTypes.add(f.nightWeather);
       });
-      
+
       const weatherArray = Array.from(weatherTypes);
-      const hasRain = weatherArray.some(w => w.includes('雨'));
-      const hasSnow = weatherArray.some(w => w.includes('雪'));
-      const hasStorm = weatherArray.some(w => w.includes('雷') || w.includes('暴'));
-      
+      const hasRain = weatherArray.some((w) => w.includes("雨"));
+      const hasSnow = weatherArray.some((w) => w.includes("雪"));
+      const hasStorm = weatherArray.some(
+        (w) => w.includes("雷") || w.includes("暴"),
+      );
+
       // 根据季节和天气给出合理建议
       const currentMonth = new Date().getMonth() + 1; // 1-12
       const isSummer = currentMonth >= 6 && currentMonth <= 8;
-      
+
       if (hasRain && !hasSnow) {
-        tips.push('有降雨天气，建议携带雨具');
+        tips.push("有降雨天气，建议携带雨具");
       } else if (hasSnow && !isSummer) {
-        tips.push('有降雪天气，建议携带保暖衣物和防滑鞋');
+        tips.push("有降雪天气，建议携带保暖衣物和防滑鞋");
       } else if (hasStorm) {
-        tips.push('有雷暴天气，建议避免户外活动，注意安全');
+        tips.push("有雷暴天气，建议避免户外活动，注意安全");
       }
-      
+
       // 风力建议
-      const hasStrongWind = forecasts.some(f => {
+      const hasStrongWind = forecasts.some((f) => {
         const power = parseInt(f.dayPower) || 0;
         return power >= 4;
       });
-      
+
       if (hasStrongWind) {
-        tips.push('风力较大，户外活动请注意安全');
+        tips.push("风力较大，户外活动请注意安全");
       }
-      
+
       // 如果没有特殊建议，给出通用建议
       if (tips.length === 0) {
-        if (weatherArray.some(w => w.includes('晴'))) {
-          tips.push('天气良好，适合户外活动和观光');
+        if (weatherArray.some((w) => w.includes("晴"))) {
+          tips.push("天气良好，适合户外活动和观光");
         } else {
-          tips.push('天气平稳，适合按计划进行行程');
+          tips.push("天气平稳，适合按计划进行行程");
         }
       }
-      
+
       return tips;
     };
 
     // 检查行程天数是否超出天气预报范围
     const getTripDaysExceedForecast = () => {
-      if (!props.weatherSuggestion || !props.weatherSuggestion.forecast || !tripForm.value.days) {
+      if (
+        !props.weatherSuggestion ||
+        !props.weatherSuggestion.forecast ||
+        !tripForm.value.days
+      ) {
         return false;
       }
-      
+
       return tripForm.value.days > props.weatherSuggestion.forecast.length;
     };
 
     // 检查天气预报是否严重过时（行程天数超过预报天数的2倍以上）
     const isForecastOutdated = () => {
-      if (!props.weatherSuggestion || !props.weatherSuggestion.forecast || !tripForm.value.days) {
+      if (
+        !props.weatherSuggestion ||
+        !props.weatherSuggestion.forecast ||
+        !tripForm.value.days
+      ) {
         return false;
       }
-      
+
       const forecastDays = props.weatherSuggestion.forecast.length;
       return tripForm.value.days > forecastDays * 2;
     };
 
     // 检查用户选择的日期范围是否完全超出天气预报范围
     const isDateRangeOutOfForecast = () => {
-      if (!props.weatherSuggestion || !props.weatherSuggestion.forecast || !tripForm.value.dateRange || tripForm.value.dateRange.length !== 2) {
+      if (
+        !props.weatherSuggestion ||
+        !props.weatherSuggestion.forecast ||
+        !tripForm.value.dateRange ||
+        tripForm.value.dateRange.length !== 2
+      ) {
         return false;
       }
-      
+
       try {
         const userStartDate = new Date(tripForm.value.dateRange[0]);
         const userEndDate = new Date(tripForm.value.dateRange[1]);
-        
+
         // 获取天气预报的日期范围
-        const forecastDates = props.weatherSuggestion.forecast.map(f => new Date(f.date));
+        const forecastDates = props.weatherSuggestion.forecast.map(
+          (f) => new Date(f.date),
+        );
         const forecastStartDate = new Date(Math.min(...forecastDates));
         const forecastEndDate = new Date(Math.max(...forecastDates));
-        
+
         // 检查用户的日期范围是否完全超出预报范围
-        return userStartDate > forecastEndDate || userEndDate < forecastStartDate;
+        return (
+          userStartDate > forecastEndDate || userEndDate < forecastStartDate
+        );
       } catch (error) {
-        console.error('日期范围检查错误:', error);
+        console.error("日期范围检查错误:", error);
         return false;
       }
     };
@@ -1112,7 +1238,7 @@ export default {
 }
 
 .page-title::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -1195,7 +1321,7 @@ export default {
 }
 
 .section-title::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -2px;
   left: 0;
@@ -1230,7 +1356,7 @@ export default {
 }
 
 .weather-section.weather-disabled::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -1339,7 +1465,8 @@ export default {
   z-index: 2;
 }
 
-.weather-loading, .weather-error {
+.weather-loading,
+.weather-error {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1683,8 +1810,16 @@ export default {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   border: 1px solid #e4e7ed;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
+}
+
+.action-left {
+  flex: 0 0 auto;
+}
+
+.action-right {
+  flex: 0 0 auto;
 }
 
 /* 天数选择相关样式 */
@@ -1973,12 +2108,12 @@ export default {
   .form-sections {
     padding: 0 16px 24px;
   }
-  
+
   .form-section {
     padding: 24px;
     margin-bottom: 24px;
   }
-  
+
   .budget-selector {
     grid-template-columns: 1fr;
     gap: 16px;
@@ -1990,115 +2125,115 @@ export default {
     padding: 24px 16px;
     margin-bottom: 24px;
   }
-  
+
   .title-content {
     gap: 12px;
   }
-  
+
   .title-icon {
     width: 40px;
     height: 40px;
     font-size: 20px;
   }
-  
+
   .title-text .main-title {
     font-size: 24px;
   }
-  
+
   .title-text .subtitle {
     font-size: 14px;
   }
-  
+
   .form-section {
     padding: 20px;
     border-radius: 12px;
     margin-bottom: 20px;
   }
-  
+
   .section-title {
     font-size: 18px;
     margin-bottom: 20px;
     padding-bottom: 12px;
   }
-  
+
   .section-title .el-icon {
     font-size: 20px;
   }
-  
+
   .budget-card {
     padding: 20px;
     min-height: 140px;
   }
-  
+
   .budget-icon {
     width: 40px;
     height: 40px;
     font-size: 20px;
     margin-bottom: 12px;
   }
-  
+
   .budget-title {
     font-size: 16px;
   }
-  
+
   .budget-price {
     font-size: 14px;
   }
-  
+
   .budget-desc {
     font-size: 13px;
   }
-  
+
   .budget-info-row {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
-  
+
   .budget-total {
     margin-left: 0;
     font-size: 14px;
   }
-  
+
   .weather-forecast-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
-  
+
   .forecast-card {
     padding: 12px;
   }
-  
+
   .weather-icon-large {
     font-size: 24px;
     margin: 8px 0 6px;
   }
-  
+
   .temp-high {
     font-size: 14px;
   }
-  
+
   .forecast-date .date-text {
     font-size: 12px;
   }
-  
+
   .weather-summary {
     flex-direction: column;
     gap: 12px;
     padding: 12px;
   }
-  
+
   .summary-item {
     flex-direction: row;
     justify-content: space-between;
     width: 100%;
   }
-  
+
   .action-section {
     padding: 24px;
     margin-bottom: 24px;
   }
-  
+
   .next-btn {
     height: 48px;
     padding: 0 32px;
@@ -2110,59 +2245,57 @@ export default {
   .page-title {
     padding: 20px 12px;
   }
-  
+
   .form-sections {
     padding: 0 12px 20px;
   }
-  
+
   .form-section {
     padding: 16px;
   }
-  
+
   .section-title {
     font-size: 16px;
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
-  
+
   .section-subtitle {
     margin-left: 0;
   }
-  
+
   .weather-forecast-grid {
     grid-template-columns: 1fr;
     gap: 10px;
   }
-  
+
   .forecast-card {
     padding: 10px;
   }
-  
+
   .weather-icon-large {
     font-size: 20px;
     margin: 6px 0 4px;
   }
-  
+
   .budget-card {
     padding: 16px;
   }
-  
+
   .budget-icon {
     width: 36px;
     height: 36px;
     font-size: 18px;
   }
-  
+
   .action-section {
     padding: 20px;
     justify-content: center;
   }
-  
+
   .action-section .el-button {
     width: 100%;
   }
 }
-
 </style>
-

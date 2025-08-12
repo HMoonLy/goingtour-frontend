@@ -6,23 +6,25 @@
         <!-- Logo和品牌名 -->
         <div class="brand-header">
           <div class="brand-logo">
-            <el-icon size="60"
-color="#ffffff">
+            <el-icon
+size="60" color="#ffffff"
+>
               <MapLocation />
             </el-icon>
           </div>
           <h1 class="brand-title">GoingTour</h1>
           <p class="brand-subtitle">
-            智能旅行规划专家
-          </p>
+智能旅行规划专家
+</p>
         </div>
 
         <!-- 产品特性展示 -->
         <div class="features">
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32"
-color="#ffffff">
+              <el-icon
+size="32" color="#ffffff"
+>
                 <Location />
               </el-icon>
             </div>
@@ -34,8 +36,9 @@ color="#ffffff">
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32"
-color="#ffffff">
+              <el-icon
+size="32" color="#ffffff"
+>
                 <DataAnalysis />
               </el-icon>
             </div>
@@ -47,8 +50,9 @@ color="#ffffff">
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32"
-color="#ffffff">
+              <el-icon
+size="32" color="#ffffff"
+>
                 <Share />
               </el-icon>
             </div>
@@ -72,11 +76,11 @@ color="#ffffff">
         <!-- 表单头部 -->
         <div class="form-header">
           <h2 class="form-title">
-            欢迎回来
-          </h2>
+欢迎回来
+</h2>
           <p class="form-subtitle">
-            登录 - 智能旅行规划专家
-          </p>
+登录 - 智能旅行规划专家
+</p>
         </div>
 
         <!-- 登录表单 -->
@@ -89,8 +93,9 @@ color="#ffffff">
           @submit.prevent="handleLogin"
         >
           <!-- 邮箱输入 -->
-          <el-form-item prop="email"
-class="form-item">
+          <el-form-item
+prop="email" class="form-item"
+>
             <label class="form-label">邮箱</label>
             <el-input
               v-model="loginForm.email"
@@ -106,8 +111,9 @@ class="form-item">
           </el-form-item>
 
           <!-- 验证码输入 -->
-          <el-form-item prop="code"
-class="form-item">
+          <el-form-item
+prop="code" class="form-item"
+>
             <label class="form-label">验证码</label>
             <div class="code-input-group">
               <el-input
@@ -132,11 +138,7 @@ class="form-item">
                 plain
                 @click="sendVerificationCode"
               >
-                {{
-                  countdown > 0
-                    ? `${countdown}秒后重发`
-                    : "发送验证码"
-                }}
+                {{ countdown > 0 ? `${countdown}秒后重发` : "发送验证码" }}
               </el-button>
             </div>
           </el-form-item>
@@ -160,9 +162,7 @@ class="form-item">
           <!-- 其他登录方式 -->
           <div class="other-login">
             <el-divider>
-              <span class="divider-text">{{
-                "其他登录方式"
-              }}</span>
+              <span class="divider-text">{{ "其他登录方式" }}</span>
             </el-divider>
 
             <div class="social-login">
@@ -210,13 +210,15 @@ class="form-item">
           <p>
             登录即表示您同意我们的
             <el-link type="primary"
-:underline="false">
-              用户协议
-            </el-link>
+:underline="false"
+>
+用户协议
+</el-link>
             <el-link type="primary"
-:underline="false">
-              隐私政策
-            </el-link>
+:underline="false"
+>
+隐私政策
+</el-link>
           </p>
         </div>
       </div>
@@ -341,12 +343,9 @@ export default {
 
         const user = await userStore.login(loginForm.email, loginForm.code);
 
-        handleSuccess(
-          `欢迎回来，${user.nickname || "用户"}！`,
-          {
-            showNotification: true,
-          },
-        );
+        handleSuccess(`欢迎回来，${user.nickname || "用户"}！`, {
+          showNotification: true,
+        });
 
         const redirectPath =
           userStore.getAndClearRedirectPath() ||
