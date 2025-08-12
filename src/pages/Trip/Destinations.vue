@@ -1,81 +1,31 @@
 <template>
   <div class="destinations">
-    <!-- 搜索部分 -->
-    <div class="search-section">
-      <div class="search-container">
-        <h1>去哪里旅行</h1>
-
-        <el-input
-          v-model="searchKeyword"
-          placeholder="搜索城市、地区..."
-          size="large"
-          class="search-input"
-          clearable
-          @input="debouncedSearch"
-          @clear="clearSearch"
-        >
-          <template #prefix>
-            <el-icon><Search /></el-icon>
-          </template>
-        </el-input>
-
-        <!-- 批量操作区域 -->
-        <div
-          v-if="!isSearchMode && wishlistStore.hasCities"
-          class="batch-actions"
-        >
-          <div class="batch-info">
-            <el-button
-              size="small"
-              type="info"
-              plain
-              @click="showWishlistQuickView = !showWishlistQuickView"
-            >
-              <el-icon><Star /></el-icon>
-              愿望清单 ({{ wishlistStore.wishlistCount }})
-              <el-icon>
-                <ArrowDown v-if="!showWishlistQuickView" /><ArrowUp v-else />
-              </el-icon>
-            </el-button>
-
-            <el-button
-              size="small"
-              type="success"
-              plain
-              :loading="addingRecommendations"
-              @click="addRandomRecommendations"
-            >
-              <el-icon><MagicStick /></el-icon>
-              添加推荐城市
-            </el-button>
-          </div>
-
-          <!-- 愿望清单快速预览 -->
-          <div v-show="showWishlistQuickView" class="wishlist-quick-view">
-            <div class="quick-view-cities">
-              <el-tag
-                v-for="city in wishlistStore.wishlistItems.slice(0, 8)"
-                :key="city.id"
-                size="small"
-                type="success"
-                effect="dark"
-                closable
-                style="margin-right: 8px; margin-bottom: 4px"
-                @close="wishlistStore.removeFromWishlist(city.id)"
-              >
-                {{ city.cityName }}
-              </el-tag>
-              <span
-                v-if="wishlistStore.wishlistCount > 8"
-                class="more-indicator"
-              >
-                +{{ wishlistStore.wishlistCount - 8 }} 更多...
-              </span>
-            </div>
-          </div>
+    <!-- 英雄横幅（大图+搜索） -->
+    <section class="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-content">
+        <h1 class="hero-title">去哪里旅行</h1>
+        <p class="hero-sub">发现灵感目的地 · 开启下一段旅程</p>
+        <div class="hero-search">
+          <el-input
+            v-model="searchKeyword"
+            placeholder="搜索城市、地区..."
+            size="large"
+            class="hero-input"
+            clearable
+            @input="debouncedSearch"
+            @clear="clearSearch"
+          >
+            <template #prefix>
+              <el-icon><Search /></el-icon>
+            </template>
+          </el-input>
+          <el-button class="hero-btn" type="primary" @click="debouncedSearch()">
+            搜索
+          </el-button>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- 城市展示区域 -->
     <div class="cities-content-wrapper">
@@ -105,88 +55,47 @@ class="search-results">
 v-else description="未找到匹配的城市，请尝试其他关键词"
 />
 
+          <!-- 列表视图（默认，仅显示结果，不展示收藏按钮） -->
           <div class="city-rows">
             <div
               v-for="city in searchResults"
               :key="city.adcode"
               class="city-row"
-              :class="{
-                'in-wishlist': wishlistStore.isCityInWishlist(city.adcode),
-              }"
             >
               <div class="city-left"
 @click="selectCity(city)">
                 <span class="city-name">{{ city.中文名 }}</span>
                 <span class="city-province">{{ getProvinceName(city) }}</span>
               </div>
-              <div class="city-right">
-                <el-button
-                  type="default"
-                  size="small"
-                  circle
-                  class="wishlist-toggle"
-                  :class="{ active: wishlistStore.isCityInWishlist(city.adcode) }"
-                  :title="
-                    wishlistStore.isCityInWishlist(city.adcode)
-                      ? '从愿望清单移除'
-                      : '添加到愿望清单'
-                  "
-                  @click.stop="toggleWishlist(city)"
-                >
-                  <el-icon size="14">
-                    <StarFilled v-if="wishlistStore.isCityInWishlist(city.adcode)" />
-                    <Star v-else />
-                  </el-icon>
-                </el-button>
-              </div>
             </div>
           </div>
         </div>
 
-        <!-- 常规展示模式 -->
+        <!-- 常规展示模式（整页流式） -->
         <template v-else>
-          <!-- 热门城市 -->
-          <div id="hot-cities"
-class="city-section hot-city-section"
->
-            <h2><i class="hot-icon">🔥</i> 热门城市</h2>
-            <div class="city-rows">
-              <div
-                v-for="city in hotCities"
-                :key="city.adcode"
-                class="city-row"
-                :class="{
-                  'in-wishlist': wishlistStore.isCityInWishlist(city.adcode),
-                }"
+          <!-- 热门目的地（区域 tabs + 城市标签） -->
+          <div id="hot-cities" class="city-section hot-city-section">
+            <h2><i class="hot-icon">🔥</i> 热门目的地</h2>
+            <div class="region-tabs">
+              <button
+                v-for="(r, idx) in regions"
+                :key="r.label"
+                class="region-tab"
+                :class="{ active: activeRegionIdx === idx }"
+                @click="activeRegionIdx = idx"
               >
-                <div class="city-left"
-@click="selectCity(city)">
-                  <span class="city-name">{{ city.中文名 }}</span>
-                  <span class="city-province">{{ getProvinceName(city) }}</span>
-                </div>
-                <div class="city-right">
-                  <el-button
-                    type="default"
-                    size="small"
-                    circle
-                    class="wishlist-toggle"
-                    :class="{ active: wishlistStore.isCityInWishlist(city.adcode) }"
-                    :title="
-                      wishlistStore.isCityInWishlist(city.adcode)
-                        ? '从愿望清单移除'
-                        : '添加到愿望清单'
-                    "
-                    @click.stop="toggleWishlist(city)"
-                  >
-                    <el-icon size="14">
-                      <StarFilled
-                        v-if="wishlistStore.isCityInWishlist(city.adcode)"
-                      />
-                      <Star v-else />
-                    </el-icon>
-                  </el-button>
-                </div>
-              </div>
+                {{ r.label }}
+              </button>
+            </div>
+            <div class="city-tags">
+              <a
+                v-for="city in regions[activeRegionIdx].cities"
+                :key="city.adcode"
+                class="city-tag-link"
+                @click="selectCity({ 中文名: city.name, adcode: city.adcode })"
+              >
+                {{ city.name }}
+              </a>
             </div>
           </div>
 
@@ -242,8 +151,8 @@ class="city-section hot-city-section"
           </div>
         </template>
 
-        <!-- 导航辅助按钮组 -->
-        <div class="nav-assist-buttons">
+        <!-- 导航辅助按钮组（隐藏） -->
+        <div class="nav-assist-buttons" style="display:none;">
           <el-tooltip content="热门城市" placement="left" :offset="10">
             <el-button
               class="nav-button hot-button"
@@ -275,8 +184,8 @@ class="city-section hot-city-section"
         </div>
       </div>
 
-      <!-- 添加快捷字母导航 -->
-      <div class="letter-nav">
+      <!-- 添加快捷字母导航（隐藏） -->
+      <div class="letter-nav" style="display:none;">
         <div
           class="letter-item special"
           :class="{ active: activeLetter === hotLabel }"
@@ -320,6 +229,7 @@ import {
 import pinyin from "pinyin";
 import { createCachedRequest, debounce } from "@/utils/apiOptimizer.js";
 import { useWishlistStore } from "@/store/wishlist.js";
+import { hotRegions, seasonalByMonth, themeGroups, findCity } from "@/data/destinations.js";
 
 export default {
   name: "Destinations",
@@ -340,6 +250,7 @@ export default {
 
     // 响应式数据
     const searchKeyword = ref("");
+    // 统一为整页流式样式，不提供卡片/列表切换
     const allCities = ref([]);
     const loading = ref(true);
     const isSearchMode = ref(false);
@@ -349,6 +260,10 @@ export default {
     const citiesContent = ref(null);
     const letterSections = ref([]);
     const showScrollIndicator = ref(false);
+
+    // 热门区域 tabs
+    const regions = hotRegions;
+    const activeRegionIdx = ref(0);
 
     // 批量操作相关状态
     const showWishlistQuickView = ref(false);
@@ -386,20 +301,7 @@ export default {
     ];
 
     // 热门城市列表
-    const hotCities = [
-      { 中文名: "北京市", adcode: "110000", province: "直辖市" },
-      { 中文名: "上海市", adcode: "310000", province: "直辖市" },
-      { 中文名: "广州市", adcode: "440100", province: "广东省" },
-      { 中文名: "深圳市", adcode: "440300", province: "广东省" },
-      { 中文名: "杭州市", adcode: "330100", province: "浙江省" },
-      { 中文名: "成都市", adcode: "510100", province: "四川省" },
-      { 中文名: "重庆市", adcode: "500000", province: "直辖市" },
-      { 中文名: "西安市", adcode: "610100", province: "陕西省" },
-      { 中文名: "南京市", adcode: "320100", province: "江苏省" },
-      { 中文名: "厦门市", adcode: "350200", province: "福建省" },
-      { 中文名: "三亚市", adcode: "460200", province: "海南省" },
-      { 中文名: "丽江市", adcode: "530700", province: "云南省" },
-    ];
+    const hotCities = hotRegions[0].cities.map((c) => ({ 中文名: c.name, adcode: c.adcode }));
 
     // 原始城市数据加载函数
     const fetchCityData = async () => {
@@ -891,6 +793,9 @@ export default {
       letterNavs,
       citiesContent,
       letterSections,
+      // 热门区域 tabs
+      regions,
+      activeRegionIdx,
       clearSearch,
       debouncedSearch,
       selectCity,
@@ -921,15 +826,40 @@ export default {
   position: relative;
 }
 
-/* 搜索部分 */
-.search-section {
-  display: flex;
-  background: var(--card-bg, #fff);
-  padding: 20px;
-  border-bottom: 1px solid var(--border-color, #ebeef5);
-  z-index: 10;
+/* 英雄横幅（大图） */
+.hero {
   position: relative;
+  height: 260px;
+  overflow: hidden;
 }
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.35)), url('/images/scenarios/weekend_citywalk.jpg');
+  background-size: cover;
+  background-position: center;
+  filter: saturate(1.05);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  text-align: center;
+}
+
+.hero-title { font-size: 32px; font-weight: 700; letter-spacing: 1px; }
+.hero-sub { margin-top: 6px; opacity: 0.9; }
+
+.hero-search { margin-top: 16px; display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.9); border-radius: 12px; padding: 8px; }
+.hero-input { width: 420px; }
+.hero-btn { border-radius: 10px; }
 
 .search-container {
   max-width: 1200px;
@@ -961,6 +891,12 @@ export default {
 .search-input {
   max-width: 500px;
   margin: 0 auto;
+}
+
+.view-toggle {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
 }
 
 .search-input :deep(.el-input__inner) {
@@ -1166,6 +1102,10 @@ export default {
   font-weight: 600;
   display: flex;
   align-items: center;
+  position: sticky; /* 分组标题吸顶 */
+  top: 0;
+  z-index: 2;
+  background: var(--card-bg, #fff);
 }
 
 .hot-icon {
@@ -1174,6 +1114,14 @@ export default {
   font-size: 18px;
   color: #f56c6c;
 }
+
+.region-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.region-tab { padding: 6px 10px; border: 1px solid var(--border-color, #ebeef5); background: var(--btn-bg, #fff); color: var(--text-secondary, #606266); border-radius: 6px; font-size: 12px; }
+.region-tab.active { background: var(--primary-color, #409eff); border-color: var(--primary-color, #409eff); color: #fff; }
+
+.city-tags { display: flex; flex-wrap: wrap; gap: 10px 14px; }
+.city-tag-link { color: #303133; font-size: 14px; padding: 4px 8px; border-radius: 6px; background: #f7f8fa; border: 1px solid var(--border-color, #ebeef5); cursor: pointer; }
+.city-tag-link:hover { background: #ecf5ff; border-color: #b3d8ff; color: #409eff; }
 
 .letter-icon {
   font-style: normal;
@@ -1196,6 +1144,83 @@ export default {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 16px;
+}
+
+/* 卡片视图（主流卡片风格） */
+.dest-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.dest-card {
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--border-color, #ebeef5);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dest-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.dest-cover {
+  position: relative;
+  background: linear-gradient(135deg, #eef2ff, #f8fafc);
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dest-cover-fallback {
+  font-size: 36px;
+  color: var(--text-secondary, #606266);
+  font-weight: 700;
+  opacity: 0.4;
+}
+
+.favorite-btn {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color, #eaeef2);
+  background: rgba(255, 255, 255, 0.85);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary, #606266);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.favorite-btn:hover {
+  transform: scale(1.05);
+}
+
+.favorite-btn.active {
+  background: var(--primary-color, #409eff);
+  color: #fff;
+  border-color: var(--primary-color, #409eff);
+}
+
+.dest-meta {
+  padding: 12px 12px 14px;
+}
+
+.dest-title {
+  font-weight: 600;
+  color: #303133;
+}
+
+.dest-sub {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #909399;
 }
 
 .city-item {
@@ -1255,8 +1280,14 @@ export default {
 
 .city-rows {
   display: grid;
-  grid-template-columns: 1fr; /* 桌面端单列、移动端保持单列；如需双列可调为 1fr 1fr */
+  grid-template-columns: 1fr; /* 默认单列 */
   gap: 6px;
+}
+
+@media (min-width: 992px) {
+  .city-rows {
+    grid-template-columns: 1fr 1fr; /* 桌面端双列，提高信息密度 */
+  }
 }
 
 .city-row {
@@ -1315,6 +1346,17 @@ export default {
   background: var(--primary-color, #409eff);
   border-color: var(--primary-color, #409eff);
   color: #fff;
+  animation: wishlist-pop 120ms ease-out;
+}
+
+.wishlist-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.25);
+}
+
+@keyframes wishlist-pop {
+  0% { transform: scale(0.9); }
+  100% { transform: scale(1); }
 }
 
 .city-tag {
