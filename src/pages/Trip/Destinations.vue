@@ -30,27 +30,22 @@
     <!-- 内容区域 -->
     <div class="cities-content-wrapper">
       <!-- 滚动指示器（隐藏） -->
-      <div class="scroll-indicator" style="display:none">
+      <div class="scroll-indicator" style="display: none">
         {{ activeLetter }}
       </div>
 
       <div ref="citiesContent" class="cities-content">
         <!-- 加载状态 -->
-        <div v-if="loading"
-class="loading-container">
-          <el-skeleton :rows="10"
-animated />
+        <div v-if="loading" class="loading-container">
+          <el-skeleton :rows="10" animated />
         </div>
 
         <!-- 搜索结果 -->
-        <div v-else-if="isSearchMode"
-class="search-results">
+        <div v-else-if="isSearchMode" class="search-results">
           <h2 v-if="searchResults.length > 0">
             搜索结果 ({{ searchResults.length }})
           </h2>
-          <el-empty
-v-else description="未找到匹配的城市，请尝试其他关键词"
-/>
+          <el-empty v-else description="未找到匹配的城市，请尝试其他关键词" />
 
           <!-- 列表视图（默认，仅显示结果，不展示收藏按钮） -->
           <div class="city-rows">
@@ -59,8 +54,7 @@ v-else description="未找到匹配的城市，请尝试其他关键词"
               :key="city.adcode"
               class="city-row"
             >
-              <div class="city-left"
-@click="selectCity(city)">
+              <div class="city-left" @click="selectCity(city)">
                 <span class="city-name">{{ city.中文名 }}</span>
                 <span class="city-province">{{ getProvinceName(city) }}</span>
               </div>
@@ -116,27 +110,27 @@ v-else description="未找到匹配的城市，请尝试其他关键词"
             </div>
             <div class="dest-grid">
               <div
-                v-for="item in seasonalWithMore"
-                :key="item.name || 'more'"
-                :class="['dest-card', { 'more-card': item.isMore }]"
+                v-for="item in seasonalDisplayCities"
+                :key="item.name"
+                class="dest-card"
               >
-                <template v-if="!item.isMore">
-                  <div class="dest-cover" :style="getCoverStyle(item)"></div>
-                  <div class="dest-meta" @click="selectCity({ 中文名: item.name, adcode: item.adcode })">
-                    <div class="dest-title">{{ item.name }}</div>
-                    <div class="dest-sub">{{ item.province || '' }}</div>
-                  </div>
-                </template>
-                <template v-else>
-                  <div class="dest-cover dest-cover-more" @click="goMonthMore">
-                    <span>更多 ›</span>
-                  </div>
-                </template>
+                <div class="dest-cover" :style="getCoverStyle(item)"></div>
+                <div
+                  class="dest-meta"
+                  @click="selectCity({ 中文名: item.name, adcode: item.adcode })"
+                >
+                  <div class="dest-title">{{ item.name }}</div>
+                  <div class="dest-sub">{{ item.province || "" }}</div>
+                </div>
               </div>
             </div>
           </div>
           <!-- 热门目的地（区域 tabs + 城市标签） -->
-          <div v-if="false" id="hot-cities" class="city-section hot-city-section">
+          <div
+            v-if="false"
+            id="hot-cities"
+            class="city-section hot-city-section"
+          >
             <h2><i class="hot-icon">🔥</i> 热门目的地</h2>
             <div class="region-tabs">
               <button
@@ -181,8 +175,7 @@ v-else description="未找到匹配的城市，请尝试其他关键词"
                   'in-wishlist': wishlistStore.isCityInWishlist(city.adcode),
                 }"
               >
-                <div class="city-left"
-@click="selectCity(city)">
+                <div class="city-left" @click="selectCity(city)">
                   <span class="city-name">{{ city.中文名 }}</span>
                   <span class="city-province">{{ getProvinceName(city) }}</span>
                 </div>
@@ -192,7 +185,9 @@ v-else description="未找到匹配的城市，请尝试其他关键词"
                     size="small"
                     circle
                     class="wishlist-toggle"
-                    :class="{ active: wishlistStore.isCityInWishlist(city.adcode) }"
+                    :class="{
+                      active: wishlistStore.isCityInWishlist(city.adcode),
+                    }"
                     :title="
                       wishlistStore.isCityInWishlist(city.adcode)
                         ? '从愿望清单移除'
@@ -214,7 +209,7 @@ v-else description="未找到匹配的城市，请尝试其他关键词"
         </template>
 
         <!-- 导航辅助按钮组（隐藏） -->
-        <div class="nav-assist-buttons" style="display:none;">
+        <div class="nav-assist-buttons" style="display: none">
           <el-tooltip content="热门城市" placement="left" :offset="10">
             <el-button
               class="nav-button hot-button"
@@ -226,8 +221,7 @@ v-else description="未找到匹配的城市，请尝试其他关键词"
             </el-button>
           </el-tooltip>
 
-          <el-backtop target=".cities-content"
-:right="50" :bottom="100">
+          <el-backtop target=".cities-content" :right="50" :bottom="100">
             <div class="back-top">
               <el-icon><Top /></el-icon>
             </div>
@@ -247,7 +241,7 @@ v-else description="未找到匹配的城市，请尝试其他关键词"
       </div>
 
       <!-- 添加快捷字母导航（隐藏） -->
-      <div class="letter-nav" style="display:none;">
+      <div class="letter-nav" style="display: none">
         <div
           class="letter-item special"
           :class="{ active: activeLetter === hotLabel }"
@@ -351,24 +345,17 @@ export default {
       return mapped;
     });
 
-    // 增加“更多”卡片（占位，点击跳转更多页，当前可复用热门或搜索）
-    const seasonalWithMore = computed(() => {
-      const arr = seasonalDisplayCities.value.slice(0, 5); // 显示前5个
-      return [...arr, { isMore: true }];
-    });
-
     function handleMonthHover(m) {
       selectedMonth.value = m;
     }
 
-    function goMonthMore() {
-      // 暂跳到热门区域或触发搜索；此处简化为滚动到顶部
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
     function getCoverStyle(item) {
       return item.cover
-        ? { backgroundImage: `url(${item.cover})`, backgroundSize: "cover", backgroundPosition: "center" }
+        ? {
+            backgroundImage: `url(${item.cover})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }
         : { background: "linear-gradient(135deg, #eef2ff, #f8fafc)" };
     }
 
@@ -376,11 +363,11 @@ export default {
       // 若是具体城市名称（含“市”或英文/拼音），直接进入创建行程，否则跳转二级页
       const isConcreteCity = /市$/.test(name) || /[A-Za-z]/.test(name);
       if (isConcreteCity) {
-        const hit = findCity(name) || { adcode: '', name };
-        selectCity({ 中文名: name, adcode: hit.adcode || '' });
+        const hit = findCity(name) || { adcode: "", name };
+        selectCity({ 中文名: name, adcode: hit.adcode || "" });
       } else {
         // 类似“欧洲/海岛”等分类，跳到二级浏览
-        window.location.href = '/destinations/browse';
+        window.location.href = "/destinations/browse";
       }
     }
 
@@ -420,7 +407,10 @@ export default {
     ];
 
     // 热门城市列表
-    const hotCities = hotRegions[0].cities.map((c) => ({ 中文名: c.name, adcode: c.adcode }));
+    const hotCities = hotRegions[0].cities.map((c) => ({
+      中文名: c.name,
+      adcode: c.adcode,
+    }));
 
     // 原始城市数据加载函数
     const fetchCityData = async () => {
@@ -503,7 +493,7 @@ export default {
 
       // 转换为数组并按字母排序
       return Object.values(groups).sort((a, b) =>
-        a.letter.localeCompare(b.letter),
+        a.letter.localeCompare(b.letter)
       );
     });
 
@@ -800,7 +790,7 @@ export default {
         if (wishlistStore.isCityInWishlist(city.adcode)) {
           // 从愿望清单移除
           const wishlistItem = wishlistStore.getWishlistItemByCityCode(
-            city.adcode,
+            city.adcode
           );
           if (wishlistItem) {
             await wishlistStore.removeFromWishlist(wishlistItem.id);
@@ -829,7 +819,7 @@ export default {
       try {
         // 从热门城市中随机选择未添加的城市
         const availableHotCities = hotCities.filter(
-          (city) => !wishlistStore.isCityInWishlist(city.adcode),
+          (city) => !wishlistStore.isCityInWishlist(city.adcode)
         );
 
         // 从所有城市中随机选择一些有趣的城市
@@ -847,7 +837,7 @@ export default {
         ];
 
         const availableInterestingCities = interestingCities.filter(
-          (city) => !wishlistStore.isCityInWishlist(city.adcode),
+          (city) => !wishlistStore.isCityInWishlist(city.adcode)
         );
 
         // 合并所有可选城市
@@ -864,14 +854,14 @@ export default {
         // 随机选择3-5个城市
         const numToAdd = Math.min(
           Math.floor(Math.random() * 3) + 3,
-          allAvailableCities.length,
+          allAvailableCities.length
         );
         const citiesContainer = [...allAvailableCities];
         const citiesToAdd = [];
 
         for (let i = 0; i < numToAdd; i++) {
           const randomIndex = Math.floor(
-            Math.random() * citiesContainer.length,
+            Math.random() * citiesContainer.length
           );
           citiesToAdd.push(citiesContainer.splice(randomIndex, 1)[0]);
         }
@@ -883,7 +873,7 @@ export default {
             cityName: city.中文名,
             reason: "系统智能推荐",
             tags: ["智能推荐", "精选目的地"],
-          }),
+          })
         );
 
         await Promise.all(addPromises);
@@ -937,9 +927,7 @@ export default {
       months,
       selectedMonth,
       seasonalDisplayCities,
-      seasonalWithMore,
       handleMonthHover,
-      goMonthMore,
       getCoverStyle,
     };
   },
@@ -949,25 +937,34 @@ export default {
 <style scoped>
 /* 整体布局 */
 .destinations {
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 64px);
-  overflow: hidden;
-  background: #f0f2f5;
-  position: relative;
+  position: fixed !important;
+  top: 64px !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: calc(100vh - 64px) !important;
+  margin: 0 !important;
+  padding: 20px !important;
+  background: #f5f7fa !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  z-index: 1 !important;
 }
 
 /* 英雄横幅（大图） */
 .hero {
   position: relative;
-  height: 260px;
+  height: 320px;
   overflow: hidden;
 }
 
 .hero-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.35)), url('/images/scenarios/weekend_citywalk.jpg');
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
+    url("/images/scenarios/weekend_citywalk.jpg");
   background-size: cover;
   background-position: center;
   filter: saturate(1.05);
@@ -985,12 +982,31 @@ export default {
   text-align: center;
 }
 
-.hero-title { font-size: 32px; font-weight: 700; letter-spacing: 1px; }
-.hero-sub { margin-top: 6px; opacity: 0.9; }
+.hero-title {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.hero-sub {
+  margin-top: 6px;
+  opacity: 0.9;
+}
 
-.hero-search { margin-top: 16px; display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.9); border-radius: 12px; padding: 8px; }
-.hero-input { width: 420px; }
-.hero-btn { border-radius: 10px; }
+.hero-search {
+  margin-top: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  padding: 8px;
+}
+.hero-input {
+  width: 420px;
+}
+.hero-btn {
+  border-radius: 10px;
+}
 
 .search-container {
   max-width: 1200px;
@@ -1200,11 +1216,10 @@ export default {
 /* 城市内容区域 */
 .cities-content {
   flex: 1;
-  overflow-y: auto;
-  padding: 20px 60px 20px 20px; /* 增加右侧padding，为字母导航栏留出空间 */
+  padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
-  width: calc(100% - 40px); /* 减去导航栏宽度 */
+  width: 100%;
   box-sizing: border-box;
   scroll-behavior: smooth;
   position: relative;
@@ -1216,7 +1231,7 @@ export default {
 
 /* 城市分组 */
 .city-section {
-  margin-bottom: 24px;
+  margin: 0 0 24px 0; /* 与 Dashboard 版式统一的上下间距 */
   padding: 20px;
   background: var(--card-bg, #fff);
   border-radius: 8px;
@@ -1227,7 +1242,7 @@ export default {
 .city-section h2 {
   font-size: 20px;
   color: #303133;
-  margin: 0 0 15px;
+  margin: 0 0 12px;
   padding-bottom: 10px;
   border-bottom: 1px solid #ebeef5;
   font-weight: 600;
@@ -1246,25 +1261,107 @@ export default {
   color: #f56c6c;
 }
 
-.group-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
-.group-tab { padding: 6px 10px; border: 1px solid var(--border-color, #ebeef5); background: var(--btn-bg, #fff); color: var(--text-secondary, #606266); border-radius: 6px; font-size: 12px; cursor: pointer; }
-.group-tab.active { background: var(--primary-color, #409eff); border-color: var(--primary-color, #409eff); color: #fff; }
-.hot-tags { display: flex; flex-wrap: wrap; gap: 10px 14px; }
-.hot-tag { color: #303133; font-size: 14px; padding: 4px 8px; border-radius: 6px; background: #f7f8fa; border: 1px solid var(--border-color, #ebeef5); cursor: pointer; }
-.hot-tag:hover { background: #ecf5ff; border-color: #b3d8ff; color: #409eff; }
+.group-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.group-tab {
+  padding: 6px 10px;
+  border: 1px solid var(--border-color, #ebeef5);
+  background: var(--btn-bg, #fff);
+  color: var(--text-secondary, #606266);
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.group-tab.active {
+  background: var(--primary-color, #409eff);
+  border-color: var(--primary-color, #409eff);
+  color: #fff;
+}
+.hot-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+}
+.hot-tag {
+  color: #303133;
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #f7f8fa;
+  border: 1px solid var(--border-color, #ebeef5);
+  cursor: pointer;
+}
+.hot-tag:hover {
+  background: #ecf5ff;
+  border-color: #b3d8ff;
+  color: #409eff;
+}
 
-.region-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
-.region-tab { padding: 6px 10px; border: 1px solid var(--border-color, #ebeef5); background: var(--btn-bg, #fff); color: var(--text-secondary, #606266); border-radius: 6px; font-size: 12px; }
-.region-tab.active { background: var(--primary-color, #409eff); border-color: var(--primary-color, #409eff); color: #fff; }
+.region-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.region-tab {
+  padding: 6px 10px;
+  border: 1px solid var(--border-color, #ebeef5);
+  background: var(--btn-bg, #fff);
+  color: var(--text-secondary, #606266);
+  border-radius: 6px;
+  font-size: 12px;
+}
+.region-tab.active {
+  background: var(--primary-color, #409eff);
+  border-color: var(--primary-color, #409eff);
+  color: #fff;
+}
 
-.city-tags { display: flex; flex-wrap: wrap; gap: 10px 14px; }
-.city-tag-link { color: #303133; font-size: 14px; padding: 4px 8px; border-radius: 6px; background: #f7f8fa; border: 1px solid var(--border-color, #ebeef5); cursor: pointer; }
-.city-tag-link:hover { background: #ecf5ff; border-color: #b3d8ff; color: #409eff; }
+.city-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+}
+.city-tag-link {
+  color: #303133;
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #f7f8fa;
+  border: 1px solid var(--border-color, #ebeef5);
+  cursor: pointer;
+}
+.city-tag-link:hover {
+  background: #ecf5ff;
+  border-color: #b3d8ff;
+  color: #409eff;
+}
 
 /* 月份 tabs */
-.month-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-.month-tab { padding: 6px 10px; border: 1px solid var(--border-color, #ebeef5); background: var(--btn-bg, #fff); color: var(--text-secondary, #606266); border-radius: 6px; font-size: 12px; cursor: pointer; }
-.month-tab.active { background: var(--primary-color, #409eff); border-color: var(--primary-color, #409eff); color: #fff; }
+.month-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.month-tab {
+  padding: 6px 10px;
+  border: 1px solid var(--border-color, #ebeef5);
+  background: var(--btn-bg, #fff);
+  color: var(--text-secondary, #606266);
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.month-tab.active {
+  background: var(--primary-color, #409eff);
+  border-color: var(--primary-color, #409eff);
+  color: #fff;
+}
 
 .letter-icon {
   font-style: normal;
@@ -1292,8 +1389,8 @@ export default {
 /* 卡片视图（主流卡片风格） */
 .dest-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
 }
 
 .dest-card {
@@ -1301,7 +1398,9 @@ export default {
   border: 1px solid var(--border-color, #ebeef5);
   border-radius: 10px;
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .dest-card:hover {
@@ -1312,7 +1411,7 @@ export default {
 .dest-cover {
   position: relative;
   background: linear-gradient(135deg, #eef2ff, #f8fafc);
-  height: 150px;
+  height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1325,8 +1424,17 @@ export default {
   opacity: 0.4;
 }
 
-.dest-cover-more { display: flex; align-items: center; justify-content: center; color: #fff; background: linear-gradient(135deg, #3b82f6, #60a5fa); }
-.more-card span { font-weight: 600; letter-spacing: 1px; }
+.dest-cover-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+}
+.more-card span {
+  font-weight: 600;
+  letter-spacing: 1px;
+}
 
 .favorite-btn {
   position: absolute;
@@ -1341,7 +1449,9 @@ export default {
   align-items: center;
   justify-content: center;
   color: var(--text-secondary, #606266);
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 .favorite-btn:hover {
@@ -1374,8 +1484,10 @@ export default {
   transition: all 0.3s;
 }
 
-  /* 旧卡片样式（不再使用） */
-  .city-card { display: none; }
+/* 旧卡片样式（不再使用） */
+.city-card {
+  display: none;
+}
 
 .city-card:hover {
 }
@@ -1499,8 +1611,12 @@ export default {
 }
 
 @keyframes wishlist-pop {
-  0% { transform: scale(0.9); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .city-tag {

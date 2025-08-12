@@ -2,14 +2,10 @@
   <div class="home-page">
     <!-- 快捷操作 -->
     <section class="quick-actions">
-      <h3 class="section-title">
-快捷操作
-</h3>
+      <h3 class="section-title">快捷操作</h3>
       <div class="action-grid">
         <!-- 仅保留 AI 行程生成入口：直接进入创建流程 -->
-        <div
-class="action-card" @click="goToCreate"
->
+        <div class="action-card" @click="goToCreate">
           <div class="action-icon violet">
             <el-icon size="24">
               <Cpu />
@@ -22,20 +18,13 @@ class="action-card" @click="goToCreate"
     </section>
 
     <!-- 继续未完成进度 -->
-    <section
-v-if="hasProgress" class="progress-section"
->
-      <el-card
-class="progress-card" shadow="hover"
->
+    <section v-if="hasProgress" class="progress-section">
+      <el-card class="progress-card" shadow="hover">
         <div class="progress-content">
           <div class="progress-texts">
             <h4>继续未完成的行程</h4>
             <p class="progress-desc">
-              <el-tag
-size="small" type="info"
-effect="plain"
->
+              <el-tag size="small" type="info" effect="plain">
                 {{ progressSummary.destination || "无" }}
               </el-tag>
               <span class="dot" />
@@ -45,17 +34,8 @@ effect="plain"
             </p>
           </div>
           <div class="progress-actions">
-            <el-button type="primary"
-@click="resumeProgress"
->
-继续
-</el-button>
-            <el-button
-type="danger" plain
-@click="discardProgress"
->
-              舍弃
-            </el-button>
+            <el-button type="primary" @click="resumeProgress"> 继续 </el-button>
+            <el-button type="danger" plain @click="discardProgress"> 舍弃 </el-button>
           </div>
         </div>
       </el-card>
@@ -63,9 +43,7 @@ type="danger" plain
 
     <!-- AI 场景推荐（4条） -->
     <section class="templates-section">
-      <h3 class="section-title">
-推荐场景
-</h3>
+      <h3 class="section-title">推荐场景</h3>
       <div class="tpl-grid">
         <div
           v-for="sc in scenarios.slice(0, 4)"
@@ -94,14 +72,9 @@ type="danger" plain
     <!-- 我的行程 -->
     <section class="my-trips-section">
       <div class="section-header">
-        <h3 class="section-title">
-我的行程
-</h3>
+        <h3 class="section-title">我的行程</h3>
         <div class="header-actions">
-          <el-segmented
-v-model="tripTab" :options="tripTabs"
-size="small"
-/>
+          <el-segmented v-model="tripTab" :options="tripTabs" size="small" />
         </div>
         <el-button
           size="small"
@@ -115,9 +88,7 @@ size="small"
         </el-button>
       </div>
 
-      <div
-v-if="displayTrips.length > 0" class="trips-grid"
->
+      <div v-if="displayTrips.length > 0" class="trips-grid">
         <div
           v-for="trip in displayTrips"
           :key="trip.id"
@@ -129,12 +100,7 @@ v-if="displayTrips.length > 0" class="trips-grid"
           <div class="trip-header">
             <h4>{{ trip.title }}</h4>
             <div class="trip-tags">
-              <el-tag
-                v-if="trip.aiGenerated"
-                type="primary"
-                size="small"
-                class="ai-tag"
-              >
+              <el-tag v-if="trip.aiGenerated" type="primary" size="small" class="ai-tag">
                 AI生成
               </el-tag>
               <el-tag
@@ -144,8 +110,8 @@ v-if="displayTrips.length > 0" class="trips-grid"
                       ? 'info'
                       : 'warning'
                     : trip.status === 'draft'
-                      ? 'info'
-                      : 'success'
+                    ? 'info'
+                    : 'success'
                 "
                 size="small"
                 :effect="trip.isDraft ? 'plain' : 'dark'"
@@ -156,8 +122,8 @@ v-if="displayTrips.length > 0" class="trips-grid"
                       ? "自动保存"
                       : "草稿"
                     : trip.status === "draft"
-                      ? "草稿"
-                      : "已完成"
+                    ? "草稿"
+                    : "已完成"
                 }}
               </el-tag>
             </div>
@@ -169,9 +135,7 @@ v-if="displayTrips.length > 0" class="trips-grid"
             <div class="trip-detail">
               <el-icon><Calendar /></el-icon><span>{{ trip.days }}天</span>
             </div>
-            <div
-v-if="trip.isDraft" class="trip-detail"
->
+            <div v-if="trip.isDraft" class="trip-detail">
               <el-icon><List /></el-icon>
               <span>{{ getStepName(trip.currentStep) }}</span>
             </div>
@@ -190,32 +154,17 @@ v-if="trip.isDraft" class="trip-detail"
                 <el-icon><EditPen /></el-icon>
                 继续编辑
               </el-button>
-              <el-button
-                size="small"
-                type="danger"
-                plain
-                @click.stop="deleteTrip(trip)"
-              >
+              <el-button size="small" type="danger" plain @click.stop="deleteTrip(trip)">
                 <el-icon><Delete /></el-icon>
                 删除
               </el-button>
             </template>
             <template v-else>
               <!-- 真实行程操作 -->
-              <el-button
-                size="small"
-                type="primary"
-                plain
-                @click.stop="editTrip(trip)"
-              >
+              <el-button size="small" type="primary" plain @click.stop="editTrip(trip)">
                 编辑
               </el-button>
-              <el-button
-                size="small"
-                type="danger"
-                plain
-                @click.stop="deleteTrip(trip)"
-              >
+              <el-button size="small" type="danger" plain @click.stop="deleteTrip(trip)">
                 删除
               </el-button>
             </template>
@@ -223,20 +172,12 @@ v-if="trip.isDraft" class="trip-detail"
         </div>
       </div>
 
-      <div
-v-else class="no-trips"
->
-        <el-icon
-size="48" color="#C0C4CC"
->
+      <div v-else class="no-trips">
+        <el-icon size="48" color="#C0C4CC">
           <DocumentCopy />
         </el-icon>
         <p>暂无行程</p>
-        <el-button type="primary"
-@click="goToCreate"
->
-立即创建
-</el-button>
+        <el-button type="primary" @click="goToCreate"> 立即创建 </el-button>
       </div>
     </section>
 
@@ -248,9 +189,7 @@ size="48" color="#C0C4CC"
     <!-- 天气速览 -->
     <section class="weather-section">
       <div class="weather-header">
-        <h3 class="section-title">
-天气预览
-</h3>
+        <h3 class="section-title">天气预览</h3>
         <div v-if="wishlistStore.hasCities" class="weather-controls">
           <el-button
             size="small"
@@ -274,20 +213,12 @@ size="48" color="#C0C4CC"
           </el-button>
         </div>
       </div>
-      <el-card
-v-if="weather" class="weather-card"
-shadow="hover"
->
+      <el-card v-if="weather" class="weather-card" shadow="hover">
         <div class="weather-top">
           <div class="w-left">
             <div class="w-city">
               {{ weather.city }}
-              <el-tag
-                v-if="isWishlistWeather"
-                size="small"
-                type="success"
-                effect="plain"
-              >
+              <el-tag v-if="isWishlistWeather" size="small" type="success" effect="plain">
                 愿望清单
               </el-tag>
             </div>
@@ -318,16 +249,12 @@ shadow="hover"
           </div>
         </div>
       </el-card>
-      <el-empty
-v-else description="暂无天气信息"
-/>
+      <el-empty v-else description="暂无天气信息" />
     </section>
 
     <!-- 公告/发现 -->
     <section class="ann-section">
-      <h3 class="section-title">
-公告通知
-</h3>
+      <h3 class="section-title">公告通知</h3>
       <div class="ann-list">
         <el-empty v-if="announcements.length === 0" description="暂无公告" />
         <el-alert
@@ -441,7 +368,7 @@ export default {
             confirmButtonText: "确定删除",
             cancelButtonText: "取消",
             type: "warning",
-          },
+          }
         );
 
         const success = await draftManager.deleteDraft(draftId);
@@ -501,15 +428,11 @@ export default {
     };
     const discardProgress = async () => {
       try {
-        await ElMessageBox.confirm(
-          "确定要舍弃当前进度吗？此操作无法撤销。",
-          "警告",
-          {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning",
-          },
-        );
+        await ElMessageBox.confirm("确定要舍弃当前进度吗？此操作无法撤销。", "警告", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        });
 
         // 删除自动草稿
         const autoDraft = await draftManager.getAutoDraft();
@@ -575,7 +498,7 @@ export default {
       list.sort(
         (a, b) =>
           new Date(b.updatedAt || b.createdAt || 0) -
-          new Date(a.updatedAt || a.createdAt || 0),
+          new Date(a.updatedAt || a.createdAt || 0)
       );
       return list.slice(0, 8);
     });
@@ -628,15 +551,11 @@ export default {
         }
 
         // 这是一个真实行程，调用后端API
-        await ElMessageBox.confirm(
-          "确定要删除这个行程吗？删除后无法恢复。",
-          "删除行程",
-          {
-            confirmButtonText: "删除",
-            cancelButtonText: "取消",
-            type: "warning",
-          },
-        );
+        await ElMessageBox.confirm("确定要删除这个行程吗？删除后无法恢复。", "删除行程", {
+          confirmButtonText: "删除",
+          cancelButtonText: "取消",
+          type: "warning",
+        });
         if (!userStore.currentUser?.id) {
           ElMessage.error("请先登录");
           return;
@@ -655,7 +574,7 @@ export default {
     const loadWeatherForCity = async (
       cityName,
       cityCode = null,
-      fromWishlist = false,
+      fromWishlist = false
     ) => {
       if (!cityName) return;
 
@@ -666,7 +585,7 @@ export default {
         const ws = await weatherApi.getWeatherSuggestions(
           cityCode || cityName,
           new Date(),
-          3,
+          3
         );
         weather.value = ws;
         console.log(`✅ 天气数据加载成功: ${cityName}`);
@@ -686,11 +605,7 @@ export default {
 
       const randomCity = wishlistStore.getRandomCity;
       if (randomCity) {
-        await loadWeatherForCity(
-          randomCity.cityName,
-          randomCity.cityCode,
-          true,
-        );
+        await loadWeatherForCity(randomCity.cityName, randomCity.cityCode, true);
         wishlistStore.setCurrentWeatherCity(randomCity);
         ElMessage.success(`已切换到 ${randomCity.cityName} 的天气`);
       }
@@ -745,17 +660,12 @@ export default {
       if (wishlistStore.hasCities) {
         const randomCity = wishlistStore.getRandomCity;
         if (randomCity) {
-          await loadWeatherForCity(
-            randomCity.cityName,
-            randomCity.cityCode,
-            true,
-          );
+          await loadWeatherForCity(randomCity.cityName, randomCity.cityCode, true);
           wishlistStore.setCurrentWeatherCity(randomCity);
         }
       } else {
         const city =
-          progressSummary.value?.destination ||
-          savedTrips.value[0]?.destinationName;
+          progressSummary.value?.destination || savedTrips.value[0]?.destinationName;
         if (city) {
           await loadWeatherForCity(city, null, false);
         }
@@ -772,9 +682,7 @@ export default {
 
     // 应用模板/场景：通过 query 传递预填信息到创建页
     const applyScenario = (sc) => {
-      const preset = encodeURIComponent(
-        JSON.stringify({ type: "scenario", id: sc.id }),
-      );
+      const preset = encodeURIComponent(JSON.stringify({ type: "scenario", id: sc.id }));
       // 若场景自带城市，则直达创建页；否则先选目的地
       if (sc.city && sc.city.adcode && sc.city.name) {
         router.push({
@@ -1068,11 +976,7 @@ export default {
 .tpl-cover-mask {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0) 30%,
-    rgba(0, 0, 0, 0.45) 100%
-  );
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0.45) 100%);
 }
 .tpl-cover-text {
   position: absolute;
