@@ -8,15 +8,10 @@
             <el-icon><Star /></el-icon>
             我的愿望清单
           </h1>
-          <p class="page-subtitle">
-            收集你想去的目的地，让旅行灵感永不枯竭
-          </p>
+          <p class="page-subtitle">收集你想去的目的地，让旅行灵感永不枯竭</p>
         </div>
 
-        <div
-          v-if="wishlistStore.wishlistCount > 0"
-          class="header-stats"
-        >
+        <div v-if="wishlistStore.wishlistCount > 0" class="header-stats">
           <div class="stat-item">
             <span class="stat-number">{{ wishlistStore.wishlistCount }}</span>
             <span class="stat-label">个城市</span>
@@ -32,21 +27,14 @@
     <!-- 愿望清单内容 -->
     <div class="page-content">
       <!-- 地图预览区域 -->
-      <div
-        v-if="wishlistStore.hasCities"
-        class="map-section"
-      >
+      <div v-if="wishlistStore.hasCities" class="map-section">
         <div class="map-header">
           <h3 class="map-title">
             <el-icon><MapLocation /></el-icon>
             愿望地图
           </h3>
           <div class="map-controls">
-            <el-button
-              size="small"
-              type="primary"
-              disabled
-            >
+            <el-button size="small" type="primary" disabled>
               <el-icon><View /></el-icon>
               全屏查看
             </el-button>
@@ -55,46 +43,22 @@
 
         <div class="map-container">
           <div class="map-placeholder">
-            <el-icon
-              size="48"
-              color="#91a8d0"
-            >
+            <el-icon size="48" color="#91a8d0">
               <MapLocation />
             </el-icon>
             <h4>中国愿望地图</h4>
             <p>即将上线，敬请期待</p>
             <div class="coming-soon-features">
-              <el-tag
-                effect="plain"
-                type="info"
-              >
-                点亮访问过的城市
-              </el-tag>
-              <el-tag
-                effect="plain"
-                type="info"
-              >
-                一键规划旅行路线
-              </el-tag>
-              <el-tag
-                effect="plain"
-                type="info"
-              >
-                分享你的足迹
-              </el-tag>
+              <el-tag effect="plain" type="info"> 点亮访问过的城市 </el-tag>
+              <el-tag effect="plain" type="info"> 一键规划旅行路线 </el-tag>
+              <el-tag effect="plain" type="info"> 分享你的足迹 </el-tag>
             </div>
           </div>
         </div>
       </div>
 
-      <div
-        v-loading="wishlistStore.loading"
-        class="wishlist-content"
-      >
-        <div
-          v-if="wishlistStore.hasCities"
-          class="wishlist-grid"
-        >
+      <div v-loading="wishlistStore.loading" class="wishlist-content">
+        <div v-if="wishlistStore.hasCities" class="wishlist-grid">
           <WishlistCard
             v-for="item in sortedWishlistItems"
             :key="item.id"
@@ -108,24 +72,15 @@
         </div>
 
         <!-- 空状态 -->
-        <div
-          v-else
-          class="empty-wishlist"
-        >
-          <el-icon
-            size="64"
-            color="#C0C4CC"
-          >
+        <div v-else class="empty-wishlist">
+          <el-icon size="64" color="#C0C4CC">
             <Star />
           </el-icon>
           <h4>还没有心仪的目的地</h4>
           <p>添加你想去的城市，让旅行灵感永不枯竭</p>
 
           <div class="empty-actions">
-            <el-button
-              type="primary"
-              @click="showQuickAdd = true"
-            >
+            <el-button type="primary" @click="showQuickAdd = true">
               <el-icon><Plus /></el-icon>
               添加第一个城市
             </el-button>
@@ -150,7 +105,6 @@
     <!-- 快速添加对话框 -->
     <el-dialog
       v-model="showQuickAdd"
-      title=""
       width="480px"
       :before-close="handleQuickAddClose"
       class="wishlist-add-dialog"
@@ -170,11 +124,7 @@
           </div>
         </div>
 
-        <el-form
-          :model="quickAddForm"
-          label-position="top"
-          class="add-form"
-        >
+        <el-form :model="quickAddForm" label-position="top" class="add-form">
           <el-form-item label="选择城市">
             <el-select
               v-model="quickAddForm.selectedCity"
@@ -208,7 +158,9 @@
               </el-option-group>
 
               <div
-                v-if="displayCities.length === 0 && searchKeyword && !searchLoading"
+                v-if="
+                  displayCities.length === 0 && searchKeyword && !searchLoading
+                "
                 class="no-results"
               >
                 <el-icon><Search /></el-icon>
@@ -217,10 +169,7 @@
             </el-select>
           </el-form-item>
 
-          <el-form-item
-            label="选择标签"
-            class="tags-form-item"
-          >
+          <el-form-item label="选择标签" class="tags-form-item">
             <div class="tags-selection">
               <div class="predefined-tags">
                 <el-check-tag
@@ -237,10 +186,7 @@
             </div>
           </el-form-item>
 
-          <el-form-item
-            label="想去的原因"
-            class="reason-form-item"
-          >
+          <el-form-item label="想去的原因" class="reason-form-item">
             <el-input
               v-model="quickAddForm.reason"
               type="textarea"
@@ -271,7 +217,7 @@
               <el-icon v-if="!quickAdding">
                 <Plus />
               </el-icon>
-              {{ quickAdding ? '添加中...' : '添加到心愿单' }}
+              {{ quickAdding ? "添加中..." : "添加到心愿单" }}
             </el-button>
           </div>
         </el-form>
@@ -347,7 +293,7 @@ export default {
     // 排序后的愿望清单
     const sortedWishlistItems = computed(() => {
       return [...wishlistStore.wishlistItems].sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
     });
 
@@ -436,7 +382,7 @@ export default {
           "乌鲁木齐市",
         ];
         hotCities.value = cities.filter((city) =>
-          hotCityNames.includes(city.中文名),
+          hotCityNames.includes(city.中文名)
         );
       } catch (error) {
         console.error("加载城市数据失败:", error);
@@ -491,7 +437,7 @@ export default {
     // 处理城市选择
     const handleCitySelect = (cityAdcode) => {
       const selectedCity = allCities.value.find(
-        (city) => city.adcode === cityAdcode,
+        (city) => city.adcode === cityAdcode
       );
       if (selectedCity) {
         quickAddForm.value.cityName = selectedCity.中文名;
@@ -524,7 +470,7 @@ export default {
       }
 
       const selectedCity = allCities.value.find(
-        (city) => city.adcode === quickAddForm.value.selectedCity,
+        (city) => city.adcode === quickAddForm.value.selectedCity
       );
       if (!selectedCity) {
         ElMessage.warning("请选择有效的城市");
@@ -981,7 +927,18 @@ export default {
 }
 
 .wishlist-add-dialog .el-dialog__header {
-  display: none; /* 隐藏默认标题，使用自定义头部 */
+  background: none !important;
+  border-bottom: none !important;
+  padding: 16px 20px 0 20px !important;
+}
+
+.wishlist-add-dialog .el-dialog__title {
+  display: none; /* 隐藏标题文本，保留关闭按钮 */
+}
+
+.wishlist-add-dialog .el-dialog__headerbtn {
+  top: 16px !important;
+  right: 16px !important;
 }
 
 .wishlist-add-dialog .el-dialog__body {
@@ -1087,7 +1044,6 @@ export default {
 .city-code {
   font-size: 12px;
   color: #9ca3af;
-  background: #f3f4f6;
   padding: 2px 6px;
   border-radius: 6px;
 }

@@ -344,6 +344,12 @@
   border-bottom: 1px solid rgba(145, 168, 208, 0.1) !important;
 }
 
+/* 愿望清单对话框例外 - 不使用全局样式 */
+.wishlist-add-dialog .el-dialog__header {
+  background: none !important;
+  border-bottom: none !important;
+}
+
 .el-dialog__title {
   color: #91A8D0 !important;
 }
