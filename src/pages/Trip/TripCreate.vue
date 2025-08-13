@@ -278,7 +278,7 @@ v-else class="draft-grid"
                 <el-dropdown trigger="click"
 @command="handleDraftAction">
                   <el-button
-type="text" size="small"
+link size="small"
 class="draft-menu-btn"
 >
                     <el-icon><MoreFilled /></el-icon>
@@ -1232,8 +1232,12 @@ export default {
   max-width: 500px;
   width: 100%;
   border-radius: 16px;
-  border: 2px solid #f56c6c;
-  background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
+  border: 2px solid #f7cac9;
+  background: linear-gradient(
+    135deg,
+    rgba(247, 202, 201, 0.1) 0%,
+    #ffffff 100%
+  );
 }
 
 .notice-card :deep(.el-card__body) {
@@ -1247,6 +1251,7 @@ export default {
 .notice-icon {
   margin-bottom: 24px;
   animation: bounce 2s infinite;
+  color: #91a8d0;
 }
 
 @keyframes bounce {
@@ -1266,7 +1271,7 @@ export default {
 }
 
 .notice-content h2 {
-  color: #f56c6c;
+  color: #91a8d0;
   font-size: 24px;
   font-weight: 600;
   margin: 0 0 16px 0;
@@ -1295,7 +1300,7 @@ export default {
 
 .notice-actions .el-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(64, 158, 255, 0.3);
+  box-shadow: 0 8px 20px rgba(145, 168, 208, 0.3);
 }
 
 /* 移动端适配 */
@@ -1372,7 +1377,7 @@ export default {
   transform: translateX(-50%);
   width: 40px;
   height: 3px;
-  background-color: #409eff;
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
   border-radius: 3px;
 }
 
@@ -1484,8 +1489,8 @@ export default {
 }
 
 .draft-item:hover {
-  border-color: #409eff;
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
+  border-color: #91a8d0;
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15);
   transform: translateY(-2px);
 }
 
@@ -1523,7 +1528,7 @@ export default {
 }
 
 .draft-menu-btn:hover {
-  color: #409eff;
+  color: #91a8d0;
 }
 
 .draft-info {

@@ -4,7 +4,7 @@
     <div class="page-header">
       <div class="header-left">
         <el-button
-type="text" @click="goBack"
+link @click="goBack"
 class="back-btn"
 >
           <el-icon><ArrowLeft /></el-icon>
@@ -50,7 +50,7 @@ v-else-if="tripData && tripData.id" class="ai-trip-display"
           <div class="trip-title-section">
             <div class="title-with-icon">
               <el-icon
-class="ai-icon" color="#409eff"
+class="ai-icon" color="#91A8D0"
 >
                 <Cpu />
               </el-icon>
@@ -76,7 +76,7 @@ v-if="isReadOnly" class="trip-main-title"
           <div class="trip-stats">
             <div class="stat-card">
               <div class="stat-icon">
-                <el-icon color="#409eff">
+                <el-icon color="#91A8D0">
                   <Calendar />
                 </el-icon>
               </div>
@@ -100,7 +100,7 @@ class="stat-number">
             </div>
             <div class="stat-card">
               <div class="stat-icon">
-                <el-icon color="#67c23a">
+                <el-icon color="#91A8D0">
                   <User />
                 </el-icon>
               </div>
@@ -124,7 +124,7 @@ class="stat-number">
             </div>
             <div class="stat-card">
               <div class="stat-icon">
-                <el-icon color="#e6a23c">
+                <el-icon color="#7CB342">
                   <Trophy />
                 </el-icon>
               </div>
@@ -139,7 +139,7 @@ class="stat-number">
             </div>
             <div class="stat-card">
               <div class="stat-icon">
-                <el-icon color="#f56c6c">
+                <el-icon color="#96ACD2">
                   <Timer />
                 </el-icon>
               </div>
@@ -252,10 +252,10 @@ v-if="!isReadOnly" class="editor-tabs"
           <el-radio-group
 v-model="editMode" class="edit-mode-selector"
 >
-            <el-radio-button label="preview">
+            <el-radio-button value="preview">
 预览模式
 </el-radio-button>
-            <el-radio-button label="markdown">
+            <el-radio-button value="markdown">
 Markdown编辑
 </el-radio-button>
           </el-radio-group>
@@ -689,7 +689,7 @@ const formatProcessingTime = (time) => {
 }
 
 .back-btn:hover {
-  color: #409eff;
+  color: #91a8d0;
 }
 
 .header-actions {
@@ -747,7 +747,7 @@ const formatProcessingTime = (time) => {
 
 .ai-icon {
   font-size: 32px;
-  color: #667eea;
+  color: #91a8d0;
 }
 
 .trip-main-title {
@@ -800,7 +800,7 @@ const formatProcessingTime = (time) => {
 .stat-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-color: #667eea;
+  border-color: #91a8d0;
 }
 
 .stat-icon {
@@ -812,7 +812,7 @@ const formatProcessingTime = (time) => {
   background: #f7fafc;
   border-radius: 8px;
   font-size: 24px;
-  color: #667eea;
+  color: #91a8d0;
   border: 1px solid #e2e8f0;
 }
 
@@ -898,9 +898,9 @@ const formatProcessingTime = (time) => {
 
 .edit-mode-selector
   :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
-  background: #667eea;
+  background: #91a8d0;
   color: white;
-  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 4px rgba(145, 168, 208, 0.3);
 }
 
 /* Markdown内容样式 */
@@ -950,7 +950,7 @@ const formatProcessingTime = (time) => {
   padding: 16px 20px;
   background: #f8fafc;
   border-radius: 8px;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #91a8d0;
   margin: 28px 0 20px 0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
@@ -968,7 +968,7 @@ const formatProcessingTime = (time) => {
 
 .markdown-content :deep(h5) {
   font-size: 15px;
-  color: #667eea;
+  color: #91a8d0;
   font-weight: 600;
   margin: 20px 0 12px 0;
   padding: 0;
@@ -1027,14 +1027,14 @@ const formatProcessingTime = (time) => {
   margin-top: auto;
   border-radius: 4px;
   font-weight: 500;
-  color: #667eea;
+  color: #91a8d0;
   border: 1px solid #e2e8f0;
 }
 
 /* 专门针对时间段的样式 */
 .markdown-content :deep(.trip-highlight.time-range) {
   background: #f8fafc;
-  color: #667eea;
+  color: #91a8d0;
   border: 1px solid #e2e8f0;
   font-weight: 600;
   padding: 2px 10px;
@@ -1145,7 +1145,7 @@ const formatProcessingTime = (time) => {
 
 .header-icon {
   font-size: 18px;
-  color: #667eea;
+  color: #91a8d0;
 }
 
 .budget-unit {
@@ -1215,8 +1215,8 @@ const formatProcessingTime = (time) => {
 }
 
 .content-textarea :deep(.el-textarea__inner):focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #91a8d0;
+  box-shadow: 0 0 0 3px rgba(145, 168, 208, 0.1);
 }
 
 .no-data {

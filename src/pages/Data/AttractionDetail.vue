@@ -7,7 +7,7 @@
 
     <div class="coming-soon-card">
       <el-icon size="64"
-color="#409EFF">
+color="#91A8D0">
         <Camera />
       </el-icon>
       <h3>景点详情功能开发中</h3>
@@ -97,7 +97,7 @@ export default {
 }
 
 .stay-tuned {
-  color: #409eff;
+  color: #91a8d0;
   font-weight: 500;
   font-size: 16px;
 }

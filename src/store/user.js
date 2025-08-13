@@ -431,60 +431,156 @@ export const useUserStore = defineStore("user", {
       }
     },
 
-    // ========== 本地存储管理 ==========
+    // ========== 设置管理方法 ==========
     /**
-     * 保存状态到本地存储
+     * 更新用户基本资料
+     * @param {Object} profileData 基本资料数据
      */
-    saveToStorage() {
-      const userData = {
-        isLoggedIn: this.isLoggedIn,
-        currentUser: this.currentUser,
-        userPreferences: this.userPreferences,
-        token: this.token,
-      };
-      localStorage.setItem("goingtour_user", JSON.stringify(userData));
-    },
+    async updateProfile(profileData) {
+      if (!this.currentUser?.id) {
+        throw new Error("用户未登录");
+      }
 
-    /**
-     * 从本地存储恢复状态
-     */
-    restoreFromStorage() {
       try {
-        const userData = localStorage.getItem("goingtour_user");
-        if (userData) {
-          const parsedData = JSON.parse(userData);
-          this.isLoggedIn = parsedData.isLoggedIn || false;
-          this.currentUser = parsedData.currentUser || null;
-          this.userPreferences = parsedData.userPreferences || {
-            tags: [],
-            budget: 500,
-          };
-          this.token = parsedData.token || null;
-        }
+        // TODO: 调用后端API更新用户基本信息
+        // const response = await userApi.updateProfile(this.currentUser.id, profileData)
+
+        // 暂时模拟更新本地状态
+        this.currentUser = {
+          ...this.currentUser,
+          ...profileData,
+        };
+
+        this.saveToStorage();
+        console.log("✅ 用户基本资料更新成功:", profileData);
+        return this.currentUser;
       } catch (error) {
-        console.warn("恢复用户数据失败:", error);
-        // 清空可能损坏的数据
-        localStorage.removeItem("goingtour_user");
+        console.error("更新用户基本资料失败:", error);
+        throw error;
       }
     },
 
-    // ========== 路由重定向管理 ==========
     /**
-     * 设置登录后重定向路径
-     * @param {string} path 重定向路径
+     * 更新用户旅行偏好
+     * @param {Object} preferences 偏好设置数据
      */
-    setRedirectPath(path) {
-      this.redirectPath = path;
+    async updatePreferences(preferences) {
+      if (!this.currentUser?.id) {
+        throw new Error("用户未登录");
+      }
+
+      try {
+        // TODO: 调用后端API更新用户偏好设置
+        // const response = await userApi.updatePreferences(this.currentUser.id, preferences)
+
+        // 更新本地状态
+        this.userPreferences = {
+          ...this.userPreferences,
+          ...preferences,
+        };
+
+        // 更新用户对象中的偏好信息
+        if (this.currentUser) {
+          this.currentUser.preferences = JSON.stringify(preferences);
+        }
+
+        this.saveToStorage();
+        console.log("✅ 用户偏好设置更新成功:", preferences);
+        return this.userPreferences;
+      } catch (error) {
+        console.error("更新用户偏好设置失败:", error);
+        throw error;
+      }
     },
 
     /**
-     * 获取并清空重定向路径
-     * @returns {string|null} 重定向路径
+     * 更新用户通知设置
+     * @param {Object} notificationSettings 通知设置数据
      */
-    getAndClearRedirectPath() {
-      const path = this.redirectPath;
-      this.redirectPath = null;
-      return path;
+    async updateNotificationSettings(notificationSettings) {
+      if (!this.currentUser?.id) {
+        throw new Error("用户未登录");
+      }
+
+      try {
+        // TODO: 调用后端API更新通知设置
+        // const response = await userApi.updateNotificationSettings(this.currentUser.id, notificationSettings)
+
+        // 更新本地状态
+        if (this.currentUser) {
+          this.currentUser.notificationSettings = {
+            ...this.currentUser.notificationSettings,
+            ...notificationSettings,
+          };
+        }
+
+        this.saveToStorage();
+        console.log("✅ 用户通知设置更新成功:", notificationSettings);
+        return notificationSettings;
+      } catch (error) {
+        console.error("更新用户通知设置失败:", error);
+        throw error;
+      }
+    },
+
+    /**
+     * 更新用户隐私设置
+     * @param {Object} privacySettings 隐私设置数据
+     */
+    async updatePrivacySettings(privacySettings) {
+      if (!this.currentUser?.id) {
+        throw new Error("用户未登录");
+      }
+
+      try {
+        // TODO: 调用后端API更新隐私设置
+        // const response = await userApi.updatePrivacySettings(this.currentUser.id, privacySettings)
+
+        // 更新本地状态
+        if (this.currentUser) {
+          this.currentUser.privacySettings = {
+            ...this.currentUser.privacySettings,
+            ...privacySettings,
+          };
+        }
+
+        this.saveToStorage();
+        console.log("✅ 用户隐私设置更新成功:", privacySettings);
+        return privacySettings;
+      } catch (error) {
+        console.error("更新用户隐私设置失败:", error);
+        throw error;
+      }
+    },
+
+    /**
+     * 更新用户安全设置
+     * @param {Object} securitySettings 安全设置数据
+     */
+    async updateSecuritySettings(securitySettings) {
+      if (!this.currentUser?.id) {
+        throw new Error("用户未登录");
+      }
+
+      try {
+        // TODO: 调用后端API更新安全设置
+        // const response = await userApi.updateSecuritySettings(this.currentUser.id, securitySettings)
+
+        // 更新本地状态
+        if (this.currentUser) {
+          this.currentUser.securitySettings = {
+            ...this.currentUser.securitySettings,
+            ...securitySettings,
+          };
+        }
+
+        this.saveToStorage();
+        console.log("✅ 用户安全设置更新成功:", securitySettings);
+        return securitySettings;
+      } catch (error) {
+        console.error("更新用户安全设置失败:", error);
+        throw error;
+      }
     },
 
     // ========== 本地存储管理 ==========

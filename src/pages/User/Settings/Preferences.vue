@@ -1304,10 +1304,10 @@ export default {
   display: flex;
   align-items: center;
   gap: 16px;
-  background: #ecf5ff;
+  background: rgba(247, 202, 201, 0.08);
   border-radius: 10px;
   padding: 16px;
-  border: 1px solid #dcdfe6;
+  border: 1px solid rgba(145, 168, 208, 0.2);
   flex: 1;
   min-width: 300px;
 }
@@ -1343,14 +1343,14 @@ export default {
 }
 
 .mbti-option:hover {
-  background-color: #e6f7ff;
-  color: #409eff;
+  background-color: rgba(247, 202, 201, 0.1);
+  color: #91a8d0;
 }
 
 .mbti-option .mbti-code {
   font-size: 14px;
   font-weight: 600;
-  color: #409eff;
+  color: #91a8d0;
 }
 
 .mbti-option .mbti-name {
@@ -1373,7 +1373,7 @@ export default {
 .budget-amount {
   font-size: 32px;
   font-weight: 600;
-  color: #667eea;
+  color: #91a8d0;
 }
 
 .budget-unit {
@@ -1415,22 +1415,22 @@ export default {
 }
 
 .transport-card:hover {
-  border-color: #409eff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #91a8d0;
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15);
   transform: translateY(-2px);
 }
 
 .transport-card.is-selected {
-  border-color: #409eff;
-  background-color: #ecf5ff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #91a8d0;
+  background-color: rgba(247, 202, 201, 0.08);
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15);
 }
 
 .transport-icon {
   width: 36px;
   height: 36px;
   margin-bottom: 12px;
-  color: #409eff;
+  color: #91a8d0;
 }
 
 .transport-label {
@@ -1472,22 +1472,22 @@ export default {
 }
 
 .accommodation-card:hover {
-  border-color: #409eff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #91a8d0;
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15);
   transform: translateY(-2px);
 }
 
 .accommodation-card.is-selected {
-  border-color: #409eff;
-  background-color: #ecf5ff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #91a8d0;
+  background-color: rgba(247, 202, 201, 0.08);
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15);
 }
 
 .accommodation-icon {
   width: 40px;
   height: 40px;
   margin-bottom: 12px;
-  color: #409eff;
+  color: #91a8d0;
 }
 
 .accommodation-title {
@@ -1546,21 +1546,21 @@ export default {
 }
 
 .time-slot:hover {
-  border-color: #409eff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-color: #91a8d0;
+  box-shadow: 0 2px 8px rgba(145, 168, 208, 0.15);
 }
 
 .time-slot.is-active {
-  border-color: #409eff;
-  background-color: #ecf5ff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-color: #91a8d0;
+  background-color: rgba(247, 202, 201, 0.08);
+  box-shadow: 0 2px 8px rgba(145, 168, 208, 0.15);
 }
 
 .time-slot .el-icon {
   width: 30px;
   height: 30px;
   margin-right: 10px;
-  color: #409eff;
+  color: #91a8d0;
 }
 
 .time-info {

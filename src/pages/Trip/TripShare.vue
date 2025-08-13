@@ -7,7 +7,7 @@
 
     <div class="coming-soon-card">
       <el-icon size="64"
-color="#409EFF"
+color="#91A8D0"
 >
         <Share />
       </el-icon>
@@ -97,7 +97,7 @@ export default {
 }
 
 .stay-tuned {
-  color: #409eff;
+  color: #91a8d0;
   font-weight: 500;
   font-size: 16px;
 }

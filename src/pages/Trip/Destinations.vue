@@ -347,10 +347,10 @@ import { createCachedRequest, debounce } from "@/utils/apiOptimizer.js";
 import { useOptimizedWishlistStore } from "@/store/optimizedWishlist.js";
 import { hotRegions, findCity, seasonalByMonth } from "@/data/destinations.js";
 import { hotCategories as hotCategoriesData } from "@/data/hotGroups.js";
-import LazyImage from "@/components/Common/LazyImage.vue";
-import OptimizedVirtualCityList from "@/components/Common/OptimizedVirtualCityList.vue";
-import VirtualCityGrid from "@/components/Common/VirtualCityGrid.vue";
-import CityGridList from "@/components/Common/CityGridList.vue";
+import LazyImage from "@/components/Common/UI/LazyImage.vue";
+import OptimizedVirtualCityList from "@/components/Common/City/OptimizedVirtualCityList.vue";
+import VirtualCityGrid from "@/components/Common/City/VirtualCityGrid.vue";
+import CityGridList from "@/components/Common/City/CityGridList.vue";
 import {
   pagePerformance,
   imagePerformance,
@@ -420,7 +420,7 @@ export default {
       return mapped;
     });
 
-    // 热门目的地安全计算属性（只显示前10个）
+    // 热门目的地安全计算属性（显示前12个）
     const hotDestinations = computed(() => {
       if (
         !hotRegions ||
@@ -429,7 +429,7 @@ export default {
       ) {
         return [];
       }
-      return (hotRegions[0]?.cities || []).slice(0, 10);
+      return (hotRegions[0]?.cities || []).slice(0, 8);
     });
 
     function handleMonthHover(m) {
@@ -1073,7 +1073,7 @@ export default {
   padding: 20px;
   background: var(--card-bg, #fff);
   border-radius: 8px;
-  border: 1px solid var(--border-color, #ebeef5);
+  border: 1px solid rgba(145, 168, 208, 0.08);
   transition: all 0.3s;
 }
 
@@ -1138,13 +1138,13 @@ export default {
 }
 
 .toggle-btn:hover {
-  background: rgba(64, 158, 255, 0.1);
-  color: #409eff;
+  background: rgba(145, 168, 208, 0.1);
+  color: #91a8d0;
 }
 
 .toggle-btn.active {
   background: #ffffff;
-  color: #409eff;
+  color: #91a8d0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
@@ -1250,7 +1250,7 @@ export default {
   transform: translateX(-50%);
   width: 40px;
   height: 3px;
-  background-color: #409eff;
+  background-color: #91a8d0;
   border-radius: 3px;
 }
 
@@ -1272,17 +1272,17 @@ export default {
 }
 
 .search-input :deep(.el-input__inner):focus {
-  border-color: #409eff;
-  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+  border-color: #91a8d0;
+  box-shadow: 0 0 0 2px rgba(145, 168, 208, 0.2);
 }
 
 /* 批量操作区域 */
 .batch-actions {
   margin-top: 20px;
   padding: 16px;
-  background: rgba(64, 158, 255, 0.05);
+  background: rgba(145, 168, 208, 0.05);
   border-radius: 8px;
-  border: 1px solid rgba(64, 158, 255, 0.1);
+  border: 1px solid rgba(145, 168, 208, 0.1);
 }
 
 .batch-info {
@@ -1294,7 +1294,7 @@ export default {
 }
 
 .wishlist-quick-view {
-  border-top: 1px solid rgba(64, 158, 255, 0.1);
+  border-top: 1px solid rgba(145, 168, 208, 0.1);
   padding-top: 12px;
   margin-top: 12px;
 }
@@ -1333,7 +1333,7 @@ export default {
 }
 
 .letter-nav:hover {
-  box-shadow: -3px 0 15px rgba(64, 158, 255, 0.15);
+  box-shadow: -3px 0 15px rgba(145, 168, 208, 0.15);
   width: 42px;
 }
 
@@ -1358,7 +1358,7 @@ export default {
   left: 0;
   width: 2px;
   height: 0;
-  background-color: #409eff;
+  background-color: #91a8d0;
   transition: all 0.2s ease;
   border-radius: 2px;
   opacity: 0;
@@ -1377,7 +1377,7 @@ export default {
 
 .letter-item.special {
   font-weight: 500;
-  color: #409eff;
+  color: #91a8d0;
   height: 30px; /* 增大热门选项高度 */
   font-size: 13px; /* 略大字体 */
   padding: 2px 0;
@@ -1405,14 +1405,14 @@ export default {
 }
 
 .letter-item:hover {
-  color: #409eff;
+  color: #91a8d0;
   font-weight: 500;
   background-color: #f5f7fa;
 }
 
 .letter-item.active {
   color: #fff;
-  background-color: #409eff;
+  background-color: #91a8d0;
   font-weight: 500;
 }
 
@@ -1452,7 +1452,7 @@ export default {
   padding: 20px;
   background: var(--card-bg, #fff);
   border-radius: 8px;
-  border: 1px solid var(--border-color, #ebeef5);
+  border: 1px solid rgba(145, 168, 208, 0.08);
   transition: all 0.3s;
 }
 
@@ -1485,7 +1485,7 @@ export default {
 
 .hot-destinations-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   margin-top: 16px;
 }
@@ -1631,8 +1631,8 @@ export default {
   cursor: pointer;
 }
 .group-tab.active {
-  background: var(--primary-color, #409eff);
-  border-color: var(--primary-color, #409eff);
+  background: #91a8d0;
+  border-color: #91a8d0;
   color: #fff;
 }
 .hot-tags {
@@ -1650,9 +1650,9 @@ export default {
   cursor: pointer;
 }
 .hot-tag:hover {
-  background: #ecf5ff;
-  border-color: #b3d8ff;
-  color: #409eff;
+  background: rgba(247, 202, 201, 0.08);
+  border-color: rgba(145, 168, 208, 0.3);
+  color: #91a8d0;
 }
 
 .region-tabs {
@@ -1670,8 +1670,8 @@ export default {
   font-size: 12px;
 }
 .region-tab.active {
-  background: var(--primary-color, #409eff);
-  border-color: var(--primary-color, #409eff);
+  background: #91a8d0;
+  border-color: #91a8d0;
   color: #fff;
 }
 
@@ -1690,9 +1690,9 @@ export default {
   cursor: pointer;
 }
 .city-tag-link:hover {
-  background: #ecf5ff;
-  border-color: #b3d8ff;
-  color: #409eff;
+  background: rgba(247, 202, 201, 0.08);
+  border-color: rgba(145, 168, 208, 0.3);
+  color: #91a8d0;
 }
 
 /* 月份 tabs - 简化版 */
@@ -1721,11 +1721,11 @@ export default {
 }
 
 .month-tab:hover {
-  color: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #91a8d0;
 }
 
 .month-tab.active {
-  color: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #91a8d0;
 }
 
 .month-tab.active::after {
@@ -1736,7 +1736,7 @@ export default {
   bottom: -7px;
   width: 24px;
   height: 3px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
   border-radius: 2px;
 }
 
@@ -1833,7 +1833,7 @@ export default {
 }
 
 .city-card:hover .city-name {
-  color: #409eff;
+  color: #91a8d0;
 }
 
 /* 省份分组 */
@@ -1925,8 +1925,8 @@ export default {
 }
 
 .wishlist-toggle.active {
-  background: var(--primary-color, #409eff);
-  border-color: var(--primary-color, #409eff);
+  background: #91a8d0;
+  border-color: #91a8d0;
   color: #fff;
   animation: wishlist-pop 120ms ease-out;
 }
@@ -1959,7 +1959,7 @@ export default {
 }
 
 .city-tag:hover {
-  background: #409eff;
+  background: #91a8d0;
   color: #fff;
 }
 
@@ -1980,7 +1980,7 @@ export default {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) scale(0.8);
-  background: rgba(64, 158, 255, 0.9);
+  background: rgba(145, 168, 208, 0.9);
   color: #fff;
   width: 60px;
   height: 60px;
@@ -2085,13 +2085,13 @@ export default {
 /* 添加高亮动画效果 */
 @keyframes highlight-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(64, 158, 255, 0.4);
+    box-shadow: 0 0 0 0 rgba(145, 168, 208, 0.4);
   }
   70% {
-    box-shadow: 0 0 0 10px rgba(64, 158, 255, 0);
+    box-shadow: 0 0 0 10px rgba(145, 168, 208, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(64, 158, 255, 0);
+    box-shadow: 0 0 0 0 rgba(145, 168, 208, 0);
   }
 }
 
@@ -2112,8 +2112,8 @@ export default {
 }
 
 .hot-city-card:hover {
-  background: #ecf5ff;
-  border-color: #a0cfff;
+  background: rgba(247, 202, 201, 0.08);
+  border-color: rgba(145, 168, 208, 0.3);
 }
 
 /* 导航辅助按钮组 */
@@ -2143,9 +2143,9 @@ export default {
 }
 
 .nav-button:hover {
-  background-color: #ecf5ff;
-  border-color: #b3d8ff;
-  color: #409eff;
+  background-color: rgba(247, 202, 201, 0.1);
+  border-color: #f7cac9;
+  color: #91a8d0;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
@@ -2177,9 +2177,9 @@ export default {
 }
 
 :deep(.el-backtop:hover) {
-  background-color: #ecf5ff;
-  border-color: #b3d8ff;
-  color: #409eff;
+  background-color: rgba(247, 202, 201, 0.1);
+  border-color: #f7cac9;
+  color: #91a8d0;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
@@ -2191,8 +2191,8 @@ export default {
 
 .custom-alert {
   border-radius: 12px;
-  border: 2px solid #409eff;
-  background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+  border: 2px solid #91a8d0;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
 }
 
 .alert-content {
@@ -2207,7 +2207,7 @@ export default {
 }
 
 .alert-text strong {
-  color: #409eff;
+  color: #91a8d0;
   font-size: 16px;
   display: block;
   margin-bottom: 4px;
@@ -2295,7 +2295,7 @@ export default {
 }
 
 .city-tag-container:hover {
-  background: rgba(64, 158, 255, 0.1);
+  background: rgba(145, 168, 208, 0.1);
 }
 
 .city-tag-container.in-wishlist {

@@ -543,7 +543,7 @@ export default {
 /* ========== 左侧品牌展示区 ========== */
 .register-brand {
   flex: 0 0 35%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
   padding: 40px;
   display: flex;
   align-items: center;
@@ -610,11 +610,8 @@ export default {
   font-weight: 700;
   margin: 0 0 16px 0;
   letter-spacing: 3px;
+  color: #ffffff;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(45deg, #ffffff, #e3f2fd);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
   animation: title-glow 3s ease-in-out infinite alternate;
 }
 
@@ -629,9 +626,10 @@ export default {
 
 .brand-subtitle {
   font-size: 20px;
-  opacity: 0.9;
   margin: 0;
   font-weight: 300;
+  color: #ffffff;
+  opacity: 0.9;
 }
 
 .features {
@@ -678,6 +676,7 @@ export default {
   font-size: 18px;
   margin: 0 0 8px 0;
   font-weight: 600;
+  color: #ffffff;
   text-align: left;
 }
 
@@ -686,6 +685,7 @@ export default {
   margin: 0;
   opacity: 0.8;
   line-height: 1.5;
+  color: #ffffff;
   text-align: left;
 }
 
@@ -693,6 +693,7 @@ export default {
   text-align: center;
   opacity: 0.7;
   font-size: 14px;
+  color: #ffffff;
   margin-top: 20px;
 }
 
@@ -782,11 +783,11 @@ export default {
 }
 
 .form-input :deep(.el-input.is-focus .el-input__wrapper) {
-  border-color: #667eea;
+  border-color: #91a8d0;
   background: rgba(255, 255, 255, 1);
   box-shadow:
-    0 0 0 3px rgba(102, 126, 234, 0.1),
-    0 4px 16px rgba(102, 126, 234, 0.15);
+    0 0 0 3px rgba(145, 168, 208, 0.1),
+    0 4px 16px rgba(145, 168, 208, 0.15);
   transform: translateY(-2px);
 }
 
@@ -808,7 +809,7 @@ export default {
   font-weight: 500;
   white-space: nowrap;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: #0070f8;
+  background: #91a8d0;
   border: none;
   color: white;
 }
@@ -838,7 +839,7 @@ export default {
   font-size: 16px;
   font-weight: 600;
   border-radius: 14px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
   border: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -866,8 +867,8 @@ export default {
 
 .register-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
-  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+  box-shadow: 0 8px 25px rgba(145, 168, 208, 0.5);
+  background: linear-gradient(135deg, #7a91c7 0%, #f4b5b3 100%);
 }
 
 .register-btn:active {
@@ -924,19 +925,19 @@ export default {
 }
 
 .wechat-btn {
-  background: #07c160;
-  border-color: #07c160;
+  background: #91a8d0;
+  border-color: #91a8d0;
   color: white;
 }
 
 .wechat-btn:hover {
-  background: #06ad56;
-  border-color: #06ad56;
+  background: #7a91c7;
+  border-color: #7a91c7;
 }
 
 .qq-btn {
-  background: #12b7f5;
-  border-color: #12b7f5;
+  background: #f7cac9;
+  border-color: #f7cac9;
   color: white;
 }
 

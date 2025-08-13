@@ -360,9 +360,9 @@ export default {
   margin: 0 auto 24px auto !important;
   padding: 18px 20px;
   border-radius: 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
   color: #fff;
-  box-shadow: 0 10px 30px rgba(118, 75, 162, 0.18);
+  box-shadow: 0 10px 30px rgba(247, 202, 201, 0.18);
   position: relative;
   overflow: hidden;
 }
@@ -445,8 +445,8 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 .grid-item:hover {
-  border-color: rgba(102, 126, 234, 0.35);
-  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.18);
+  border-color: rgba(145, 168, 208, 0.35);
+  box-shadow: 0 10px 20px rgba(145, 168, 208, 0.18);
   transform: translateY(-3px);
 }
 .grid-item .title {
@@ -472,22 +472,22 @@ export default {
   color: #fff;
 }
 .grid-item:nth-child(1) :deep(.el-icon) {
-  background: linear-gradient(135deg, #409eff, #67c23a);
+  background: linear-gradient(135deg, #91a8d0, #f7cac9);
 }
 .grid-item:nth-child(2) :deep(.el-icon) {
-  background: linear-gradient(135deg, #07c160, #34d399);
+  background: linear-gradient(135deg, #f7cac9, #91a8d0);
 }
 .grid-item:nth-child(3) :deep(.el-icon) {
-  background: linear-gradient(135deg, #ff9f43, #ff6b35);
+  background: linear-gradient(135deg, #91a8d0, #f7cac9);
 }
 .grid-item:nth-child(4) :deep(.el-icon) {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #91a8d0, #f7cac9);
 }
 .grid-item:nth-child(5) :deep(.el-icon) {
-  background: linear-gradient(135deg, #20c997, #0ea5e9);
+  background: linear-gradient(135deg, #f7cac9, #91a8d0);
 }
 .grid-item:nth-child(6) :deep(.el-icon) {
-  background: linear-gradient(135deg, #4b5563, #111827);
+  background: linear-gradient(135deg, #91a8d0, #f7cac9);
 }
 .grid-item.danger :deep(.el-icon) {
   background: linear-gradient(135deg, #f56c6c, #f43f5e);
@@ -506,9 +506,9 @@ export default {
   min-width: 84px;
 }
 .summary-text {
-  color: #3a57e8;
+  color: #91a8d0;
   font-weight: 600;
-  background: #eef4ff;
+  background: rgba(247, 202, 201, 0.1);
   padding: 6px 10px;
   border-radius: 999px;
 }
@@ -524,8 +524,8 @@ export default {
 .section-card :deep(.el-card__header) {
   background: linear-gradient(
     90deg,
-    rgba(102, 126, 234, 0.12),
-    rgba(118, 75, 162, 0.06)
+    rgba(145, 168, 208, 0.12),
+    rgba(247, 202, 201, 0.06)
   );
 }
 .card-header {
@@ -541,7 +541,7 @@ export default {
   width: 4px;
   height: 60%;
   border-radius: 2px;
-  background: linear-gradient(180deg, #667eea, #764ba2);
+  background: linear-gradient(180deg, #91a8d0, #f7cac9);
 }
 
 /* 响应式优化 */

@@ -4,7 +4,7 @@
       <!-- 404图标 -->
       <div class="error-icon">
         <el-icon size="120"
-color="#E6A23C">
+color="#FB8C00">
           <Warning />
         </el-icon>
       </div>
@@ -116,7 +116,7 @@ export default {
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
 }
 
 .not-found-content {
@@ -142,7 +142,7 @@ export default {
 .error-code {
   font-size: 72px;
   font-weight: 700;
-  color: #e6a23c;
+  color: #f7cac9;
   margin: 0 0 16px 0;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }

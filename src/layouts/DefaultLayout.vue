@@ -28,19 +28,11 @@
             </div>
             <div
               class="nav-item"
-              :class="{ 'is-active': activeMenu === '/wishlist' }"
-              @click="$router.push('/wishlist')"
+              :class="{ 'is-active': activeMenu === '/personal' }"
+              @click="$router.push('/personal')"
             >
-              <el-icon><Star /></el-icon>
-              <span>{{ "愿望清单" }}</span>
-            </div>
-            <div
-              class="nav-item"
-              :class="{ 'is-active': activeMenu === '/trip/create' }"
-              @click="$router.push('/trip/create')"
-            >
-              <el-icon><Calendar /></el-icon>
-              <span>{{ "创建行程" }}</span>
+              <el-icon><User /></el-icon>
+              <span>{{ "个人中心" }}</span>
             </div>
           </div>
         </nav>
@@ -109,7 +101,6 @@ import {
   SwitchButton,
   ArrowDown,
   House,
-  Star,
 } from "@element-plus/icons-vue";
 
 export default {
@@ -122,7 +113,6 @@ export default {
     SwitchButton,
     ArrowDown,
     House,
-    Star,
   },
   setup() {
     const route = useRoute();
@@ -134,7 +124,8 @@ export default {
       const path = route.path;
       if (path === "/" || path.startsWith("/home")) return "/home";
       if (path.startsWith("/destinations")) return "/destinations";
-      if (path.startsWith("/trip/create")) return "/trip/create";
+      if (path.startsWith("/personal")) return "/personal";
+      if (path.startsWith("/wishlist")) return "/wishlist";
       // 其他页面不激活任何主导航菜单项
       return "";
     });
@@ -245,7 +236,7 @@ export default {
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #91a8d0, #f7cac9);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

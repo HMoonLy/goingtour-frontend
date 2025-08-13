@@ -46,9 +46,18 @@ const routes = [
       {
         path: "personal",
         name: "Personal",
-        component: () => import("../pages/User/Profile/Profile.vue"),
+        component: () => import("../pages/Personal/PersonalCenter.vue"),
         meta: {
           titleKey: "route.personal",
+          requiresAuth: true,
+        },
+      },
+      {
+        path: "personal/settings",
+        name: "PersonalSettings",
+        component: () => import("../pages/Personal/Settings.vue"),
+        meta: {
+          titleKey: "个人设置",
           requiresAuth: true,
         },
       },
@@ -57,7 +66,7 @@ const routes = [
         name: "PersonalProfile",
         component: () => import("../pages/User/Profile/Profile.vue"),
         meta: {
-          titleKey: "route.personal",
+          titleKey: "route.personalProfile",
           requiresAuth: true,
         },
       },
@@ -274,6 +283,7 @@ router.beforeEach(async (to, from, next) => {
     "route.register": "注册",
     "route.home": "首页",
     "route.personal": "个人中心",
+    "route.personalProfile": "个人资料",
     "route.accountSettings": "账户设置",
     "route.preferences": "偏好设置",
     "route.destinations": "选择目的地",
@@ -285,6 +295,7 @@ router.beforeEach(async (to, from, next) => {
     "route.search": "搜索结果",
     "route.tripShare": "行程分享",
     "route.notFound": "页面不存在",
+    "route.wishlist": "愿望清单",
     "settings.securitySettings": "安全设置",
     "settings.notifications": "通知设置",
     "settings.systemSettings": "系统设置",

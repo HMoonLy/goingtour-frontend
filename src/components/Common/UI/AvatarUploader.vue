@@ -585,7 +585,7 @@ const saveAvatar = async () => {
 }
 
 .avatar-container:hover {
-  border-color: #409eff;
+  border-color: #91a8d0;
   transform: scale(1.05);
 }
 
@@ -598,7 +598,7 @@ const saveAvatar = async () => {
 .default-avatar {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -667,8 +667,8 @@ const saveAvatar = async () => {
 }
 
 .upload-dragger :deep(.el-upload-dragger:hover) {
-  border-color: #409eff;
-  background: #f0f7ff;
+  border-color: #91a8d0;
+  background: #fafbfc;
 }
 
 .upload-content {
@@ -775,13 +775,13 @@ const saveAvatar = async () => {
 }
 
 .default-avatar-item:hover {
-  border-color: #409eff;
+  border-color: #91a8d0;
   transform: scale(1.1);
 }
 
 .default-avatar-item.selected {
-  border-color: #409eff;
-  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+  border-color: #91a8d0;
+  box-shadow: 0 0 0 2px rgba(145, 168, 208, 0.2);
 }
 
 .default-avatar-item img {
@@ -819,8 +819,8 @@ const saveAvatar = async () => {
 }
 
 .generated-avatar-item.selected {
-  background: #e7f3ff;
-  border: 2px solid #409eff;
+  background: #fafbfc;
+  border: 2px solid #91a8d0;
 }
 
 .generated-avatar {
@@ -896,7 +896,7 @@ const saveAvatar = async () => {
 .preview-placeholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
   display: flex;
   align-items: center;
   justify-content: center;

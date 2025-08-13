@@ -12,6 +12,7 @@ import { initTheme } from "./utils/theme.js";
 // 导入全局样式
 import "./style.css";
 import "./styles/themes.css";
+import "./styles/element-plus-overrides.css"; // Element Plus 主题完整覆盖
 
 // 创建Vue应用实例
 const app = createApp(App);

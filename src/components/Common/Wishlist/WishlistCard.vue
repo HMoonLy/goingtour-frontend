@@ -34,7 +34,7 @@
 
       <div class="card-actions">
         <el-dropdown placement="bottom-end" @command="handleCommand">
-          <el-button type="text"
+          <el-button link
 size="small" class="more-btn">
             <el-icon><More /></el-icon>
           </el-button>
@@ -435,19 +435,19 @@ export default {
   background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
   border-radius: 16px;
   padding: 20px;
-  border: 1px solid rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(145, 168, 208, 0.1);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.04),
-    0 1px 3px rgba(99, 102, 241, 0.08);
+    0 1px 3px rgba(145, 168, 208, 0.08);
 }
 
 .wishlist-card:hover {
-  border-color: rgba(99, 102, 241, 0.3);
+  border-color: rgba(145, 168, 208, 0.3);
   box-shadow:
-    0 8px 32px rgba(99, 102, 241, 0.12),
+    0 8px 32px rgba(145, 168, 208, 0.12),
     0 4px 16px rgba(0, 0, 0, 0.08);
   transform: translateY(-4px) scale(1.01);
 }
@@ -517,10 +517,10 @@ export default {
 }
 
 .city-tags .el-tag:hover {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
   color: #ffffff;
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 2px 8px rgba(145, 168, 208, 0.3);
 }
 
 .card-actions {
@@ -533,12 +533,12 @@ export default {
   padding: 8px;
   border-radius: 12px;
   transition: all 0.3s ease;
-  background: rgba(99, 102, 241, 0.05);
+  background: rgba(145, 168, 208, 0.05);
 }
 
 .more-btn:hover {
-  color: #6366f1;
-  background: rgba(99, 102, 241, 0.1);
+  color: #91a8d0;
+  background: rgba(145, 168, 208, 0.1);
   transform: scale(1.1);
 }
 
@@ -550,7 +550,7 @@ export default {
   padding: 16px;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   border-radius: 12px;
-  border-left: 4px solid #6366f1;
+  border-left: 4px solid #91a8d0;
 }
 
 .reason-text {
@@ -572,14 +572,14 @@ export default {
   font-size: 13px;
   color: #6b7280;
   padding-top: 16px;
-  border-top: 1px solid rgba(99, 102, 241, 0.1);
+  border-top: 1px solid rgba(145, 168, 208, 0.1);
 }
 
 .added-date {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(99, 102, 241, 0.05);
+  background: rgba(145, 168, 208, 0.05);
   padding: 4px 10px;
   border-radius: 20px;
   font-weight: 500;
@@ -620,11 +620,11 @@ export default {
 @media (prefers-color-scheme: dark) {
   .wishlist-card {
     background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-    border-color: rgba(99, 102, 241, 0.3);
+    border-color: rgba(145, 168, 208, 0.3);
     color: #f9fafb;
     box-shadow:
       0 2px 8px rgba(0, 0, 0, 0.3),
-      0 1px 3px rgba(99, 102, 241, 0.2);
+      0 1px 3px rgba(145, 168, 208, 0.2);
   }
 
   .wishlist-card.current-weather {
@@ -641,7 +641,7 @@ export default {
 
   .reason {
     background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
-    border-left-color: #8b5cf6;
+    border-left-color: #f7cac9;
   }
 
   .reason-text {
@@ -654,13 +654,13 @@ export default {
   }
 
   .more-btn {
-    background: rgba(99, 102, 241, 0.2);
+    background: rgba(145, 168, 208, 0.2);
     color: #d1d5db;
   }
 
   .more-btn:hover {
-    background: rgba(99, 102, 241, 0.3);
-    color: #8b5cf6;
+    background: rgba(145, 168, 208, 0.3);
+    color: #91a8d0;
   }
 }
 

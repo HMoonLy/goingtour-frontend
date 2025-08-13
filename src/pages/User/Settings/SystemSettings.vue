@@ -12,13 +12,13 @@ class="title"
       <div class="row">
         <span>主题模式</span>
         <el-radio-group v-model="theme">
-          <el-radio-button label="light">
+          <el-radio-button value="light">
 浅色模式
 </el-radio-button>
-          <el-radio-button label="dark">
+          <el-radio-button value="dark">
 深色模式
 </el-radio-button>
-          <el-radio-button label="system">
+          <el-radio-button value="system">
 跟随系统
 </el-radio-button>
         </el-radio-group>

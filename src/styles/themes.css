@@ -5,10 +5,13 @@
 
 :root,
 .light-theme {
-    /* 主色调 */
-    --primary-color: #667eea;
-    --primary-light: #8a9dff;
-    --primary-dark: #4c63d2;
+    /* 主色调 - Rose Quartz & Serenity */
+    --primary-color: #91A8D0;
+    --primary-light: #A3B7DB;
+    --primary-dark: #7A91C7;
+    --secondary-color: #F7CAC9;
+    --secondary-light: #FADAD9;
+    --secondary-dark: #F4B5B3;
     /* 背景色 */
     --bg-color: #ffffff;
     --bg-secondary: #f8f9fa;
@@ -36,26 +39,30 @@
     --input-bg: #ffffff;
     --input-border: var(--border-color);
     --input-focus-border: var(--primary-color);
-    /* 状态颜色 */
-    --success-color: #28a745;
-    --warning-color: #ffc107;
-    --error-color: #dc3545;
-    --info-color: #17a2b8;
+    /* 状态颜色 - 优化配色保持和谐 */
+    --success-color: #7CB342;
+    --warning-color: #FB8C00;
+    --error-color: #E53935;
+    --info-color: #91A8D0;
     /* 布局变量 */
     --header-height: 64px;
     --page-padding: 20px;
     --content-max-width: 1200px;
-    --page-bg: #f5f7fa;
+    /* 页面背景 - 柔和渐变 */
+    --page-bg: linear-gradient(135deg, #fdfefe 0%, #faf9f9 100%);
 }
 
 
 /* 深色主题 */
 
 .dark-theme {
-    /* 主色调 */
-    --primary-color: #8a9dff;
-    --primary-light: #a3b3ff;
-    --primary-dark: #667eea;
+    /* 主色调 - Rose Quartz & Serenity 暗色版 */
+    --primary-color: #A3B7DB;
+    --primary-light: #B8C9E3;
+    --primary-dark: #8FA5D6;
+    --secondary-color: #F4B5B3;
+    --secondary-light: #F8C7C5;
+    --secondary-dark: #F1A5A3;
     /* 背景色 */
     --bg-color: #1a1a1a;
     --bg-secondary: #2d2d2d;
@@ -83,11 +90,11 @@
     --input-bg: #2d2d2d;
     --input-border: var(--border-color);
     --input-focus-border: var(--primary-color);
-    /* 状态颜色 */
-    --success-color: #4caf50;
-    --warning-color: #ff9800;
-    --error-color: #f44336;
-    --info-color: #2196f3;
+    /* 状态颜色 - 暗色主题适配 */
+    --success-color: #81C784;
+    --warning-color: #FFB74D;
+    --error-color: #EF5350;
+    --info-color: #A3B7DB;
     /* 布局变量（深色主题下的页面背景可与整体一致） */
     --page-bg: var(--bg-color);
 }
@@ -157,6 +164,55 @@ body {
 }
 
 
+/* Element Plus 主题色彩完整覆盖 */
+
+:root {
+    /* Element Plus 主要颜色系统 - 使用 Rose Quartz & Serenity */
+    --el-color-primary: #91A8D0;
+    --el-color-primary-light-3: rgba(145, 168, 208, 0.7);
+    --el-color-primary-light-5: rgba(145, 168, 208, 0.5);
+    --el-color-primary-light-7: rgba(145, 168, 208, 0.3);
+    --el-color-primary-light-8: rgba(145, 168, 208, 0.2);
+    --el-color-primary-light-9: rgba(145, 168, 208, 0.1);
+    --el-color-primary-dark-2: #7A91C7;
+    
+    /* 成功色使用绿色系保持直观性 */
+    --el-color-success: #7CB342;
+    --el-color-success-light-3: rgba(124, 179, 66, 0.7);
+    --el-color-success-light-5: rgba(124, 179, 66, 0.5);
+    --el-color-success-light-7: rgba(124, 179, 66, 0.3);
+    --el-color-success-light-8: rgba(124, 179, 66, 0.2);
+    --el-color-success-light-9: rgba(124, 179, 66, 0.1);
+    --el-color-success-dark-2: #689F38;
+    
+    /* 危险色使用红色系保持直观性 */
+    --el-color-danger: #E53935;
+    --el-color-danger-light-3: rgba(229, 57, 53, 0.7);
+    --el-color-danger-light-5: rgba(229, 57, 53, 0.5);
+    --el-color-danger-light-7: rgba(229, 57, 53, 0.3);
+    --el-color-danger-light-8: rgba(229, 57, 53, 0.2);
+    --el-color-danger-light-9: rgba(229, 57, 53, 0.1);
+    --el-color-danger-dark-2: #C62828;
+    
+    /* 警告色使用橙色系保持直观性 */
+    --el-color-warning: #FB8C00;
+    --el-color-warning-light-3: rgba(251, 140, 0, 0.7);
+    --el-color-warning-light-5: rgba(251, 140, 0, 0.5);
+    --el-color-warning-light-7: rgba(251, 140, 0, 0.3);
+    --el-color-warning-light-8: rgba(251, 140, 0, 0.2);
+    --el-color-warning-light-9: rgba(251, 140, 0, 0.1);
+    --el-color-warning-dark-2: #F57C00;
+    
+    /* 信息色使用主题色变种 */
+    --el-color-info: #96ACD2;
+    --el-color-info-light-3: rgba(150, 172, 210, 0.7);
+    --el-color-info-light-5: rgba(150, 172, 210, 0.5);
+    --el-color-info-light-7: rgba(150, 172, 210, 0.3);
+    --el-color-info-light-8: rgba(150, 172, 210, 0.2);
+    --el-color-info-light-9: rgba(150, 172, 210, 0.1);
+    --el-color-info-dark-2: #8199C9;
+}
+
 /* Element Plus 深色主题覆盖 */
 
 .dark-theme {
@@ -173,6 +229,13 @@ body {
     --el-fill-color-blank: var(--bg-color);
     --el-fill-color: var(--bg-secondary);
     --el-fill-color-light: var(--bg-tertiary);
+    
+    /* 深色主题下的 Element Plus 颜色覆盖 */
+    --el-color-primary: #A3B7DB;
+    --el-color-success: #81C784;
+    --el-color-danger: #EF5350;
+    --el-color-warning: #FFB74D;
+    --el-color-info: #B8C9E3;
 }
 
 

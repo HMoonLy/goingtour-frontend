@@ -31,7 +31,7 @@ link @click="showFullPrompt">
         <div v-if="!generating && !generatedTrip">
           <div class="generation-intro">
             <el-icon size="48"
-color="#409EFF">
+color="#91A8D0">
               <MagicStick />
             </el-icon>
             <h3>准备生成您的个性化行程</h3>
@@ -660,7 +660,7 @@ size="large" @click="cancelGeneration">
 class="generating">
           <div class="generating-animation">
             <el-icon size="80"
-color="#409EFF" class="rotating">
+color="#91A8D0" class="rotating">
               <Loading />
             </el-icon>
             <div class="generating-content">
@@ -2226,7 +2226,7 @@ export default {
 }
 
 .highlight {
-  color: #409eff;
+  color: #91a8d0;
   font-weight: 500;
 }
 
@@ -2401,7 +2401,7 @@ export default {
   padding: 12px;
   background-color: #f8f9fa;
   border-radius: 6px;
-  border-left: 3px solid #409eff;
+  border-left: 3px solid #91a8d0;
 }
 
 .weather-forecast h5 {
@@ -2440,7 +2440,7 @@ export default {
 }
 
 .forecast-weather {
-  color: #409eff;
+  color: #91a8d0;
   font-size: 13px;
 }
 

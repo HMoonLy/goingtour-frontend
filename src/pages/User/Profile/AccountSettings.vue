@@ -638,7 +638,7 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import { useTheme } from "@/utils/theme.js";
 import { ArrowLeft } from "@element-plus/icons-vue";
 import { useUserStore } from "@/store/user.js";
-import AvatarUploader from "@/components/Common/AvatarUploader.vue";
+import AvatarUploader from "@/components/Common/UI/AvatarUploader.vue";
 
 export default {
   name: "AccountSettings",
@@ -1291,7 +1291,7 @@ export default {
 }
 
 .danger-section .section-title {
-  color: #f56c6c;
+  color: #f7cac9;
   border-bottom-color: #fed0d0;
 }
 
@@ -1363,7 +1363,7 @@ export default {
 
 .delete-account-content li {
   margin-bottom: 4px;
-  color: #f56c6c;
+  color: #f7cac9;
 }
 
 .confirmation-input {

@@ -4,7 +4,7 @@
     <div class="page-header">
       <div class="header-left">
         <el-button
-type="text" @click="goBack"
+link @click="goBack"
 class="back-btn"
 >
           <el-icon><ArrowLeft /></el-icon>
@@ -1572,7 +1572,7 @@ export default {
 }
 
 .back-btn:hover {
-  color: #409eff;
+  color: #91a8d0;
 }
 
 .header-right {
@@ -1655,7 +1655,7 @@ export default {
   align-items: center;
   justify-content: center;
   font-size: 18px;
-  color: #667eea;
+  color: #91a8d0;
   background: #edf2f7;
 }
 
@@ -1684,7 +1684,7 @@ export default {
   color: #2d3748;
   margin-bottom: 20px;
   padding-bottom: 8px;
-  border-bottom: 2px solid #667eea;
+  border-bottom: 2px solid #91a8d0;
 }
 
 .days-container {
@@ -1709,7 +1709,7 @@ export default {
 }
 
 .day-header {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #91a8d0, #f7cac9);
   color: white;
   padding: 20px 24px;
   display: flex;
@@ -1767,7 +1767,7 @@ export default {
 }
 
 .time-text {
-  background: #667eea;
+  background: #91a8d0;
   color: white;
   padding: 8px 12px;
   border-radius: 20px;
@@ -1830,7 +1830,7 @@ export default {
 }
 
 .preferences-card .el-card__header {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #91a8d0, #f7cac9);
   color: white;
   border-bottom: none;
 }

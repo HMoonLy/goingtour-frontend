@@ -291,8 +291,8 @@ export default {
 .section :deep(.el-card__header) {
   background: linear-gradient(
     90deg,
-    rgba(102, 126, 234, 0.12),
-    rgba(118, 75, 162, 0.06)
+    rgba(145, 168, 208, 0.12),
+    rgba(247, 202, 201, 0.06)
   );
 }
 </style>

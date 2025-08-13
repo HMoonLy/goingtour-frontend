@@ -1197,7 +1197,7 @@ export default {
 
 /* 页面标题区域 */
 .page-title {
-  background: linear-gradient(135deg, #409eff 0%, #5dade2 100%);
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
   color: white;
   padding: 32px 24px;
   margin-bottom: 32px;
@@ -1295,12 +1295,12 @@ export default {
   left: 0;
   width: 60px;
   height: 2px;
-  background: linear-gradient(135deg, #409eff, #5dade2);
+  background: linear-gradient(135deg, #91a8d0, #f7cac9);
   border-radius: 1px;
 }
 
 .section-title .el-icon {
-  color: #409eff;
+  color: #91a8d0;
   font-size: 24px;
 }
 
@@ -1390,14 +1390,14 @@ export default {
 .days-description {
   margin-top: 8px;
   padding: 8px 12px;
-  background: #f0f7ff;
+  background: #fafbfc;
   border-radius: 8px;
-  border-left: 3px solid #409eff;
+  border-left: 3px solid #91a8d0;
 }
 
 .days-text {
   font-size: 13px;
-  color: #409eff;
+  color: #91a8d0;
   font-weight: 500;
 }
 
@@ -1446,8 +1446,8 @@ export default {
 }
 
 .weather-loading {
-  background: #f0f7ff;
-  color: #409eff;
+  background: #fafbfc;
+  color: #91a8d0;
 }
 
 .weather-error {
@@ -1473,14 +1473,14 @@ export default {
 }
 
 .forecast-card:hover {
-  border-color: #409eff;
-  box-shadow: 0 4px 15px rgba(64, 158, 255, 0.15);
+  border-color: #91a8d0;
+  box-shadow: 0 4px 15px rgba(145, 168, 208, 0.15);
   transform: translateY(-2px);
 }
 
 .forecast-card.today {
-  background: linear-gradient(135deg, #f0f7ff 0%, #e6f3ff 100%);
-  border-color: #409eff;
+  background: linear-gradient(135deg, #fafbfc 0%, #f7f9fa 100%);
+  border-color: #91a8d0;
 }
 
 .forecast-card.today::before {
@@ -1488,7 +1488,7 @@ export default {
   position: absolute;
   top: -8px;
   right: -8px;
-  background: #409eff;
+  background: #91a8d0;
   color: white;
   font-size: 10px;
   padding: 2px 6px;
@@ -1569,7 +1569,7 @@ export default {
 .summary-value {
   font-size: 14px;
   font-weight: 600;
-  color: #409eff;
+  color: #91a8d0;
 }
 
 .weather-tips {
@@ -1623,21 +1623,21 @@ export default {
 }
 
 .budget-card:hover {
-  border-color: #409eff;
-  box-shadow: 0 4px 20px rgba(64, 158, 255, 0.15);
+  border-color: #91a8d0;
+  box-shadow: 0 4px 20px rgba(145, 168, 208, 0.15);
   transform: translateY(-2px);
 }
 
 .budget-card.selected {
-  border-color: #409eff;
-  background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
-  box-shadow: 0 6px 20px rgba(64, 158, 255, 0.2);
+  border-color: #91a8d0;
+  background: linear-gradient(135deg, #fafbfc 0%, #ffffff 100%);
+  box-shadow: 0 6px 20px rgba(145, 168, 208, 0.2);
 }
 
 .budget-icon {
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #409eff, #5dade2);
+  background: linear-gradient(135deg, #91a8d0, #f7cac9);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -1649,7 +1649,7 @@ export default {
 }
 
 .budget-card.selected .budget-icon {
-  background: linear-gradient(135deg, #5dade2, #409eff);
+  background: linear-gradient(135deg, #f7cac9, #91a8d0);
   transform: scale(1.1);
 }
 
@@ -1670,7 +1670,7 @@ export default {
 .budget-price {
   font-size: 16px;
   font-weight: 700;
-  color: #409eff;
+  color: #91a8d0;
   margin-bottom: 8px;
 }
 
@@ -1722,7 +1722,7 @@ export default {
   padding: 16px 20px;
   background: #f8f9fa;
   border-radius: 8px;
-  border-left: 3px solid #409eff;
+  border-left: 3px solid #91a8d0;
 }
 
 .budget-info-row {
@@ -1739,7 +1739,7 @@ export default {
 
 .budget-value {
   font-size: 14px;
-  color: #409eff;
+  color: #91a8d0;
   font-weight: 600;
 }
 

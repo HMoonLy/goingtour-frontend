@@ -1,30 +1,34 @@
 <template>
   <div class="page-shell home-page">
-    <!-- 快捷操作 -->
-    <section class="quick-actions">
-      <h3 class="section-title">快捷操作</h3>
-      <div class="action-grid">
-        <!-- 仅保留 AI 行程生成入口：直接进入创建流程 -->
-        <div class="action-card" @click="goToCreate">
-          <div class="action-icon violet">
-            <el-icon size="24">
-              <Cpu />
-            </el-icon>
-          </div>
-          <h4>AI智能规划</h4>
-          <p>智能生成个性化行程</p>
-        </div>
+    <!-- 主要操作区域 -->
+    <section class="main-action-section">
+      <div class="action-hero">
+        <h2 class="hero-title">AI 智能行程规划</h2>
+        <p class="hero-subtitle">
+          告诉我们您的偏好，为您生成专属的个性化旅行方案
+        </p>
+        <el-button
+          type="primary"
+          size="large"
+          class="primary-cta-btn"
+          @click="goToCreate"
+        >
+          <el-icon><Cpu /></el-icon>
+          开始规划我的行程
+        </el-button>
       </div>
     </section>
 
-    <!-- 继续未完成进度 -->
+    <!-- 继续未完成的行程 -->
     <section v-if="hasProgress" class="progress-section">
-      <el-card class="progress-card" shadow="hover">
+      <el-card class="progress-card"
+shadow="hover">
         <div class="progress-content">
           <div class="progress-texts">
             <h4>继续未完成的行程</h4>
             <p class="progress-desc">
-              <el-tag size="small" type="info" effect="plain">
+              <el-tag size="small"
+type="info" effect="plain">
                 {{ progressSummary.destination || "无" }}
               </el-tag>
               <span class="dot" />
@@ -34,8 +38,10 @@
             </p>
           </div>
           <div class="progress-actions">
-            <el-button type="primary" @click="resumeProgress"> 继续 </el-button>
-            <el-button type="danger" plain @click="discardProgress">
+            <el-button
+type="primary" @click="resumeProgress"> 继续 </el-button>
+            <el-button type="danger"
+plain @click="discardProgress">
               舍弃
             </el-button>
           </div>
@@ -43,27 +49,32 @@
       </el-card>
     </section>
 
-    <!-- AI 场景推荐（4条） -->
-    <section class="templates-section">
-      <h3 class="section-title">推荐场景</h3>
-      <div class="tpl-grid">
+    <!-- AI 场景推荐 -->
+    <section class="scenarios-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="inspiration-icon">✨</i>
+          热门场景推荐
+        </h3>
+        <p class="section-subtitle">
+          快速选择您感兴趣的旅行场景，AI将为您定制专属行程
+        </p>
+      </div>
+      <div class="scenarios-grid">
         <div
           v-for="sc in scenarios.slice(0, 4)"
           :key="sc.id"
-          class="tpl-card tpl-card--scenario"
+          class="scenario-card"
           @click="applyScenario(sc)"
         >
           <div
-            class="tpl-cover"
+            class="scenario-cover"
             :style="sc.cover ? { backgroundImage: `url(${sc.cover})` } : {}"
           >
-            <div class="tpl-cover-mask" />
-            <div class="tpl-cover-text">
-              <div class="tpl-title">
-                {{ sc.title }}
-              </div>
-              <div class="tpl-desc">
-                {{ sc.desc }}
+            <div class="scenario-overlay">
+              <div class="scenario-content">
+                <h4>{{ sc.title }}</h4>
+                <p>{{ sc.desc }}</p>
               </div>
             </div>
           </div>
@@ -71,213 +82,50 @@
       </div>
     </section>
 
-    <!-- 我的行程 -->
-    <section class="my-trips-section">
+    <!-- 最近行程 -->
+    <section v-if="recentTripsPreview.length > 0"
+class="recent-section">
       <div class="section-header">
-        <h3 class="section-title">我的行程</h3>
-        <div class="header-actions">
-          <el-segmented v-model="tripTab" :options="tripTabs" size="small" />
-        </div>
+        <h3 class="section-title">最近的行程</h3>
         <el-button
           size="small"
           type="primary"
           plain
-          class="create-trip-btn"
-          @click="goToCreate"
+          @click="goToPersonalCenter"
         >
-          <el-icon><Plus /></el-icon>
-          新建行程
+          查看全部
+          <el-icon><ArrowRight /></el-icon>
         </el-button>
       </div>
-
-      <div v-if="displayTrips.length > 0" class="trips-grid">
+      <div class="recent-trips">
         <div
-          v-for="trip in displayTrips"
+          v-for="trip in recentTripsPreview"
           :key="trip.id"
-          class="trip-card"
-          :class="{ 'draft-card': trip.isDraft }"
-          :data-auto-draft="trip.draftData?.isAuto || false"
+          class="trip-item"
           @click="viewTripDetail(trip)"
         >
-          <div class="trip-header">
-            <h4>{{ trip.title }}</h4>
-            <div class="trip-tags">
-              <el-tag
-                v-if="trip.aiGenerated"
-                type="primary"
-                size="small"
-                class="ai-tag"
-              >
-                AI生成
-              </el-tag>
-              <el-tag
-                :type="
-                  trip.isDraft
-                    ? trip.draftData?.isAuto
-                      ? 'info'
-                      : 'warning'
-                    : trip.status === 'draft'
-                      ? 'info'
-                      : 'success'
-                "
-                size="small"
-                :effect="trip.isDraft ? 'plain' : 'dark'"
-              >
-                {{
-                  trip.isDraft
-                    ? trip.draftData?.isAuto
-                      ? "自动保存"
-                      : "草稿"
-                    : trip.status === "draft"
-                      ? "草稿"
-                      : "已完成"
-                }}
-              </el-tag>
-            </div>
-          </div>
           <div class="trip-info">
-            <div class="trip-detail">
-              <el-icon><MapLocation /></el-icon
-              ><span>{{ trip.destinationName }}</span>
+            <h4>{{ trip.title }}</h4>
+            <div class="trip-meta">
+              <span>{{ trip.destinationName }}</span>
+              <span>{{ trip.days }}天</span>
+              <el-tag v-if="trip.isDraft"
+type="warning" size="small">
+                草稿
+              </el-tag>
             </div>
-            <div class="trip-detail">
-              <el-icon><Calendar /></el-icon><span>{{ trip.days }}天</span>
-            </div>
-            <div v-if="trip.isDraft" class="trip-detail">
-              <el-icon><List /></el-icon>
-              <span>{{ getStepName(trip.currentStep) }}</span>
-            </div>
-            <div class="trip-detail">
-              <el-icon><User /></el-icon><span>{{ trip.travelers }}人</span>
-            </div>
-          </div>
-          <div class="trip-actions">
-            <template v-if="trip.isDraft">
-              <!-- 草稿操作 -->
-              <el-button
-                size="small"
-                type="primary"
-                @click.stop="handleLoadDraft(trip.id)"
-              >
-                <el-icon><EditPen /></el-icon>
-                继续编辑
-              </el-button>
-              <el-button
-                size="small"
-                type="danger"
-                plain
-                @click.stop="deleteTrip(trip)"
-              >
-                <el-icon><Delete /></el-icon>
-                删除
-              </el-button>
-            </template>
-            <template v-else>
-              <!-- 真实行程操作 -->
-              <el-button
-                size="small"
-                type="primary"
-                plain
-                @click.stop="editTrip(trip)"
-              >
-                编辑
-              </el-button>
-              <el-button
-                size="small"
-                type="danger"
-                plain
-                @click.stop="deleteTrip(trip)"
-              >
-                删除
-              </el-button>
-            </template>
           </div>
         </div>
       </div>
-
-      <div v-else class="no-trips">
-        <el-icon size="48" color="#C0C4CC">
-          <DocumentCopy />
-        </el-icon>
-        <p>暂无行程</p>
-        <el-button type="primary" @click="goToCreate"> 立即创建 </el-button>
-      </div>
-    </section>
-
-    <!-- 愿望清单精简版 -->
-    <section class="wishlist-section">
-      <WishlistSummary @weather-city-change="handleWeatherCityChange" />
     </section>
 
     <!-- 天气速览 -->
-    <section class="weather-section">
-      <div class="weather-header">
-        <h3 class="section-title">天气预览</h3>
-        <div v-if="wishlistStore.hasCities" class="weather-controls">
-          <el-button
-            size="small"
-            type="primary"
-            plain
-            :loading="loadingWeather"
-            @click="refreshWeatherFromWishlist"
-          >
-            <el-icon><Refresh /></el-icon>
-            随机切换
-          </el-button>
-          <el-button
-            size="small"
-            type="success"
-            plain
-            :class="{ 'auto-refresh-active': autoRefreshEnabled }"
-            @click="toggleAutoRefresh"
-          >
-            <el-icon><Timer /></el-icon>
-            {{ autoRefreshEnabled ? "停止自动" : "自动轮播" }}
-          </el-button>
-        </div>
-      </div>
-      <el-card v-if="weather" class="weather-card" shadow="hover">
-        <div class="weather-top">
-          <div class="w-left">
-            <div class="w-city">
-              {{ weather.city }}
-              <el-tag
-                v-if="isWishlistWeather"
-                size="small"
-                type="success"
-                effect="plain"
-              >
-                愿望清单
-              </el-tag>
-            </div>
-            <div class="w-desc">
-              {{ weather.weatherDesc }}
-            </div>
-          </div>
-          <div class="w-right">
-            <div class="w-temp">{{ weather.currentTemp }}°C</div>
-            <div class="w-range">
-              {{ weather.tempRange }}
-            </div>
-          </div>
-        </div>
-        <div class="forecast">
-          <div
-            v-for="(f, i) in (weather.forecast || []).slice(0, 3)"
-            :key="i"
-            class="f-item"
-          >
-            <div class="f-date">
-              {{ f.date }}
-            </div>
-            <div class="f-weather">
-              {{ f.dayWeather }}
-            </div>
-            <div class="f-temp">{{ f.dayTemp }} / {{ f.nightTemp }}</div>
-          </div>
-        </div>
-      </el-card>
-      <el-empty v-else description="暂无天气信息" />
+    <section class="auxiliary-section">
+      <WeatherSummary
+        :weather="weather"
+        :loading="loadingWeather"
+        @refresh-weather="refreshWeatherFromWishlist"
+      />
     </section>
   </div>
 </template>
@@ -298,6 +146,7 @@ import {
   Delete,
   Refresh,
   Timer,
+  ArrowRight,
 } from "@element-plus/icons-vue";
 import { useUserStore } from "@/store/user.js";
 import { useWishlistStore } from "@/store/wishlist.js";
@@ -307,7 +156,7 @@ import { convertBackendTripToFrontend } from "@/utils/tripDataConverter.js";
 import { handleApiError, handleSuccess } from "@/utils/errorHandler.js";
 import { aiScenarios } from "@/data/aiScenarios.js";
 import { weatherApi } from "@/api/weather.js";
-import WishlistSummary from "@/components/Common/WishlistSummary.vue";
+import WeatherSummary from "@/components/Common/Weather/WeatherSummary.vue";
 
 export default {
   name: "HomeDashboard",
@@ -320,7 +169,8 @@ export default {
     DocumentCopy,
     Refresh,
     Timer,
-    WishlistSummary,
+    ArrowRight,
+    WeatherSummary,
   },
   setup() {
     const router = useRouter();
@@ -336,11 +186,6 @@ export default {
     const loadingWeather = ref(false);
     const autoRefreshEnabled = ref(false);
     const autoRefreshTimer = ref(null);
-    const tripTab = ref("recent");
-    const tripTabs = [
-      { label: "最近", value: "recent" },
-      { label: "草稿", value: "drafts" },
-    ];
 
     const refreshProgress = async () => {
       // 检查是否有自动草稿（新的进度检查方式）
@@ -371,7 +216,7 @@ export default {
             confirmButtonText: "确定删除",
             cancelButtonText: "取消",
             type: "warning",
-          }
+          },
         );
 
         const success = await draftManager.deleteDraft(draftId);
@@ -420,6 +265,12 @@ export default {
     };
 
     const goToCreate = () => router.push("/destinations");
+
+    // 跳转到目的地选择页面
+    const goToDestinations = () => router.push("/destinations");
+
+    // 跳转到个人中心
+    const goToPersonalCenter = () => router.push("/personal");
     const resumeProgress = async () => {
       // 获取自动草稿并直接加载
       const autoDraft = await draftManager.getAutoDraft();
@@ -438,7 +289,7 @@ export default {
             confirmButtonText: "确定",
             cancelButtonText: "取消",
             type: "warning",
-          }
+          },
         );
 
         // 删除自动草稿
@@ -483,9 +334,21 @@ export default {
     };
 
     const displayTrips = computed(() => {
-      if (tripTab.value === "drafts") {
-        // 返回草稿数据，转换为与trips兼容的格式
-        return drafts.value.map((draft) => ({
+      const list = [...savedTrips.value];
+      // 最近优先：按更新时间/创建时间倒序
+      list.sort(
+        (a, b) =>
+          new Date(b.updatedAt || b.createdAt || 0) -
+          new Date(a.updatedAt || a.createdAt || 0),
+      );
+      return list.slice(0, 8);
+    });
+
+    // 最近行程预览（首页显示2-3个）
+    const recentTripsPreview = computed(() => {
+      const allTrips = [
+        ...savedTrips.value,
+        ...drafts.value.map((draft) => ({
           id: draft.id,
           title: draft.name,
           destinationName: draft.baseForm?.destinationName || "未知目的地",
@@ -495,19 +358,17 @@ export default {
           updatedAt: draft.updatedAt,
           currentStep: draft.currentStep,
           isDraft: true,
-          // 添加草稿特有的数据
           draftData: draft,
-        }));
-      }
+        })),
+      ];
 
-      const list = [...savedTrips.value];
-      // 最近优先：按更新时间/创建时间倒序
-      list.sort(
+      // 按最新更新时间排序，取前3个
+      allTrips.sort(
         (a, b) =>
           new Date(b.updatedAt || b.createdAt || 0) -
-          new Date(a.updatedAt || a.createdAt || 0)
+          new Date(a.updatedAt || a.createdAt || 0),
       );
-      return list.slice(0, 8);
+      return allTrips.slice(0, 3);
     });
 
     const viewTripDetail = (trip) => {
@@ -565,7 +426,7 @@ export default {
             confirmButtonText: "删除",
             cancelButtonText: "取消",
             type: "warning",
-          }
+          },
         );
         if (!userStore.currentUser?.id) {
           ElMessage.error("请先登录");
@@ -585,7 +446,7 @@ export default {
     const loadWeatherForCity = async (
       cityName,
       cityCode = null,
-      fromWishlist = false
+      fromWishlist = false,
     ) => {
       if (!cityName) return;
 
@@ -596,10 +457,9 @@ export default {
         const ws = await weatherApi.getWeatherSuggestions(
           cityCode || cityName,
           new Date(),
-          3
+          3,
         );
         weather.value = ws;
-        console.log(`✅ 天气数据加载成功: ${cityName}`);
       } catch (e) {
         console.warn(`获取${cityName}天气失败:`, e);
       } finally {
@@ -608,9 +468,22 @@ export default {
     };
 
     // 从愿望清单随机获取天气
-    const refreshWeatherFromWishlist = async () => {
+    const refreshWeatherFromWishlist = async (cityName = null) => {
+      // 如果提供了城市名，直接获取该城市天气
+      if (cityName) {
+        await loadWeatherForCity(cityName, null, false);
+        return;
+      }
+
       if (!wishlistStore.hasCities) {
-        ElMessage.info("愿望清单为空，无法切换城市天气");
+        // 如果没有愿望清单，显示空状态而不是默认城市天气
+        if (cityName) {
+          // 如果指定了城市名，则获取该城市天气（来自刷新按钮）
+          await loadWeatherForCity(cityName, null, false);
+        } else {
+          // 没有指定城市且没有愿望清单，显示空状态
+          weather.value = null;
+        }
         return;
       }
 
@@ -619,7 +492,7 @@ export default {
         await loadWeatherForCity(
           randomCity.cityName,
           randomCity.cityCode,
-          true
+          true,
         );
         wishlistStore.setCurrentWeatherCity(randomCity);
         ElMessage.success(`已切换到 ${randomCity.cityName} 的天气`);
@@ -671,24 +544,20 @@ export default {
         wishlistStore.loadWishlist(),
       ]);
 
-      // 天气速览优先级: 1.愿望清单随机城市 2.进度中的目的地 3.最近行程的目的地
+      // 天气速览优先级: 1.愿望清单随机城市 2.空状态引导用户添加愿望清单
       if (wishlistStore.hasCities) {
         const randomCity = wishlistStore.getRandomCity;
         if (randomCity) {
           await loadWeatherForCity(
             randomCity.cityName,
             randomCity.cityCode,
-            true
+            true,
           );
           wishlistStore.setCurrentWeatherCity(randomCity);
         }
       } else {
-        const city =
-          progressSummary.value?.destination ||
-          savedTrips.value[0]?.destinationName;
-        if (city) {
-          await loadWeatherForCity(city, null, false);
-        }
+        // 没有愿望城市时，将weather设为null，让WeatherSummary显示空状态
+        weather.value = null;
       }
     });
 
@@ -703,7 +572,7 @@ export default {
     // 应用模板/场景：通过 query 传递预填信息到创建页
     const applyScenario = (sc) => {
       const preset = encodeURIComponent(
-        JSON.stringify({ type: "scenario", id: sc.id })
+        JSON.stringify({ type: "scenario", id: sc.id }),
       );
       // 若场景自带城市，则直达创建页；否则先选目的地
       if (sc.city && sc.city.adcode && sc.city.name) {
@@ -725,14 +594,15 @@ export default {
       hasProgress,
       progressSummary,
       goToCreate,
+      goToDestinations,
+      goToPersonalCenter,
       resumeProgress,
       discardProgress,
       viewTripDetail,
       editTrip,
       deleteTrip,
-      tripTab,
-      tripTabs,
       displayTrips,
+      recentTripsPreview,
       weather,
       scenarios,
       applyScenario,
@@ -765,73 +635,224 @@ export default {
 }
 /* 使用全局 .page-shell 提供的滚动背景，无需额外规则 */
 
-.section-title {
-  font-size: 20px;
-  font-weight: 600;
+/* 主要操作区域 */
+.main-action-section {
+  text-align: center;
+  padding: 60px 20px;
+  max-width: 800px;
+  margin: 0 auto 40px;
+}
+
+.action-hero {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.hero-title {
+  font-size: 28px;
+  font-weight: 700;
   color: #303133;
   margin: 0 0 16px 0;
 }
 
-/* 快捷操作 */
-.quick-actions {
-  margin: 0 auto 24px auto;
-  max-width: 1200px;
-}
-.action-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-}
-.action-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-.action-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-}
-.action-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 12px;
-  color: #fff;
-}
-.action-icon.primary {
-  background: linear-gradient(135deg, #409eff, #67c23a);
-}
-.action-icon.success {
-  background: linear-gradient(135deg, #07c160, #34d399);
-}
-.action-icon.violet {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-}
-.action-card h4 {
-  margin: 8px 0 6px;
-  color: #303133;
-}
-.action-card p {
-  margin: 0;
-  color: #909399;
-  font-size: 13px;
+.hero-subtitle {
+  font-size: 16px;
+  color: #6b7280;
+  margin: 0 0 32px 0;
+  line-height: 1.6;
 }
 
-/* 继续进度 */
+.primary-cta-btn {
+  font-size: 16px;
+  padding: 16px 32px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #91a8d0 0%, #b8c5d6 100%);
+  border: none;
+  box-shadow: 0 4px 16px rgba(145, 168, 208, 0.3);
+  transition: all 0.3s ease;
+}
+
+.primary-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(145, 168, 208, 0.4);
+}
+
+/* 进度续建区域 */
 .progress-section {
   max-width: 1200px;
-  margin: 0 auto 24px;
+  margin: 0 auto 40px;
+  padding: 0 20px;
 }
+
 .progress-card {
   border-radius: 12px;
+  border: 1px solid rgba(145, 168, 208, 0.15);
 }
+
+.progress-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.progress-desc {
+  margin-top: 6px;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #d1d5db;
+  display: inline-block;
+}
+
+/* AI场景推荐 */
+.scenarios-section {
+  max-width: 1200px;
+  margin: 0 auto 40px;
+  padding: 0 20px;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #303133;
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.section-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.inspiration-icon {
+  font-style: normal;
+  font-size: 20px;
+}
+
+.scenarios-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.scenario-card {
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.scenario-card:hover {
+  transform: translateY(-4px);
+}
+
+.scenario-cover {
+  height: 180px;
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.scenario-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+  display: flex;
+  align-items: flex-end;
+  padding: 20px;
+  color: white;
+}
+
+.scenario-content h4 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.scenario-content p {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+/* 最近行程 */
+.recent-section {
+  max-width: 1200px;
+  margin: 0 auto 40px;
+  padding: 0 20px;
+}
+
+.recent-section .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.recent-section .section-title {
+  justify-content: flex-start;
+}
+
+.recent-trips {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.trip-item {
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid rgba(145, 168, 208, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.trip-item:hover {
+  border-color: rgba(145, 168, 208, 0.25);
+  box-shadow: 0 2px 8px rgba(145, 168, 208, 0.1);
+}
+
+.trip-info h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #303133;
+}
+
+.trip-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* 辅助区域 */
+.auxiliary-section {
+  max-width: 1200px;
+  margin: 0 auto 32px;
+  padding: 0 20px;
+}
+
 .progress-content {
   display: flex;
   align-items: center;
@@ -840,121 +861,182 @@ export default {
 }
 .progress-desc {
   margin-top: 6px;
-  color: #606266;
+  color: #6b7280;
   display: flex;
   align-items: center;
   gap: 8px;
+}
+.progress-desc .el-tag {
+  background: #91a8d0;
+  color: #ffffff;
+  border: none;
 }
 .dot {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #dcdfe6;
+  background: #d1d5db;
   display: inline-block;
 }
 
-/* 我的行程 */
-.my-trips-section {
-  background: #fff;
+/* 最近行程预览 */
+.recent-trips-section {
+  background: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  padding: 20px;
-  margin: 0 auto 24px auto;
+  border: 1px solid rgba(145, 168, 208, 0.12);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  margin: 0 auto 32px auto;
   max-width: 1200px;
 }
+
 .section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(145, 168, 208, 0.1);
 }
-.header-actions {
-  margin-left: auto;
-  margin-right: 12px;
+
+.view-all-btn {
+  background: #91a8d0;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 1px 3px rgba(145, 168, 208, 0.3);
+  gap: 4px;
 }
-.trips-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 16px;
+
+.view-all-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(145, 168, 208, 0.4);
 }
-.trip-card {
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 16px;
-  border: 1px solid #e9ecef;
-  transition: all 0.3s;
+
+.recent-trips-preview {
   display: flex;
   flex-direction: column;
+  gap: 12px;
 }
-.trip-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
-}
-.trip-header {
+
+.recent-trip-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid rgba(145, 168, 208, 0.08);
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
-.trip-header h4 {
-  margin: 0;
-  font-size: 15px;
+
+.recent-trip-card:hover {
+  background: #f1f5f9;
+  border-color: rgba(145, 168, 208, 0.2);
+  transform: translateY(-1px);
+}
+
+.trip-summary h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
   color: #303133;
 }
-.trip-tags {
+
+.trip-meta {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 12px;
+  font-size: 14px;
+  color: #6b7280;
 }
-.ai-tag {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  border: none;
-  color: #fff;
+
+.destination {
+  color: #91a8d0;
   font-weight: 500;
 }
-.trip-info {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 10px;
+
+.duration {
+  color: #6b7280;
 }
-.trip-detail {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: #909399;
-  font-size: 13px;
-}
-.trip-actions {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-}
-.no-trips {
+
+.no-recent-trips {
   text-align: center;
   padding: 40px 20px;
   color: #909399;
 }
 
+.no-recent-trips p {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+}
+
+/* AI 场景推荐区域 */
+.templates-section {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid rgba(145, 168, 208, 0.12);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  margin: 0 auto 32px auto;
+  max-width: 1200px;
+}
+
+.section-header-with-description {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.section-header-with-description .section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #303133;
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.inspiration-icon {
+  font-style: normal;
+  font-size: 24px;
+}
+
+.section-description {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
 /* 模板/场景弹层 */
 .tpl-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
 }
+
 .tpl-card {
-  border: 1px solid #ebeef5;
-  border-radius: 10px;
-  padding: 12px;
-  background: #fff;
+  border: 1px solid rgba(145, 168, 208, 0.1);
+  border-radius: 12px;
+  padding: 0;
+  background: #ffffff;
   cursor: pointer;
-  transition: 0.2s;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
 }
+
+.tpl-card.enhanced:hover {
+  border-color: rgba(145, 168, 208, 0.35);
+  box-shadow: 0 12px 32px rgba(145, 168, 208, 0.2);
+  transform: translateY(-6px);
+}
+
 .tpl-card:hover {
-  border-color: #b3d8ff;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  border-color: rgba(145, 168, 208, 0.25);
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15);
   transform: translateY(-2px);
 }
 
@@ -963,13 +1045,82 @@ export default {
   padding: 0;
   overflow: hidden;
 }
+
 .tpl-cover {
   position: relative;
-  height: 132px;
-  background: linear-gradient(135deg, #e9eef3, #f5f7fa);
+  height: 160px;
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
   background-size: cover;
   background-position: center;
-  border-radius: 10px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.tpl-cover-mask {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 30%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+}
+
+.tpl-cover-text {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  color: #fff;
+}
+
+.tpl-title {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+
+.tpl-desc {
+  font-size: 12px;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+.try-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #91a8d0;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tpl-card.enhanced:hover .try-button {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .tpl-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .tpl-cover {
+    height: 140px;
+  }
 }
 .tpl-cover-mask {
   position: absolute;
@@ -989,31 +1140,37 @@ export default {
 }
 .tpl-title {
   font-weight: 600;
-  font-size: 14px;
-  line-height: 1.2;
+  font-size: 15px;
+  line-height: 1.3;
 }
 .tpl-desc {
   margin-top: 4px;
-  font-size: 12px;
+  font-size: 13px;
   opacity: 0.9;
+  line-height: 1.4;
 }
 
-/* 模板快捷区 */
+/* AI 场景推荐区域 */
 .templates-section {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid rgba(145, 168, 208, 0.12);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  margin: 0 auto 32px auto;
   max-width: 1200px;
-  margin: 0 auto 24px;
 }
 
 /* 愿望清单 */
 .wishlist-section {
   max-width: 1200px;
-  margin: 0 auto 24px;
+  margin: 0 auto 32px;
 }
 
 /* 天气速览 */
 .weather-section {
   max-width: 1200px;
-  margin: 0 auto 24px;
+  margin: 0 auto 32px;
 }
 .weather-header {
   display: flex;
@@ -1026,12 +1183,14 @@ export default {
   gap: 8px;
 }
 .auto-refresh-active {
-  background: #f0f9ff !important;
-  border-color: #67c23a !important;
-  color: #67c23a !important;
+  background: rgba(247, 202, 201, 0.1) !important;
+  border-color: #f7cac9 !important;
+  color: #b87c7a !important;
 }
 .weather-card {
   border-radius: 12px;
+  border: 1px solid rgba(145, 168, 208, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 .weather-top {
   display: flex;
@@ -1045,20 +1204,21 @@ export default {
   display: flex;
   align-items: center;
   gap: 8px;
+  font-size: 16px;
 }
 .w-desc {
-  color: #909399;
-  font-size: 13px;
+  color: #6b7280;
+  font-size: 14px;
 }
 .w-temp {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 700;
   color: #303133;
   text-align: right;
 }
 .w-range {
-  color: #909399;
-  font-size: 12px;
+  color: #6b7280;
+  font-size: 14px;
   text-align: right;
 }
 .forecast {
@@ -1067,55 +1227,57 @@ export default {
   gap: 10px;
 }
 .f-item {
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
+  background: #ffffff;
+  border: 1px solid rgba(145, 168, 208, 0.1);
   border-radius: 8px;
-  padding: 8px;
+  padding: 12px 8px;
   text-align: center;
 }
 .f-date {
-  font-size: 12px;
-  color: #606266;
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 4px;
 }
 .f-weather {
-  font-size: 13px;
+  font-size: 14px;
   color: #303133;
   margin: 4px 0;
+  font-weight: 500;
 }
 .f-temp {
-  font-size: 12px;
-  color: #909399;
+  font-size: 13px;
+  color: #6b7280;
 }
 
 /* 草稿卡片样式 */
 .draft-card {
-  border: 2px dashed #e6a23c !important;
-  background: linear-gradient(135deg, #fdf6ec, #fefefe) !important;
+  border: 2px dashed rgba(145, 168, 208, 0.4) !important;
+  background: rgba(145, 168, 208, 0.02) !important;
   position: relative;
 }
 
 /* 自动草稿特殊样式 */
 .trip-card[data-auto-draft="true"] {
-  border: 2px dashed #409eff !important;
-  background: linear-gradient(135deg, #ecf5ff, #fefefe) !important;
+  border: 2px dashed rgba(247, 202, 201, 0.4) !important;
+  background: rgba(247, 202, 201, 0.02) !important;
 }
 
 .draft-card::before {
   position: absolute;
   top: -1px;
   right: -1px;
-  background: linear-gradient(135deg, #e6a23c, #f39c12);
+  background: #91a8d0;
   color: #fff;
   font-size: 11px;
   font-weight: 600;
   padding: 2px 8px;
-  border-radius: 0 6px 0 8px;
+  border-radius: 0 8px 0 8px;
   z-index: 1;
 }
 
 .draft-card:hover {
-  border-color: #cf9236 !important;
-  box-shadow: 0 4px 12px rgba(230, 162, 60, 0.15) !important;
+  border-color: rgba(145, 168, 208, 0.6) !important;
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.1) !important;
 }
 
 @media (max-width: 768px) {
@@ -1128,6 +1290,24 @@ export default {
   .progress-content {
     flex-direction: column;
     align-items: flex-start;
+  }
+  .scenarios-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .scenarios-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+}
+
+@media (max-width: 992px) {
+  .scenarios-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
   }
 }
 </style>
