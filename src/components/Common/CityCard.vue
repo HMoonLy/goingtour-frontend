@@ -16,17 +16,15 @@
     >
       <div class="heart-container">
         <!-- 处理中显示加载动画 -->
-        <div v-if="isProcessing"
-class="heart-loading">
+        <div v-if="isProcessing" class="heart-loading">
           <div class="loading-spinner" />
         </div>
         <!-- 正常状态显示心形图标 -->
-        <div v-else
-class="heart-icon">
+        <div v-else class="heart-icon">
           <svg
             :class="{ filled: isInWishlist }"
             viewBox="0 0 24 24"
-            width="14" 
+            width="14"
             height="14"
           >
             <path
@@ -181,43 +179,43 @@ export default defineComponent({
 .city-card.modern {
   position: relative;
   background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 6px;
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  border-radius: 8px;
   padding: 8px; /* 减小内边距让卡片更紧凑 */
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   will-change: transform;
 
-  /* 微妙阴影 */
+  /* 增强阴影 */
   box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.08),
-    0 1px 2px rgba(0, 0, 0, 0.06);
+    0 2px 4px rgba(0, 0, 0, 0.06),
+    0 4px 12px rgba(99, 102, 241, 0.08);
 }
 
 /* 悬浮效果 */
 .city-card.modern:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px) scale(1.02);
   box-shadow:
-    0 10px 25px rgba(0, 0, 0, 0.12),
-    0 4px 10px rgba(0, 0, 0, 0.08);
-  border-color: rgba(64, 158, 255, 0.2);
+    0 8px 25px rgba(99, 102, 241, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: rgba(99, 102, 241, 0.3);
 }
 
 /* 已收藏状态 */
 .city-card.modern.is-favorited {
-  background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
-  border-color: rgba(255, 193, 7, 0.3);
+  background: linear-gradient(135deg, #fffbeb 0%, #fef7e6 100%);
+  border-color: rgba(245, 158, 11, 0.4);
   box-shadow:
-    0 2px 8px rgba(255, 193, 7, 0.15),
-    0 1px 3px rgba(0, 0, 0, 0.08);
+    0 4px 12px rgba(245, 158, 11, 0.2),
+    0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .city-card.modern.is-favorited:hover {
-  border-color: rgba(255, 193, 7, 0.4);
+  border-color: rgba(245, 158, 11, 0.5);
   box-shadow:
-    0 12px 30px rgba(255, 193, 7, 0.2),
-    0 6px 15px rgba(0, 0, 0, 0.1);
+    0 8px 25px rgba(245, 158, 11, 0.3),
+    0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* 处理中状态 */
@@ -234,36 +232,38 @@ export default defineComponent({
   width: 28px; /* 增大按钮尺寸 */
   height: 28px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(99, 102, 241, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 2;
   cursor: pointer;
 
   /* 初始状态稍微透明 */
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
 .favorite-button:hover {
   opacity: 1;
-  transform: scale(1.1);
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: scale(1.15);
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.2);
 }
 
 .favorite-button.is-favorited {
-  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
-  border-color: rgba(255, 193, 7, 0.3);
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border-color: rgba(245, 158, 11, 0.4);
   opacity: 1;
 }
 
 .favorite-button.is-favorited:hover {
-  background: linear-gradient(135deg, #ffb300 0%, #ff8f00 100%);
-  box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+  transform: scale(1.15);
 }
 
 /* 心形图标容器 */
@@ -284,7 +284,7 @@ export default defineComponent({
 }
 
 .heart-icon svg {
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   fill: #9ca3af;
   stroke: none;
   /* 确保SVG在容器中完全居中 */
@@ -294,17 +294,18 @@ export default defineComponent({
 
 .heart-icon svg.filled {
   fill: #ffffff;
-  animation: heartPulse 0.6s ease;
+  animation: heartPulse 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .favorite-button:not(.is-favorited) .heart-icon svg {
   fill: none;
-  stroke: #6b7280;
-  stroke-width: 1.5;
+  stroke: #6366f1;
+  stroke-width: 1.8;
 }
 
 .favorite-button:not(.is-favorited):hover .heart-icon svg {
-  stroke: #ef4444;
+  stroke: #8b5cf6;
+  stroke-width: 2;
 }
 
 /* 加载动画 */
@@ -323,6 +324,18 @@ export default defineComponent({
   animation: spin 0.8s linear infinite;
 }
 
+@keyframes heartPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -332,15 +345,13 @@ export default defineComponent({
   }
 }
 
-@keyframes heartPulse {
+/* 新增 shimmer 动画 */
+@keyframes shimmer {
   0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.2);
+    background-position: -200% 0;
   }
   100% {
-    transform: scale(1);
+    background-position: 200% 0;
   }
 }
 
@@ -363,11 +374,16 @@ export default defineComponent({
   font-weight: 600;
   color: #1f2937;
   margin: 0 0 2px 0; /* 减小间距 */
-  line-height: 1.3;
+  line-height: 1.2;
   /* 防止文字过长 */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: font-weight 0.2s ease;
+}
+
+.city-card.modern:hover .city-name {
+  font-weight: 700;
 }
 
 .city-meta {
@@ -475,26 +491,30 @@ export default defineComponent({
 @media (prefers-color-scheme: dark) {
   .city-card.modern {
     background: #1f2937;
-    border-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(99, 102, 241, 0.2);
     color: #f9fafb;
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.2),
+      0 4px 12px rgba(99, 102, 241, 0.1);
   }
 
   .city-card.modern.is-favorited {
     background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
-    border-color: rgba(255, 193, 7, 0.3);
+    border-color: rgba(245, 158, 11, 0.4);
   }
 
   .city-name {
     color: #f9fafb;
   }
 
-  .province-name {
-    color: #9ca3af;
+  .favorite-button {
+    background: rgba(31, 41, 55, 0.95);
+    border-color: rgba(99, 102, 241, 0.2);
   }
 
-  .favorite-button {
-    background: rgba(31, 41, 55, 0.9);
-    border-color: rgba(255, 255, 255, 0.1);
+  .favorite-button:hover {
+    background: rgba(31, 41, 55, 1);
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
   }
 }
 

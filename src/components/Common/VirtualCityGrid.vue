@@ -1,5 +1,7 @@
 <template>
-  <div ref="containerRef" class="virtual-city-grid-container">
+  <div
+ref="containerRef" class="virtual-city-grid-container"
+>
     <!-- 虚拟滚动容器 - 移除内部滚动 -->
     <div class="virtual-scroll-wrapper">
       <!-- 可见的城市分组 - 显示全部 -->
@@ -83,7 +85,7 @@ export default {
     // 简化生命周期钩子 - 移除滚动监听
     onMounted(() => {
       // 不再需要复杂的滚动和容器高度监听
-      console.log('VirtualCityGrid mounted - 显示所有城市分组');
+      console.log("VirtualCityGrid mounted - 显示所有城市分组");
     });
 
     onBeforeUnmount(() => {
@@ -94,8 +96,8 @@ export default {
     watch(
       () => props.cityGroups.length,
       () => {
-        console.log('城市数据变化:', props.cityGroups.length);
-      }
+        console.log("城市数据变化:", props.cityGroups.length);
+      },
     );
 
     return {
@@ -145,38 +147,55 @@ export default {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(248, 250, 252, 0.95) 100%
+  );
+  backdrop-filter: blur(12px);
+  border-radius: 12px 12px 0 0;
+
   /* 固定高度和内边距，解决行高问题 */
-  min-height: 80px;
-  padding: 20px 0;
+  min-height: 90px;
+  padding: 24px 16px;
   display: flex;
   align-items: center;
+  margin: 0 -20px 24px -20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .group-title-container {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
   width: 100%;
-  margin-left: 10px;
+  margin-left: 0;
 }
 
 .group-letter-badge {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  box-shadow:
+    0 4px 14px rgba(99, 102, 241, 0.4),
+    0 2px 6px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.group-letter-badge:hover {
+  transform: scale(1.05) translateY(-1px);
+  box-shadow:
+    0 6px 20px rgba(99, 102, 241, 0.5),
+    0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .group-title {
@@ -187,7 +206,7 @@ export default {
   display: flex;
   align-items: center;
   gap: 12px;
-  
+
   /* 固定行高，解决样式问题 */
   line-height: 1.2;
   height: 32px;
@@ -271,25 +290,18 @@ export default {
 /* ===== 暗色模式支持 ===== */
 @media (prefers-color-scheme: dark) {
   .group-header {
-    background: rgba(31, 41, 55, 0.95);
-    border-bottom-color: rgba(255, 255, 255, 0.1);
+    background: linear-gradient(
+      135deg,
+      rgba(31, 41, 55, 0.98) 0%,
+      rgba(17, 24, 39, 0.95) 100%
+    );
+    border-bottom-color: rgba(99, 102, 241, 0.2);
   }
 
-  .group-title {
-    color: #f9fafb;
-  }
-
-  .city-count {
-    color: #9ca3af;
-    background: rgba(156, 163, 175, 0.1);
-  }
-
-  .virtual-scroll-wrapper::-webkit-scrollbar-thumb {
-    background: rgba(156, 163, 175, 0.3);
-  }
-
-  .virtual-scroll-wrapper::-webkit-scrollbar-thumb:hover {
-    background: rgba(156, 163, 175, 0.5);
+  .group-letter-badge {
+    box-shadow:
+      0 4px 14px rgba(99, 102, 241, 0.6),
+      0 2px 6px rgba(0, 0, 0, 0.3);
   }
 }
 

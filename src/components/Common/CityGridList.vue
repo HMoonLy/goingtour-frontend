@@ -1,8 +1,7 @@
 <template>
   <div class="city-grid-container">
     <!-- 网格布局的城市卡片 - 性能优化版本 -->
-    <div class="city-grid"
-:class="{ 'has-wishlist': hasWishlistItems }">
+    <div class="city-grid" :class="{ 'has-wishlist': hasWishlistItems }">
       <!-- 使用v-memo优化大列表渲染性能 -->
       <CityCard
         v-for="city in cities"
@@ -16,11 +15,9 @@
     </div>
 
     <!-- 空状态展示 -->
-    <div v-if="cities.length === 0 && !loading"
-class="empty-state">
+    <div v-if="cities.length === 0 && !loading" class="empty-state">
       <div class="empty-icon">
-        <svg width="64"
-height="64" viewBox="0 0 24 24" fill="none">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
           <path
             d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
             fill="#9ca3af"
@@ -32,8 +29,7 @@ height="64" viewBox="0 0 24 24" fill="none">
     </div>
 
     <!-- 加载骨架屏 -->
-    <div v-if="loading"
-class="loading-grid">
+    <div v-if="loading" class="loading-grid">
       <div
         v-for="i in skeletonCount"
         :key="'skeleton-' + i"
@@ -101,7 +97,7 @@ export default defineComponent({
       // 防止快速点击导致的多次触发
       if (selectTimeout) clearTimeout(selectTimeout);
       selectTimeout = setTimeout(() => {
-        emit('selectCity', city);
+        emit("selectCity", city);
       }, 50);
     };
 
@@ -109,7 +105,7 @@ export default defineComponent({
       // 防止快速点击导致的多次切换
       if (wishlistTimeout) clearTimeout(wishlistTimeout);
       wishlistTimeout = setTimeout(() => {
-        emit('toggleWishlist', city);
+        emit("toggleWishlist", city);
       }, 100);
     };
 
@@ -140,7 +136,7 @@ export default defineComponent({
 /* ===== 响应式网格布局 ===== */
 .city-grid {
   display: grid;
-  gap: 16px;
+  gap: 14px;
   width: 100%;
 
   /* 一行放5个左右的紧凑布局 */
@@ -148,11 +144,11 @@ export default defineComponent({
 
   /* 确保网格项目等高 */
   align-items: stretch;
-  
+
   /* 性能优化：启用GPU加速 */
   will-change: transform;
   transform: translateZ(0);
-  
+
   /* 大量数据优化：使用 contain 属性提升渲染性能 */
   contain: layout style paint;
 }
@@ -186,11 +182,11 @@ export default defineComponent({
   width: 100%;
   height: 100%;
   min-height: 60px; /* 减少高度让卡片更紧凑 */
-  
+
   /* 性能优化：减少重排重绘 */
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  
+
   /* 使用GPU加速，避免布局抖动 */
   transform: translateZ(0);
   contain: layout style paint;
@@ -229,7 +225,7 @@ export default defineComponent({
 /* ===== 加载骨架屏样式 ===== */
 .loading-grid {
   display: grid;
-  gap: 16px;
+  gap: 14px;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
 }
 

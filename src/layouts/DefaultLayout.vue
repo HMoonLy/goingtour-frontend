@@ -3,9 +3,8 @@
     <!-- 顶部导航栏 -->
     <header class="layout-header">
       <div class="header-container">
-        <div
-class="header-logo" @click="$router.push('/home')"
->
+        <div class="header-logo"
+@click="$router.push('/home')">
           <h2>GoingTour</h2>
         </div>
 
@@ -16,7 +15,7 @@ class="header-logo" @click="$router.push('/home')"
               :class="{ 'is-active': activeMenu === '/home' }"
               @click="$router.push('/home')"
             >
-              <el-icon><MapLocation /></el-icon>
+              <el-icon><House /></el-icon>
               <span>{{ "首页" }}</span>
             </div>
             <div
@@ -26,6 +25,14 @@ class="header-logo" @click="$router.push('/home')"
             >
               <el-icon><MapLocation /></el-icon>
               <span>{{ "目的地" }}</span>
+            </div>
+            <div
+              class="nav-item"
+              :class="{ 'is-active': activeMenu === '/wishlist' }"
+              @click="$router.push('/wishlist')"
+            >
+              <el-icon><Star /></el-icon>
+              <span>{{ "愿望清单" }}</span>
             </div>
             <div
               class="nav-item"
@@ -41,9 +48,8 @@ class="header-logo" @click="$router.push('/home')"
         <div class="header-user">
           <el-dropdown @command="handleUserCommand">
             <div class="user-info">
-              <el-avatar
-:src="userStore.avatar" :size="32"
->
+              <el-avatar :src="userStore.avatar"
+:size="32">
                 <img src="../assets/images/default-avatar.jpg"
 alt="avatar"
 />
@@ -61,9 +67,8 @@ alt="avatar"
                 <el-dropdown-item command="preferences">
                   <el-icon><Setting /></el-icon>{{ "设置" }}
                 </el-dropdown-item>
-                <el-dropdown-item
-divided command="logout"
->
+                <el-dropdown-item divided
+command="logout">
                   <el-icon><SwitchButton /></el-icon>{{ "退出登录" }}
                 </el-dropdown-item>
               </el-dropdown-menu>
@@ -103,6 +108,8 @@ import {
   Setting,
   SwitchButton,
   ArrowDown,
+  House,
+  Star,
 } from "@element-plus/icons-vue";
 
 export default {
@@ -114,6 +121,8 @@ export default {
     Setting,
     SwitchButton,
     ArrowDown,
+    House,
+    Star,
   },
   setup() {
     const route = useRoute();

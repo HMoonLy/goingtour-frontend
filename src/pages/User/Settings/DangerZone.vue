@@ -1,9 +1,10 @@
 <template>
-  <div class="personal-page simple" :class="{ embedded }">
-    <UserCenterNav v-if="!embedded" />
-    <h2
-v-if="!embedded" class="title"
+  <div
+class="personal-page simple" :class="{ embedded }"
 >
+    <UserCenterNav v-if="!embedded" />
+    <h2 v-if="!embedded"
+class="title">
       {{ "删除账户" }}
     </h2>
     <el-alert
@@ -14,7 +15,9 @@ v-if="!embedded" class="title"
       description="此操作不可逆，请谨慎操作。"
     />
     <el-card class="section">
-      <el-button type="danger" @click="deleteAccount">
+      <el-button
+type="danger" @click="deleteAccount"
+>
         {{ "删除账户" }}
       </el-button>
     </el-card>

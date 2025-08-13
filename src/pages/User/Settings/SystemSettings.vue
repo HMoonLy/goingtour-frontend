@@ -1,5 +1,7 @@
 <template>
-  <div class="personal-page simple" :class="{ embedded }">
+  <div
+class="personal-page simple" :class="{ embedded }"
+>
     <UserCenterNav v-if="!embedded" />
     <h2 v-if="!embedded"
 class="title"

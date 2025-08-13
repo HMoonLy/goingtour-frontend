@@ -76,10 +76,8 @@ type="warning"
               <el-icon><Search /></el-icon>
             </template>
           </el-input>
-          <el-button
-type="primary" :loading="searching"
-@click="handleSearch"
->
+          <el-button type="primary"
+:loading="searching" @click="handleSearch">
             <el-icon><Search /></el-icon>
             搜索
           </el-button>
@@ -91,23 +89,19 @@ type="primary" :loading="searching"
             size="small"
             style="width: 120px"
           >
-            <el-option
-label="默认排序" value="default"
-/>
-            <el-option
-label="评分优先" value="rating"
-/>
-            <el-option
-label="距离优先" value="distance"
-/>
+            <el-option label="默认排序"
+value="default" />
+            <el-option label="评分优先"
+value="rating" />
+            <el-option label="距离优先"
+value="distance" />
           </el-select>
         </div>
       </div>
 
       <!-- 景点推荐内容 -->
-      <div
-v-show="SisShow" class="recommendation-content"
->
+      <div v-show="SisShow"
+class="recommendation-content">
         <!-- 搜索模式提示 -->
         <div
           v-if="isSearchMode && searchResults.length > 0"
@@ -126,20 +120,17 @@ v-show="SisShow" class="recommendation-content"
             show-icon
           />
           <div style="margin-top: 8px">
-            <el-button
-size="small" @click="handleClearSearch"
->
+            <el-button size="small"
+@click="handleClearSearch">
               返回推荐
             </el-button>
           </div>
         </div>
 
-        <div
-v-if="loadingAttractions" class="loading-state"
->
-          <el-skeleton
-:rows="3" animated
-/>
+        <div v-if="loadingAttractions"
+class="loading-state">
+          <el-skeleton :rows="3"
+animated />
         </div>
 
         <div
@@ -149,9 +140,8 @@ v-if="loadingAttractions" class="loading-state"
           <el-empty :description="暂无推荐景点" />
         </div>
 
-        <div
-v-else-if="apiError" class="error-state"
->
+        <div v-else-if="apiError"
+class="error-state">
           <el-alert
             :title="apiError"
             type="error"
@@ -160,9 +150,8 @@ v-else-if="apiError" class="error-state"
           />
         </div>
 
-        <div
-v-else class="recommendation-list"
->
+        <div v-else
+class="recommendation-list">
           <div
             v-for="attraction in isSearchMode
               ? searchResults.filter((item) => item.isAttraction)
@@ -181,16 +170,14 @@ v-else class="recommendation-list"
                       'https://via.placeholder.com/300x200?text=Attraction')
                 "
               />
-              <div
-v-else class="no-image"
->
+              <div v-else
+class="no-image">
                 <el-icon><Picture /></el-icon>
               </div>
             </div>
             <div class="recommendation-content">
-              <h4
-:title="attraction.name" class="full-width-name"
->
+              <h4 :title="attraction.name"
+class="full-width-name">
                 {{ attraction.name }}
               </h4>
               <div class="recommendation-rating rating-with-number">
@@ -202,15 +189,12 @@ v-else class="no-image"
                 <span class="rating-value">{{ attraction.rating }}</span>
               </div>
               <div class="recommendation-tags">
-                <el-tag
-size="small" type="success"
-class="category-tag"
->
+                <el-tag size="small"
+type="success" class="category-tag">
                   风景名胜
                 </el-tag>
-                <el-tag
-size="small" class="tag-item"
->
+                <el-tag size="small"
+class="tag-item">
                   {{ attraction.type }}
                 </el-tag>
               </div>
@@ -238,9 +222,8 @@ size="small" class="tag-item"
                     {{ tag }}
                   </el-tag>
                 </div>
-                <div
-v-else class="feature-tags"
->
+                <div v-else
+class="feature-tags">
                   <el-tag
                     size="small"
                     effect="plain"
@@ -302,10 +285,8 @@ v-else class="feature-tags"
       </div>
 
       <!-- 餐厅推荐内容 -->
-      <div
-v-show="RisShow" class="recommendation-content"
-v-if="RisShow"
->
+      <div v-show="RisShow"
+class="recommendation-content" v-if="RisShow">
         <!-- 搜索模式提示 -->
         <div
           v-if="isSearchMode && searchResults.length > 0"
@@ -324,20 +305,17 @@ v-if="RisShow"
             show-icon
           />
           <div style="margin-top: 8px">
-            <el-button
-size="small" @click="handleClearSearch"
->
+            <el-button size="small"
+@click="handleClearSearch">
               返回推荐
             </el-button>
           </div>
         </div>
 
-        <div
-v-if="loadingRestaurants" class="loading-state"
->
-          <el-skeleton
-:rows="3" animated
-/>
+        <div v-if="loadingRestaurants"
+class="loading-state">
+          <el-skeleton :rows="3"
+animated />
         </div>
 
         <div
@@ -359,9 +337,8 @@ v-if="loadingRestaurants" class="loading-state"
           />
         </div>
 
-        <div
-v-else class="recommendation-list"
->
+        <div v-else
+class="recommendation-list">
           <div
             v-for="restaurant in isSearchMode
               ? searchResults.filter((item) => !item.isAttraction)
@@ -380,16 +357,14 @@ v-else class="recommendation-list"
                       'https://via.placeholder.com/300x200?text=Food')
                 "
               />
-              <div
-v-else class="no-image"
->
+              <div v-else
+class="no-image">
                 <el-icon><Food /></el-icon>
               </div>
             </div>
             <div class="recommendation-content">
-              <h4
-:title="restaurant.name" class="full-width-name"
->
+              <h4 :title="restaurant.name"
+class="full-width-name">
                 {{ restaurant.name }}
               </h4>
               <div class="recommendation-rating rating-with-number">
@@ -401,21 +376,16 @@ v-else class="no-image"
                 <span class="rating-value">{{ restaurant.rating }}</span>
               </div>
               <div class="recommendation-tags">
-                <el-tag
-size="small" type="danger"
-class="price-tag"
->
+                <el-tag size="small"
+type="danger" class="price-tag">
                   人均￥{{ restaurant.price }}
                 </el-tag>
-                <el-tag
-size="small" type="warning"
-class="category-tag"
->
+                <el-tag size="small"
+type="warning" class="category-tag">
                   餐饮服务
                 </el-tag>
-                <el-tag
-size="small" class="tag-item"
->
+                <el-tag size="small"
+class="tag-item">
                   {{ restaurant.type }}
                 </el-tag>
               </div>
@@ -443,9 +413,8 @@ size="small" class="tag-item"
                     {{ dish }}
                   </el-tag>
                 </div>
-                <div
-v-else class="dish-tags"
->
+                <div v-else
+class="dish-tags">
                   <el-tag
                     size="small"
                     effect="plain"
@@ -516,17 +485,15 @@ v-else class="dish-tags"
         <div class="section-title">
           <el-icon><Check /></el-icon>
           <span>已选择</span>
-          <el-tag
-size="small" type="primary"
->
+          <el-tag size="small"
+type="primary">
             {{ selectedAttractions.length + selectedRestaurants.length }}
           </el-tag>
         </div>
 
         <div class="selection-summary">
-          <el-card
-class="summary-card" shadow="hover"
->
+          <el-card class="summary-card"
+shadow="hover">
             <div class="selected-items">
               <!-- 已选择的景点 -->
               <div
@@ -534,9 +501,8 @@ class="summary-card" shadow="hover"
                 class="selected-section"
               >
                 <div class="section-header">
-                  <el-icon
-class="section-icon" color="#409EFF"
->
+                  <el-icon class="section-icon"
+color="#409EFF">
                     <Location />
                     />
                   </el-icon>
@@ -571,9 +537,8 @@ class="section-icon" color="#409EFF"
                 class="selected-section"
               >
                 <div class="section-header">
-                  <el-icon
-class="section-icon" color="#E6A23C"
->
+                  <el-icon class="section-icon"
+color="#E6A23C">
                     <Food />
                     />
                   </el-icon>
@@ -604,10 +569,8 @@ class="section-icon" color="#E6A23C"
 
               <!-- 操作按钮 -->
               <div class="summary-actions">
-                <el-button
-type="danger" link
-@click="clearAllSelections"
->
+                <el-button type="danger"
+link @click="clearAllSelections">
                   重置
                 </el-button>
               </div>
@@ -992,9 +955,8 @@ size="small"
       <!-- 操作按钮区域 -->
       <div class="action-section">
         <div class="action-left">
-          <el-button
-size="large" @click="$emit('prev-step')"
->
+          <el-button size="large"
+@click="$emit('prev-step')">
             <el-icon><ArrowLeft /></el-icon>
             上一步
           </el-button>
@@ -1012,10 +974,8 @@ size="large" @click="$emit('prev-step')"
           </el-button>
         </div>
         <div class="action-right">
-          <el-button
-type="primary" size="large"
-@click="$emit('next-step')"
->
+          <el-button type="primary"
+size="large" @click="$emit('next-step')">
             下一步
             <el-icon><ArrowRight /></el-icon>
           </el-button>

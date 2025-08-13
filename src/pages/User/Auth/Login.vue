@@ -6,7 +6,9 @@
         <!-- Logo和品牌名 -->
         <div class="brand-header">
           <div class="brand-logo">
-            <el-icon size="60" color="#ffffff">
+            <el-icon
+size="60" color="#ffffff"
+>
               <MapLocation />
             </el-icon>
           </div>
@@ -20,7 +22,9 @@
         <div class="features">
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32" color="#ffffff">
+              <el-icon
+size="32" color="#ffffff"
+>
                 <Location />
               </el-icon>
             </div>
@@ -32,7 +36,9 @@
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32" color="#ffffff">
+              <el-icon
+size="32" color="#ffffff"
+>
                 <DataAnalysis />
               </el-icon>
             </div>
@@ -44,7 +50,9 @@
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32" color="#ffffff">
+              <el-icon
+size="32" color="#ffffff"
+>
                 <Share />
               </el-icon>
             </div>
@@ -85,7 +93,9 @@
           @submit.prevent="handleLogin"
         >
           <!-- 邮箱输入 -->
-          <el-form-item prop="email" class="form-item">
+          <el-form-item
+prop="email" class="form-item"
+>
             <label class="form-label">邮箱</label>
             <el-input
               v-model="loginForm.email"
@@ -101,7 +111,9 @@
           </el-form-item>
 
           <!-- 验证码输入 -->
-          <el-form-item prop="code" class="form-item">
+          <el-form-item
+prop="code" class="form-item"
+>
             <label class="form-label">验证码</label>
             <div class="code-input-group">
               <el-input

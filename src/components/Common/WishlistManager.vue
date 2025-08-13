@@ -6,15 +6,38 @@
           <el-icon><Star /></el-icon>
           我的愿望清单
         </h3>
-        <el-tag
-size="small" type="info"
-v-if="wishlistStore.wishlistCount > 0"
->
+        <el-tag size="small"
+type="info" v-if="wishlistStore.wishlistCount > 0">
           {{ wishlistStore.wishlistCount }} 个城市
         </el-tag>
       </div>
 
       <div class="header-actions">
+        <!-- 批量操作按钮 -->
+        <el-button
+          v-if="wishlistStore.wishlistCount > 1"
+          size="small"
+          type="warning"
+          plain
+          @click="toggleBatchMode"
+          :class="{ 'batch-active': batchMode }"
+        >
+          <el-icon><Operation /></el-icon>
+          {{ batchMode ? '退出批量' : '批量管理' }}
+        </el-button>
+
+        <!-- 批量删除按钮 -->
+        <el-button
+          v-if="batchMode && selectedItems.length > 0"
+          size="small"
+          type="danger"
+          :loading="batchDeleting"
+          @click="handleBatchDelete"
+        >
+          <el-icon><Delete /></el-icon>
+          删除选中({{ selectedItems.length }})
+        </el-button>
+
         <el-button
           size="small"
           type="primary"
@@ -39,16 +62,26 @@ v-if="wishlistStore.wishlistCount > 0"
     </div>
 
     <!-- 愿望清单列表 -->
-    <div v-loading="wishlistStore.loading"
-class="wishlist-content">
-      <div
-v-if="wishlistStore.hasCities" class="wishlist-grid"
->
+    <div v-loading="wishlistStore.loading" class="wishlist-content">
+      <div v-if="wishlistStore.hasCities"
+class="wishlist-grid">
+        <!-- 批量模式提示 -->
+        <div v-if="batchMode"
+class="batch-notice">
+          <el-icon><InfoFilled /></el-icon>
+          <span>批量管理模式：点击卡片选中，再次点击取消选中</span>
+        </div>
+
         <WishlistCard
-          v-for="item in wishlistStore.wishlistItems"
+          v-for="item in sortedWishlistItems"
           :key="item.id"
           :wishlist-item="item"
           :is-current-weather-city="isCurrentWeatherCity(item)"
+          :class="{
+            'batch-mode': batchMode,
+            'batch-selected': selectedItems.includes(item.id),
+          }"
+          @click="batchMode ? toggleItemSelection(item.id) : null"
           @remove="handleRemove"
           @edit="handleEdit"
           @view-weather="handleViewWeather"
@@ -57,30 +90,30 @@ v-if="wishlistStore.hasCities" class="wishlist-grid"
       </div>
 
       <!-- 空状态 -->
-      <div
-v-else class="empty-wishlist"
->
-        <el-icon
-size="64" color="#C0C4CC"
->
+      <div v-else
+class="empty-wishlist">
+        <el-icon size="64"
+color="#C0C4CC">
           <Star />
         </el-icon>
         <h4>还没有心仪的目的地</h4>
         <p>添加你想去的城市，让我们为你提供天气信息和旅行建议</p>
 
         <div class="empty-actions">
-          <el-button
-type="primary" @click="showAddDialog = true"
->
+          <el-button type="primary"
+@click="showAddDialog = true">
             <el-icon><Plus /></el-icon>
             添加第一个城市
           </el-button>
-          <el-button
-type="info" plain
-@click="showRecommendations = true"
->
+          <el-button type="info"
+plain @click="showRecommendations = true">
             <el-icon><MagicStick /></el-icon>
             看看推荐
+          </el-button>
+          <el-button type="success"
+plain @click="importFromClipboard">
+            <el-icon><DocumentCopy /></el-icon>
+            从剪贴板导入
           </el-button>
         </div>
       </div>
@@ -99,10 +132,8 @@ type="info" plain
         :rules="addFormRules"
         label-position="top"
       >
-        <el-form-item
-label="选择城市" prop="cityCode"
-required
->
+        <el-form-item label="选择城市"
+prop="cityCode" required>
           <el-select
             v-model="addForm.cityCode"
             placeholder="搜索城市名称"
@@ -129,9 +160,8 @@ required
           </el-select>
         </el-form-item>
 
-        <el-form-item
-label="想去的原因" prop="reason"
->
+        <el-form-item label="想去的原因"
+prop="reason">
           <el-input
             v-model="addForm.reason"
             type="textarea"
@@ -164,10 +194,8 @@ label="想去的原因" prop="reason"
               @keyup.enter="handleAddInputConfirm"
               @blur="handleAddInputConfirm"
             />
-            <el-button
-v-else size="small"
-@click="showAddInput"
->
+            <el-button v-else
+size="small" @click="showAddInput">
               <el-icon><Plus /></el-icon>
               添加标签
             </el-button>
@@ -207,8 +235,7 @@ v-else size="small"
     </el-dialog>
 
     <!-- 推荐城市对话框 -->
-    <el-dialog v-model="showRecommendations"
-title="为你推荐" width="600px">
+    <el-dialog v-model="showRecommendations" title="为你推荐" width="600px">
       <div class="recommendations-content">
         <div class="recommendation-section">
           <h4>热门目的地</h4>
@@ -259,7 +286,7 @@ title="为你推荐" width="600px">
 <script>
 import { ref, computed, onMounted, nextTick } from "vue";
 import { useRouter } from "vue-router";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import {
   Star,
   Plus,
@@ -343,6 +370,109 @@ export default {
       { name: "昆明", code: "530100" },
       { name: "桂林", code: "450300" },
     ]);
+
+    // 批量操作状态
+    const batchMode = ref(false);
+    const selectedItems = ref([]);
+    const batchDeleting = ref(false);
+
+    // 排序方式
+    const sortOrder = ref("newest"); // 'newest', 'oldest', 'alphabetical'
+
+    // 排序后的愿望清单
+    const sortedWishlistItems = computed(() => {
+      const items = [...wishlistStore.wishlistItems];
+
+      switch (sortOrder.value) {
+        case "oldest":
+          return items.sort(
+            (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+          );
+        case "alphabetical":
+          return items.sort((a, b) => a.cityName.localeCompare(b.cityName));
+        case "newest":
+        default:
+          return items.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+          );
+      }
+    });
+
+    // 切换批量模式
+    const toggleBatchMode = () => {
+      batchMode.value = !batchMode.value;
+      if (!batchMode.value) {
+        selectedItems.value = [];
+      }
+    };
+
+    // 切换项目选中状态
+    const toggleItemSelection = (itemId) => {
+      const index = selectedItems.value.indexOf(itemId);
+      if (index > -1) {
+        selectedItems.value.splice(index, 1);
+      } else {
+        selectedItems.value.push(itemId);
+      }
+    };
+
+    // 批量删除
+    const handleBatchDelete = async () => {
+      if (selectedItems.value.length === 0) return;
+
+      try {
+        await ElMessageBox.confirm(
+          `确定要删除选中的 ${selectedItems.value.length} 个城市吗？`,
+          "批量删除",
+          {
+            confirmButtonText: "确定删除",
+            cancelButtonText: "取消",
+            type: "warning",
+          },
+        );
+
+        batchDeleting.value = true;
+        const deleteCount = selectedItems.value.length;
+
+        // 逐个删除
+        for (const itemId of selectedItems.value) {
+          await wishlistStore.removeFromWishlist(itemId);
+        }
+
+        selectedItems.value = [];
+        batchMode.value = false;
+        ElMessage.success(`已成功删除 ${deleteCount} 个城市`);
+      } catch (error) {
+        if (error !== "cancel") {
+          console.error("批量删除失败:", error);
+        }
+      } finally {
+        batchDeleting.value = false;
+      }
+    };
+
+    // 从剪贴板导入城市
+    const importFromClipboard = async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        const cities = text
+          .split(/[,，\n\r]+/)
+          .map((city) => city.trim())
+          .filter((city) => city.length > 0);
+
+        if (cities.length === 0) {
+          ElMessage.warning("剪贴板中没有发现城市名称");
+          return;
+        }
+
+        ElMessage.success(`从剪贴板发现 ${cities.length} 个城市，请手动添加`);
+
+        // 可以进一步实现自动添加逻辑
+        console.log("待导入的城市:", cities);
+      } catch (error) {
+        ElMessage.error("无法访问剪贴板，请手动输入");
+      }
+    };
 
     // 检查是否为当前天气城市
     const isCurrentWeatherCity = (item) => {
@@ -575,6 +705,19 @@ export default {
       seasonalCities,
       quickAddCity,
 
+      // 批量操作
+      batchMode,
+      selectedItems,
+      batchDeleting,
+      toggleBatchMode,
+      toggleItemSelection,
+      handleBatchDelete,
+
+      // 排序和工具
+      sortOrder,
+      sortedWishlistItems,
+      importFromClipboard,
+
       // 方法
       isCurrentWeatherCity,
       handleAddCity,
@@ -590,35 +733,115 @@ export default {
 
 <style scoped>
 .wishlist-manager {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
+  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+  border-radius: 20px;
+  padding: 24px;
+  border: 1px solid rgba(99, 102, 241, 0.08);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.04),
+    0 2px 8px rgba(99, 102, 241, 0.06);
 }
 
 .wishlist-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid rgba(99, 102, 241, 0.1);
+  position: relative;
+}
+
+.wishlist-header::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  border-radius: 1px;
 }
 
 .header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+}
+
+.header-left .el-tag {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
 }
 
 .section-title {
   margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #303133;
+  font-size: 22px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+}
+
+.section-title .el-icon {
+  font-size: 24px;
+  color: #6366f1;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1) rotate(5deg);
+  }
 }
 
 .header-actions {
   display: flex;
-  gap: 8px;
+  gap: 12px;
+}
+
+.header-actions .el-button {
+  border-radius: 12px;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header-actions .el-button--primary {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border: none;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.header-actions .el-button--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+}
+
+.header-actions .el-button--info {
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  color: #6b7280;
+  border: 1px solid rgba(107, 114, 128, 0.2);
+}
+
+.header-actions .el-button--info:hover {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #ffffff;
+  border-color: transparent;
+  transform: translateY(-2px);
 }
 
 .wishlist-content {
@@ -627,32 +850,139 @@ export default {
 
 .wishlist-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  padding: 4px; /* 为卡片阴影留出空间 */
+}
+
+/* 批量模式样式 */
+.batch-notice {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  border-left: 4px solid #f59e0b;
+}
+
+.batch-notice .el-icon {
+  color: #f59e0b;
+  font-size: 16px;
+}
+
+/* 批量模式按钮样式 */
+.header-actions .el-button.batch-active {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+/* 批量模式卡片样式 */
+.wishlist-card.batch-mode {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.wishlist-card.batch-mode:hover {
+  transform: scale(1.02);
+}
+
+.wishlist-card.batch-selected {
+  border-color: #f59e0b !important;
+  background: linear-gradient(
+    135deg,
+    #fef3c7 0%,
+    #fde68a 30%,
+    #fafbfc 100%
+  ) !important;
+  box-shadow:
+    0 8px 32px rgba(245, 158, 11, 0.15),
+    0 4px 16px rgba(0, 0, 0, 0.08) !important;
+}
+
+.wishlist-card.batch-selected::after {
+  content: "✓";
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  z-index: 10;
 }
 
 .empty-wishlist {
   text-align: center;
-  padding: 60px 20px;
-  color: #606266;
+  padding: 80px 20px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 16px;
+  border: 2px dashed rgba(99, 102, 241, 0.2);
+  margin: 20px 0;
+}
+
+.empty-wishlist .el-icon {
+  color: #6366f1 !important;
+  margin-bottom: 20px;
+  opacity: 0.7;
 }
 
 .empty-wishlist h4 {
-  margin: 16px 0 8px 0;
-  font-size: 16px;
-  color: #303133;
+  margin: 16px 0 12px 0;
+  font-size: 20px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .empty-wishlist p {
-  margin: 0 0 24px 0;
-  font-size: 14px;
-  line-height: 1.5;
+  margin: 0 0 32px 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #6b7280;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .empty-actions {
   display: flex;
   justify-content: center;
-  gap: 12px;
+  gap: 16px;
+}
+
+.empty-actions .el-button {
+  border-radius: 12px;
+  font-weight: 500;
+  padding: 10px 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.empty-actions .el-button--primary {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border: none;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+}
+
+.empty-actions .el-button--primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.4);
 }
 
 .tag-input-area {
@@ -699,24 +1029,88 @@ export default {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+  .wishlist-manager {
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+
   .wishlist-header {
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
     align-items: stretch;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: 20px;
+    justify-content: center;
+  }
+
+  .header-left {
+    justify-content: center;
+    gap: 12px;
   }
 
   .header-actions {
     justify-content: center;
+    gap: 10px;
   }
 
   .wishlist-grid {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 16px;
+    padding: 2px;
+  }
+
+  .empty-wishlist {
+    padding: 60px 16px;
+    margin: 16px 0;
   }
 
   .empty-actions {
     flex-direction: column;
     align-items: center;
+    gap: 12px;
+  }
+
+  .empty-actions .el-button {
+    width: 200px;
+  }
+}
+
+/* 暗色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .wishlist-manager {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    border-color: rgba(99, 102, 241, 0.2);
+  }
+
+  .wishlist-header {
+    border-bottom-color: rgba(99, 102, 241, 0.2);
+  }
+
+  .section-title {
+    background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .empty-wishlist {
+    background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+    border-color: rgba(99, 102, 241, 0.3);
+  }
+
+  .empty-wishlist h4 {
+    background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .empty-wishlist p {
+    color: #d1d5db;
   }
 }
 </style>

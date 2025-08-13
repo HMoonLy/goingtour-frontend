@@ -143,6 +143,17 @@ const routes = [
         },
       },
 
+      // 愿望清单模块
+      {
+        path: "wishlist",
+        name: "Wishlist",
+        component: () => import("../pages/Wishlist/WishlistPage.vue"),
+        meta: {
+          titleKey: "route.wishlist",
+          requiresAuth: true,
+        },
+      },
+
       // 行程模块
       {
         path: "destinations",

@@ -1,20 +1,23 @@
 <template>
   <div class="ai-trip-display">
     <!-- 行程标题卡片 -->
-    <el-card class="trip-header-card" shadow="never">
+    <el-card
+class="trip-header-card" shadow="never"
+>
       <div class="trip-header-content">
         <div class="trip-title-section">
           <div class="title-with-icon">
-            <el-icon class="ai-icon" color="#409eff">
+            <el-icon
+class="ai-icon" color="#409eff"
+>
               <Cpu />
             </el-icon>
             <h1 class="trip-main-title">
               {{ (tripData?.destinationInfo?.name || "") + "智能行程推荐" }}
             </h1>
           </div>
-          <p
-v-if="tripData?.destinationInfo" class="trip-subtitle"
->
+          <p v-if="tripData?.destinationInfo"
+class="trip-subtitle">
             {{
               `为您推荐${tripData?.tripBasicInfo?.days || 3}天${tripData?.destinationInfo?.name || "目的地"}的精彩行程`
             }}
@@ -88,28 +91,42 @@ v-if="tripData?.destinationInfo" class="trip-subtitle"
     </el-card>
 
     <!-- 完整的行程内容 -->
-    <el-card class="content-card" shadow="hover">
-      <div class="markdown-content" data-safe="true" v-html="renderedContent" />
+    <el-card
+class="content-card" shadow="hover"
+>
+      <div
+class="markdown-content" data-safe="true"
+v-html="renderedContent"
+/>
     </el-card>
 
     <!-- 操作按钮区域 -->
-    <el-card class="actions-card" shadow="never">
-      <div class="action-buttons">
-        <el-button
-:loading="copying" @click="copyToClipboard"
+    <el-card
+class="actions-card" shadow="never"
 >
+      <div class="action-buttons">
+        <el-button :loading="copying"
+@click="copyToClipboard">
           <el-icon><DocumentCopy /></el-icon>
           复制内容
         </el-button>
-        <el-button type="primary" @click="saveTrip" :loading="saving">
+        <el-button
+type="primary" @click="saveTrip"
+:loading="saving"
+>
           <el-icon><Folder /></el-icon>
           保存行程
         </el-button>
-        <el-button type="success" @click="shareTrip" :loading="sharing">
+        <el-button
+type="success" @click="shareTrip"
+:loading="sharing"
+>
           <el-icon><Share /></el-icon>
           分享
         </el-button>
-        <el-button type="warning" @click="regenerateTrip">
+        <el-button
+type="warning" @click="regenerateTrip"
+>
           <el-icon><Refresh /></el-icon>
           重新生成
         </el-button>
@@ -117,7 +134,9 @@ v-if="tripData?.destinationInfo" class="trip-subtitle"
     </el-card>
 
     <!-- 用户反馈区域 -->
-    <el-card class="feedback-card" shadow="hover">
+    <el-card
+class="feedback-card" shadow="hover"
+>
       <template #header>
         <div class="card-title">
           <el-icon color="#67c23a">

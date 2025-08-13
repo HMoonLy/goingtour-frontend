@@ -6,7 +6,9 @@
       processing: isProcessing,
     }"
   >
-    <div class="city-left" @click="handleCitySelect">
+    <div
+class="city-left" @click="handleCitySelect"
+>
       <span class="city-name">{{ city.中文名 }}</span>
       <span class="city-province">{{ provinceName }}</span>
     </div>
@@ -25,9 +27,8 @@
         <div
 v-if="isProcessing" class="star-loading">⭐</div>
         <!-- 正常状态显示五角星 -->
-        <div
-v-else class="star-icon"
->
+        <div v-else
+class="star-icon">
           {{ isInWishlist ? "⭐" : "☆" }}
         </div>
       </div>

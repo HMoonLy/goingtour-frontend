@@ -1,7 +1,9 @@
 <template>
   <div class="simple-city-grid">
     <!-- 性能提示信息 -->
-    <div v-if="cityGroups.length > 10" class="performance-notice">
+    <div
+v-if="cityGroups.length > 10" class="performance-notice"
+>
       <el-icon><InfoFilled /></el-icon>
       <span>正在展示{{ totalCityCount }}个城市，请耐心等待加载完成</span>
     </div>
@@ -16,7 +18,9 @@
       <!-- 分组标题 -->
       <div class="group-header">
         <div class="group-title-container">
-          <div class="group-letter-badge">{{ group.letter }}</div>
+          <div class="group-letter-badge">
+            {{ group.letter }}
+          </div>
           <h2 class="group-title">
             <span class="city-count">({{ group.cities.length }})</span>
           </h2>
@@ -105,7 +109,7 @@ export default defineComponent({
 .city-group-section {
   margin-bottom: 40px;
   padding: 0 20px;
-  
+
   /* 性能优化 */
   will-change: transform;
   transform: translateZ(0);
@@ -114,43 +118,60 @@ export default defineComponent({
 /* ===== 分组标题样式 ===== */
 .group-header {
   margin-bottom: 24px;
-  padding: 20px 0;
+  padding: 24px 16px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  
+
   /* 固定高度解决行高问题 */
-  min-height: 80px;
+  min-height: 90px;
   display: flex;
   align-items: center;
-  
+
   /* 吸顶效果 */
   position: sticky;
   top: 0;
   z-index: 10;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(248, 250, 252, 0.95) 100%
+  );
+  backdrop-filter: blur(12px);
+  border-radius: 12px 12px 0 0;
+  margin: 0 -20px 24px -20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .group-title-container {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
   width: 100%;
 }
 
 .group-letter-badge {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  box-shadow:
+    0 4px 14px rgba(99, 102, 241, 0.4),
+    0 2px 6px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.group-letter-badge:hover {
+  transform: scale(1.05) translateY(-1px);
+  box-shadow:
+    0 6px 20px rgba(99, 102, 241, 0.5),
+    0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .group-title {
@@ -161,10 +182,10 @@ export default defineComponent({
   display: flex;
   align-items: center;
   gap: 12px;
-  
+
   /* 固定行高 */
   line-height: 1.2;
-  
+
   /* 优化字体渲染 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -193,23 +214,23 @@ export default defineComponent({
     padding: 0 16px;
     margin-bottom: 32px;
   }
-  
+
   .group-header {
     margin-bottom: 20px;
     padding: 16px 0;
     min-height: 72px;
   }
-  
+
   .group-letter-badge {
     width: 36px;
     height: 36px;
     font-size: 14px;
   }
-  
+
   .group-title {
     font-size: 20px;
   }
-  
+
   .city-count {
     font-size: 14px;
     padding: 3px 10px;
@@ -221,27 +242,27 @@ export default defineComponent({
     padding: 0 12px;
     margin-bottom: 24px;
   }
-  
+
   .group-header {
     min-height: 64px;
     padding: 12px 0;
   }
-  
+
   .group-title-container {
     gap: 12px;
   }
-  
+
   .group-letter-badge {
     width: 32px;
     height: 32px;
     font-size: 13px;
   }
-  
+
   .group-title {
     font-size: 18px;
     gap: 8px;
   }
-  
+
   .city-count {
     font-size: 13px;
     padding: 2px 8px;
@@ -251,17 +272,18 @@ export default defineComponent({
 /* ===== 暗色模式支持 ===== */
 @media (prefers-color-scheme: dark) {
   .group-header {
-    background: rgba(31, 41, 55, 0.95);
-    border-bottom-color: rgba(255, 255, 255, 0.1);
+    background: linear-gradient(
+      135deg,
+      rgba(31, 41, 55, 0.98) 0%,
+      rgba(17, 24, 39, 0.95) 100%
+    );
+    border-bottom-color: rgba(99, 102, 241, 0.2);
   }
-  
-  .group-title {
-    color: #f9fafb;
-  }
-  
-  .city-count {
-    color: #9ca3af;
-    background: rgba(156, 163, 175, 0.1);
+
+  .group-letter-badge {
+    box-shadow:
+      0 4px 14px rgba(99, 102, 241, 0.6),
+      0 2px 6px rgba(0, 0, 0, 0.3);
   }
 }
 
@@ -292,13 +314,13 @@ export default defineComponent({
   .group-header {
     border-bottom: 2px solid #000000;
   }
-  
+
   .group-letter-badge {
     background: #000000;
     color: #ffffff;
     box-shadow: none;
   }
-  
+
   .group-title {
     color: #000000;
   }

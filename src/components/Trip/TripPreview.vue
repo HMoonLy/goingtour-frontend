@@ -1,11 +1,9 @@
 <template>
   <div class="step-content">
-    <el-card
-class="info-card" shadow="hover"
->
-      <div
-v-if="tripData" class="trip-preview"
->
+    <el-card class="info-card"
+shadow="hover">
+      <div v-if="tripData"
+class="trip-preview">
         <!-- 行程概述 -->
         <div class="trip-summary">
           <div class="summary-header">
@@ -31,10 +29,8 @@ v-if="tripData" class="trip-preview"
               </div>
             </div>
             <div class="summary-actions">
-              <el-button
-type="primary" size="large"
-@click="shareTrip"
->
+              <el-button type="primary"
+size="large" @click="shareTrip">
                 <el-icon><Share /></el-icon>
                 {{ "分享" }}
               </el-button>
@@ -89,10 +85,8 @@ type="primary" size="large"
                         @confirm="removeActivity(index, activityIndex)"
                       >
                         <template #reference>
-                          <el-button
-size="small" circle
-type="danger"
->
+                          <el-button size="small"
+circle type="danger">
                             <el-icon><Delete /></el-icon>
                           </el-button>
                         </template>
@@ -107,22 +101,18 @@ type="danger"
       </div>
 
       <!-- 加载中状态 -->
-      <div
-v-else-if="isLoading" class="no-trip-data"
->
-        <el-skeleton
-:rows="10" animated
-/>
+      <div v-else-if="isLoading"
+class="no-trip-data">
+        <el-skeleton :rows="10"
+animated />
       </div>
 
       <!-- 无数据状态 -->
-      <div
-v-else class="no-trip-data"
->
+      <div v-else
+class="no-trip-data">
         <el-empty :description="'暂无行程数据'">
-          <el-button
-type="primary" @click="$emit('prev-step')"
->
+          <el-button type="primary"
+@click="$emit('prev-step')">
             {{ "生成行程" }}
           </el-button>
         </el-empty>
@@ -131,9 +121,8 @@ type="primary" @click="$emit('prev-step')"
 
     <!-- 步骤操作按钮 -->
     <div class="step-actions">
-      <el-button
-size="large" @click="$emit('prev-step')"
->
+      <el-button size="large"
+@click="$emit('prev-step')">
         <el-icon><ArrowLeft /></el-icon>
         {{ "上一步" }}
       </el-button>

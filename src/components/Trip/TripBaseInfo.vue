@@ -8,11 +8,11 @@
         </el-icon>
         <div class="title-text">
           <h2 class="main-title">
-            行程基础信息
-          </h2>
+行程基础信息
+</h2>
           <p class="subtitle">
-            完善您的出行计划，我们将为您量身定制专属行程
-          </p>
+完善您的出行计划，我们将为您量身定制专属行程
+</p>
         </div>
       </div>
     </div>
@@ -35,10 +35,8 @@
           <el-row :gutter="24">
             <!-- 目的地选择 -->
             <el-col :span="12">
-              <el-form-item
-                label="目的地"
-                prop="destination"
-              >
+              <el-form-item label="目的地"
+prop="destination">
                 <el-input
                   v-model="tripForm.destinationName"
                   placeholder="搜索城市、地区..."
@@ -47,10 +45,8 @@
                   disabled
                 />
                 <div class="selected-city-info">
-                  <el-tag
-                    type="success"
-                    size="small"
-                  >
+                  <el-tag type="success"
+size="small">
                     {{ 已选择 }}: {{ tripForm.destinationName }}
                   </el-tag>
                 </div>
@@ -59,10 +55,8 @@
 
             <!-- 出行天数 -->
             <el-col :span="12">
-              <el-form-item
-                label="天数"
-                prop="days"
-              >
+              <el-form-item label="天数"
+prop="days">
                 <div class="days-input-container">
                   <el-input-number
                     v-model="tripForm.days"
@@ -74,15 +68,13 @@
                     disabled
                   />
                   <!-- 天数描述 -->
-                  <div
-                    v-if="tripForm.days"
-                    class="days-description"
-                  >
+                  <div v-if="tripForm.days"
+class="days-description">
                     <span class="days-text">{{ getDaysDescription() }}</span>
                   </div>
                   <div class="form-tip">
-                    根据日期范围自动计算天数
-                  </div>
+根据日期范围自动计算天数
+</div>
                 </div>
               </el-form-item>
             </el-col>
@@ -122,18 +114,16 @@
                     </div>
                   </template>
                   <template v-else>
-                    请选择您计划出行的日期范围
-                  </template>
+请选择您计划出行的日期范围
+</template>
                 </div>
               </el-form-item>
             </el-col>
 
             <!-- 出行人数 -->
             <el-col :span="12">
-              <el-form-item
-                label="人数"
-                prop="travelers"
-              >
+              <el-form-item label="人数"
+prop="travelers">
                 <el-input-number
                   v-model="tripForm.travelers"
                   :min="1"
@@ -142,8 +132,8 @@
                   style="width: 100%"
                 />
                 <div class="form-tip">
-                  人数会影响餐厅和住宿推荐
-                </div>
+人数会影响餐厅和住宿推荐
+</div>
               </el-form-item>
             </el-col>
           </el-row>
@@ -176,10 +166,8 @@
           </div>
 
           <!-- 天气加载状态 -->
-          <div
-            v-if="loadingWeather"
-            class="weather-loading"
-          >
+          <div v-if="loadingWeather"
+class="weather-loading">
             <el-icon class="is-loading">
               <Loading />
             </el-icon>
@@ -187,24 +175,18 @@
           </div>
 
           <!-- 天气错误状态 -->
-          <div
-            v-else-if="weatherError"
-            class="weather-error"
-          >
+          <div v-else-if="weatherError"
+class="weather-error">
             <el-icon><Warning /></el-icon>
             <span>{{ weatherError }}</span>
           </div>
 
           <!-- 天气信息显示 -->
-          <div
-            v-else-if="weatherSuggestion"
-            class="weather-content"
-          >
+          <div v-else-if="weatherSuggestion"
+class="weather-content">
             <!-- 失效提示 -->
-            <div
-              v-if="isWeatherDisabled()"
-              class="weather-disabled-notice"
-            >
+            <div v-if="isWeatherDisabled()"
+class="weather-disabled-notice">
               <el-icon><InfoFilled /></el-icon>
               <span v-if="isDateRangeOutOfForecast()">
                 所选日期超出天气预报范围（{{ formatDateRange() }}）
@@ -235,8 +217,8 @@
                     {{ forecast.date }}
                   </div>
                   <div class="week-text">
-                    周{{ forecast.week }}
-                  </div>
+周{{ forecast.week }}
+</div>
                 </div>
 
                 <div class="forecast-weather">
@@ -250,11 +232,11 @@
 
                 <div class="forecast-temp">
                   <div class="temp-high">
-                    {{ forecast.dayTemp }}°
-                  </div>
+{{ forecast.dayTemp }}°
+</div>
                   <div class="temp-low">
-                    {{ forecast.nightTemp }}°
-                  </div>
+{{ forecast.nightTemp }}°
+</div>
                 </div>
 
                 <div class="forecast-wind">
@@ -285,10 +267,8 @@
           </div>
 
           <!-- 出行建议 -->
-          <div
-            v-if="getSmartTravelTips().length > 0"
-            class="weather-tips"
-          >
+          <div v-if="getSmartTravelTips().length > 0"
+class="weather-tips">
             <div class="tips-header">
               <el-icon><InfoFilled /></el-icon>
               <span class="tips-title">出行建议</span>
@@ -316,11 +296,8 @@
         >
           <el-icon><Star /></el-icon>
           <span>根据您的偏好，推荐预算：¥{{ userPreferences.budget }}/天</span>
-          <el-button
-            type="link"
-            size="small"
-            @click="applyRecommendedBudget"
-          >
+          <el-button type="link"
+size="small" @click="applyRecommendedBudget">
             应用推荐
           </el-button>
         </div>
@@ -364,25 +341,21 @@
               class="budget-preview"
             >
               <div class="preview-label">
-                总预算
-              </div>
+总预算
+</div>
               <div class="preview-amount">
                 {{ calculateBudgetPreview(option.value) }}
               </div>
             </div>
-            <div
-              v-if="tripForm.budget === option.value"
-              class="budget-check"
-            >
+            <div v-if="tripForm.budget === option.value"
+class="budget-check">
               <el-icon><Check /></el-icon>
             </div>
           </div>
         </div>
 
-        <div
-          v-if="shouldShowBudgetSummary()"
-          class="budget-summary"
-        >
+        <div v-if="shouldShowBudgetSummary()"
+class="budget-summary">
           <div class="budget-info-row">
             <span class="budget-label">{{ 已选择 }}：</span>
             <span class="budget-value">{{ getBudgetText() }}</span>
@@ -412,11 +385,8 @@
         </el-button>
       </div>
       <div class="action-right">
-        <el-button
-          type="primary"
-          size="large"
-          @click="goToNextStep"
-        >
+        <el-button type="primary"
+size="large" @click="goToNextStep">
           下一步
           <el-icon><ArrowRight /></el-icon>
         </el-button>
