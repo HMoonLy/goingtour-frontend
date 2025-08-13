@@ -1,13 +1,10 @@
 <template>
   <div class="profile-page">
     <div class="profile-header">
-      <el-avatar
-:src="userStore.avatar" :size="72"
-/>
+      <el-avatar :src="userStore.avatar" :size="72" />
       <div class="profile-basic">
         <h2>{{ userStore.nickname }}</h2>
-        <p v-if="userStore.email"
-class="email">
+        <p v-if="userStore.email" class="email">
           {{ userStore.email }}
         </p>
       </div>
@@ -17,45 +14,31 @@ class="email">
 
     <el-card class="quick-nav">
       <div class="grid">
-        <div
-class="grid-item" @click="openSecurity()"
->
+        <div class="grid-item" @click="openSecurity()">
           <el-icon><Lock /></el-icon>
           <span class="title">安全设置</span>
         </div>
-        <div
-class="grid-item" @click="openPreferences()"
->
+        <div class="grid-item" @click="openPreferences()">
           <el-icon><Setting /></el-icon>
           <span class="title">个性化设置</span>
         </div>
-        <div
-class="grid-item" @click="openNotifications()"
->
+        <div class="grid-item" @click="openNotifications()">
           <el-icon><Bell /></el-icon>
           <span class="title">通知设置</span>
         </div>
-        <div
-class="grid-item" @click="openSystem()"
->
+        <div class="grid-item" @click="openSystem()">
           <el-icon><Cpu /></el-icon>
           <span class="title">系统设置</span>
         </div>
-        <div
-class="grid-item" @click="openHistory()"
->
+        <div class="grid-item" @click="openHistory()">
           <el-icon><Timer /></el-icon>
           <span class="title">登录历史</span>
         </div>
-        <div
-class="grid-item" @click="openData()"
->
+        <div class="grid-item" @click="openData()">
           <el-icon><Document /></el-icon>
           <span class="title">隐私设置</span>
         </div>
-        <div
-class="grid-item danger" @click="openDanger()"
->
+        <div class="grid-item danger" @click="openDanger()">
           <el-icon><Warning /></el-icon>
           <span class="title">删除账户</span>
         </div>
@@ -91,8 +74,7 @@ class="grid-item danger" @click="openDanger()"
             <span>我的偏好</span>
           </div>
         </template>
-        <div v-if="parsedPreferences.mbtiType"
-class="summary-row">
+        <div v-if="parsedPreferences.mbtiType" class="summary-row">
           <img
             class="mbti-badge"
             :src="`/images/mbti/${parsedPreferences.mbtiType}.png`"
@@ -102,18 +84,15 @@ class="summary-row">
             {{ getMbtiName(parsedPreferences.mbtiType) }}
           </span>
         </div>
-        <div v-if="summaryTransportText"
-class="summary-row">
+        <div v-if="summaryTransportText" class="summary-row">
           <span class="summary-label">交通方式</span>
           <span class="summary-text">{{ summaryTransportText }}</span>
         </div>
-        <div v-if="summaryPaceText"
-class="summary-row">
+        <div v-if="summaryPaceText" class="summary-row">
           <span class="summary-label">旅行节奏</span>
           <span class="summary-text">{{ summaryPaceText }}</span>
         </div>
-        <div v-if="summaryDietText"
-class="summary-row">
+        <div v-if="summaryDietText" class="summary-row">
           <span class="summary-label">饮食偏好</span>
           <span class="summary-text">{{ summaryDietText }}</span>
         </div>
@@ -121,9 +100,7 @@ class="summary-row">
     </div>
   </div>
   <el-drawer v-model="showPref" title="个性化设置" size="60%" destroy-on-close>
-    <Preferences
-embedded @saved="onPrefSaved"
-/>
+    <Preferences embedded @saved="onPrefSaved" />
   </el-drawer>
 
   <el-drawer
@@ -288,14 +265,14 @@ export default {
           tastes
             .slice(0, 2)
             .map((x) => translateTag(x))
-            .join("、"),
+            .join("、")
         );
       if (restrictions.length)
         parts.push(
           restrictions
             .slice(0, 2)
             .map((x) => translateTag(x, "dietary"))
-            .join("、"),
+            .join("、")
         );
       return parts.join(" · ");
     });

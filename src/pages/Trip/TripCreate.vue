@@ -5,23 +5,15 @@
       v-if="!baseForm.destinationName && !isRestoringProgress && !isFromDraft"
       class="no-destination-notice"
     >
-      <el-card
-class="notice-card" shadow="hover"
->
+      <el-card class="notice-card" shadow="hover">
         <div class="notice-content">
-          <el-icon
-class="notice-icon" color="#F56C6C"
-size="48"
->
+          <el-icon class="notice-icon" color="#F56C6C" size="48">
             <Location />
           </el-icon>
           <h2>目的地</h2>
           <p>创建行程</p>
           <div class="notice-actions">
-            <el-button
-type="primary" size="large"
-@click="goToDestinations"
->
+            <el-button type="primary" size="large" @click="goToDestinations">
               <el-icon><Location /></el-icon>
               目的地
             </el-button>
@@ -183,8 +175,9 @@ finish-status="success" align-center
         <!-- 空状态展示 -->
         <div
 v-else-if="currentStep === 3" class="empty-trip-state">
-          <el-empty description="未找到行程数据"
-:image-size="200">
+          <el-empty
+description="未找到行程数据" :image-size="200"
+>
             >
             <el-button
 type="primary" @click="regenerateTrip">
@@ -213,9 +206,7 @@ type="primary" @click="regenerateTrip">
           />
         </el-form-item>
         <el-form-item label="当前进度">
-          <el-tag
-type="info" size="small"
->
+          <el-tag type="info" size="small">
             第{{ currentStep + 1 }}步：{{ getStepName(currentStep) }}
           </el-tag>
         </el-form-item>
@@ -247,23 +238,15 @@ type="info" size="small"
       :before-close="handleCloseDraftList"
     >
       <div class="draft-list-container">
-        <div
-v-if="drafts.length === 0" class="empty-drafts"
->
-          <el-empty
-description="暂无保存的草稿" image-size="120"
->
-            <el-button
-type="primary" @click="showDraftList = false"
->
+        <div v-if="drafts.length === 0" class="empty-drafts">
+          <el-empty description="暂无保存的草稿" image-size="120">
+            <el-button type="primary" @click="showDraftList = false">
               开始创建行程
             </el-button>
           </el-empty>
         </div>
 
-        <div
-v-else class="draft-grid"
->
+        <div v-else class="draft-grid">
           <div
             v-for="draft in drafts"
             :key="draft.id"
@@ -275,12 +258,10 @@ v-else class="draft-grid"
                 <h4 class="draft-title">
                   {{ draft.name }}
                 </h4>
-                <el-dropdown trigger="click"
-@command="handleDraftAction">
-                  <el-button
-link size="small"
-class="draft-menu-btn"
+                <el-dropdown
+trigger="click" @command="handleDraftAction"
 >
+                  <el-button link size="small" class="draft-menu-btn">
                     <el-icon><MoreFilled /></el-icon>
                   </el-button>
                   <template #dropdown>
@@ -346,9 +327,7 @@ class="draft-menu-btn"
         </div>
 
         <!-- 草稿统计信息 -->
-        <div
-v-if="drafts.length > 0" class="draft-stats"
->
+        <div v-if="drafts.length > 0" class="draft-stats">
           <el-divider />
           <div class="stats-row">
             <span>共 {{ drafts.length }} 个草稿</span>
@@ -367,8 +346,10 @@ v-if="drafts.length > 0" class="draft-stats"
     </el-dialog>
 
     <!-- 重命名草稿对话框 -->
-    <el-dialog v-model="renameDraftDialog"
-title="重命名草稿" width="400px">
+    <el-dialog
+v-model="renameDraftDialog" title="重命名草稿"
+width="400px"
+>
       <el-form label-width="80px">
         <el-form-item label="草稿名称">
           <el-input

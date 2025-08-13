@@ -203,36 +203,6 @@ const routes = [
           requiresAuth: true,
         },
       },
-
-      // 数据模块
-      {
-        path: "attraction/:id",
-        name: "AttractionDetail",
-        component: () => import("../pages/Data/AttractionDetail.vue"),
-        props: true,
-        meta: {
-          titleKey: "route.attractionDetail",
-          requiresAuth: false, // 景点详情可以不登录查看
-        },
-      },
-      {
-        path: "restaurants",
-        name: "RestaurantList",
-        component: () => import("../pages/Data/RestaurantList.vue"),
-        meta: {
-          titleKey: "route.restaurantList",
-          requiresAuth: false,
-        },
-      },
-      {
-        path: "search",
-        name: "Search",
-        component: () => import("../pages/Data/Search.vue"),
-        meta: {
-          titleKey: "route.search",
-          requiresAuth: false,
-        },
-      },
     ],
   },
 

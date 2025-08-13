@@ -1,8 +1,9 @@
 <template>
   <div class="step-content">
     <!-- AI提示词预览面板 -->
-    <el-card class="ai-prompt-card"
-shadow="hover">
+    <el-card
+class="ai-prompt-card" shadow="hover"
+>
       <template #header>
         <div class="ai-prompt-header">
           <div class="header-left">
@@ -10,16 +11,20 @@ shadow="hover">
               <MagicStick />
             </el-icon>
             <span>AI提示词预览</span>
-            <el-tag size="small"
-:type="getPromptCompletionClass()">
+            <el-tag
+size="small" :type="getPromptCompletionClass()"
+>
               {{ getPromptCompletionText() }}
             </el-tag>
           </div>
           <div class="header-right">
-            <el-tooltip content="查看完整提示词"
-placement="top">
-              <el-button type="info"
-link @click="showFullPrompt">
+            <el-tooltip
+content="查看完整提示词" placement="top"
+>
+              <el-button
+type="info" link
+@click="showFullPrompt"
+>
                 <el-icon><ViewIcon /></el-icon>
               </el-button>
             </el-tooltip>
@@ -30,8 +35,9 @@ link @click="showFullPrompt">
       <div class="ai-prompt-content">
         <div v-if="!generating && !generatedTrip">
           <div class="generation-intro">
-            <el-icon size="48"
-color="#91A8D0">
+            <el-icon
+size="48" color="#91A8D0"
+>
               <MagicStick />
             </el-icon>
             <h3>准备生成您的个性化行程</h3>
@@ -60,8 +66,9 @@ color="#91A8D0">
                 }}</span
                 >。
               </div>
-              <div v-else
-class="prompt-placeholder">
+              <div
+v-else class="prompt-placeholder"
+>
                 {{ "请填写基本信息" }}
               </div>
             </div>
@@ -71,8 +78,9 @@ class="prompt-placeholder">
                 <el-icon><User /></el-icon>
                 <h4>个人偏好</h4>
               </div>
-              <div v-if="hasUserPreferences"
-class="prompt-text">
+              <div
+v-if="hasUserPreferences" class="prompt-text"
+>
                 我的旅行偏好是<span class="highlight">{{
                   selectedPreferenceTags.join("、")
                 }}</span
@@ -105,8 +113,9 @@ class="prompt-text">
                   >。
                 </template>
               </div>
-              <div v-else
-class="prompt-placeholder">
+              <div
+v-else class="prompt-placeholder"
+>
                 {{ "请在设置中配置您的偏好" }}
               </div>
             </div>
@@ -175,8 +184,9 @@ class="prompt-placeholder">
                   }}</span>
                 </template>
               </div>
-              <div v-else
-class="prompt-placeholder">
+              <div
+v-else class="prompt-placeholder"
+>
                 {{ "请在上一步设置您的偏好" }}
               </div>
             </div>
@@ -224,8 +234,9 @@ class="prompt-placeholder">
             </div>
 
             <!-- 天气建议部分 -->
-            <div v-if="weatherSuggestion"
-class="prompt-section">
+            <div
+v-if="weatherSuggestion" class="prompt-section"
+>
               <div class="section-header">
                 <el-icon><Sunny /></el-icon>
                 <h4>{{ "天气建议" }}</h4>
@@ -237,8 +248,10 @@ class="prompt-section">
                 >
                   {{ weatherSuggestion.dataSource }}
                 </el-tag>
-                <el-tag v-else
-size="small" type="success" effect="plain">
+                <el-tag
+v-else size="small"
+type="success" effect="plain"
+>
                   {{ "高德天气API" }}
                 </el-tag>
               </div>
@@ -427,8 +440,10 @@ size="small" type="success" effect="plain">
                       >
                         {{ "历史气候模拟" }}
                       </el-tag>
-                      <el-tag v-else
-size="small" type="success">
+                      <el-tag
+v-else size="small"
+type="success"
+>
                         {{ "高德API实时预报" }}
                       </el-tag>
                       <el-tag
@@ -506,8 +521,9 @@ size="small" type="success">
             </div>
 
             <!-- 天气加载状态 -->
-            <div v-else-if="loadingWeather"
-class="prompt-section">
+            <div
+v-else-if="loadingWeather" class="prompt-section"
+>
               <div class="section-header">
                 <el-icon><Loading /></el-icon>
                 <h4>{{ "天气建议" }}</h4>
@@ -518,8 +534,9 @@ class="prompt-section">
             </div>
 
             <!-- 天气错误状态 -->
-            <div v-else-if="weatherError"
-class="prompt-section">
+            <div
+v-else-if="weatherError" class="prompt-section"
+>
               <div class="section-header">
                 <el-icon><Warning /></el-icon>
                 <h4>{{ "天气建议" }}</h4>
@@ -534,14 +551,16 @@ class="prompt-section">
                 <el-icon><Location /></el-icon>
                 <h4>{{ "必去景点" }}</h4>
               </div>
-              <div v-if="selectedAttractions.length > 0"
-class="prompt-text">
+              <div
+v-if="selectedAttractions.length > 0" class="prompt-text"
+>
                 {{ "必去景点" }}：<span class="highlight">{{
                   selectedAttractions.map((a) => a.name).join("、")
                 }}</span>
               </div>
-              <div v-else
-class="prompt-placeholder">
+              <div
+v-else class="prompt-placeholder"
+>
                 {{ "请选择您必须去的景点" }}
               </div>
             </div>
@@ -551,14 +570,16 @@ class="prompt-placeholder">
                 <el-icon><Shop /></el-icon>
                 <h4>{{ "必吃美食" }}</h4>
               </div>
-              <div v-if="selectedRestaurants.length > 0"
-class="prompt-text">
+              <div
+v-if="selectedRestaurants.length > 0" class="prompt-text"
+>
                 {{ "必吃美食" }}：<span class="highlight">{{
                   selectedRestaurants.map((r) => r.name).join("、")
                 }}</span>
               </div>
-              <div v-else
-class="prompt-placeholder">
+              <div
+v-else class="prompt-placeholder"
+>
                 {{ "请选择您必须尝试的美食" }}
               </div>
             </div>
@@ -594,8 +615,10 @@ class="prompt-placeholder">
           </div>
 
           <div class="prompt-actions">
-            <el-button type="success"
-size="large" @click="showFullPrompt">
+            <el-button
+type="success" size="large"
+@click="showFullPrompt"
+>
               <el-icon><ViewIcon /></el-icon>
               {{ "查看完整提示词" }}
             </el-button>
@@ -612,12 +635,16 @@ size="large" @click="showFullPrompt">
 
             <!-- 生成中的状态 -->
             <template v-else>
-              <el-button type="primary"
-size="large" loading disabled>
+              <el-button
+type="primary" size="large"
+loading disabled
+>
                 {{ "正在生成..." }}
               </el-button>
-              <el-button type="danger"
-size="large" @click="cancelGeneration">
+              <el-button
+type="danger" size="large"
+@click="cancelGeneration"
+>
                 <el-icon><Close /></el-icon>
                 {{ "取消" }}
               </el-button>
@@ -656,11 +683,14 @@ size="large" @click="cancelGeneration">
           />
         </div>
 
-        <div v-if="generating"
-class="generating">
+        <div
+v-if="generating" class="generating"
+>
           <div class="generating-animation">
-            <el-icon size="80"
-color="#91A8D0" class="rotating">
+            <el-icon
+size="80" color="#91A8D0"
+class="rotating"
+>
               <Loading />
             </el-icon>
             <div class="generating-content">
@@ -685,10 +715,12 @@ color="#91A8D0" class="rotating">
           </div>
         </div>
 
-        <div v-if="generatedTrip && !generating"
-class="generation-complete">
-          <el-icon size="48"
-color="#67C23A">
+        <div
+v-if="generatedTrip && !generating" class="generation-complete"
+>
+          <el-icon
+size="48" color="#67C23A"
+>
             <Check />
           </el-icon>
           <h3>{{ "行程生成完成" }}</h3>
@@ -697,8 +729,10 @@ color="#67C23A">
               `已为您推荐${generatedTrip?.attractions?.length || 0}个景点和${generatedTrip?.restaurants?.length || 0}家餐厅`
             }}
           </p>
-          <el-button type="primary"
-size="large" @click="$emit('next-step')">
+          <el-button
+type="primary" size="large"
+@click="$emit('next-step')"
+>
             {{ "查看详情" }}
             <el-icon><ArrowRight /></el-icon>
           </el-button>
@@ -707,11 +741,13 @@ size="large" @click="$emit('next-step')">
     </el-card>
 
     <!-- 步骤操作按钮 -->
-    <div v-if="!generating && !generatedTrip"
-class="step-actions">
+    <div
+v-if="!generating && !generatedTrip" class="step-actions"
+>
       <div class="action-left">
-        <el-button size="large"
-@click="$emit('prev-step')">
+        <el-button
+size="large" @click="$emit('prev-step')"
+>
           <el-icon><ArrowLeft /></el-icon>
           {{ "上一步" }}
         </el-button>
@@ -744,14 +780,16 @@ class="step-actions">
     >
       <div class="full-prompt-content">
         <div class="prompt-stats">
-          <el-tag :type="getPromptCompletionClass()"
-size="large">
+          <el-tag
+:type="getPromptCompletionClass()" size="large"
+>
             {{ getPromptCompletionText() }} ({{
               getPromptCompletionScore()
             }}/100)
           </el-tag>
-          <el-button type="primary"
-@click="copyPromptToClipboard">
+          <el-button
+type="primary" @click="copyPromptToClipboard"
+>
             <el-icon><DocumentCopy /></el-icon>
             {{ "复制提示词" }}
           </el-button>
@@ -765,8 +803,9 @@ size="large">
           <el-button @click="fullPromptVisible = false">
             {{ "关闭" }}
           </el-button>
-          <el-button type="primary"
-@click="copyPromptAndClose">
+          <el-button
+type="primary" @click="copyPromptAndClose"
+>
             {{ "复制并关闭" }}
           </el-button>
         </div>

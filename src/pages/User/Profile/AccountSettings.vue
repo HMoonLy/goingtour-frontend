@@ -4,12 +4,8 @@
       <!-- 页面头部 -->
       <div class="page-header">
         <div class="header-content">
-          <h1 class="page-title">
-账户设置
-</h1>
-          <p class="page-subtitle">
-个性化旅行规划助手
-</p>
+          <h1 class="page-title">账户设置</h1>
+          <p class="page-subtitle">个性化旅行规划助手</p>
         </div>
         <el-button plain @click="goBack">
           <el-icon><ArrowLeft /></el-icon>
@@ -74,11 +70,7 @@
                 </div>
                 <div class="item-control">
                   <el-input :value="userInfo.email" readonly disabled />
-                  <el-tag type="info"
-size="small"
->
-信息
-</el-tag>
+                  <el-tag type="info" size="small"> 信息 </el-tag>
                 </div>
               </div>
 
@@ -102,9 +94,7 @@ size="small"
         <el-tab-pane label="安全设置" name="security">
           <div class="tab-content">
             <div class="setting-section">
-              <h3 class="section-title">
-安全设置
-</h3>
+              <h3 class="section-title">安全设置</h3>
 
               <!-- 邮箱验证登录 -->
               <div class="setting-item">
@@ -113,11 +103,7 @@ size="small"
                   <span class="label-desc">信息</span>
                 </div>
                 <div class="item-control">
-                  <el-tag type="success"
-size="small"
->
-成功
-</el-tag>
+                  <el-tag type="success" size="small"> 成功 </el-tag>
                   <el-button plain size="small" @click="testEmailVerification">
                     提交
                   </el-button>
@@ -134,11 +120,7 @@ size="small"
                   <el-tag v-if="hasPassword" type="primary" size="small">
                     已设置
                   </el-tag>
-                  <el-tag v-else
-type="info" size="small"
->
-未设置
-</el-tag>
+                  <el-tag v-else type="info" size="small"> 未设置 </el-tag>
 
                   <el-button
                     v-if="!hasPassword"
@@ -184,9 +166,7 @@ type="info" size="small"
             </div>
 
             <div class="setting-section danger-section">
-              <h3 class="section-title">
-危险操作
-</h3>
+              <h3 class="section-title">危险操作</h3>
 
               <!-- 注销账户 -->
               <div class="setting-item">
@@ -212,9 +192,7 @@ type="info" size="small"
         <el-tab-pane label="隐私设置" name="privacy">
           <div class="tab-content">
             <div class="setting-section">
-              <h3 class="section-title">
-隐私设置
-</h3>
+              <h3 class="section-title">隐私设置</h3>
 
               <!-- 数据导出 -->
               <div class="setting-item">
@@ -240,19 +218,13 @@ type="info" size="small"
                   <span class="label-desc">警告</span>
                 </div>
                 <div class="item-control">
-                  <el-button plain
-@click="clearUserData"
->
-删除
-</el-button>
+                  <el-button plain @click="clearUserData"> 删除 </el-button>
                 </div>
               </div>
             </div>
 
             <div class="setting-section">
-              <h3 class="section-title">
-隐私选项
-</h3>
+              <h3 class="section-title">隐私选项</h3>
 
               <!-- 个人资料可见性 -->
               <div class="setting-item">
@@ -265,12 +237,8 @@ type="info" size="small"
                     v-model="privacySettings.profileVisibility"
                     @change="updatePrivacySettings"
                   >
-                    <el-radio value="public">
-公开
-</el-radio>
-                    <el-radio value="private">
-私有
-</el-radio>
+                    <el-radio value="public"> 公开 </el-radio>
+                    <el-radio value="private"> 私有 </el-radio>
                   </el-radio-group>
                 </div>
               </div>
@@ -296,9 +264,7 @@ type="info" size="small"
         <el-tab-pane label="系统设置" name="system">
           <div class="tab-content">
             <div class="setting-section">
-              <h3 class="section-title">
-系统设置
-</h3>
+              <h3 class="section-title">系统设置</h3>
 
               <!-- 主题设置 -->
               <div class="setting-item">
@@ -324,9 +290,7 @@ type="info" size="small"
             </div>
 
             <div class="setting-section">
-              <h3 class="section-title">
-通知设置
-</h3>
+              <h3 class="section-title">通知设置</h3>
 
               <!-- 邮件通知 -->
               <div class="setting-item">
@@ -486,9 +450,7 @@ type="info" size="small"
               <div class="stat-value">
                 {{ loginStats.totalLogins || 0 }}
               </div>
-              <div class="stat-label">
-总登录次数
-</div>
+              <div class="stat-label">总登录次数</div>
             </div>
           </el-col>
           <el-col :span="6">
@@ -496,9 +458,7 @@ type="info" size="small"
               <div class="stat-value">
                 {{ loginStats.recentLogins || 0 }}
               </div>
-              <div class="stat-label">
-近30天登录
-</div>
+              <div class="stat-label">近30天登录</div>
             </div>
           </el-col>
           <el-col :span="6">
@@ -506,9 +466,7 @@ type="info" size="small"
               <div class="stat-value">
                 {{ formatLoginTime(loginStats.lastLoginTime) }}
               </div>
-              <div class="stat-label">
-最近登录
-</div>
+              <div class="stat-label">最近登录</div>
             </div>
           </el-col>
           <el-col :span="6">
@@ -516,9 +474,7 @@ type="info" size="small"
               <div class="stat-value">
                 {{ loginStats.lastLoginDevice || "-" }}
               </div>
-              <div class="stat-label">
-常用设备
-</div>
+              <div class="stat-label">常用设备</div>
             </div>
           </el-col>
         </el-row>
@@ -792,7 +748,7 @@ export default {
       try {
         await userStore.updateUserInfo(
           profileForm.nickname,
-          profileForm.avatar,
+          profileForm.avatar
         );
         ElMessage.success("个人信息更新成功");
       } catch (error) {
@@ -872,7 +828,7 @@ export default {
             confirmButtonText: "确定",
             cancelButtonText: "取消",
             type: "warning",
-          },
+          }
         );
 
         const { userApi } = await import("@/api/user.js");
@@ -911,7 +867,7 @@ export default {
         const response = await userApi.getLoginHistory(
           userInfo.value.id,
           historyPagination.page,
-          historyPagination.size,
+          historyPagination.size
         );
 
         loginHistoryData.value = response.data.records || [];
@@ -947,7 +903,7 @@ export default {
             confirmButtonText: "确定",
             cancelButtonText: "取消",
             type: "warning",
-          },
+          }
         );
 
         const { userApi } = await import("@/api/user.js");
@@ -1041,7 +997,7 @@ export default {
             confirmButtonText: "确定",
             cancelButtonText: "取消",
             type: "warning",
-          },
+          }
         );
 
         // 清理localStorage
@@ -1123,12 +1079,12 @@ export default {
       }
 
       const savedNotificationSettings = localStorage.getItem(
-        "notification_settings",
+        "notification_settings"
       );
       if (savedNotificationSettings) {
         Object.assign(
           notificationSettings,
-          JSON.parse(savedNotificationSettings),
+          JSON.parse(savedNotificationSettings)
         );
       }
     };

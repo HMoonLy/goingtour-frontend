@@ -16,11 +16,13 @@
     >
       <div class="heart-container">
         <!-- 处理中显示加载动画 -->
-        <div v-if="isProcessing" class="heart-loading">
+        <div v-if="isProcessing"
+class="heart-loading">
           <div class="loading-spinner" />
         </div>
         <!-- 正常状态显示心形图标 -->
-        <div v-else class="heart-icon">
+        <div v-else
+class="heart-icon">
           <svg
             :class="{ filled: isInWishlist }"
             viewBox="0 0 24 24"

@@ -3,20 +3,17 @@
     <!-- 页面头部 -->
     <div class="page-header">
       <div class="header-left">
-        <el-button
-link @click="goBack"
-class="back-btn"
->
+        <el-button link @click="goBack" class="back-btn">
           <el-icon><ArrowLeft /></el-icon>
           返回个人中心
         </el-button>
       </div>
       <div class="header-right">
-        <div
-v-if="!isReadOnly" class="header-actions"
+        <div v-if="!isReadOnly" class="header-actions">
+          <el-button
+:loading="saving" @click="saveChanges"
+type="primary"
 >
-          <el-button :loading="saving"
-@click="saveChanges" type="primary">
             <el-icon><Edit /></el-icon>
             保存修改
           </el-button>
@@ -32,31 +29,21 @@ v-if="!isReadOnly" class="header-actions"
     </div>
 
     <!-- 加载状态 -->
-    <div
-v-if="loading" class="loading-container"
->
-      <el-skeleton
-:rows="8" animated
-/>
+    <div v-if="loading" class="loading-container">
+      <el-skeleton :rows="8" animated />
     </div>
 
     <!-- 行程展示内容 -->
-    <div
-v-else-if="tripData && tripData.id" class="ai-trip-display"
->
+    <div v-else-if="tripData && tripData.id" class="ai-trip-display">
       <!-- 行程标题卡片 - 使用自定义div -->
       <div class="trip-header-card-custom">
         <div class="trip-header-content">
           <div class="trip-title-section">
             <div class="title-with-icon">
-              <el-icon
-class="ai-icon" color="#91A8D0"
->
+              <el-icon class="ai-icon" color="#91A8D0">
                 <Cpu />
               </el-icon>
-              <h1
-v-if="isReadOnly" class="trip-main-title"
->
+              <h1 v-if="isReadOnly" class="trip-main-title">
                 {{ tripData.title }}
               </h1>
               <el-input
@@ -81,8 +68,9 @@ v-if="isReadOnly" class="trip-main-title"
                 </el-icon>
               </div>
               <div class="stat-content">
-                <div v-if="isReadOnly"
-class="stat-number">
+                <div
+v-if="isReadOnly" class="stat-number"
+>
                   {{ editedTrip?.days || tripData.days || 0 }}
                 </div>
                 <el-input-number
@@ -105,8 +93,9 @@ class="stat-number">
                 </el-icon>
               </div>
               <div class="stat-content">
-                <div v-if="isReadOnly"
-class="stat-number">
+                <div
+v-if="isReadOnly" class="stat-number"
+>
                   {{ editedTrip?.mate || tripData.mate || 0 }}
                 </div>
                 <el-input-number
@@ -246,12 +235,8 @@ class="stat-number">
       <!-- 完整的行程内容 - 使用自定义div -->
       <div class="content-card-custom">
         <!-- 编辑模式选择（仅在非只读模式显示） -->
-        <div
-v-if="!isReadOnly" class="editor-tabs"
->
-          <el-radio-group
-v-model="editMode" class="edit-mode-selector"
->
+        <div v-if="!isReadOnly" class="editor-tabs">
+          <el-radio-group v-model="editMode" class="edit-mode-selector">
             <el-radio-button value="preview">
 预览模式
 </el-radio-button>
@@ -284,10 +269,7 @@ Markdown编辑
         />
       </div>
 
-      <el-card
-v-if="!isReadOnly" class="budget-card"
-shadow="never"
->
+      <el-card v-if="!isReadOnly" class="budget-card" shadow="never">
         <template #header>
           <div class="card-header">
             <el-icon class="header-icon">
@@ -310,9 +292,7 @@ shadow="never"
       </el-card>
     </div>
 
-    <div
-v-else class="no-data"
->
+    <div v-else class="no-data">
       <el-empty description="暂无行程数据" />
     </div>
   </div>

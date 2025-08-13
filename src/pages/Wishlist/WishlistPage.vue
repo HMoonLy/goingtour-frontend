@@ -13,8 +13,9 @@
 </p>
         </div>
 
-        <div v-if="wishlistStore.wishlistCount > 0"
-class="header-stats">
+        <div
+v-if="wishlistStore.wishlistCount > 0" class="header-stats"
+>
           <div class="stat-item">
             <span class="stat-number">{{ wishlistStore.wishlistCount }}</span>
             <span class="stat-label">个城市</span>
@@ -29,12 +30,8 @@ class="header-stats">
 
     <!-- 愿望清单内容 -->
     <div class="page-content">
-      <div
-v-loading="wishlistStore.loading" class="wishlist-content"
->
-        <div
-v-if="wishlistStore.hasCities" class="wishlist-grid"
->
+      <div v-loading="wishlistStore.loading" class="wishlist-content">
+        <div v-if="wishlistStore.hasCities" class="wishlist-grid">
           <WishlistCard
             v-for="item in sortedWishlistItems"
             :key="item.id"
@@ -48,21 +45,15 @@ v-if="wishlistStore.hasCities" class="wishlist-grid"
         </div>
 
         <!-- 空状态 -->
-        <div
-v-else class="empty-wishlist"
->
-          <el-icon
-size="64" color="#C0C4CC"
->
+        <div v-else class="empty-wishlist">
+          <el-icon size="64" color="#C0C4CC">
             <Star />
           </el-icon>
           <h4>还没有心仪的目的地</h4>
           <p>添加你想去的城市，让旅行灵感永不枯竭</p>
 
           <div class="empty-actions">
-            <el-button
-type="primary" @click="showQuickAdd = true"
->
+            <el-button type="primary" @click="showQuickAdd = true">
               <el-icon><Plus /></el-icon>
               添加第一个城市
             </el-button>
@@ -80,9 +71,8 @@ type="primary" @click="showQuickAdd = true"
         class="fab-main"
         @click="showQuickAdd = true"
       >
-      <el-icon><Plus /></el-icon>
+        <el-icon><Plus /></el-icon>
       </el-button>
-      
     </div>
 
     <!-- 快速添加对话框 -->
@@ -92,9 +82,7 @@ type="primary" @click="showQuickAdd = true"
       width="400px"
       :before-close="handleQuickAddClose"
     >
-      <el-form
-:model="quickAddForm" label-position="top"
->
+      <el-form :model="quickAddForm" label-position="top">
         <el-form-item label="城市名称">
           <el-input
             v-model="quickAddForm.cityName"

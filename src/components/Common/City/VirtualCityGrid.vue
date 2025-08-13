@@ -1,7 +1,5 @@
 <template>
-  <div
-ref="containerRef" class="virtual-city-grid-container"
->
+  <div ref="containerRef" class="virtual-city-grid-container">
     <!-- 虚拟滚动容器 - 移除内部滚动 -->
     <div class="virtual-scroll-wrapper">
       <!-- 可见的城市分组 - 显示全部 -->
