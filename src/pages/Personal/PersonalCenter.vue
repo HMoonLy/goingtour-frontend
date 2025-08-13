@@ -3,7 +3,9 @@
     <!-- 个人中心头部 -->
     <section class="personal-header">
       <div class="user-profile">
-        <el-avatar :src="userStore.avatar" :size="64" />
+        <el-avatar
+:src="userStore.avatar" :size="64"
+/>
         <div class="user-info">
           <h2>{{ userStore.nickname }}</h2>
           <p class="user-meta">
@@ -40,7 +42,10 @@
             我的行程
           </h3>
           <div class="header-actions">
-            <el-button type="primary" size="small" @click="goToCreate">
+            <el-button
+type="primary" size="small"
+@click="goToCreate"
+>
               <el-icon><Plus /></el-icon>
               创建新行程
             </el-button>
@@ -49,7 +54,9 @@
 
         <!-- 行程筛选标签 -->
         <div class="filter-tabs">
-          <el-radio-group v-model="activeFilter" size="small">
+          <el-radio-group
+v-model="activeFilter" size="small"
+>
             <el-radio-button value="all"> 全部 </el-radio-button>
             <el-radio-button value="saved"> 已保存 </el-radio-button>
             <el-radio-button value="draft"> 草稿 </el-radio-button>
@@ -59,24 +66,38 @@
 
         <!-- 行程列表 -->
         <div class="trips-container">
-          <div v-if="loading" class="loading-state">
-            <el-skeleton :rows="3" animated />
+          <div
+v-if="loading" class="loading-state"
+>
+            <el-skeleton
+:rows="3" animated
+/>
           </div>
 
-          <div v-else-if="filteredTrips.length === 0" class="empty-state">
-            <el-empty :description="getEmptyDescription()" :image-size="120">
+          <div
+v-else-if="filteredTrips.length === 0" class="empty-state"
+>
+            <el-empty
+:description="getEmptyDescription()" :image-size="120"
+>
               <template #image>
-                <el-icon size="80" color="#d3d3d3">
+                <el-icon
+size="80" color="#d3d3d3"
+>
                   <DocumentCopy />
                 </el-icon>
               </template>
-              <el-button type="primary" @click="goToCreate">
+              <el-button
+type="primary" @click="goToCreate"
+>
                 创建第一个行程
               </el-button>
             </el-empty>
           </div>
 
-          <div v-else class="trips-grid">
+          <div
+v-else class="trips-grid"
+>
             <div
               v-for="trip in filteredTrips"
               :key="trip.id"
@@ -92,7 +113,10 @@
                   {{ trip.title }}
                 </h4>
                 <el-dropdown @command="(cmd) => handleTripAction(cmd, trip)">
-                  <el-button size="small" link @click.stop>
+                  <el-button
+size="small" link
+@click.stop
+>
                     <el-icon><More /></el-icon>
                   </el-button>
                   <template #dropdown>
@@ -106,7 +130,9 @@
                       <el-dropdown-item command="share">
                         <el-icon><Share /></el-icon>分享
                       </el-dropdown-item>
-                      <el-dropdown-item command="delete" divided>
+                      <el-dropdown-item
+command="delete" divided
+>
                         <el-icon><Delete /></el-icon>删除
                       </el-dropdown-item>
                     </el-dropdown-menu>
@@ -125,14 +151,19 @@
                   <el-icon><Calendar /></el-icon>
                   <span>{{ trip.days }}天</span>
                 </div>
-                <div v-if="trip.totalBudget" class="meta-item">
+                <div
+v-if="trip.totalBudget" class="meta-item"
+>
                   <el-icon><Money /></el-icon>
                   <span>{{ trip.totalBudget }}</span>
                 </div>
               </div>
 
               <div class="trip-status">
-                <el-tag v-if="trip.isDraft" type="warning" size="small">
+                <el-tag
+v-if="trip.isDraft" type="warning"
+size="small"
+>
                   草稿
                 </el-tag>
                 <el-tag
@@ -142,7 +173,8 @@
                 >
                   AI生成
                 </el-tag>
-                <el-tag v-else type="success" size="small"> 已完成 </el-tag>
+                <el-tag
+v-else type="success" size="small"> 已完成 </el-tag>
 
                 <span class="update-time">
                   {{ formatTime(trip.updatedAt || trip.createdAt) }}
@@ -163,7 +195,9 @@
         </div>
 
         <div class="actions-grid">
-          <div class="action-card" @click="$router.push('/destinations')">
+          <div
+class="action-card" @click="$router.push('/destinations')"
+>
             <el-icon><MapLocation /></el-icon>
             <div class="action-info">
               <h4>选择目的地</h4>
@@ -171,7 +205,9 @@
             </div>
           </div>
 
-          <div class="action-card" @click="$router.push('/wishlist')">
+          <div
+class="action-card" @click="$router.push('/wishlist')"
+>
             <el-icon><Star /></el-icon>
             <div class="action-info">
               <h4>愿望清单</h4>
@@ -179,7 +215,9 @@
             </div>
           </div>
 
-          <div class="action-card" @click="exportTrips">
+          <div
+class="action-card" @click="exportTrips"
+>
             <el-icon><Download /></el-icon>
             <div class="action-info">
               <h4>导出数据</h4>
@@ -187,7 +225,9 @@
             </div>
           </div>
 
-          <div class="action-card" @click="$router.push('/personal/settings')">
+          <div
+class="action-card" @click="$router.push('/personal/settings')"
+>
             <el-icon><Setting /></el-icon>
             <div class="action-info">
               <h4>账户设置</h4>
@@ -295,7 +335,7 @@ export default {
       return trips.sort(
         (a, b) =>
           new Date(b.updatedAt || b.createdAt) -
-          new Date(a.updatedAt || a.createdAt)
+          new Date(a.updatedAt || a.createdAt),
       );
     });
 
@@ -307,7 +347,7 @@ export default {
           return allTrips.value.filter((trip) => trip.isDraft);
         case "ai":
           return allTrips.value.filter(
-            (trip) => trip.aiGenerated && !trip.isDraft
+            (trip) => trip.aiGenerated && !trip.isDraft,
           );
         default:
           return allTrips.value;
@@ -316,10 +356,10 @@ export default {
 
     const totalTrips = computed(() => allTrips.value.length);
     const savedTripsCount = computed(
-      () => allTrips.value.filter((trip) => !trip.isDraft).length
+      () => allTrips.value.filter((trip) => !trip.isDraft).length,
     );
     const draftTrips = computed(
-      () => allTrips.value.filter((trip) => trip.isDraft).length
+      () => allTrips.value.filter((trip) => trip.isDraft).length,
     );
 
     // 方法
@@ -332,11 +372,11 @@ export default {
           try {
             const { tripApi } = await import("@/api/trip.js");
             const response = await tripApi.getUserTrips(
-              userStore.currentUser.id
+              userStore.currentUser.id,
             );
             if (response.data) {
               savedTrips.value = response.data.map(
-                convertBackendTripToFrontend
+                convertBackendTripToFrontend,
               );
             }
           } catch (error) {
@@ -407,7 +447,7 @@ export default {
             cancelButtonText: "取消",
             inputValue: `${trip.title} - 副本`,
             inputPlaceholder: "输入新行程标题",
-          }
+          },
         );
 
         if (newTitle) {
@@ -441,7 +481,7 @@ export default {
             confirmButtonText: "删除",
             cancelButtonText: "取消",
             type: "warning",
-          }
+          },
         );
 
         if (trip.isDraft) {

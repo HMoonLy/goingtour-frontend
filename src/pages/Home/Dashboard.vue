@@ -20,19 +20,15 @@
     </section>
 
     <!-- 继续未完成的行程 -->
-    <section v-if="hasProgress"
-class="progress-section">
-      <el-card
-class="progress-card" shadow="hover"
->
+    <section v-if="hasProgress" class="progress-section">
+      <el-card class="progress-card"
+shadow="hover">
         <div class="progress-content">
           <div class="progress-texts">
             <h4>继续未完成的行程</h4>
             <p class="progress-desc">
-              <el-tag
-size="small" type="info"
-effect="plain"
->
+              <el-tag size="small"
+type="info" effect="plain">
                 {{ progressSummary.destination || "无" }}
               </el-tag>
               <span class="dot" />
@@ -44,10 +40,8 @@ effect="plain"
           <div class="progress-actions">
             <el-button
 type="primary" @click="resumeProgress"> 继续 </el-button>
-            <el-button
-type="danger" plain
-@click="discardProgress"
->
+            <el-button type="danger"
+plain @click="discardProgress">
               舍弃
             </el-button>
           </div>
@@ -89,9 +83,8 @@ type="danger" plain
     </section>
 
     <!-- 最近行程 -->
-    <section
-v-if="recentTripsPreview.length > 0" class="recent-section"
->
+    <section v-if="recentTripsPreview.length > 0"
+class="recent-section">
       <div class="section-header">
         <h3 class="section-title">最近的行程</h3>
         <el-button
@@ -116,10 +109,8 @@ v-if="recentTripsPreview.length > 0" class="recent-section"
             <div class="trip-meta">
               <span>{{ trip.destinationName }}</span>
               <span>{{ trip.days }}天</span>
-              <el-tag
-v-if="trip.isDraft" type="warning"
-size="small"
->
+              <el-tag v-if="trip.isDraft"
+type="warning" size="small">
                 草稿
               </el-tag>
             </div>

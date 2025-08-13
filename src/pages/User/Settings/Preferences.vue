@@ -1,8 +1,12 @@
 <template>
   <div :class="embedded ? 'preferences-embedded' : 'preferences-page'">
     <!-- 加载提示 -->
-    <div v-if="loading" class="loading-section">
-      <el-skeleton animated :loading="true">
+    <div
+v-if="loading" class="loading-section"
+>
+      <el-skeleton
+animated :loading="true"
+>
         <template #template>
           <div class="preferences-container">
             <el-skeleton-item
@@ -45,7 +49,9 @@
     </div>
 
     <!-- 主要内容 -->
-    <div v-else class="preferences-container">
+    <div
+v-else class="preferences-container"
+>
       <UserCenterNav v-if="!embedded" />
       <div class="page-header">
         <h1>偏好设置</h1>
@@ -97,25 +103,33 @@
             @change="handleMbtiChange"
           >
             <el-option-group label="分析家 (NT)">
-              <el-option label="INTJ - 建筑师" value="INTJ">
+              <el-option
+label="INTJ - 建筑师" value="INTJ"
+>
                 <div class="mbti-option">
                   <span class="mbti-code">INTJ</span>
                   <span class="mbti-name">建筑师</span>
                 </div>
               </el-option>
-              <el-option label="INTP - 逻辑学家" value="INTP">
+              <el-option
+label="INTP - 逻辑学家" value="INTP"
+>
                 <div class="mbti-option">
                   <span class="mbti-code">INTP</span>
                   <span class="mbti-name">逻辑学家</span>
                 </div>
               </el-option>
-              <el-option label="ENTJ - 指挥官" value="ENTJ">
+              <el-option
+label="ENTJ - 指挥官" value="ENTJ"
+>
                 <div class="mbti-option">
                   <span class="mbti-code">ENTJ</span>
                   <span class="mbti-name">指挥官</span>
                 </div>
               </el-option>
-              <el-option label="ENTP - 辩论家" value="ENTP">
+              <el-option
+label="ENTP - 辩论家" value="ENTP"
+>
                 <div class="mbti-option">
                   <span class="mbti-code">ENTP</span>
                   <span class="mbti-name">辩论家</span>
@@ -124,25 +138,33 @@
             </el-option-group>
 
             <el-option-group label="外交家 (NF)">
-              <el-option label="INFJ - 提倡者" value="INFJ">
+              <el-option
+label="INFJ - 提倡者" value="INFJ"
+>
                 <div class="mbti-option">
                   <span class="mbti-code">INFJ</span>
                   <span class="mbti-name">提倡者</span>
                 </div>
               </el-option>
-              <el-option label="INFP - 调停者" value="INFP">
+              <el-option
+label="INFP - 调停者" value="INFP"
+>
                 <div class="mbti-option">
                   <span class="mbti-code">INFP</span>
                   <span class="mbti-name">调停者</span>
                 </div>
               </el-option>
-              <el-option label="ENFJ - 主人公" value="ENFJ">
+              <el-option
+label="ENFJ - 主人公" value="ENFJ"
+>
                 <div class="mbti-option">
                   <span class="mbti-code">ENFJ</span>
                   <span class="mbti-name">主人公</span>
                 </div>
               </el-option>
-              <el-option label="ENFP - 活动家" value="ENFP">
+              <el-option
+label="ENFP - 活动家" value="ENFP"
+>
                 <div class="mbti-option">
                   <span class="mbti-code">ENFP</span>
                   <span class="mbti-name">活动家</span>
@@ -151,25 +173,33 @@
             </el-option-group>
 
             <el-option-group label="守护者 (SJ)">
-              <el-option label="ISTJ - 物流师" value="ISTJ">
+              <el-option
+label="ISTJ - 物流师" value="ISTJ"
+>
                 <div class="mbti-option">
                   <span class="mbti-code">ISTJ</span>
                   <span class="mbti-name">物流师</span>
                 </div>
               </el-option>
-              <el-option label="ISFJ - 守护者" value="ISFJ">
+              <el-option
+label="ISFJ - 守护者" value="ISFJ"
+>
                 <div class="mbti-option">
                   <span class="mbti-code">ISFJ</span>
                   <span class="mbti-name">守护者</span>
                 </div>
               </el-option>
-              <el-option label="ESTJ - 总经理" value="ESTJ">
+              <el-option
+label="ESTJ - 总经理" value="ESTJ"
+>
                 <div class="mbti-option">
                   <span class="mbti-code">ESTJ</span>
                   <span class="mbti-name">总经理</span>
                 </div>
               </el-option>
-              <el-option label="ESFJ - 执政官" value="ESFJ">
+              <el-option
+label="ESFJ - 执政官" value="ESFJ"
+>
                 <div class="mbti-option">
                   <span class="mbti-code">ESFJ</span>
                   <span class="mbti-name">执政官</span>
@@ -178,25 +208,33 @@
             </el-option-group>
 
             <el-option-group label="探险家 (SP)">
-              <el-option label="ISTP - 鉴赏家" value="ISTP">
+              <el-option
+label="ISTP - 鉴赏家" value="ISTP"
+>
                 <div class="mbti-option">
                   <span class="mbti-code">ISTP</span>
                   <span class="mbti-name">鉴赏家</span>
                 </div>
               </el-option>
-              <el-option label="ISFP - 探险家" value="ISFP">
+              <el-option
+label="ISFP - 探险家" value="ISFP"
+>
                 <div class="mbti-option">
                   <span class="mbti-code">ISFP</span>
                   <span class="mbti-name">探险家</span>
                 </div>
               </el-option>
-              <el-option label="ESTP - 企业家" value="ESTP">
+              <el-option
+label="ESTP - 企业家" value="ESTP"
+>
                 <div class="mbti-option">
                   <span class="mbti-code">ESTP</span>
                   <span class="mbti-name">企业家</span>
                 </div>
               </el-option>
-              <el-option label="ESFP - 娱乐家" value="ESFP">
+              <el-option
+label="ESFP - 娱乐家" value="ESFP"
+>
                 <div class="mbti-option">
                   <span class="mbti-code">ESFP</span>
                   <span class="mbti-name">娱乐家</span>
@@ -205,7 +243,9 @@
             </el-option-group>
           </el-select>
 
-          <div v-if="mbtiType" class="mbti-preview">
+          <div
+v-if="mbtiType" class="mbti-preview"
+>
             <div class="mbti-avatar">
               <img :src="`/images/mbti/${mbtiType}.png`"
 :alt="mbtiType"
@@ -271,7 +311,9 @@
             }"
             @click="toggleTransport(transport.value)"
           >
-            <component :is="transport.icon" class="transport-icon" />
+            <component
+:is="transport.icon" class="transport-icon"
+/>
             <span class="transport-label">{{ transport.label }}</span>
             <span class="transport-desc">{{ transport.desc }}</span>
           </div>
@@ -303,7 +345,9 @@
               <span class="accommodation-title">{{
                 translateTag("budget")
               }}</span>
-              <span v-if="false" class="accommodation-desc">Budget</span>
+              <span
+v-if="false" class="accommodation-desc"
+>Budget</span>
             </div>
 
             <div

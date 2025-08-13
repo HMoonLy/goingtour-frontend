@@ -33,43 +33,65 @@
       </div>
 
       <div class="card-actions">
-        <el-dropdown placement="bottom-end"
-@command="handleCommand">
-          <el-button
-link size="small"
-class="more-btn"
+        <!-- 直观操作按钮 -->
+        <div class="action-buttons">
+          <el-tooltip
+content="查看天气" placement="top"
 >
-            <el-icon><More /></el-icon>
-          </el-button>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item command="weather">
-                <el-icon><Sunny /></el-icon>
-                查看天气
-              </el-dropdown-item>
-              <el-dropdown-item command="edit">
-                <el-icon><Edit /></el-icon>
-                编辑
-              </el-dropdown-item>
-              <el-dropdown-item command="plan">
-                <el-icon><MapLocation /></el-icon>
-                规划行程
-              </el-dropdown-item>
-              <el-dropdown-item
-command="remove" divided
+            <el-button
+              class="action-btn weather-btn"
+              circle
+              size="small"
+              @click="handleCommand('weather')"
+            >
+              <el-icon><Sunny /></el-icon>
+            </el-button>
+          </el-tooltip>
+
+          <el-tooltip
+content="编辑信息" placement="top"
 >
-                <el-icon><Delete /></el-icon>
-                移除
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
+            <el-button
+              class="action-btn edit-btn"
+              circle
+              size="small"
+              @click="handleCommand('edit')"
+            >
+              <el-icon><Edit /></el-icon>
+            </el-button>
+          </el-tooltip>
+
+          <el-tooltip
+content="规划行程" placement="top"
+>
+            <el-button
+              class="action-btn plan-btn"
+              circle
+              size="small"
+              @click="handleCommand('plan')"
+            >
+              <el-icon><MapLocation /></el-icon>
+            </el-button>
+          </el-tooltip>
+
+          <el-tooltip
+content="移除城市" placement="top"
+>
+            <el-button
+              class="action-btn remove-btn"
+              circle
+              size="small"
+              @click="handleCommand('remove')"
+            >
+              <el-icon><Delete /></el-icon>
+            </el-button>
+          </el-tooltip>
+        </div>
       </div>
     </div>
 
     <div class="card-content">
-      <div v-if="wishlistItem.reason"
-class="reason">
+      <div v-if="wishlistItem.reason" class="reason">
         <p class="reason-text">
           {{ wishlistItem.reason }}
         </p>
@@ -81,8 +103,7 @@ class="reason">
           <span>{{ formatDate(wishlistItem.createdAt) }}</span>
         </div>
 
-        <div v-if="isCurrentWeatherCity"
-class="weather-indicator">
+        <div v-if="isCurrentWeatherCity" class="weather-indicator">
           <el-icon><View /></el-icon>
           <span>天气预览中</span>
         </div>
@@ -90,10 +111,8 @@ class="weather-indicator">
     </div>
 
     <!-- 编辑对话框 -->
-    <el-dialog v-model="editDialogVisible"
-title="编辑愿望清单" width="400px">
-      <el-form ref="editFormRef"
-:model="editForm" label-position="top">
+    <el-dialog v-model="editDialogVisible" title="编辑愿望清单" width="400px">
+      <el-form ref="editFormRef" :model="editForm" label-position="top">
         <el-form-item label="想去的原因">
           <el-input
             v-model="editForm.reason"
@@ -163,7 +182,6 @@ title="编辑愿望清单" width="400px">
 import { ref, computed, nextTick } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
-  More,
   Sunny,
   Edit,
   MapLocation,
@@ -177,7 +195,6 @@ import { useWishlistStore } from "@/store/wishlist.js";
 export default {
   name: "WishlistCard",
   components: {
-    More,
     Sunny,
     Edit,
     MapLocation,
@@ -536,18 +553,100 @@ export default {
   margin-left: 12px;
 }
 
-.more-btn {
-  color: #9ca3af;
-  padding: 8px;
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  background: rgba(145, 168, 208, 0.05);
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
-.more-btn:hover {
-  color: #91a8d0;
-  background: rgba(145, 168, 208, 0.1);
-  transform: scale(1.1);
+.action-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.action-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.action-btn:hover::before {
+  opacity: 0.1;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.action-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* 按钮主题色彩 - 使用系统颜色变量 */
+.weather-btn {
+  background: linear-gradient(
+    135deg,
+    var(--el-color-primary) 0%,
+    var(--el-color-primary-light-3) 100%
+  );
+  color: white;
+}
+
+.weather-btn::before {
+  background: white;
+}
+
+.edit-btn {
+  background: linear-gradient(
+    135deg,
+    var(--el-color-success) 0%,
+    var(--el-color-success-light-3) 100%
+  );
+  color: white;
+}
+
+.edit-btn::before {
+  background: white;
+}
+
+.plan-btn {
+  background: linear-gradient(
+    135deg,
+    var(--secondary-color, #f7cac9) 0%,
+    var(--el-color-primary) 100%
+  );
+  color: white;
+}
+
+.plan-btn::before {
+  background: white;
+}
+
+.remove-btn {
+  background: linear-gradient(
+    135deg,
+    var(--el-color-danger) 0%,
+    var(--el-color-danger-light-3) 100%
+  );
+  color: white;
+}
+
+.remove-btn::before {
+  background: white;
 }
 
 .card-content {
@@ -692,6 +791,19 @@ export default {
   .card-actions {
     margin-left: 0;
     align-self: flex-end;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .action-buttons {
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .action-btn {
+    width: 36px;
+    height: 36px;
   }
 
   .reason {

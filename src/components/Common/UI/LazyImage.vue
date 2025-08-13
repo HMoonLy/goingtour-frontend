@@ -6,7 +6,9 @@
     :style="containerStyle"
   >
     <!-- 占位图/骨架屏 -->
-    <div v-if="!isLoaded" class="lazy-image-placeholder">
+    <div
+v-if="!isLoaded" class="lazy-image-placeholder"
+>
       <div
 v-if="showSkeleton" class="skeleton-shimmer" />
       <div
@@ -14,16 +16,16 @@ v-else class="gradient-placeholder" />
     </div>
 
     <!-- 实际图片 -->
-    <div
-v-show="isLoaded" class="lazy-image"
-:style="imageStyle" :title="alt"
->
+    <div v-show="isLoaded"
+class="lazy-image" :style="imageStyle" :title="alt">
       <!-- 插槽内容，如覆盖层等 -->
       <slot />
     </div>
 
     <!-- 加载失败占位 -->
-    <div v-if="hasError" class="error-placeholder">
+    <div
+v-if="hasError" class="error-placeholder"
+>
       <span class="error-icon">🏞️</span>
       <span class="error-text">图片加载失败</span>
     </div>

@@ -1,7 +1,9 @@
 <template>
   <div class="avatar-uploader">
     <!-- 当前头像显示 -->
-    <div class="current-avatar" @click="openUploader">
+    <div
+class="current-avatar" @click="openUploader"
+>
       <div class="avatar-container">
         <img
           v-if="currentAvatar"
@@ -9,7 +11,9 @@
           alt="用户头像"
           class="avatar-image"
         />
-        <div v-else class="default-avatar">
+        <div
+v-else class="default-avatar"
+>
           <span class="avatar-text">{{ getInitials(userName) }}</span>
         </div>
         <div class="avatar-overlay">
@@ -31,9 +35,13 @@
     >
       <div class="upload-container">
         <!-- 上传选项卡 -->
-        <el-tabs v-model="activeTab" class="upload-tabs">
+        <el-tabs
+v-model="activeTab" class="upload-tabs"
+>
           <!-- 上传头像 -->
-          <el-tab-pane label="上传头像" name="upload">
+          <el-tab-pane
+label="上传头像" name="upload"
+>
             <div class="upload-section">
               <el-upload
                 v-if="!rawImage && !uploadSuccess"
@@ -59,7 +67,9 @@
               </el-upload>
 
               <!-- 图片预览区域 -->
-              <div v-if="rawImage && !uploadSuccess" class="preview-section">
+              <div
+v-if="rawImage && !uploadSuccess" class="preview-section"
+>
                 <div class="image-preview">
                   <img
 :src="rawImage" alt="预览图片" class="preview-image" />
@@ -77,9 +87,13 @@
               </div>
 
               <!-- 上传成功提示 -->
-              <div v-if="uploadSuccess" class="upload-success-section">
+              <div
+v-if="uploadSuccess" class="upload-success-section"
+>
                 <div class="success-icon">
-                  <el-icon size="48" color="#67c23a">
+                  <el-icon
+size="48" color="#67c23a"
+>
                     <CircleCheck />
                   </el-icon>
                 </div>
@@ -92,7 +106,9 @@
           </el-tab-pane>
 
           <!-- 默认头像 -->
-          <el-tab-pane label="默认头像" name="default">
+          <el-tab-pane
+label="默认头像" name="default"
+>
             <div class="default-avatars">
               <div
                 v-for="(avatar, index) in defaultAvatars"
@@ -108,7 +124,9 @@
           </el-tab-pane>
 
           <!-- 个性头像 -->
-          <el-tab-pane label="个性头像" name="generated">
+          <el-tab-pane
+label="个性头像" name="generated"
+>
             <div class="generated-avatars">
               <div class="avatar-generator">
                 <h4>基于用户名生成</h4>
@@ -142,7 +160,9 @@
               <div class="preview-avatar large">
                 <img
 v-if="previewAvatar" :src="previewAvatar" alt="预览" />
-                <div v-else class="preview-placeholder">
+                <div
+v-else class="preview-placeholder"
+>
                   <span>{{ getInitials(userName) }}</span>
                 </div>
               </div>
@@ -152,7 +172,9 @@ v-if="previewAvatar" :src="previewAvatar" alt="预览" />
               <div class="preview-avatar medium">
                 <img
 v-if="previewAvatar" :src="previewAvatar" alt="预览" />
-                <div v-else class="preview-placeholder">
+                <div
+v-else class="preview-placeholder"
+>
                   <span>{{ getInitials(userName) }}</span>
                 </div>
               </div>
@@ -162,7 +184,9 @@ v-if="previewAvatar" :src="previewAvatar" alt="预览" />
               <div class="preview-avatar small">
                 <img
 v-if="previewAvatar" :src="previewAvatar" alt="预览" />
-                <div v-else class="preview-placeholder">
+                <div
+v-else class="preview-placeholder"
+>
                   <span>{{ getInitials(userName) }}</span>
                 </div>
               </div>
@@ -175,7 +199,10 @@ v-if="previewAvatar" :src="previewAvatar" alt="预览" />
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="handleClose"> 取消 </el-button>
-          <el-button type="primary" @click="saveAvatar" :loading="saving">
+          <el-button
+type="primary" @click="saveAvatar"
+:loading="saving"
+>
             保存头像
           </el-button>
         </div>

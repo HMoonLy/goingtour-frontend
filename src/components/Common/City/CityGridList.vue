@@ -1,8 +1,7 @@
 <template>
   <div class="city-grid-container">
     <!-- 网格布局的城市卡片 - 性能优化版本 -->
-    <div class="city-grid"
-:class="{ 'has-wishlist': hasWishlistItems }">
+    <div class="city-grid" :class="{ 'has-wishlist': hasWishlistItems }">
       <!-- 使用v-memo优化大列表渲染性能 -->
       <CityCard
         v-for="city in cities"
@@ -16,11 +15,9 @@
     </div>
 
     <!-- 空状态展示 -->
-    <div v-if="cities.length === 0 && !loading"
-class="empty-state">
+    <div v-if="cities.length === 0 && !loading" class="empty-state">
       <div class="empty-icon">
-        <svg width="64"
-height="64" viewBox="0 0 24 24" fill="none">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
           <path
             d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
             fill="#9ca3af"
@@ -32,8 +29,7 @@ height="64" viewBox="0 0 24 24" fill="none">
     </div>
 
     <!-- 加载骨架屏 -->
-    <div v-if="loading"
-class="loading-grid">
+    <div v-if="loading" class="loading-grid">
       <div
         v-for="i in skeletonCount"
         :key="'skeleton-' + i"

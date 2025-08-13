@@ -6,7 +6,9 @@
         <!-- Logo和品牌名 -->
         <div class="brand-header">
           <div class="brand-logo">
-            <el-icon size="60" color="#ffffff">
+            <el-icon
+size="60" color="#ffffff"
+>
               <MapLocation />
             </el-icon>
           </div>
@@ -20,7 +22,9 @@
         <div class="features">
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32" color="#ffffff">
+              <el-icon
+size="32" color="#ffffff"
+>
                 <UserFilled />
               </el-icon>
             </div>
@@ -32,7 +36,9 @@
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32" color="#ffffff">
+              <el-icon
+size="32" color="#ffffff"
+>
                 <Setting />
               </el-icon>
             </div>
@@ -44,7 +50,9 @@
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32" color="#ffffff">
+              <el-icon
+size="32" color="#ffffff"
+>
                 <Star />
               </el-icon>
             </div>
@@ -85,7 +93,9 @@
           @submit.prevent="handleRegister"
         >
           <!-- 邮箱输入 -->
-          <el-form-item prop="email" class="form-item">
+          <el-form-item
+prop="email" class="form-item"
+>
             <label class="form-label">邮箱</label>
             <el-input
               v-model="registerForm.email"
@@ -101,7 +111,9 @@
           </el-form-item>
 
           <!-- 验证码输入 -->
-          <el-form-item prop="code" class="form-item code-form-item">
+          <el-form-item
+prop="code" class="form-item code-form-item"
+>
             <label class="form-label">验证码</label>
             <div class="code-input-group">
               <el-input
@@ -132,7 +144,9 @@
           </el-form-item>
 
           <!-- 昵称输入（可选） -->
-          <el-form-item prop="nickname" class="form-item">
+          <el-form-item
+prop="nickname" class="form-item"
+>
             <label class="form-label">昵称 <span class="optional">(可选)</span></label>
             <el-input
               v-model="registerForm.nickname"
@@ -148,7 +162,9 @@
           </el-form-item>
 
           <!-- 用户协议确认 -->
-          <el-form-item prop="agreement" class="form-item agreement-item">
+          <el-form-item
+prop="agreement" class="form-item agreement-item"
+>
             <el-checkbox
               v-model="registerForm.agreement"
               class="agreement-checkbox"

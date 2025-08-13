@@ -20,7 +20,10 @@
               <el-icon><Search /></el-icon>
             </template>
           </el-input>
-          <el-button class="hero-btn" type="primary" @click="debouncedSearch()">
+          <el-button
+class="hero-btn" type="primary"
+@click="debouncedSearch()"
+>
             搜索
           </el-button>
         </div>
@@ -30,22 +33,34 @@
     <!-- 内容区域 -->
     <div class="cities-content-wrapper">
       <!-- 滚动指示器（隐藏） -->
-      <div class="scroll-indicator" style="display: none">
+      <div
+class="scroll-indicator" style="display: none"
+>
         {{ activeLetter }}
       </div>
 
-      <div ref="citiesContent" class="cities-content">
+      <div
+ref="citiesContent" class="cities-content"
+>
         <!-- 加载状态 -->
-        <div v-if="loading" class="loading-container">
-          <el-skeleton :rows="10" animated />
+        <div
+v-if="loading" class="loading-container"
+>
+          <el-skeleton
+:rows="10" animated
+/>
         </div>
 
         <!-- 搜索结果 -->
-        <div v-else-if="isSearchMode" class="search-results">
+        <div
+v-else-if="isSearchMode" class="search-results"
+>
           <h2 v-if="searchResults?.length > 0">
             搜索结果 ({{ searchResults?.length || 0 }})
           </h2>
-          <el-empty v-else description="未找到匹配的城市，请尝试其他关键词" />
+          <el-empty
+v-else description="未找到匹配的城市，请尝试其他关键词"
+/>
 
           <!-- 列表视图（默认，仅显示结果，不展示收藏按钮） -->
           <div class="city-rows">
@@ -54,7 +69,9 @@
               :key="city.adcode"
               class="city-row"
             >
-              <div class="city-left" @click="selectCity(city)">
+              <div
+class="city-left" @click="selectCity(city)"
+>
                 <span class="city-name">{{ city.中文名 }}</span>
                 <span class="city-province">{{ getProvinceName(city) }}</span>
               </div>
@@ -106,13 +123,19 @@
                 </div>
               </div>
             </div>
-            <div v-else class="loading-placeholder">
-              <el-skeleton :rows="3" animated />
+            <div
+v-else class="loading-placeholder"
+>
+              <el-skeleton
+:rows="3" animated
+/>
             </div>
           </div>
 
           <!-- 热门目的地（分组标签云 - 隐藏） -->
-          <div class="city-section hot-group-section" style="display: none">
+          <div
+class="city-section hot-group-section" style="display: none"
+>
             <h2><i class="hot-icon">🔥</i> 热门目的地</h2>
             <div class="group-tabs">
               <button
@@ -233,8 +256,13 @@
         </template>
 
         <!-- 导航辅助按钮组（隐藏） -->
-        <div class="nav-assist-buttons" style="display: none">
-          <el-tooltip content="热门城市" placement="left" :offset="10">
+        <div
+class="nav-assist-buttons" style="display: none"
+>
+          <el-tooltip
+content="热门城市" placement="left"
+:offset="10"
+>
             <el-button
               class="nav-button hot-button"
               circle
@@ -245,13 +273,19 @@
             </el-button>
           </el-tooltip>
 
-          <el-backtop target=".cities-content" :right="50" :bottom="100">
+          <el-backtop
+target=".cities-content" :right="50"
+:bottom="100"
+>
             <div class="back-top">
               <el-icon><Top /></el-icon>
             </div>
           </el-backtop>
 
-          <el-tooltip content="跳至Z" placement="left" :offset="10">
+          <el-tooltip
+content="跳至Z" placement="left"
+:offset="10"
+>
             <el-button
               class="nav-button z-button"
               circle
@@ -265,7 +299,9 @@
       </div>
 
       <!-- 添加快捷字母导航（隐藏） -->
-      <div class="letter-nav" style="display: none">
+      <div
+class="letter-nav" style="display: none"
+>
         <div
           class="letter-item special"
           :class="{ active: activeLetter === hotLabel }"

@@ -2,7 +2,10 @@
   <div class="page-shell settings-page">
     <!-- 设置头部 -->
     <div class="settings-header">
-      <el-button link @click="$router.back()" class="back-btn">
+      <el-button
+link @click="$router.back()"
+class="back-btn"
+>
         <el-icon><ArrowLeft /></el-icon>
         返回
       </el-button>
@@ -32,7 +35,9 @@
       <!-- 设置面板 -->
       <div class="settings-panel">
         <!-- 基本信息 -->
-        <div v-if="activeSection === 'profile'" class="settings-section">
+        <div
+v-if="activeSection === 'profile'" class="settings-section"
+>
           <div class="section-title">
             <h3>基本信息</h3>
             <p>管理你的个人资料和基本信息</p>
@@ -47,9 +52,13 @@
             <!-- 头像 -->
             <el-form-item label="头像">
               <div class="avatar-upload">
-                <el-avatar :src="profileForm.avatar" :size="80" />
+                <el-avatar
+:src="profileForm.avatar" :size="80"
+/>
                 <div class="avatar-actions">
-                  <el-button size="small" @click="uploadAvatar">
+                  <el-button
+size="small" @click="uploadAvatar"
+>
                     更换头像
                   </el-button>
                   <p class="upload-tip">支持 jpg、png 格式，大小不超过 2MB</p>
@@ -58,7 +67,9 @@
             </el-form-item>
 
             <!-- 昵称 -->
-            <el-form-item label="昵称" prop="nickname">
+            <el-form-item
+label="昵称" prop="nickname"
+>
               <el-input
                 v-model="profileForm.nickname"
                 placeholder="请输入昵称"
@@ -85,7 +96,9 @@
             </el-form-item>
 
             <!-- 手机号 -->
-            <el-form-item label="手机号" prop="phone">
+            <el-form-item
+label="手机号" prop="phone"
+>
               <el-input
                 v-model="profileForm.phone"
                 placeholder="请输入手机号"
@@ -106,7 +119,10 @@
             </el-form-item>
 
             <el-form-item>
-              <el-button type="primary" @click="saveProfile" :loading="saving">
+              <el-button
+type="primary" @click="saveProfile"
+:loading="saving"
+>
                 保存修改
               </el-button>
             </el-form-item>
@@ -256,7 +272,9 @@
         </div>
 
         <!-- 隐私设置 -->
-        <div v-else-if="activeSection === 'privacy'" class="settings-section">
+        <div
+v-else-if="activeSection === 'privacy'" class="settings-section"
+>
           <div class="section-title">
             <h3>隐私设置</h3>
             <p>控制你的隐私和数据使用</p>
@@ -288,7 +306,10 @@
             </div>
 
             <div class="privacy-actions">
-              <el-button type="primary" @click="savePrivacy" :loading="saving">
+              <el-button
+type="primary" @click="savePrivacy"
+:loading="saving"
+>
                 保存设置
               </el-button>
               <el-button @click="exportUserData"> 导出我的数据 </el-button>
@@ -297,7 +318,9 @@
         </div>
 
         <!-- 账户安全 -->
-        <div v-else-if="activeSection === 'security'" class="settings-section">
+        <div
+v-else-if="activeSection === 'security'" class="settings-section"
+>
           <div class="section-title">
             <h3>账户安全</h3>
             <p>管理你的账户安全设置</p>
@@ -338,7 +361,9 @@
                 <h4>注销账户</h4>
                 <p>永久删除你的账户和所有数据</p>
               </div>
-              <el-button type="danger" @click="deleteAccount">
+              <el-button
+type="danger" @click="deleteAccount"
+>
                 注销账户
               </el-button>
             </div>
@@ -678,7 +703,7 @@ export default {
             confirmButtonText: "确定删除",
             cancelButtonText: "取消",
             type: "error",
-          }
+          },
         );
 
         ElMessage.info("账户注销功能正在开发中...");
