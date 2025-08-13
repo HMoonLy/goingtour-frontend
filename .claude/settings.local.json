@@ -8,7 +8,8 @@
       "Bash(curl -X GET \"http://localhost:8080/api/drafts/user/1/stats\")",
       "Bash(curl -X GET \"http://localhost:8080/api/drafts/1\" -G -d \"userId=1\")",
       "Bash(npm run dev:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(curl:*)"
     ],
     "deny": []
   }
