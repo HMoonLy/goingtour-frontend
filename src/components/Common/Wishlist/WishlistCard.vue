@@ -10,8 +10,7 @@
         </h4>
         <div
           v-if="wishlistItem.tags && wishlistItem.tags.length > 0"
-          class="city-tags"
-        >
+          class="city-tags">
           <el-tag
             v-for="tag in wishlistItem.tags.slice(0, 2)"
             :key="tag"
@@ -35,9 +34,7 @@
       <div class="card-actions">
         <!-- 直观操作按钮 -->
         <div class="action-buttons">
-          <el-tooltip
-content="查看天气" placement="top"
->
+          <el-tooltip content="查看天气" placement="top">
             <el-button
               class="action-btn weather-btn"
               circle
@@ -48,9 +45,7 @@ content="查看天气" placement="top"
             </el-button>
           </el-tooltip>
 
-          <el-tooltip
-content="编辑信息" placement="top"
->
+          <el-tooltip content="编辑信息" placement="top">
             <el-button
               class="action-btn edit-btn"
               circle
@@ -61,9 +56,7 @@ content="编辑信息" placement="top"
             </el-button>
           </el-tooltip>
 
-          <el-tooltip
-content="规划行程" placement="top"
->
+          <el-tooltip content="规划行程" placement="top">
             <el-button
               class="action-btn plan-btn"
               circle
@@ -74,9 +67,7 @@ content="规划行程" placement="top"
             </el-button>
           </el-tooltip>
 
-          <el-tooltip
-content="移除城市" placement="top"
->
+          <el-tooltip content="移除城市" placement="top">
             <el-button
               class="action-btn remove-btn"
               circle
@@ -156,7 +147,8 @@ content="移除城市" placement="top"
             <span
               v-if="editForm.tags.length >= 10"
               style="font-size: 12px; margin-left: 4px"
-            >(已达上限)</span>
+              >(已达上限)</span
+            >
           </el-button>
         </el-form-item>
       </el-form>
@@ -328,7 +320,7 @@ export default {
           {
             reason: editForm.value.reason,
             tags: editForm.value.tags,
-          },
+          }
         );
 
         if (success) {
@@ -362,7 +354,7 @@ export default {
             confirmButtonText: "确定",
             cancelButtonText: "取消",
             type: "warning",
-          },
+          }
         );
 
         emit("remove", props.wishlistItem.id);
@@ -614,7 +606,7 @@ export default {
   background: linear-gradient(
     135deg,
     var(--el-color-success) 0%,
-    var(--el-color-success-light-3) 100%
+    var(--el-color-success-light-3) 0%
   );
   color: white;
 }
@@ -640,7 +632,7 @@ export default {
   background: linear-gradient(
     135deg,
     var(--el-color-danger) 0%,
-    var(--el-color-danger-light-3) 100%
+    var(--el-color-danger-light-3) 0%
   );
   color: white;
 }

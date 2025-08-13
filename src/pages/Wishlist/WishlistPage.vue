@@ -34,7 +34,7 @@
             愿望地图
           </h3>
           <div class="map-controls">
-            <el-button size="small" type="primary" disabled>
+            <el-button size="small" type="primary" @click="handleFullscreenMap">
               <el-icon><View /></el-icon>
               全屏查看
             </el-button>
@@ -42,18 +42,11 @@
         </div>
 
         <div class="map-container">
-          <div class="map-placeholder">
-            <el-icon size="48" color="#91a8d0">
-              <MapLocation />
-            </el-icon>
-            <h4>中国愿望地图</h4>
-            <p>即将上线，敬请期待</p>
-            <div class="coming-soon-features">
-              <el-tag effect="plain" type="info"> 点亮访问过的城市 </el-tag>
-              <el-tag effect="plain" type="info"> 一键规划旅行路线 </el-tag>
-              <el-tag effect="plain" type="info"> 分享你的足迹 </el-tag>
-            </div>
-          </div>
+          <ChinaWishlistMap
+            :wishlist-items="wishlistStore.wishlistItems"
+            height="400px"
+            @city-click="handleMapCityClick"
+          />
         </div>
       </div>
 
@@ -233,6 +226,7 @@ import { ElMessage } from "element-plus";
 import { Star, Plus, MapLocation, View, Search } from "@element-plus/icons-vue";
 import { useWishlistStore } from "@/store/wishlist.js";
 import WishlistCard from "@/components/Common/Wishlist/WishlistCard.vue";
+import ChinaWishlistMap from "@/components/Common/Map/ChinaWishlistMap.vue";
 import pinyin from "pinyin";
 import { debounce } from "@/utils/apiOptimizer.js";
 
@@ -240,6 +234,7 @@ export default {
   name: "WishlistPage",
   components: {
     WishlistCard,
+    ChinaWishlistMap,
     Star,
     Plus,
     MapLocation,
@@ -513,6 +508,24 @@ export default {
       searchResults.value = allCities.value.slice(0, 20);
     };
 
+    // 地图相关功能
+    const handleMapCityClick = (cityData) => {
+      if (cityData.type === 'province') {
+        // 点击省份时显示该省份的城市列表
+        ElMessage.info(`${cityData.name}省有${cityData.value}个心愿城市`);
+      } else {
+        // 点击具体城市时跳转到编辑或行程规划
+        ElMessage.success(`点击了${cityData.cityName}`);
+        // 可以选择跳转到行程规划页面
+        // handlePlanTrip(cityData);
+      }
+    };
+
+    const handleFullscreenMap = () => {
+      // 全屏查看地图功能（后续可以实现模态框全屏显示）
+      ElMessage.info('全屏地图功能开发中...');
+    };
+
     // 页面初始化
     onMounted(() => {
       wishlistStore.loadWishlist();
@@ -545,6 +558,9 @@ export default {
       // 标签相关
       predefinedTags,
       toggleTag,
+      // 地图相关
+      handleMapCityClick,
+      handleFullscreenMap,
     };
   },
 };
