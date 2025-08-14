@@ -403,14 +403,13 @@ const formatVisitDate = (dateString) => {
 
 <style scoped>
 .visited-cities-gallery {
-  background: linear-gradient(135deg, #faf7f2 0%, #f1ede4 100%);
-  border-radius: 20px;
+  background: linear-gradient(135deg, #ffffff 0%, #fefefe 100%);
+  border-radius: 16px;
   padding: 24px;
-  border: 1px solid rgba(139, 115, 85, 0.2);
+  border: 1px solid rgba(145, 168, 208, 0.08);
   box-shadow: 
-    0 8px 32px rgba(139, 115, 85, 0.1),
-    0 2px 8px rgba(139, 115, 85, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    0 4px 20px rgba(0, 0, 0, 0.04),
+    0 2px 8px rgba(145, 168, 208, 0.06);
   position: relative;
   overflow: hidden;
 }
@@ -423,8 +422,8 @@ const formatVisitDate = (dateString) => {
   right: 0;
   bottom: 0;
   background: 
-    radial-gradient(circle at 20% 30%, rgba(201, 170, 113, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(139, 115, 85, 0.03) 0%, transparent 50%);
+    radial-gradient(circle at 20% 30%, rgba(145, 168, 208, 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(247, 202, 201, 0.02) 0%, transparent 50%);
   pointer-events: none;
 }
 
@@ -439,7 +438,7 @@ const formatVisitDate = (dateString) => {
   display: flex;
   align-items: center;
   gap: 12px;
-  color: #4f46e5;
+  color: #91a8d0;
 }
 
 .header-title h3 {
@@ -478,7 +477,7 @@ const formatVisitDate = (dateString) => {
 }
 
 .photos-grid::-webkit-scrollbar-thumb {
-  background: linear-gradient(90deg, #6366f1, #4f46e5);
+  background: linear-gradient(90deg, #91a8d0, #f7cac9);
   border-radius: 4px;
 }
 
@@ -560,7 +559,7 @@ const formatVisitDate = (dateString) => {
 }
 
 .upload-placeholder:hover {
-  border-color: #c9aa71;
+  border-color: #91a8d0;
   background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
 }
 
@@ -644,12 +643,12 @@ const formatVisitDate = (dateString) => {
 }
 
 .action-btn[type="primary"] {
-  background: rgba(99, 102, 241, 0.9) !important;
+  background: rgba(145, 168, 208, 0.9) !important;
   color: white !important;
 }
 
 .action-btn[type="primary"]:hover {
-  background: #6366f1 !important;
+  background: #91a8d0 !important;
   transform: scale(1.1) !important;
 }
 
@@ -706,7 +705,7 @@ const formatVisitDate = (dateString) => {
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-  border: 2px dashed rgba(99, 102, 241, 0.3);
+  border: 2px dashed rgba(145, 168, 208, 0.3);
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -716,8 +715,8 @@ const formatVisitDate = (dateString) => {
 .more-cities-btn:hover {
   transform: rotate(0deg) translateY(-6px);
   background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
-  border-color: #6366f1;
-  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.15);
+  border-color: #91a8d0;
+  box-shadow: 0 12px 24px rgba(145, 168, 208, 0.15);
 }
 
 .more-content {
@@ -725,7 +724,7 @@ const formatVisitDate = (dateString) => {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  color: #6366f1;
+  color: #91a8d0;
   font-weight: 700;
   font-size: 16px;
 }
@@ -745,7 +744,7 @@ const formatVisitDate = (dateString) => {
 }
 
 .empty-icon {
-  color: rgba(99, 102, 241, 0.4);
+  color: rgba(145, 168, 208, 0.4);
   margin-bottom: 20px;
 }
 
