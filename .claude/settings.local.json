@@ -11,6 +11,10 @@
       "Bash(git checkout:*)",
       "Bash(curl:*)"
     ],
-    "deny": []
+    "deny": [],
+    "additionalDirectories": [
+      "F:\\GoingTour\\goingtour-backend\\src\\main\\java\\com\\goingtour\\goingtourbackend\\service\\impl"
+    ],
+    "defaultMode": "acceptEdits"
   }
 }

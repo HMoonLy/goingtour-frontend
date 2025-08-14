@@ -152,15 +152,20 @@ const routes = [
         },
       },
 
-      // 愿望清单模块
+      // 足迹模块
       {
-        path: "wishlist",
-        name: "Wishlist",
-        component: () => import("../pages/Wishlist/WishlistPage.vue"),
+        path: "footprints",
+        name: "Footprints",
+        component: () => import("../pages/Footprints/FootprintsPage.vue"),
         meta: {
-          titleKey: "route.wishlist",
+          titleKey: "route.footprints",
           requiresAuth: true,
         },
+      },
+      // 向后兼容：愿望清单路由重定向到足迹
+      {
+        path: "wishlist",
+        redirect: "/footprints",
       },
 
       // 行程模块
@@ -265,7 +270,8 @@ router.beforeEach(async (to, from, next) => {
     "route.search": "搜索结果",
     "route.tripShare": "行程分享",
     "route.notFound": "页面不存在",
-    "route.wishlist": "愿望清单",
+    "route.footprints": "我的足迹",
+    "route.wishlist": "愿望清单", // 向后兼容
     "settings.securitySettings": "安全设置",
     "settings.notifications": "通知设置",
     "settings.systemSettings": "系统设置",

@@ -206,12 +206,12 @@ class="action-card" @click="$router.push('/destinations')"
           </div>
 
           <div
-class="action-card" @click="$router.push('/wishlist')"
+class="action-card" @click="$router.push('/footprints')"
 >
             <el-icon><Star /></el-icon>
             <div class="action-info">
-              <h4>愿望清单</h4>
-              <p>管理想去的地方</p>
+              <h4>我的足迹</h4>
+              <p>记录旅行足迹和照片</p>
             </div>
           </div>
 

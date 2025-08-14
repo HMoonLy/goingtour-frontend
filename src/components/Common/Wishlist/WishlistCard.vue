@@ -10,7 +10,8 @@
         </h4>
         <div
           v-if="wishlistItem.tags && wishlistItem.tags.length > 0"
-          class="city-tags">
+          class="city-tags"
+        >
           <el-tag
             v-for="tag in wishlistItem.tags.slice(0, 2)"
             :key="tag"
@@ -34,7 +35,8 @@
       <div class="card-actions">
         <!-- 直观操作按钮 -->
         <div class="action-buttons">
-          <el-tooltip content="查看天气" placement="top">
+          <el-tooltip content="查看天气"
+placement="top">
             <el-button
               class="action-btn weather-btn"
               circle
@@ -45,7 +47,8 @@
             </el-button>
           </el-tooltip>
 
-          <el-tooltip content="编辑信息" placement="top">
+          <el-tooltip content="编辑信息"
+placement="top">
             <el-button
               class="action-btn edit-btn"
               circle
@@ -56,7 +59,8 @@
             </el-button>
           </el-tooltip>
 
-          <el-tooltip content="规划行程" placement="top">
+          <el-tooltip content="规划行程"
+placement="top">
             <el-button
               class="action-btn plan-btn"
               circle
@@ -67,7 +71,8 @@
             </el-button>
           </el-tooltip>
 
-          <el-tooltip content="移除城市" placement="top">
+          <el-tooltip content="移除城市"
+placement="top">
             <el-button
               class="action-btn remove-btn"
               circle
@@ -82,7 +87,8 @@
     </div>
 
     <div class="card-content">
-      <div v-if="wishlistItem.reason" class="reason">
+      <div v-if="wishlistItem.reason"
+class="reason">
         <p class="reason-text">
           {{ wishlistItem.reason }}
         </p>
@@ -94,7 +100,8 @@
           <span>{{ formatDate(wishlistItem.createdAt) }}</span>
         </div>
 
-        <div v-if="isCurrentWeatherCity" class="weather-indicator">
+        <div v-if="isCurrentWeatherCity"
+class="weather-indicator">
           <el-icon><View /></el-icon>
           <span>天气预览中</span>
         </div>
@@ -102,8 +109,10 @@
     </div>
 
     <!-- 编辑对话框 -->
-    <el-dialog v-model="editDialogVisible" title="编辑愿望清单" width="400px">
-      <el-form ref="editFormRef" :model="editForm" label-position="top">
+    <el-dialog v-model="editDialogVisible"
+title="编辑愿望清单" width="400px">
+      <el-form ref="editFormRef"
+:model="editForm" label-position="top">
         <el-form-item label="想去的原因">
           <el-input
             v-model="editForm.reason"
@@ -320,7 +329,7 @@ export default {
           {
             reason: editForm.value.reason,
             tags: editForm.value.tags,
-          }
+          },
         );
 
         if (success) {
@@ -354,7 +363,7 @@ export default {
             confirmButtonText: "确定",
             cancelButtonText: "取消",
             type: "warning",
-          }
+          },
         );
 
         emit("remove", props.wishlistItem.id);
