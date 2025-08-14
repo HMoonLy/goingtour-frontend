@@ -930,8 +930,8 @@ import {
   getRecommendedRestaurants,
   searchPlaces,
 } from '@/api/amap.js';
-import { translateTag } from '@/utils/tagMapping.js';
-import { dataCache } from '@/utils/dataCache.js';
+import { translateTag } from '@/utils/data/tagMapping.js';
+import { dataCache } from '@/utils/api/dataCache.js';
 import { usePreferenceStore } from '@/store/preference.js';
 import { useUserStore } from '@/store/user.js';
 export default {

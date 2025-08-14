@@ -297,8 +297,8 @@ import {
 import { http } from '@/api/request';
 import { useUserStore } from '@/store/user';
 import MarkdownIt from 'markdown-it';
-import { sanitizeMarkdownHtml } from '@/utils/xssFilter.js';
-import { handleApiError, handleSuccess } from '@/utils/errorHandler.js';
+import { sanitizeMarkdownHtml } from '@/utils/security/xssFilter.js';
+import { handleApiError, handleSuccess } from '@/utils/api/errorHandler.js';
 
 // Add missing t function
 const t = key => {

@@ -144,10 +144,10 @@ import {
 } from '@element-plus/icons-vue';
 import { useUserStore } from '@/store/user.js';
 import { useWishlistStore } from '@/store/wishlist.js';
-import { draftManager } from '@/utils/draftManager.js';
+import { draftManager } from '@/utils/storage/draftManager.js';
 import { useDraftStore } from '@/store/draft.js';
-import { convertBackendTripToFrontend } from '@/utils/tripDataConverter.js';
-import { handleApiError, handleSuccess } from '@/utils/errorHandler.js';
+import { convertBackendTripToFrontend } from '@/utils/data/tripDataConverter.js';
+import { handleApiError, handleSuccess } from '@/utils/api/errorHandler.js';
 import { aiScenarios } from '@/data/aiScenarios.js';
 import { weatherApi } from '@/api/weather.js';
 import WeatherSummary from '@/components/Common/Weather/WeatherSummary.vue';

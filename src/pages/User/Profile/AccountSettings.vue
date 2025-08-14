@@ -591,7 +591,7 @@
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { useTheme } from '@/utils/theme.js';
+import { useTheme } from '@/utils/ui/theme.js';
 import { ArrowLeft } from '@element-plus/icons-vue';
 import { useUserStore } from '@/store/user.js';
 import AvatarUploader from '@/components/Common/UI/AvatarUploader.vue';

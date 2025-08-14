@@ -185,7 +185,7 @@ import { ElMessage } from 'element-plus';
 import { Plus, Upload, CircleCheck } from '@element-plus/icons-vue';
 import { useUserStore } from '@/store/user.js';
 import { userApi } from '@/api/user.js';
-import { getAvatarUrl } from '@/utils/avatarUtils.js';
+import { getAvatarUrl } from '@/utils/ui/avatarUtils.js';
 
 const props = defineProps({
   avatar: {

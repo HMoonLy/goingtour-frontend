@@ -215,8 +215,8 @@ import {
   User,
   ChatDotRound,
 } from '@element-plus/icons-vue';
-import { formRules } from '@/utils/validation.js';
-import { handleApiError, handleSuccess } from '@/utils/errorHandler.js';
+import { formRules } from '@/utils/security/validation.js';
+import { handleApiError, handleSuccess } from '@/utils/api/errorHandler.js';
 
 export default {
   name: 'Login',

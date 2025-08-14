@@ -307,7 +307,7 @@ import {
   MagicStick,
 } from '@element-plus/icons-vue';
 import pinyin from 'pinyin';
-import { createCachedRequest, debounce } from '@/utils/apiOptimizer.js';
+import { createCachedRequest, debounce } from '@/utils/api/apiOptimizer.js';
 import { useOptimizedWishlistStore } from '@/store/optimizedWishlist.js';
 import { hotRegions, findCity, seasonalByMonth } from '@/data/destinations.js';
 import { hotCategories as hotCategoriesData } from '@/data/hotGroups.js';
@@ -318,11 +318,11 @@ import CityGridList from '@/components/Common/City/CityGridList.vue';
 import {
   pagePerformance,
   imagePerformance,
-} from '@/utils/performanceMonitor.js';
+} from '@/utils/performance/performanceMonitor.js';
 import {
   interactionMonitor,
   createDebouncedHandler,
-} from '@/utils/interactionMonitor.js';
+} from '@/utils/system/interactionMonitor.js';
 
 export default {
   name: 'Destinations',

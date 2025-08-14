@@ -135,7 +135,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Camera, Plus, Delete, CameraFilled } from '@element-plus/icons-vue';
 import { useWishlistStore } from '@/store/wishlist.js';
-import { getCityPhotoUrl, getCityThumbnailUrl } from '@/utils/imageUrl.js';
+import { getCityPhotoUrl, getCityThumbnailUrl } from '@/utils/media/imageUrl.js';
 
 // Props
 const props = defineProps({

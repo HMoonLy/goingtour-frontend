@@ -342,7 +342,7 @@ import { useUserStore } from '@/store/user.js';
 import {
   convertBackendTripToFrontend,
   convertFrontendTripToBackend,
-} from '@/utils/tripDataConverter.js';
+} from '@/utils/data/tripDataConverter.js';
 
 export default {
   name: 'TripDetail',

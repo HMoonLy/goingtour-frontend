@@ -231,9 +231,9 @@ import {
 
 import { useUserStore } from '@/store/user.js';
 import { useDraftStore } from '@/store/draft.js';
-import { draftManager } from '@/utils/draftManager.js';
-import { convertBackendTripToFrontend } from '@/utils/tripDataConverter.js';
-import { handleApiError } from '@/utils/errorHandler.js';
+import { draftManager } from '@/utils/storage/draftManager.js';
+import { convertBackendTripToFrontend } from '@/utils/data/tripDataConverter.js';
+import { handleApiError } from '@/utils/api/errorHandler.js';
 import AvatarUploader from '@/components/Common/UI/AvatarUploader.vue';
 
 export default {

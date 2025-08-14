@@ -165,7 +165,7 @@ import {
   Warning,
 } from '@element-plus/icons-vue';
 import UserCenterNav from '@/components/User/UserCenterNav.vue';
-import { translateTag, getMbtiName } from '@/utils/tagMapping.js';
+import { translateTag, getMbtiName } from '@/utils/data/tagMapping.js';
 import Preferences from '../Settings/Preferences.vue';
 import Security from '../Settings/Security.vue';
 import Notifications from '../Settings/Notifications.vue';

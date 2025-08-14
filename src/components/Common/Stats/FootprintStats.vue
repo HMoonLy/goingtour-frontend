@@ -139,7 +139,7 @@
 <script>
 import { ref, computed } from 'vue';
 import { ElMessage } from 'element-plus';
-import { FootprintShareUtil } from '@/utils/footprintShare.js';
+import { FootprintShareUtil } from '@/utils/media/footprintShare.js';
 import {
   TrophyBase,
   LocationInformation,

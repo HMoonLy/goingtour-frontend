@@ -171,7 +171,7 @@ import {
   ChatDotSquare,
 } from '@element-plus/icons-vue';
 import MarkdownIt from 'markdown-it';
-import { sanitizeMarkdownHtml } from '@/utils/xssFilter.js';
+import { sanitizeMarkdownHtml } from '@/utils/security/xssFilter.js';
 
 const props = defineProps({
   tripData: {

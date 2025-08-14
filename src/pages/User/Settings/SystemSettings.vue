@@ -18,7 +18,7 @@
 import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/store/user.js';
-import { useTheme } from '@/utils/theme.js';
+import { useTheme } from '@/utils/ui/theme.js';
 import UserCenterNav from '@/components/User/UserCenterNav.vue';
 export default {
   name: 'SystemSettings',

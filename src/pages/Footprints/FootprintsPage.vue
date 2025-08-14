@@ -463,7 +463,7 @@ import ChinaWishlistMap from '@/components/Common/Map/ChinaWishlistMap.vue';
 import FootprintStats from '@/components/Common/Stats/FootprintStats.vue';
 import VisitedCitiesGallery from '@/components/Common/Footprints/VisitedCitiesGallery.vue';
 import pinyin from 'pinyin';
-import { debounce } from '@/utils/apiOptimizer.js';
+import { debounce } from '@/utils/api/apiOptimizer.js';
 
 export default {
   name: 'FootprintsPage',

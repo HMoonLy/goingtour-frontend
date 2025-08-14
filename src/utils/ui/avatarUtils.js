@@ -3,7 +3,7 @@
  * 现在使用统一的图片URL规范化工具
  */
 
-import { getAvatarUrl as getAvatarUrlFromImageUtils, isOSSImage, getInitials as getInitialsFromImageUtils } from './imageUrl.js';
+import { getAvatarUrl as getAvatarUrlFromImageUtils, isOSSImage, getInitials as getInitialsFromImageUtils } from '../media/imageUrl.js';
 
 /**
  * 获取有效的头像访问URL

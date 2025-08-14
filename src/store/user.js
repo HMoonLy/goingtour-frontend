@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { userApi } from '../api/user';
 import { ElMessage } from 'element-plus';
-import { getAvatarUrl } from '@/utils/imageUrl.js';
+import { getAvatarUrl } from '@/utils/media/imageUrl.js';
 
 export const useUserStore = defineStore('user', {
     state: () => ({

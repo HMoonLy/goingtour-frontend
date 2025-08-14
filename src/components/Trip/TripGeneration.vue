@@ -776,7 +776,7 @@ import {
   specialExperienceMapping,
   getBudgetText as getBudgetTextUtil,
   getCityName,
-} from '@/utils/tagMapping.js';
+} from '@/utils/data/tagMapping.js';
 import { useUserStore } from '@/store/user.js';
 
 export default {

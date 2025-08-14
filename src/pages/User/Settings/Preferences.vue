@@ -605,7 +605,7 @@ import {
   getMbtiName,
   getMbtiTravelDescription,
   translateTag,
-} from '@/utils/tagMapping.js';
+} from '@/utils/data/tagMapping.js';
 import UserCenterNav from '@/components/User/UserCenterNav.vue';
 
 export default {
