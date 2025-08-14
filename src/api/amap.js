@@ -159,3 +159,190 @@ export const getRecommendedRestaurants = (city, page = 1, pageSize = 6) => {
     page: page,
   });
 };
+
+// ==================== 地理编码相关功能 ====================
+
+// 城市坐标缓存key前缀
+const COORDINATE_CACHE_PREFIX = 'amap_city_coordinates_';
+const COORDINATE_CACHE_EXPIRY = 30 * 24 * 60 * 60 * 1000; // 30天过期
+
+/**
+ * 从缓存获取城市坐标
+ * @param {string} cityName - 城市名称
+ * @returns {Object|null} - 坐标对象或null
+ */
+const getCachedCoordinate = (cityName) => {
+  try {
+    const cacheKey = COORDINATE_CACHE_PREFIX + cityName;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      const data = JSON.parse(cached);
+      // 检查是否过期
+      if (data.timestamp + COORDINATE_CACHE_EXPIRY > Date.now()) {
+        return data.coordinate;
+      } else {
+        localStorage.removeItem(cacheKey);
+      }
+    }
+  } catch (error) {
+    console.warn(`读取城市坐标缓存失败 [${cityName}]:`, error);
+  }
+  return null;
+};
+
+/**
+ * 缓存城市坐标
+ * @param {string} cityName - 城市名称
+ * @param {Array} coordinate - [经度, 纬度]
+ */
+const setCachedCoordinate = (cityName, coordinate) => {
+  try {
+    const cacheKey = COORDINATE_CACHE_PREFIX + cityName;
+    const data = {
+      coordinate,
+      timestamp: Date.now()
+    };
+    localStorage.setItem(cacheKey, JSON.stringify(data));
+  } catch (error) {
+    console.warn(`缓存城市坐标失败 [${cityName}]:`, error);
+  }
+};
+
+/**
+ * 获取城市的精确经纬度坐标（地理编码）
+ * @param {string} cityName - 城市名称
+ * @returns {Promise<Array>} - 返回[经度, 纬度]数组
+ */
+export const getCityCoordinate = async (cityName) => {
+  if (!cityName) {
+    throw new Error('城市名称不能为空');
+  }
+
+  // 先检查缓存
+  const cached = getCachedCoordinate(cityName);
+  if (cached) {
+    // console.log(`🎯 从缓存获取城市坐标 [${cityName}]:`, cached);
+    return cached;
+  }
+
+  // 检查API Key是否存在
+  if (!apiKey) {
+    console.error('错误: 高德地图API Key未设置，无法获取城市坐标');
+    throw new Error('API Key未设置');
+  }
+
+  try {
+    // console.log(`📍 正在获取城市坐标: ${cityName}`);
+    
+    // 调用高德地理编码API
+    const response = await amapRequest({
+      url: 'https://restapi.amap.com/v3/geocode/geo',
+      method: 'get',
+      params: {
+        key: apiKey,
+        address: cityName,
+        output: 'JSON'
+      }
+    });
+
+    const data = response.data;
+
+    if (data && data.status === '1' && data.geocodes && data.geocodes.length > 0) {
+      const geocode = data.geocodes[0];
+      if (geocode.location) {
+        // 高德API返回格式是 "经度,纬度" 字符串
+        const [lng, lat] = geocode.location.split(',').map(Number);
+        const coordinate = [lng, lat];
+        
+        // 缓存结果
+        setCachedCoordinate(cityName, coordinate);
+        
+        // console.log(`✅ 获取城市坐标成功 [${cityName}]:`, coordinate);
+        return coordinate;
+      }
+    }
+
+    // API调用成功但没有找到坐标
+    console.warn(`⚠️ 未找到城市坐标: ${cityName}`);
+    throw new Error(`未找到城市坐标: ${cityName}`);
+
+  } catch (error) {
+    console.error(`❌ 获取城市坐标失败 [${cityName}]:`, error);
+    throw error;
+  }
+};
+
+/**
+ * 批量获取多个城市的坐标
+ * @param {Array<string>} cityNames - 城市名称数组
+ * @param {number} [delay=100] - 请求间隔（毫秒），避免API限流
+ * @returns {Promise<Object>} - 返回城市名称到坐标的映射对象
+ */
+export const getBatchCityCoordinates = async (cityNames, delay = 100) => {
+  if (!Array.isArray(cityNames) || cityNames.length === 0) {
+    return {};
+  }
+
+  const results = {};
+  const failedCities = [];
+
+  // console.log(`🌍 批量获取 ${cityNames.length} 个城市的坐标`);
+
+  for (const cityName of cityNames) {
+    try {
+      const coordinate = await getCityCoordinate(cityName);
+      results[cityName] = coordinate;
+      
+      // 添加延迟避免API限流
+      if (delay > 0 && cityNames.indexOf(cityName) < cityNames.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    } catch (error) {
+      console.warn(`获取城市坐标失败: ${cityName}`, error);
+      failedCities.push(cityName);
+      // 失败时使用中国中心点附近的随机坐标作为备选
+      results[cityName] = [104 + Math.random() * 20 - 10, 35 + Math.random() * 15 - 7.5];
+    }
+  }
+
+  if (failedCities.length > 0) {
+    console.warn(`⚠️ ${failedCities.length} 个城市坐标获取失败:`, failedCities);
+  }
+
+  // console.log(`✅ 批量坐标获取完成，成功: ${Object.keys(results).length - failedCities.length}, 失败: ${failedCities.length}`);
+  return results;
+};
+
+/**
+ * 清理过期的坐标缓存
+ */
+export const cleanExpiredCoordinateCache = () => {
+  try {
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(COORDINATE_CACHE_PREFIX)) {
+        try {
+          const data = JSON.parse(localStorage.getItem(key));
+          if (data.timestamp + COORDINATE_CACHE_EXPIRY <= Date.now()) {
+            keysToRemove.push(key);
+          }
+        } catch (error) {
+          // 解析失败的缓存项也删除
+          keysToRemove.push(key);
+        }
+      }
+    }
+    
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+    
+    if (keysToRemove.length > 0) {
+      console.log(`🧹 清理了 ${keysToRemove.length} 个过期的城市坐标缓存`);
+    }
+  } catch (error) {
+    console.warn('清理坐标缓存失败:', error);
+  }
+};
+
+// 在模块加载时自动清理过期缓存
+cleanExpiredCoordinateCache();

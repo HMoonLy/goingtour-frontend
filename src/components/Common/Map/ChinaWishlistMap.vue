@@ -18,6 +18,7 @@
 <script>
 import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
 import * as echarts from "echarts";
+import { getCityCoordinate, getBatchCityCoordinates } from "@/api/amap.js";
 
 export default {
   name: "ChinaWishlistMap",
@@ -44,6 +45,7 @@ export default {
     const mapContainer = ref(null);
     const chartInstance = ref(null);
     const loading = ref(true);
+    let resizeHandler = null;
 
     // 省份名称映射（用于ECharts地图）
     const provinceMapping = {
@@ -166,69 +168,23 @@ export default {
       };
     };
 
-    // 城市坐标映射（主要城市的经纬度）
-    const cityCoordinates = {
-      北京市: [116.4074, 39.9042],
-      上海市: [121.4737, 31.2304],
-      广州市: [113.2644, 23.1291],
-      深圳市: [114.0579, 22.5431],
-      杭州市: [120.1614, 30.2936],
-      南京市: [118.7969, 32.0603],
-      成都市: [104.0665, 30.5723],
-      西安市: [108.9399, 34.3412],
-      重庆市: [106.5516, 29.563],
-      天津市: [117.1901, 39.1084],
-      苏州市: [120.5853, 31.2987],
-      武汉市: [114.3054, 30.5931],
-      厦门市: [118.1025, 24.4801],
-      青岛市: [120.3826, 36.0671],
-      大连市: [121.6147, 38.914],
-      三亚市: [109.5119, 18.2577],
-      丽江市: [100.227, 26.8721],
-      桂林市: [110.2993, 25.2742],
-      拉萨市: [91.1409, 29.6456],
-      乌鲁木齐市: [87.6168, 43.793],
-      哈尔滨市: [126.642, 45.756],
-      沈阳市: [123.4315, 41.8057],
-      长春市: [125.3235, 43.8171],
-      济南市: [117.0009, 36.6758],
-      郑州市: [113.6254, 34.7466],
-      太原市: [112.5501, 37.8706],
-      石家庄市: [114.5149, 38.0428],
-      呼和浩特市: [111.7508, 40.8414],
-      银川市: [106.2309, 38.4872],
-      西宁市: [101.7782, 36.6171],
-      兰州市: [103.8236, 36.0581],
-      昆明市: [102.8329, 24.8801],
-      贵阳市: [106.7133, 26.5783],
-      南宁市: [108.3201, 22.8267],
-      海口市: [110.3312, 20.0311],
-      福州市: [119.3063, 26.0745],
-      南昌市: [115.8921, 28.6765],
-      长沙市: [112.9388, 28.2282],
-      合肥市: [117.2272, 31.8206],
-    };
-
-    // 根据城市名获取坐标
-    const getCityCoordinates = (cityName) => {
-      // 直接匹配
-      if (cityCoordinates[cityName]) {
-        return cityCoordinates[cityName];
+    // 城市坐标获取（使用高德地图API）
+    const getCityCoordinates = async (cityName) => {
+      try {
+        // 使用高德地图API获取精确坐标
+        const coordinates = await getCityCoordinate(cityName);
+        return coordinates;
+      } catch (error) {
+        console.warn(`获取城市坐标失败 [${cityName}]:`, error);
+        
+        // API失败时的备选方案：使用城市名称hash生成相对固定的坐标
+        const hash = cityName.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+        const lng = 104 + (hash % 60 - 30); // 经度范围 74-134
+        const lat = 35 + ((hash * 7) % 30 - 15); // 纬度范围 20-50
+        
+        console.log(`使用备选坐标 [${cityName}]: [${lng}, ${lat}]`);
+        return [lng, lat];
       }
-
-      // 模糊匹配（去掉"市"后缀）
-      const cityNameWithoutSuffix = cityName.replace(/[市县区]/g, "");
-      for (const [key, value] of Object.entries(cityCoordinates)) {
-        if (
-          key.includes(cityNameWithoutSuffix) ||
-          cityNameWithoutSuffix.includes(key.replace(/[市县区]/g, ""))
-        ) {
-          return value;
-        }
-      }
-
-      // 如果没有找到，返回中国中心点附近的随机坐标
-      return [104 + Math.random() * 20 - 10, 35 + Math.random() * 15 - 7.5];
     };
 
     // 初始化真正的中国地图
@@ -258,8 +214,12 @@ export default {
         echarts.registerMap("china", chinaGeoJSON);
 
         // 处理心愿清单数据，区分状态
+        // 批量获取所有城市的坐标（优化性能）
+        const cityNames = props.wishlistItems.map(item => item.cityName);
+        const cityCoordinatesMap = await getBatchCityCoordinates(cityNames, 50); // 50ms间隔避免限流
+
         const scatterData = props.wishlistItems.map((item) => {
-          const coordinates = getCityCoordinates(item.cityName);
+          const coordinates = cityCoordinatesMap[item.cityName] || [104, 35];
           const isVisited = item.status === "visited";
           const isHighlighted = props.highlightedCity === item.cityName;
 
@@ -394,6 +354,13 @@ export default {
                   shadowBlur: 15,
                 },
                 scale: 1.3,
+                label: {
+                  show: true,
+                  textStyle: {
+                    color: "#91A8D0",
+                    fontSize: 13,
+                  },
+                },
               },
               label: {
                 show: true,
@@ -407,15 +374,6 @@ export default {
                   fontWeight: "bold",
                   textBorderColor: "#fff",
                   textBorderWidth: 1,
-                },
-              },
-              emphasis: {
-                label: {
-                  show: true,
-                  textStyle: {
-                    color: "#91A8D0",
-                    fontSize: 13,
-                  },
                 },
               },
               animationDuration: 1500,
@@ -464,11 +422,14 @@ export default {
           }
         });
 
-        // 监听窗口大小变化
-        const handleResize = () => {
+        // 监听窗口大小变化（先清除旧的监听器，避免重复绑定）
+        if (resizeHandler) {
+          window.removeEventListener("resize", resizeHandler);
+        }
+        resizeHandler = () => {
           chartInstance.value?.resize();
         };
-        window.addEventListener("resize", handleResize);
+        window.addEventListener("resize", resizeHandler);
 
         loading.value = false;
       } catch (error) {
@@ -635,6 +596,8 @@ export default {
                   .split("")
                   .reduce((a, b) => a + b.charCodeAt(0), 0);
                 const hash2 = item.cityCode ? parseInt(item.cityCode) : hash1;
+                const isVisited = item.status === "visited";
+                const isHighlighted = props.highlightedCity === item.cityName;
 
                 return {
                   name: item.cityName,
@@ -644,11 +607,23 @@ export default {
                     item.cityName,
                   ],
                   itemStyle: {
-                    color: "#F7CAC9",
-                    borderColor: "#91A8D0",
-                    borderWidth: 2,
-                    shadowColor: "rgba(145, 168, 208, 0.3)",
-                    shadowBlur: 8,
+                    color: isHighlighted
+                      ? "#ff6b6b"
+                      : isVisited
+                        ? "#f59e0b"
+                        : "#F7CAC9",
+                    borderColor: isHighlighted
+                      ? "#ffffff"
+                      : isVisited
+                        ? "#d97706"
+                        : "#91A8D0",
+                    borderWidth: isHighlighted ? 3 : 2,
+                    shadowColor: isHighlighted
+                      ? "rgba(255, 107, 107, 0.5)"
+                      : isVisited
+                        ? "rgba(245, 158, 11, 0.3)"
+                        : "rgba(145, 168, 208, 0.3)",
+                    shadowBlur: isHighlighted ? 12 : 8,
                   },
                   tags: item.tags,
                   cityName: item.cityName,
@@ -698,11 +673,14 @@ export default {
           }
         });
 
-        // 监听窗口大小变化
-        const handleResize = () => {
+        // 监听窗口大小变化（先清除旧的监听器，避免重复绑定）
+        if (resizeHandler) {
+          window.removeEventListener("resize", resizeHandler);
+        }
+        resizeHandler = () => {
           chartInstance.value?.resize();
         };
-        window.addEventListener("resize", handleResize);
+        window.addEventListener("resize", resizeHandler);
 
         loading.value = false;
       } catch (error) {
@@ -712,7 +690,7 @@ export default {
     };
 
     // 更新地图数据（用于真实地图）
-    const updateRealMapData = () => {
+    const updateRealMapData = async () => {
       if (chartInstance.value) {
         if (!props.wishlistItems || props.wishlistItems.length === 0) {
           // 空状态：显示中国地图但没有标记点
@@ -729,16 +707,30 @@ export default {
           return;
         }
 
+        // 批量获取坐标，避免逐个await造成的卡顿
+        const cityNames = props.wishlistItems.map((item) => item.cityName);
+        const coordinatesMap = await getBatchCityCoordinates(cityNames, 50);
+
         // 更新散点数据
         const updatedScatterData = props.wishlistItems.map((item) => {
-          const coordinates = getCityCoordinates(item.cityName);
+          const coordinates = coordinatesMap[item.cityName] || [104, 35];
+          const isVisited = item.status === "visited";
+          const isHighlighted = props.highlightedCity === item.cityName;
           return {
             name: item.cityName,
             value: [...coordinates, item.cityName],
             itemStyle: {
-              color: "#F7CAC9",
-              borderColor: "#91A8D0",
-              borderWidth: 2,
+              color: isHighlighted
+                ? "#ff6b6b"
+                : isVisited
+                  ? "#f59e0b"
+                  : "#91A8D0",
+              borderColor: isHighlighted
+                ? "#ffffff"
+                : isVisited
+                  ? "#d97706"
+                  : "#6366f1",
+              borderWidth: isHighlighted ? 3 : 2,
             },
             data: item,
           };
@@ -773,6 +765,19 @@ export default {
       { deep: true }
     );
 
+    // 监听高亮城市变化，动态更新样式
+    watch(
+      () => props.highlightedCity,
+      () => {
+        if (!chartInstance.value) return;
+        if (chartInstance.value.getOption().geo) {
+          updateRealMapData();
+        } else {
+          updateMapData();
+        }
+      }
+    );
+
     onMounted(async () => {
       // 优先尝试加载真实的中国地图
       try {
@@ -785,10 +790,11 @@ export default {
     });
 
     onBeforeUnmount(() => {
+      if (resizeHandler) {
+        window.removeEventListener("resize", resizeHandler);
+        resizeHandler = null;
+      }
       if (chartInstance.value) {
-        window.removeEventListener("resize", () => {
-          chartInstance.value?.resize();
-        });
         chartInstance.value.dispose();
         chartInstance.value = null;
       }
@@ -843,6 +849,9 @@ export default {
             .reduce((a, b) => a + b.charCodeAt(0), 0);
           const hash2 = item.cityCode ? parseInt(item.cityCode) : hash1;
 
+          const isVisited = item.status === "visited";
+          const isHighlighted = props.highlightedCity === item.cityName;
+
           return {
             name: item.cityName,
             value: [
@@ -851,11 +860,23 @@ export default {
               item.cityName,
             ],
             itemStyle: {
-              color: "#F7CAC9",
-              borderColor: "#91A8D0",
-              borderWidth: 2,
-              shadowColor: "rgba(145, 168, 208, 0.3)",
-              shadowBlur: 8,
+              color: isHighlighted
+                ? "#ff6b6b"
+                : isVisited
+                  ? "#f59e0b"
+                  : "#F7CAC9",
+              borderColor: isHighlighted
+                ? "#ffffff"
+                : isVisited
+                  ? "#d97706"
+                  : "#91A8D0",
+              borderWidth: isHighlighted ? 3 : 2,
+              shadowColor: isHighlighted
+                ? "rgba(255, 107, 107, 0.5)"
+                : isVisited
+                  ? "rgba(245, 158, 11, 0.3)"
+                  : "rgba(145, 168, 208, 0.3)",
+              shadowBlur: isHighlighted ? 12 : 8,
             },
             tags: item.tags,
             cityName: item.cityName,

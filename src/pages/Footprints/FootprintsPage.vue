@@ -55,7 +55,6 @@
           >
             <el-icon><Location /></el-icon>
             全部显示
-            <span class="mode-count">({{ wishlistStore.totalCount }})</span>
           </el-button>
           
           <el-button
@@ -66,7 +65,6 @@
           >
             <el-icon><Star /></el-icon>
             想去的城市
-            <span class="mode-count">({{ wishlistStore.wishlistOnlyCount }})</span>
           </el-button>
           
           <el-button
@@ -77,7 +75,6 @@
           >
             <el-icon><Check /></el-icon>
             去过的城市
-            <span class="mode-count">({{ wishlistStore.visitedCount }})</span>
           </el-button>
         </div>
       </div>
@@ -503,17 +500,17 @@ export default {
     // 预定义标签
     const predefinedTags = ref([
       { name: "历史文化", color: "#91a8d0" },
-      { name: "自然风光", color: "#7cb342" },
-      { name: "美食之旅", color: "#fb8c00" },
-      { name: "度假休闲", color: "#f7cac9" },
-      { name: "购物天堂", color: "#8b5cf6" },
-      { name: "艺术文化", color: "#06b6d4" },
-      { name: "夜生活", color: "#ef4444" },
-      { name: "亲子旅行", color: "#10b981" },
-      { name: "冒险探索", color: "#f59e0b" },
-      { name: "古镇古村", color: "#84cc16" },
-      { name: "海滨城市", color: "#3b82f6" },
-      { name: "山水之间", color: "#059669" },
+      { name: "自然风光", color: "#91a8d0" },
+      { name: "美食之旅", color: "#91a8d0" },
+      { name: "度假休闲", color: "#91a8d0" },
+      { name: "购物天堂", color: "#91a8d0" },
+      { name: "艺术文化", color: "#91a8d0" },
+      { name: "夜生活", color: "#91a8d0" },
+      { name: "亲子旅行", color: "#91a8d0" },
+      { name: "冒险探索", color: "#91a8d0" },
+      { name: "古镇古村", color: "#91a8d0" },
+      { name: "海滨城市", color: "#91a8d0" },
+      { name: "山水之间", color: "#91a8d0" },
     ]);
 
     // 城市数据相关
@@ -1533,8 +1530,9 @@ export default {
   width: 100%;
 }
 
-.city-name {
-  font-weight: 500;
+.city-option .city-name,
+.city-option-content .city-name {
+  font-weight: 400;
   color: #1f2937;
 }
 
@@ -1857,7 +1855,7 @@ export default {
   opacity: 1;
 }
 
-.city-name {
+.photo-overlay .city-name {
   font-size: 14px;
   font-weight: 600;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
