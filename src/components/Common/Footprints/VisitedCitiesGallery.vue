@@ -1,1183 +1,796 @@
 <template>
   <div class="visited-cities-gallery">
+    <!-- 标题区域 -->
     <div class="gallery-header">
-      <h3 class="gallery-title">
-        <el-icon><Camera /></el-icon>
-        我去过的城市
-        <span v-if="visitedCities.length > 0"
-class="count">
-          ({{ visitedCities.length }})
-        </span>
-      </h3>
-      <div class="header-actions">
-        <el-button size="small"
-@click="toggleViewMode">
-          <el-icon>
-            <Grid v-if="viewMode === 'list'" />
-            <List v-else />
-          </el-icon>
-          {{ viewMode === "list" ? "网格视图" : "列表视图" }}
-        </el-button>
+      <div class="header-title">
+        <el-icon size="20"><Camera /></el-icon>
+        <h3>去过的城市</h3>
+        <span class="photo-count" v-if="visitedCities.length > 0">({{ visitedCities.length }}个城市)</span>
       </div>
     </div>
 
-    <!-- 空状态 -->
-    <div v-if="visitedCities.length === 0"
-class="empty-state">
-      <el-icon size="48"
-color="#C0C4CC">
-        <Camera />
-      </el-icon>
-      <h4>还没有去过的城市</h4>
-      <p>标记城市为"去过"并上传照片来记录你的足迹</p>
-    </div>
-
-    <!-- 城市列表 -->
-    <div v-else
-class="cities-container" :class="[`view-${viewMode}`]">
-      <div
-        v-for="city in visitedCities"
-        :key="city.id"
-        class="city-item"
-        @click="handleCityClick(city)"
+    <!-- 照片展示区域 -->
+    <div class="photos-container">
+      <!-- 有去过城市的情况 -->
+      <div 
+        v-if="visitedCities.length > 0"
+        class="photos-grid"
       >
-        <!-- 城市基本信息 -->
-        <div class="city-info">
-          <div class="city-header">
-            <h4 class="city-name">
-              {{ city.cityName }}
-            </h4>
-            <div class="city-meta">
-              <span class="visit-date">
-                {{ formatDate(city.updatedAt) }}
-              </span>
-              <el-tag size="small"
-type="warning">
-                <el-icon><Check /></el-icon>
-                已去过
-              </el-tag>
-            </div>
-          </div>
-
-          <div v-if="city.reason"
-class="city-reason">
-            {{ city.reason }}
-          </div>
-
-          <div v-if="city.tags && city.tags.length > 0"
-class="city-tags">
-            <el-tag
-              v-for="tag in city.tags.slice(0, 3)"
-              :key="tag"
-              size="small"
-              class="tag"
-            >
-              {{ tag }}
-            </el-tag>
-            <span v-if="city.tags.length > 3"
-class="more-tags">
-              +{{ city.tags.length - 3 }}
-            </span>
-          </div>
-        </div>
-
-        <!-- 照片展示区域 -->
-        <div class="photos-section">
-          <div v-if="getCityPhotos(city.id).length === 0"
-class="no-photos">
-            <el-icon size="32"
-color="#E5E7EB">
-              <Picture />
-            </el-icon>
-            <p>暂无照片</p>
-            <el-button
-              size="small"
-              type="primary"
-              @click.stop="handleUploadClick(city)"
-            >
-              <el-icon><Plus /></el-icon>
-              上传照片
-            </el-button>
-          </div>
-
-          <div v-else
-class="photos-grid">
-            <div
-              v-for="(photo, index) in getCityPhotos(city.id).slice(0, 4)"
-              :key="photo.id"
-              class="photo-item"
-              :class="{ 'is-cover': photo.isCover }"
-              @click.stop="handlePhotoClick(photo, city)"
-            >
-              <img
-                :src="photo.thumbnailUrl || photo.photoUrl"
-                :alt="photo.caption || '城市照片'"
-                class="photo-image"
+        <div 
+          v-for="(city, index) in displayCities" 
+          :key="city.id"
+          class="city-photo-item"
+          :style="{ animationDelay: `${index * 0.1}s` }"
+        >
+          <div class="photo-wrapper" @click="handlePhotoClick(city)">
+            <!-- 有照片的情况 -->
+            <template v-if="city.photo">
+              <img 
+                :src="city.photo" 
+                :alt="city.cityName"
+                class="city-photo"
                 @error="handleImageError"
               />
-              <div v-if="photo.caption"
-class="photo-caption">
-                {{ photo.caption }}
+            </template>
+
+            <!-- 没有照片的情况 - 上传引导 -->
+            <template v-else>
+              <div class="upload-placeholder">
+                <el-icon size="32" class="upload-icon"><Plus /></el-icon>
+                <p class="upload-text">添加照片</p>
+                <p class="upload-hint">点击上传</p>
               </div>
-              <!-- 更多照片指示器 -->
-              <div
-                v-if="index === 3 && getCityPhotos(city.id).length > 4"
-                class="more-photos-overlay"
-              >
-                <span>+{{ getCityPhotos(city.id).length - 4 }}</span>
+            </template>
+
+            <!-- 照片信息遮罩 -->
+            <div class="photo-overlay" v-if="city.photo">
+              <div class="city-info">
+                <span class="city-name">{{ city.cityName }}</span>
+                <span class="visit-date">{{ formatVisitDate(city.updatedAt) }}</span>
+              </div>
+              
+              <!-- 操作按钮 -->
+              <div class="photo-actions">
+                <el-tooltip content="更换照片" placement="top">
+                  <el-button 
+                    size="small" 
+                    type="primary" 
+                    circle
+                    class="action-btn"
+                    @click.stop="handlePhotoClick(city)"
+                  >
+                    <el-icon><Camera /></el-icon>
+                  </el-button>
+                </el-tooltip>
+
+                <el-tooltip content="删除照片" placement="top">
+                  <el-button 
+                    size="small" 
+                    type="danger" 
+                    circle
+                    class="action-btn"
+                    @click.stop="handleDeletePhoto(city)"
+                  >
+                    <el-icon><Delete /></el-icon>
+                  </el-button>
+                </el-tooltip>
               </div>
             </div>
 
-            <!-- 添加照片按钮 -->
-            <div class="add-photo-btn"
-@click.stop="handleUploadClick(city)">
-              <el-icon size="24">
-                <Plus />
-              </el-icon>
+            <!-- 城市名称 (无照片时显示) -->
+            <div v-if="!city.photo" class="city-name-bottom">
+              {{ city.cityName }}
+            </div>
+
+            <!-- 胶片孔效果 -->
+            <div class="film-holes" v-if="city.photo">
+              <div class="hole"></div>
+              <div class="hole"></div>
+              <div class="hole"></div>
             </div>
           </div>
-
-          <!-- 照片管理工具栏 -->
-          <div v-if="getCityPhotos(city.id).length > 0"
-class="photo-actions">
-            <el-button-group size="small">
-              <el-button @click.stop="handleUploadClick(city)">
-                <el-icon><Upload /></el-icon>
-                添加
-              </el-button>
-              <el-button @click.stop="handleViewAllPhotos(city)">
-                <el-icon><View /></el-icon>
-                查看全部 ({{ getCityPhotos(city.id).length }})
-              </el-button>
-            </el-button-group>
+        </div>
+        
+        <!-- 显示更多按钮 -->
+        <div 
+          v-if="visitedCities.length > maxDisplayCount && !showAll" 
+          class="more-cities-btn"
+          @click="showAll = true"
+        >
+          <div class="more-content">
+            <el-icon size="24"><Plus /></el-icon>
+            <span>+{{ visitedCities.length - maxDisplayCount }}</span>
           </div>
+        </div>
+      </div>
+
+      <!-- 完全没有去过城市的空状态 -->
+      <div v-else class="empty-gallery">
+        <div class="empty-content">
+          <el-icon size="64" class="empty-icon"><CameraFilled /></el-icon>
+          <h4>还没有足迹照片</h4>
+          <p>标记一些城市为"去过"，然后上传你的旅行照片</p>
+          <el-button type="primary" @click="$emit('add-visited-city')">
+            <el-icon><Plus /></el-icon>
+            添加去过的城市
+          </el-button>
         </div>
       </div>
     </div>
 
-    <!-- 照片上传对话框 -->
-    <el-dialog
-      v-model="showUploadDialog"
-      :title="`为 ${currentCity?.cityName} 上传照片`"
-      width="600px"
-      class="photo-upload-dialog"
-    >
-      <div class="upload-content">
-        <el-upload
-          ref="uploadRef"
-          :action="uploadAction"
-          :headers="uploadHeaders"
-          :data="uploadData"
-          :before-upload="beforeUpload"
-          :on-success="onUploadSuccess"
-          :on-error="onUploadError"
-          :on-progress="onUploadProgress"
-          multiple
-          accept="image/*"
-          drag
-          class="photo-uploader"
-        >
-          <el-icon size="48"
-color="#C0C4CC">
-            <Upload />
-          </el-icon>
-          <div class="upload-text">
-            <p>将照片拖到此处，或<em>点击上传</em></p>
-            <p class="upload-tip">支持 JPG、PNG 格式，单张图片不超过 10MB</p>
-          </div>
-        </el-upload>
-
-        <!-- 上传列表 -->
-        <div v-if="uploadingFiles.length > 0"
-class="upload-list">
-          <h4>上传进度</h4>
-          <div
-            v-for="file in uploadingFiles"
-            :key="file.uid"
-            class="upload-item"
-          >
-            <div class="file-info">
-              <span class="file-name">{{ file.name }}</span>
-              <span class="file-size">{{ formatFileSize(file.size) }}</span>
-            </div>
-            <el-progress
-              :percentage="file.progress || 0"
-              :status="file.status"
-              :stroke-width="4"
-            />
-          </div>
-        </div>
-      </div>
-
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="showUploadDialog = false"> 取消 </el-button>
-          <el-button type="primary"
-:loading="uploading" @click="finishUpload">
-            完成
-          </el-button>
-        </div>
-      </template>
-    </el-dialog>
-
-    <!-- 照片查看器 -->
-    <el-dialog
-      v-model="showPhotoViewer"
-      :title="`${currentCity?.cityName} 的照片`"
-      width="80%"
-      class="photo-viewer-dialog"
-      fullscreen
-    >
-      <div class="photo-viewer">
-        <div class="viewer-toolbar">
-          <div class="toolbar-left">
-            <span class="photo-counter">
-              {{ currentPhotoIndex + 1 }} / {{ currentCityPhotos.length }}
-            </span>
-          </div>
-          <div class="toolbar-right">
-            <el-button-group size="small">
-              <el-button :disabled="currentPhotoIndex === 0"
-@click="prevPhoto">
-                <el-icon><ArrowLeft /></el-icon>
-                上一张
-              </el-button>
-              <el-button
-                :disabled="currentPhotoIndex === currentCityPhotos.length - 1"
-                @click="nextPhoto"
-              >
-                下一张
-                <el-icon><ArrowRight /></el-icon>
-              </el-button>
-            </el-button-group>
-          </div>
-        </div>
-
-        <div class="photo-display">
-          <img
-            v-if="currentPhoto"
-            :src="currentPhoto.photoUrl"
-            :alt="currentPhoto.caption"
-            class="main-photo"
-          />
-        </div>
-
-        <div v-if="currentPhoto"
-class="photo-info-panel">
-          <div class="photo-meta">
-            <h4>{{ currentPhoto.caption || "无标题" }}</h4>
-            <p class="upload-date">
-              上传于 {{ formatDate(currentPhoto.uploadTime) }}
-            </p>
-            <div v-if="currentPhoto.tags"
-class="photo-tags">
-              <el-tag v-for="tag in currentPhoto.tags"
-:key="tag" size="small">
-                {{ tag }}
-              </el-tag>
-            </div>
-          </div>
-
-          <div class="photo-actions-panel">
-            <el-button size="small"
-@click="editPhotoCaption(currentPhoto)">
-              <el-icon><Edit /></el-icon>
-              编辑
-            </el-button>
-            <el-button
-              size="small"
-              type="danger"
-              @click="deletePhoto(currentPhoto)"
-            >
-              <el-icon><Delete /></el-icon>
-              删除
-            </el-button>
-          </div>
-        </div>
-
-        <!-- 缩略图条 -->
-        <div class="thumbnail-strip">
-          <div
-            v-for="(photo, index) in currentCityPhotos"
-            :key="photo.id"
-            class="thumbnail-item"
-            :class="{ 'is-active': index === currentPhotoIndex }"
-            @click="currentPhotoIndex = index"
-          >
-            <img
-              :src="photo.thumbnailUrl || photo.photoUrl"
-              :alt="photo.caption"
-              class="thumbnail-image"
-            />
-          </div>
-        </div>
-      </div>
-    </el-dialog>
+    <!-- 隐藏的文件输入 -->
+    <input
+      ref="fileInput"
+      type="file"
+      accept="image/jpeg,image/jpg,image/png,image/gif"
+      style="display: none"
+      @change="handleFileSelect"
+    />
   </div>
 </template>
 
-<script>
-import { ref, computed, onMounted } from "vue";
-import { ElMessage, ElMessageBox } from "element-plus";
+<script setup>
+import { ref, computed } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Camera,
-  Grid,
-  List,
-  Check,
-  Picture,
   Plus,
-  Upload,
-  View,
-  ArrowLeft,
-  ArrowRight,
-  Edit,
   Delete,
-} from "@element-plus/icons-vue";
-import { useWishlistStore } from "@/store/wishlist.js";
-import { uploadTripImages } from "@/utils/ossUpload.js";
+  CameraFilled
+} from '@element-plus/icons-vue'
+import { useWishlistStore } from '@/store/wishlist.js'
 
-export default {
-  name: "VisitedCitiesGallery",
-  components: {
-    Camera,
-    Grid,
-    List,
-    Check,
-    Picture,
-    Plus,
-    Upload,
-    View,
-    ArrowLeft,
-    ArrowRight,
-    Edit,
-    Delete,
+// Props
+const props = defineProps({
+  visitedCities: {
+    type: Array,
+    default: () => []
   },
-  setup() {
-    const wishlistStore = useWishlistStore();
+  maxDisplayCount: {
+    type: Number,
+    default: 6
+  }
+})
 
-    // 视图相关
-    const viewMode = ref("grid"); // grid | list
+// Emits
+const emit = defineEmits(['photo-uploaded', 'photo-deleted', 'add-visited-city'])
 
-    // 照片相关
-    const cityPhotos = ref(new Map()); // cityId -> photos[]
+// Store
+const wishlistStore = useWishlistStore()
 
-    // 上传相关
-    const showUploadDialog = ref(false);
-    const currentCity = ref(null);
-    const uploading = ref(false);
-    const uploadingFiles = ref([]);
-    const uploadRef = ref(null);
+// 响应式数据
+const showAll = ref(false)
+const fileInput = ref(null)
+const currentCity = ref(null)
+const uploading = ref(false)
 
-    // 查看器相关
-    const showPhotoViewer = ref(false);
-    const currentPhotoIndex = ref(0);
+// 计算属性
+const displayCities = computed(() => {
+  if (showAll.value) {
+    return props.visitedCities
+  }
+  return props.visitedCities.slice(0, props.maxDisplayCount)
+})
 
-    // 计算属性
-    const visitedCities = computed(() => {
-      return wishlistStore.wishlistItems.filter(
-        (item) => item.status === "visited",
-      );
-    });
+// 方法
 
-    const currentCityPhotos = computed(() => {
-      if (!currentCity.value) return [];
-      return getCityPhotos(currentCity.value.id);
-    });
+/**
+ * 处理照片点击 - 上传或替换照片
+ */
+const handlePhotoClick = (city) => {
+  currentCity.value = city
+  fileInput.value?.click()
+}
 
-    const currentPhoto = computed(() => {
-      if (currentCityPhotos.value.length === 0) return null;
-      return currentCityPhotos.value[currentPhotoIndex.value];
-    });
+/**
+ * 处理文件选择
+ */
+const handleFileSelect = (event) => {
+  const file = event.target.files[0]
+  if (!file || !currentCity.value) return
 
-    // 上传配置
-    const uploadAction = "/api/photos/upload"; // 后端上传接口
-    const uploadHeaders = computed(() => ({
-      Authorization: `Bearer ${wishlistStore.userToken}`, // 用户token
-    }));
-    const uploadData = computed(() => ({
-      wishlistItemId: currentCity.value?.id,
-    }));
+  // 验证文件
+  const validation = validateFile(file)
+  if (!validation.valid) {
+    ElMessage.error(validation.error)
+    return
+  }
 
-    // 方法
-    const toggleViewMode = () => {
-      viewMode.value = viewMode.value === "grid" ? "list" : "grid";
-    };
+  uploadPhoto(file)
+}
 
-    const getCityPhotos = (cityId) => {
-      return cityPhotos.value.get(cityId) || [];
-    };
+/**
+ * 上传照片
+ */
+const uploadPhoto = async (file) => {
+  if (uploading.value) return
 
-    const loadCityPhotos = async () => {
-      try {
-        // 这里调用API获取所有城市的照片
-        // const photos = await api.getCityPhotos();
-        // 临时模拟数据
-        const mockPhotos = new Map();
-        visitedCities.value.forEach((city) => {
-          mockPhotos.set(city.id, []);
-        });
-        cityPhotos.value = mockPhotos;
-      } catch (error) {
-        console.error("加载城市照片失败:", error);
-        ElMessage.error("加载照片失败");
+  uploading.value = true
+  const loadingMessage = ElMessage.info({
+    message: `正在上传 ${currentCity.value.cityName} 的照片...`,
+    duration: 0
+  })
+
+  try {
+    // 压缩图片
+    const compressedFile = await compressImage(file)
+    
+    // 转为Base64存储（简化版本，实际项目中可以对接OSS）
+    const photoUrl = await fileToBase64(compressedFile)
+    
+    // 更新城市照片
+    const success = await wishlistStore.updateWishlistItem(currentCity.value.id, {
+      photo: photoUrl
+    })
+
+    if (success) {
+      ElMessage.success(`${currentCity.value.cityName} 的照片上传成功！`)
+      emit('photo-uploaded', currentCity.value)
+    } else {
+      ElMessage.error('照片上传失败，请重试')
+    }
+  } catch (error) {
+    console.error('照片上传失败:', error)
+    ElMessage.error('照片上传失败，请重试')
+  } finally {
+    loadingMessage.close()
+    uploading.value = false
+    currentCity.value = null
+    // 清空文件输入
+    if (fileInput.value) {
+      fileInput.value.value = ''
+    }
+  }
+}
+
+/**
+ * 删除照片
+ */
+const handleDeletePhoto = async (city) => {
+  try {
+    await ElMessageBox.confirm(
+      `确定要删除 ${city.cityName} 的照片吗？`,
+      '删除照片',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
       }
-    };
+    )
 
-    const handleCityClick = (city) => {
-      // 点击城市，可以展开详情或跳转
-      console.log("点击城市:", city);
-    };
+    const success = await wishlistStore.updateWishlistItem(city.id, {
+      photo: null
+    })
 
-    const handleUploadClick = (city) => {
-      currentCity.value = city;
-      showUploadDialog.value = true;
-      uploadingFiles.value = [];
-    };
+    if (success) {
+      ElMessage.success(`${city.cityName} 的照片已删除`)
+      emit('photo-deleted', city)
+    } else {
+      ElMessage.error('照片删除失败，请重试')
+    }
+  } catch (error) {
+    // 用户取消删除操作，不显示错误信息
+  }
+}
 
-    const handlePhotoClick = (photo, city) => {
-      currentCity.value = city;
-      currentPhotoIndex.value = getCityPhotos(city.id).findIndex(
-        (p) => p.id === photo.id,
-      );
-      showPhotoViewer.value = true;
-    };
+/**
+ * 处理图片加载错误
+ */
+const handleImageError = (event) => {
+  // 防止重复处理
+  if (event.target.dataset.errorHandled) {
+    return
+  }
+  
+  event.target.dataset.errorHandled = 'true'
+  event.target.style.display = 'none'
+  
+  // 创建占位符
+  const placeholder = document.createElement('div')
+  placeholder.className = 'image-error-placeholder'
+  placeholder.style.cssText = `
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 12px;
+    text-align: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+  `
+  placeholder.textContent = '图片加载失败'
+  
+  const parent = event.target.parentNode
+  if (parent) {
+    parent.style.position = 'relative'
+    parent.appendChild(placeholder)
+  }
+}
 
-    const handleViewAllPhotos = (city) => {
-      currentCity.value = city;
-      currentPhotoIndex.value = 0;
-      showPhotoViewer.value = true;
-    };
+/**
+ * 验证文件
+ */
+const validateFile = (file) => {
+  if (!file) {
+    return { valid: false, error: '请选择文件' }
+  }
 
-    // 上传相关方法
-    const beforeUpload = (file) => {
-      const isImage = file.type.startsWith("image/");
-      const isLt10M = file.size / 1024 / 1024 < 10;
+  // 检查文件大小 (5MB)
+  const maxSize = 5 * 1024 * 1024
+  if (file.size > maxSize) {
+    return { valid: false, error: '文件大小不能超过5MB' }
+  }
 
-      if (!isImage) {
-        ElMessage.error("只能上传图片文件!");
-        return false;
+  // 检查文件类型
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']
+  if (!allowedTypes.includes(file.type.toLowerCase())) {
+    return { valid: false, error: '只支持 JPG、PNG、GIF 格式的图片' }
+  }
+
+  return { valid: true }
+}
+
+/**
+ * 压缩图片
+ */
+const compressImage = (file, maxWidth = 800, maxHeight = 600, quality = 0.8) => {
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    const img = new Image()
+    
+    img.onload = () => {
+      // 计算新尺寸
+      let { width, height } = img
+      const ratio = Math.min(maxWidth / width, maxHeight / height)
+      
+      if (ratio < 1) {
+        width *= ratio
+        height *= ratio
       }
-      if (!isLt10M) {
-        ElMessage.error("上传图片大小不能超过 10MB!");
-        return false;
-      }
-
-      // 添加到上传列表
-      uploadingFiles.value.push({
-        uid: file.uid,
-        name: file.name,
-        size: file.size,
-        status: "uploading",
-        progress: 0,
-      });
-
-      return true;
-    };
-
-    const onUploadProgress = (evt, file) => {
-      const item = uploadingFiles.value.find((f) => f.uid === file.uid);
-      if (item) {
-        item.progress = Math.round((evt.loaded / evt.total) * 100);
-      }
-    };
-
-    const onUploadSuccess = (response, file) => {
-      const item = uploadingFiles.value.find((f) => f.uid === file.uid);
-      if (item) {
-        item.status = "success";
-        item.progress = 100;
-      }
-
-      // 更新城市照片列表
-      if (response.success && response.data) {
-        const cityId = currentCity.value.id;
-        const photos = getCityPhotos(cityId);
-        photos.push(response.data);
-        cityPhotos.value.set(cityId, photos);
-      }
-
-      ElMessage.success("照片上传成功");
-    };
-
-    const onUploadError = (error, file) => {
-      const item = uploadingFiles.value.find((f) => f.uid === file.uid);
-      if (item) {
-        item.status = "exception";
-      }
-
-      ElMessage.error("照片上传失败");
-      console.error("上传错误:", error);
-    };
-
-    const finishUpload = () => {
-      showUploadDialog.value = false;
-      // 刷新照片列表
-      loadCityPhotos();
-    };
-
-    // 查看器相关方法
-    const prevPhoto = () => {
-      if (currentPhotoIndex.value > 0) {
-        currentPhotoIndex.value--;
-      }
-    };
-
-    const nextPhoto = () => {
-      if (currentPhotoIndex.value < currentCityPhotos.value.length - 1) {
-        currentPhotoIndex.value++;
-      }
-    };
-
-    const editPhotoCaption = async (photo) => {
-      try {
-        const { value: caption } = await ElMessageBox.prompt(
-          "编辑照片描述",
-          "编辑照片",
-          {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            inputValue: photo.caption || "",
-            inputPlaceholder: "请输入照片描述",
-          },
-        );
-
-        // 调用API更新照片描述
-        // await api.updatePhoto(photo.id, { caption });
-        photo.caption = caption;
-        ElMessage.success("照片描述已更新");
-      } catch (error) {
-        console.log("取消编辑");
-      }
-    };
-
-    const deletePhoto = async (photo) => {
-      try {
-        await ElMessageBox.confirm("确定要删除这张照片吗？", "删除照片", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning",
-        });
-
-        // 调用API删除照片
-        // await api.deletePhoto(photo.id);
-
-        // 更新本地列表
-        const cityId = currentCity.value.id;
-        const photos = getCityPhotos(cityId);
-        const index = photos.findIndex((p) => p.id === photo.id);
-        if (index > -1) {
-          photos.splice(index, 1);
-          cityPhotos.value.set(cityId, photos);
+      
+      canvas.width = width
+      canvas.height = height
+      
+      // 绘制并压缩
+      ctx.drawImage(img, 0, 0, width, height)
+      
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const compressedFile = new File([blob], file.name, {
+            type: 'image/jpeg',
+            lastModified: Date.now()
+          })
+          resolve(compressedFile)
+        } else {
+          reject(new Error('图片压缩失败'))
         }
+      }, 'image/jpeg', quality)
+    }
+    
+    img.onerror = () => reject(new Error('图片加载失败'))
+    img.src = URL.createObjectURL(file)
+  })
+}
 
-        // 更新当前照片索引
-        if (currentPhotoIndex.value >= photos.length) {
-          currentPhotoIndex.value = Math.max(0, photos.length - 1);
-        }
+/**
+ * 文件转Base64
+ */
+const fileToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = () => reject(new Error('文件读取失败'))
+    reader.readAsDataURL(file)
+  })
+}
 
-        ElMessage.success("照片已删除");
-
-        // 如果没有照片了，关闭查看器
-        if (photos.length === 0) {
-          showPhotoViewer.value = false;
-        }
-      } catch (error) {
-        console.log("取消删除");
-      }
-    };
-
-    // 工具方法
-    const formatDate = (dateString) => {
-      const date = new Date(dateString);
-      return date.toLocaleDateString("zh-CN");
-    };
-
-    const formatFileSize = (bytes) => {
-      if (bytes === 0) return "0 Bytes";
-      const k = 1024;
-      const sizes = ["Bytes", "KB", "MB", "GB"];
-      const i = Math.floor(Math.log(bytes) / Math.log(k));
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-    };
-
-    const handleImageError = (event) => {
-      event.target.src = "/images/placeholder-photo.jpg"; // 占位图
-    };
-
-    // 生命周期
-    onMounted(() => {
-      loadCityPhotos();
-    });
-
-    return {
-      // 数据
-      viewMode,
-      visitedCities,
-      cityPhotos,
-
-      // 上传相关
-      showUploadDialog,
-      currentCity,
-      uploading,
-      uploadingFiles,
-      uploadRef,
-      uploadAction,
-      uploadHeaders,
-      uploadData,
-
-      // 查看器相关
-      showPhotoViewer,
-      currentPhotoIndex,
-      currentCityPhotos,
-      currentPhoto,
-
-      // 方法
-      toggleViewMode,
-      getCityPhotos,
-      handleCityClick,
-      handleUploadClick,
-      handlePhotoClick,
-      handleViewAllPhotos,
-      beforeUpload,
-      onUploadProgress,
-      onUploadSuccess,
-      onUploadError,
-      finishUpload,
-      prevPhoto,
-      nextPhoto,
-      editPhotoCaption,
-      deletePhoto,
-      formatDate,
-      formatFileSize,
-      handleImageError,
-    };
-  },
-};
+/**
+ * 格式化访问日期
+ */
+const formatVisitDate = (dateString) => {
+  const date = new Date(dateString)
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  return `${year}.${month}`
+}
 </script>
 
 <style scoped>
 .visited-cities-gallery {
-  background: linear-gradient(135deg, #ffffff 0%, #fefefe 100%);
-  border-radius: 16px;
+  background: linear-gradient(135deg, #faf7f2 0%, #f1ede4 100%);
+  border-radius: 20px;
   padding: 24px;
-  border: 1px solid rgba(145, 168, 208, 0.08);
-  box-shadow: 0 2px 12px rgba(145, 168, 208, 0.06);
-}
-
-.gallery-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid rgba(145, 168, 208, 0.1);
-}
-
-.gallery-title {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: #1f2937;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.gallery-title .el-icon {
-  color: #91a8d0;
-  font-size: 24px;
-}
-
-.count {
-  font-size: 16px;
-  color: #6b7280;
-  font-weight: 400;
-}
-
-/* 空状态 */
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: #6b7280;
-}
-
-.empty-state h4 {
-  margin: 20px 0 10px 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #374151;
-}
-
-.empty-state p {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-/* 城市容器 */
-.cities-container {
-  display: grid;
-  gap: 20px;
-}
-
-.cities-container.view-grid {
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-}
-
-.cities-container.view-list {
-  grid-template-columns: 1fr;
-}
-
-/* 城市项 */
-.city-item {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border-radius: 12px;
-  padding: 20px;
-  border: 1px solid rgba(145, 168, 208, 0.08);
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.city-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(145, 168, 208, 0.15);
-  border-color: rgba(145, 168, 208, 0.2);
-}
-
-/* 城市信息 */
-.city-info {
-  margin-bottom: 16px;
-}
-
-.city-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 12px;
-}
-
-.city-name {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.city-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-}
-
-.visit-date {
-  font-size: 12px;
-  color: #6b7280;
-}
-
-.city-reason {
-  font-size: 14px;
-  color: #4b5563;
-  line-height: 1.5;
-  margin-bottom: 12px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  border: 1px solid rgba(139, 115, 85, 0.2);
+  box-shadow: 
+    0 8px 32px rgba(139, 115, 85, 0.1),
+    0 2px 8px rgba(139, 115, 85, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  position: relative;
   overflow: hidden;
 }
 
-.city-tags {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.tag {
-  font-size: 12px;
-}
-
-.more-tags {
-  font-size: 12px;
-  color: #9ca3af;
-}
-
-/* 照片区域 */
-.photos-section {
-  border-top: 1px solid rgba(145, 168, 208, 0.1);
-  padding-top: 16px;
-}
-
-.no-photos {
-  text-align: center;
-  padding: 24px;
-  background: #fafbfc;
-  border-radius: 8px;
-  border: 1px dashed #d1d5db;
-}
-
-.no-photos p {
-  margin: 12px 0;
-  font-size: 14px;
-  color: #6b7280;
-}
-
-.photos-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  position: relative;
-}
-
-.photo-item {
-  aspect-ratio: 1;
-  border-radius: 8px;
-  overflow: hidden;
-  position: relative;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.photo-item:hover {
-  transform: scale(1.05);
-}
-
-.photo-item.is-cover {
-  grid-column: span 2;
-  grid-row: span 2;
-}
-
-.photo-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.photo-caption {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
-  color: white;
-  padding: 8px;
-  font-size: 12px;
-  line-height: 1.3;
-}
-
-.more-photos-overlay {
+.visited-cities-gallery::before {
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  color: white;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(201, 170, 113, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(139, 115, 85, 0.03) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* 标题区域 */
+.gallery-header {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(145, 168, 208, 0.15);
+}
+
+.header-title {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 12px;
+  color: #4f46e5;
+}
+
+.header-title h3 {
+  margin: 0;
   font-size: 18px;
   font-weight: 600;
-}
-
-.add-photo-btn {
-  aspect-ratio: 1;
-  background: #f3f4f6;
-  border: 2px dashed #d1d5db;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: #9ca3af;
-}
-
-.add-photo-btn:hover {
-  background: #e5e7eb;
-  border-color: #91a8d0;
-  color: #91a8d0;
-}
-
-.photo-actions {
-  margin-top: 12px;
-  display: flex;
-  justify-content: center;
-}
-
-/* 上传对话框 */
-.photo-upload-dialog :deep(.el-dialog) {
-  border-radius: 16px;
-}
-
-.upload-content {
-  padding: 20px 0;
-}
-
-.photo-uploader {
-  margin-bottom: 20px;
-}
-
-.photo-uploader :deep(.el-upload-dragger) {
-  border-radius: 12px;
-  border: 2px dashed #d1d5db;
-  background: #fafbfc;
-  transition: all 0.3s ease;
-}
-
-.photo-uploader :deep(.el-upload-dragger:hover) {
-  border-color: #91a8d0;
-  background: #f8fafc;
-}
-
-.upload-text {
-  margin-top: 16px;
-  text-align: center;
-}
-
-.upload-text p {
-  margin: 8px 0;
-  color: #6b7280;
-}
-
-.upload-text em {
-  color: #91a8d0;
-  font-style: normal;
-}
-
-.upload-tip {
-  font-size: 12px !important;
-  color: #9ca3af !important;
-}
-
-.upload-list {
-  background: #f8fafc;
-  border-radius: 8px;
-  padding: 16px;
-}
-
-.upload-list h4 {
-  margin: 0 0 12px 0;
-  font-size: 14px;
-  color: #374151;
-}
-
-.upload-item {
-  margin-bottom: 16px;
-}
-
-.upload-item:last-child {
-  margin-bottom: 0;
-}
-
-.file-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.file-name {
-  font-size: 14px;
-  color: #374151;
-}
-
-.file-size {
-  font-size: 12px;
-  color: #9ca3af;
-}
-
-/* 照片查看器 */
-.photo-viewer-dialog :deep(.el-dialog) {
-  border-radius: 16px;
-}
-
-.photo-viewer {
-  height: 80vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.viewer-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 0;
-  border-bottom: 1px solid #e5e7eb;
-  margin-bottom: 20px;
-}
-
-.photo-counter {
-  font-size: 14px;
-  color: #6b7280;
-  font-weight: 500;
-}
-
-.photo-display {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f8fafc;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.main-photo {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-
-.photo-info-panel {
-  padding: 20px 0;
-  border-top: 1px solid #e5e7eb;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.photo-meta h4 {
-  margin: 0 0 8px 0;
-  font-size: 16px;
   color: #1f2937;
+  letter-spacing: 0.5px;
 }
 
-.upload-date {
-  margin: 0 0 12px 0;
+.photo-count {
   font-size: 12px;
   color: #6b7280;
 }
 
-.photo-tags {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+/* 照片展示区域 */
+.photos-container {
+  position: relative;
 }
 
-.thumbnail-strip {
+.photos-grid {
   display: flex;
-  gap: 8px;
+  gap: 20px;
   overflow-x: auto;
-  padding: 16px 0;
-  scrollbar-width: thin;
+  scroll-behavior: smooth;
+  padding: 16px 8px;
 }
 
-.thumbnail-item {
-  width: 60px;
-  height: 60px;
-  border-radius: 6px;
-  overflow: hidden;
-  cursor: pointer;
-  border: 2px solid transparent;
-  transition: all 0.2s ease;
+.photos-grid::-webkit-scrollbar {
+  height: 8px;
+}
+
+.photos-grid::-webkit-scrollbar-track {
+  background: rgba(145, 168, 208, 0.1);
+  border-radius: 4px;
+}
+
+.photos-grid::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #6366f1, #4f46e5);
+  border-radius: 4px;
+}
+
+/* 城市照片项 */
+.city-photo-item {
   flex-shrink: 0;
+  width: 180px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: photoSlideIn 0.6s ease-out forwards;
+  opacity: 0;
+  transform: translateY(20px) rotate(-2deg);
 }
 
-.thumbnail-item.is-active {
-  border-color: #91a8d0;
+@keyframes photoSlideIn {
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(-1deg);
+  }
 }
 
-.thumbnail-item:hover {
-  transform: scale(1.1);
+.city-photo-item:nth-child(odd) {
+  transform: rotate(-2deg) translateY(2px);
 }
 
-.thumbnail-image {
+.city-photo-item:nth-child(even) {
+  transform: rotate(1.5deg) translateY(-1px);
+}
+
+.photo-wrapper {
+  position: relative;
+  width: 100%;
+  height: 135px;
+  background: #fff;
+  padding: 4px;
+  border-radius: 6px;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(0, 0, 0, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+}
+
+.photo-wrapper:hover {
+  transform: rotate(0deg) translateY(-8px) scale(1.05);
+  box-shadow: 
+    0 16px 32px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(0, 0, 0, 0.2),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.9);
+}
+
+/* 照片样式 */
+.city-photo {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 4px;
+  transition: all 0.4s ease;
+  filter: grayscale(20%) contrast(1.1);
+}
+
+.photo-wrapper:hover .city-photo {
+  filter: grayscale(0%) contrast(1.2) brightness(1.05);
+}
+
+/* 上传占位符 */
+.upload-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 2px dashed #6c757d;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.upload-placeholder:hover {
+  border-color: #c9aa71;
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+}
+
+.upload-icon {
+  color: #6c757d;
+  margin-bottom: 8px;
+}
+
+.upload-text {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #495057;
+}
+
+.upload-hint {
+  margin: 0;
+  font-size: 11px;
+  color: #6c757d;
+}
+
+/* 照片信息遮罩 */
+.photo-overlay {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  right: 4px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  color: white;
+  padding: 12px 8px 8px;
+  opacity: 0;
+  transition: all 0.3s ease;
+  border-radius: 0 0 4px 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.photo-wrapper:hover .photo-overlay {
+  opacity: 1;
+}
+
+.city-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.city-name {
+  font-size: 13px;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  line-height: 1.2;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.visit-date {
+  font-size: 10px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.8);
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.5px;
+}
+
+/* 操作按钮 */
+.photo-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.action-btn {
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 50% !important;
+  border: none !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.action-btn[type="primary"] {
+  background: rgba(99, 102, 241, 0.9) !important;
+  color: white !important;
+}
+
+.action-btn[type="primary"]:hover {
+  background: #6366f1 !important;
+  transform: scale(1.1) !important;
+}
+
+.action-btn[type="danger"] {
+  background: rgba(239, 68, 68, 0.9) !important;
+  color: white !important;
+}
+
+.action-btn[type="danger"]:hover {
+  background: #ef4444 !important;
+  transform: scale(1.1) !important;
+}
+
+/* 城市名称（无照片时） */
+.city-name-bottom {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #495057;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+/* 胶片孔效果 */
+.film-holes {
+  position: absolute;
+  left: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.film-holes .hole {
+  width: 4px;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 50%;
+  box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.8);
+}
+
+/* 更多按钮 */
+.more-cities-btn {
+  flex-shrink: 0;
+  width: 180px;
+  height: 135px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  border: 2px dashed rgba(99, 102, 241, 0.3);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform: rotate(-1deg);
+}
+
+.more-cities-btn:hover {
+  transform: rotate(0deg) translateY(-6px);
+  background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
+  border-color: #6366f1;
+  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.15);
+}
+
+.more-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #6366f1;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+/* 空状态 */
+.empty-gallery {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 40px 20px;
+}
+
+.empty-content {
+  text-align: center;
+  max-width: 400px;
+}
+
+.empty-icon {
+  color: rgba(99, 102, 241, 0.4);
+  margin-bottom: 20px;
+}
+
+.empty-content h4 {
+  margin: 0 0 12px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.empty-content p {
+  margin: 0 0 24px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #6b7280;
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
   .visited-cities-gallery {
     padding: 16px;
+    border-radius: 16px;
   }
-
-  .gallery-header {
-    flex-direction: column;
-    gap: 12px;
-    align-items: flex-start;
-  }
-
-  .cities-container.view-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .city-header {
-    flex-direction: column;
-    gap: 8px;
-    align-items: flex-start;
-  }
-
-  .city-meta {
-    align-items: flex-start;
-  }
-
+  
   .photos-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .photo-item.is-cover {
-    grid-column: span 1;
-    grid-row: span 1;
-  }
-
-  .photo-viewer {
-    height: 70vh;
-  }
-
-  .viewer-toolbar {
-    flex-direction: column;
     gap: 12px;
-    align-items: flex-start;
+    padding: 12px 4px;
   }
-
-  .photo-info-panel {
-    flex-direction: column;
-    gap: 16px;
+  
+  .city-photo-item {
+    width: 140px;
   }
-}
-
-/* 暗色模式支持 */
-@media (prefers-color-scheme: dark) {
-  .visited-cities-gallery {
-    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-    border-color: rgba(99, 102, 241, 0.2);
+  
+  .photo-wrapper {
+    height: 105px;
   }
-
-  .gallery-title {
-    color: #f9fafb;
+  
+  .more-cities-btn {
+    width: 140px;
+    height: 105px;
   }
-
-  .city-item {
-    background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
-    border-color: rgba(99, 102, 241, 0.2);
-  }
-
-  .city-name {
-    color: #f9fafb;
-  }
-
-  .city-reason {
-    color: #d1d5db;
-  }
-
-  .no-photos {
-    background: #374151;
-    border-color: #4b5563;
-  }
-
-  .add-photo-btn {
-    background: #374151;
-    border-color: #4b5563;
-    color: #9ca3af;
-  }
-
-  .add-photo-btn:hover {
-    background: #4b5563;
-    border-color: #6366f1;
-    color: #6366f1;
+  
+  .action-btn {
+    width: 32px !important;
+    height: 32px !important;
   }
 }
 </style>

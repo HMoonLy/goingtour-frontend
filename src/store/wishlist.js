@@ -4,6 +4,7 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { wishlistApi } from "@/api/wishlist.js";
+import { cityPhotosApi } from "@/api/cityPhotos.js";
 import { ElMessage } from "element-plus";
 
 export const useWishlistStore = defineStore("wishlist", () => {
@@ -374,28 +375,27 @@ export const useWishlistStore = defineStore("wishlist", () => {
     }
 
     try {
-      // 创建FormData
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("wishlistItemId", wishlistItemId);
-      formData.append("caption", caption);
-      if (tags.length > 0) {
-        formData.append("tags", tags.join(","));
+      // 验证文件
+      const validation = cityPhotosApi.validateImageFile(file);
+      if (!validation.valid) {
+        ElMessage.error(validation.error);
+        return null;
       }
 
-      // 使用fetch或axios上传，这里用伪代码
-      const response = await fetch("/api/city-photos/upload", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${userStore.token}`,
-        },
-        body: formData,
+      // 压缩图片
+      const compressedFile = await cityPhotosApi.compressImage(file);
+      
+      // 上传照片
+      const response = await cityPhotosApi.uploadPhoto({
+        file: compressedFile,
+        wishlistItemId,
+        caption,
+        tags,
       });
 
-      if (response.ok) {
-        const result = await response.json();
+      if (response.data) {
         ElMessage.success("照片上传成功");
-        return result.data;
+        return response.data;
       } else {
         throw new Error("上传失败");
       }
@@ -418,18 +418,8 @@ export const useWishlistStore = defineStore("wishlist", () => {
     }
 
     try {
-      const response = await fetch(`/api/city-photos/city/${wishlistItemId}`, {
-        headers: {
-          Authorization: `Bearer ${userStore.token}`,
-        },
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        return result.data || [];
-      } else {
-        throw new Error("获取照片失败");
-      }
+      const response = await cityPhotosApi.getCityPhotos(wishlistItemId);
+      return response.data || [];
     } catch (error) {
       console.error("❌ 获取城市照片失败:", error);
       return [];
@@ -448,18 +438,8 @@ export const useWishlistStore = defineStore("wishlist", () => {
     }
 
     try {
-      const response = await fetch("/api/city-photos/user", {
-        headers: {
-          Authorization: `Bearer ${userStore.token}`,
-        },
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        return result.data || [];
-      } else {
-        throw new Error("获取照片失败");
-      }
+      const response = await cityPhotosApi.getUserPhotos();
+      return response.data || [];
     } catch (error) {
       console.error("❌ 获取用户照片失败:", error);
       return [];
@@ -479,23 +459,14 @@ export const useWishlistStore = defineStore("wishlist", () => {
     }
 
     try {
-      const formData = new FormData();
-      formData.append("caption", caption);
-      if (tags.length > 0) {
-        formData.append("tags", tags.join(","));
-      }
-
-      const response = await fetch(`/api/city-photos/${photoId}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${userStore.token}`,
-        },
-        body: formData,
+      const response = await cityPhotosApi.updatePhoto(photoId, {
+        caption,
+        tags,
       });
 
-      if (response.ok) {
+      if (response.data) {
         ElMessage.success("照片信息更新成功");
-        return true;
+        return response.data;
       } else {
         throw new Error("更新失败");
       }
@@ -519,14 +490,9 @@ export const useWishlistStore = defineStore("wishlist", () => {
     }
 
     try {
-      const response = await fetch(`/api/city-photos/${photoId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${userStore.token}`,
-        },
-      });
-
-      if (response.ok) {
+      const response = await cityPhotosApi.deletePhoto(photoId);
+      
+      if (response.success !== false) {
         ElMessage.success("照片删除成功");
         return true;
       } else {
@@ -552,14 +518,9 @@ export const useWishlistStore = defineStore("wishlist", () => {
     }
 
     try {
-      const response = await fetch(`/api/city-photos/${photoId}/set-cover`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${userStore.token}`,
-        },
-      });
-
-      if (response.ok) {
+      const response = await cityPhotosApi.setCoverPhoto(photoId);
+      
+      if (response.success !== false) {
         ElMessage.success("封面设置成功");
         return true;
       } else {
@@ -584,21 +545,180 @@ export const useWishlistStore = defineStore("wishlist", () => {
     }
 
     try {
-      const response = await fetch("/api/city-photos/stats", {
-        headers: {
-          Authorization: `Bearer ${userStore.token}`,
-        },
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        return result.data || { totalPhotos: 0, citiesWithPhotos: 0 };
-      } else {
-        throw new Error("获取统计失败");
-      }
+      const response = await cityPhotosApi.getPhotoStats();
+      return response.data || { totalPhotos: 0, citiesWithPhotos: 0 };
     } catch (error) {
       console.error("❌ 获取照片统计失败:", error);
       return { totalPhotos: 0, citiesWithPhotos: 0 };
+    }
+  };
+
+  // ========== 新增照片管理方法 ==========
+
+  /**
+   * 批量上传照片
+   */
+  const batchUploadPhotos = async (files, wishlistItemId, options = {}) => {
+    const { useUserStore } = await import("@/store/user.js");
+    const userStore = useUserStore();
+
+    if (!userStore.isLoggedIn) {
+      ElMessage.error("请先登录");
+      return { success: 0, failed: 0, results: [] };
+    }
+
+    const results = [];
+    let successCount = 0;
+    let failedCount = 0;
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      
+      try {
+        const result = await uploadCityPhoto(
+          file,
+          wishlistItemId,
+          options.caption || `照片 ${i + 1}`,
+          options.tags || []
+        );
+        
+        if (result) {
+          results.push({ file: file.name, success: true, data: result });
+          successCount++;
+        } else {
+          results.push({ file: file.name, success: false, error: "上传失败" });
+          failedCount++;
+        }
+        
+        // 调用进度回调
+        if (options.onProgress) {
+          options.onProgress({
+            current: i + 1,
+            total: files.length,
+            currentFile: file.name,
+            success: successCount,
+            failed: failedCount
+          });
+        }
+      } catch (error) {
+        console.error(`上传文件 ${file.name} 失败:`, error);
+        results.push({ file: file.name, success: false, error: error.message });
+        failedCount++;
+      }
+    }
+
+    const message = `批量上传完成：成功 ${successCount} 张，失败 ${failedCount} 张`;
+    if (successCount > 0 && failedCount === 0) {
+      ElMessage.success(message);
+    } else if (successCount > 0) {
+      ElMessage.warning(message);
+    } else {
+      ElMessage.error(message);
+    }
+
+    return { success: successCount, failed: failedCount, results };
+  };
+
+  /**
+   * 更新照片排序
+   */
+  const updatePhotoOrder = async (photoIds) => {
+    const { useUserStore } = await import("@/store/user.js");
+    const userStore = useUserStore();
+
+    if (!userStore.isLoggedIn) {
+      ElMessage.error("请先登录");
+      return false;
+    }
+
+    try {
+      const response = await cityPhotosApi.updatePhotoOrder(photoIds);
+      
+      if (response.success !== false) {
+        ElMessage.success("照片排序更新成功");
+        return true;
+      } else {
+        throw new Error("更新排序失败");
+      }
+    } catch (error) {
+      console.error("❌ 更新照片排序失败:", error);
+      ElMessage.error("更新排序失败，请重试");
+      return false;
+    }
+  };
+
+  /**
+   * 批量删除照片
+   */
+  const batchDeletePhotos = async (photoIds) => {
+    const { useUserStore } = await import("@/store/user.js");
+    const userStore = useUserStore();
+
+    if (!userStore.isLoggedIn) {
+      ElMessage.error("请先登录");
+      return 0;
+    }
+
+    try {
+      const response = await cityPhotosApi.batchDeletePhotos(photoIds);
+      const deletedCount = response.data || 0;
+      
+      ElMessage.success(`成功删除 ${deletedCount} 张照片`);
+      return deletedCount;
+    } catch (error) {
+      console.error("❌ 批量删除照片失败:", error);
+      ElMessage.error("批量删除失败，请重试");
+      return 0;
+    }
+  };
+
+  /**
+   * 根据ID获取照片详情
+   */
+  const getPhotoById = async (photoId) => {
+    const { useUserStore } = await import("@/store/user.js");
+    const userStore = useUserStore();
+
+    if (!userStore.isLoggedIn) {
+      return null;
+    }
+
+    try {
+      const response = await cityPhotosApi.getPhotoById(photoId);
+      return response.data || null;
+    } catch (error) {
+      console.error("❌ 获取照片详情失败:", error);
+      return null;
+    }
+  };
+
+  /**
+   * 迁移legacy照片数据
+   * 将wishlist item中的photo字段迁移到city_photos表
+   */
+  const migrateLegacyPhoto = async (wishlistItem) => {
+    if (!wishlistItem.photo) {
+      return false; // 没有legacy照片需要迁移
+    }
+
+    try {
+      // 检查是否已经有新格式的照片
+      const existingPhotos = await getCityPhotos(wishlistItem.id);
+      if (existingPhotos.length > 0) {
+        return false; // 已经有新照片了，不需要迁移
+      }
+
+      // 创建一个模拟的File对象用于上传（如果photo是URL的话）
+      // 实际实现中，你可能需要从URL下载图片然后上传
+      // 这里先记录需要迁移，但不实际实现复杂的迁移逻辑
+      
+      console.info(`发现需要迁移的legacy照片: ${wishlistItem.cityName}`);
+      ElMessage.info(`检测到 ${wishlistItem.cityName} 有旧格式照片，建议重新上传以获得更好的功能`);
+      
+      return true;
+    } catch (error) {
+      console.error("❌ 迁移legacy照片失败:", error);
+      return false;
     }
   };
 
@@ -640,5 +760,12 @@ export const useWishlistStore = defineStore("wishlist", () => {
     deletePhoto,
     setCoverPhoto,
     getPhotoStats,
+    
+    // 新增照片管理方法
+    batchUploadPhotos,
+    updatePhotoOrder,
+    batchDeletePhotos,
+    getPhotoById,
+    migrateLegacyPhoto,
   };
 });

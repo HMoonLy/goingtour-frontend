@@ -40,7 +40,9 @@ let UPLOAD_CONFIG = {
 };
 
 // 尝试加载配置文件
-(async () => {
+let configLoaded = false;
+
+const loadConfig = async () => {
   try {
     const configModule = await import("@/config/oss.config.js");
     if (configModule.OSS_CONFIG) {
@@ -49,18 +51,38 @@ let UPLOAD_CONFIG = {
     if (configModule.UPLOAD_CONFIG) {
       UPLOAD_CONFIG = { ...UPLOAD_CONFIG, ...configModule.UPLOAD_CONFIG };
     }
-    console.log("✅ OSS配置文件加载成功");
+    configLoaded = true;
+    console.log("✅ OSS配置文件加载成功", OSS_CONFIG);
   } catch (error) {
     console.warn(
       "⚠️ OSS配置文件不存在，使用默认配置。请复制 oss.config.example.js 为 oss.config.js 并配置相关信息",
     );
+    configLoaded = true; // 即使失败也标记为已加载，避免无限等待
   }
-})();
+};
+
+// 立即加载配置
+loadConfig();
 
 class OSSUploader {
   constructor() {
     this.client = null;
-    this.initClient();
+    // 延迟初始化，等待配置加载完成
+    this.ensureInitialized();
+  }
+
+  /**
+   * 确保OSS客户端已初始化
+   */
+  async ensureInitialized() {
+    // 等待配置加载完成
+    while (!configLoaded) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    if (!this.client) {
+      this.initClient();
+    }
   }
 
   /**
@@ -192,6 +214,9 @@ class OSSUploader {
    */
   async uploadFile(file, type = "avatar", options = {}) {
     try {
+      // 确保客户端已初始化
+      await this.ensureInitialized();
+      
       if (!this.isAvailable()) {
         throw new Error("OSS服务不可用，请检查配置");
       }
@@ -262,6 +287,9 @@ class OSSUploader {
    */
   async getSignedUrl(fileName, expires = 3600) {
     try {
+      // 确保客户端已初始化
+      await this.ensureInitialized();
+      
       if (!this.isAvailable()) {
         throw new Error("OSS服务不可用");
       }
@@ -281,6 +309,9 @@ class OSSUploader {
    */
   async deleteFile(fileName) {
     try {
+      // 确保客户端已初始化
+      await this.ensureInitialized();
+      
       if (!this.isAvailable()) {
         throw new Error("OSS服务不可用");
       }

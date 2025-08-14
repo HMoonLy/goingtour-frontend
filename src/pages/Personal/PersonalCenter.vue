@@ -3,9 +3,14 @@
     <!-- 个人中心头部 -->
     <section class="personal-header">
       <div class="user-profile">
-        <el-avatar
-:src="userStore.avatar" :size="64"
-/>
+        <div class="avatar-section">
+          <AvatarUploader
+            :avatar="userStore.avatar"
+            :user-name="userStore.nickname"
+            size="large"
+            @update:avatar="handleAvatarUpdate"
+          />
+        </div>
         <div class="user-info">
           <h2>{{ userStore.nickname }}</h2>
           <p class="user-meta">
@@ -267,10 +272,12 @@ import { useDraftStore } from "@/store/draft.js";
 import { draftManager } from "@/utils/draftManager.js";
 import { convertBackendTripToFrontend } from "@/utils/tripDataConverter.js";
 import { handleApiError } from "@/utils/errorHandler.js";
+import AvatarUploader from "@/components/Common/UI/AvatarUploader.vue";
 
 export default {
   name: "PersonalCenter",
   components: {
+    AvatarUploader,
     Tickets,
     Plus,
     More,
@@ -569,6 +576,16 @@ export default {
       }
     };
 
+    const handleAvatarUpdate = async (newAvatar) => {
+      try {
+        await userStore.updateUserInfo(userStore.nickname, newAvatar);
+        ElMessage.success('头像更新成功！');
+      } catch (error) {
+        console.error('头像更新失败:', error);
+        ElMessage.error('头像更新失败，请重试');
+      }
+    };
+
     // 生命周期
     onMounted(async () => {
       if (!userStore.isLoggedIn) {
@@ -597,6 +614,7 @@ export default {
       getEmptyDescription,
       formatTime,
       exportTrips,
+      handleAvatarUpdate,
     };
   },
 };
@@ -619,6 +637,33 @@ export default {
   display: flex;
   align-items: center;
   gap: 16px;
+}
+
+.avatar-section {
+  flex-shrink: 0;
+}
+
+.avatar-section :deep(.avatar-uploader) {
+  --avatar-border-color: rgba(255, 255, 255, 0.3);
+}
+
+.avatar-section :deep(.avatar-container) {
+  border-color: var(--avatar-border-color);
+  width: 80px;
+  height: 80px;
+}
+
+.avatar-section :deep(.avatar-container:hover) {
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: scale(1.05);
+}
+
+.avatar-section :deep(.avatar-overlay) {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.avatar-section :deep(.upload-text) {
+  font-size: 11px;
 }
 
 .user-info h2 {

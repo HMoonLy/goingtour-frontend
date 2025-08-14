@@ -3,7 +3,7 @@ export const OSS_CONFIG = {
   bucket: "goingtour",
   accessKeyId: "LTAI5tFQMaispGMUDwNSJqzs",
   accessKeySecret: "RMjRUcpAUFQlfPNnXxXwcIauuPxos5",
-  endpoint: "",
+  endpoint: "https://oss-cn-beijing.aliyuncs.com",
   secure: true,
   timeout: 60000,
 };

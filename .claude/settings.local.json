@@ -12,9 +12,10 @@
       "Bash(curl:*)"
     ],
     "deny": [],
+    "defaultMode": "acceptEdits",
     "additionalDirectories": [
-      "F:\\GoingTour\\goingtour-backend\\src\\main\\java\\com\\goingtour\\goingtourbackend\\service\\impl"
-    ],
-    "defaultMode": "acceptEdits"
+      "F:\\GoingTour\\goingtour-backend\\src\\main\\java\\com\\goingtour\\goingtourbackend\\service\\impl",
+      "F:\\"
+    ]
   }
 }

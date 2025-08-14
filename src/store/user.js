@@ -229,6 +229,7 @@ export const useUserStore = defineStore("user", {
       this.accessToken = null;
       this.refreshToken = null;
       this.tokenExpiry = null;
+      this.redirectPath = null;
       this.userPreferences = {
         tags: [],
         budget: 500,
@@ -241,6 +242,7 @@ export const useUserStore = defineStore("user", {
       localStorage.removeItem("goingtour_user");
       localStorage.removeItem("goingtour_preferences");
 
+      console.log("👋 用户已注销");
       ElMessage.info("已退出登录");
     },
 
@@ -263,25 +265,23 @@ export const useUserStore = defineStore("user", {
       ElMessage.success(`已设置测试用户 (ID: ${userId})`);
     },
 
+    // ========== 重定向路径管理 ==========
     /**
-     * 清除用户登录状态
+     * 设置登录后的重定向路径
+     * @param {string} path - 重定向路径
      */
-    logout() {
-      this.currentUser = null;
-      this.isLoggedIn = false;
-      this.userPreferences = {
-        tags: [],
-        budget: 500,
-      };
-      this.token = null;
+    setRedirectPath(path) {
+      this.redirectPath = path;
+    },
+
+    /**
+     * 获取并清除重定向路径
+     * @returns {string|null} 重定向路径
+     */
+    getAndClearRedirectPath() {
+      const path = this.redirectPath;
       this.redirectPath = null;
-
-      // 清除本地存储
-      localStorage.removeItem("goingtour_user");
-      localStorage.removeItem("goingtour_token");
-
-      console.log("👋 用户已注销");
-      ElMessage.info("已退出登录");
+      return path;
     },
 
     // ========== 用户信息管理 ==========

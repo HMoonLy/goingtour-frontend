@@ -3,7 +3,7 @@
     <!-- 页面头部 -->
     <div class="page-header">
       <div class="header-content">
-        <div class="header-left">
+        <div>
           <h1 class="page-title">
             <el-icon><Star /></el-icon>
             我的足迹
@@ -12,40 +12,76 @@
 
           <!-- 快捷操作按钮组 -->
           <div class="quick-actions-buttons">
-            <el-button
-              type="primary"
-              size="default"
-              @click="handleOpenTypeSelection"
-            >
-              <el-icon><Plus /></el-icon>
-              添加城市
-            </el-button>
-            <el-button size="default" @click="handleShareFootprint">
-              <el-icon><Share /></el-icon>
-              分享足迹
-            </el-button>
-          </div>
+           <!-- 去过的城市照片展示 - 新组件 -->
+           <VisitedCitiesGallery
+             :visited-cities="visitedCities"
+             :max-display-count="6"
+             @photo-uploaded="handlePhotoUploaded"
+             @photo-deleted="handlePhotoDeleted"
+             @add-visited-city="handleOpenTypeSelection"
+           />
 
-          <!-- 去过的城市展示 -->
-          <div class="visited-cities-section">
-            <VisitedCitiesGallery />
-          </div>
-        </div>
-
-        <!-- 足迹统计卡片 -->
-        <div class="header-stats">
+            <!-- 足迹统计卡片 -->
           <FootprintStats
             :stats="wishlistStore.footprintStats"
             :has-data="wishlistStore.hasCities"
             @share="handleShareFootprint"
             @view-achievements="handleViewAchievements"
           />
+          </div>
+          
         </div>
       </div>
     </div>
 
     <!-- 足迹内容 -->
     <div class="page-content">
+      <!-- 状态切换控制区域 -->
+      <div v-if="wishlistStore.hasCities" class="view-control-section">
+        <div class="control-header">
+          <h3 class="control-title">
+            <el-icon><View /></el-icon>
+            地图显示模式
+          </h3>
+          <p class="control-subtitle">选择在地图上显示的城市类型，去过的城市已在上方展示</p>
+        </div>
+        
+        <div class="view-mode-buttons">
+          <el-button
+            :type="mapDisplayMode === 'all' ? 'primary' : ''"
+            size="large"
+            class="mode-button"
+            @click="mapDisplayMode = 'all'"
+          >
+            <el-icon><Location /></el-icon>
+            全部显示
+            <span class="mode-count">({{ wishlistStore.totalCount }})</span>
+          </el-button>
+          
+          <el-button
+            :type="mapDisplayMode === 'wishlist' ? 'primary' : ''"
+            size="large" 
+            class="mode-button wishlist-mode"
+            @click="mapDisplayMode = 'wishlist'"
+          >
+            <el-icon><Star /></el-icon>
+            想去的城市
+            <span class="mode-count">({{ wishlistStore.wishlistOnlyCount }})</span>
+          </el-button>
+          
+          <el-button
+            :type="mapDisplayMode === 'visited' ? 'primary' : ''"
+            size="large"
+            class="mode-button visited-mode"
+            @click="mapDisplayMode = 'visited'"
+          >
+            <el-icon><Check /></el-icon>
+            去过的城市
+            <span class="mode-count">({{ wishlistStore.visitedCount }})</span>
+          </el-button>
+        </div>
+      </div>
+
       <!-- 地图区域 -->
       <div v-if="wishlistStore.hasCities" class="map-section">
         <div class="map-header">
@@ -79,8 +115,8 @@
 
         <div class="map-container">
           <ChinaWishlistMap
-            :wishlist-items="wishlistStore.wishlistItems"
-            height="400px"
+            :wishlist-items="mapDisplayItems"
+            height="600px"
             :enable-map-click="true"
             :highlighted-city="highlightedCity"
             @city-click="handleMapCityClick"
@@ -90,76 +126,95 @@
         </div>
       </div>
 
-      <!-- 心愿城市列表 -->
-      <div class="wishlist-section">
-        <div class="section-header">
-          <h4 class="section-title">
-            <el-icon><Star /></el-icon>
-            我的心愿城市 ({{ wishlistStore.wishlistCount }})
-          </h4>
-          <div class="section-actions">
-            <el-button-group>
-              <el-button
-                :type="filterStatus === 'all' ? 'primary' : ''"
-                size="small"
-                @click="filterStatus = 'all'"
-              >
-                全部
+      <!-- 动态内容展示区域 -->
+      <div v-if="wishlistStore.hasCities" class="content-display-area">
+        
+        <!-- 想去的城市卡片展示 -->
+        <div 
+          v-if="wishlistStore.wishlistOnlyCount > 0"
+          class="wishlist-cities-cards"
+        >
+          <div class="section-header">
+            <h4 class="section-title">
+              <el-icon><Star /></el-icon>
+              想去的城市 ({{ wishlistStore.wishlistOnlyCount }})
+            </h4>
+            <el-button
+              size="small"
+              type="primary"
+              @click="handleOpenTypeSelection"
+            >
+              <el-icon><Plus /></el-icon>
+              添加城市
+            </el-button>
+          </div>
+          
+          <div class="simple-cards-container">
+            <div 
+              v-for="item in wishlistCities" 
+              :key="item.id"
+              class="simple-wishlist-card"
+              @click="handleCardClick(item)"
+            >
+              <div class="card-header">
+                <h5 class="card-city-name">{{ item.cityName }}</h5>
+                <div class="card-actions">
+                  <el-button 
+                    size="small"
+                    type="success"
+                    circle
+                    @click.stop="handleStatusChange({ id: item.id, status: 'visited' })"
+                  >
+                    <el-icon><Check /></el-icon>
+                  </el-button>
+                </div>
+              </div>
+              
+              <div v-if="item.tags && item.tags.length > 0" class="card-tags">
+                <el-tag 
+                  v-for="tag in item.tags.slice(0, 2)" 
+                  :key="tag"
+                  size="small"
+                  class="card-tag"
+                >
+                  {{ tag }}
+                </el-tag>
+                <span v-if="item.tags.length > 2" class="more-tags">
+                  +{{ item.tags.length - 2 }}
+                </span>
+              </div>
+              
+              <p v-if="item.reason" class="card-reason">
+                {{ item.reason }}
+              </p>
+            </div>
+            
+            <!-- 空状态 -->
+            <div v-if="wishlistCities.length === 0" class="empty-wishlist">
+              <el-icon size="48"><Star /></el-icon>
+              <p>还没有心愿城市</p>
+              <el-button size="small" type="primary" @click="handleOpenTypeSelection">
+                添加心愿城市
               </el-button>
-              <el-button
-                :type="filterStatus === 'visited' ? 'warning' : ''"
-                size="small"
-                @click="filterStatus = 'visited'"
-              >
-                已去过 ({{ wishlistStore.visitedCount }})
-              </el-button>
-              <el-button
-                :type="filterStatus === 'wishlist' ? 'primary' : ''"
-                size="small"
-                @click="filterStatus = 'wishlist'"
-              >
-                想去 ({{ wishlistStore.wishlistOnlyCount }})
-              </el-button>
-            </el-button-group>
+            </div>
           </div>
         </div>
-
-        <div
-          v-if="filteredWishlistItems.length > 0"
-          class="wishlist-cards-container"
-        >
-          <MiniWishlistCard
-            v-for="item in filteredWishlistItems"
-            :key="item.id"
-            :wishlist-item="item"
-            :is-highlighted="highlightedCity === item.cityName"
-            @click="handleCardClick"
-            @hover="handleCardHover"
-            @status-change="handleStatusChange"
-            @edit="handleEdit"
-            @weather="handleViewWeather"
-            @plan="handlePlanTrip"
-            @remove="handleRemove"
-          />
+        
+        <!-- 想去城市空状态 -->
+        <div v-if="wishlistStore.wishlistOnlyCount === 0" class="empty-wishlist-state">
+          <div class="empty-content">
+            <el-icon size="64" color="#C0C4CC">
+              <Star />
+            </el-icon>
+            <h4>还没有心愿城市</h4>
+            <p>添加你想去的城市，开始规划你的旅行</p>
+            <el-button type="primary" @click="handleOpenTypeSelection">
+              <el-icon><Plus /></el-icon>
+              添加第一个心愿城市
+            </el-button>
+          </div>
         </div>
-
-        <div v-else class="empty-wishlist-mini">
-          <p>
-            {{
-              filterStatus === "all"
-                ? "还没有心愿城市"
-                : `没有${filterStatus === "visited" ? "去过" : "想去"}的城市`
-            }}
-          </p>
-          <el-button
-            size="small"
-            type="primary"
-            @click="handleOpenTypeSelection"
-          >
-            <el-icon><Plus /></el-icon>
-            添加城市
-          </el-button>
-        </div>
+        
       </div>
 
       <!-- 完全没有数据的空状态 -->
@@ -393,6 +448,8 @@ import {
   Check,
   Location,
   Share,
+  Camera,
+  Delete,
 } from "@element-plus/icons-vue";
 import { useWishlistStore } from "@/store/wishlist.js";
 import WishlistCard from "@/components/Common/Wishlist/WishlistCard.vue";
@@ -419,6 +476,8 @@ export default {
     Check,
     Location,
     Share,
+    Camera,
+    Delete,
   },
   setup() {
     const router = useRouter();
@@ -439,6 +498,7 @@ export default {
     // 地图-卡片联动状态
     const highlightedCity = ref(null);
     const filterStatus = ref("all"); // all, visited, wishlist
+    const mapDisplayMode = ref("all"); // 地图显示模式：all, visited, wishlist
 
     // 预定义标签
     const predefinedTags = ref([
@@ -498,6 +558,25 @@ export default {
           : '分享一下你想去这里的理由...',
         submitText: isVisited ? '添加到足迹' : '添加到心愿单'
       };
+    });
+
+    // 地图显示的城市数据
+    const mapDisplayItems = computed(() => {
+      if (mapDisplayMode.value === 'all') {
+        return wishlistStore.wishlistItems;
+      } else {
+        return wishlistStore.wishlistItems.filter(item => item.status === mapDisplayMode.value);
+      }
+    });
+
+    // 去过的城市
+    const visitedCities = computed(() => {
+      return wishlistStore.wishlistItems.filter(item => item.status === 'visited');
+    });
+
+    // 想去的城市
+    const wishlistCities = computed(() => {
+      return wishlistStore.wishlistItems.filter(item => item.status === 'wishlist');
     });
 
     // 地图-卡片联动事件
@@ -777,10 +856,20 @@ export default {
       searchResults.value = allCities.value.slice(0, 20);
     };
 
-    // 地图相关功能
+    // 照片事件处理
+    const handlePhotoUploaded = async (city) => {
+      ElMessage.success(`${city.cityName} 的照片上传成功！`);
+      // 可以在这里执行额外的逻辑，如刷新数据等
+    };
 
+    const handlePhotoDeleted = async (photo) => {
+      ElMessage.success('照片删除成功');
+      // 可以在这里执行额外的逻辑，如刷新数据等
+    };
+
+    // 地图相关功能
     const handleFullscreenMap = () => {
-      // 全屏查看地图功能（后续可以实现模态框全屏显示）
+      // 全屏查看地图功能
       ElMessage.info("全屏地图功能开发中...");
     };
 
@@ -794,6 +883,11 @@ export default {
       wishlistStore,
       filteredWishlistItems,
       dialogContent,
+      // 地图显示控制
+      mapDisplayMode,
+      mapDisplayItems,
+      visitedCities,
+      wishlistCities,
       // 地图-卡片联动
       highlightedCity,
       filterStatus,
@@ -806,6 +900,9 @@ export default {
       // 足迹功能
       handleShareFootprint,
       handleViewAchievements,
+      // 照片事件处理
+      handlePhotoUploaded,
+      handlePhotoDeleted,
       // 卡片事件
       handleRemove,
       handleEdit,
@@ -862,9 +959,8 @@ export default {
 
 .header-content {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 24px;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .header-left {
@@ -876,7 +972,8 @@ export default {
 
 .quick-actions-buttons {
   display: flex;
-  gap: 12px;
+  flex-direction: column;
+  gap: 16px;
   margin-top: 8px;
 }
 
@@ -885,6 +982,45 @@ export default {
   padding: 8px 20px;
   font-weight: 500;
   transition: all 0.3s ease;
+}
+
+/* 想去城市空状态样式 */
+.empty-wishlist-state {
+  background: linear-gradient(135deg, #ffffff 0%, #fefefe 100%);
+  border-radius: 16px;
+  padding: 40px 24px;
+  border: 1px solid rgba(145, 168, 208, 0.08);
+  box-shadow: 0 2px 12px rgba(145, 168, 208, 0.06);
+  text-align: center;
+}
+
+.empty-content h4 {
+  margin: 20px 0 10px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.empty-content p {
+  margin: 0 0 30px 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+.empty-content .el-button {
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
+  border: none;
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.3);
+  transition: all 0.3s ease;
+}
+
+.empty-content .el-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(145, 168, 208, 0.4);
 }
 
 .quick-actions-buttons .el-button:hover {
@@ -1554,6 +1690,340 @@ export default {
   box-shadow: 0 6px 16px rgba(145, 168, 208, 0.4) !important;
 }
 
+/* 状态切换控制区域样式 */
+.view-control-section {
+  background: linear-gradient(135deg, #ffffff 0%, #fefefe 100%);
+  border-radius: 16px;
+  padding: 20px 24px;
+  border: 1px solid rgba(145, 168, 208, 0.08);
+  box-shadow: 0 2px 12px rgba(145, 168, 208, 0.06);
+  margin-bottom: 24px;
+}
+
+.control-header {
+  margin-bottom: 20px;
+}
+
+.control-title {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-title .el-icon {
+  color: #91a8d0;
+  font-size: 20px;
+}
+
+.control-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.view-mode-buttons {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.mode-button {
+  border-radius: 12px !important;
+  padding: 12px 20px !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.mode-button:not(.el-button--primary) {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #64748b !important;
+}
+
+.mode-button:not(.el-button--primary):hover {
+  background: #f1f5f9 !important;
+  border-color: #91a8d0 !important;
+  color: #1f2937 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15) !important;
+}
+
+.mode-button.el-button--primary {
+  background: linear-gradient(135deg, #91a8d0 0%, #6366f1 100%) !important;
+  border: none !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.3) !important;
+}
+
+.mode-count {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-left: 4px;
+}
+
+/* 动态内容展示区域 */
+.content-display-area {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* 去过的城市照片展示区域 */
+.visited-cities-photos {
+  background: linear-gradient(135deg, #ffffff 0%, #fefefe 100%);
+  border-radius: 16px;
+  padding: 20px 24px;
+  border: 1px solid rgba(145, 168, 208, 0.08);
+  box-shadow: 0 2px 12px rgba(145, 168, 208, 0.06);
+}
+
+.photos-scroll-container {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 8px 0;
+  scroll-behavior: smooth;
+}
+
+.photos-scroll-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.photos-scroll-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.photos-scroll-container::-webkit-scrollbar-thumb {
+  background: #91a8d0;
+  border-radius: 3px;
+}
+
+.city-photo-item {
+  flex-shrink: 0;
+  width: 200px;
+}
+
+.photo-wrapper {
+  position: relative;
+  width: 100%;
+  height: 150px;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.photo-wrapper:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.city-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: all 0.3s ease;
+}
+
+.photo-wrapper:hover .city-photo {
+  transform: scale(1.05);
+}
+
+.photo-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  color: white;
+  padding: 16px 12px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.photo-wrapper:hover .photo-overlay {
+  opacity: 1;
+}
+
+.city-name {
+  font-size: 14px;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.upload-btn {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #1f2937 !important;
+  border: none !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  transition: all 0.3s ease !important;
+}
+
+.upload-btn:hover {
+  background: white !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+.empty-photos {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6b7280;
+  min-width: 300px;
+}
+
+.empty-photos .el-icon {
+  color: #d1d5db;
+  margin-bottom: 16px;
+}
+
+.empty-photos p {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+}
+
+/* 想去的城市卡片展示区域 */
+.wishlist-cities-cards {
+  background: linear-gradient(135deg, #ffffff 0%, #fefefe 100%);
+  border-radius: 16px;
+  padding: 20px 24px;
+  border: 1px solid rgba(145, 168, 208, 0.08);
+  box-shadow: 0 2px 12px rgba(145, 168, 208, 0.06);
+}
+
+.simple-cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.simple-cards-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.simple-cards-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 2px;
+}
+
+.simple-cards-container::-webkit-scrollbar-thumb {
+  background: #91a8d0;
+  border-radius: 2px;
+}
+
+.simple-wishlist-card {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid rgba(145, 168, 208, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.simple-wishlist-card:hover {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  border-color: #91a8d0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(145, 168, 208, 0.15);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.card-city-name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.card-actions .el-button {
+  border-radius: 8px !important;
+  padding: 6px !important;
+  width: 32px !important;
+  height: 32px !important;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.card-tag {
+  font-size: 12px !important;
+  padding: 2px 8px !important;
+  border-radius: 10px !important;
+  background: #91a8d0 !important;
+  color: white !important;
+  border: none !important;
+}
+
+.more-tags {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.card-reason {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.empty-wishlist {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6b7280;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.empty-wishlist .el-icon {
+  color: #d1d5db;
+  margin-bottom: 16px;
+}
+
+.empty-wishlist p {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .footprints-page {
@@ -1566,11 +2036,60 @@ export default {
   }
 
   .header-content {
-    flex-direction: column;
-    gap: 20px;
+    gap: 16px;
   }
 
   .header-left {
+    gap: 12px;
+  }
+
+  /* 移动端头部照片展示 */
+  .header-visited-cities {
+    padding: 16px 20px;
+    border-radius: 16px;
+  }
+
+  .header-visited-cities::after {
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+
+  .header-photos-container {
+    gap: 12px;
+    padding: 8px 4px 6px;
+  }
+
+  .header-visited-cities .city-photo-item {
+    width: 80px;
+  }
+
+  .header-visited-cities .photo-wrapper {
+    height: 60px;
+  }
+
+  .header-visited-cities .city-name {
+    font-size: 10px;
+  }
+
+  .header-visited-cities .visit-date {
+    font-size: 8px;
+  }
+
+  .film-holes .hole {
+    width: 2px;
+    height: 2px;
+  }
+
+  .more-cities-btn {
+    width: 80px;
+    height: 60px;
+  }
+
+  .more-cities-btn .el-button {
+    font-size: 11px !important;
+  }
+
+  .quick-actions-buttons {
     gap: 12px;
   }
 
@@ -1682,6 +2201,154 @@ export default {
   .fab-main {
     width: 48px;
     height: 48px;
+  }
+
+  /* 移动端状态切换控制区域 */
+  .view-control-section {
+    padding: 16px 20px;
+    margin-bottom: 16px;
+  }
+
+  .control-header {
+    margin-bottom: 16px;
+  }
+
+  .control-title {
+    font-size: 16px;
+  }
+
+  .control-subtitle {
+    font-size: 13px;
+  }
+
+  /* 移动端空状态样式 */
+  .empty-wishlist-state {
+    padding: 30px 20px;
+  }
+
+  .empty-content h4 {
+    font-size: 18px;
+  }
+
+  .empty-content p {
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .empty-content .el-button {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+
+  .view-mode-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mode-button {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 10px 16px !important;
+    font-size: 14px !important;
+  }
+
+  /* 移动端动态内容展示区域 */
+  .content-display-area {
+    gap: 16px;
+  }
+
+  /* 移动端照片展示区域 */
+  .visited-cities-photos {
+    padding: 16px 20px;
+  }
+
+  .photos-scroll-container {
+    gap: 12px;
+  }
+
+  .city-photo-item {
+    width: 160px;
+  }
+
+  .photo-wrapper {
+    height: 120px;
+  }
+
+  .photo-overlay {
+    padding: 12px 10px 8px;
+  }
+
+  .city-name {
+    font-size: 13px;
+  }
+
+  .upload-btn {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  .empty-photos {
+    padding: 30px 16px;
+    min-width: 250px;
+  }
+
+  .empty-photos .el-icon {
+    font-size: 40px !important;
+  }
+
+  .empty-photos p {
+    font-size: 13px;
+  }
+
+  /* 移动端卡片展示区域 */
+  .wishlist-cities-cards {
+    padding: 16px 20px;
+  }
+
+  .simple-cards-container {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    max-height: 300px;
+  }
+
+  .simple-wishlist-card {
+    padding: 14px;
+  }
+
+  .card-city-name {
+    font-size: 15px;
+  }
+
+  .card-actions .el-button {
+    width: 28px !important;
+    height: 28px !important;
+    padding: 4px !important;
+  }
+
+  .card-tag {
+    font-size: 11px !important;
+    padding: 1px 6px !important;
+  }
+
+  .more-tags {
+    font-size: 11px;
+  }
+
+  .card-reason {
+    font-size: 12px;
+  }
+
+  .empty-wishlist {
+    padding: 30px 16px;
+    min-height: 150px;
+  }
+
+  .empty-wishlist .el-icon {
+    font-size: 40px !important;
+  }
+
+  .empty-wishlist p {
+    font-size: 13px;
   }
 
   /* 移动端对话框优化 */

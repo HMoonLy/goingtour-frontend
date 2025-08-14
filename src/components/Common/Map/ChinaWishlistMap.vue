@@ -5,12 +5,10 @@
       class="map-chart"
       :style="{ height: height, width: '100%' }"
     />
-    <div v-if="loading"
-class="map-loading">
+    <div v-if="loading" class="map-loading">
       <el-skeleton animated>
         <template #template>
-          <el-skeleton-item variant="rect"
-style="height: 100%" />
+          <el-skeleton-item variant="rect" style="height: 100%" />
         </template>
       </el-skeleton>
     </div>
@@ -293,7 +291,7 @@ export default {
 
         const option = {
           title: {
-            text: `中国心愿地图 (${props.wishlistItems.length}个城市)`,
+            text: `中国地图`,
             left: "center",
             top: 10,
             textStyle: {
@@ -377,7 +375,7 @@ export default {
                 const reasonBonus = cityData.reason ? 5 : 0;
                 return Math.max(
                   12,
-                  Math.min(28, baseSize + tagBonus + reasonBonus),
+                  Math.min(28, baseSize + tagBonus + reasonBonus)
                 );
               },
               itemStyle: {
@@ -662,12 +660,12 @@ export default {
                 // 根据城市名长度和标签数量调整大小
                 const cityNameLength = data[2]?.length || 0;
                 const item = props.wishlistItems.find(
-                  (i) => i.cityName === data[2],
+                  (i) => i.cityName === data[2]
                 );
                 const tagCount = item?.tags?.length || 0;
                 return Math.max(
                   18,
-                  Math.min(35, cityNameLength * 3 + tagCount * 2),
+                  Math.min(35, cityNameLength * 3 + tagCount * 2)
                 );
               },
               emphasis: {
@@ -772,7 +770,7 @@ export default {
           updateMapData();
         }
       },
-      { deep: true },
+      { deep: true }
     );
 
     onMounted(async () => {

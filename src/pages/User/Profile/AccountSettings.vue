@@ -818,8 +818,20 @@ export default {
       });
     };
 
-    const handleAvatarChange = (newAvatar) => {
+    const handleAvatarChange = async (newAvatar) => {
       profileForm.avatar = newAvatar;
+      
+      // 自动保存头像更新
+      try {
+        await userStore.updateUserInfo(
+          profileForm.nickname,
+          profileForm.avatar,
+        );
+        ElMessage.success("头像更新成功");
+      } catch (error) {
+        console.error("头像更新失败:", error);
+        ElMessage.error("头像更新失败，请重试");
+      }
     };
 
     const updateProfile = async () => {
