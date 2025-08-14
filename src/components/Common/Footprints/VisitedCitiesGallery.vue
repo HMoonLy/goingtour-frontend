@@ -6,7 +6,8 @@
         <el-icon size="20"><Camera /></el-icon>
         <h3>去过的城市</h3>
         <span v-if="visitedCities.length > 0" class="photo-count"
-          >({{ visitedCities.length }}个城市)</span
+          >({{ visitedCities.length }}个城市
+          <template v-if="visitedCities.length > 12">，可滚动查看</template>)</span
         >
       </div>
     </div>
@@ -16,7 +17,7 @@
       <!-- 有去过城市的情况 -->
       <div v-if="visitedCities.length > 0" class="photos-grid">
         <div
-          v-for="(city, index) in displayCities"
+          v-for="(city, index) in visitedCities"
           :key="city.id"
           class="city-photo-item"
           :style="{ animationDelay: `${index * 0.1}s` }"
@@ -36,8 +37,8 @@
             <template v-else>
               <div class="upload-placeholder">
                 <el-icon size="32" class="upload-icon"><Plus /></el-icon>
-                <p class="upload-text">添加照片</p>
-                <p class="upload-hint">点击上传</p>
+                <p class="upload-text">{{ city.cityName }}</p>
+                <p class="upload-hint">点击添加照片</p>
               </div>
             </template>
 
@@ -89,18 +90,6 @@
               <div class="hole"></div>
               <div class="hole"></div>
             </div>
-          </div>
-        </div>
-
-        <!-- 显示更多按钮 -->
-        <div
-          v-if="visitedCities.length > maxDisplayCount && !showAll"
-          class="more-cities-btn"
-          @click="showAll = true"
-        >
-          <div class="more-content">
-            <el-icon size="24"><Plus /></el-icon>
-            <span>+{{ visitedCities.length - maxDisplayCount }}</span>
           </div>
         </div>
       </div>
@@ -160,19 +149,10 @@ const emit = defineEmits([
 const wishlistStore = useWishlistStore();
 
 // 响应式数据
-const showAll = ref(false);
 const fileInput = ref(null);
 const currentCity = ref(null);
 const uploading = ref(false);
 const coverMap = ref({}); // wishlistItemId -> cover URL
-
-// 计算属性
-const displayCities = computed(() => {
-  if (showAll.value) {
-    return props.visitedCities;
-  }
-  return props.visitedCities.slice(0, props.maxDisplayCount);
-});
 
 // 方法
 
@@ -194,14 +174,23 @@ const refreshCoverForCity = async cityId => {
     if (photos && photos.length > 0) {
       const cover = photos.find(p => p.isCover) || photos[0];
       // 优先使用缩略图，如果没有则使用原图
-      const imageUrl = cover.thumbnailUrl 
+      let imageUrl = cover.thumbnailUrl 
         ? getCityThumbnailUrl(cover.thumbnailUrl)
         : getCityPhotoUrl(cover.photoUrl);
       
-      coverMap.value = {
-        ...coverMap.value,
-        [cityId]: imageUrl,
-      };
+      // 使用 normalizePhotoUrl 过滤占位符
+      imageUrl = normalizePhotoUrl(imageUrl);
+      
+      if (imageUrl) {
+        coverMap.value = {
+          ...coverMap.value,
+          [cityId]: imageUrl,
+        };
+      } else {
+        // 如果是占位符或无有效照片，从 coverMap 中移除
+        const { [cityId]: _, ...rest } = coverMap.value;
+        coverMap.value = rest;
+      }
     } else {
       // 无照片
       const { [cityId]: _, ...rest } = coverMap.value;
@@ -363,19 +352,50 @@ const handleImageError = event => {
   placeholder.style.cssText = `
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
-    border-radius: 4px;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    border: 2px dashed rgba(145, 168, 208, 0.3);
+    border-radius: 8px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: #999;
+    color: #91a8d0;
     font-size: 12px;
+    font-weight: 500;
     text-align: center;
     position: absolute;
     top: 0;
     left: 0;
+    transition: all 0.3s ease;
   `;
-  placeholder.textContent = '图片加载失败';
+  
+  // 创建图标元素
+  const iconElement = document.createElement('div');
+  iconElement.innerHTML = '📷';
+  iconElement.style.cssText = `
+    font-size: 24px;
+    margin-bottom: 4px;
+    opacity: 0.6;
+  `;
+  
+  // 创建文字元素
+  const textElement = document.createElement('div');
+  textElement.textContent = '图片加载失败';
+  textElement.style.cssText = `
+    margin-bottom: 2px;
+  `;
+  
+  // 创建提示元素
+  const hintElement = document.createElement('div');
+  hintElement.textContent = '点击重新上传';
+  hintElement.style.cssText = `
+    font-size: 10px;
+    opacity: 0.7;
+  `;
+  
+  placeholder.appendChild(iconElement);
+  placeholder.appendChild(textElement);
+  placeholder.appendChild(hintElement);
 
   const parent = img.parentNode;
   if (parent) {
@@ -548,51 +568,91 @@ const formatVisitDate = dateString => {
   position: relative;
 }
 
+/* 滚动提示渐变 */
+.photos-container::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(transparent, rgba(255, 255, 255, 0.8));
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.photos-container:hover::after {
+  opacity: 1;
+}
+
 .photos-grid {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 20px;
-  overflow-x: auto;
-  scroll-behavior: smooth;
   padding: 16px 8px;
+  max-height: 600px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  /* 优化滚动条样式 */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(145, 168, 208, 0.3) transparent;
 }
 
 .photos-grid::-webkit-scrollbar {
-  height: 8px;
+  width: 6px;
 }
 
 .photos-grid::-webkit-scrollbar-track {
   background: rgba(145, 168, 208, 0.1);
-  border-radius: 4px;
+  border-radius: 3px;
+  margin: 4px 0;
 }
 
 .photos-grid::-webkit-scrollbar-thumb {
-  background: linear-gradient(90deg, #91a8d0, #f7cac9);
-  border-radius: 4px;
+  background: linear-gradient(180deg, #91a8d0, #f7cac9);
+  border-radius: 3px;
+}
+
+.photos-grid::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #7a94c2, #f0b5b4);
 }
 
 /* 城市照片项 */
 .city-photo-item {
-  flex-shrink: 0;
-  width: 180px;
+  width: 100%;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   animation: photoSlideIn 0.6s ease-out forwards;
   opacity: 0;
-  transform: translateY(20px) rotate(-2deg);
+  transform: translateY(20px);
 }
 
 @keyframes photoSlideIn {
   to {
     opacity: 1;
-    transform: translateY(0) rotate(-1deg);
+    transform: translateY(0);
   }
 }
 
-.city-photo-item:nth-child(odd) {
-  transform: rotate(-2deg) translateY(2px);
+/* 创建错落有致的布局 */
+.city-photo-item:nth-child(4n+1) {
+  transform: rotate(-1.5deg) translateY(-8px);
+  margin-top: 12px;
 }
 
-.city-photo-item:nth-child(even) {
-  transform: rotate(1.5deg) translateY(-1px);
+.city-photo-item:nth-child(4n+2) {
+  transform: rotate(1deg) translateY(4px);
+  margin-bottom: 8px;
+}
+
+.city-photo-item:nth-child(4n+3) {
+  transform: rotate(-0.8deg) translateY(-12px);
+  margin-top: 16px;
+}
+
+.city-photo-item:nth-child(4n+4) {
+  transform: rotate(1.2deg) translateY(8px);
+  margin-bottom: 12px;
 }
 
 .photo-wrapper {
@@ -641,33 +701,37 @@ const formatVisitDate = dateString => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border: 2px dashed #6c757d;
+  background: linear-gradient(135deg, #f8fafe 0%, #eef1f9 100%);
+  border: 2px dashed rgba(145, 168, 208, 0.4);
   border-radius: 4px;
   transition: all 0.3s ease;
 }
 
 .upload-placeholder:hover {
-  border-color: #91a8d0;
-  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+  border-color: rgba(145, 168, 208, 0.7);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafe 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15);
 }
 
 .upload-icon {
-  color: #6c757d;
+  color: #91a8d0;
   margin-bottom: 8px;
+  opacity: 0.8;
 }
 
 .upload-text {
   margin: 0 0 4px 0;
   font-size: 14px;
   font-weight: 600;
-  color: #495057;
+  color: #4a5568;
 }
 
 .upload-hint {
   margin: 0;
   font-size: 11px;
-  color: #6c757d;
+  color: #91a8d0;
+  opacity: 0.8;
 }
 
 /* 照片信息遮罩 */
@@ -785,38 +849,7 @@ const formatVisitDate = dateString => {
   box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.8);
 }
 
-/* 更多按钮 */
-.more-cities-btn {
-  flex-shrink: 0;
-  width: 180px;
-  height: 135px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-  border: 2px dashed rgba(145, 168, 208, 0.3);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  transform: rotate(-1deg);
-}
 
-.more-cities-btn:hover {
-  transform: rotate(0deg) translateY(-6px);
-  background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
-  border-color: #91a8d0;
-  box-shadow: 0 12px 24px rgba(145, 168, 208, 0.15);
-}
-
-.more-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  color: #91a8d0;
-  font-weight: 700;
-  font-size: 16px;
-}
 
 /* 空状态 */
 .empty-gallery {
@@ -859,20 +892,13 @@ const formatVisitDate = dateString => {
   }
 
   .photos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 12px;
     padding: 12px 4px;
-  }
-
-  .city-photo-item {
-    width: 140px;
+    max-height: 450px;
   }
 
   .photo-wrapper {
-    height: 105px;
-  }
-
-  .more-cities-btn {
-    width: 140px;
     height: 105px;
   }
 
@@ -880,5 +906,31 @@ const formatVisitDate = dateString => {
     width: 32px !important;
     height: 32px !important;
   }
+
+  /* 移动端减少错落效果 */
+  .city-photo-item:nth-child(4n+1),
+  .city-photo-item:nth-child(4n+2),
+  .city-photo-item:nth-child(4n+3),
+  .city-photo-item:nth-child(4n+4) {
+    margin-top: 4px;
+    margin-bottom: 4px;
+  }
+
+  .city-photo-item:nth-child(4n+1) {
+    transform: rotate(-1deg) translateY(-4px);
+  }
+
+  .city-photo-item:nth-child(4n+2) {
+    transform: rotate(0.5deg) translateY(2px);
+  }
+
+  .city-photo-item:nth-child(4n+3) {
+    transform: rotate(-0.5deg) translateY(-2px);
+  }
+
+  .city-photo-item:nth-child(4n+4) {
+    transform: rotate(1deg) translateY(4px);
+  }
 }
 </style>
+
