@@ -5,8 +5,8 @@
 
 class TripProgressManager {
   constructor() {
-    this.storageKey = "goingtour_trip_progress";
-    this.draftStorageKey = "goingtour_trip_drafts"; // 草稿存储键
+    this.storageKey = 'goingtour_trip_progress';
+    this.draftStorageKey = 'goingtour_trip_drafts'; // 草稿存储键
     this.maxSaveTime = 24 * 60 * 60 * 1000; // 24小时有效期
     this.maxDraftSaveTime = 7 * 24 * 60 * 60 * 1000; // 草稿保存7天
     this.maxDrafts = 10; // 最多保存10个草稿
@@ -22,7 +22,7 @@ class TripProgressManager {
       const saveData = {
         ...progressData,
         timestamp: Date.now(),
-        version: "1.0", // 用于兼容性检查
+        version: '1.0', // 用于兼容性检查
       };
 
       // 保存临时进度（保持向后兼容）
@@ -31,7 +31,7 @@ class TripProgressManager {
       // 同时保存或更新自动草稿
       this.saveOrUpdateAutoDraft(progressData);
 
-      console.log("💾 行程进度已保存:", {
+      console.log('💾 行程进度已保存:', {
         step: progressData.currentStep,
         destination: progressData.baseForm?.destinationName,
         timestamp: new Date().toLocaleString(),
@@ -39,7 +39,7 @@ class TripProgressManager {
 
       return true;
     } catch (error) {
-      console.error("❌ 保存行程进度失败:", error);
+      console.error('❌ 保存行程进度失败:', error);
       return false;
     }
   }
@@ -60,19 +60,19 @@ class TripProgressManager {
 
       // 检查数据有效性
       if (!this.isValidProgress(progressData)) {
-        console.log("🗑️ 进度数据无效，已清除");
+        console.log('🗑️ 进度数据无效，已清除');
         this.clearProgress();
         return null;
       }
 
       // 检查时间有效性
       if (Date.now() - progressData.timestamp > this.maxSaveTime) {
-        console.log("⏰ 进度数据已过期，已清除");
+        console.log('⏰ 进度数据已过期，已清除');
         this.clearProgress();
         return null;
       }
 
-      console.log("📂 恢复行程进度:", {
+      console.log('📂 恢复行程进度:', {
         step: progressData.currentStep,
         destination: progressData.baseForm?.destinationName,
         savedTime: new Date(progressData.timestamp).toLocaleString(),
@@ -80,7 +80,7 @@ class TripProgressManager {
 
       return progressData;
     } catch (error) {
-      console.error("❌ 恢复行程进度失败:", error);
+      console.error('❌ 恢复行程进度失败:', error);
       this.clearProgress();
       return null;
     }
@@ -95,13 +95,13 @@ class TripProgressManager {
     // 基础结构检查
     if (
       !progressData ||
-      typeof progressData.currentStep !== "number" ||
+      typeof progressData.currentStep !== 'number' ||
       progressData.currentStep < 0 ||
       progressData.currentStep > 3 ||
       !progressData.baseForm ||
       !progressData.preferenceForm ||
       !progressData.timestamp ||
-      typeof progressData.timestamp !== "number"
+      typeof progressData.timestamp !== 'number'
     ) {
       return false;
     }
@@ -111,16 +111,16 @@ class TripProgressManager {
       !progressData.baseForm.destinationName ||
       !progressData.baseForm.destination
     ) {
-      console.warn("进度数据缺少必要的目的地信息");
+      console.warn('进度数据缺少必要的目的地信息');
       return false;
     }
 
     // 偏好表单数据检查
     if (
       !progressData.preferenceForm ||
-      typeof progressData.preferenceForm !== "object"
+      typeof progressData.preferenceForm !== 'object'
     ) {
-      console.warn("进度数据缺少偏好表单信息");
+      console.warn('进度数据缺少偏好表单信息');
       return false;
     }
 
@@ -133,10 +133,10 @@ class TripProgressManager {
   clearProgress() {
     try {
       localStorage.removeItem(this.storageKey);
-      console.log("🗑️ 行程进度已清除");
+      console.log('🗑️ 行程进度已清除');
       return true;
     } catch (error) {
-      console.error("❌ 清除行程进度失败:", error);
+      console.error('❌ 清除行程进度失败:', error);
       return false;
     }
   }
@@ -172,7 +172,7 @@ class TripProgressManager {
       return {
         step: progressData.currentStep,
         stepName: this.getStepName(progressData.currentStep),
-        destination: progressData.baseForm?.destinationName || "未选择",
+        destination: progressData.baseForm?.destinationName || '未选择',
         savedTime: new Date(progressData.timestamp).toLocaleString(),
         timeAgo: this.getTimeAgo(progressData.timestamp),
       };
@@ -188,12 +188,12 @@ class TripProgressManager {
    */
   getStepName(step) {
     const stepNames = {
-      0: "基础信息",
-      1: "个性化偏好",
-      2: "智能生成",
-      3: "行程预览",
+      0: '基础信息',
+      1: '个性化偏好',
+      2: '智能生成',
+      3: '行程预览',
     };
-    return stepNames[step] || "未知步骤";
+    return stepNames[step] || '未知步骤';
   }
 
   /**
@@ -206,13 +206,13 @@ class TripProgressManager {
     const diff = now - timestamp;
 
     if (diff < 60 * 1000) {
-      return "刚刚";
+      return '刚刚';
     } else if (diff < 60 * 60 * 1000) {
       return `${Math.floor(diff / (60 * 1000))}分钟前`;
     } else if (diff < 24 * 60 * 60 * 1000) {
       return `${Math.floor(diff / (60 * 60 * 1000))}小时前`;
     } else {
-      return "很久之前";
+      return '很久之前';
     }
   }
 
@@ -244,7 +244,7 @@ class TripProgressManager {
     try {
       return JSON.stringify(progressData, null, 2);
     } catch (error) {
-      console.error("❌ 导出进度数据失败:", error);
+      console.error('❌ 导出进度数据失败:', error);
       return null;
     }
   }
@@ -257,20 +257,20 @@ class TripProgressManager {
   debugCompareData(currentData) {
     const savedData = this.restoreProgress();
     if (!savedData) {
-      return { hasSaved: false, message: "没有保存的进度数据" };
+      return { hasSaved: false, message: '没有保存的进度数据' };
     }
 
     const differences = [];
 
     // 比较baseForm
     if (currentData.baseForm && savedData.baseForm) {
-      Object.keys(currentData.baseForm).forEach((key) => {
+      Object.keys(currentData.baseForm).forEach(key => {
         if (
           JSON.stringify(currentData.baseForm[key]) !==
           JSON.stringify(savedData.baseForm[key])
         ) {
           differences.push({
-            type: "baseForm",
+            type: 'baseForm',
             field: key,
             current: currentData.baseForm[key],
             saved: savedData.baseForm[key],
@@ -281,13 +281,13 @@ class TripProgressManager {
 
     // 比较preferenceForm
     if (currentData.preferenceForm && savedData.preferenceForm) {
-      Object.keys(currentData.preferenceForm).forEach((key) => {
+      Object.keys(currentData.preferenceForm).forEach(key => {
         if (
           JSON.stringify(currentData.preferenceForm[key]) !==
           JSON.stringify(savedData.preferenceForm[key])
         ) {
           differences.push({
-            type: "preferenceForm",
+            type: 'preferenceForm',
             field: key,
             current: currentData.preferenceForm[key],
             saved: savedData.preferenceForm[key],
@@ -319,13 +319,13 @@ class TripProgressManager {
         id: draftId,
         name:
           draftName ||
-          `草稿 - ${draftData.baseForm?.destinationName || "未命名目的地"}`,
+          `草稿 - ${draftData.baseForm?.destinationName || '未命名目的地'}`,
         ...draftData,
         isDraft: true,
         timestamp: timestamp,
         createdAt: timestamp,
         updatedAt: timestamp,
-        version: "1.0",
+        version: '1.0',
       };
 
       // 获取现有草稿列表
@@ -340,9 +340,9 @@ class TripProgressManager {
 
       localStorage.setItem(
         this.draftStorageKey,
-        JSON.stringify(existingDrafts),
+        JSON.stringify(existingDrafts)
       );
-      console.log("📝 行程草稿已保存:", {
+      console.log('📝 行程草稿已保存:', {
         id: draftId,
         name: saveData.name,
         step: draftData.currentStep,
@@ -352,7 +352,7 @@ class TripProgressManager {
 
       return draftId;
     } catch (error) {
-      console.error("❌ 保存行程草稿失败:", error);
+      console.error('❌ 保存行程草稿失败:', error);
       return null;
     }
   }
@@ -369,7 +369,7 @@ class TripProgressManager {
       const drafts = JSON.parse(draftsData);
       // 过滤过期草稿
       const validDrafts = drafts.filter(
-        (draft) => Date.now() - draft.timestamp <= this.maxDraftSaveTime,
+        draft => Date.now() - draft.timestamp <= this.maxDraftSaveTime
       );
 
       // 如果有草稿被过期清理，更新存储
@@ -379,7 +379,7 @@ class TripProgressManager {
 
       return validDrafts.sort((a, b) => b.timestamp - a.timestamp); // 按时间降序排列
     } catch (error) {
-      console.error("❌ 获取草稿列表失败:", error);
+      console.error('❌ 获取草稿列表失败:', error);
       return [];
     }
   }
@@ -391,7 +391,7 @@ class TripProgressManager {
    */
   getDraft(draftId) {
     const drafts = this.getAllDrafts();
-    return drafts.find((draft) => draft.id === draftId) || null;
+    return drafts.find(draft => draft.id === draftId) || null;
   }
 
   /**
@@ -402,13 +402,13 @@ class TripProgressManager {
   deleteDraft(draftId) {
     try {
       const drafts = this.getAllDrafts();
-      const updatedDrafts = drafts.filter((draft) => draft.id !== draftId);
+      const updatedDrafts = drafts.filter(draft => draft.id !== draftId);
 
       localStorage.setItem(this.draftStorageKey, JSON.stringify(updatedDrafts));
-      console.log("🗑️ 草稿已删除:", draftId);
+      console.log('🗑️ 草稿已删除:', draftId);
       return true;
     } catch (error) {
-      console.error("❌ 删除草稿失败:", error);
+      console.error('❌ 删除草稿失败:', error);
       return false;
     }
   }
@@ -422,7 +422,7 @@ class TripProgressManager {
   renameDraft(draftId, newName) {
     try {
       const drafts = this.getAllDrafts();
-      const draftIndex = drafts.findIndex((draft) => draft.id === draftId);
+      const draftIndex = drafts.findIndex(draft => draft.id === draftId);
 
       if (draftIndex === -1) return false;
 
@@ -430,10 +430,10 @@ class TripProgressManager {
       drafts[draftIndex].updatedAt = Date.now();
 
       localStorage.setItem(this.draftStorageKey, JSON.stringify(drafts));
-      console.log("✏️ 草稿已重命名:", { id: draftId, newName });
+      console.log('✏️ 草稿已重命名:', { id: draftId, newName });
       return true;
     } catch (error) {
-      console.error("❌ 重命名草稿失败:", error);
+      console.error('❌ 重命名草稿失败:', error);
       return false;
     }
   }
@@ -458,7 +458,7 @@ class TripProgressManager {
       const copyName = newName || `${sourceDraft.name} - 副本`;
       return this.saveDraft(copyData, copyName);
     } catch (error) {
-      console.error("❌ 复制草稿失败:", error);
+      console.error('❌ 复制草稿失败:', error);
       return null;
     }
   }
@@ -469,10 +469,10 @@ class TripProgressManager {
   clearAllDrafts() {
     try {
       localStorage.removeItem(this.draftStorageKey);
-      console.log("🗑️ 所有草稿已清除");
+      console.log('🗑️ 所有草稿已清除');
       return true;
     } catch (error) {
-      console.error("❌ 清除草稿失败:", error);
+      console.error('❌ 清除草稿失败:', error);
       return false;
     }
   }
@@ -489,7 +489,7 @@ class TripProgressManager {
     return {
       id: draft.id,
       name: draft.name,
-      destination: draft.baseForm?.destinationName || "未选择",
+      destination: draft.baseForm?.destinationName || '未选择',
       step: draft.currentStep,
       stepName: this.getStepName(draft.currentStep),
       createdTime: new Date(draft.createdAt).toLocaleString(),
@@ -504,11 +504,11 @@ class TripProgressManager {
    * @returns {boolean}
    */
   isValidDraft(draftData) {
-    if (!draftData || typeof draftData !== "object") return false;
+    if (!draftData || typeof draftData !== 'object') return false;
 
     // 必须有基础结构
     if (
-      typeof draftData.currentStep !== "number" ||
+      typeof draftData.currentStep !== 'number' ||
       !draftData.baseForm ||
       !draftData.preferenceForm
     ) {
@@ -533,17 +533,17 @@ class TripProgressManager {
 
     return {
       total: drafts.length,
-      recentCount: drafts.filter((d) => now - d.updatedAt < 24 * 60 * 60 * 1000)
+      recentCount: drafts.filter(d => now - d.updatedAt < 24 * 60 * 60 * 1000)
         .length,
       oldestDate: drafts.length
-        ? Math.min(...drafts.map((d) => d.createdAt))
+        ? Math.min(...drafts.map(d => d.createdAt))
         : null,
       newestDate: drafts.length
-        ? Math.max(...drafts.map((d) => d.updatedAt))
+        ? Math.max(...drafts.map(d => d.updatedAt))
         : null,
       destinations: [
         ...new Set(
-          drafts.map((d) => d.baseForm?.destinationName).filter(Boolean),
+          drafts.map(d => d.baseForm?.destinationName).filter(Boolean)
         ),
       ],
       storageUsed: localStorage.getItem(this.draftStorageKey)?.length || 0,
@@ -567,18 +567,16 @@ class TripProgressManager {
           ...existingAutoDraft,
           ...progressData,
           updatedAt: timestamp,
-          version: "1.0",
+          version: '1.0',
         };
 
         const drafts = this.getAllDrafts();
-        const draftIndex = drafts.findIndex(
-          (d) => d.id === existingAutoDraft.id,
-        );
+        const draftIndex = drafts.findIndex(d => d.id === existingAutoDraft.id);
 
         if (draftIndex !== -1) {
           drafts[draftIndex] = updatedDraft;
           localStorage.setItem(this.draftStorageKey, JSON.stringify(drafts));
-          console.log("🔄 自动草稿已更新:", updatedDraft.id);
+          console.log('🔄 自动草稿已更新:', updatedDraft.id);
           return updatedDraft.id;
         }
       }
@@ -587,14 +585,14 @@ class TripProgressManager {
       const autoDraftId = `draft_auto_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       const newAutoDraft = {
         id: autoDraftId,
-        name: `自动保存 - ${progressData.baseForm?.destinationName || "临时进度"}`,
+        name: `自动保存 - ${progressData.baseForm?.destinationName || '临时进度'}`,
         ...progressData,
         isDraft: true,
         isAuto: true, // 标记为自动草稿
         timestamp: timestamp,
         createdAt: timestamp,
         updatedAt: timestamp,
-        version: "1.0",
+        version: '1.0',
       };
 
       const drafts = this.getAllDrafts();
@@ -607,10 +605,10 @@ class TripProgressManager {
       }
 
       localStorage.setItem(this.draftStorageKey, JSON.stringify(drafts));
-      console.log("📝 新自动草稿已创建:", autoDraftId);
+      console.log('📝 新自动草稿已创建:', autoDraftId);
       return autoDraftId;
     } catch (error) {
-      console.error("❌ 保存自动草稿失败:", error);
+      console.error('❌ 保存自动草稿失败:', error);
       return null;
     }
   }
@@ -621,7 +619,7 @@ class TripProgressManager {
    */
   getAutoDraft() {
     const drafts = this.getAllDrafts();
-    return drafts.find((draft) => draft.isAuto === true) || null;
+    return drafts.find(draft => draft.isAuto === true) || null;
   }
 
   /**
@@ -644,7 +642,7 @@ class TripProgressManager {
     return {
       step: autoDraft.currentStep,
       stepName: this.getStepName(autoDraft.currentStep),
-      destination: autoDraft.baseForm?.destinationName || "未选择",
+      destination: autoDraft.baseForm?.destinationName || '未选择',
       savedTime: new Date(autoDraft.updatedAt).toLocaleString(),
       timeAgo: this.getTimeAgo(autoDraft.updatedAt),
     };
@@ -669,14 +667,14 @@ class TripProgressManager {
       const autoDraftId = this.saveOrUpdateAutoDraft(progressData);
 
       if (autoDraftId) {
-        console.log("📦 临时进度已迁移到自动草稿:", autoDraftId);
+        console.log('📦 临时进度已迁移到自动草稿:', autoDraftId);
         // 保持临时进度以向后兼容，但优先使用草稿系统
         return true;
       }
 
       return false;
     } catch (error) {
-      console.error("❌ 进度迁移失败:", error);
+      console.error('❌ 进度迁移失败:', error);
       return false;
     }
   }
@@ -686,7 +684,7 @@ class TripProgressManager {
 export const tripProgressManager = new TripProgressManager();
 
 // 开发环境下暴露到全局，便于调试
-if (process.env.NODE_ENV === "development") {
+if (process.env.NODE_ENV === 'development') {
   window.tripProgressManager = tripProgressManager;
 }
 

@@ -1,14 +1,14 @@
-import axios from "axios";
+import axios from 'axios';
 
 // 读取环境变量中的API Key或使用默认密钥
 // 注意：这个默认密钥仅用于开发测试，生产环境应从环境变量获取
 const apiKey =
-  import.meta.env.VITE_AMAP_API_KEY || "5808fc8e9ec5676905b0d0fe33a3c702"; // 提供一个备用测试密钥
+  import.meta.env.VITE_AMAP_API_KEY || '5808fc8e9ec5676905b0d0fe33a3c702'; // 提供一个备用测试密钥
 
 // 如果环境变量中没有API Key，打印警告
 if (!import.meta.env.VITE_AMAP_API_KEY) {
   console.warn(
-    "提示: 正在使用默认的高德地图API Key，仅供开发测试，建议在.env.local文件中设置VITE_AMAP_API_KEY",
+    '提示: 正在使用默认的高德地图API Key，仅供开发测试，建议在.env.local文件中设置VITE_AMAP_API_KEY'
   );
 }
 
@@ -19,43 +19,43 @@ export const amapKey = apiKey;
 const amapRequest = axios.create({
   timeout: 10000,
   headers: {
-    "Content-Type": "application/json;charset=UTF-8",
+    'Content-Type': 'application/json;charset=UTF-8',
   },
 });
 
 // 添加请求拦截器
 amapRequest.interceptors.request.use(
-  (config) => {
+  config => {
     // console.log(`🚀 发送高德API请求: ${config.url}`, config.params);
     return config;
   },
-  (error) => {
-    console.error("❌ 高德API请求拦截器错误:", error);
+  error => {
+    console.error('❌ 高德API请求拦截器错误:', error);
     return Promise.reject(error);
-  },
+  }
 );
 
 // 添加响应拦截器
 amapRequest.interceptors.response.use(
-  (response) => {
+  response => {
     // console.log(`✅ 高德API响应成功: ${response.config.url}`);
     return response;
   },
-  (error) => {
-    console.error("❌ 高德API响应错误:", error);
+  error => {
+    console.error('❌ 高德API响应错误:', error);
     if (error.response) {
-      console.error("响应状态:", error.response.status);
-      console.error("响应数据:", error.response.data);
+      console.error('响应状态:', error.response.status);
+      console.error('响应数据:', error.response.data);
     } else if (error.request) {
-      console.error("请求发送但未收到响应:", error.request);
+      console.error('请求发送但未收到响应:', error.request);
     } else {
-      console.error("请求配置错误:", error.message);
+      console.error('请求配置错误:', error.message);
     }
     return Promise.reject(error);
-  },
+  }
 );
 
-const baseUrl = "https://restapi.amap.com/v3/place/text";
+const baseUrl = 'https://restapi.amap.com/v3/place/text';
 
 /**
  * 搜索地理位置信息 (POI)
@@ -67,24 +67,24 @@ const baseUrl = "https://restapi.amap.com/v3/place/text";
  * @param {number} [params.page=1] - 当前页数
  * @returns {Promise<any>}
  */
-export const searchPlaces = async (params) => {
+export const searchPlaces = async params => {
   // 检查API Key是否存在
   if (!apiKey) {
-    console.error("错误: 高德地图API Key未设置，无法发送请求");
-    throw new Error("API Key未设置");
+    console.error('错误: 高德地图API Key未设置，无法发送请求');
+    throw new Error('API Key未设置');
   }
 
   // 检查城市参数是否存在
   if (!params.city) {
-    console.error("错误: 未提供城市参数");
-    throw new Error("未提供城市参数");
+    console.error('错误: 未提供城市参数');
+    throw new Error('未提供城市参数');
   }
 
   const defaultParams = {
     key: apiKey,
     offset: 10,
     page: 1,
-    extensions: "all", // 获取更详细的信息，如照片
+    extensions: 'all', // 获取更详细的信息，如照片
   };
 
   const fullParams = { ...defaultParams, ...params };
@@ -94,7 +94,7 @@ export const searchPlaces = async (params) => {
     // 使用专用的amapRequest实例，直接请求完整URL
     const response = await amapRequest({
       url: baseUrl,
-      method: "get",
+      method: 'get',
       params: fullParams,
     });
 
@@ -107,17 +107,17 @@ export const searchPlaces = async (params) => {
     }
 
     // 检查API响应状态
-    if (data && data.status === "1") {
+    if (data && data.status === '1') {
       return data;
     } else {
       console.error(
-        "❌ 高德地图API错误:",
-        data && data.info ? data.info : "未知错误",
+        '❌ 高德地图API错误:',
+        data && data.info ? data.info : '未知错误'
       );
-      throw new Error(data && data.info ? data.info : "未知错误");
+      throw new Error(data && data.info ? data.info : '未知错误');
     }
   } catch (error) {
-    console.error("❌ 高德地图API请求失败:", error);
+    console.error('❌ 高德地图API请求失败:', error);
     throw error;
   }
 };
@@ -134,8 +134,8 @@ export const searchPlaces = async (params) => {
 export const getRecommendedAttractions = (city, page = 1, pageSize = 6) => {
   // console.log(`🏛️ 获取城市[${city}]的推荐景点, 页码:${page}, 每页:${pageSize}`);
   return searchPlaces({
-    keywords: "景点",
-    types: "110000", // 风景名胜
+    keywords: '景点',
+    types: '110000', // 风景名胜
     city: city,
     offset: pageSize,
     page: page,
@@ -152,8 +152,8 @@ export const getRecommendedAttractions = (city, page = 1, pageSize = 6) => {
 export const getRecommendedRestaurants = (city, page = 1, pageSize = 6) => {
   // console.log(`🍲 获取城市[${city}]的推荐餐厅, 页码:${page}, 每页:${pageSize}`);
   return searchPlaces({
-    keywords: "美食",
-    types: "050000", // 餐饮服务
+    keywords: '美食',
+    types: '050000', // 餐饮服务
     city: city,
     offset: pageSize,
     page: page,
@@ -162,8 +162,76 @@ export const getRecommendedRestaurants = (city, page = 1, pageSize = 6) => {
 
 // ==================== 地理编码相关功能 ====================
 
-// 城市坐标缓存key前缀
-const COORDINATE_CACHE_PREFIX = 'amap_city_coordinates_';
+// ==================== 坐标系转换 (GCJ-02 -> WGS-84) ====================
+// 高德返回GCJ-02坐标，而ECharts的中国地图GeoJSON通常使用WGS-84
+// 为避免偏移，这里统一将GCJ-02转换为WGS-84
+const PI = Math.PI;
+const A = 6378245.0; // 长半轴
+const EE = 0.00669342162296594323; // 偏心率平方
+
+const outOfChina = (lng, lat) => {
+  return lng < 72.004 || lng > 137.8347 || lat < 0.8293 || lat > 55.8271;
+};
+
+const transformLat = (x, y) => {
+  let ret =
+    -100.0 +
+    2.0 * x +
+    3.0 * y +
+    0.2 * y * y +
+    0.1 * x * y +
+    0.2 * Math.sqrt(Math.abs(x));
+  ret +=
+    ((20.0 * Math.sin(6.0 * x * PI) + 20.0 * Math.sin(2.0 * x * PI)) * 2.0) /
+    3.0;
+  ret +=
+    ((20.0 * Math.sin(y * PI) + 40.0 * Math.sin((y / 3.0) * PI)) * 2.0) / 3.0;
+  ret +=
+    ((160.0 * Math.sin((y / 12.0) * PI) + 320.0 * Math.sin((y * PI) / 30.0)) *
+      2.0) /
+    3.0;
+  return ret;
+};
+
+const transformLng = (x, y) => {
+  let ret =
+    300.0 +
+    x +
+    2.0 * y +
+    0.1 * x * x +
+    0.1 * x * y +
+    0.1 * Math.sqrt(Math.abs(x));
+  ret +=
+    ((20.0 * Math.sin(6.0 * x * PI) + 20.0 * Math.sin(2.0 * x * PI)) * 2.0) /
+    3.0;
+  ret +=
+    ((20.0 * Math.sin(x * PI) + 40.0 * Math.sin((x / 3.0) * PI)) * 2.0) / 3.0;
+  ret +=
+    ((150.0 * Math.sin((x / 12.0) * PI) + 300.0 * Math.sin((x / 30.0) * PI)) *
+      2.0) /
+    3.0;
+  return ret;
+};
+
+const gcj02ToWgs84 = (lng, lat) => {
+  if (outOfChina(lng, lat)) {
+    return [lng, lat];
+  }
+  let dLat = transformLat(lng - 105.0, lat - 35.0);
+  let dLng = transformLng(lng - 105.0, lat - 35.0);
+  const radLat = (lat / 180.0) * PI;
+  let magic = Math.sin(radLat);
+  magic = 1 - EE * magic * magic;
+  const sqrtMagic = Math.sqrt(magic);
+  dLat = (dLat * 180.0) / (((A * (1 - EE)) / (magic * sqrtMagic)) * PI);
+  dLng = (dLng * 180.0) / ((A / sqrtMagic) * Math.cos(radLat) * PI);
+  const mgLat = lat + dLat;
+  const mgLng = lng + dLng;
+  return [lng * 2 - mgLng, lat * 2 - mgLat];
+};
+
+// 城市坐标缓存key前缀（加入wgs84标识以清理旧的GCJ缓存）
+const COORDINATE_CACHE_PREFIX = 'amap_city_coordinates_wgs84_';
 const COORDINATE_CACHE_EXPIRY = 30 * 24 * 60 * 60 * 1000; // 30天过期
 
 /**
@@ -171,7 +239,7 @@ const COORDINATE_CACHE_EXPIRY = 30 * 24 * 60 * 60 * 1000; // 30天过期
  * @param {string} cityName - 城市名称
  * @returns {Object|null} - 坐标对象或null
  */
-const getCachedCoordinate = (cityName) => {
+const getCachedCoordinate = cityName => {
   try {
     const cacheKey = COORDINATE_CACHE_PREFIX + cityName;
     const cached = localStorage.getItem(cacheKey);
@@ -200,7 +268,7 @@ const setCachedCoordinate = (cityName, coordinate) => {
     const cacheKey = COORDINATE_CACHE_PREFIX + cityName;
     const data = {
       coordinate,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
     localStorage.setItem(cacheKey, JSON.stringify(data));
   } catch (error) {
@@ -213,7 +281,7 @@ const setCachedCoordinate = (cityName, coordinate) => {
  * @param {string} cityName - 城市名称
  * @returns {Promise<Array>} - 返回[经度, 纬度]数组
  */
-export const getCityCoordinate = async (cityName) => {
+export const getCityCoordinate = async cityName => {
   if (!cityName) {
     throw new Error('城市名称不能为空');
   }
@@ -233,7 +301,7 @@ export const getCityCoordinate = async (cityName) => {
 
   try {
     // console.log(`📍 正在获取城市坐标: ${cityName}`);
-    
+
     // 调用高德地理编码API
     const response = await amapRequest({
       url: 'https://restapi.amap.com/v3/geocode/geo',
@@ -241,22 +309,29 @@ export const getCityCoordinate = async (cityName) => {
       params: {
         key: apiKey,
         address: cityName,
-        output: 'JSON'
-      }
+        output: 'JSON',
+      },
     });
 
     const data = response.data;
 
-    if (data && data.status === '1' && data.geocodes && data.geocodes.length > 0) {
+    if (
+      data &&
+      data.status === '1' &&
+      data.geocodes &&
+      data.geocodes.length > 0
+    ) {
       const geocode = data.geocodes[0];
       if (geocode.location) {
-        // 高德API返回格式是 "经度,纬度" 字符串
-        const [lng, lat] = geocode.location.split(',').map(Number);
+        // 高德API返回GCJ-02坐标（"经度,纬度"）
+        const [gcjLng, gcjLat] = geocode.location.split(',').map(Number);
+        // 转换为WGS-84，避免在ECharts中国GeoJSON上出现偏移
+        const [lng, lat] = gcj02ToWgs84(gcjLng, gcjLat);
         const coordinate = [lng, lat];
-        
+
         // 缓存结果
         setCachedCoordinate(cityName, coordinate);
-        
+
         // console.log(`✅ 获取城市坐标成功 [${cityName}]:`, coordinate);
         return coordinate;
       }
@@ -265,7 +340,6 @@ export const getCityCoordinate = async (cityName) => {
     // API调用成功但没有找到坐标
     console.warn(`⚠️ 未找到城市坐标: ${cityName}`);
     throw new Error(`未找到城市坐标: ${cityName}`);
-
   } catch (error) {
     console.error(`❌ 获取城市坐标失败 [${cityName}]:`, error);
     throw error;
@@ -290,9 +364,9 @@ export const getBatchCityCoordinates = async (cityNames, delay = 100) => {
 
   for (const cityName of cityNames) {
     try {
-      const coordinate = await getCityCoordinate(cityName);
+      const coordinate = await getCityCoordinate(cityName); // 已为WGS-84
       results[cityName] = coordinate;
-      
+
       // 添加延迟避免API限流
       if (delay > 0 && cityNames.indexOf(cityName) < cityNames.length - 1) {
         await new Promise(resolve => setTimeout(resolve, delay));
@@ -301,7 +375,10 @@ export const getBatchCityCoordinates = async (cityNames, delay = 100) => {
       console.warn(`获取城市坐标失败: ${cityName}`, error);
       failedCities.push(cityName);
       // 失败时使用中国中心点附近的随机坐标作为备选
-      results[cityName] = [104 + Math.random() * 20 - 10, 35 + Math.random() * 15 - 7.5];
+      results[cityName] = [
+        104 + Math.random() * 20 - 10,
+        35 + Math.random() * 15 - 7.5,
+      ];
     }
   }
 
@@ -321,7 +398,11 @@ export const cleanExpiredCoordinateCache = () => {
     const keysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && key.startsWith(COORDINATE_CACHE_PREFIX)) {
+      if (
+        key &&
+        (key.startsWith(COORDINATE_CACHE_PREFIX) ||
+          key.startsWith('amap_city_coordinates_'))
+      ) {
         try {
           const data = JSON.parse(localStorage.getItem(key));
           if (data.timestamp + COORDINATE_CACHE_EXPIRY <= Date.now()) {
@@ -333,11 +414,13 @@ export const cleanExpiredCoordinateCache = () => {
         }
       }
     }
-    
+
     keysToRemove.forEach(key => localStorage.removeItem(key));
-    
+
     if (keysToRemove.length > 0) {
-      console.log(`🧹 清理了 ${keysToRemove.length} 个过期的城市坐标缓存`);
+      console.log(
+        `🧹 清理了 ${keysToRemove.length} 个过期/旧版本的城市坐标缓存`
+      );
     }
   } catch (error) {
     console.warn('清理坐标缓存失败:', error);

@@ -17,7 +17,7 @@ class DataCache {
    * @param {number} page - 页码
    * @param {string} keyword - 搜索关键词
    */
-  generateKey(type, city, page = 1, keyword = "") {
+  generateKey(type, city, page = 1, keyword = '') {
     return `${type}_${city}_${page}_${keyword}`.toLowerCase();
   }
 
@@ -97,7 +97,7 @@ class DataCache {
    */
   clear() {
     this.cache.clear();
-    console.log("🧹 所有缓存已清空");
+    console.log('🧹 所有缓存已清空');
   }
 
   /**
@@ -112,7 +112,7 @@ class DataCache {
       }
     }
 
-    keysToDelete.forEach((key) => this.cache.delete(key));
+    keysToDelete.forEach(key => this.cache.delete(key));
     console.log(`🧹 已清空城市 ${city} 的缓存，共 ${keysToDelete.length} 条`);
   }
 
@@ -176,7 +176,7 @@ class DataCache {
 export const dataCache = new DataCache();
 
 // 开发环境下暴露到全局，便于调试
-if (process.env.NODE_ENV === "development") {
+if (process.env.NODE_ENV === 'development') {
   window.dataCache = dataCache;
 }
 

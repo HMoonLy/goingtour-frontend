@@ -31,19 +31,18 @@
     </div>
 
     <!-- 天气内容 -->
-    <div v-if="weather"
-class="weather-content">
+    <div v-if="weather" class="weather-content">
       <div class="current-weather">
         <div class="weather-main">
           <div class="temp-info">
-            <span class="current-temp">{{ weather.currentTemp || "--" }}°</span>
+            <span class="current-temp">{{ weather.currentTemp || '--' }}°</span>
             <span class="weather-desc">{{
-              weather.currentWeather || weather.weatherDesc || "晴"
+              weather.currentWeather || weather.weatherDesc || '晴'
             }}</span>
           </div>
           <div class="weather-meta">
             <span class="feels-like">体感温度</span>
-            <span class="temp-range">{{ weather.tempRange || "--" }}</span>
+            <span class="temp-range">{{ weather.tempRange || '--' }}</span>
           </div>
         </div>
 
@@ -68,7 +67,7 @@ class="weather-content">
             {{ formatDate(day.date) }}
           </div>
           <div class="forecast-weather">
-            {{ day.dayWeather || day.weather || "晴" }}
+            {{ day.dayWeather || day.weather || '晴' }}
           </div>
           <div class="forecast-temp">
             {{ day.dayTemp }}°/{{ day.nightTemp }}°
@@ -77,8 +76,7 @@ class="weather-content">
       </div>
 
       <!-- 出行建议 -->
-      <div v-if="weather.tips && weather.tips.length > 0"
-class="travel-tips">
+      <div v-if="weather.tips && weather.tips.length > 0" class="travel-tips">
         <div class="tips-title">
           <el-icon><InfoFilled /></el-icon>
           出行建议
@@ -90,10 +88,8 @@ class="travel-tips">
     </div>
 
     <!-- 空状态 - 引导用户添加愿望城市 -->
-    <div v-else
-class="empty-state">
-      <el-icon size="48"
-color="#C0C4CC">
+    <div v-else class="empty-state">
+      <el-icon size="48" color="#C0C4CC">
         <Sunny />
       </el-icon>
       <p>添加心仪的城市到愿望清单</p>
@@ -119,14 +115,14 @@ color="#C0C4CC">
 </template>
 
 <script>
-import { ref, computed, onMounted } from "vue";
-import { ElMessage } from "element-plus";
-import { Sunny, Refresh, InfoFilled, Plus } from "@element-plus/icons-vue";
-import { weatherApi } from "@/api/weather.js";
-import { useRouter } from "vue-router";
+import { ref, computed, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
+import { Sunny, Refresh, InfoFilled, Plus } from '@element-plus/icons-vue';
+import { weatherApi } from '@/api/weather.js';
+import { useRouter } from 'vue-router';
 
 export default {
-  name: "WeatherSummary",
+  name: 'WeatherSummary',
   components: {
     Sunny,
     Refresh,
@@ -143,28 +139,28 @@ export default {
       default: false,
     },
   },
-  emits: ["refresh-weather"],
+  emits: ['refresh-weather'],
   setup(props, { emit }) {
     const router = useRouter();
 
     const refreshWeather = () => {
-      emit("refresh-weather");
+      emit('refresh-weather');
     };
 
     const goToWishlist = () => {
-      router.push("/wishlist");
+      router.push('/wishlist');
     };
 
     const loadDefaultWeather = async () => {
       try {
         // 获取默认城市（北京）的天气
-        await emit("refresh-weather", "北京");
+        await emit('refresh-weather', '北京');
       } catch (error) {
-        ElMessage.error("获取天气信息失败");
+        ElMessage.error('获取天气信息失败');
       }
     };
 
-    const formatDate = (dateStr) => {
+    const formatDate = dateStr => {
       try {
         const date = new Date(dateStr);
         const today = new Date();
@@ -172,13 +168,13 @@ export default {
         tomorrow.setDate(today.getDate() + 1);
 
         if (date.toDateString() === today.toDateString()) {
-          return "今天";
+          return '今天';
         } else if (date.toDateString() === tomorrow.toDateString()) {
-          return "明天";
+          return '明天';
         } else {
-          return date.toLocaleDateString("zh-CN", {
-            month: "short",
-            day: "numeric",
+          return date.toLocaleDateString('zh-CN', {
+            month: 'short',
+            day: 'numeric',
           });
         }
       } catch {

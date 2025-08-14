@@ -12,24 +12,23 @@
 
           <!-- 快捷操作按钮组 -->
           <div class="quick-actions-buttons">
-           <!-- 去过的城市照片展示 - 新组件 -->
-           <VisitedCitiesGallery
-             :visited-cities="visitedCities"
-             :max-display-count="6"
-             @photo-uploaded="handlePhotoUploaded"
-             @photo-deleted="handlePhotoDeleted"
-             @add-visited-city="handleOpenTypeSelection"
-           />
+            <!-- 去过的城市照片展示 - 新组件 -->
+            <VisitedCitiesGallery
+              :visited-cities="visitedCities"
+              :max-display-count="6"
+              @photo-uploaded="handlePhotoUploaded"
+              @photo-deleted="handlePhotoDeleted"
+              @add-visited-city="handleOpenTypeSelection"
+            />
 
             <!-- 足迹统计卡片 -->
-          <FootprintStats
-            :stats="wishlistStore.footprintStats"
-            :has-data="wishlistStore.hasCities"
-            @share="handleShareFootprint"
-            @view-achievements="handleViewAchievements"
-          />
+            <FootprintStats
+              :stats="wishlistStore.footprintStats"
+              :has-data="wishlistStore.hasCities"
+              @share="handleShareFootprint"
+              @view-achievements="handleViewAchievements"
+            />
           </div>
-          
         </div>
       </div>
     </div>
@@ -43,9 +42,11 @@
             <el-icon><View /></el-icon>
             地图显示模式
           </h3>
-          <p class="control-subtitle">选择在地图上显示的城市类型，去过的城市已在上方展示</p>
+          <p class="control-subtitle">
+            选择在地图上显示的城市类型，去过的城市已在上方展示
+          </p>
         </div>
-        
+
         <div class="view-mode-buttons">
           <el-button
             :type="mapDisplayMode === 'all' ? 'primary' : ''"
@@ -56,17 +57,17 @@
             <el-icon><Location /></el-icon>
             全部显示
           </el-button>
-          
+
           <el-button
             :type="mapDisplayMode === 'wishlist' ? 'primary' : ''"
-            size="large" 
+            size="large"
             class="mode-button wishlist-mode"
             @click="mapDisplayMode = 'wishlist'"
           >
             <el-icon><Star /></el-icon>
             想去的城市
           </el-button>
-          
+
           <el-button
             :type="mapDisplayMode === 'visited' ? 'primary' : ''"
             size="large"
@@ -125,9 +126,8 @@
 
       <!-- 动态内容展示区域 -->
       <div v-if="wishlistStore.hasCities" class="content-display-area">
-        
         <!-- 想去的城市卡片展示 -->
-        <div 
+        <div
           v-if="wishlistStore.wishlistOnlyCount > 0"
           class="wishlist-cities-cards"
         >
@@ -145,10 +145,10 @@
               添加城市
             </el-button>
           </div>
-          
+
           <div class="simple-cards-container">
-            <div 
-              v-for="item in wishlistCities" 
+            <div
+              v-for="item in wishlistCities"
               :key="item.id"
               class="simple-wishlist-card"
               @click="handleCardClick(item)"
@@ -156,20 +156,22 @@
               <div class="card-header">
                 <h5 class="card-city-name">{{ item.cityName }}</h5>
                 <div class="card-actions">
-                  <el-button 
+                  <el-button
                     size="small"
                     type="success"
                     circle
-                    @click.stop="handleStatusChange({ id: item.id, status: 'visited' })"
+                    @click.stop="
+                      handleStatusChange({ id: item.id, status: 'visited' })
+                    "
                   >
                     <el-icon><Check /></el-icon>
                   </el-button>
                 </div>
               </div>
-              
+
               <div v-if="item.tags && item.tags.length > 0" class="card-tags">
-                <el-tag 
-                  v-for="tag in item.tags.slice(0, 2)" 
+                <el-tag
+                  v-for="tag in item.tags.slice(0, 2)"
                   :key="tag"
                   size="small"
                   class="card-tag"
@@ -180,25 +182,32 @@
                   +{{ item.tags.length - 2 }}
                 </span>
               </div>
-              
+
               <p v-if="item.reason" class="card-reason">
                 {{ item.reason }}
               </p>
             </div>
-            
+
             <!-- 空状态 -->
             <div v-if="wishlistCities.length === 0" class="empty-wishlist">
               <el-icon size="48"><Star /></el-icon>
               <p>还没有心愿城市</p>
-              <el-button size="small" type="primary" @click="handleOpenTypeSelection">
+              <el-button
+                size="small"
+                type="primary"
+                @click="handleOpenTypeSelection"
+              >
                 添加心愿城市
               </el-button>
             </div>
           </div>
         </div>
-        
+
         <!-- 想去城市空状态 -->
-        <div v-if="wishlistStore.wishlistOnlyCount === 0" class="empty-wishlist-state">
+        <div
+          v-if="wishlistStore.wishlistOnlyCount === 0"
+          class="empty-wishlist-state"
+        >
           <div class="empty-content">
             <el-icon size="64" color="#C0C4CC">
               <Star />
@@ -211,7 +220,6 @@
             </el-button>
           </div>
         </div>
-        
       </div>
 
       <!-- 完全没有数据的空状态 -->
@@ -266,7 +274,7 @@
         </div>
 
         <div class="type-options">
-          <div 
+          <div
             class="type-option wishlist-option"
             @click="handleAddTypeSelection('wishlist')"
           >
@@ -281,7 +289,7 @@
             </div>
           </div>
 
-          <div 
+          <div
             class="type-option visited-option"
             @click="handleAddTypeSelection('visited')"
           >
@@ -298,10 +306,7 @@
         </div>
 
         <div class="type-selection-actions">
-          <el-button
-            size="large"
-            @click="showTypeSelection = false"
-          >
+          <el-button size="large" @click="showTypeSelection = false">
             取消
           </el-button>
         </div>
@@ -392,7 +397,10 @@
             </div>
           </el-form-item>
 
-          <el-form-item :label="dialogContent.reasonLabel" class="reason-form-item">
+          <el-form-item
+            :label="dialogContent.reasonLabel"
+            class="reason-form-item"
+          >
             <el-input
               v-model="quickAddForm.reason"
               type="textarea"
@@ -423,7 +431,7 @@
               <el-icon v-if="!quickAdding">
                 <Plus />
               </el-icon>
-              {{ quickAdding ? "添加中..." : dialogContent.submitText }}
+              {{ quickAdding ? '添加中...' : dialogContent.submitText }}
             </el-button>
           </div>
         </el-form>
@@ -433,9 +441,9 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import { ElMessage, ElMessageBox } from "element-plus";
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   Star,
   Plus,
@@ -447,18 +455,18 @@ import {
   Share,
   Camera,
   Delete,
-} from "@element-plus/icons-vue";
-import { useWishlistStore } from "@/store/wishlist.js";
-import WishlistCard from "@/components/Common/Wishlist/WishlistCard.vue";
-import MiniWishlistCard from "@/components/Common/Wishlist/MiniWishlistCard.vue";
-import ChinaWishlistMap from "@/components/Common/Map/ChinaWishlistMap.vue";
-import FootprintStats from "@/components/Common/Stats/FootprintStats.vue";
-import VisitedCitiesGallery from "@/components/Common/Footprints/VisitedCitiesGallery.vue";
-import pinyin from "pinyin";
-import { debounce } from "@/utils/apiOptimizer.js";
+} from '@element-plus/icons-vue';
+import { useWishlistStore } from '@/store/wishlist.js';
+import WishlistCard from '@/components/Common/Wishlist/WishlistCard.vue';
+import MiniWishlistCard from '@/components/Common/Wishlist/MiniWishlistCard.vue';
+import ChinaWishlistMap from '@/components/Common/Map/ChinaWishlistMap.vue';
+import FootprintStats from '@/components/Common/Stats/FootprintStats.vue';
+import VisitedCitiesGallery from '@/components/Common/Footprints/VisitedCitiesGallery.vue';
+import pinyin from 'pinyin';
+import { debounce } from '@/utils/apiOptimizer.js';
 
 export default {
-  name: "FootprintsPage",
+  name: 'FootprintsPage',
   components: {
     WishlistCard,
     MiniWishlistCard,
@@ -488,29 +496,29 @@ export default {
     const quickAddForm = ref({
       selectedCity: null,
       selectedTags: [],
-      reason: "",
-      status: "wishlist", // 默认为想去
+      reason: '',
+      status: 'wishlist', // 默认为想去
     });
 
     // 地图-卡片联动状态
     const highlightedCity = ref(null);
-    const filterStatus = ref("all"); // all, visited, wishlist
-    const mapDisplayMode = ref("all"); // 地图显示模式：all, visited, wishlist
+    const filterStatus = ref('all'); // all, visited, wishlist
+    const mapDisplayMode = ref('all'); // 地图显示模式：all, visited, wishlist
 
     // 预定义标签
     const predefinedTags = ref([
-      { name: "历史文化", color: "#91a8d0" },
-      { name: "自然风光", color: "#91a8d0" },
-      { name: "美食之旅", color: "#91a8d0" },
-      { name: "度假休闲", color: "#91a8d0" },
-      { name: "购物天堂", color: "#91a8d0" },
-      { name: "艺术文化", color: "#91a8d0" },
-      { name: "夜生活", color: "#91a8d0" },
-      { name: "亲子旅行", color: "#91a8d0" },
-      { name: "冒险探索", color: "#91a8d0" },
-      { name: "古镇古村", color: "#91a8d0" },
-      { name: "海滨城市", color: "#91a8d0" },
-      { name: "山水之间", color: "#91a8d0" },
+      { name: '历史文化', color: '#91a8d0' },
+      { name: '自然风光', color: '#91a8d0' },
+      { name: '美食之旅', color: '#91a8d0' },
+      { name: '度假休闲', color: '#91a8d0' },
+      { name: '购物天堂', color: '#91a8d0' },
+      { name: '艺术文化', color: '#91a8d0' },
+      { name: '夜生活', color: '#91a8d0' },
+      { name: '亲子旅行', color: '#91a8d0' },
+      { name: '冒险探索', color: '#91a8d0' },
+      { name: '古镇古村', color: '#91a8d0' },
+      { name: '海滨城市', color: '#91a8d0' },
+      { name: '山水之间', color: '#91a8d0' },
     ]);
 
     // 城市数据相关
@@ -518,7 +526,7 @@ export default {
     const hotCities = ref([]);
     const searchResults = ref([]);
     const searchLoading = ref(false);
-    const searchKeyword = ref("");
+    const searchKeyword = ref('');
 
     // 显示的城市列表（热门城市或搜索结果）
     const displayCities = computed(() => {
@@ -534,8 +542,8 @@ export default {
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
 
-      if (filterStatus.value !== "all") {
-        items = items.filter((item) => item.status === filterStatus.value);
+      if (filterStatus.value !== 'all') {
+        items = items.filter(item => item.status === filterStatus.value);
       }
 
       return items;
@@ -546,14 +554,14 @@ export default {
       const isVisited = quickAddForm.value.status === 'visited';
       return {
         title: isVisited ? '记录足迹城市' : '添加心愿城市',
-        description: isVisited 
-          ? '记录你去过的城市，分享你的旅行回忆' 
+        description: isVisited
+          ? '记录你去过的城市，分享你的旅行回忆'
           : '选择你想去的城市，开启下一段旅程',
         reasonLabel: isVisited ? '旅行感受' : '想去的原因',
-        reasonPlaceholder: isVisited 
-          ? '分享一下你在这里的旅行感受...' 
+        reasonPlaceholder: isVisited
+          ? '分享一下你在这里的旅行感受...'
           : '分享一下你想去这里的理由...',
-        submitText: isVisited ? '添加到足迹' : '添加到心愿单'
+        submitText: isVisited ? '添加到足迹' : '添加到心愿单',
       };
     });
 
@@ -562,22 +570,28 @@ export default {
       if (mapDisplayMode.value === 'all') {
         return wishlistStore.wishlistItems;
       } else {
-        return wishlistStore.wishlistItems.filter(item => item.status === mapDisplayMode.value);
+        return wishlistStore.wishlistItems.filter(
+          item => item.status === mapDisplayMode.value
+        );
       }
     });
 
     // 去过的城市
     const visitedCities = computed(() => {
-      return wishlistStore.wishlistItems.filter(item => item.status === 'visited');
+      return wishlistStore.wishlistItems.filter(
+        item => item.status === 'visited'
+      );
     });
 
     // 想去的城市
     const wishlistCities = computed(() => {
-      return wishlistStore.wishlistItems.filter(item => item.status === 'wishlist');
+      return wishlistStore.wishlistItems.filter(
+        item => item.status === 'wishlist'
+      );
     });
 
     // 地图-卡片联动事件
-    const handleCardClick = (item) => {
+    const handleCardClick = item => {
       // 点击卡片时在地图上高亮对应城市
       highlightedCity.value = item.cityName;
       setTimeout(() => {
@@ -586,19 +600,19 @@ export default {
     };
 
     const handleCardHover = ({ item, type }) => {
-      if (type === "enter") {
+      if (type === 'enter') {
         highlightedCity.value = item.cityName;
       } else {
         highlightedCity.value = null;
       }
     };
 
-    const handleMapCityClick = (cityData) => {
+    const handleMapCityClick = cityData => {
       // 点击地图城市时，可以显示详情或跳转
       ElMessage.success(`点击了${cityData.cityName}`);
     };
 
-    const handleMapClick = (mapData) => {
+    const handleMapClick = mapData => {
       // 点击地图空白区域，显示添加城市对话框
       if (mapData.provinceName) {
         ElMessage.info(`点击了${mapData.provinceName}，可以添加该省份的城市`);
@@ -606,7 +620,7 @@ export default {
       }
     };
 
-    const handleMapRightClick = (mapData) => {
+    const handleMapRightClick = mapData => {
       // 右键点击地图，快速添加菜单
       if (mapData.provinceName) {
         ElMessage.info(`右键点击${mapData.provinceName}，快速添加功能`);
@@ -619,7 +633,7 @@ export default {
     };
 
     // 处理卡片事件
-    const handleRemove = async (wishlistId) => {
+    const handleRemove = async wishlistId => {
       await wishlistStore.removeFromWishlist(wishlistId);
     };
 
@@ -627,15 +641,15 @@ export default {
       await wishlistStore.updateWishlistItem(id, updateData);
     };
 
-    const handleViewWeather = (city) => {
+    const handleViewWeather = city => {
       wishlistStore.setCurrentWeatherCity(city);
       handleWeatherCityChange(city);
       ElMessage.success(`已切换到 ${city.cityName} 的天气预览`);
     };
 
-    const handlePlanTrip = (city) => {
+    const handlePlanTrip = city => {
       router.push({
-        path: "/trip/create",
+        path: '/trip/create',
         query: {
           city: city.cityCode,
           cityName: encodeURIComponent(city.cityName),
@@ -644,40 +658,40 @@ export default {
     };
 
     // 足迹分享和成就功能
-    const handleShareFootprint = async (stats) => {
+    const handleShareFootprint = async stats => {
       try {
         // 这里实现分享功能，可以生成图片或分享链接
-        ElMessage.success("正在生成足迹分享图片...");
+        ElMessage.success('正在生成足迹分享图片...');
         // TODO: 实现实际的分享功能
       } catch (error) {
-        console.error("分享失败:", error);
-        ElMessage.error("分享失败，请重试");
+        console.error('分享失败:', error);
+        ElMessage.error('分享失败，请重试');
       }
     };
 
     const handleViewAchievements = () => {
       // 显示全部成就页面或弹窗
-      ElMessage.info("成就系统开发中...");
+      ElMessage.info('成就系统开发中...');
     };
 
     // 城市数据加载 - 只加载热门城市
     const loadCityData = async () => {
       try {
-        const response = await fetch("/data/city-codes.json");
+        const response = await fetch('/data/city-codes.json');
         if (!response.ok) {
           throw new Error(`加载城市数据失败: ${response.status}`);
         }
         const cityData = await response.json();
 
         // 过滤市级城市（5位数adcode，且不含区县）
-        const cities = cityData.filter((city) => {
+        const cities = cityData.filter(city => {
           const adcode = parseInt(city.adcode);
           return (
             adcode >= 100000 &&
             adcode < 1000000 &&
-            city.adcode.toString().endsWith("00") &&
-            !city.中文名.includes("区") &&
-            !city.中文名.includes("县")
+            city.adcode.toString().endsWith('00') &&
+            !city.中文名.includes('区') &&
+            !city.中文名.includes('县')
           );
         });
 
@@ -685,38 +699,38 @@ export default {
 
         // 扩展热门城市列表
         const hotCityNames = [
-          "北京市",
-          "上海市",
-          "广州市",
-          "深圳市",
-          "杭州市",
-          "南京市",
-          "成都市",
-          "西安市",
-          "重庆市",
-          "天津市",
-          "苏州市",
-          "武汉市",
-          "厦门市",
-          "青岛市",
-          "大连市",
-          "三亚市",
-          "丽江市",
-          "桂林市",
-          "拉萨市",
-          "乌鲁木齐市",
+          '北京市',
+          '上海市',
+          '广州市',
+          '深圳市',
+          '杭州市',
+          '南京市',
+          '成都市',
+          '西安市',
+          '重庆市',
+          '天津市',
+          '苏州市',
+          '武汉市',
+          '厦门市',
+          '青岛市',
+          '大连市',
+          '三亚市',
+          '丽江市',
+          '桂林市',
+          '拉萨市',
+          '乌鲁木齐市',
         ];
-        hotCities.value = cities.filter((city) =>
+        hotCities.value = cities.filter(city =>
           hotCityNames.includes(city.中文名)
         );
       } catch (error) {
-        console.error("加载城市数据失败:", error);
-        ElMessage.error("加载城市数据失败");
+        console.error('加载城市数据失败:', error);
+        ElMessage.error('加载城市数据失败');
       }
     };
 
     // 城市搜索
-    const searchCities = debounce((keyword) => {
+    const searchCities = debounce(keyword => {
       searchKeyword.value = keyword;
       if (!keyword || keyword.length < 1) {
         searchResults.value = allCities.value.slice(0, 20);
@@ -727,7 +741,7 @@ export default {
 
       try {
         const filtered = allCities.value
-          .filter((city) => {
+          .filter(city => {
             // 中文名匹配
             if (city.中文名.includes(keyword)) return true;
 
@@ -736,12 +750,12 @@ export default {
               style: pinyin.STYLE_NORMAL,
             })
               .flat()
-              .join("");
+              .join('');
             const pinyinFirst = pinyin(city.中文名, {
               style: pinyin.STYLE_FIRST_LETTER,
             })
               .flat()
-              .join("");
+              .join('');
 
             return (
               pinyinStr.toLowerCase().includes(keyword.toLowerCase()) ||
@@ -752,7 +766,7 @@ export default {
 
         searchResults.value = filtered;
       } catch (error) {
-        console.error("城市搜索失败:", error);
+        console.error('城市搜索失败:', error);
         searchResults.value = [];
       } finally {
         searchLoading.value = false;
@@ -760,9 +774,9 @@ export default {
     }, 300);
 
     // 处理城市选择
-    const handleCitySelect = (cityAdcode) => {
+    const handleCitySelect = cityAdcode => {
       const selectedCity = allCities.value.find(
-        (city) => city.adcode === cityAdcode
+        city => city.adcode === cityAdcode
       );
       if (selectedCity) {
         quickAddForm.value.cityName = selectedCity.中文名;
@@ -772,7 +786,7 @@ export default {
     };
 
     // 切换标签选择
-    const toggleTag = (tagName) => {
+    const toggleTag = tagName => {
       const index = quickAddForm.value.selectedTags.indexOf(tagName);
       if (index > -1) {
         quickAddForm.value.selectedTags.splice(index, 1);
@@ -782,23 +796,23 @@ export default {
     };
 
     // 处理天气城市变更（传递给父级路由）
-    const handleWeatherCityChange = (city) => {
+    const handleWeatherCityChange = city => {
       // 可以通过 router 或 emit 传递给其他页面
-      console.log("Weather city changed:", city);
+      console.log('Weather city changed:', city);
     };
 
     // 快速添加城市
     const handleQuickAddSubmit = async () => {
       if (!quickAddForm.value.selectedCity) {
-        ElMessage.warning("请选择城市");
+        ElMessage.warning('请选择城市');
         return;
       }
 
       const selectedCity = allCities.value.find(
-        (city) => city.adcode === quickAddForm.value.selectedCity
+        city => city.adcode === quickAddForm.value.selectedCity
       );
       if (!selectedCity) {
-        ElMessage.warning("请选择有效的城市");
+        ElMessage.warning('请选择有效的城市');
         return;
       }
 
@@ -807,7 +821,7 @@ export default {
         const tags =
           quickAddForm.value.selectedTags.length > 0
             ? quickAddForm.value.selectedTags
-            : ["快速添加"];
+            : ['快速添加'];
 
         const success = await wishlistStore.addToWishlist({
           cityCode: selectedCity.citycode || selectedCity.adcode.toString(),
@@ -821,14 +835,14 @@ export default {
           handleQuickAddClose();
         }
       } catch (error) {
-        console.error("快速添加失败:", error);
+        console.error('快速添加失败:', error);
       } finally {
         quickAdding.value = false;
       }
     };
 
     // 处理类型选择
-    const handleAddTypeSelection = (type) => {
+    const handleAddTypeSelection = type => {
       selectedAddType.value = type;
       quickAddForm.value.status = type;
       showTypeSelection.value = false;
@@ -846,20 +860,20 @@ export default {
       quickAddForm.value = {
         selectedCity: null,
         selectedTags: [],
-        reason: "",
-        status: "wishlist",
+        reason: '',
+        status: 'wishlist',
       };
-      searchKeyword.value = "";
+      searchKeyword.value = '';
       searchResults.value = allCities.value.slice(0, 20);
     };
 
     // 照片事件处理
-    const handlePhotoUploaded = async (city) => {
+    const handlePhotoUploaded = async city => {
       ElMessage.success(`${city.cityName} 的照片上传成功！`);
       // 可以在这里执行额外的逻辑，如刷新数据等
     };
 
-    const handlePhotoDeleted = async (photo) => {
+    const handlePhotoDeleted = async photo => {
       ElMessage.success('照片删除成功');
       // 可以在这里执行额外的逻辑，如刷新数据等
     };
@@ -867,7 +881,7 @@ export default {
     // 地图相关功能
     const handleFullscreenMap = () => {
       // 全屏查看地图功能
-      ElMessage.info("全屏地图功能开发中...");
+      ElMessage.info('全屏地图功能开发中...');
     };
 
     // 页面初始化

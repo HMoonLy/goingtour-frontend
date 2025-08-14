@@ -21,15 +21,13 @@
 
     <!-- 继续未完成的行程 -->
     <section v-if="hasProgress" class="progress-section">
-      <el-card class="progress-card"
-shadow="hover">
+      <el-card class="progress-card" shadow="hover">
         <div class="progress-content">
           <div class="progress-texts">
             <h4>继续未完成的行程</h4>
             <p class="progress-desc">
-              <el-tag size="small"
-type="info" effect="plain">
-                {{ progressSummary.destination || "无" }}
+              <el-tag size="small" type="info" effect="plain">
+                {{ progressSummary.destination || '无' }}
               </el-tag>
               <span class="dot" />
               <span>{{ progressSummary.stepName }}</span>
@@ -38,10 +36,8 @@ type="info" effect="plain">
             </p>
           </div>
           <div class="progress-actions">
-            <el-button
-type="primary" @click="resumeProgress"> 继续 </el-button>
-            <el-button type="danger"
-plain @click="discardProgress">
+            <el-button type="primary" @click="resumeProgress"> 继续 </el-button>
+            <el-button type="danger" plain @click="discardProgress">
               舍弃
             </el-button>
           </div>
@@ -83,8 +79,7 @@ plain @click="discardProgress">
     </section>
 
     <!-- 最近行程 -->
-    <section v-if="recentTripsPreview.length > 0"
-class="recent-section">
+    <section v-if="recentTripsPreview.length > 0" class="recent-section">
       <div class="section-header">
         <h3 class="section-title">最近的行程</h3>
         <el-button
@@ -109,8 +104,7 @@ class="recent-section">
             <div class="trip-meta">
               <span>{{ trip.destinationName }}</span>
               <span>{{ trip.days }}天</span>
-              <el-tag v-if="trip.isDraft"
-type="warning" size="small">
+              <el-tag v-if="trip.isDraft" type="warning" size="small">
                 草稿
               </el-tag>
             </div>
@@ -131,9 +125,9 @@ type="warning" size="small">
 </template>
 
 <script>
-import { ref, computed, onMounted, onBeforeUnmount } from "vue";
-import { useRouter } from "vue-router";
-import { ElMessage, ElMessageBox } from "element-plus";
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   MapLocation,
   Calendar,
@@ -147,19 +141,19 @@ import {
   Refresh,
   Timer,
   ArrowRight,
-} from "@element-plus/icons-vue";
-import { useUserStore } from "@/store/user.js";
-import { useWishlistStore } from "@/store/wishlist.js";
-import { draftManager } from "@/utils/draftManager.js";
-import { useDraftStore } from "@/store/draft.js";
-import { convertBackendTripToFrontend } from "@/utils/tripDataConverter.js";
-import { handleApiError, handleSuccess } from "@/utils/errorHandler.js";
-import { aiScenarios } from "@/data/aiScenarios.js";
-import { weatherApi } from "@/api/weather.js";
-import WeatherSummary from "@/components/Common/Weather/WeatherSummary.vue";
+} from '@element-plus/icons-vue';
+import { useUserStore } from '@/store/user.js';
+import { useWishlistStore } from '@/store/wishlist.js';
+import { draftManager } from '@/utils/draftManager.js';
+import { useDraftStore } from '@/store/draft.js';
+import { convertBackendTripToFrontend } from '@/utils/tripDataConverter.js';
+import { handleApiError, handleSuccess } from '@/utils/errorHandler.js';
+import { aiScenarios } from '@/data/aiScenarios.js';
+import { weatherApi } from '@/api/weather.js';
+import WeatherSummary from '@/components/Common/Weather/WeatherSummary.vue';
 
 export default {
-  name: "HomeDashboard",
+  name: 'HomeDashboard',
   components: {
     MapLocation,
     Calendar,
@@ -204,40 +198,40 @@ export default {
     };
 
     // 删除草稿
-    const handleDeleteDraft = async (draftId) => {
+    const handleDeleteDraft = async draftId => {
       try {
         const draft = await draftManager.getDraft(draftId);
         if (!draft) return;
 
         await ElMessageBox.confirm(
           `确定要删除草稿"${draft.name}"吗？删除后无法恢复。`,
-          "删除草稿",
+          '删除草稿',
           {
-            confirmButtonText: "确定删除",
-            cancelButtonText: "取消",
-            type: "warning",
-          },
+            confirmButtonText: '确定删除',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }
         );
 
         const success = await draftManager.deleteDraft(draftId);
         if (success) {
-          ElMessage.success("草稿删除成功！");
+          ElMessage.success('草稿删除成功！');
           loadDrafts();
         } else {
-          ElMessage.error("草稿删除失败！");
+          ElMessage.error('草稿删除失败！');
         }
       } catch (error) {
-        if (error !== "cancel") {
-          console.error("删除草稿失败:", error);
-          ElMessage.error("草稿删除失败！");
+        if (error !== 'cancel') {
+          console.error('删除草稿失败:', error);
+          ElMessage.error('草稿删除失败！');
         }
       }
     };
 
     // 加载草稿
-    const handleLoadDraft = async (draftId) => {
+    const handleLoadDraft = async draftId => {
       try {
-        console.log("🔄 点击继续编辑，草稿ID:", draftId);
+        console.log('🔄 点击继续编辑，草稿ID:', draftId);
 
         const draftStore = useDraftStore();
 
@@ -245,51 +239,51 @@ export default {
         const success = await draftStore.loadDraft(draftId);
         if (success) {
           // 跳转到创建页面
-          router.push("/trip/create");
-          console.log("✅ 草稿已加载到store，跳转到创建页面");
+          router.push('/trip/create');
+          console.log('✅ 草稿已加载到store，跳转到创建页面');
         }
       } catch (error) {
-        console.error("❌ 加载草稿失败:", error);
-        ElMessage.error("加载草稿失败，请重试");
+        console.error('❌ 加载草稿失败:', error);
+        ElMessage.error('加载草稿失败，请重试');
       }
     };
 
     // 获取步骤名称
-    const getStepName = (step) => {
+    const getStepName = step => {
       return draftManager.getStepName(step);
     };
 
     // 获取相对时间
-    const getDraftTimeAgo = (timestamp) => {
+    const getDraftTimeAgo = timestamp => {
       return draftManager.getTimeAgo(new Date(timestamp));
     };
 
-    const goToCreate = () => router.push("/destinations");
+    const goToCreate = () => router.push('/destinations');
 
     // 跳转到目的地选择页面
-    const goToDestinations = () => router.push("/destinations");
+    const goToDestinations = () => router.push('/destinations');
 
     // 跳转到个人中心
-    const goToPersonalCenter = () => router.push("/personal");
+    const goToPersonalCenter = () => router.push('/personal');
     const resumeProgress = async () => {
       // 获取自动草稿并直接加载
       const autoDraft = await draftManager.getAutoDraft();
       if (autoDraft) {
         router.push(`/trip/create?loadDraft=${autoDraft.id}`);
       } else {
-        router.push("/trip/create");
+        router.push('/trip/create');
       }
     };
     const discardProgress = async () => {
       try {
         await ElMessageBox.confirm(
-          "确定要舍弃当前进度吗？此操作无法撤销。",
-          "警告",
+          '确定要舍弃当前进度吗？此操作无法撤销。',
+          '警告',
           {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning",
-          },
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }
         );
 
         // 删除自动草稿
@@ -300,7 +294,7 @@ export default {
 
         refreshProgress();
         loadDrafts(); // 重新加载草稿列表
-        ElMessage.success("操作成功！");
+        ElMessage.success('操作成功！');
       } catch {}
     };
 
@@ -310,7 +304,7 @@ export default {
           savedTrips.value = [];
           return;
         }
-        const { tripApi } = await import("@/api/trip.js");
+        const { tripApi } = await import('@/api/trip.js');
         const response = await tripApi.getUserTrips(userStore.currentUser.id);
         if (response.data) {
           savedTrips.value = response.data.map(convertBackendTripToFrontend);
@@ -318,12 +312,12 @@ export default {
           savedTrips.value = [];
         }
       } catch (error) {
-        handleApiError(error, "加载行程数据失败", {
+        handleApiError(error, '加载行程数据失败', {
           showNotification: false,
           logError: true,
         });
         try {
-          const trips = localStorage.getItem("savedTrips");
+          const trips = localStorage.getItem('savedTrips');
           savedTrips.value = trips
             ? JSON.parse(trips).map(convertBackendTripToFrontend)
             : [];
@@ -339,7 +333,7 @@ export default {
       list.sort(
         (a, b) =>
           new Date(b.updatedAt || b.createdAt || 0) -
-          new Date(a.updatedAt || a.createdAt || 0),
+          new Date(a.updatedAt || a.createdAt || 0)
       );
       return list.slice(0, 8);
     });
@@ -348,12 +342,12 @@ export default {
     const recentTripsPreview = computed(() => {
       const allTrips = [
         ...savedTrips.value,
-        ...drafts.value.map((draft) => ({
+        ...drafts.value.map(draft => ({
           id: draft.id,
           title: draft.name,
-          destinationName: draft.baseForm?.destinationName || "未知目的地",
+          destinationName: draft.baseForm?.destinationName || '未知目的地',
           days: draft.baseForm?.days || 0,
-          status: "draft",
+          status: 'draft',
           createdAt: draft.createdAt,
           updatedAt: draft.updatedAt,
           currentStep: draft.currentStep,
@@ -366,12 +360,12 @@ export default {
       allTrips.sort(
         (a, b) =>
           new Date(b.updatedAt || b.createdAt || 0) -
-          new Date(a.updatedAt || a.createdAt || 0),
+          new Date(a.updatedAt || a.createdAt || 0)
       );
       return allTrips.slice(0, 3);
     });
 
-    const viewTripDetail = (trip) => {
+    const viewTripDetail = trip => {
       try {
         // 如果是草稿，直接加载草稿
         if (trip.isDraft) {
@@ -381,35 +375,35 @@ export default {
 
         if (trip.aiGenerated) {
           router.push({
-            name: "AiTripEdit",
+            name: 'AiTripEdit',
             params: { id: trip.id },
-            query: { readonly: "true" },
+            query: { readonly: 'true' },
           });
         } else {
-          router.push({ name: "TripDetail", params: { id: trip.id } });
+          router.push({ name: 'TripDetail', params: { id: trip.id } });
         }
       } catch {
-        ElMessage.error("跳转失败，请重试");
+        ElMessage.error('跳转失败，请重试');
       }
     };
 
-    const editTrip = (trip) => {
+    const editTrip = trip => {
       try {
         if (trip.aiGenerated) {
-          router.push({ name: "AiTripEdit", params: { id: trip.id } });
+          router.push({ name: 'AiTripEdit', params: { id: trip.id } });
         } else {
           router.push({
-            name: "TripDetail",
+            name: 'TripDetail',
             params: { id: trip.id },
-            query: { edit: "true" },
+            query: { edit: 'true' },
           });
         }
       } catch {
-        ElMessage.error("跳转失败，请重试");
+        ElMessage.error('跳转失败，请重试');
       }
     };
 
-    const deleteTrip = async (trip) => {
+    const deleteTrip = async trip => {
       try {
         // 检查是否是草稿
         if (trip.isDraft) {
@@ -420,25 +414,25 @@ export default {
 
         // 这是一个真实行程，调用后端API
         await ElMessageBox.confirm(
-          "确定要删除这个行程吗？删除后无法恢复。",
-          "删除行程",
+          '确定要删除这个行程吗？删除后无法恢复。',
+          '删除行程',
           {
-            confirmButtonText: "删除",
-            cancelButtonText: "取消",
-            type: "warning",
-          },
+            confirmButtonText: '删除',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }
         );
         if (!userStore.currentUser?.id) {
-          ElMessage.error("请先登录");
+          ElMessage.error('请先登录');
           return;
         }
-        const { tripApi } = await import("@/api/trip.js");
+        const { tripApi } = await import('@/api/trip.js');
         await tripApi.deleteTrip(trip.id, userStore.currentUser.id);
         await loadSavedTrips();
-        handleSuccess("行程删除成功！");
+        handleSuccess('行程删除成功！');
       } catch (error) {
-        if (error === "cancel") return;
-        handleApiError(error, "删除行程失败");
+        if (error === 'cancel') return;
+        handleApiError(error, '删除行程失败');
       }
     };
 
@@ -446,7 +440,7 @@ export default {
     const loadWeatherForCity = async (
       cityName,
       cityCode = null,
-      fromWishlist = false,
+      fromWishlist = false
     ) => {
       if (!cityName) return;
 
@@ -457,7 +451,7 @@ export default {
         const ws = await weatherApi.getWeatherSuggestions(
           cityCode || cityName,
           new Date(),
-          3,
+          3
         );
         weather.value = ws;
       } catch (e) {
@@ -492,7 +486,7 @@ export default {
         await loadWeatherForCity(
           randomCity.cityName,
           randomCity.cityCode,
-          true,
+          true
         );
         wishlistStore.setCurrentWeatherCity(randomCity);
         ElMessage.success(`已切换到 ${randomCity.cityName} 的天气`);
@@ -500,7 +494,7 @@ export default {
     };
 
     // 处理愿望清单天气城市变更
-    const handleWeatherCityChange = async (city) => {
+    const handleWeatherCityChange = async city => {
       await loadWeatherForCity(city.cityName, city.cityCode, true);
     };
 
@@ -513,11 +507,11 @@ export default {
           autoRefreshTimer.value = null;
         }
         autoRefreshEnabled.value = false;
-        ElMessage.info("天气自动轮播已停止");
+        ElMessage.info('天气自动轮播已停止');
       } else {
         // 开始自动刷新
         if (!wishlistStore.hasCities) {
-          ElMessage.warning("愿望清单为空，无法开启自动轮播");
+          ElMessage.warning('愿望清单为空，无法开启自动轮播');
           return;
         }
 
@@ -526,14 +520,14 @@ export default {
           refreshWeatherFromWishlist();
         }, 30000); // 30秒切换一次
 
-        ElMessage.success("天气自动轮播已开启，每30秒切换一次");
+        ElMessage.success('天气自动轮播已开启，每30秒切换一次');
       }
     };
 
     onMounted(async () => {
       // 登录校验与数据加载
       if (!userStore.isLoggedIn) {
-        router.push("/login");
+        router.push('/login');
         return;
       }
 
@@ -551,7 +545,7 @@ export default {
           await loadWeatherForCity(
             randomCity.cityName,
             randomCity.cityCode,
-            true,
+            true
           );
           wishlistStore.setCurrentWeatherCity(randomCity);
         }
@@ -570,14 +564,14 @@ export default {
     });
 
     // 应用模板/场景：通过 query 传递预填信息到创建页
-    const applyScenario = (sc) => {
+    const applyScenario = sc => {
       const preset = encodeURIComponent(
-        JSON.stringify({ type: "scenario", id: sc.id }),
+        JSON.stringify({ type: 'scenario', id: sc.id })
       );
       // 若场景自带城市，则直达创建页；否则先选目的地
       if (sc.city && sc.city.adcode && sc.city.name) {
         router.push({
-          path: "/trip/create",
+          path: '/trip/create',
           query: {
             preset,
             city: sc.city.adcode,
@@ -585,7 +579,7 @@ export default {
           },
         });
       } else {
-        router.push({ path: "/destinations", query: { preset } });
+        router.push({ path: '/destinations', query: { preset } });
       }
     };
 
@@ -1257,7 +1251,7 @@ export default {
 }
 
 /* 自动草稿特殊样式 */
-.trip-card[data-auto-draft="true"] {
+.trip-card[data-auto-draft='true'] {
   border: 2px dashed rgba(247, 202, 201, 0.4) !important;
   background: rgba(247, 202, 201, 0.02) !important;
 }

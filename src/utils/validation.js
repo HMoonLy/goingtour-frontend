@@ -31,21 +31,21 @@ export function validateEmail(email) {
 export function validatePassword(password) {
   const result = {
     valid: false,
-    strength: "weak",
+    strength: 'weak',
     errors: [],
   };
 
   if (!password) {
-    result.errors.push("密码不能为空");
+    result.errors.push('密码不能为空');
     return result;
   }
 
   if (password.length < 6) {
-    result.errors.push("密码至少6位");
+    result.errors.push('密码至少6位');
   }
 
   if (password.length > 20) {
-    result.errors.push("密码不能超过20位");
+    result.errors.push('密码不能超过20位');
   }
 
   // 计算强度
@@ -56,8 +56,8 @@ export function validatePassword(password) {
   if (/\d/.test(password)) score += 1;
   if (/[^a-zA-Z0-9]/.test(password)) score += 1;
 
-  if (score >= 4) result.strength = "strong";
-  else if (score >= 2) result.strength = "medium";
+  if (score >= 4) result.strength = 'strong';
+  else if (score >= 2) result.strength = 'medium';
 
   result.valid = result.errors.length === 0;
   return result;
@@ -84,23 +84,23 @@ export function validateNickname(nickname) {
   };
 
   if (!nickname || !nickname.trim()) {
-    result.errors.push("昵称不能为空");
+    result.errors.push('昵称不能为空');
     return result;
   }
 
   const trimmedNickname = nickname.trim();
 
   if (trimmedNickname.length < 2) {
-    result.errors.push("昵称至少2个字符");
+    result.errors.push('昵称至少2个字符');
   }
 
   if (trimmedNickname.length > 20) {
-    result.errors.push("昵称不能超过20个字符");
+    result.errors.push('昵称不能超过20个字符');
   }
 
   // 检查特殊字符
   if (!/^[\u4e00-\u9fa5a-zA-Z0-9_-]+$/.test(trimmedNickname)) {
-    result.errors.push("昵称只能包含中文、英文、数字、下划线和连字符");
+    result.errors.push('昵称只能包含中文、英文、数字、下划线和连字符');
   }
 
   result.valid = result.errors.length === 0;
@@ -119,12 +119,12 @@ export function validateTripDays(days) {
   };
 
   if (!days || days <= 0) {
-    result.errors.push("行程天数必须大于0");
+    result.errors.push('行程天数必须大于0');
     return result;
   }
 
   if (days > 30) {
-    result.errors.push("行程天数不能超过30天");
+    result.errors.push('行程天数不能超过30天');
   }
 
   result.valid = result.errors.length === 0;
@@ -143,12 +143,12 @@ export function validateTravelers(travelers) {
   };
 
   if (!travelers || travelers <= 0) {
-    result.errors.push("出行人数必须大于0");
+    result.errors.push('出行人数必须大于0');
     return result;
   }
 
   if (travelers > 20) {
-    result.errors.push("出行人数不能超过20人");
+    result.errors.push('出行人数不能超过20人');
   }
 
   result.valid = result.errors.length === 0;
@@ -167,12 +167,12 @@ export function validateBudget(budget) {
   };
 
   if (!budget || budget <= 0) {
-    result.errors.push("预算必须大于0");
+    result.errors.push('预算必须大于0');
     return result;
   }
 
   if (budget > 1000000) {
-    result.errors.push("预算不能超过100万");
+    result.errors.push('预算不能超过100万');
   }
 
   result.valid = result.errors.length === 0;
@@ -192,7 +192,7 @@ export function validateDateRange(startDate, endDate) {
   };
 
   if (!startDate || !endDate) {
-    result.errors.push("请选择完整的日期范围");
+    result.errors.push('请选择完整的日期范围');
     return result;
   }
 
@@ -202,17 +202,17 @@ export function validateDateRange(startDate, endDate) {
   today.setHours(0, 0, 0, 0);
 
   if (start < today) {
-    result.errors.push("开始日期不能早于今天");
+    result.errors.push('开始日期不能早于今天');
   }
 
   if (end <= start) {
-    result.errors.push("结束日期必须晚于开始日期");
+    result.errors.push('结束日期必须晚于开始日期');
   }
 
   // 检查日期范围是否合理（不超过1年）
   const daysDiff = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
   if (daysDiff > 365) {
-    result.errors.push("行程时间不能超过1年");
+    result.errors.push('行程时间不能超过1年');
   }
 
   result.valid = result.errors.length === 0;
@@ -224,49 +224,49 @@ export function validateDateRange(startDate, endDate) {
  */
 export const formRules = {
   phone: [
-    { required: true, message: "请输入手机号", trigger: "blur" },
+    { required: true, message: '请输入手机号', trigger: 'blur' },
     {
       validator: (rule, value, callback) => {
         if (validatePhone(value)) {
           callback();
         } else {
-          callback(new Error("请输入正确的手机号"));
+          callback(new Error('请输入正确的手机号'));
         }
       },
-      trigger: "blur",
+      trigger: 'blur',
     },
   ],
 
   email: [
-    { required: true, message: "请输入邮箱地址", trigger: "blur" },
+    { required: true, message: '请输入邮箱地址', trigger: 'blur' },
     {
       validator: (rule, value, callback) => {
         if (validateEmail(value)) {
           callback();
         } else {
-          callback(new Error("请输入正确的邮箱格式"));
+          callback(new Error('请输入正确的邮箱格式'));
         }
       },
-      trigger: "blur",
+      trigger: 'blur',
     },
   ],
 
   verificationCode: [
-    { required: true, message: "请输入验证码", trigger: "blur" },
+    { required: true, message: '请输入验证码', trigger: 'blur' },
     {
       validator: (rule, value, callback) => {
         if (validateVerificationCode(value)) {
           callback();
         } else {
-          callback(new Error("请输入6位数字验证码"));
+          callback(new Error('请输入6位数字验证码'));
         }
       },
-      trigger: "blur",
+      trigger: 'blur',
     },
   ],
 
   nickname: [
-    { required: true, message: "请输入昵称", trigger: "blur" },
+    { required: true, message: '请输入昵称', trigger: 'blur' },
     {
       validator: (rule, value, callback) => {
         const result = validateNickname(value);
@@ -276,12 +276,12 @@ export const formRules = {
           callback(new Error(result.errors[0]));
         }
       },
-      trigger: "blur",
+      trigger: 'blur',
     },
   ],
 
   tripDays: [
-    { required: true, message: "请选择行程天数", trigger: "change" },
+    { required: true, message: '请选择行程天数', trigger: 'change' },
     {
       validator: (rule, value, callback) => {
         const result = validateTripDays(value);
@@ -291,12 +291,12 @@ export const formRules = {
           callback(new Error(result.errors[0]));
         }
       },
-      trigger: "change",
+      trigger: 'change',
     },
   ],
 
   travelers: [
-    { required: true, message: "请输入出行人数", trigger: "blur" },
+    { required: true, message: '请输入出行人数', trigger: 'blur' },
     {
       validator: (rule, value, callback) => {
         const result = validateTravelers(value);
@@ -306,12 +306,12 @@ export const formRules = {
           callback(new Error(result.errors[0]));
         }
       },
-      trigger: "blur",
+      trigger: 'blur',
     },
   ],
 
   budget: [
-    { required: true, message: "请输入预算", trigger: "blur" },
+    { required: true, message: '请输入预算', trigger: 'blur' },
     {
       validator: (rule, value, callback) => {
         const result = validateBudget(value);
@@ -321,7 +321,7 @@ export const formRules = {
           callback(new Error(result.errors[0]));
         }
       },
-      trigger: "blur",
+      trigger: 'blur',
     },
   ],
 };

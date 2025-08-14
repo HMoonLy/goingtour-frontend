@@ -1,10 +1,10 @@
 /**
  * 优化的心愿清单 Store - 减少重渲染，提升交互性能
  */
-import { defineStore } from "pinia";
-import { ref, computed, shallowRef } from "vue";
-import { wishlistApi } from "@/api/wishlist.js";
-import { ElMessage } from "element-plus";
+import { defineStore } from 'pinia';
+import { ref, computed, shallowRef } from 'vue';
+import { wishlistApi } from '@/api/wishlist.js';
+import { ElMessage } from 'element-plus';
 
 // 防抖工具函数
 const debounce = (fn, delay = 300) => {
@@ -16,7 +16,7 @@ const debounce = (fn, delay = 300) => {
 };
 
 export const useOptimizedWishlistStore = defineStore(
-  "optimizedWishlist",
+  'optimizedWishlist',
   () => {
     // 状态 - 使用 shallowRef 减少深度响应式监听
     const wishlistItems = shallowRef([]);
@@ -34,13 +34,13 @@ export const useOptimizedWishlistStore = defineStore(
     const wishlistCount = computed(() => wishlistItems.value.length);
     const hasCities = computed(() => wishlistCount.value > 0);
     const cityNames = computed(() =>
-      wishlistItems.value.map((item) => item.cityName),
+      wishlistItems.value.map(item => item.cityName)
     );
 
     // 更新城市编码映射
     const updateCityCodeMap = () => {
       const newMap = new Map();
-      wishlistItems.value.forEach((item) => {
+      wishlistItems.value.forEach(item => {
         newMap.set(item.cityCode, item);
       });
       cityCodeMap.value = newMap;
@@ -52,14 +52,14 @@ export const useOptimizedWishlistStore = defineStore(
     }, 150);
 
     // 乐观更新 - 立即更新UI，后台同步数据
-    const optimisticAdd = (cityData) => {
+    const optimisticAdd = cityData => {
       const tempId = `temp_${Date.now()}`;
       const newItem = {
         id: tempId,
         userId: cityData.userId,
         cityCode: cityData.cityCode,
         cityName: cityData.cityName,
-        reason: cityData.reason || "",
+        reason: cityData.reason || '',
         tags: cityData.tags || [],
         createdAt: new Date().toISOString(),
         _isOptimistic: true,
@@ -72,13 +72,13 @@ export const useOptimizedWishlistStore = defineStore(
       return tempId;
     };
 
-    const optimisticRemove = (cityCode) => {
+    const optimisticRemove = cityCode => {
       const item = cityCodeMap.value.get(cityCode);
       if (!item) return null;
 
       // 立即更新UI
       wishlistItems.value = wishlistItems.value.filter(
-        (i) => i.cityCode !== cityCode,
+        i => i.cityCode !== cityCode
       );
       updateCityCodeMap();
 
@@ -95,32 +95,32 @@ export const useOptimizedWishlistStore = defineStore(
 
       try {
         // 按类型分组操作
-        const addOps = operations.filter((op) => op.type === "add");
-        const removeOps = operations.filter((op) => op.type === "remove");
+        const addOps = operations.filter(op => op.type === 'add');
+        const removeOps = operations.filter(op => op.type === 'remove');
 
         // 并行处理同类型操作
         if (addOps.length > 0) {
-          await Promise.all(addOps.map((op) => processAddOperation(op)));
+          await Promise.all(addOps.map(op => processAddOperation(op)));
         }
 
         if (removeOps.length > 0) {
-          await Promise.all(removeOps.map((op) => processRemoveOperation(op)));
+          await Promise.all(removeOps.map(op => processRemoveOperation(op)));
         }
       } catch (error) {
-        console.error("批量操作失败:", error);
+        console.error('批量操作失败:', error);
       } finally {
         processingQueue.value = false;
       }
     };
 
-    const processAddOperation = async (operation) => {
+    const processAddOperation = async operation => {
       try {
         const response = await wishlistApi.addToWishlist(operation.data);
 
         if (response.data) {
           // 更新临时ID为真实ID
           const index = wishlistItems.value.findIndex(
-            (item) => item.id === operation.tempId,
+            item => item.id === operation.tempId
           );
           if (index !== -1) {
             wishlistItems.value[index] = {
@@ -133,12 +133,12 @@ export const useOptimizedWishlistStore = defineStore(
 
           operation.resolve(true);
         } else {
-          throw new Error("添加失败");
+          throw new Error('添加失败');
         }
       } catch (error) {
         // 撤销乐观更新
         wishlistItems.value = wishlistItems.value.filter(
-          (item) => item.id !== operation.tempId,
+          item => item.id !== operation.tempId
         );
         updateCityCodeMap();
 
@@ -146,11 +146,11 @@ export const useOptimizedWishlistStore = defineStore(
       }
     };
 
-    const processRemoveOperation = async (operation) => {
+    const processRemoveOperation = async operation => {
       try {
         await wishlistApi.removeFromWishlist(
           operation.wishlistId,
-          operation.userId,
+          operation.userId
         );
         operation.resolve(true);
       } catch (error) {
@@ -169,12 +169,12 @@ export const useOptimizedWishlistStore = defineStore(
      * 加载用户的愿望清单
      */
     const loadWishlist = async () => {
-      const { useUserStore } = await import("@/store/user.js");
+      const { useUserStore } = await import('@/store/user.js');
       const userStore = useUserStore();
       const userId = userStore.currentUser?.id;
 
       if (!userId) {
-        console.warn("用户未登录，无法加载愿望清单");
+        console.warn('用户未登录，无法加载愿望清单');
         return;
       }
 
@@ -184,12 +184,12 @@ export const useOptimizedWishlistStore = defineStore(
         wishlistItems.value = response.data || [];
         updateCityCodeMap();
         console.log(
-          "✅ 愿望清单加载成功:",
+          '✅ 愿望清单加载成功:',
           wishlistItems.value.length,
-          "个城市",
+          '个城市'
         );
       } catch (error) {
-        console.error("❌ 加载愿望清单失败:", error);
+        console.error('❌ 加载愿望清单失败:', error);
         wishlistItems.value = [];
         cityCodeMap.value.clear();
       } finally {
@@ -200,19 +200,19 @@ export const useOptimizedWishlistStore = defineStore(
     /**
      * 优化的添加到愿望清单
      */
-    const addToWishlist = async (cityData) => {
-      const { useUserStore } = await import("@/store/user.js");
+    const addToWishlist = async cityData => {
+      const { useUserStore } = await import('@/store/user.js');
       const userStore = useUserStore();
       const userId = userStore.currentUser?.id;
 
       if (!userId) {
-        debouncedMessage("warning", "请先登录");
+        debouncedMessage('warning', '请先登录');
         return false;
       }
 
       // 检查是否已存在
       if (isCityInWishlist(cityData.cityCode)) {
-        debouncedMessage("info", `${cityData.cityName} 已在愿望清单中`);
+        debouncedMessage('info', `${cityData.cityName} 已在愿望清单中`);
         return false;
       }
 
@@ -220,7 +220,7 @@ export const useOptimizedWishlistStore = defineStore(
         userId,
         cityCode: cityData.cityCode,
         cityName: cityData.cityName,
-        reason: cityData.reason || "",
+        reason: cityData.reason || '',
         tags: cityData.tags || [],
       };
 
@@ -230,21 +230,21 @@ export const useOptimizedWishlistStore = defineStore(
       return new Promise((resolve, reject) => {
         // 添加到队列
         operationQueue.value.push({
-          type: "add",
+          type: 'add',
           tempId,
           data: wishData,
-          resolve: (success) => {
+          resolve: success => {
             if (success) {
               debouncedMessage(
-                "success",
-                `已将 ${cityData.cityName} 添加到愿望清单`,
+                'success',
+                `已将 ${cityData.cityName} 添加到愿望清单`
               );
             }
             resolve(success);
           },
-          reject: (error) => {
-            console.error("❌ 添加到愿望清单失败:", error);
-            debouncedMessage("error", "添加失败，请重试");
+          reject: error => {
+            console.error('❌ 添加到愿望清单失败:', error);
+            debouncedMessage('error', '添加失败，请重试');
             reject(error);
           },
         });
@@ -257,15 +257,15 @@ export const useOptimizedWishlistStore = defineStore(
     /**
      * 优化的从愿望清单删除
      */
-    const removeFromWishlist = async (wishlistId) => {
-      const { useUserStore } = await import("@/store/user.js");
+    const removeFromWishlist = async wishlistId => {
+      const { useUserStore } = await import('@/store/user.js');
       const userStore = useUserStore();
       const userId = userStore.currentUser?.id;
 
       if (!userId) return false;
 
       const originalItem = wishlistItems.value.find(
-        (item) => item.id === wishlistId,
+        item => item.id === wishlistId
       );
       if (!originalItem) return false;
 
@@ -275,22 +275,22 @@ export const useOptimizedWishlistStore = defineStore(
       return new Promise((resolve, reject) => {
         // 添加到队列
         operationQueue.value.push({
-          type: "remove",
+          type: 'remove',
           wishlistId,
           userId,
           originalItem: removedItem,
-          resolve: (success) => {
+          resolve: success => {
             if (success) {
               debouncedMessage(
-                "success",
-                `已从愿望清单移除 ${originalItem.cityName}`,
+                'success',
+                `已从愿望清单移除 ${originalItem.cityName}`
               );
             }
             resolve(success);
           },
-          reject: (error) => {
-            console.error("❌ 从愿望清单删除失败:", error);
-            debouncedMessage("error", "删除失败，请重试");
+          reject: error => {
+            console.error('❌ 从愿望清单删除失败:', error);
+            debouncedMessage('error', '删除失败，请重试');
             reject(error);
           },
         });
@@ -303,21 +303,21 @@ export const useOptimizedWishlistStore = defineStore(
     /**
      * 优化的检查城市是否在愿望清单中
      */
-    const isCityInWishlist = (cityCode) => {
+    const isCityInWishlist = cityCode => {
       return cityCodeMap.value.has(cityCode);
     };
 
     /**
      * 根据城市编码获取愿望清单项
      */
-    const getWishlistItemByCityCode = (cityCode) => {
+    const getWishlistItemByCityCode = cityCode => {
       return cityCodeMap.value.get(cityCode) || null;
     };
 
     /**
      * 设置当前天气显示的城市
      */
-    const setCurrentWeatherCity = (city) => {
+    const setCurrentWeatherCity = city => {
       currentWeatherCity.value = city;
     };
 
@@ -351,5 +351,5 @@ export const useOptimizedWishlistStore = defineStore(
       setCurrentWeatherCity,
       clearWishlist,
     };
-  },
+  }
 );

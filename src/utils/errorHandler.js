@@ -1,7 +1,7 @@
 /**
  * 统一错误处理工具
  */
-import { ElMessage, ElNotification } from "element-plus";
+import { ElMessage, ElNotification } from 'element-plus';
 
 /**
  * API错误处理
@@ -11,8 +11,8 @@ import { ElMessage, ElNotification } from "element-plus";
  */
 export function handleApiError(
   error,
-  defaultMessage = "操作失败",
-  options = {},
+  defaultMessage = '操作失败',
+  options = {}
 ) {
   const {
     showNotification = false, // 是否显示通知而不是消息
@@ -21,11 +21,11 @@ export function handleApiError(
   } = options;
 
   let errorMessage = defaultMessage;
-  let errorCode = "UNKNOWN_ERROR";
+  let errorCode = 'UNKNOWN_ERROR';
 
   // 记录错误日志
   if (logError) {
-    console.error("API错误:", error);
+    console.error('API错误:', error);
   }
 
   // 解析错误信息
@@ -36,52 +36,52 @@ export function handleApiError(
 
     switch (status) {
       case 400:
-        errorMessage = data?.msg || "请求参数错误";
+        errorMessage = data?.msg || '请求参数错误';
         break;
       case 401:
-        errorMessage = "登录已过期，请重新登录";
+        errorMessage = '登录已过期，请重新登录';
         // 可以在这里处理登录跳转
         setTimeout(() => {
-          window.location.href = "/login";
+          window.location.href = '/login';
         }, 1000);
         break;
       case 403:
-        errorMessage = "没有权限执行此操作";
+        errorMessage = '没有权限执行此操作';
         break;
       case 404:
-        errorMessage = "请求的资源不存在";
+        errorMessage = '请求的资源不存在';
         break;
       case 422:
-        errorMessage = data?.msg || "数据验证失败";
+        errorMessage = data?.msg || '数据验证失败';
         break;
       case 429:
-        errorMessage = "请求过于频繁，请稍后重试";
+        errorMessage = '请求过于频繁，请稍后重试';
         break;
       case 500:
-        errorMessage = "服务器内部错误，请稍后重试";
+        errorMessage = '服务器内部错误，请稍后重试';
         break;
       case 502:
       case 503:
       case 504:
-        errorMessage = "服务暂时不可用，请稍后重试";
+        errorMessage = '服务暂时不可用，请稍后重试';
         break;
       default:
         errorMessage = data?.msg || `服务器错误 (${status})`;
     }
   } else if (error?.request) {
     // 网络错误
-    errorCode = "NETWORK_ERROR";
-    errorMessage = "网络连接失败，请检查网络";
+    errorCode = 'NETWORK_ERROR';
+    errorMessage = '网络连接失败，请检查网络';
   } else if (error?.message) {
     // 其他错误
     errorMessage = error.message;
-    errorCode = "CLIENT_ERROR";
+    errorCode = 'CLIENT_ERROR';
   }
 
   // 显示错误消息
   if (showNotification) {
     ElNotification.error({
-      title: "操作失败",
+      title: '操作失败',
       message: errorMessage,
       duration,
     });
@@ -106,14 +106,14 @@ export function handleApiError(
  */
 export function handleBusinessError(message, options = {}) {
   const {
-    type = "error", // error, warning, info
+    type = 'error', // error, warning, info
     showNotification = false,
     duration = 3000,
   } = options;
 
   if (showNotification) {
     ElNotification[type]({
-      title: type === "error" ? "操作失败" : "提示",
+      title: type === 'error' ? '操作失败' : '提示',
       message,
       duration,
     });
@@ -135,7 +135,7 @@ export function handleSuccess(message, options = {}) {
 
   if (showNotification) {
     ElNotification.success({
-      title: "操作成功",
+      title: '操作成功',
       message,
       duration,
     });
@@ -152,7 +152,7 @@ export function handleSuccess(message, options = {}) {
  * @param {Object} errors - 验证错误对象
  */
 export function handleValidationErrors(errors) {
-  if (!errors || typeof errors !== "object") {
+  if (!errors || typeof errors !== 'object') {
     return;
   }
 
@@ -160,7 +160,7 @@ export function handleValidationErrors(errors) {
   const firstError = Object.values(errors)[0];
   if (Array.isArray(firstError) && firstError.length > 0) {
     ElMessage.error(firstError[0]);
-  } else if (typeof firstError === "string") {
+  } else if (typeof firstError === 'string') {
     ElMessage.error(firstError);
   }
 }
@@ -173,8 +173,8 @@ export function handleValidationErrors(errors) {
  */
 export async function withErrorHandling(
   asyncFn,
-  errorMessage = "操作失败",
-  options = {},
+  errorMessage = '操作失败',
+  options = {}
 ) {
   try {
     const result = await asyncFn();

@@ -3,8 +3,7 @@
     <div class="not-found-content">
       <!-- 404图标 -->
       <div class="error-icon">
-        <el-icon size="120"
-color="#FB8C00">
+        <el-icon size="120" color="#FB8C00">
           <Warning />
         </el-icon>
       </div>
@@ -13,12 +12,12 @@ color="#FB8C00">
       <div class="error-info">
         <h1 class="error-code">404</h1>
         <h2 class="error-title">
-          {{ "页面不存在" }}
+          {{ '页面不存在' }}
         </h2>
         <p class="error-description">
-          {{ "抱歉，您访问的页面不存在或已被移除。" }}
+          {{ '抱歉，您访问的页面不存在或已被移除。' }}
           <br />
-          {{ "请检查网址是否正确，或返回首页继续浏览。" }}
+          {{ '请检查网址是否正确，或返回首页继续浏览。' }}
         </p>
       </div>
 
@@ -31,21 +30,19 @@ color="#FB8C00">
           @click="goHome"
         >
           <el-icon><House /></el-icon>
-          {{ "返回首页" }}
+          {{ '返回首页' }}
         </el-button>
 
-        <el-button size="large"
-@click="goBack" class="action-btn"
->
+        <el-button size="large" class="action-btn" @click="goBack">
           <el-icon><Back /></el-icon>
-          {{ "返回上页" }}
+          {{ '返回上页' }}
         </el-button>
       </div>
 
       <!-- 建议链接 -->
       <div class="suggestions">
         <p class="suggestions-title">
-          {{ "您可能在寻找：" }}
+          {{ '您可能在寻找：' }}
         </p>
         <div class="suggestions-links">
           <el-link
@@ -53,21 +50,21 @@ color="#FB8C00">
             :underline="false"
             @click="$router.push('/login')"
           >
-            {{ "登录" }}
+            {{ '登录' }}
           </el-link>
           <el-link
             type="primary"
             :underline="false"
             @click="$router.push('/destinations')"
           >
-            {{ "选择目的地" }}
+            {{ '选择目的地' }}
           </el-link>
           <el-link
             type="primary"
             :underline="false"
             @click="$router.push('/home')"
           >
-            {{ "首页" }}
+            {{ '首页' }}
           </el-link>
         </div>
       </div>
@@ -76,11 +73,11 @@ color="#FB8C00">
 </template>
 
 <script>
-import { useRouter } from "vue-router";
-import { Warning, House, Back } from "@element-plus/icons-vue";
+import { useRouter } from 'vue-router';
+import { Warning, House, Back } from '@element-plus/icons-vue';
 
 export default {
-  name: "NotFound",
+  name: 'NotFound',
   components: {
     Warning,
     House,
@@ -90,14 +87,14 @@ export default {
     const router = useRouter();
 
     const goHome = () => {
-      router.push("/");
+      router.push('/');
     };
 
     const goBack = () => {
       if (window.history.length > 1) {
         router.go(-1);
       } else {
-        router.push("/");
+        router.push('/');
       }
     };
 

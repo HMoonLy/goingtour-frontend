@@ -9,7 +9,7 @@ export class PerformanceMonitor {
   }
 
   // 开始性能测量
-  start(label = "default") {
+  start(label = 'default') {
     this.startTime = performance.now();
     this.label = label;
 
@@ -29,14 +29,14 @@ export class PerformanceMonitor {
     const duration = this.endTime - this.startTime;
 
     this.measurements.push({
-      label: this.label || "default",
+      label: this.label || 'default',
       duration,
       timestamp: Date.now(),
     });
 
     if (import.meta.env.DEV) {
       console.log(
-        `✅ [${this.name}] ${this.label} 完成: ${duration.toFixed(2)}ms`,
+        `✅ [${this.name}] ${this.label} 完成: ${duration.toFixed(2)}ms`
       );
     }
 
@@ -46,7 +46,7 @@ export class PerformanceMonitor {
 
   // 测量图片加载性能
   measureImageLoad(imageUrl) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const startTime = performance.now();
       const img = new Image();
 
@@ -66,7 +66,7 @@ export class PerformanceMonitor {
 
         if (import.meta.env.DEV) {
           console.log(
-            `🖼️ [${this.name}] 图片加载: ${loadTime.toFixed(2)}ms - ${imageUrl}`,
+            `🖼️ [${this.name}] 图片加载: ${loadTime.toFixed(2)}ms - ${imageUrl}`
           );
         }
 
@@ -85,7 +85,7 @@ export class PerformanceMonitor {
 
         if (import.meta.env.DEV) {
           console.warn(
-            `❌ [${this.name}] 图片加载失败: ${loadTime.toFixed(2)}ms - ${imageUrl}`,
+            `❌ [${this.name}] 图片加载失败: ${loadTime.toFixed(2)}ms - ${imageUrl}`
           );
         }
 
@@ -101,11 +101,11 @@ export class PerformanceMonitor {
   observePageRender() {
     if (!window.PerformanceObserver) return;
 
-    const observer = new PerformanceObserver((list) => {
+    const observer = new PerformanceObserver(list => {
       const entries = list.getEntries();
 
-      entries.forEach((entry) => {
-        if (entry.entryType === "paint") {
+      entries.forEach(entry => {
+        if (entry.entryType === 'paint') {
           this.measurements.push({
             label: `paint-${entry.name}`,
             duration: entry.startTime,
@@ -114,28 +114,28 @@ export class PerformanceMonitor {
 
           if (import.meta.env.DEV) {
             console.log(
-              `🎨 [${this.name}] ${entry.name}: ${entry.startTime.toFixed(2)}ms`,
+              `🎨 [${this.name}] ${entry.name}: ${entry.startTime.toFixed(2)}ms`
             );
           }
         }
 
-        if (entry.entryType === "largest-contentful-paint") {
+        if (entry.entryType === 'largest-contentful-paint') {
           this.measurements.push({
-            label: "lcp",
+            label: 'lcp',
             duration: entry.startTime,
             timestamp: Date.now(),
           });
 
           if (import.meta.env.DEV) {
             console.log(
-              `📊 [${this.name}] LCP: ${entry.startTime.toFixed(2)}ms`,
+              `📊 [${this.name}] LCP: ${entry.startTime.toFixed(2)}ms`
             );
           }
         }
       });
     });
 
-    observer.observe({ entryTypes: ["paint", "largest-contentful-paint"] });
+    observer.observe({ entryTypes: ['paint', 'largest-contentful-paint'] });
     this.observers.push(observer);
   }
 
@@ -150,7 +150,7 @@ export class PerformanceMonitor {
 
     // 按类型分组统计
     const groups = this.measurements.reduce((acc, measurement) => {
-      const type = measurement.label.split(":")[0] || measurement.label;
+      const type = measurement.label.split(':')[0] || measurement.label;
       if (!acc[type]) {
         acc[type] = [];
       }
@@ -159,7 +159,7 @@ export class PerformanceMonitor {
     }, {});
 
     // 计算统计信息
-    Object.keys(groups).forEach((type) => {
+    Object.keys(groups).forEach(type => {
       const durations = groups[type];
       const avg = durations.reduce((a, b) => a + b, 0) / durations.length;
       const min = Math.min(...durations);
@@ -178,7 +178,7 @@ export class PerformanceMonitor {
 
   // 清理观察者
   disconnect() {
-    this.observers.forEach((observer) => observer.disconnect());
+    this.observers.forEach(observer => observer.disconnect());
     this.observers = [];
   }
 
@@ -214,11 +214,11 @@ export class PerformanceMonitor {
 }
 
 // 创建全局性能监控实例
-export const pagePerformance = new PerformanceMonitor("页面性能");
-export const imagePerformance = new PerformanceMonitor("图片加载");
+export const pagePerformance = new PerformanceMonitor('页面性能');
+export const imagePerformance = new PerformanceMonitor('图片加载');
 
 // 工具函数：测量函数执行时间
-export function measureFunction(fn, name = "function") {
+export function measureFunction(fn, name = 'function') {
   return async function (...args) {
     const monitor = new PerformanceMonitor(name);
     monitor.start();
@@ -236,12 +236,12 @@ export function measureFunction(fn, name = "function") {
 
 // 工具函数：批量测量图片加载
 export async function measureImageBatch(imageUrls) {
-  const monitor = new PerformanceMonitor("批量图片加载");
+  const monitor = new PerformanceMonitor('批量图片加载');
   const results = [];
 
-  monitor.start("batch-start");
+  monitor.start('batch-start');
 
-  const promises = imageUrls.map(async (url) => {
+  const promises = imageUrls.map(async url => {
     const result = await monitor.measureImageLoad(url);
     results.push({ url, ...result });
     return result;
@@ -250,13 +250,13 @@ export async function measureImageBatch(imageUrls) {
   await Promise.all(promises);
   monitor.end();
 
-  const successCount = results.filter((r) => r.success).length;
+  const successCount = results.filter(r => r.success).length;
   const avgDuration =
     results.reduce((sum, r) => sum + r.duration, 0) / results.length;
 
   if (import.meta.env.DEV) {
     console.log(
-      `📸 批量图片加载完成: ${successCount}/${results.length} 成功, 平均耗时: ${avgDuration.toFixed(2)}ms`,
+      `📸 批量图片加载完成: ${successCount}/${results.length} 成功, 平均耗时: ${avgDuration.toFixed(2)}ms`
     );
   }
 

@@ -6,25 +6,19 @@
         <!-- Logo和品牌名 -->
         <div class="brand-header">
           <div class="brand-logo">
-            <el-icon
-size="60" color="#ffffff"
->
+            <el-icon size="60" color="#ffffff">
               <MapLocation />
             </el-icon>
           </div>
           <h1 class="brand-title">GoingTour</h1>
-          <p class="brand-subtitle">
-智能旅行规划专家
-</p>
+          <p class="brand-subtitle">智能旅行规划专家</p>
         </div>
 
         <!-- 产品特性展示 -->
         <div class="features">
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon
-size="32" color="#ffffff"
->
+              <el-icon size="32" color="#ffffff">
                 <Location />
               </el-icon>
             </div>
@@ -36,9 +30,7 @@ size="32" color="#ffffff"
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon
-size="32" color="#ffffff"
->
+              <el-icon size="32" color="#ffffff">
                 <DataAnalysis />
               </el-icon>
             </div>
@@ -50,9 +42,7 @@ size="32" color="#ffffff"
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon
-size="32" color="#ffffff"
->
+              <el-icon size="32" color="#ffffff">
                 <Share />
               </el-icon>
             </div>
@@ -75,12 +65,8 @@ size="32" color="#ffffff"
       <div class="form-container">
         <!-- 表单头部 -->
         <div class="form-header">
-          <h2 class="form-title">
-欢迎回来
-</h2>
-          <p class="form-subtitle">
-登录 - 智能旅行规划专家
-</p>
+          <h2 class="form-title">欢迎回来</h2>
+          <p class="form-subtitle">登录 - 智能旅行规划专家</p>
         </div>
 
         <!-- 登录表单 -->
@@ -93,9 +79,7 @@ size="32" color="#ffffff"
           @submit.prevent="handleLogin"
         >
           <!-- 邮箱输入 -->
-          <el-form-item
-prop="email" class="form-item"
->
+          <el-form-item prop="email" class="form-item">
             <label class="form-label">邮箱</label>
             <el-input
               v-model="loginForm.email"
@@ -111,9 +95,7 @@ prop="email" class="form-item"
           </el-form-item>
 
           <!-- 验证码输入 -->
-          <el-form-item
-prop="code" class="form-item"
->
+          <el-form-item prop="code" class="form-item">
             <label class="form-label">验证码</label>
             <div class="code-input-group">
               <el-input
@@ -138,7 +120,7 @@ prop="code" class="form-item"
                 plain
                 @click="sendVerificationCode"
               >
-                {{ countdown > 0 ? `${countdown}秒后重发` : "发送验证码" }}
+                {{ countdown > 0 ? `${countdown}秒后重发` : '发送验证码' }}
               </el-button>
             </div>
           </el-form-item>
@@ -155,14 +137,14 @@ prop="code" class="form-item"
               <el-icon v-if="!loggingIn">
                 <User />
               </el-icon>
-              {{ loggingIn ? "登录中..." : "登录" }}
+              {{ loggingIn ? '登录中...' : '登录' }}
             </el-button>
           </el-form-item>
 
           <!-- 其他登录方式 -->
           <div class="other-login">
             <el-divider>
-              <span class="divider-text">{{ "其他登录方式" }}</span>
+              <span class="divider-text">{{ '其他登录方式' }}</span>
             </el-divider>
 
             <div class="social-login">
@@ -209,16 +191,8 @@ prop="code" class="form-item"
         <div class="agreement">
           <p>
             登录即表示您同意我们的
-            <el-link type="primary"
-:underline="false"
->
-用户协议
-</el-link>
-            <el-link type="primary"
-:underline="false"
->
-隐私政策
-</el-link>
+            <el-link type="primary" :underline="false"> 用户协议 </el-link>
+            <el-link type="primary" :underline="false"> 隐私政策 </el-link>
           </p>
         </div>
       </div>
@@ -227,10 +201,10 @@ prop="code" class="form-item"
 </template>
 
 <script>
-import { ref, reactive, computed, onMounted, onUnmounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import { useUserStore } from "@/store/user";
-import { ElMessage } from "element-plus";
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useUserStore } from '@/store/user';
+import { ElMessage } from 'element-plus';
 import {
   MapLocation,
   Location,
@@ -240,12 +214,12 @@ import {
   Key,
   User,
   ChatDotRound,
-} from "@element-plus/icons-vue";
-import { formRules } from "@/utils/validation.js";
-import { handleApiError, handleSuccess } from "@/utils/errorHandler.js";
+} from '@element-plus/icons-vue';
+import { formRules } from '@/utils/validation.js';
+import { handleApiError, handleSuccess } from '@/utils/errorHandler.js';
 
 export default {
-  name: "Login",
+  name: 'Login',
   components: {
     MapLocation,
     Location,
@@ -266,8 +240,8 @@ export default {
 
     // 登录表单数据
     const loginForm = reactive({
-      email: "",
-      code: "",
+      email: '',
+      code: '',
     });
 
     // 状态管理
@@ -289,39 +263,39 @@ export default {
     });
 
     // 输入处理
-    const handleEmailInput = (value) => {
+    const handleEmailInput = value => {
       loginForm.email = value.trim().toLowerCase();
     };
 
-    const handleCodeInput = (value) => {
-      loginForm.code = value.replace(/\D/g, "");
+    const handleCodeInput = value => {
+      loginForm.code = value.replace(/\D/g, '');
     };
 
     // 发送验证码
     const sendVerificationCode = async () => {
       if (!canSendCode.value) {
-        ElMessage.warning("请输入正确的邮箱地址");
+        ElMessage.warning('请输入正确的邮箱地址');
         return;
       }
 
       try {
         sendingCode.value = true;
 
-        await userStore.sendVerificationCode(loginForm.email, "login");
+        await userStore.sendVerificationCode(loginForm.email, 'login');
 
-        ElMessage.success("验证码已发送");
+        ElMessage.success('验证码已发送');
 
         // 开始倒计时
         startCountdown(60);
       } catch (error) {
-        ElMessage.error(error.message || "操作失败");
+        ElMessage.error(error.message || '操作失败');
       } finally {
         sendingCode.value = false;
       }
     };
 
     // 倒计时功能
-    const startCountdown = (seconds) => {
+    const startCountdown = seconds => {
       countdown.value = seconds;
       countdownTimer = setInterval(() => {
         countdown.value--;
@@ -343,18 +317,18 @@ export default {
 
         const user = await userStore.login(loginForm.email, loginForm.code);
 
-        handleSuccess(`欢迎回来，${user.nickname || "用户"}！`, {
+        handleSuccess(`欢迎回来，${user.nickname || '用户'}！`, {
           showNotification: true,
         });
 
         const redirectPath =
           userStore.getAndClearRedirectPath() ||
           route.query.redirect ||
-          "/home";
+          '/home';
 
         await router.push(redirectPath);
       } catch (error) {
-        handleApiError(error, "操作失败");
+        handleApiError(error, '操作失败');
       } finally {
         loggingIn.value = false;
       }
@@ -362,23 +336,23 @@ export default {
 
     // 微信登录
     const handleWechatLogin = () => {
-      ElMessage.info("WeChat Login WIP");
+      ElMessage.info('WeChat Login WIP');
     };
 
     // QQ登录
     const handleQQLogin = () => {
-      ElMessage.info("QQ Login WIP");
+      ElMessage.info('QQ Login WIP');
     };
 
     // 跳转注册
     const goToRegister = () => {
-      router.push("/register");
+      router.push('/register');
     };
 
     // 组件挂载
     onMounted(() => {
       if (userStore.isLoggedIn) {
-        router.push("/home");
+        router.push('/home');
       }
     });
 
@@ -443,7 +417,7 @@ export default {
 }
 
 .login-brand::before {
-  content: "";
+  content: '';
   position: absolute;
   top: -50%;
   left: -50%;
@@ -587,7 +561,7 @@ export default {
 }
 
 .login-form-section::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -723,7 +697,7 @@ export default {
 }
 
 .login-btn::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: -100%;
@@ -780,7 +754,7 @@ export default {
 }
 
 .social-btn::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 50%;
   left: 50%;

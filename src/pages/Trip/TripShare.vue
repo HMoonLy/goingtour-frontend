@@ -6,9 +6,7 @@
     </div>
 
     <div class="coming-soon-card">
-      <el-icon size="64"
-color="#91A8D0"
->
+      <el-icon size="64" color="#91A8D0">
         <Share />
       </el-icon>
       <h3>功能开发中</h3>
@@ -20,17 +18,17 @@ color="#91A8D0"
         <li>生成分享链接</li>
       </ul>
       <p class="stay-tuned">
-        {{ "敏正关注，精彩即将在线！" }}
+        {{ '敏正关注，精彩即将在线！' }}
       </p>
     </div>
   </div>
 </template>
 
 <script>
-import { Share } from "@element-plus/icons-vue";
+import { Share } from '@element-plus/icons-vue';
 
 export default {
-  name: "TripShare",
+  name: 'TripShare',
   components: {
     Share,
   },

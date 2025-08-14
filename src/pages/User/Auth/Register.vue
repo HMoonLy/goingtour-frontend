@@ -6,25 +6,19 @@
         <!-- Logo和品牌名 -->
         <div class="brand-header">
           <div class="brand-logo">
-            <el-icon
-size="60" color="#ffffff"
->
+            <el-icon size="60" color="#ffffff">
               <MapLocation />
             </el-icon>
           </div>
           <h1 class="brand-title">GoingTour</h1>
-          <p class="brand-subtitle">
-智能旅行规划专家
-</p>
+          <p class="brand-subtitle">智能旅行规划专家</p>
         </div>
 
         <!-- 注册页面特有的展示内容 -->
         <div class="features">
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon
-size="32" color="#ffffff"
->
+              <el-icon size="32" color="#ffffff">
                 <UserFilled />
               </el-icon>
             </div>
@@ -36,9 +30,7 @@ size="32" color="#ffffff"
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon
-size="32" color="#ffffff"
->
+              <el-icon size="32" color="#ffffff">
                 <Setting />
               </el-icon>
             </div>
@@ -50,9 +42,7 @@ size="32" color="#ffffff"
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon
-size="32" color="#ffffff"
->
+              <el-icon size="32" color="#ffffff">
                 <Star />
               </el-icon>
             </div>
@@ -75,12 +65,8 @@ size="32" color="#ffffff"
       <div class="form-container">
         <!-- 表单头部 -->
         <div class="form-header">
-          <h2 class="form-title">
-注册
-</h2>
-          <p class="form-subtitle">
-智能旅行规划专家
-</p>
+          <h2 class="form-title">注册</h2>
+          <p class="form-subtitle">智能旅行规划专家</p>
         </div>
 
         <!-- 注册表单 -->
@@ -93,9 +79,7 @@ size="32" color="#ffffff"
           @submit.prevent="handleRegister"
         >
           <!-- 邮箱输入 -->
-          <el-form-item
-prop="email" class="form-item"
->
+          <el-form-item prop="email" class="form-item">
             <label class="form-label">邮箱</label>
             <el-input
               v-model="registerForm.email"
@@ -111,9 +95,7 @@ prop="email" class="form-item"
           </el-form-item>
 
           <!-- 验证码输入 -->
-          <el-form-item
-prop="code" class="form-item code-form-item"
->
+          <el-form-item prop="code" class="form-item code-form-item">
             <label class="form-label">验证码</label>
             <div class="code-input-group">
               <el-input
@@ -138,16 +120,16 @@ prop="code" class="form-item code-form-item"
                 plain
                 @click="sendVerificationCode"
               >
-                {{ countdown > 0 ? `${countdown}秒后重发` : "发送验证码" }}
+                {{ countdown > 0 ? `${countdown}秒后重发` : '发送验证码' }}
               </el-button>
             </div>
           </el-form-item>
 
           <!-- 昵称输入（可选） -->
-          <el-form-item
-prop="nickname" class="form-item"
->
-            <label class="form-label">昵称 <span class="optional">(可选)</span></label>
+          <el-form-item prop="nickname" class="form-item">
+            <label class="form-label"
+              >昵称 <span class="optional">(可选)</span></label
+            >
             <el-input
               v-model="registerForm.nickname"
               :placeholder="昵称"
@@ -162,9 +144,7 @@ prop="nickname" class="form-item"
           </el-form-item>
 
           <!-- 用户协议确认 -->
-          <el-form-item
-prop="agreement" class="form-item agreement-item"
->
+          <el-form-item prop="agreement" class="form-item agreement-item">
             <el-checkbox
               v-model="registerForm.agreement"
               class="agreement-checkbox"
@@ -200,14 +180,14 @@ prop="agreement" class="form-item agreement-item"
               <el-icon v-if="!registering">
                 <UserFilled />
               </el-icon>
-              {{ registering ? "注册中..." : "注册" }}
+              {{ registering ? '注册中...' : '注册' }}
             </el-button>
           </el-form-item>
 
           <!-- 其他注册方式 -->
           <div class="other-register">
             <el-divider>
-              <span class="divider-text">{{ "其他注册方式" }}</span>
+              <span class="divider-text">{{ '其他注册方式' }}</span>
             </el-divider>
 
             <div class="social-register">
@@ -255,10 +235,10 @@ prop="agreement" class="form-item agreement-item"
 </template>
 
 <script>
-import { ref, reactive, computed, onMounted, onUnmounted } from "vue";
-import { useRouter } from "vue-router";
-import { useUserStore } from "@/store/user";
-import { ElMessage, ElNotification, ElMessageBox } from "element-plus";
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useUserStore } from '@/store/user';
+import { ElMessage, ElNotification, ElMessageBox } from 'element-plus';
 import {
   MapLocation,
   UserFilled,
@@ -268,10 +248,10 @@ import {
   Key,
   User,
   ChatDotRound,
-} from "@element-plus/icons-vue";
+} from '@element-plus/icons-vue';
 
 export default {
-  name: "Register",
+  name: 'Register',
   components: {
     MapLocation,
     UserFilled,
@@ -291,9 +271,9 @@ export default {
 
     // 注册表单数据
     const registerForm = reactive({
-      email: "",
-      code: "",
-      nickname: "",
+      email: '',
+      code: '',
+      nickname: '',
       agreement: false,
     });
 
@@ -306,39 +286,39 @@ export default {
     // 表单验证规则
     const registerRules = {
       email: [
-        { required: true, message: "请输入邮箱地址", trigger: "blur" },
+        { required: true, message: '请输入邮箱地址', trigger: 'blur' },
         {
-          type: "email",
-          message: "请输入正确的邮箱格式",
-          trigger: "blur",
+          type: 'email',
+          message: '请输入正确的邮箱格式',
+          trigger: 'blur',
         },
       ],
       code: [
-        { required: true, message: "请输入验证码", trigger: "blur" },
+        { required: true, message: '请输入验证码', trigger: 'blur' },
         {
           pattern: /^\d{6}$/,
-          message: "验证码必须是6位数字",
-          trigger: "blur",
+          message: '验证码必须是6位数字',
+          trigger: 'blur',
         },
       ],
       nickname: [
         {
           min: 2,
           max: 20,
-          message: "昵称长度应该在2-20个字符之间",
-          trigger: "blur",
+          message: '昵称长度应该在2-20个字符之间',
+          trigger: 'blur',
         },
       ],
       agreement: [
         {
           validator: (rule, value, callback) => {
             if (!value) {
-              callback(new Error("请先同意用户协议和隐私政策"));
+              callback(new Error('请先同意用户协议和隐私政策'));
             } else {
               callback();
             }
           },
-          trigger: "change",
+          trigger: 'change',
         },
       ],
     };
@@ -350,39 +330,39 @@ export default {
     });
 
     // 输入处理
-    const handleEmailInput = (value) => {
+    const handleEmailInput = value => {
       registerForm.email = value.trim().toLowerCase();
     };
 
-    const handleCodeInput = (value) => {
-      registerForm.code = value.replace(/\D/g, "");
+    const handleCodeInput = value => {
+      registerForm.code = value.replace(/\D/g, '');
     };
 
     // 发送验证码
     const sendVerificationCode = async () => {
       if (!canSendCode.value) {
-        ElMessage.warning("请输入正确的邮箱地址");
+        ElMessage.warning('请输入正确的邮箱地址');
         return;
       }
 
       try {
         sendingCode.value = true;
 
-        await userStore.sendVerificationCode(registerForm.email, "register");
+        await userStore.sendVerificationCode(registerForm.email, 'register');
 
-        ElMessage.success("验证码已发送");
+        ElMessage.success('验证码已发送');
 
         // 开始倒计时
         startCountdown(60);
       } catch (error) {
-        ElMessage.error(error.message || "操作失败");
+        ElMessage.error(error.message || '操作失败');
       } finally {
         sendingCode.value = false;
       }
     };
 
     // 倒计时功能
-    const startCountdown = (seconds) => {
+    const startCountdown = seconds => {
       countdown.value = seconds;
       countdownTimer = setInterval(() => {
         countdown.value--;
@@ -405,24 +385,24 @@ export default {
         const user = await userStore.register(
           registerForm.email,
           registerForm.code,
-          registerForm.nickname || undefined,
+          registerForm.nickname || undefined
         );
 
         ElNotification({
-          title: "注册成功",
+          title: '注册成功',
           message: `欢迎加入，${user.nickname}！`,
-          type: "success",
+          type: 'success',
           duration: 3000,
         });
-        ElMessage.success("注册成功");
+        ElMessage.success('注册成功');
 
         // 注册成功后自动登录并跳转
         setTimeout(() => {
-          router.push("/home");
+          router.push('/home');
         }, 1500);
       } catch (error) {
-        console.error("注册失败:", error);
-        ElMessage.error(error.message || "注册失败，请检查信息后重试");
+        console.error('注册失败:', error);
+        ElMessage.error(error.message || '注册失败，请检查信息后重试');
       } finally {
         registering.value = false;
       }
@@ -441,11 +421,11 @@ export default {
         <br>
         <p><small>完整协议内容请访问官网查看</small></p>
       `,
-        "用户协议",
+        '用户协议',
         {
-          confirmButtonText: "我知道了",
+          confirmButtonText: '我知道了',
           dangerouslyUseHTMLString: true,
-        },
+        }
       );
     };
 
@@ -462,33 +442,33 @@ export default {
         <br>
         <p><small>完整政策内容请访问官网查看</small></p>
       `,
-        "隐私政策",
+        '隐私政策',
         {
-          confirmButtonText: "我知道了",
+          confirmButtonText: '我知道了',
           dangerouslyUseHTMLString: true,
-        },
+        }
       );
     };
 
     // 微信注册
     const handleWechatRegister = () => {
-      ElMessage.info("微信注册功能开发中，敬请期待！");
+      ElMessage.info('微信注册功能开发中，敬请期待！');
     };
 
     // QQ注册
     const handleQQRegister = () => {
-      ElMessage.info("QQ注册功能开发中，敬请期待！");
+      ElMessage.info('QQ注册功能开发中，敬请期待！');
     };
 
     // 跳转登录
     const goToLogin = () => {
-      router.push("/login");
+      router.push('/login');
     };
 
     // 组件挂载
     onMounted(() => {
       if (userStore.isLoggedIn) {
-        router.push("/home");
+        router.push('/home');
       }
     });
 
@@ -553,7 +533,7 @@ export default {
 }
 
 .register-brand::before {
-  content: "";
+  content: '';
   position: absolute;
   top: -50%;
   left: -50%;
@@ -902,7 +882,7 @@ export default {
 }
 
 .social-btn::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 50%;
   left: 50%;

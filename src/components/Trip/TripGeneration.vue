@@ -1,8 +1,7 @@
 <template>
   <div class="step-content">
     <!-- AI提示词预览面板 -->
-    <el-card class="ai-prompt-card"
-shadow="hover">
+    <el-card class="ai-prompt-card" shadow="hover">
       <template #header>
         <div class="ai-prompt-header">
           <div class="header-left">
@@ -10,16 +9,13 @@ shadow="hover">
               <MagicStick />
             </el-icon>
             <span>AI提示词预览</span>
-            <el-tag size="small"
-:type="getPromptCompletionClass()">
+            <el-tag size="small" :type="getPromptCompletionClass()">
               {{ getPromptCompletionText() }}
             </el-tag>
           </div>
           <div class="header-right">
-            <el-tooltip content="查看完整提示词"
-placement="top">
-              <el-button type="info"
-link @click="showFullPrompt">
+            <el-tooltip content="查看完整提示词" placement="top">
+              <el-button type="info" link @click="showFullPrompt">
                 <el-icon><ViewIcon /></el-icon>
               </el-button>
             </el-tooltip>
@@ -30,8 +26,7 @@ link @click="showFullPrompt">
       <div class="ai-prompt-content">
         <div v-if="!generating && !generatedTrip">
           <div class="generation-intro">
-            <el-icon size="48"
-color="#91A8D0">
+            <el-icon size="48" color="#91A8D0">
               <MagicStick />
             </el-icon>
             <h3>准备生成您的个性化行程</h3>
@@ -60,9 +55,8 @@ color="#91A8D0">
                 }}</span
                 >。
               </div>
-              <div v-else
-class="prompt-placeholder">
-                {{ "请填写基本信息" }}
+              <div v-else class="prompt-placeholder">
+                {{ '请填写基本信息' }}
               </div>
             </div>
 
@@ -71,10 +65,9 @@ class="prompt-placeholder">
                 <el-icon><User /></el-icon>
                 <h4>个人偏好</h4>
               </div>
-              <div v-if="hasUserPreferences"
-class="prompt-text">
+              <div v-if="hasUserPreferences" class="prompt-text">
                 我的旅行偏好是<span class="highlight">{{
-                  selectedPreferenceTags.join("、")
+                  selectedPreferenceTags.join('、')
                 }}</span
                 >。
                 <template v-if="currentUserPreferences.accommodationType">
@@ -99,15 +92,14 @@ class="prompt-text">
                 >
                   饮食偏好<span class="highlight">{{
                     currentUserPreferences.foodTastes
-                      .map((taste) => tagMapping[taste] || taste)
-                      .join("、")
+                      .map(taste => tagMapping[taste] || taste)
+                      .join('、')
                   }}</span
                   >。
                 </template>
               </div>
-              <div v-else
-class="prompt-placeholder">
-                {{ "请在设置中配置您的偏好" }}
+              <div v-else class="prompt-placeholder">
+                {{ '请在设置中配置您的偏好' }}
               </div>
             </div>
 
@@ -175,9 +167,8 @@ class="prompt-placeholder">
                   }}</span>
                 </template>
               </div>
-              <div v-else
-class="prompt-placeholder">
-                {{ "请在上一步设置您的偏好" }}
+              <div v-else class="prompt-placeholder">
+                {{ '请在上一步设置您的偏好' }}
               </div>
             </div>
 
@@ -192,7 +183,7 @@ class="prompt-placeholder">
             >
               <div class="section-header">
                 <el-icon><Food /></el-icon>
-                <h4>{{ "饮食禁忌" }}</h4>
+                <h4>{{ '饮食禁忌' }}</h4>
               </div>
               <div class="prompt-text">
                 <span
@@ -203,7 +194,7 @@ class="prompt-placeholder">
                   class="highlight"
                   >{{
                     getDietaryRestrictionsText(
-                      preferenceForm.dietaryRestrictions,
+                      preferenceForm.dietaryRestrictions
                     )
                   }}</span
                 >
@@ -224,11 +215,10 @@ class="prompt-placeholder">
             </div>
 
             <!-- 天气建议部分 -->
-            <div v-if="weatherSuggestion"
-class="prompt-section">
+            <div v-if="weatherSuggestion" class="prompt-section">
               <div class="section-header">
                 <el-icon><Sunny /></el-icon>
-                <h4>{{ "天气建议" }}</h4>
+                <h4>{{ '天气建议' }}</h4>
                 <el-tag
                   v-if="weatherSuggestion.isHistorical"
                   size="small"
@@ -237,9 +227,8 @@ class="prompt-section">
                 >
                   {{ weatherSuggestion.dataSource }}
                 </el-tag>
-                <el-tag v-else
-size="small" type="success" effect="plain">
-                  {{ "高德天气API" }}
+                <el-tag v-else size="small" type="success" effect="plain">
+                  {{ '高德天气API' }}
                 </el-tag>
               </div>
               <div class="prompt-text">
@@ -307,7 +296,7 @@ size="small" type="success" effect="plain">
                           (weatherSuggestion.forecast?.length || 0)
                       "
                     >
-                      <p class="notice-title">🌤️ {{ "天气预报说明" }}</p>
+                      <p class="notice-title">🌤️ {{ '天气预报说明' }}</p>
                       <p>
                         您的<span class="highlight">{{ baseForm.days }}天</span
                         >行程中，我们仅能提供前<span class="highlight"
@@ -335,14 +324,14 @@ size="small" type="success" effect="plain">
                       </p>
                     </template>
                     <template v-else>
-                      <p class="notice-title">⚠️ {{ "天气预报说明" }}</p>
+                      <p class="notice-title">⚠️ {{ '天气预报说明' }}</p>
                       <p>
                         {{
-                          "由于您选择的出行日期与当前天气预报时间范围不匹配，无法提供准确的天气预报。"
+                          '由于您选择的出行日期与当前天气预报时间范围不匹配，无法提供准确的天气预报。'
                         }}
                       </p>
                       <p class="notice-suggestion">
-                        {{ "建议您在出行前关注目的地的实时天气预报。" }}
+                        {{ '建议您在出行前关注目的地的实时天气预报。' }}
                       </p>
                     </template>
                   </div>
@@ -355,9 +344,9 @@ size="small" type="success" effect="plain">
                   "
                 >
                   <p>
-                    {{ "适合安排"
+                    {{ '适合安排'
                     }}<span class="highlight">{{
-                      weatherSuggestion.activities.join("、")
+                      weatherSuggestion.activities.join('、')
                     }}</span
                     >等活动。
                   </p>
@@ -370,9 +359,9 @@ size="small" type="success" effect="plain">
                   "
                 >
                   <p>
-                    {{ "建议："
+                    {{ '建议：'
                     }}<span class="highlight">{{
-                      weatherSuggestion.tips.join("；")
+                      weatherSuggestion.tips.join('；')
                     }}</span
                     >。
                   </p>
@@ -385,9 +374,9 @@ size="small" type="success" effect="plain">
                   "
                 >
                   <p>
-                    {{ "注意事项："
+                    {{ '注意事项：'
                     }}<span class="highlight">{{
-                      weatherSuggestion.avoid.join("；")
+                      weatherSuggestion.avoid.join('；')
                     }}</span
                     >。
                   </p>
@@ -404,7 +393,7 @@ size="small" type="success" effect="plain">
                     <h5>
                       <el-icon><Calendar /></el-icon>
                       <template v-if="isDateWithinForecastRange()">
-                        {{ "具体天气预报" }}
+                        {{ '具体天气预报' }}
                       </template>
                       <template
                         v-else-if="
@@ -414,29 +403,28 @@ size="small" type="success" effect="plain">
                           baseForm.days > weatherSuggestion.forecast.length
                         "
                       >
-                        {{ "部分天气预报（前"
+                        {{ '部分天气预报（前'
                         }}{{ weatherSuggestion.forecast.length }}天）
                       </template>
                       <template v-else>
-                        {{ "参考天气预报" }}
+                        {{ '参考天气预报' }}
                       </template>
                       <el-tag
                         v-if="weatherSuggestion.isHistorical"
                         size="small"
                         type="info"
                       >
-                        {{ "历史气候模拟" }}
+                        {{ '历史气候模拟' }}
                       </el-tag>
-                      <el-tag v-else
-size="small" type="success">
-                        {{ "高德API实时预报" }}
+                      <el-tag v-else size="small" type="success">
+                        {{ '高德API实时预报' }}
                       </el-tag>
                       <el-tag
                         v-if="!isDateWithinForecastRange()"
                         size="small"
                         type="warning"
                       >
-                        {{ "日期超出范围" }}
+                        {{ '日期超出范围' }}
                       </el-tag>
                     </h5>
                     <div class="forecast-list">
@@ -506,60 +494,54 @@ size="small" type="success">
             </div>
 
             <!-- 天气加载状态 -->
-            <div v-else-if="loadingWeather"
-class="prompt-section">
+            <div v-else-if="loadingWeather" class="prompt-section">
               <div class="section-header">
                 <el-icon><Loading /></el-icon>
-                <h4>{{ "天气建议" }}</h4>
+                <h4>{{ '天气建议' }}</h4>
               </div>
               <div class="prompt-text loading-text">
-                {{ "正在加载天气信息..." }}
+                {{ '正在加载天气信息...' }}
               </div>
             </div>
 
             <!-- 天气错误状态 -->
-            <div v-else-if="weatherError"
-class="prompt-section">
+            <div v-else-if="weatherError" class="prompt-section">
               <div class="section-header">
                 <el-icon><Warning /></el-icon>
-                <h4>{{ "天气建议" }}</h4>
+                <h4>{{ '天气建议' }}</h4>
               </div>
               <div class="prompt-text error-text">
-                {{ "天气信息获取失败：" }} {{ weatherError }}
+                {{ '天气信息获取失败：' }} {{ weatherError }}
               </div>
             </div>
 
             <div class="prompt-section">
               <div class="section-header">
                 <el-icon><Location /></el-icon>
-                <h4>{{ "必去景点" }}</h4>
+                <h4>{{ '必去景点' }}</h4>
               </div>
-              <div v-if="selectedAttractions.length > 0"
-class="prompt-text">
-                {{ "必去景点" }}：<span class="highlight">{{
-                  selectedAttractions.map((a) => a.name).join("、")
+              <div v-if="selectedAttractions.length > 0" class="prompt-text">
+                {{ '必去景点' }}：<span class="highlight">{{
+                  selectedAttractions.map(a => a.name).join('、')
                 }}</span>
               </div>
-              <div v-else
-class="prompt-placeholder">
-                {{ "请选择您必须去的景点" }}
+              <div v-else class="prompt-placeholder">
+                {{ '请选择您必须去的景点' }}
               </div>
             </div>
 
             <div class="prompt-section">
               <div class="section-header">
                 <el-icon><Shop /></el-icon>
-                <h4>{{ "必吃美食" }}</h4>
+                <h4>{{ '必吃美食' }}</h4>
               </div>
-              <div v-if="selectedRestaurants.length > 0"
-class="prompt-text">
-                {{ "必吃美食" }}：<span class="highlight">{{
-                  selectedRestaurants.map((r) => r.name).join("、")
+              <div v-if="selectedRestaurants.length > 0" class="prompt-text">
+                {{ '必吃美食' }}：<span class="highlight">{{
+                  selectedRestaurants.map(r => r.name).join('、')
                 }}</span>
               </div>
-              <div v-else
-class="prompt-placeholder">
-                {{ "请选择您必须尝试的美食" }}
+              <div v-else class="prompt-placeholder">
+                {{ '请选择您必须尝试的美食' }}
               </div>
             </div>
           </div>
@@ -567,37 +549,36 @@ class="prompt-placeholder">
           <!-- 生成选项 -->
           <div class="generation-options">
             <div class="option-group">
-              <span class="option-label">{{ "生成格式" }}</span>
+              <span class="option-label">{{ '生成格式' }}</span>
               <el-radio-group
                 v-model="selectedGenerationStyle"
                 size="small"
                 class="inline-style-options"
               >
                 <el-radio value="table">
-                  <span class="style-name">{{ "表格式" }}</span>
-                  <span class="style-desc">{{ "清晰的时间表格" }}</span>
+                  <span class="style-name">{{ '表格式' }}</span>
+                  <span class="style-desc">{{ '清晰的时间表格' }}</span>
                 </el-radio>
                 <el-radio value="narrative">
-                  <span class="style-name">{{ "叙述式" }}</span>
-                  <span class="style-desc">{{ "详细的文字描述" }}</span>
+                  <span class="style-name">{{ '叙述式' }}</span>
+                  <span class="style-desc">{{ '详细的文字描述' }}</span>
                 </el-radio>
                 <el-radio value="card">
-                  <span class="style-name">{{ "卡片式" }}</span>
-                  <span class="style-desc">{{ "精美的卡片布局" }}</span>
+                  <span class="style-name">{{ '卡片式' }}</span>
+                  <span class="style-desc">{{ '精美的卡片布局' }}</span>
                 </el-radio>
                 <el-radio value="checklist">
-                  <span class="style-name">{{ "清单式" }}</span>
-                  <span class="style-desc">{{ "简洁的检查清单" }}</span>
+                  <span class="style-name">{{ '清单式' }}</span>
+                  <span class="style-desc">{{ '简洁的检查清单' }}</span>
                 </el-radio>
               </el-radio-group>
             </div>
           </div>
 
           <div class="prompt-actions">
-            <el-button type="success"
-size="large" @click="showFullPrompt">
+            <el-button type="success" size="large" @click="showFullPrompt">
               <el-icon><ViewIcon /></el-icon>
-              {{ "查看完整提示词" }}
+              {{ '查看完整提示词' }}
             </el-button>
             <el-button
               v-if="!generating"
@@ -607,19 +588,17 @@ size="large" @click="showFullPrompt">
               @click="generateTrip"
             >
               <el-icon><MagicStick /></el-icon>
-              {{ "生成行程" }}
+              {{ '生成行程' }}
             </el-button>
 
             <!-- 生成中的状态 -->
             <template v-else>
-              <el-button type="primary"
-size="large" loading disabled>
-                {{ "正在生成..." }}
+              <el-button type="primary" size="large" loading disabled>
+                {{ '正在生成...' }}
               </el-button>
-              <el-button type="danger"
-size="large" @click="cancelGeneration">
+              <el-button type="danger" size="large" @click="cancelGeneration">
                 <el-icon><Close /></el-icon>
-                {{ "取消" }}
+                {{ '取消' }}
               </el-button>
             </template>
           </div>
@@ -656,15 +635,13 @@ size="large" @click="cancelGeneration">
           />
         </div>
 
-        <div v-if="generating"
-class="generating">
+        <div v-if="generating" class="generating">
           <div class="generating-animation">
-            <el-icon size="80"
-color="#91A8D0" class="rotating">
+            <el-icon size="80" color="#91A8D0" class="rotating">
               <Loading />
             </el-icon>
             <div class="generating-content">
-              <h3>✨ {{ "AI正在为您工作..." }}</h3>
+              <h3>✨ {{ 'AI正在为您工作...' }}</h3>
               <p class="progress-text">
                 {{ generationProgress }}
               </p>
@@ -685,21 +662,18 @@ color="#91A8D0" class="rotating">
           </div>
         </div>
 
-        <div v-if="generatedTrip && !generating"
-class="generation-complete">
-          <el-icon size="48"
-color="#67C23A">
+        <div v-if="generatedTrip && !generating" class="generation-complete">
+          <el-icon size="48" color="#67C23A">
             <Check />
           </el-icon>
-          <h3>{{ "行程生成完成" }}</h3>
+          <h3>{{ '行程生成完成' }}</h3>
           <p>
             {{
               `已为您推荐${generatedTrip?.attractions?.length || 0}个景点和${generatedTrip?.restaurants?.length || 0}家餐厅`
             }}
           </p>
-          <el-button type="primary"
-size="large" @click="$emit('next-step')">
-            {{ "查看详情" }}
+          <el-button type="primary" size="large" @click="$emit('next-step')">
+            {{ '查看详情' }}
             <el-icon><ArrowRight /></el-icon>
           </el-button>
         </div>
@@ -707,13 +681,11 @@ size="large" @click="$emit('next-step')">
     </el-card>
 
     <!-- 步骤操作按钮 -->
-    <div v-if="!generating && !generatedTrip"
-class="step-actions">
+    <div v-if="!generating && !generatedTrip" class="step-actions">
       <div class="action-left">
-        <el-button size="large"
-@click="$emit('prev-step')">
+        <el-button size="large" @click="$emit('prev-step')">
           <el-icon><ArrowLeft /></el-icon>
-          {{ "上一步" }}
+          {{ '上一步' }}
         </el-button>
       </div>
       <div class="action-center">
@@ -744,16 +716,14 @@ class="step-actions">
     >
       <div class="full-prompt-content">
         <div class="prompt-stats">
-          <el-tag :type="getPromptCompletionClass()"
-size="large">
+          <el-tag :type="getPromptCompletionClass()" size="large">
             {{ getPromptCompletionText() }} ({{
               getPromptCompletionScore()
             }}/100)
           </el-tag>
-          <el-button type="primary"
-@click="copyPromptToClipboard">
+          <el-button type="primary" @click="copyPromptToClipboard">
             <el-icon><DocumentCopy /></el-icon>
-            {{ "复制提示词" }}
+            {{ '复制提示词' }}
           </el-button>
         </div>
         <div class="prompt-text-area">
@@ -763,11 +733,10 @@ size="large">
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="fullPromptVisible = false">
-            {{ "关闭" }}
+            {{ '关闭' }}
           </el-button>
-          <el-button type="primary"
-@click="copyPromptAndClose">
-            {{ "复制并关闭" }}
+          <el-button type="primary" @click="copyPromptAndClose">
+            {{ '复制并关闭' }}
           </el-button>
         </div>
       </template>
@@ -776,8 +745,8 @@ size="large">
 </template>
 
 <script>
-import { computed, onMounted, watch, nextTick, ref } from "vue";
-import { ElMessage } from "element-plus";
+import { computed, onMounted, watch, nextTick, ref } from 'vue';
+import { ElMessage } from 'element-plus';
 import {
   MapLocation,
   User,
@@ -795,7 +764,7 @@ import {
   View as ViewIcon,
   DocumentCopy,
   Document,
-} from "@element-plus/icons-vue";
+} from '@element-plus/icons-vue';
 import {
   tagMappingZh,
   tagMappingEn,
@@ -807,11 +776,11 @@ import {
   specialExperienceMapping,
   getBudgetText as getBudgetTextUtil,
   getCityName,
-} from "@/utils/tagMapping.js";
-import { useUserStore } from "@/store/user.js";
+} from '@/utils/tagMapping.js';
+import { useUserStore } from '@/store/user.js';
 
 export default {
-  name: "TripGeneration",
+  name: 'TripGeneration',
   components: {
     MapLocation,
     User,
@@ -859,7 +828,7 @@ export default {
     // 额外需求
     extraRequirements: {
       type: String,
-      default: "",
+      default: '',
     },
     // 天气建议
     weatherSuggestion: {
@@ -889,7 +858,7 @@ export default {
     // 生成进度
     generationProgress: {
       type: String,
-      default: "",
+      default: '',
     },
     // 进度百分比
     progressPercent: {
@@ -903,28 +872,28 @@ export default {
     },
   },
   emits: [
-    "update:extraRequirements",
-    "update:generatedTrip",
-    "update:generating",
-    "update:generationProgress",
-    "update:progressPercent",
-    "generation-complete",
-    "next-step",
-    "prev-step",
-    "save-draft",
+    'update:extraRequirements',
+    'update:generatedTrip',
+    'update:generating',
+    'update:generationProgress',
+    'update:progressPercent',
+    'generation-complete',
+    'next-step',
+    'prev-step',
+    'save-draft',
   ],
   setup(props, { emit }) {
     // 获取用户store
     const userStore = useUserStore();
 
     // 生成风格选择
-    const selectedGenerationStyle = ref("table"); // 默认表格式
+    const selectedGenerationStyle = ref('table'); // 默认表格式
 
     // 完整提示词弹窗显示状态
     const fullPromptVisible = ref(false);
 
     // 完整提示词文本
-    const fullPromptText = ref("");
+    const fullPromptText = ref('');
 
     // 取消生成的控制器
     let abortController = null;
@@ -942,7 +911,7 @@ export default {
     // 语言映射对象（用于模板中的直接索引）
     const tagMapping = computed(() => tagMappingZh);
     const dietaryRestrictionMapping = computed(
-      () => dietaryRestrictionMappingZh,
+      () => dietaryRestrictionMappingZh
     );
 
     // 计算用户偏好标签的中文显示
@@ -960,7 +929,7 @@ export default {
             ? props.preferenceForm.focusAreas
             : [];
         const isTripFocusSet = tripFocus.length > 0;
-        travelTags.forEach((tag) => {
+        travelTags.forEach(tag => {
           // 若用户在本次行程中设置了 focusAreas，则对于属于体验重点域的标签，按本次行程为准：
           // - 如果该标签是体验重点域的键，且未被本次行程选择，则不纳入“个人偏好”集合，避免与本次选择冲突
           const isFocusDomainTag = !!focusAreaMapping[tag];
@@ -976,7 +945,7 @@ export default {
       // 从其他各种偏好中提取标签
       const transports = preferences.selectedTransports || [];
       if (Array.isArray(transports) && transports.length > 0) {
-        transports.forEach((transport) => {
+        transports.forEach(transport => {
           const chineseTag = tagMapping.value[transport];
           if (chineseTag) tags.push(chineseTag);
         });
@@ -1000,7 +969,7 @@ export default {
       // 美食偏好（也可能出现在个人偏好中混入英文）
       const foodTastes = preferences.foodTastes || [];
       if (Array.isArray(foodTastes) && foodTastes.length > 0) {
-        foodTastes.forEach((taste) => {
+        foodTastes.forEach(taste => {
           const chineseTag =
             tagMapping.value[taste] ||
             focusAreaMapping[taste] ||
@@ -1044,10 +1013,10 @@ export default {
 
     // 获取城市名称
     const getSelectedCityName = () => {
-      if (!props || !props.baseForm) return "未设置";
+      if (!props || !props.baseForm) return '未设置';
       return getCityName(
         props.baseForm?.destination,
-        props.baseForm?.destinationName,
+        props.baseForm?.destinationName
       );
     };
 
@@ -1059,7 +1028,7 @@ export default {
         !props.baseForm.dateRange ||
         props.baseForm.dateRange.length !== 2
       ) {
-        return "未设置";
+        return '未设置';
       }
       const startDate = new Date(props.baseForm.dateRange[0]);
       const endDate = new Date(props.baseForm.dateRange[1]);
@@ -1068,83 +1037,83 @@ export default {
 
     // 获取预算文本
     const getBudgetText = () => {
-      if (!props || !props.baseForm) return "未设置";
+      if (!props || !props.baseForm) return '未设置';
       return getBudgetTextUtil(props.baseForm.budget);
     };
 
     // 获取不同偏好的文本表示
-    const getTripStyleText = (style) => {
-      if (!style) return "";
+    const getTripStyleText = style => {
+      if (!style) return '';
       return tripStyleMapping[style] || style;
     };
 
-    const getIntensityText = (intensity) => {
-      if (!intensity) return "";
+    const getIntensityText = intensity => {
+      if (!intensity) return '';
       return intensityMapping[intensity] || intensity;
     };
 
-    const getFocusAreasText = (areas) => {
-      if (!areas || areas.length === 0) return "";
-      return areas.map((area) => focusAreaMapping[area] || area).join("、");
+    const getFocusAreasText = areas => {
+      if (!areas || areas.length === 0) return '';
+      return areas.map(area => focusAreaMapping[area] || area).join('、');
     };
 
-    const getSpecialExperiencesText = (experiences) => {
-      if (!experiences || experiences.length === 0) return "";
+    const getSpecialExperiencesText = experiences => {
+      if (!experiences || experiences.length === 0) return '';
       return experiences
-        .map((exp) => specialExperienceMapping[exp] || exp)
-        .join("、");
+        .map(exp => specialExperienceMapping[exp] || exp)
+        .join('、');
     };
 
-    const getDietaryRestrictionsText = (restrictions) => {
-      if (!restrictions || restrictions.length === 0) return "";
+    const getDietaryRestrictionsText = restrictions => {
+      if (!restrictions || restrictions.length === 0) return '';
       const mapObj = dietaryRestrictionMapping.value;
-      return restrictions.map((r) => mapObj[r] || r).join("、");
+      return restrictions.map(r => mapObj[r] || r).join('、');
     };
 
     // 新增：获取行程目标文本
-    const getTripGoalsText = (goals) => {
-      if (!goals || goals.length === 0) return "";
+    const getTripGoalsText = goals => {
+      if (!goals || goals.length === 0) return '';
       const goalMapping = {
-        celebration: "庆祝节日/生日",
-        business: "商务出差顺便游玩",
-        family: "家庭亲子游",
-        romantic: "情侣蜜月游",
-        friendship: "朋友聚会游",
-        solo: "个人独旅",
-        learning: "学习文化知识",
-        relaxation: "放松减压",
-        adventure: "寻求刺激冒险",
-        photography: "摄影创作",
+        celebration: '庆祝节日/生日',
+        business: '商务出差顺便游玩',
+        family: '家庭亲子游',
+        romantic: '情侣蜜月游',
+        friendship: '朋友聚会游',
+        solo: '个人独旅',
+        learning: '学习文化知识',
+        relaxation: '放松减压',
+        adventure: '寻求刺激冒险',
+        photography: '摄影创作',
       };
-      return goals.map((goal) => goalMapping[goal] || goal).join("、");
+      return goals.map(goal => goalMapping[goal] || goal).join('、');
     };
 
     // 新增：获取节奏偏好文本
-    const getPacePreferenceText = (pace) => {
+    const getPacePreferenceText = pace => {
       const paceMapping = {
-        slow: "慢节奏（深度体验，充分休息）",
-        balanced: "平衡型（景点与休息并重）",
-        fast: "紧凑型（多看多玩，充实行程）",
+        slow: '慢节奏（深度体验，充分休息）',
+        balanced: '平衡型（景点与休息并重）',
+        fast: '紧凑型（多看多玩，充实行程）',
       };
       return paceMapping[pace] || pace;
     };
 
     // 新增：获取社交偏好文本
-    const getSocialPreferenceText = (social) => {
+    const getSocialPreferenceText = social => {
       const socialMapping = {
-        lively: "热闹有趣（人气餐厅、热门景点）",
-        quiet: "安静私密（小众场所、人少景点）",
-        mixed: "灵活搭配（热门与小众结合）",
+        lively: '热闹有趣（人气餐厅、热门景点）',
+        quiet: '安静私密（小众场所、人少景点）',
+        mixed: '灵活搭配（热门与小众结合）',
       };
       return socialMapping[social] || social;
     };
 
     // 新增：获取拍照偏好文本
-    const getPhotoPreferenceText = (photo) => {
+    const getPhotoPreferenceText = photo => {
       const photoMapping = {
-        essential: "必须有（网红打卡点优先）",
-        casual: "随性拍拍（自然美景即可）",
-        minimal: "不太在意（体验优先）",
+        essential: '必须有（网红打卡点优先）',
+        casual: '随性拍拍（自然美景即可）',
+        minimal: '不太在意（体验优先）',
       };
       return photoMapping[photo] || photo;
     };
@@ -1206,25 +1175,25 @@ export default {
     // 获取提示词完成度样式
     const getPromptCompletionClass = () => {
       const score = getPromptCompletionScore();
-      if (score >= 80) return "success";
-      if (score >= 50) return "warning";
-      return "danger";
+      if (score >= 80) return 'success';
+      if (score >= 50) return 'warning';
+      return 'danger';
     };
 
     // 获取提示词完成度文本
     const getPromptCompletionText = () => {
       const score = getPromptCompletionScore();
-      if (score >= 80) return "信息完整度高";
-      if (score >= 50) return "信息完整度中等";
-      return "信息完整度较低";
+      if (score >= 80) return '信息完整度高';
+      if (score >= 50) return '信息完整度中等';
+      return '信息完整度较低';
     };
 
     // 生成完整提示词文本
     const generatePromptText = () => {
       // 安全检查：确保props已经初始化
-      if (!props || !props.baseForm || !props.preferenceForm) return "";
+      if (!props || !props.baseForm || !props.preferenceForm) return '';
 
-      let prompt = "";
+      let prompt = '';
 
       // 基本信息
       if (props.baseForm.destination && props.baseForm.days) {
@@ -1235,7 +1204,7 @@ export default {
         if (props.baseForm.dateRange && props.baseForm.dateRange.length === 2) {
           prompt += `出行日期为${formatDateRange()}。\n\n`;
         } else {
-          prompt += "\n\n";
+          prompt += '\n\n';
         }
       }
 
@@ -1244,7 +1213,7 @@ export default {
         currentUserPreferences.value &&
         selectedPreferenceTags.value.length > 0
       ) {
-        prompt += `我的旅行偏好是${selectedPreferenceTags.value.join("、")}。`;
+        prompt += `我的旅行偏好是${selectedPreferenceTags.value.join('、')}。`;
         if (currentUserPreferences.value.accommodationType) {
           prompt += `住宿偏好${
             tagMapping.value[currentUserPreferences.value.accommodationType] ||
@@ -1262,10 +1231,10 @@ export default {
           currentUserPreferences.value.foodTastes.length > 0
         ) {
           prompt += `饮食偏好${currentUserPreferences.value.foodTastes
-            .map((taste) => tagMapping.value[taste] || taste)
-            .join("、")}。`;
+            .map(taste => tagMapping.value[taste] || taste)
+            .join('、')}。`;
         }
-        prompt += "\n\n";
+        prompt += '\n\n';
       }
 
       // 本次行程偏好
@@ -1288,28 +1257,28 @@ export default {
           // 优先翻译通用标签（如 food、hiking）
           const goalsText = getTripGoalsText(props.preferenceForm.tripGoals)
             .replace(/food/g, tagMappingZh.food)
-            .replace(/hiking/g, "徒步");
+            .replace(/hiking/g, '徒步');
           prompt += `本次行程目标是${goalsText}。`;
         }
 
         // 行程节奏偏好
         if (props.preferenceForm.pacePreference) {
           prompt += `行程节奏偏好${getPacePreferenceText(
-            props.preferenceForm.pacePreference,
+            props.preferenceForm.pacePreference
           )}。`;
         }
 
         // 社交环境偏好
         if (props.preferenceForm.socialPreference) {
           prompt += `社交环境偏好${getSocialPreferenceText(
-            props.preferenceForm.socialPreference,
+            props.preferenceForm.socialPreference
           )}。`;
         }
 
         // 拍照打卡需求
         if (props.preferenceForm.photoPreference) {
           prompt += `拍照打卡需求${getPhotoPreferenceText(
-            props.preferenceForm.photoPreference,
+            props.preferenceForm.photoPreference
           )}。`;
         }
 
@@ -1326,7 +1295,7 @@ export default {
           prompt += `特殊需求：${props.preferenceForm.specialRequirements}。`;
         }
 
-        prompt += "\n\n";
+        prompt += '\n\n';
       }
 
       // 天气建议
@@ -1394,7 +1363,7 @@ export default {
           props.weatherSuggestion.activities &&
           props.weatherSuggestion.activities.length > 0
         ) {
-          prompt += `适合安排${props.weatherSuggestion.activities.join("、")}等活动。`;
+          prompt += `适合安排${props.weatherSuggestion.activities.join('、')}等活动。`;
         }
 
         // 只有在日期范围内时才添加建议和注意事项
@@ -1403,7 +1372,7 @@ export default {
           props.weatherSuggestion.tips &&
           props.weatherSuggestion.tips.length > 0
         ) {
-          prompt += `建议：${props.weatherSuggestion.tips.join("；")}。`;
+          prompt += `建议：${props.weatherSuggestion.tips.join('；')}。`;
         }
 
         if (
@@ -1411,7 +1380,7 @@ export default {
           props.weatherSuggestion.avoid &&
           props.weatherSuggestion.avoid.length > 0
         ) {
-          prompt += `注意事项：${props.weatherSuggestion.avoid.join("；")}。`;
+          prompt += `注意事项：${props.weatherSuggestion.avoid.join('；')}。`;
         }
 
         // 详细天气预报：根据日期覆盖情况调整
@@ -1423,21 +1392,21 @@ export default {
             prompt += `具体天气预报：`;
             const forecastSummary = props.weatherSuggestion.forecast
               .map(
-                (day) =>
-                  `${day.date}${day.dayWeather}，${day.dayTemp}℃/${day.nightTemp}℃`,
+                day =>
+                  `${day.date}${day.dayWeather}，${day.dayTemp}℃/${day.nightTemp}℃`
               )
-              .join("；");
-            prompt += forecastSummary + "。";
+              .join('；');
+            prompt += forecastSummary + '。';
           } else if (tripDays > forecastDays) {
             // 部分日期有预报
             prompt += `可获取的天气预报（前${forecastDays}天）：`;
             const forecastSummary = props.weatherSuggestion.forecast
               .map(
-                (day) =>
-                  `${day.date}${day.dayWeather}，${day.dayTemp}℃/${day.nightTemp}℃`,
+                day =>
+                  `${day.date}${day.dayWeather}，${day.dayTemp}℃/${day.nightTemp}℃`
               )
-              .join("；");
-            prompt += forecastSummary + "。";
+              .join('；');
+            prompt += forecastSummary + '。';
             prompt += `第${forecastDays + 1}天及之后的天气情况需要关注实时预报。`;
           }
         }
@@ -1447,7 +1416,7 @@ export default {
           prompt += `建议在行程规划时预留天气变化的应对方案，准备雨具和适合不同天气的衣物。`;
         }
 
-        prompt += "\n\n";
+        prompt += '\n\n';
       }
 
       // 饮食禁忌
@@ -1457,13 +1426,13 @@ export default {
         (props.preferenceForm.dietaryRestrictions.length > 0 ||
           props.preferenceForm.customDietaryNotes)
       ) {
-        prompt += "饮食禁忌：";
+        prompt += '饮食禁忌：';
         if (
           props.preferenceForm.dietaryRestrictions &&
           props.preferenceForm.dietaryRestrictions.length > 0
         ) {
           prompt += getDietaryRestrictionsText(
-            props.preferenceForm.dietaryRestrictions,
+            props.preferenceForm.dietaryRestrictions
           );
         }
         if (props.preferenceForm.customDietaryNotes) {
@@ -1471,40 +1440,40 @@ export default {
             props.preferenceForm.dietaryRestrictions &&
             props.preferenceForm.dietaryRestrictions.length > 0
           ) {
-            prompt += "，";
+            prompt += '，';
           }
           prompt += props.preferenceForm.customDietaryNotes;
         }
-        prompt += "。\n\n";
+        prompt += '。\n\n';
       }
 
       // 必去景点和餐厅
       if (props.selectedAttractions.length > 0) {
         prompt += `必去景点：${props.selectedAttractions
-          .map((a) => a.name)
-          .join("、")}。\n`;
+          .map(a => a.name)
+          .join('、')}。\n`;
       }
       if (props.selectedRestaurants.length > 0) {
         prompt += `必去餐厅：${props.selectedRestaurants
-          .map((r) => r.name)
-          .join("、")}。\n`;
+          .map(r => r.name)
+          .join('、')}。\n`;
       }
 
       // 添加专业的AI生成指导
-      prompt += "\n\n请根据以上信息，为我生成一份详细的旅行计划，包括：\n";
-      prompt += "1. 每日行程安排（包含具体时间、景点、餐厅、交通方式）\n";
-      prompt += "2. 预算分配建议（门票、餐饮、交通、住宿等）\n";
-      prompt += "3. 实用出行提示（最佳游览时间、避坑指南、当地文化注意事项）\n";
-      prompt += "4. 备选方案（雨天室内活动、行程调整建议）\n";
-      prompt += "5. 必备物品清单\n\n";
+      prompt += '\n\n请根据以上信息，为我生成一份详细的旅行计划，包括：\n';
+      prompt += '1. 每日行程安排（包含具体时间、景点、餐厅、交通方式）\n';
+      prompt += '2. 预算分配建议（门票、餐饮、交通、住宿等）\n';
+      prompt += '3. 实用出行提示（最佳游览时间、避坑指南、当地文化注意事项）\n';
+      prompt += '4. 备选方案（雨天室内活动、行程调整建议）\n';
+      prompt += '5. 必备物品清单\n\n';
 
-      prompt += "请确保：\n";
-      prompt += "- 行程安排合理，时间充裕，避免过度紧张\n";
-      prompt += "- 推荐的景点和餐厅具有当地特色和良好口碑\n";
-      prompt += "- 考虑交通便利性和地理位置的合理性\n";
-      prompt += "- 预算控制在指定范围内\n";
-      prompt += "- 提供具体的地址、营业时间、门票价格等实用信息\n";
-      prompt += "- 语言表达亲切自然，适合实际执行\n";
+      prompt += '请确保：\n';
+      prompt += '- 行程安排合理，时间充裕，避免过度紧张\n';
+      prompt += '- 推荐的景点和餐厅具有当地特色和良好口碑\n';
+      prompt += '- 考虑交通便利性和地理位置的合理性\n';
+      prompt += '- 预算控制在指定范围内\n';
+      prompt += '- 提供具体的地址、营业时间、门票价格等实用信息\n';
+      prompt += '- 语言表达亲切自然，适合实际执行\n';
 
       return prompt;
     };
@@ -1527,7 +1496,7 @@ export default {
 
       // 获取天气预报的日期范围
       const forecastDates = props.weatherSuggestion.forecast.map(
-        (f) => new Date(f.date),
+        f => new Date(f.date)
       );
       const forecastStartDate = new Date(Math.min(...forecastDates));
       const forecastEndDate = new Date(Math.max(...forecastDates));
@@ -1543,8 +1512,8 @@ export default {
       fullPromptText.value = generatePromptText();
       fullPromptVisible.value = true;
       ElMessage({
-        message: "完整提示词已准备就绪",
-        type: "success",
+        message: '完整提示词已准备就绪',
+        type: 'success',
         duration: 3000,
       });
     };
@@ -1554,27 +1523,27 @@ export default {
       try {
         await navigator.clipboard.writeText(fullPromptText.value);
         ElMessage({
-          message: "复制成功",
-          type: "success",
+          message: '复制成功',
+          type: 'success',
           duration: 2000,
         });
       } catch (error) {
         // 如果现代API不可用，使用传统方法
-        const textArea = document.createElement("textarea");
+        const textArea = document.createElement('textarea');
         textArea.value = fullPromptText.value;
         document.body.appendChild(textArea);
         textArea.select();
         try {
-          document.execCommand("copy");
+          document.execCommand('copy');
           ElMessage({
-            message: "复制成功",
-            type: "success",
+            message: '复制成功',
+            type: 'success',
             duration: 2000,
           });
         } catch (err) {
           ElMessage({
-            message: "复制失败，请手动复制",
-            type: "error",
+            message: '复制失败，请手动复制',
+            type: 'error',
             duration: 3000,
           });
         }
@@ -1646,26 +1615,26 @@ export default {
 
       // 1. 严重错误检查（阻止生成）
       if (prefForm.tripGoals && Array.isArray(prefForm.tripGoals)) {
-        if (prefForm.tripGoals.includes("family") && travelers < 3) {
+        if (prefForm.tripGoals.includes('family') && travelers < 3) {
           errors.push({
-            type: "mismatch",
-            message: "家庭亲子游通常需要至少3人（包含大人和小孩）",
-            suggestion: "调整人数为3人或以上，或选择其他行程目标",
+            type: 'mismatch',
+            message: '家庭亲子游通常需要至少3人（包含大人和小孩）',
+            suggestion: '调整人数为3人或以上，或选择其他行程目标',
             allowIgnore: true,
           });
         }
-        if (prefForm.tripGoals.includes("romantic") && travelers !== 2) {
+        if (prefForm.tripGoals.includes('romantic') && travelers !== 2) {
           errors.push({
-            type: "mismatch",
-            message: "情侣蜜月游适合2人出行，当前设置不匹配",
-            suggestion: "调整人数为2人，或选择其他行程目标",
+            type: 'mismatch',
+            message: '情侣蜜月游适合2人出行，当前设置不匹配',
+            suggestion: '调整人数为2人，或选择其他行程目标',
             allowIgnore: true,
           });
         }
-        if (prefForm.tripGoals.includes("solo") && travelers > 1) {
+        if (prefForm.tripGoals.includes('solo') && travelers > 1) {
           errors.push({
-            type: "mismatch",
-            message: "个人独旅是一个人的旅行体验",
+            type: 'mismatch',
+            message: '个人独旅是一个人的旅行体验',
             suggestion: '调整人数为1人，或选择"朋友聚会游"等其他目标',
             allowIgnore: false,
           });
@@ -1673,11 +1642,11 @@ export default {
       }
 
       // 2. 检查传统标签与人数匹配（向后兼容，但不强制）
-      if (hasTag("family", "亲子出游") && travelers < 3) {
+      if (hasTag('family', '亲子出游') && travelers < 3) {
         warnings.push({
-          type: "legacy_mismatch",
+          type: 'legacy_mismatch',
           message: '用户偏好标签"亲子出游"与人数不匹配',
-          suggestion: "建议至少3人出行，或调整个人偏好设置",
+          suggestion: '建议至少3人出行，或调整个人偏好设置',
           allowIgnore: true,
         });
       }
@@ -1693,42 +1662,42 @@ export default {
 
           if (perPersonPerDay < 200) {
             warnings.push({
-              type: "budget",
+              type: 'budget',
               message: `人均每日预算约${Math.round(perPersonPerDay)}元，可能偏低`,
-              suggestion: "建议适当增加预算或调整行程期望，确保旅行体验质量",
+              suggestion: '建议适当增加预算或调整行程期望，确保旅行体验质量',
               allowIgnore: true,
             });
           } else if (perPersonPerDay > 2000) {
             warnings.push({
-              type: "budget",
+              type: 'budget',
               message: `人均每日预算约${Math.round(perPersonPerDay)}元，属于高端旅行`,
-              suggestion: "AI将为您推荐高品质的景点、餐厅和体验项目",
+              suggestion: 'AI将为您推荐高品质的景点、餐厅和体验项目',
               allowIgnore: true,
             });
           }
         }
       } else if (days > 7 && !budget) {
         warnings.push({
-          type: "budget",
-          message: "长途旅行建议设置预算范围",
-          suggestion: "设置预算有助于AI推荐更符合您消费水平的景点和餐厅",
+          type: 'budget',
+          message: '长途旅行建议设置预算范围',
+          suggestion: '设置预算有助于AI推荐更符合您消费水平的景点和餐厅',
           allowIgnore: true,
         });
       }
 
       // 7. 体验类型冲突检查（更清晰的说明）
       if (prefForm.focusAreas && Array.isArray(prefForm.focusAreas)) {
-        const hasNature = prefForm.focusAreas.some((area) =>
-          ["natural_scenery", "outdoor_adventure"].includes(area),
+        const hasNature = prefForm.focusAreas.some(area =>
+          ['natural_scenery', 'outdoor_adventure'].includes(area)
         );
-        const hasUrban = prefForm.focusAreas.some((area) =>
-          ["urban_lifestyle", "shopping", "nightlife"].includes(area),
+        const hasUrban = prefForm.focusAreas.some(area =>
+          ['urban_lifestyle', 'shopping', 'nightlife'].includes(area)
         );
 
         if (hasNature && hasUrban && days < 5) {
           warnings.push({
-            type: "experience_conflict",
-            message: "您同时选择了自然风光和城市体验",
+            type: 'experience_conflict',
+            message: '您同时选择了自然风光和城市体验',
             suggestion: `${days}天行程建议重点选择一种：自然风光（山水景观、户外活动）或城市体验（购物、夜生活、都市文化）`,
             allowIgnore: true,
           });
@@ -1737,10 +1706,10 @@ export default {
 
       // 8. 其他建议性检查
       if (prefForm.pacePreference && days) {
-        if (prefForm.pacePreference === "fast" && days > 10) {
+        if (prefForm.pacePreference === 'fast' && days > 10) {
           warnings.push({
-            type: "pace_mismatch",
-            message: "长途旅行选择紧凑节奏可能比较辛苦",
+            type: 'pace_mismatch',
+            message: '长途旅行选择紧凑节奏可能比较辛苦',
             suggestion: '建议选择"平衡型"节奏，既能多看景点又有充分休息',
             allowIgnore: true,
           });
@@ -1767,8 +1736,8 @@ export default {
 
       if (!validation.isValid) {
         // 显示具体的验证错误
-        validation.errors.forEach((error) => {
-          if (typeof error === "string") {
+        validation.errors.forEach(error => {
+          if (typeof error === 'string') {
             ElMessage.error(error);
           } else {
             ElMessage.error({
@@ -1783,8 +1752,8 @@ export default {
 
       // 显示警告（但不阻止生成）
       if (validation.warnings.length > 0) {
-        validation.warnings.forEach((warning) => {
-          if (typeof warning === "string") {
+        validation.warnings.forEach(warning => {
+          if (typeof warning === 'string') {
             ElMessage.warning(warning);
           } else {
             ElMessage.warning({
@@ -1797,21 +1766,21 @@ export default {
       }
 
       if (!canGenerateTrip.value) {
-        ElMessage.warning("请先完成基本信息填写");
+        ElMessage.warning('请先完成基本信息填写');
         return;
       }
 
       try {
         // 通过emit通知父组件更新状态
-        emit("update:generating", true);
-        emit("update:generationProgress", "开始生成行程...");
-        emit("update:progressPercent", 5);
+        emit('update:generating', true);
+        emit('update:generationProgress', '开始生成行程...');
+        emit('update:progressPercent', 5);
 
         // 等待一下让用户看到开始状态
-        await new Promise((resolve) => setTimeout(resolve, 800));
+        await new Promise(resolve => setTimeout(resolve, 800));
 
-        emit("update:generationProgress", "分析用户偏好...");
-        emit("update:progressPercent", 15);
+        emit('update:generationProgress', '分析用户偏好...');
+        emit('update:progressPercent', 15);
 
         // 构建AI请求数据
         const requestData = {
@@ -1847,12 +1816,12 @@ export default {
           intensity: mapPaceToIntensity(props.preferenceForm.pacePreference),
 
           // 必去景点和餐厅
-          selectedAttractions: props.selectedAttractions?.map((a) => ({
+          selectedAttractions: props.selectedAttractions?.map(a => ({
             name: a.name,
             description: a.description,
             address: a.address,
           })),
-          selectedRestaurants: props.selectedRestaurants?.map((r) => ({
+          selectedRestaurants: props.selectedRestaurants?.map(r => ({
             name: r.name,
             description: r.description,
             address: r.address,
@@ -1874,43 +1843,43 @@ export default {
         };
 
         // 数据准备完成
-        emit("update:generationProgress", "构建提示词...");
-        emit("update:progressPercent", 25);
+        emit('update:generationProgress', '构建提示词...');
+        emit('update:progressPercent', 25);
 
-        await new Promise((resolve) => setTimeout(resolve, 600));
+        await new Promise(resolve => setTimeout(resolve, 600));
 
-        emit("update:generationProgress", "连接AI服务...");
-        emit("update:progressPercent", 35);
+        emit('update:generationProgress', '连接AI服务...');
+        emit('update:progressPercent', 35);
 
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-        emit("update:generationProgress", "深度分析中...");
-        emit("update:progressPercent", 45);
+        emit('update:generationProgress', '深度分析中...');
+        emit('update:progressPercent', 45);
 
         // 调用后端AI接口
-        emit("update:generationProgress", "发送请求...");
-        emit("update:progressPercent", 55);
+        emit('update:generationProgress', '发送请求...');
+        emit('update:progressPercent', 55);
 
         // 创建取消控制器
         abortController = new AbortController();
 
-        const response = await fetch("/api/ai/trip/generate", {
-          method: "POST",
+        const response = await fetch('/api/ai/trip/generate', {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify(requestData),
           signal: abortController.signal,
         });
 
-        emit("update:generationProgress", "AI正在生成行程...");
-        emit("update:progressPercent", 75);
+        emit('update:generationProgress', 'AI正在生成行程...');
+        emit('update:progressPercent', 75);
 
         // 检查响应状态
         if (!response.ok) {
           const errorText = await response.text();
           throw new Error(
-            `HTTP ${response.status}: ${errorText || response.statusText}`,
+            `HTTP ${response.status}: ${errorText || response.statusText}`
           );
         }
 
@@ -1919,20 +1888,20 @@ export default {
         try {
           const responseText = await response.text();
           if (!responseText.trim()) {
-            throw new Error("服务器返回空响应");
+            throw new Error('服务器返回空响应');
           }
           result = JSON.parse(responseText);
         } catch (jsonError) {
-          console.error("JSON解析错误:", jsonError);
-          throw new Error("服务器响应格式错误，请稍后重试");
+          console.error('JSON解析错误:', jsonError);
+          throw new Error('服务器响应格式错误，请稍后重试');
         }
 
-        emit("update:generationProgress", "正在格式化结果...");
-        emit("update:progressPercent", 90);
+        emit('update:generationProgress', '正在格式化结果...');
+        emit('update:progressPercent', 90);
 
         if (result.code === 200) {
-          emit("update:generationProgress", "行程生成完成");
-          emit("update:progressPercent", 100);
+          emit('update:generationProgress', '行程生成完成');
+          emit('update:progressPercent', 100);
 
           // 处理成功结果
           const tripData = {
@@ -1946,10 +1915,10 @@ export default {
           };
 
           // 给用户一点时间看到完成状态
-          await new Promise((resolve) => setTimeout(resolve, 800));
+          await new Promise(resolve => setTimeout(resolve, 800));
 
-          emit("update:generatedTrip", tripData);
-          emit("generation-complete", tripData);
+          emit('update:generatedTrip', tripData);
+          emit('generation-complete', tripData);
 
           ElMessage.success({
             message: `行程生成成功！质量评分：${result.data.qualityScore}，耗时：${Math.round(result.data.processingTime / 1000)}秒`,
@@ -1957,41 +1926,41 @@ export default {
             showClose: true,
           });
         } else {
-          throw new Error(result.msg || "行程生成失败");
+          throw new Error(result.msg || '行程生成失败');
         }
       } catch (error) {
-        console.error("生成行程失败:", error);
+        console.error('生成行程失败:', error);
 
         // 检查是否是用户主动取消
-        if (error.name === "AbortError") {
-          emit("update:generationProgress", "已取消生成");
-          emit("update:progressPercent", 0);
+        if (error.name === 'AbortError') {
+          emit('update:generationProgress', '已取消生成');
+          emit('update:progressPercent', 0);
           ElMessage.info({
-            message: "已取消行程生成",
+            message: '已取消行程生成',
             duration: 3000,
           });
-          emit("update:generating", false);
+          emit('update:generating', false);
           abortController = null;
           return;
         }
 
-        emit("update:generationProgress", "行程生成失败，请重试");
-        emit("update:progressPercent", 0);
+        emit('update:generationProgress', '行程生成失败，请重试');
+        emit('update:progressPercent', 0);
 
         // 根据错误类型提供不同的提示
-        let errorMessage = "行程生成失败";
+        let errorMessage = '行程生成失败';
         if (
-          error.message.includes("timeout") ||
-          error.message.includes("TimeoutException")
+          error.message.includes('timeout') ||
+          error.message.includes('TimeoutException')
         ) {
-          errorMessage = "请求超时，请稍后重试";
+          errorMessage = '请求超时，请稍后重试';
         } else if (
-          error.message.includes("402") ||
-          error.message.includes("Payment Required")
+          error.message.includes('402') ||
+          error.message.includes('Payment Required')
         ) {
-          errorMessage = "余额不足，请检查账户余额";
-        } else if (error.message.includes("Failed to fetch")) {
-          errorMessage = "网络连接失败，请检查网络连接";
+          errorMessage = '余额不足，请检查账户余额';
+        } else if (error.message.includes('Failed to fetch')) {
+          errorMessage = '网络连接失败，请检查网络连接';
         } else {
           errorMessage = `错误详情： ${error.message}`;
         }
@@ -2004,7 +1973,7 @@ export default {
       } finally {
         // 延迟一下再关闭loading，让用户看到完成状态
         setTimeout(() => {
-          emit("update:generating", false);
+          emit('update:generating', false);
           abortController = null;
         }, 2000);
       }
@@ -2015,7 +1984,7 @@ export default {
       if (abortController) {
         abortController.abort();
         ElMessage.info({
-          message: "正在取消生成...",
+          message: '正在取消生成...',
           duration: 2000,
         });
       }
@@ -2024,56 +1993,56 @@ export default {
     // 判断用户类型的辅助方法
     const determineUserType = () => {
       if (!props || !props.baseForm || !props.baseForm.travelers)
-        return "INDIVIDUAL";
-      if (props.baseForm.travelers > 2) return "FAMILY";
-      if (props.baseForm.travelers === 2) return "COUPLE";
-      return "INDIVIDUAL";
+        return 'INDIVIDUAL';
+      if (props.baseForm.travelers > 2) return 'FAMILY';
+      if (props.baseForm.travelers === 2) return 'COUPLE';
+      return 'INDIVIDUAL';
     };
 
     // 映射新的行程目标到旧的行程风格字段
-    const mapTripGoalsToStyle = (tripGoals) => {
+    const mapTripGoalsToStyle = tripGoals => {
       if (!tripGoals || !Array.isArray(tripGoals) || tripGoals.length === 0) {
         return null;
       }
 
       // 根据主要目标确定行程风格
-      if (tripGoals.includes("learning") || tripGoals.includes("culture")) {
-        return "cultural"; // 文化深度游
+      if (tripGoals.includes('learning') || tripGoals.includes('culture')) {
+        return 'cultural'; // 文化深度游
       }
-      if (tripGoals.includes("relaxation")) {
-        return "leisure"; // 休闲游
+      if (tripGoals.includes('relaxation')) {
+        return 'leisure'; // 休闲游
       }
-      if (tripGoals.includes("adventure")) {
-        return "adventure"; // 探险游
+      if (tripGoals.includes('adventure')) {
+        return 'adventure'; // 探险游
       }
-      if (tripGoals.includes("photography")) {
-        return "photo"; // 摄影游
+      if (tripGoals.includes('photography')) {
+        return 'photo'; // 摄影游
       }
-      if (tripGoals.includes("business")) {
-        return "business"; // 商务游
+      if (tripGoals.includes('business')) {
+        return 'business'; // 商务游
       }
-      if (tripGoals.includes("family")) {
-        return "family"; // 家庭游
+      if (tripGoals.includes('family')) {
+        return 'family'; // 家庭游
       }
-      if (tripGoals.includes("romantic")) {
-        return "romantic"; // 浪漫游
+      if (tripGoals.includes('romantic')) {
+        return 'romantic'; // 浪漫游
       }
 
       // 默认综合游
-      return "comprehensive";
+      return 'comprehensive';
     };
 
     // 映射新的节奏偏好到旧的强度字段
-    const mapPaceToIntensity = (pacePreference) => {
+    const mapPaceToIntensity = pacePreference => {
       if (!pacePreference) return null;
 
       const paceMapping = {
-        slow: "light", // 慢节奏 -> 轻松
-        balanced: "moderate", // 平衡型 -> 适中
-        fast: "intensive", // 紧凑型 -> 紧凑
+        slow: 'light', // 慢节奏 -> 轻松
+        balanced: 'moderate', // 平衡型 -> 适中
+        fast: 'intensive', // 紧凑型 -> 紧凑
       };
 
-      return paceMapping[pacePreference] || "moderate";
+      return paceMapping[pacePreference] || 'moderate';
     };
 
     // 组件挂载时的处理
@@ -2106,7 +2075,7 @@ export default {
         // 监听到偏好数据变化，可以在这里处理数据更新逻辑
         // 数据自动通过computed响应式更新
       },
-      { deep: true, immediate: true },
+      { deep: true, immediate: true }
     );
 
     return {
@@ -2272,7 +2241,7 @@ export default {
 }
 
 .generating::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: -100%;
@@ -2499,7 +2468,7 @@ export default {
 }
 
 .forecast-item.forecast-outdated::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -2592,8 +2561,8 @@ export default {
   word-wrap: break-word;
   margin: 0;
   font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
-    Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+    Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   font-size: 14px;
   line-height: 1.6;
   color: #2c3e50;

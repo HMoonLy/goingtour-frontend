@@ -1,20 +1,16 @@
 <template>
-  <div ref="containerRef"
-class="optimized-virtual-city-list">
+  <div ref="containerRef" class="optimized-virtual-city-list">
     <!-- 虚拟滚动容器 -->
-    <div
-class="virtual-scroll-container" :style="containerStyle"
->
+    <div class="virtual-scroll-container" :style="containerStyle">
       <!-- 虚拟占位空间 -->
-      <div
-class="virtual-spacer" :style="{ height: offsetY + 'px' }" />
+      <div class="virtual-spacer" :style="{ height: offsetY + 'px' }" />
 
       <!-- 可见项目 -->
       <div
         v-for="group in visibleGroups"
         :id="'letter-' + group.letter"
         :key="group.letter"
-        :ref="(el) => setGroupRef(group.letter, el)"
+        :ref="el => setGroupRef(group.letter, el)"
         class="city-section optimized"
       >
         <h2 class="section-header">
@@ -36,9 +32,7 @@ class="virtual-spacer" :style="{ height: offsetY + 'px' }" />
       </div>
 
       <!-- 虚拟占位空间（底部） -->
-      <div
-class="virtual-spacer" :style="{ height: endSpacerHeight + 'px' }"
-/>
+      <div class="virtual-spacer" :style="{ height: endSpacerHeight + 'px' }" />
     </div>
   </div>
 </template>
@@ -52,11 +46,11 @@ import {
   watch,
   nextTick,
   shallowRef,
-} from "vue";
-import OptimizedCityRow from "./OptimizedCityRow.vue";
+} from 'vue';
+import OptimizedCityRow from './OptimizedCityRow.vue';
 
 export default {
-  name: "OptimizedVirtualCityList",
+  name: 'OptimizedVirtualCityList',
   components: {
     OptimizedCityRow,
   },
@@ -70,7 +64,7 @@ export default {
       default: () => [],
     },
   },
-  emits: ["selectCity", "toggleWishlist"],
+  emits: ['selectCity', 'toggleWishlist'],
   setup(props) {
     const containerRef = ref(null);
     const groupRefs = shallowRef(new Map());
@@ -84,12 +78,12 @@ export default {
 
     // 使用Set缓存心愿清单城市编码，提升查询性能
     const wishlistSet = computed(() => {
-      return new Set(props.wishlistItems.map((item) => item.cityCode));
+      return new Set(props.wishlistItems.map(item => item.cityCode));
     });
 
     // 容器样式 - 使用computed缓存
     const containerStyle = computed(() => ({
-      height: containerHeight.value + "px",
+      height: containerHeight.value + 'px',
     }));
 
     // 计算可见的分组 - 优化算法
@@ -98,11 +92,11 @@ export default {
 
       const startIndex = Math.max(
         0,
-        Math.floor(scrollTop.value / itemHeight) - 1,
+        Math.floor(scrollTop.value / itemHeight) - 1
       );
       const endIndex = Math.min(
         startIndex + visibleCount.value + 2, // 增加缓冲区
-        props.cityGroups.length,
+        props.cityGroups.length
       );
 
       offsetY.value = startIndex * itemHeight;
@@ -155,7 +149,7 @@ export default {
       updateContainerHeight();
 
       if (containerRef.value) {
-        containerRef.value.addEventListener("scroll", handleScroll, {
+        containerRef.value.addEventListener('scroll', handleScroll, {
           passive: true,
           capture: false,
         });
@@ -168,7 +162,7 @@ export default {
       }
 
       // 监听窗口大小变化
-      window.addEventListener("resize", updateContainerHeight, {
+      window.addEventListener('resize', updateContainerHeight, {
         passive: true,
       });
     });
@@ -179,14 +173,14 @@ export default {
       }
 
       if (containerRef.value) {
-        containerRef.value.removeEventListener("scroll", handleScroll);
+        containerRef.value.removeEventListener('scroll', handleScroll);
       }
 
       if (resizeObserver) {
         resizeObserver.disconnect();
       }
 
-      window.removeEventListener("resize", updateContainerHeight);
+      window.removeEventListener('resize', updateContainerHeight);
     });
 
     // 监听城市数据变化，重新计算 - 使用nextTick优化
@@ -194,7 +188,7 @@ export default {
       () => props.cityGroups.length,
       () => {
         nextTick(updateContainerHeight);
-      },
+      }
     );
 
     return {

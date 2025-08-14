@@ -1,7 +1,7 @@
 /**
  * 城市照片相关API接口
  */
-import { http } from "./request.js";
+import { http } from './request.js';
 
 export const cityPhotosApi = {
   /**
@@ -15,20 +15,20 @@ export const cityPhotosApi = {
    */
   uploadPhoto(uploadData) {
     const formData = new FormData();
-    formData.append("file", uploadData.file);
-    formData.append("wishlistItemId", uploadData.wishlistItemId);
-    
+    formData.append('file', uploadData.file);
+    formData.append('wishlistItemId', uploadData.wishlistItemId);
+
     if (uploadData.caption) {
-      formData.append("caption", uploadData.caption);
-    }
-    
-    if (uploadData.tags && uploadData.tags.length > 0) {
-      formData.append("tags", uploadData.tags.join(","));
+      formData.append('caption', uploadData.caption);
     }
 
-    return http.post("/city-photos/upload", formData, {
+    if (uploadData.tags && uploadData.tags.length > 0) {
+      formData.append('tags', uploadData.tags.join(','));
+    }
+
+    return http.post('/city-photos/upload', formData, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
     });
   },
@@ -47,7 +47,7 @@ export const cityPhotosApi = {
    * @returns {Promise} 用户照片列表
    */
   getUserPhotos() {
-    return http.get("/city-photos/user");
+    return http.get('/city-photos/user');
   },
 
   /**
@@ -69,18 +69,18 @@ export const cityPhotosApi = {
    */
   updatePhoto(photoId, updateData) {
     const formData = new FormData();
-    
+
     if (updateData.caption !== undefined) {
-      formData.append("caption", updateData.caption);
+      formData.append('caption', updateData.caption);
     }
-    
+
     if (updateData.tags && updateData.tags.length > 0) {
-      formData.append("tags", updateData.tags.join(","));
+      formData.append('tags', updateData.tags.join(','));
     }
 
     return http.put(`/city-photos/${photoId}`, formData, {
       headers: {
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
     });
   },
@@ -109,7 +109,7 @@ export const cityPhotosApi = {
    * @returns {Promise} 更新结果
    */
   updatePhotoOrder(photoIds) {
-    return http.put("/city-photos/reorder", {
+    return http.put('/city-photos/reorder', {
       photoIds,
     });
   },
@@ -120,7 +120,7 @@ export const cityPhotosApi = {
    * @returns {Promise} 删除结果
    */
   batchDeletePhotos(photoIds) {
-    return http.delete("/city-photos/batch", {
+    return http.delete('/city-photos/batch', {
       data: { photoIds },
     });
   },
@@ -130,7 +130,7 @@ export const cityPhotosApi = {
    * @returns {Promise} 统计信息
    */
   getPhotoStats() {
-    return http.get("/city-photos/stats");
+    return http.get('/city-photos/stats');
   },
 
   /**
@@ -143,8 +143,8 @@ export const cityPhotosApi = {
    */
   compressImage(file, maxWidth = 1200, maxHeight = 800, quality = 0.8) {
     return new Promise((resolve, reject) => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
       const img = new Image();
 
       img.onload = () => {
@@ -164,23 +164,23 @@ export const cityPhotosApi = {
         ctx.drawImage(img, 0, 0, width, height);
 
         canvas.toBlob(
-          (blob) => {
+          blob => {
             if (blob) {
               const compressedFile = new File([blob], file.name, {
-                type: "image/jpeg",
+                type: 'image/jpeg',
                 lastModified: Date.now(),
               });
               resolve(compressedFile);
             } else {
-              reject(new Error("图片压缩失败"));
+              reject(new Error('图片压缩失败'));
             }
           },
-          "image/jpeg",
-          quality,
+          'image/jpeg',
+          quality
         );
       };
 
-      img.onerror = () => reject(new Error("图片加载失败"));
+      img.onerror = () => reject(new Error('图片加载失败'));
       img.src = URL.createObjectURL(file);
     });
   },
@@ -193,21 +193,21 @@ export const cityPhotosApi = {
   validateImageFile(file) {
     // 检查文件是否存在
     if (!file) {
-      return { valid: false, error: "请选择文件" };
+      return { valid: false, error: '请选择文件' };
     }
 
     // 检查文件大小 (10MB)
     const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
-      return { valid: false, error: "文件大小不能超过10MB" };
+      return { valid: false, error: '文件大小不能超过10MB' };
     }
 
     // 检查文件类型
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
     if (!allowedTypes.includes(file.type.toLowerCase())) {
       return {
         valid: false,
-        error: "只支持 JPG、PNG、GIF 格式的图片",
+        error: '只支持 JPG、PNG、GIF 格式的图片',
       };
     }
 
@@ -233,7 +233,7 @@ export const cityPhotosApi = {
         });
       };
 
-      img.onerror = () => reject(new Error("无法读取图片信息"));
+      img.onerror = () => reject(new Error('无法读取图片信息'));
       img.src = URL.createObjectURL(file);
     });
   },

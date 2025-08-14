@@ -1,39 +1,27 @@
 <template>
-  <div
-class="personal-page simple" :class="{ embedded }"
->
+  <div class="personal-page simple" :class="{ embedded }">
     <UserCenterNav v-if="!embedded" />
-    <h2 v-if="!embedded"
-class="title"
->
-系统设置
-</h2>
+    <h2 v-if="!embedded" class="title">系统设置</h2>
     <el-card class="section">
       <div class="row">
         <span>主题模式</span>
         <el-radio-group v-model="theme">
-          <el-radio-button value="light">
-浅色模式
-</el-radio-button>
-          <el-radio-button value="dark">
-深色模式
-</el-radio-button>
-          <el-radio-button value="system">
-跟随系统
-</el-radio-button>
+          <el-radio-button value="light"> 浅色模式 </el-radio-button>
+          <el-radio-button value="dark"> 深色模式 </el-radio-button>
+          <el-radio-button value="system"> 跟随系统 </el-radio-button>
         </el-radio-group>
       </div>
     </el-card>
   </div>
 </template>
 <script>
-import { ref, onMounted, watch } from "vue";
-import { useRouter } from "vue-router";
-import { useUserStore } from "@/store/user.js";
-import { useTheme } from "@/utils/theme.js";
-import UserCenterNav from "@/components/User/UserCenterNav.vue";
+import { ref, onMounted, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { useUserStore } from '@/store/user.js';
+import { useTheme } from '@/utils/theme.js';
+import UserCenterNav from '@/components/User/UserCenterNav.vue';
 export default {
-  name: "SystemSettings",
+  name: 'SystemSettings',
   components: { UserCenterNav },
   props: { embedded: Boolean },
   setup(props) {
@@ -43,12 +31,12 @@ export default {
 
     const theme = ref(getTheme());
 
-    watch(theme, (val) => {
+    watch(theme, val => {
       if (val) setTheme(val);
     });
 
     onMounted(() => {
-      if (!userStore.isLoggedIn) return router.push("/login");
+      if (!userStore.isLoggedIn) return router.push('/login');
       theme.value = getTheme();
     });
 

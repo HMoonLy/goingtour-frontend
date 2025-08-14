@@ -1,25 +1,20 @@
 <template>
   <div class="ai-trip-display">
     <!-- 行程标题卡片 -->
-    <el-card
-class="trip-header-card" shadow="never"
->
+    <el-card class="trip-header-card" shadow="never">
       <div class="trip-header-content">
         <div class="trip-title-section">
           <div class="title-with-icon">
-            <el-icon
-class="ai-icon" color="#409eff"
->
+            <el-icon class="ai-icon" color="#409eff">
               <Cpu />
             </el-icon>
             <h1 class="trip-main-title">
-              {{ (tripData?.destinationInfo?.name || "") + "智能行程推荐" }}
+              {{ (tripData?.destinationInfo?.name || '') + '智能行程推荐' }}
             </h1>
           </div>
-          <p v-if="tripData?.destinationInfo"
-class="trip-subtitle">
+          <p v-if="tripData?.destinationInfo" class="trip-subtitle">
             {{
-              `为您推荐${tripData?.tripBasicInfo?.days || 3}天${tripData?.destinationInfo?.name || "目的地"}的精彩行程`
+              `为您推荐${tripData?.tripBasicInfo?.days || 3}天${tripData?.destinationInfo?.name || '目的地'}的精彩行程`
             }}
           </p>
         </div>
@@ -36,9 +31,7 @@ class="trip-subtitle">
               <div class="stat-number">
                 {{ tripData?.tripBasicInfo?.days || 0 }}
               </div>
-              <div class="stat-label">
-天数
-</div>
+              <div class="stat-label">天数</div>
             </div>
           </div>
           <div class="stat-card">
@@ -51,9 +44,7 @@ class="trip-subtitle">
               <div class="stat-number">
                 {{ tripData?.tripBasicInfo?.travelers || 0 }}
               </div>
-              <div class="stat-label">
-出行人数
-</div>
+              <div class="stat-label">出行人数</div>
             </div>
           </div>
           <div class="stat-card">
@@ -66,9 +57,7 @@ class="trip-subtitle">
               <div class="stat-number">
                 {{ tripData?.qualityScore || 0 }}
               </div>
-              <div class="stat-label">
-质量评分
-</div>
+              <div class="stat-label">质量评分</div>
             </div>
           </div>
           <div class="stat-card">
@@ -81,9 +70,7 @@ class="trip-subtitle">
               <div class="stat-number">
                 {{ formatProcessingTime(tripData?.processingTime) }}
               </div>
-              <div class="stat-label">
-用时
-</div>
+              <div class="stat-label">用时</div>
             </div>
           </div>
         </div>
@@ -91,42 +78,26 @@ class="trip-subtitle">
     </el-card>
 
     <!-- 完整的行程内容 -->
-    <el-card
-class="content-card" shadow="hover"
->
-      <div
-class="markdown-content" data-safe="true"
-v-html="renderedContent"
-/>
+    <el-card class="content-card" shadow="hover">
+      <div class="markdown-content" data-safe="true" v-html="renderedContent" />
     </el-card>
 
     <!-- 操作按钮区域 -->
-    <el-card
-class="actions-card" shadow="never"
->
+    <el-card class="actions-card" shadow="never">
       <div class="action-buttons">
-        <el-button :loading="copying"
-@click="copyToClipboard">
+        <el-button :loading="copying" @click="copyToClipboard">
           <el-icon><DocumentCopy /></el-icon>
           复制内容
         </el-button>
-        <el-button
-type="primary" @click="saveTrip"
-:loading="saving"
->
+        <el-button type="primary" :loading="saving" @click="saveTrip">
           <el-icon><Folder /></el-icon>
           保存行程
         </el-button>
-        <el-button
-type="success" @click="shareTrip"
-:loading="sharing"
->
+        <el-button type="success" :loading="sharing" @click="shareTrip">
           <el-icon><Share /></el-icon>
           分享
         </el-button>
-        <el-button
-type="warning" @click="regenerateTrip"
->
+        <el-button type="warning" @click="regenerateTrip">
           <el-icon><Refresh /></el-icon>
           重新生成
         </el-button>
@@ -134,9 +105,7 @@ type="warning" @click="regenerateTrip"
     </el-card>
 
     <!-- 用户反馈区域 -->
-    <el-card
-class="feedback-card" shadow="hover"
->
+    <el-card class="feedback-card" shadow="hover">
       <template #header>
         <div class="card-title">
           <el-icon color="#67c23a">
@@ -176,11 +145,7 @@ class="feedback-card" shadow="hover"
           >
             提交反馈
           </el-button>
-          <el-button size="small"
-link @click="clearFeedback"
->
-重置
-</el-button>
+          <el-button size="small" link @click="clearFeedback"> 重置 </el-button>
         </div>
       </div>
     </el-card>
@@ -188,11 +153,11 @@ link @click="clearFeedback"
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
-import { ElMessage, ElMessageBox } from "element-plus";
-import { useUserStore } from "@/store/user";
-import { useRouter } from "vue-router";
-import { http } from "@/api/request";
+import { ref, computed } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { useUserStore } from '@/store/user';
+import { useRouter } from 'vue-router';
+import { http } from '@/api/request';
 import {
   Cpu,
   Calendar,
@@ -204,9 +169,9 @@ import {
   Share,
   Refresh,
   ChatDotSquare,
-} from "@element-plus/icons-vue";
-import MarkdownIt from "markdown-it";
-import { sanitizeMarkdownHtml } from "@/utils/xssFilter.js";
+} from '@element-plus/icons-vue';
+import MarkdownIt from 'markdown-it';
+import { sanitizeMarkdownHtml } from '@/utils/xssFilter.js';
 
 const props = defineProps({
   tripData: {
@@ -215,7 +180,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["save", "share", "regenerate"]);
+const emit = defineEmits(['save', 'share', 'regenerate']);
 
 // 获取用户store和路由
 const userStore = useUserStore();
@@ -226,7 +191,7 @@ const copying = ref(false);
 const saving = ref(false);
 const sharing = ref(false);
 const userRating = ref(0);
-const userFeedback = ref("");
+const userFeedback = ref('');
 
 // 初始化Markdown解析器
 const md = new MarkdownIt({
@@ -238,7 +203,7 @@ const md = new MarkdownIt({
 
 // 自定义渲染规则 - 优化行程展示
 md.renderer.rules.strong_open = (tokens, idx) => {
-  const content = tokens[idx + 1]?.content || "";
+  const content = tokens[idx + 1]?.content || '';
   // 检查是否是时间格式（如 07:00-08:30）
   const isTimeRange = /^\d{2}:\d{2}-\d{2}:\d{2}$/.test(content);
   if (isTimeRange) {
@@ -246,7 +211,7 @@ md.renderer.rules.strong_open = (tokens, idx) => {
   }
   return '<p class="trip-highlight">';
 };
-md.renderer.rules.strong_close = () => "</p>";
+md.renderer.rules.strong_close = () => '</p>';
 
 // 计算属性：渲染完整的markdown内容
 const renderedContent = computed(() => {
@@ -255,53 +220,53 @@ const renderedContent = computed(() => {
 
   // 删除餐饮信息前的时间点 - 通用方法处理各种HTML结构
   const mealKeywords = [
-    "晚餐",
-    "午餐",
-    "早餐",
-    "下午茶",
-    "夜宵",
-    "小食",
-    "点心",
-    "茶歇",
-    "返程前休整",
-    "购物",
-    "休息",
-    "整理",
+    '晚餐',
+    '午餐',
+    '早餐',
+    '下午茶',
+    '夜宵',
+    '小食',
+    '点心',
+    '茶歇',
+    '返程前休整',
+    '购物',
+    '休息',
+    '整理',
   ];
 
-  mealKeywords.forEach((keyword) => {
+  mealKeywords.forEach(keyword => {
     // 处理各种可能的HTML标签包装的时间
     html = html
       // 处理 <p class="trip-highlight">时间</p> 餐饮
       .replace(
         new RegExp(
           `<p[^>]*class="trip-highlight[^"]*"[^>]*>\\d{1,2}:\\d{2}</p>\\s*(${keyword}[:：])`,
-          "g",
+          'g'
         ),
-        "$1",
+        '$1'
       )
       // 处理 <strong>时间</strong> 餐饮
       .replace(
         new RegExp(
           `<strong[^>]*>\\d{1,2}:\\d{2}</strong>\\s*(${keyword}[:：])`,
-          "g",
+          'g'
         ),
-        "$1",
+        '$1'
       )
       // 处理 <span>时间</span> 餐饮
       .replace(
         new RegExp(
           `<span[^>]*>\\d{1,2}:\\d{2}</span>\\s*(${keyword}[:：])`,
-          "g",
+          'g'
         ),
-        "$1",
+        '$1'
       )
       // 处理纯文本 时间 餐饮
-      .replace(new RegExp(`\\b\\d{1,2}:\\d{2}\\s+(${keyword}[:：])`, "g"), "$1")
+      .replace(new RegExp(`\\b\\d{1,2}:\\d{2}\\s+(${keyword}[:：])`, 'g'), '$1')
       // 处理任何标签包装的时间
       .replace(
-        new RegExp(`<[^>]+>\\d{1,2}:\\d{2}</[^>]+>\\s*(${keyword}[:：])`, "g"),
-        "$1",
+        new RegExp(`<[^>]+>\\d{1,2}:\\d{2}</[^>]+>\\s*(${keyword}[:：])`, 'g'),
+        '$1'
       );
   });
 
@@ -312,13 +277,13 @@ const renderedContent = computed(() => {
 });
 
 // 工具函数：格式化处理时间
-const formatProcessingTime = (time) => {
-  if (!time) return "0s";
+const formatProcessingTime = time => {
+  if (!time) return '0s';
   return time < 1000 ? `${time}ms` : `${Math.round(time / 1000)}s`;
 };
 
 // 工具函数：从行程内容中提取预算信息
-const extractBudgetFromContent = (content) => {
+const extractBudgetFromContent = content => {
   if (!content) return null;
 
   // 尝试匹配预算信息的正则表达式
@@ -344,11 +309,11 @@ const extractBudgetFromContent = (content) => {
 const copyToClipboard = async () => {
   copying.value = true;
   try {
-    const content = props.tripData?.content || "";
+    const content = props.tripData?.content || '';
     await navigator.clipboard.writeText(content);
-    ElMessage.success("复制成功！");
+    ElMessage.success('复制成功！');
   } catch (err) {
-    ElMessage.error("复制失败，请重试");
+    ElMessage.error('复制失败，请重试');
   } finally {
     copying.value = false;
   }
@@ -361,18 +326,18 @@ const saveTrip = async () => {
     // 构建保存请求数据
     const saveRequest = {
       userId: userStore.userId || 1, // 如果没有用户ID则使用默认值1
-      title: `${props.tripData?.destinationInfo?.name || "未知目的地"}${props.tripData?.tripBasicInfo?.days || 3}天${props.tripData?.tripBasicInfo?.travelers || 1}人行程`,
-      city: props.tripData?.destinationInfo?.name || "未知目的地",
+      title: `${props.tripData?.destinationInfo?.name || '未知目的地'}${props.tripData?.tripBasicInfo?.days || 3}天${props.tripData?.tripBasicInfo?.travelers || 1}人行程`,
+      city: props.tripData?.destinationInfo?.name || '未知目的地',
       days: props.tripData?.tripBasicInfo?.days || 3,
       travelers: props.tripData?.tripBasicInfo?.travelers || 1,
       totalBudget: extractBudgetFromContent(props.tripData?.content) || null,
-      aiContent: props.tripData?.content || "",
+      aiContent: props.tripData?.content || '',
       destinationInfo: JSON.stringify(props.tripData?.destinationInfo || {}),
       tripBasicInfo: JSON.stringify(props.tripData?.tripBasicInfo || {}),
       qualityScore: props.tripData?.qualityScore || null,
       processingTime: props.tripData?.processingTime || null,
       generationParams: JSON.stringify({
-        aiProvider: props.tripData?.aiProvider || "DeepSeek",
+        aiProvider: props.tripData?.aiProvider || 'DeepSeek',
         promptLength: props.tripData?.promptLength || null,
         responseLength: props.tripData?.responseLength || null,
         generatedAt: props.tripData?.generatedAt || new Date().toISOString(),
@@ -382,11 +347,11 @@ const saveTrip = async () => {
     };
 
     // 调用后端API保存行程
-    const response = await http.post("/ai/trip/save", saveRequest);
+    const response = await http.post('/ai/trip/save', saveRequest);
 
     if (response.code === 200) {
-      ElMessage.success("保存成功！");
-      emit("save", {
+      ElMessage.success('保存成功！');
+      emit('save', {
         ...props.tripData,
         savedTripId: response.data.id,
         saved: true,
@@ -394,13 +359,13 @@ const saveTrip = async () => {
 
       // 延迟跳转到首页
       setTimeout(() => {
-        router.push("/home");
+        router.push('/home');
       }, 1500);
     } else {
-      throw new Error(response.msg || "保存失败");
+      throw new Error(response.msg || '保存失败');
     }
   } catch (err) {
-    ElMessage.error(err.message || "保存失败，请重试");
+    ElMessage.error(err.message || '保存失败，请重试');
   } finally {
     saving.value = false;
   }
@@ -411,11 +376,11 @@ const shareTrip = async () => {
   sharing.value = true;
   try {
     // 模拟分享操作
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    ElMessage.success("分享成功！");
-    emit("share", props.tripData);
+    await new Promise(resolve => setTimeout(resolve, 800));
+    ElMessage.success('分享成功！');
+    emit('share', props.tripData);
   } catch (err) {
-    ElMessage.error("分享失败，请重试");
+    ElMessage.error('分享失败，请重试');
   } finally {
     sharing.value = false;
   }
@@ -423,13 +388,13 @@ const shareTrip = async () => {
 
 // 重新生成行程
 const regenerateTrip = () => {
-  ElMessageBox.confirm("重新生成将替换当前行程，确定继续吗？", "重新生成行程", {
-    confirmButtonText: "确认",
-    cancelButtonText: "取消",
-    type: "warning",
+  ElMessageBox.confirm('重新生成将替换当前行程，确定继续吗？', '重新生成行程', {
+    confirmButtonText: '确认',
+    cancelButtonText: '取消',
+    type: 'warning',
   })
     .then(() => {
-      emit("regenerate");
+      emit('regenerate');
     })
     .catch(() => {
       // 用户取消
@@ -447,13 +412,13 @@ const submitRating = () => {
 const submitFeedback = () => {
   if (!userFeedback.value.trim()) return;
 
-  ElMessage.success("提交成功，感谢您的反馈！");
-  userFeedback.value = "";
+  ElMessage.success('提交成功，感谢您的反馈！');
+  userFeedback.value = '';
 };
 
 // 清空反馈
 const clearFeedback = () => {
-  userFeedback.value = "";
+  userFeedback.value = '';
   userRating.value = 0;
 };
 </script>
@@ -587,7 +552,7 @@ const clearFeedback = () => {
   color: #4a5568;
   font-size: 15px;
   font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .markdown-content :deep(h1),
@@ -770,7 +735,7 @@ const clearFeedback = () => {
   background: #f1f5f9;
   padding: 2px 6px;
   border-radius: 3px;
-  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 12px;
   color: #718096;
   font-weight: 500;

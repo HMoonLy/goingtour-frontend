@@ -5,23 +5,15 @@
       v-if="!baseForm.destinationName && !isRestoringProgress && !isFromDraft"
       class="no-destination-notice"
     >
-      <el-card
-class="notice-card" shadow="hover"
->
+      <el-card class="notice-card" shadow="hover">
         <div class="notice-content">
-          <el-icon
-class="notice-icon" color="#F56C6C"
-size="48"
->
+          <el-icon class="notice-icon" color="#F56C6C" size="48">
             <Location />
           </el-icon>
           <h2>目的地</h2>
           <p>创建行程</p>
           <div class="notice-actions">
-            <el-button
-type="primary" size="large"
-@click="goToDestinations"
->
+            <el-button type="primary" size="large" @click="goToDestinations">
               <el-icon><Location /></el-icon>
               目的地
             </el-button>
@@ -32,14 +24,10 @@ type="primary" size="large"
 
     <!-- 正常的行程创建界面 -->
     <template v-else>
-      <h1 class="page-title">
-创建行程
-</h1>
+      <h1 class="page-title">创建行程</h1>
 
       <el-card class="steps-card">
-        <el-steps :active="currentStep"
-finish-status="success" align-center
->
+        <el-steps :active="currentStep" finish-status="success" align-center>
           <el-step title="基础信息" />
           <el-step title="个性化偏好" />
           <el-step title="智能生成" />
@@ -181,13 +169,10 @@ finish-status="success" align-center
           @prev-step="prevStep"
         />
         <!-- 空状态展示 -->
-        <div
-v-else-if="currentStep === 3" class="empty-trip-state">
-          <el-empty description="未找到行程数据"
-:image-size="200">
+        <div v-else-if="currentStep === 3" class="empty-trip-state">
+          <el-empty description="未找到行程数据" :image-size="200">
             >
-            <el-button
-type="primary" @click="regenerateTrip">
+            <el-button type="primary" @click="regenerateTrip">
               生成行程
             </el-button>
           </el-empty>
@@ -213,9 +198,7 @@ type="primary" @click="regenerateTrip">
           />
         </el-form-item>
         <el-form-item label="当前进度">
-          <el-tag
-type="info" size="small"
->
+          <el-tag type="info" size="small">
             第{{ currentStep + 1 }}步：{{ getStepName(currentStep) }}
           </el-tag>
         </el-form-item>
@@ -247,23 +230,15 @@ type="info" size="small"
       :before-close="handleCloseDraftList"
     >
       <div class="draft-list-container">
-        <div
-v-if="drafts.length === 0" class="empty-drafts"
->
-          <el-empty
-description="暂无保存的草稿" image-size="120"
->
-            <el-button
-type="primary" @click="showDraftList = false"
->
+        <div v-if="drafts.length === 0" class="empty-drafts">
+          <el-empty description="暂无保存的草稿" image-size="120">
+            <el-button type="primary" @click="showDraftList = false">
               开始创建行程
             </el-button>
           </el-empty>
         </div>
 
-        <div
-v-else class="draft-grid"
->
+        <div v-else class="draft-grid">
           <div
             v-for="draft in drafts"
             :key="draft.id"
@@ -275,12 +250,8 @@ v-else class="draft-grid"
                 <h4 class="draft-title">
                   {{ draft.name }}
                 </h4>
-                <el-dropdown trigger="click"
-@command="handleDraftAction">
-                  <el-button
-link size="small"
-class="draft-menu-btn"
->
+                <el-dropdown trigger="click" @command="handleDraftAction">
+                  <el-button link size="small" class="draft-menu-btn">
                     <el-icon><MoreFilled /></el-icon>
                   </el-button>
                   <template #dropdown>
@@ -318,7 +289,7 @@ class="draft-menu-btn"
               <div class="draft-info">
                 <div class="draft-destination">
                   <el-icon><Location /></el-icon>
-                  {{ draft.baseForm?.destinationName || "未知目的地" }}
+                  {{ draft.baseForm?.destinationName || '未知目的地' }}
                 </div>
                 <div class="draft-step">
                   <el-icon><List /></el-icon>
@@ -346,9 +317,7 @@ class="draft-menu-btn"
         </div>
 
         <!-- 草稿统计信息 -->
-        <div
-v-if="drafts.length > 0" class="draft-stats"
->
+        <div v-if="drafts.length > 0" class="draft-stats">
           <el-divider />
           <div class="stats-row">
             <span>共 {{ drafts.length }} 个草稿</span>
@@ -367,8 +336,7 @@ v-if="drafts.length > 0" class="draft-stats"
     </el-dialog>
 
     <!-- 重命名草稿对话框 -->
-    <el-dialog v-model="renameDraftDialog"
-title="重命名草稿" width="400px">
+    <el-dialog v-model="renameDraftDialog" title="重命名草稿" width="400px">
       <el-form label-width="80px">
         <el-form-item label="草稿名称">
           <el-input
@@ -407,9 +375,9 @@ import {
   watch,
   onBeforeUnmount,
   nextTick,
-} from "vue";
-import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
-import { ElMessage, ElMessageBox } from "element-plus";
+} from 'vue';
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   Location,
   Folder,
@@ -420,20 +388,20 @@ import {
   Delete,
   List,
   Clock,
-} from "@element-plus/icons-vue";
-import { useUserStore } from "@/store/user.js";
-import { usePreferenceStore } from "@/store/preference.js";
-import { useDraftStore } from "@/store/draft.js";
-import { weatherApi } from "@/api/weather.js";
-import { draftApi } from "@/api/draft.js";
-import TripBaseInfo from "@/components/Trip/TripBaseInfo.vue";
-import TripPreferences from "@/components/Trip/TripPreferences.vue";
-import TripGeneration from "@/components/Trip/TripGeneration.vue";
-import TripPreview from "@/components/Trip/TripPreview.vue";
-import AiTripDisplay from "@/components/Trip/AiTripDisplay.vue";
+} from '@element-plus/icons-vue';
+import { useUserStore } from '@/store/user.js';
+import { usePreferenceStore } from '@/store/preference.js';
+import { useDraftStore } from '@/store/draft.js';
+import { weatherApi } from '@/api/weather.js';
+import { draftApi } from '@/api/draft.js';
+import TripBaseInfo from '@/components/Trip/TripBaseInfo.vue';
+import TripPreferences from '@/components/Trip/TripPreferences.vue';
+import TripGeneration from '@/components/Trip/TripGeneration.vue';
+import TripPreview from '@/components/Trip/TripPreview.vue';
+import AiTripDisplay from '@/components/Trip/AiTripDisplay.vue';
 
 export default {
-  name: "TripCreate",
+  name: 'TripCreate',
   components: {
     TripBaseInfo,
     TripPreferences,
@@ -463,18 +431,18 @@ export default {
 
     // 基础表单数据
     const baseForm = reactive({
-      destination: "",
-      destinationName: "",
+      destination: '',
+      destinationName: '',
       days: 3,
       dateRange: null, // 初始设置为null而不是空数组
       travelers: 1,
-      budget: "moderate", // 修改为字符串类型以匹配子组件期望
+      budget: 'moderate', // 修改为字符串类型以匹配子组件期望
     });
 
     // 偏好表单数据 - 使用preferenceStore
     const preferenceForm = computed({
       get: () => preferenceStore.tripPreferenceForm,
-      set: (value) => preferenceStore.updateTripPreferences(value),
+      set: value => preferenceStore.updateTripPreferences(value),
     });
 
     // 已选景点和餐厅
@@ -482,7 +450,7 @@ export default {
     const selectedRestaurants = ref([]);
 
     // 额外需求
-    const extraRequirements = ref("");
+    const extraRequirements = ref('');
 
     // 生成的行程数据
     const tripData = ref({});
@@ -490,7 +458,7 @@ export default {
 
     // AI生成状态
     const generating = ref(false);
-    const generationProgress = ref("");
+    const generationProgress = ref('');
     const progressPercent = ref(0);
 
     // 天气相关状态
@@ -508,13 +476,13 @@ export default {
     const saveDraftDialog = ref(false);
     const showDraftList = ref(false);
     const renameDraftDialog = ref(false);
-    const draftName = ref("");
-    const newDraftName = ref("");
+    const draftName = ref('');
+    const newDraftName = ref('');
     const drafts = ref([]);
-    const loadingDraftId = ref("");
+    const loadingDraftId = ref('');
     const savingDraft = ref(false);
     const renamingDraft = ref(false);
-    const currentRenamingDraftId = ref("");
+    const currentRenamingDraftId = ref('');
 
     // 计算属性：是否可以保存草稿
     const canSaveDraft = computed(() => {
@@ -533,19 +501,19 @@ export default {
     const nextStep = () => {
       if (currentStep.value < 3) {
         currentStep.value += 1;
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     };
 
     const prevStep = () => {
       if (currentStep.value > 0) {
         currentStep.value -= 1;
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     };
 
     // 处理行程生成完成事件
-    const handleGenerationComplete = (generatedTripData) => {
+    const handleGenerationComplete = generatedTripData => {
       tripData.value = generatedTripData;
       nextStep(); // 进入行程预览步骤
     };
@@ -554,19 +522,19 @@ export default {
     const regenerateTrip = () => {
       // 回到生成步骤
       currentStep.value = 2;
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     // 处理行程保存成功事件
     const handleTripSaved = () => {
-      ElMessage.success("更新成功");
+      ElMessage.success('更新成功');
       // 保存后的跳转逻辑已经在TripPreview组件中处理
     };
 
     // 处理行程分享事件
-    const handleTripShare = (tripData) => {
+    const handleTripShare = tripData => {
       // 分享行程功能
-      ElMessage.success("Share WIP");
+      ElMessage.success('Share WIP');
     };
 
     // 获取天气信息
@@ -585,11 +553,11 @@ export default {
           const weatherData = await weatherApi.getWeatherSuggestions(
             city,
             new Date(startDate),
-            days,
+            days
           );
           if (weatherData) {
             weatherSuggestion.value = weatherData;
-            console.log("✅ 天气信息获取成功", weatherData);
+            console.log('✅ 天气信息获取成功', weatherData);
           }
         } else {
           console.log(`🌤️ 开始获取${city}的基础天气数据（不依赖日期选择）`);
@@ -597,21 +565,21 @@ export default {
           const weatherData = await weatherApi.getWeatherSuggestions(
             city,
             new Date(),
-            3,
+            3
           ); // 默认3天
           if (weatherData) {
             weatherSuggestion.value = weatherData;
-            console.log("✅ 基础天气信息获取成功", weatherData);
+            console.log('✅ 基础天气信息获取成功', weatherData);
           }
         }
 
         if (!weatherSuggestion.value) {
-          weatherError.value = "更新失败";
-          console.log("❌ 天气信息获取失败");
+          weatherError.value = '更新失败';
+          console.log('❌ 天气信息获取失败');
         }
       } catch (error) {
-        console.error("❌ 获取天气信息时出错:", error);
-        weatherError.value = error.message || "更新失败";
+        console.error('❌ 获取天气信息时出错:', error);
+        weatherError.value = error.message || '更新失败';
       } finally {
         loadingWeather.value = false;
       }
@@ -621,13 +589,13 @@ export default {
     const goToDestinations = () => {
       // 重置草稿状态，因为用户开始新的行程创建
       isFromDraft.value = false;
-      router.push("/destinations");
+      router.push('/destinations');
     };
 
     // 监听城市变化，立即获取天气数据
     watch(
       () => baseForm.destinationName,
-      (city) => {
+      city => {
         console.log(`🔍 监听到城市变化：${city}`);
 
         if (city) {
@@ -640,14 +608,14 @@ export default {
           fetchWeatherForTrip(city, null, null);
         }
       },
-      { immediate: true },
+      { immediate: true }
     );
 
     // 标记数据已更改 - 简化版本（移除draftManager依赖）
     const markDataChanged = () => {
       // 这里可以添加简单的本地状态管理逻辑
       // 现在主要用于调试输出
-      console.log("📝 数据已标记为更改，当前进度:", {
+      console.log('📝 数据已标记为更改，当前进度:', {
         step: currentStep.value,
         hasDestination: !!baseForm.destinationName,
         hasPreferences: Object.keys(preferenceForm.value || {}).length > 0,
@@ -656,7 +624,7 @@ export default {
 
     // 组件挂载后检查草稿数据和用户偏好
     onMounted(async () => {
-      console.log("🚀 TripCreate组件挂载");
+      console.log('🚀 TripCreate组件挂载');
 
       // 首先检查是否有草稿需要恢复
       restoreDraftData();
@@ -667,18 +635,18 @@ export default {
       // 确保用户偏好数据已加载
       if (userStore.isLoggedIn && userStore.currentUser?.id) {
         try {
-          console.log("🔄 加载用户偏好数据...");
+          console.log('🔄 加载用户偏好数据...');
           await userStore.fetchUserPreferences();
-          console.log("✅ 用户偏好数据加载完成");
+          console.log('✅ 用户偏好数据加载完成');
         } catch (error) {
-          console.warn("⚠️ 加载用户偏好失败:", error);
+          console.warn('⚠️ 加载用户偏好失败:', error);
         }
       }
 
       // 检查是否从偏好设置返回
-      if (route.query.fromPreferences === "true") {
+      if (route.query.fromPreferences === 'true') {
         // 从偏好设置返回时，强制重新加载偏好数据
-        ElMessage.success("偏好设置已更新");
+        ElMessage.success('偏好设置已更新');
       }
 
       // 处理模板/场景预填（允许从 /destinations 透传）
@@ -687,9 +655,9 @@ export default {
           const payload = JSON.parse(decodeURIComponent(route.query.preset));
           const { type, id } = payload || {};
           if (type && id) {
-            if (type === "scenario") {
+            if (type === 'scenario') {
               const { findScenarioById } = await import(
-                "@/data/aiScenarios.js"
+                '@/data/aiScenarios.js'
               );
               const sc = findScenarioById(id);
               if (sc?.preset) {
@@ -707,7 +675,7 @@ export default {
             }
           }
         } catch (e) {
-          console.warn("解析 preset 失败", e);
+          console.warn('解析 preset 失败', e);
         }
       }
 
@@ -716,7 +684,7 @@ export default {
         baseForm.destination = route.query.city;
         baseForm.destinationName = decodeURIComponent(route.query.cityName); // 解码中文名称
         console.log(
-          `从URL获取到目的地城市：${baseForm.destinationName}(${baseForm.destination})`,
+          `从URL获取到目的地城市：${baseForm.destinationName}(${baseForm.destination})`
         );
         ElMessage.success(`目的地: ${baseForm.destinationName}`);
 
@@ -726,7 +694,7 @@ export default {
       // 尝试恢复进度（简化版：只从URL查询参数恢复）
       if (!route.query.city && !route.query.fromPreferences) {
         // 这里可以添加其他自动恢复逻辑，暂时留空
-        console.log("🔍 暂无需要恢复的进度");
+        console.log('🔍 暂无需要恢复的进度');
       }
     });
 
@@ -744,28 +712,28 @@ export default {
         // 允许在任何情况下标记更改，这样可以保存更多的用户输入状态
         markDataChanged();
       },
-      { deep: true },
+      { deep: true }
     );
 
     // 路由离开前确认 - 简化版
     onBeforeRouteLeave(async (to, from) => {
-      console.log("🚀 路由离开守卫触发，目标路由:", to.path);
+      console.log('🚀 路由离开守卫触发，目标路由:', to.path);
 
       if (generating.value) {
-        ElMessage.warning("行程正在生成中，请稍候...");
+        ElMessage.warning('行程正在生成中，请稍候...');
         return false;
       }
 
       // 简化的离开确认，不再使用draftManager
       // 这里可以根据需要添加简单的确认逻辑
-      console.log("🚀 允许路由离开");
+      console.log('🚀 允许路由离开');
       return true;
     });
 
     // 初始化草稿列表
     const loadDrafts = async () => {
       try {
-        const { useUserStore } = await import("@/store/user.js");
+        const { useUserStore } = await import('@/store/user.js');
         const userStore = useUserStore();
         const userId = userStore.currentUser?.id;
 
@@ -774,7 +742,7 @@ export default {
         const response = await draftApi.getUserDrafts(userId);
         drafts.value = response.data || [];
       } catch (error) {
-        console.error("加载草稿列表失败:", error);
+        console.error('加载草稿列表失败:', error);
         drafts.value = [];
       }
     };
@@ -785,7 +753,7 @@ export default {
 
       // 生成默认草稿名称
       const now = new Date();
-      const defaultName = `行程草稿_${now.getMonth() + 1}月${now.getDate()}日_${now.getHours()}:${now.getMinutes().toString().padStart(2, "0")}`;
+      const defaultName = `行程草稿_${now.getMonth() + 1}月${now.getDate()}日_${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
 
       savingDraft.value = true;
       try {
@@ -805,7 +773,7 @@ export default {
           await loadDrafts();
         }
       } catch (error) {
-        console.error("快捷保存草稿失败:", error);
+        console.error('快捷保存草稿失败:', error);
       } finally {
         savingDraft.value = false;
       }
@@ -830,17 +798,17 @@ export default {
 
         if (draftId) {
           saveDraftDialog.value = false;
-          draftName.value = "";
+          draftName.value = '';
           await loadDrafts();
         }
       } catch (error) {
-        console.error("保存草稿失败:", error);
+        console.error('保存草稿失败:', error);
       } finally {
         savingDraft.value = false;
       }
     };
 
-    const handleLoadDraft = async (draftId) => {
+    const handleLoadDraft = async draftId => {
       loadingDraftId.value = draftId;
       try {
         // 使用新的草稿store加载草稿
@@ -852,12 +820,12 @@ export default {
         // 确认是否加载草稿
         await ElMessageBox.confirm(
           `确定要加载草稿吗？当前的进度将会被覆盖。`,
-          "加载草稿",
+          '加载草稿',
           {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning",
-          },
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }
         );
 
         // 草稿数据已经加载到store中，现在在当前页面恢复数据
@@ -865,38 +833,38 @@ export default {
 
         showDraftList.value = false;
       } catch (error) {
-        console.error("❌ 加载草稿失败:", error);
-        if (error !== "cancel") {
-          ElMessage.error("加载草稿失败！");
+        console.error('❌ 加载草稿失败:', error);
+        if (error !== 'cancel') {
+          ElMessage.error('加载草稿失败！');
         }
       } finally {
         loadingDraftId.value = null;
       }
     };
 
-    const handleDraftAction = (command) => {
+    const handleDraftAction = command => {
       const { action, id } = command;
 
       switch (action) {
-        case "load":
+        case 'load':
           handleLoadDraft(id);
           break;
-        case "rename":
+        case 'rename':
           handleRenameDraft(id);
           break;
-        case "copy":
+        case 'copy':
           handleCopyDraft(id);
           break;
-        case "delete":
+        case 'delete':
           handleDeleteDraft(id);
           break;
       }
     };
 
-    const handleRenameDraft = async (draftId) => {
+    const handleRenameDraft = async draftId => {
       // 使用简单的API调用获取草稿信息
       try {
-        const { useUserStore } = await import("@/store/user.js");
+        const { useUserStore } = await import('@/store/user.js');
         const userStore = useUserStore();
         const userId = userStore.currentUser?.id;
 
@@ -910,20 +878,20 @@ export default {
         newDraftName.value = draft.name;
         renameDraftDialog.value = true;
       } catch (error) {
-        console.error("获取草稿信息失败:", error);
-        ElMessage.error("获取草稿信息失败！");
+        console.error('获取草稿信息失败:', error);
+        ElMessage.error('获取草稿信息失败！');
       }
     };
 
     const handleConfirmRename = async () => {
       if (!newDraftName.value.trim()) {
-        ElMessage.warning("请输入草稿名称！");
+        ElMessage.warning('请输入草稿名称！');
         return;
       }
 
       renamingDraft.value = true;
       try {
-        const { useUserStore } = await import("@/store/user.js");
+        const { useUserStore } = await import('@/store/user.js');
         const userStore = useUserStore();
         const userId = userStore.currentUser?.id;
 
@@ -932,39 +900,39 @@ export default {
         await draftApi.renameDraft(
           currentRenamingDraftId.value,
           newDraftName.value.trim(),
-          userId,
+          userId
         );
-        ElMessage.success("重命名成功！");
+        ElMessage.success('重命名成功！');
         renameDraftDialog.value = false;
         loadDrafts();
       } catch (error) {
-        console.error("重命名草稿失败:", error);
-        ElMessage.error("重命名失败！");
+        console.error('重命名草稿失败:', error);
+        ElMessage.error('重命名失败！');
       } finally {
         renamingDraft.value = false;
       }
     };
 
-    const handleCopyDraft = async (draftId) => {
+    const handleCopyDraft = async draftId => {
       try {
-        const { useUserStore } = await import("@/store/user.js");
+        const { useUserStore } = await import('@/store/user.js');
         const userStore = useUserStore();
         const userId = userStore.currentUser?.id;
 
         if (!userId) return;
 
         await draftApi.copyDraft(draftId, `草稿副本_${Date.now()}`, userId);
-        ElMessage.success("草稿复制成功！");
+        ElMessage.success('草稿复制成功！');
         loadDrafts();
       } catch (error) {
-        console.error("复制草稿失败:", error);
-        ElMessage.error("草稿复制失败！");
+        console.error('复制草稿失败:', error);
+        ElMessage.error('草稿复制失败！');
       }
     };
 
-    const handleDeleteDraft = async (draftId) => {
+    const handleDeleteDraft = async draftId => {
       try {
-        const { useUserStore } = await import("@/store/user.js");
+        const { useUserStore } = await import('@/store/user.js');
         const userStore = useUserStore();
         const userId = userStore.currentUser?.id;
 
@@ -976,23 +944,23 @@ export default {
 
         await ElMessageBox.confirm(
           `确定要删除草稿"${draft.name}"吗？删除后无法恢复。`,
-          "删除草稿",
+          '删除草稿',
           {
-            confirmButtonText: "确定删除",
-            cancelButtonText: "取消",
-            type: "warning",
-          },
+            confirmButtonText: '确定删除',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }
         );
 
         await draftApi.deleteDraft(draftId, userId);
-        ElMessage.success("草稿删除成功！");
+        ElMessage.success('草稿删除成功！');
         loadDrafts();
       } catch (error) {
-        if (error === "cancel") {
+        if (error === 'cancel') {
           // 用户取消，不做处理
         } else {
-          console.error("删除草稿失败:", error);
-          ElMessage.error("草稿删除失败！");
+          console.error('删除草稿失败:', error);
+          ElMessage.error('草稿删除失败！');
         }
       }
     };
@@ -1000,16 +968,16 @@ export default {
     const handleClearAllDrafts = async () => {
       try {
         await ElMessageBox.confirm(
-          "确定要删除所有草稿吗？删除后无法恢复。",
-          "清空所有草稿",
+          '确定要删除所有草稿吗？删除后无法恢复。',
+          '清空所有草稿',
           {
-            confirmButtonText: "确定删除",
-            cancelButtonText: "取消",
-            type: "warning",
-          },
+            confirmButtonText: '确定删除',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }
         );
 
-        const { useUserStore } = await import("@/store/user.js");
+        const { useUserStore } = await import('@/store/user.js');
         const userStore = useUserStore();
         const userId = userStore.currentUser?.id;
 
@@ -1017,25 +985,25 @@ export default {
 
         // 获取所有草稿ID
         const response = await draftApi.getUserDrafts(userId);
-        const draftIds = response.data?.map((draft) => draft.id) || [];
+        const draftIds = response.data?.map(draft => draft.id) || [];
 
         if (draftIds.length > 0) {
           await draftApi.batchDeleteDrafts(draftIds, userId);
-          ElMessage.success("所有草稿已清空！");
+          ElMessage.success('所有草稿已清空！');
           loadDrafts();
         }
       } catch (error) {
-        if (error === "cancel") {
+        if (error === 'cancel') {
           // 用户取消，不做处理
         } else {
-          console.error("清空草稿失败:", error);
-          ElMessage.error("清空草稿失败！");
+          console.error('清空草稿失败:', error);
+          ElMessage.error('清空草稿失败！');
         }
       }
     };
 
     const handleCloseSaveDraftDialog = () => {
-      draftName.value = "";
+      draftName.value = '';
       saveDraftDialog.value = false;
     };
 
@@ -1044,18 +1012,18 @@ export default {
     };
 
     // 获取步骤名称
-    const getStepName = (step) => {
-      const stepNames = ["基础信息", "个性化偏好", "智能生成", "行程预览"];
-      return stepNames[step] || "未知步骤";
+    const getStepName = step => {
+      const stepNames = ['基础信息', '个性化偏好', '智能生成', '行程预览'];
+      return stepNames[step] || '未知步骤';
     };
 
     // 获取相对时间
-    const getDraftTimeAgo = (timestamp) => {
+    const getDraftTimeAgo = timestamp => {
       const now = Date.now();
       const time = new Date(timestamp).getTime();
       const diff = now - time;
 
-      if (diff < 60000) return "刚刚";
+      if (diff < 60000) return '刚刚';
       if (diff < 3600000) return `${Math.floor(diff / 60000)}分钟前`;
       if (diff < 86400000) return `${Math.floor(diff / 3600000)}小时前`;
       return `${Math.floor(diff / 86400000)}天前`;
@@ -1063,13 +1031,13 @@ export default {
 
     // 临时调试函数
     const debugCurrentState = () => {
-      console.log("🐛 ===== 当前状态调试信息 =====");
-      console.log("📍 当前baseForm:", JSON.parse(JSON.stringify(baseForm)));
+      console.log('🐛 ===== 当前状态调试信息 =====');
+      console.log('📍 当前baseForm:', JSON.parse(JSON.stringify(baseForm)));
       console.log(
-        "📋 当前preferenceForm:",
-        JSON.parse(JSON.stringify(preferenceStore.tripPreferenceForm)),
+        '📋 当前preferenceForm:',
+        JSON.parse(JSON.stringify(preferenceStore.tripPreferenceForm))
       );
-      console.log("📊 当前状态:", {
+      console.log('📊 当前状态:', {
         currentStep: currentStep.value,
         isFromDraft: isFromDraft.value,
         isRestoringProgress: isRestoringProgress.value,
@@ -1090,39 +1058,39 @@ export default {
             isFromDraft.value,
         },
       });
-      console.log("📦 草稿列表:", drafts.value);
-      console.log("🔧 用户偏好:", userStore.userPreferences);
-      console.log("🐛 ===== 调试信息结束 =====");
+      console.log('📦 草稿列表:', drafts.value);
+      console.log('🔧 用户偏好:', userStore.userPreferences);
+      console.log('🐛 ===== 调试信息结束 =====');
 
       // 同时显示给用户
-      ElMessage.info("调试信息已输出到控制台，请查看开发者工具");
+      ElMessage.info('调试信息已输出到控制台，请查看开发者工具');
     };
 
     // 简单直接的草稿恢复函数
     const restoreDraftData = () => {
-      console.log("🔍 检查是否有草稿需要恢复...");
-      console.log("🔍 draftStore.currentDraft:", draftStore.currentDraft);
+      console.log('🔍 检查是否有草稿需要恢复...');
+      console.log('🔍 draftStore.currentDraft:', draftStore.currentDraft);
       console.log(
-        "🔍 draftStore.isLoadingFromDraft:",
-        draftStore.isLoadingFromDraft,
+        '🔍 draftStore.isLoadingFromDraft:',
+        draftStore.isLoadingFromDraft
       );
 
       if (draftStore.hasDraftToRestore()) {
-        console.log("🔄 检测到草稿数据，开始恢复:", draftStore.currentDraft);
+        console.log('🔄 检测到草稿数据，开始恢复:', draftStore.currentDraft);
 
         const draft = draftStore.currentDraft;
 
         // 恢复步骤
         currentStep.value = draft.currentStep || 0;
-        console.log("✅ 步骤已恢复:", currentStep.value);
+        console.log('✅ 步骤已恢复:', currentStep.value);
 
         // 恢复基础表单数据
         if (draft.baseForm && Object.keys(draft.baseForm).length > 0) {
-          console.log("📋 恢复前的baseForm:", JSON.stringify(baseForm));
-          console.log("📋 草稿中的baseForm:", JSON.stringify(draft.baseForm));
+          console.log('📋 恢复前的baseForm:', JSON.stringify(baseForm));
+          console.log('📋 草稿中的baseForm:', JSON.stringify(draft.baseForm));
 
           Object.assign(baseForm, draft.baseForm);
-          console.log("✅ 基础表单数据已恢复:", JSON.stringify(baseForm));
+          console.log('✅ 基础表单数据已恢复:', JSON.stringify(baseForm));
         }
 
         // 恢复偏好数据
@@ -1131,28 +1099,28 @@ export default {
           Object.keys(draft.preferenceForm).length > 0
         ) {
           preferenceStore.loadDraftPreferences(draft.preferenceForm);
-          console.log("✅ 偏好数据已恢复");
+          console.log('✅ 偏好数据已恢复');
         }
 
         // 恢复其他数据
         selectedAttractions.value = draft.selectedAttractions || [];
         selectedRestaurants.value = draft.selectedRestaurants || [];
-        extraRequirements.value = draft.extraRequirements || "";
+        extraRequirements.value = draft.extraRequirements || '';
         weatherSuggestion.value = draft.weatherSuggestion || null;
 
         // 设置标识
         isFromDraft.value = true;
 
-        console.log("✅ 草稿数据恢复完成，当前步骤:", currentStep.value);
-        console.log("✅ 最终baseForm状态:", JSON.stringify(baseForm));
+        console.log('✅ 草稿数据恢复完成，当前步骤:', currentStep.value);
+        console.log('✅ 最终baseForm状态:', JSON.stringify(baseForm));
 
         // 恢复完成后清除store中的数据
         draftStore.clearDraft();
 
         ElMessage.success(`草稿"${draft.name}"已恢复`);
       } else {
-        console.log("❌ 没有检测到草稿数据需要恢复");
-        console.log("❌ 当前store状态:", {
+        console.log('❌ 没有检测到草稿数据需要恢复');
+        console.log('❌ 当前store状态:', {
           currentDraft: draftStore.currentDraft,
           isLoadingFromDraft: draftStore.isLoadingFromDraft,
         });
@@ -1370,7 +1338,7 @@ export default {
 }
 
 .page-title::after {
-  content: "";
+  content: '';
   position: absolute;
   bottom: -8px;
   left: 50%;

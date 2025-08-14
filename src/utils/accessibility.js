@@ -3,7 +3,7 @@
  * 提供键盘导航、屏幕阅读器支持等功能
  */
 
-import { ref, nextTick, onMounted, onUnmounted } from "vue";
+import { ref, nextTick, onMounted, onUnmounted } from 'vue';
 
 /**
  * 键盘导航管理器
@@ -32,18 +32,18 @@ export class KeyboardNavigationManager {
     if (!this.container) return;
 
     const selector = [
-      "a[href]",
-      "button:not([disabled])",
-      "input:not([disabled])",
-      "select:not([disabled])",
-      "textarea:not([disabled])",
+      'a[href]',
+      'button:not([disabled])',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
       '[tabindex]:not([tabindex="-1"])',
       '[contenteditable="true"]',
-    ].join(", ");
+    ].join(', ');
 
     this.focusableElements = Array.from(
-      this.container.querySelectorAll(selector),
-    ).filter((el) => {
+      this.container.querySelectorAll(selector)
+    ).filter(el => {
       return el.offsetWidth > 0 && el.offsetHeight > 0 && !el.hidden;
     });
   }
@@ -52,7 +52,7 @@ export class KeyboardNavigationManager {
    * 绑定键盘事件
    */
   bindEvents() {
-    this.container.addEventListener("keydown", this.handleKeyDown.bind(this));
+    this.container.addEventListener('keydown', this.handleKeyDown.bind(this));
   }
 
   /**
@@ -60,22 +60,22 @@ export class KeyboardNavigationManager {
    */
   handleKeyDown(e) {
     switch (e.key) {
-      case "Tab":
+      case 'Tab':
         if (this.trapFocus) {
           this.handleTabNavigation(e);
         }
         break;
-      case "ArrowUp":
-      case "ArrowDown":
+      case 'ArrowUp':
+      case 'ArrowDown':
         if (this.isInList(e.target)) {
           this.handleArrowNavigation(e);
         }
         break;
-      case "Enter":
-      case " ":
+      case 'Enter':
+      case ' ':
         this.handleActivation(e);
         break;
-      case "Escape":
+      case 'Escape':
         this.handleEscape(e);
         break;
     }
@@ -115,19 +115,19 @@ export class KeyboardNavigationManager {
   handleArrowNavigation(e) {
     const currentElement = e.target;
     const list = currentElement.closest(
-      '[role="listbox"], [role="menu"], [role="list"]',
+      '[role="listbox"], [role="menu"], [role="list"]'
     );
     if (!list) return;
 
     const items = Array.from(
       list.querySelectorAll(
-        '[role="option"], [role="menuitem"], [role="listitem"]',
-      ),
+        '[role="option"], [role="menuitem"], [role="listitem"]'
+      )
     );
     const currentIndex = items.indexOf(currentElement);
 
     let nextIndex;
-    if (e.key === "ArrowUp") {
+    if (e.key === 'ArrowUp') {
       nextIndex = currentIndex <= 0 ? items.length - 1 : currentIndex - 1;
     } else {
       nextIndex = currentIndex >= items.length - 1 ? 0 : currentIndex + 1;
@@ -144,15 +144,15 @@ export class KeyboardNavigationManager {
     const element = e.target;
 
     // 如果是按钮或链接，触发点击
-    if (element.tagName === "BUTTON" || element.tagName === "A") {
-      if (e.key === " ") {
+    if (element.tagName === 'BUTTON' || element.tagName === 'A') {
+      if (e.key === ' ') {
         e.preventDefault();
         element.click();
       }
     }
 
     // 如果是自定义可激活元素
-    if (element.getAttribute("role") === "button") {
+    if (element.getAttribute('role') === 'button') {
       e.preventDefault();
       element.click();
     }
@@ -166,7 +166,7 @@ export class KeyboardNavigationManager {
     const modal = e.target.closest('[role="dialog"], [role="alertdialog"]');
     if (modal) {
       const closeButton = modal.querySelector(
-        "[data-dismiss], .el-dialog__close",
+        '[data-dismiss], .el-dialog__close'
       );
       if (closeButton) {
         closeButton.click();
@@ -198,7 +198,7 @@ export class KeyboardNavigationManager {
    */
   destroy() {
     if (this.container) {
-      this.container.removeEventListener("keydown", this.handleKeyDown);
+      this.container.removeEventListener('keydown', this.handleKeyDown);
     }
   }
 }
@@ -217,10 +217,10 @@ export class ScreenReaderSupport {
    */
   createAriaLiveRegion() {
     // 创建polite区域
-    this.politeRegion = document.createElement("div");
-    this.politeRegion.setAttribute("aria-live", "polite");
-    this.politeRegion.setAttribute("aria-atomic", "true");
-    this.politeRegion.className = "sr-only";
+    this.politeRegion = document.createElement('div');
+    this.politeRegion.setAttribute('aria-live', 'polite');
+    this.politeRegion.setAttribute('aria-atomic', 'true');
+    this.politeRegion.className = 'sr-only';
     this.politeRegion.style.cssText = `
       position: absolute;
       left: -10000px;
@@ -231,10 +231,10 @@ export class ScreenReaderSupport {
     document.body.appendChild(this.politeRegion);
 
     // 创建assertive区域
-    this.assertiveRegion = document.createElement("div");
-    this.assertiveRegion.setAttribute("aria-live", "assertive");
-    this.assertiveRegion.setAttribute("aria-atomic", "true");
-    this.assertiveRegion.className = "sr-only";
+    this.assertiveRegion = document.createElement('div');
+    this.assertiveRegion.setAttribute('aria-live', 'assertive');
+    this.assertiveRegion.setAttribute('aria-atomic', 'true');
+    this.assertiveRegion.className = 'sr-only';
     this.assertiveRegion.style.cssText = this.politeRegion.style.cssText;
     document.body.appendChild(this.assertiveRegion);
   }
@@ -242,14 +242,14 @@ export class ScreenReaderSupport {
   /**
    * 向屏幕阅读器宣布消息
    */
-  announce(message, priority = "polite") {
+  announce(message, priority = 'polite') {
     if (!message) return;
 
     const region =
-      priority === "assertive" ? this.assertiveRegion : this.politeRegion;
+      priority === 'assertive' ? this.assertiveRegion : this.politeRegion;
 
     // 清空区域然后添加新消息
-    region.textContent = "";
+    region.textContent = '';
     setTimeout(() => {
       region.textContent = message;
     }, 100);
@@ -271,17 +271,17 @@ export class ScreenReaderSupport {
    * 宣布页面变化
    */
   announcePageChange(title) {
-    this.announce(`页面已切换到 ${title}`, "polite");
+    this.announce(`页面已切换到 ${title}`, 'polite');
   }
 
   /**
    * 宣布加载状态
    */
-  announceLoading(isLoading, message = "") {
+  announceLoading(isLoading, message = '') {
     if (isLoading) {
-      this.announce(message || "正在加载", "polite");
+      this.announce(message || '正在加载', 'polite');
     } else {
-      this.announce("加载完成", "polite");
+      this.announce('加载完成', 'polite');
     }
   }
 
@@ -289,14 +289,14 @@ export class ScreenReaderSupport {
    * 宣布错误消息
    */
   announceError(message) {
-    this.announce(`错误：${message}`, "assertive");
+    this.announce(`错误：${message}`, 'assertive');
   }
 
   /**
    * 宣布成功消息
    */
   announceSuccess(message) {
-    this.announce(`成功：${message}`, "polite");
+    this.announce(`成功：${message}`, 'polite');
   }
 
   /**
@@ -320,7 +320,7 @@ export class ColorContrastChecker {
    * 计算相对亮度
    */
   getRelativeLuminance(rgb) {
-    const [r, g, b] = rgb.map((c) => {
+    const [r, g, b] = rgb.map(c => {
       c = c / 255;
       return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
     });
@@ -341,14 +341,14 @@ export class ColorContrastChecker {
   /**
    * 检查对比度是否符合WCAG标准
    */
-  checkContrast(foreground, background, level = "AA", size = "normal") {
+  checkContrast(foreground, background, level = 'AA', size = 'normal') {
     const ratio = this.getContrastRatio(foreground, background);
 
     let threshold;
-    if (level === "AAA") {
-      threshold = size === "large" ? 4.5 : 7;
+    if (level === 'AAA') {
+      threshold = size === 'large' ? 4.5 : 7;
     } else {
-      threshold = size === "large" ? 3 : 4.5;
+      threshold = size === 'large' ? 3 : 4.5;
     }
 
     return {
@@ -364,10 +364,10 @@ export class ColorContrastChecker {
    * 从CSS颜色字符串解析RGB
    */
   parseColor(colorStr) {
-    const canvas = document.createElement("canvas");
+    const canvas = document.createElement('canvas');
     canvas.width = 1;
     canvas.height = 1;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     ctx.fillStyle = colorStr;
     ctx.fillRect(0, 0, 1, 1);
     const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
@@ -400,14 +400,14 @@ export class AccessibilityChecker {
    * 检查图片
    */
   checkImages() {
-    const images = document.querySelectorAll("img");
-    images.forEach((img) => {
-      if (!img.alt && !img.getAttribute("aria-label")) {
+    const images = document.querySelectorAll('img');
+    images.forEach(img => {
+      if (!img.alt && !img.getAttribute('aria-label')) {
         this.issues.push({
-          type: "image",
+          type: 'image',
           element: img,
-          message: "图片缺少alt属性或aria-label",
-          severity: "error",
+          message: '图片缺少alt属性或aria-label',
+          severity: 'error',
         });
       }
     });
@@ -417,18 +417,18 @@ export class AccessibilityChecker {
    * 检查表单
    */
   checkForms() {
-    const inputs = document.querySelectorAll("input, select, textarea");
-    inputs.forEach((input) => {
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
       const hasLabel = input.labels && input.labels.length > 0;
-      const hasAriaLabel = input.getAttribute("aria-label");
-      const hasAriaLabelledby = input.getAttribute("aria-labelledby");
+      const hasAriaLabel = input.getAttribute('aria-label');
+      const hasAriaLabelledby = input.getAttribute('aria-labelledby');
 
       if (!hasLabel && !hasAriaLabel && !hasAriaLabelledby) {
         this.issues.push({
-          type: "form",
+          type: 'form',
           element: input,
-          message: "表单控件缺少标签",
-          severity: "error",
+          message: '表单控件缺少标签',
+          severity: 'error',
         });
       }
     });
@@ -438,18 +438,18 @@ export class AccessibilityChecker {
    * 检查标题层次
    */
   checkHeadings() {
-    const headings = document.querySelectorAll("h1, h2, h3, h4, h5, h6");
+    const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
     let previousLevel = 0;
 
-    headings.forEach((heading) => {
+    headings.forEach(heading => {
       const level = parseInt(heading.tagName.charAt(1));
 
       if (level - previousLevel > 1) {
         this.issues.push({
-          type: "heading",
+          type: 'heading',
           element: heading,
           message: `标题层次跳跃：从h${previousLevel}跳到h${level}`,
-          severity: "warning",
+          severity: 'warning',
         });
       }
 
@@ -461,14 +461,14 @@ export class AccessibilityChecker {
    * 检查链接
    */
   checkLinks() {
-    const links = document.querySelectorAll("a");
-    links.forEach((link) => {
-      if (!link.textContent.trim() && !link.getAttribute("aria-label")) {
+    const links = document.querySelectorAll('a');
+    links.forEach(link => {
+      if (!link.textContent.trim() && !link.getAttribute('aria-label')) {
         this.issues.push({
-          type: "link",
+          type: 'link',
           element: link,
-          message: "链接缺少可访问的文本",
-          severity: "error",
+          message: '链接缺少可访问的文本',
+          severity: 'error',
         });
       }
     });
@@ -479,16 +479,16 @@ export class AccessibilityChecker {
    */
   checkColors() {
     const checker = new ColorContrastChecker();
-    const elements = document.querySelectorAll("*");
+    const elements = document.querySelectorAll('*');
 
-    elements.forEach((el) => {
+    elements.forEach(el => {
       const style = getComputedStyle(el);
       const color = style.color;
       const backgroundColor = style.backgroundColor;
 
       if (
-        color !== "rgba(0, 0, 0, 0)" &&
-        backgroundColor !== "rgba(0, 0, 0, 0)"
+        color !== 'rgba(0, 0, 0, 0)' &&
+        backgroundColor !== 'rgba(0, 0, 0, 0)'
       ) {
         try {
           const foreground = checker.parseColor(color);
@@ -497,10 +497,10 @@ export class AccessibilityChecker {
 
           if (!result.passes) {
             this.issues.push({
-              type: "contrast",
+              type: 'contrast',
               element: el,
               message: `颜色对比度不足：${result.ratio.toFixed(2)}:1 (需要${result.threshold}:1)`,
-              severity: "warning",
+              severity: 'warning',
             });
           }
         } catch (e) {
@@ -531,7 +531,7 @@ export function useKeyboardNavigation(containerRef) {
   });
 
   return {
-    setFocusTrap: (enabled) => keyboardNav.setFocusTrap(enabled),
+    setFocusTrap: enabled => keyboardNav.setFocusTrap(enabled),
     updateFocusableElements: () => keyboardNav.updateFocusableElements(),
   };
 }
@@ -542,11 +542,11 @@ export function useKeyboardNavigation(containerRef) {
 export function useScreenReader() {
   const announce = (message, priority) =>
     screenReader.announce(message, priority);
-  const announcePageChange = (title) => screenReader.announcePageChange(title);
+  const announcePageChange = title => screenReader.announcePageChange(title);
   const announceLoading = (isLoading, message) =>
     screenReader.announceLoading(isLoading, message);
-  const announceError = (message) => screenReader.announceError(message);
-  const announceSuccess = (message) => screenReader.announceSuccess(message);
+  const announceError = message => screenReader.announceError(message);
+  const announceSuccess = message => screenReader.announceSuccess(message);
 
   return {
     announce,
@@ -561,13 +561,13 @@ export function useScreenReader() {
  * 添加跳转到主内容的链接
  */
 export function addSkipToMainLink() {
-  const existingLink = document.querySelector(".skip-to-main");
+  const existingLink = document.querySelector('.skip-to-main');
   if (existingLink) return;
 
-  const skipLink = document.createElement("a");
-  skipLink.href = "#main-content";
-  skipLink.textContent = "跳转到主内容";
-  skipLink.className = "skip-to-main";
+  const skipLink = document.createElement('a');
+  skipLink.href = '#main-content';
+  skipLink.textContent = '跳转到主内容';
+  skipLink.className = 'skip-to-main';
   skipLink.style.cssText = `
     position: absolute;
     top: -40px;
@@ -581,12 +581,12 @@ export function addSkipToMainLink() {
     transition: top 0.3s;
   `;
 
-  skipLink.addEventListener("focus", () => {
-    skipLink.style.top = "6px";
+  skipLink.addEventListener('focus', () => {
+    skipLink.style.top = '6px';
   });
 
-  skipLink.addEventListener("blur", () => {
-    skipLink.style.top = "-40px";
+  skipLink.addEventListener('blur', () => {
+    skipLink.style.top = '-40px';
   });
 
   document.body.insertBefore(skipLink, document.body.firstChild);
@@ -599,13 +599,13 @@ export function initAccessibility() {
   addSkipToMainLink();
 
   // 为主内容区域添加ID
-  const mainContent = document.querySelector("main, #app > div, .main-content");
+  const mainContent = document.querySelector('main, #app > div, .main-content');
   if (mainContent && !mainContent.id) {
-    mainContent.id = "main-content";
+    mainContent.id = 'main-content';
   }
 
   // 添加焦点样式
-  const style = document.createElement("style");
+  const style = document.createElement('style');
   style.textContent = `
     .focus-visible {
       outline: 2px solid #409EFF;
@@ -628,6 +628,6 @@ export function initAccessibility() {
 }
 
 // 在模块加载时自动初始化
-if (typeof window !== "undefined") {
-  document.addEventListener("DOMContentLoaded", initAccessibility);
+if (typeof window !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', initAccessibility);
 }

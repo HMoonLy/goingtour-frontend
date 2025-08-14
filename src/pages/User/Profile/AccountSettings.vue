@@ -7,22 +7,16 @@
           <h1 class="page-title">账户设置</h1>
           <p class="page-subtitle">个性化旅行规划助手</p>
         </div>
-        <el-button
-plain @click="goBack"
->
+        <el-button plain @click="goBack">
           <el-icon><ArrowLeft /></el-icon>
           返回
         </el-button>
       </div>
 
       <!-- 设置选项卡 -->
-      <el-tabs
-v-model="activeTab" class="settings-tabs"
->
+      <el-tabs v-model="activeTab" class="settings-tabs">
         <!-- 个人信息 -->
-        <el-tab-pane
-label="个人信息" name="profile"
->
+        <el-tab-pane label="个人信息" name="profile">
           <div class="tab-content">
             <div class="setting-section">
               <h3 class="section-title">个人信息设置</h3>
@@ -75,12 +69,8 @@ label="个人信息" name="profile"
                   <span class="label-desc">信息</span>
                 </div>
                 <div class="item-control">
-                  <el-input
-:value="userInfo.email" readonly
-disabled
-/>
-                  <el-tag
-type="info" size="small"> 信息 </el-tag>
+                  <el-input :value="userInfo.email" readonly disabled />
+                  <el-tag type="info" size="small"> 信息 </el-tag>
                 </div>
               </div>
 
@@ -101,9 +91,7 @@ type="info" size="small"> 信息 </el-tag>
         </el-tab-pane>
 
         <!-- 安全设置 -->
-        <el-tab-pane
-label="安全设置" name="security"
->
+        <el-tab-pane label="安全设置" name="security">
           <div class="tab-content">
             <div class="setting-section">
               <h3 class="section-title">安全设置</h3>
@@ -115,12 +103,8 @@ label="安全设置" name="security"
                   <span class="label-desc">信息</span>
                 </div>
                 <div class="item-control">
-                  <el-tag
-type="success" size="small"> 成功 </el-tag>
-                  <el-button
-plain size="small"
-@click="testEmailVerification"
->
+                  <el-tag type="success" size="small"> 成功 </el-tag>
+                  <el-button plain size="small" @click="testEmailVerification">
                     提交
                   </el-button>
                 </div>
@@ -133,14 +117,10 @@ plain size="small"
                   <span class="label-desc">可选的备用登录方式</span>
                 </div>
                 <div class="item-control">
-                  <el-tag
-v-if="hasPassword" type="primary"
-size="small"
->
+                  <el-tag v-if="hasPassword" type="primary" size="small">
                     已设置
                   </el-tag>
-                  <el-tag
-v-else type="info" size="small"> 未设置 </el-tag>
+                  <el-tag v-else type="info" size="small"> 未设置 </el-tag>
 
                   <el-button
                     v-if="!hasPassword"
@@ -178,9 +158,7 @@ v-else type="info" size="small"> 未设置 </el-tag>
                   <span class="label-desc">查看最近的登录活动</span>
                 </div>
                 <div class="item-control">
-                  <el-button
-plain @click="showLoginHistory"
->
+                  <el-button plain @click="showLoginHistory">
                     查看记录
                   </el-button>
                 </div>
@@ -211,9 +189,7 @@ plain @click="showLoginHistory"
         </el-tab-pane>
 
         <!-- 隐私设置 -->
-        <el-tab-pane
-label="隐私设置" name="privacy"
->
+        <el-tab-pane label="隐私设置" name="privacy">
           <div class="tab-content">
             <div class="setting-section">
               <h3 class="section-title">隐私设置</h3>
@@ -242,8 +218,7 @@ label="隐私设置" name="privacy"
                   <span class="label-desc">警告</span>
                 </div>
                 <div class="item-control">
-                  <el-button
-plain @click="clearUserData"> 删除 </el-button>
+                  <el-button plain @click="clearUserData"> 删除 </el-button>
                 </div>
               </div>
             </div>
@@ -286,9 +261,7 @@ plain @click="clearUserData"> 删除 </el-button>
         </el-tab-pane>
 
         <!-- 系统设置 -->
-        <el-tab-pane
-label="系统设置" name="system"
->
+        <el-tab-pane label="系统设置" name="system">
           <div class="tab-content">
             <div class="setting-section">
               <h3 class="section-title">系统设置</h3>
@@ -379,9 +352,7 @@ label="系统设置" name="system"
         :rules="setPasswordRules"
         label-width="80px"
       >
-        <el-form-item
-label="新密码" prop="password"
->
+        <el-form-item label="新密码" prop="password">
           <el-input
             v-model="setPasswordForm.password"
             type="password"
@@ -389,9 +360,7 @@ label="新密码" prop="password"
             show-password
           />
         </el-form-item>
-        <el-form-item
-label="确认密码" prop="confirmPassword"
->
+        <el-form-item label="确认密码" prop="confirmPassword">
           <el-input
             v-model="setPasswordForm.confirmPassword"
             type="password"
@@ -427,9 +396,7 @@ label="确认密码" prop="confirmPassword"
         :rules="changePasswordRules"
         label-width="80px"
       >
-        <el-form-item
-label="当前密码" prop="currentPassword"
->
+        <el-form-item label="当前密码" prop="currentPassword">
           <el-input
             v-model="changePasswordForm.currentPassword"
             type="password"
@@ -437,9 +404,7 @@ label="当前密码" prop="currentPassword"
             show-password
           />
         </el-form-item>
-        <el-form-item
-label="新密码" prop="newPassword"
->
+        <el-form-item label="新密码" prop="newPassword">
           <el-input
             v-model="changePasswordForm.newPassword"
             type="password"
@@ -447,9 +412,7 @@ label="新密码" prop="newPassword"
             show-password
           />
         </el-form-item>
-        <el-form-item
-label="确认密码" prop="confirmPassword"
->
+        <el-form-item label="确认密码" prop="confirmPassword">
           <el-input
             v-model="changePasswordForm.confirmPassword"
             type="password"
@@ -480,9 +443,7 @@ label="确认密码" prop="confirmPassword"
       :close-on-click-modal="false"
     >
       <!-- 统计信息 -->
-      <div
-v-if="loginStats.totalLogins" class="login-stats-summary"
->
+      <div v-if="loginStats.totalLogins" class="login-stats-summary">
         <el-row :gutter="20">
           <el-col :span="6">
             <div class="stat-item">
@@ -511,7 +472,7 @@ v-if="loginStats.totalLogins" class="login-stats-summary"
           <el-col :span="6">
             <div class="stat-item">
               <div class="stat-value">
-                {{ loginStats.lastLoginDevice || "-" }}
+                {{ loginStats.lastLoginDevice || '-' }}
               </div>
               <div class="stat-label">常用设备</div>
             </div>
@@ -521,10 +482,7 @@ v-if="loginStats.totalLogins" class="login-stats-summary"
 
       <!-- 操作按钮 -->
       <div class="history-actions">
-        <el-button
-type="danger" plain
-@click="clearLoginHistory"
->
+        <el-button type="danger" plain @click="clearLoginHistory">
           清除所有记录
         </el-button>
       </div>
@@ -536,77 +494,45 @@ type="danger" plain
         style="width: 100%"
         empty-text="暂无登录记录"
       >
-        <el-table-column
-prop="loginTime" label="登录时间"
-width="160"
->
+        <el-table-column prop="loginTime" label="登录时间" width="160">
           <template #default="{ row }">
             {{ formatLoginTime(row.loginTime) }}
           </template>
         </el-table-column>
 
-        <el-table-column
-prop="status" label="状态"
-width="80"
->
+        <el-table-column prop="status" label="状态" width="80">
           <template #default="{ row }">
-            <el-tag
-:type="getStatusColor(row.status)" size="small"
->
+            <el-tag :type="getStatusColor(row.status)" size="small">
               {{ getStatusText(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
 
-        <el-table-column
-prop="loginMethod" label="登录方式"
-width="100"
->
+        <el-table-column prop="loginMethod" label="登录方式" width="100">
           <template #default="{ row }">
-            {{ row.loginMethod === "EMAIL_CODE" ? "邮箱验证码" : "密码登录" }}
+            {{ row.loginMethod === 'EMAIL_CODE' ? '邮箱验证码' : '密码登录' }}
           </template>
         </el-table-column>
 
-        <el-table-column
-prop="ipAddress" label="IP地址"
-width="140"
-/>
+        <el-table-column prop="ipAddress" label="IP地址" width="140" />
 
-        <el-table-column
-prop="location" label="位置"
-width="100"
-/>
+        <el-table-column prop="location" label="位置" width="100" />
 
-        <el-table-column
-prop="deviceType" label="设备类型"
-width="80"
-/>
+        <el-table-column prop="deviceType" label="设备类型" width="80" />
 
-        <el-table-column
-prop="browser" label="浏览器"
-width="100"
-/>
+        <el-table-column prop="browser" label="浏览器" width="100" />
 
-        <el-table-column
-prop="operatingSystem" label="操作系统"
-width="120"
-/>
+        <el-table-column prop="operatingSystem" label="操作系统" width="120" />
 
-        <el-table-column
-prop="sessionDuration" label="会话时长"
-width="100"
->
+        <el-table-column prop="sessionDuration" label="会话时长" width="100">
           <template #default="{ row }">
-            {{ row.sessionDuration ? `${row.sessionDuration}分钟` : "-" }}
+            {{ row.sessionDuration ? `${row.sessionDuration}分钟` : '-' }}
           </template>
         </el-table-column>
 
-        <el-table-column
-prop="failureReason" label="失败原因"
-min-width="150"
->
+        <el-table-column prop="failureReason" label="失败原因" min-width="150">
           <template #default="{ row }">
-            {{ row.failureReason || "-" }}
+            {{ row.failureReason || '-' }}
           </template>
         </el-table-column>
       </el-table>
@@ -631,10 +557,7 @@ min-width="150"
       :close-on-click-modal="false"
     >
       <div class="delete-account-content">
-        <el-alert
-title="警告" type="error"
-:closable="false" show-icon
->
+        <el-alert title="警告" type="error" :closable="false" show-icon>
           <p>注销账户是不可逆的操作，将会：</p>
           <ul>
             <li>永久删除您的所有行程数据</li>
@@ -644,9 +567,7 @@ title="警告" type="error"
         </el-alert>
         <div class="confirmation-input">
           <p>请输入您的邮箱地址确认注销：</p>
-          <el-input
-v-model="deleteConfirmEmail" placeholder="请输入邮箱地址"
-/>
+          <el-input v-model="deleteConfirmEmail" placeholder="请输入邮箱地址" />
         </div>
       </div>
       <template #footer>
@@ -667,16 +588,16 @@ v-model="deleteConfirmEmail" placeholder="请输入邮箱地址"
 </template>
 
 <script>
-import { ref, reactive, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import { ElMessage, ElMessageBox } from "element-plus";
-import { useTheme } from "@/utils/theme.js";
-import { ArrowLeft } from "@element-plus/icons-vue";
-import { useUserStore } from "@/store/user.js";
-import AvatarUploader from "@/components/Common/UI/AvatarUploader.vue";
+import { ref, reactive, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { useTheme } from '@/utils/theme.js';
+import { ArrowLeft } from '@element-plus/icons-vue';
+import { useUserStore } from '@/store/user.js';
+import AvatarUploader from '@/components/Common/UI/AvatarUploader.vue';
 
 export default {
-  name: "AccountSettings",
+  name: 'AccountSettings',
   components: {
     ArrowLeft,
     AvatarUploader,
@@ -687,7 +608,7 @@ export default {
     const { currentTheme, setTheme, themeOptions } = useTheme();
 
     // 响应式数据
-    const activeTab = ref("profile");
+    const activeTab = ref('profile');
     const profileLoading = ref(false);
     const passwordLoading = ref(false);
     const exportLoading = ref(false);
@@ -697,84 +618,84 @@ export default {
     const showSetPasswordDialog = ref(false);
     const showChangePasswordDialog = ref(false);
     const showDeleteAccountDialog = ref(false);
-    const deleteConfirmEmail = ref("");
+    const deleteConfirmEmail = ref('');
 
     // 用户信息
     const userInfo = computed(() => userStore.currentUser || {});
 
     // 个人信息表单
     const profileForm = reactive({
-      nickname: "",
-      avatar: "",
+      nickname: '',
+      avatar: '',
     });
 
     // 设置密码表单
     const setPasswordForm = reactive({
-      password: "",
-      confirmPassword: "",
+      password: '',
+      confirmPassword: '',
     });
 
     // 修改密码表单
     const changePasswordForm = reactive({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
     });
 
     // 表单验证规则
     const setPasswordRules = {
       password: [
-        { required: true, message: "请输入新密码", trigger: "blur" },
-        { min: 6, message: "密码长度至少6位", trigger: "blur" },
+        { required: true, message: '请输入新密码', trigger: 'blur' },
+        { min: 6, message: '密码长度至少6位', trigger: 'blur' },
       ],
       confirmPassword: [
-        { required: true, message: "请确认新密码", trigger: "blur" },
+        { required: true, message: '请确认新密码', trigger: 'blur' },
         {
           validator: (rule, value, callback) => {
             if (value !== setPasswordForm.password) {
-              callback(new Error("两次输入密码不一致"));
+              callback(new Error('两次输入密码不一致'));
             } else {
               callback();
             }
           },
-          trigger: "blur",
+          trigger: 'blur',
         },
       ],
     };
 
     const changePasswordRules = {
       currentPassword: [
-        { required: true, message: "请输入当前密码", trigger: "blur" },
+        { required: true, message: '请输入当前密码', trigger: 'blur' },
       ],
       newPassword: [
-        { required: true, message: "请输入新密码", trigger: "blur" },
-        { min: 6, message: "密码长度至少6位", trigger: "blur" },
+        { required: true, message: '请输入新密码', trigger: 'blur' },
+        { min: 6, message: '密码长度至少6位', trigger: 'blur' },
       ],
       confirmPassword: [
-        { required: true, message: "请确认新密码", trigger: "blur" },
+        { required: true, message: '请确认新密码', trigger: 'blur' },
         {
           validator: (rule, value, callback) => {
             if (value !== changePasswordForm.newPassword) {
-              callback(new Error("两次输入密码不一致"));
+              callback(new Error('两次输入密码不一致'));
             } else {
               callback();
             }
           },
-          trigger: "blur",
+          trigger: 'blur',
         },
       ],
     };
 
     // 隐私设置
     const privacySettings = reactive({
-      profileVisibility: "public",
+      profileVisibility: 'public',
       allowTripSharing: true,
     });
 
     // 系统设置
     const systemSettings = reactive({
-      language: "zh-CN",
-      theme: "light",
+      language: 'zh-CN',
+      theme: 'light',
     });
 
     // 通知设置
@@ -800,7 +721,7 @@ export default {
 
     const selectedTheme = computed({
       get: () => currentTheme.value,
-      set: (value) => setTheme(value),
+      set: value => setTheme(value),
     });
 
     // 方法
@@ -808,29 +729,29 @@ export default {
       router.back();
     };
 
-    const formatJoinDate = (createTime) => {
-      if (!createTime) return "未知";
+    const formatJoinDate = createTime => {
+      if (!createTime) return '未知';
       const date = new Date(createTime);
-      return date.toLocaleDateString("zh-CN", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
+      return date.toLocaleDateString('zh-CN', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
       });
     };
 
-    const handleAvatarChange = async (newAvatar) => {
+    const handleAvatarChange = async newAvatar => {
       profileForm.avatar = newAvatar;
-      
+
       // 自动保存头像更新
       try {
         await userStore.updateUserInfo(
           profileForm.nickname,
-          profileForm.avatar,
+          profileForm.avatar
         );
-        ElMessage.success("头像更新成功");
+        ElMessage.success('头像更新成功');
       } catch (error) {
-        console.error("头像更新失败:", error);
-        ElMessage.error("头像更新失败，请重试");
+        console.error('头像更新失败:', error);
+        ElMessage.error('头像更新失败，请重试');
       }
     };
 
@@ -839,11 +760,11 @@ export default {
       try {
         await userStore.updateUserInfo(
           profileForm.nickname,
-          profileForm.avatar,
+          profileForm.avatar
         );
-        ElMessage.success("个人信息更新成功");
+        ElMessage.success('个人信息更新成功');
       } catch (error) {
-        ElMessage.error("更新失败，请重试");
+        ElMessage.error('更新失败，请重试');
       } finally {
         profileLoading.value = false;
       }
@@ -851,36 +772,36 @@ export default {
 
     const testEmailVerification = async () => {
       try {
-        const { userApi } = await import("@/api/user.js");
+        const { userApi } = await import('@/api/user.js');
         await userApi.sendCode({
           email: userInfo.value.email,
-          type: "test",
+          type: 'test',
         });
-        ElMessage.success("验证码发送成功，请查看邮箱（开发环境请查看控制台）");
+        ElMessage.success('验证码发送成功，请查看邮箱（开发环境请查看控制台）');
       } catch (error) {
-        ElMessage.error("验证码发送失败，请重试");
+        ElMessage.error('验证码发送失败，请重试');
       }
     };
 
     const setPassword = async () => {
       passwordLoading.value = true;
       try {
-        const { userApi } = await import("@/api/user.js");
+        const { userApi } = await import('@/api/user.js');
         await userApi.setPassword(userInfo.value.id, {
           password: setPasswordForm.password,
           confirmPassword: setPasswordForm.confirmPassword,
         });
-        ElMessage.success("密码设置成功");
+        ElMessage.success('密码设置成功');
         showSetPasswordDialog.value = false;
         // 重置表单
         Object.assign(setPasswordForm, {
-          password: "",
-          confirmPassword: "",
+          password: '',
+          confirmPassword: '',
         });
         // 刷新用户信息
         await userStore.fetchUserInfo();
       } catch (error) {
-        ElMessage.error(error.message || "密码设置失败，请重试");
+        ElMessage.error(error.message || '密码设置失败，请重试');
       } finally {
         passwordLoading.value = false;
       }
@@ -889,22 +810,22 @@ export default {
     const changePassword = async () => {
       passwordLoading.value = true;
       try {
-        const { userApi } = await import("@/api/user.js");
+        const { userApi } = await import('@/api/user.js');
         await userApi.changePassword(userInfo.value.id, {
           currentPassword: changePasswordForm.currentPassword,
           newPassword: changePasswordForm.newPassword,
           confirmPassword: changePasswordForm.confirmPassword,
         });
-        ElMessage.success("密码修改成功");
+        ElMessage.success('密码修改成功');
         showChangePasswordDialog.value = false;
         // 重置表单
         Object.assign(changePasswordForm, {
-          currentPassword: "",
-          newPassword: "",
-          confirmPassword: "",
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: '',
         });
       } catch (error) {
-        ElMessage.error(error.message || "密码修改失败，请重试");
+        ElMessage.error(error.message || '密码修改失败，请重试');
       } finally {
         passwordLoading.value = false;
       }
@@ -913,23 +834,23 @@ export default {
     const clearPassword = async () => {
       try {
         await ElMessageBox.confirm(
-          "清除密码后，您只能使用邮箱验证码登录，确定继续吗？",
-          "清除密码",
+          '清除密码后，您只能使用邮箱验证码登录，确定继续吗？',
+          '清除密码',
           {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning",
-          },
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }
         );
 
-        const { userApi } = await import("@/api/user.js");
+        const { userApi } = await import('@/api/user.js');
         await userApi.clearPassword(userInfo.value.id);
-        ElMessage.success("密码已清除");
+        ElMessage.success('密码已清除');
         // 刷新用户信息
         await userStore.fetchUserInfo();
       } catch (error) {
-        if (error !== "cancel") {
-          ElMessage.error("密码清除失败，请重试");
+        if (error !== 'cancel') {
+          ElMessage.error('密码清除失败，请重试');
         }
       }
     };
@@ -954,17 +875,17 @@ export default {
     const loadLoginHistory = async () => {
       try {
         loginHistoryLoading.value = true;
-        const { userApi } = await import("@/api/user.js");
+        const { userApi } = await import('@/api/user.js');
         const response = await userApi.getLoginHistory(
           userInfo.value.id,
           historyPagination.page,
-          historyPagination.size,
+          historyPagination.size
         );
 
         loginHistoryData.value = response.data.records || [];
         historyPagination.total = response.data.total || 0;
       } catch (error) {
-        ElMessage.error("获取登录记录失败");
+        ElMessage.error('获取登录记录失败');
       } finally {
         loginHistoryLoading.value = false;
       }
@@ -972,15 +893,15 @@ export default {
 
     const loadLoginStats = async () => {
       try {
-        const { userApi } = await import("@/api/user.js");
+        const { userApi } = await import('@/api/user.js');
         const response = await userApi.getLoginStats(userInfo.value.id);
         loginStats.value = response.data || {};
       } catch (error) {
-        console.warn("获取登录统计失败:", error);
+        console.warn('获取登录统计失败:', error);
       }
     };
 
-    const handlePageChange = (page) => {
+    const handlePageChange = page => {
       historyPagination.page = page;
       loadLoginHistory();
     };
@@ -988,92 +909,92 @@ export default {
     const clearLoginHistory = async () => {
       try {
         await ElMessageBox.confirm(
-          "清除登录记录后，您将无法查看历史登录信息，确定继续吗？",
-          "清除登录记录",
+          '清除登录记录后，您将无法查看历史登录信息，确定继续吗？',
+          '清除登录记录',
           {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning",
-          },
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }
         );
 
-        const { userApi } = await import("@/api/user.js");
+        const { userApi } = await import('@/api/user.js');
         await userApi.clearLoginHistory(userInfo.value.id);
-        ElMessage.success("登录记录已清除");
+        ElMessage.success('登录记录已清除');
 
         // 重新加载数据
         await loadLoginHistory();
         await loadLoginStats();
       } catch (error) {
-        if (error !== "cancel") {
-          ElMessage.error("清除登录记录失败");
+        if (error !== 'cancel') {
+          ElMessage.error('清除登录记录失败');
         }
       }
     };
 
-    const formatLoginTime = (time) => {
-      if (!time) return "-";
-      return new Date(time).toLocaleString("zh-CN", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
+    const formatLoginTime = time => {
+      if (!time) return '-';
+      return new Date(time).toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
       });
     };
 
-    const getStatusColor = (status) => {
+    const getStatusColor = status => {
       switch (status) {
-        case "SUCCESS":
-          return "success";
-        case "FAILED":
-          return "danger";
-        case "BLOCKED":
-          return "warning";
+        case 'SUCCESS':
+          return 'success';
+        case 'FAILED':
+          return 'danger';
+        case 'BLOCKED':
+          return 'warning';
         default:
-          return "info";
+          return 'info';
       }
     };
 
-    const getStatusText = (status) => {
+    const getStatusText = status => {
       switch (status) {
-        case "SUCCESS":
-          return "成功";
-        case "FAILED":
-          return "失败";
-        case "BLOCKED":
-          return "阻止";
+        case 'SUCCESS':
+          return '成功';
+        case 'FAILED':
+          return '失败';
+        case 'BLOCKED':
+          return '阻止';
         default:
           return status;
       }
     };
 
-    const handleThemeChange = (newTheme) => {
+    const handleThemeChange = newTheme => {
       setTheme(newTheme);
-      ElMessage.success("更新成功");
+      ElMessage.success('更新成功');
     };
 
     const exportUserData = async () => {
       exportLoading.value = true;
       try {
-        const { userApi } = await import("@/api/user.js");
+        const { userApi } = await import('@/api/user.js');
         const response = await userApi.exportUserData(userInfo.value.id);
 
         // 创建下载链接
         const dataStr = JSON.stringify(response.data, null, 2);
         const dataUri =
-          "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
+          'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
 
-        const exportFileName = `goingtour_user_data_${userInfo.value.id}_${new Date().toISOString().split("T")[0]}.json`;
+        const exportFileName = `goingtour_user_data_${userInfo.value.id}_${new Date().toISOString().split('T')[0]}.json`;
 
-        const linkElement = document.createElement("a");
-        linkElement.setAttribute("href", dataUri);
-        linkElement.setAttribute("download", exportFileName);
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileName);
         linkElement.click();
 
-        ElMessage.success("数据导出完成，请检查下载文件");
+        ElMessage.success('数据导出完成，请检查下载文件');
       } catch (error) {
-        ElMessage.error(error.message || "导出失败，请重试");
+        ElMessage.error(error.message || '导出失败，请重试');
       } finally {
         exportLoading.value = false;
       }
@@ -1082,21 +1003,21 @@ export default {
     const clearUserData = async () => {
       try {
         await ElMessageBox.confirm(
-          "这将清理浏览器缓存和临时数据，确定继续吗？",
-          "清理数据",
+          '这将清理浏览器缓存和临时数据，确定继续吗？',
+          '清理数据',
           {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning",
-          },
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }
         );
 
         // 清理localStorage
         const keysToKeep = [
-          "access_token",
-          "refresh_token",
-          "token_expiry",
-          "user_info",
+          'access_token',
+          'refresh_token',
+          'token_expiry',
+          'user_info',
         ];
         const keysToRemove = [];
 
@@ -1107,9 +1028,9 @@ export default {
           }
         }
 
-        keysToRemove.forEach((key) => localStorage.removeItem(key));
+        keysToRemove.forEach(key => localStorage.removeItem(key));
 
-        ElMessage.success("缓存清理完成");
+        ElMessage.success('缓存清理完成');
       } catch (error) {
         // 用户取消操作
       }
@@ -1117,32 +1038,32 @@ export default {
 
     const updatePrivacySettings = () => {
       // TODO: 保存隐私设置到后端
-      ElMessage.success("隐私设置已更新");
+      ElMessage.success('隐私设置已更新');
     };
 
     const updateSystemSettings = () => {
       // TODO: 保存系统设置到后端
-      ElMessage.success("系统设置已更新");
+      ElMessage.success('系统设置已更新');
     };
 
     const updateNotificationSettings = () => {
       // TODO: 保存通知设置到后端
-      ElMessage.success("通知设置已更新");
+      ElMessage.success('通知设置已更新');
     };
 
     const deleteAccount = async () => {
       deleteAccountLoading.value = true;
       try {
-        const { userApi } = await import("@/api/user.js");
+        const { userApi } = await import('@/api/user.js');
         await userApi.deleteAccount(userInfo.value.id, {
           email: deleteConfirmEmail.value,
-          confirmText: "DELETE",
+          confirmText: 'DELETE',
         });
-        ElMessage.success("账户注销成功");
+        ElMessage.success('账户注销成功');
         userStore.logout();
-        router.push("/login");
+        router.push('/login');
       } catch (error) {
-        ElMessage.error(error.message || "注销失败，请重试");
+        ElMessage.error(error.message || '注销失败，请重试');
       } finally {
         deleteAccountLoading.value = false;
       }
@@ -1159,23 +1080,23 @@ export default {
       }
 
       // 从localStorage加载设置
-      const savedPrivacySettings = localStorage.getItem("privacy_settings");
+      const savedPrivacySettings = localStorage.getItem('privacy_settings');
       if (savedPrivacySettings) {
         Object.assign(privacySettings, JSON.parse(savedPrivacySettings));
       }
 
-      const savedSystemSettings = localStorage.getItem("system_settings");
+      const savedSystemSettings = localStorage.getItem('system_settings');
       if (savedSystemSettings) {
         Object.assign(systemSettings, JSON.parse(savedSystemSettings));
       }
 
       const savedNotificationSettings = localStorage.getItem(
-        "notification_settings",
+        'notification_settings'
       );
       if (savedNotificationSettings) {
         Object.assign(
           notificationSettings,
-          JSON.parse(savedNotificationSettings),
+          JSON.parse(savedNotificationSettings)
         );
       }
     };

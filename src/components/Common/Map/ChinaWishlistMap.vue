@@ -16,12 +16,12 @@
 </template>
 
 <script>
-import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
-import * as echarts from "echarts";
-import { getCityCoordinate, getBatchCityCoordinates } from "@/api/amap.js";
+import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+import * as echarts from 'echarts';
+import { getCityCoordinate, getBatchCityCoordinates } from '@/api/amap.js';
 
 export default {
-  name: "ChinaWishlistMap",
+  name: 'ChinaWishlistMap',
   props: {
     wishlistItems: {
       type: Array,
@@ -29,7 +29,7 @@ export default {
     },
     height: {
       type: String,
-      default: "400px",
+      default: '400px',
     },
     enableMapClick: {
       type: Boolean,
@@ -40,7 +40,7 @@ export default {
       default: null,
     },
   },
-  emits: ["city-click", "map-click", "map-right-click"],
+  emits: ['city-click', 'map-click', 'map-right-click'],
   setup(props, { emit }) {
     const mapContainer = ref(null);
     const chartInstance = ref(null);
@@ -49,82 +49,82 @@ export default {
 
     // 省份名称映射（用于ECharts地图）
     const provinceMapping = {
-      北京市: "北京",
-      天津市: "天津",
-      上海市: "上海",
-      重庆市: "重庆",
-      河北省: "河北",
-      山西省: "山西",
-      内蒙古自治区: "内蒙古",
-      辽宁省: "辽宁",
-      吉林省: "吉林",
-      黑龙江省: "黑龙江",
-      江苏省: "江苏",
-      浙江省: "浙江",
-      安徽省: "安徽",
-      福建省: "福建",
-      江西省: "江西",
-      山东省: "山东",
-      河南省: "河南",
-      湖北省: "湖北",
-      湖南省: "湖南",
-      广东省: "广东",
-      广西壮族自治区: "广西",
-      海南省: "海南",
-      四川省: "四川",
-      贵州省: "贵州",
-      云南省: "云南",
-      西藏自治区: "西藏",
-      陕西省: "陕西",
-      甘肃省: "甘肃",
-      青海省: "青海",
-      宁夏回族自治区: "宁夏",
-      新疆维吾尔自治区: "新疆",
-      台湾省: "台湾",
-      香港特别行政区: "香港",
-      澳门特别行政区: "澳门",
+      北京市: '北京',
+      天津市: '天津',
+      上海市: '上海',
+      重庆市: '重庆',
+      河北省: '河北',
+      山西省: '山西',
+      内蒙古自治区: '内蒙古',
+      辽宁省: '辽宁',
+      吉林省: '吉林',
+      黑龙江省: '黑龙江',
+      江苏省: '江苏',
+      浙江省: '浙江',
+      安徽省: '安徽',
+      福建省: '福建',
+      江西省: '江西',
+      山东省: '山东',
+      河南省: '河南',
+      湖北省: '湖北',
+      湖南省: '湖南',
+      广东省: '广东',
+      广西壮族自治区: '广西',
+      海南省: '海南',
+      四川省: '四川',
+      贵州省: '贵州',
+      云南省: '云南',
+      西藏自治区: '西藏',
+      陕西省: '陕西',
+      甘肃省: '甘肃',
+      青海省: '青海',
+      宁夏回族自治区: '宁夏',
+      新疆维吾尔自治区: '新疆',
+      台湾省: '台湾',
+      香港特别行政区: '香港',
+      澳门特别行政区: '澳门',
     };
 
     // 根据城市adcode获取省份
-    const getProvinceFromAdcode = (adcode) => {
+    const getProvinceFromAdcode = adcode => {
       if (!adcode) return null;
       const code = adcode.toString();
 
       const provinceMap = {
-        11: "北京",
-        12: "天津",
-        13: "河北",
-        14: "山西",
-        15: "内蒙古",
-        21: "辽宁",
-        22: "吉林",
-        23: "黑龙江",
-        31: "上海",
-        32: "江苏",
-        33: "浙江",
-        34: "安徽",
-        35: "福建",
-        36: "江西",
-        37: "山东",
-        41: "河南",
-        42: "湖北",
-        43: "湖南",
-        44: "广东",
-        45: "广西",
-        46: "海南",
-        50: "重庆",
-        51: "四川",
-        52: "贵州",
-        53: "云南",
-        54: "西藏",
-        61: "陕西",
-        62: "甘肃",
-        63: "青海",
-        64: "宁夏",
-        65: "新疆",
-        71: "台湾",
-        81: "香港",
-        82: "澳门",
+        11: '北京',
+        12: '天津',
+        13: '河北',
+        14: '山西',
+        15: '内蒙古',
+        21: '辽宁',
+        22: '吉林',
+        23: '黑龙江',
+        31: '上海',
+        32: '江苏',
+        33: '浙江',
+        34: '安徽',
+        35: '福建',
+        36: '江西',
+        37: '山东',
+        41: '河南',
+        42: '湖北',
+        43: '湖南',
+        44: '广东',
+        45: '广西',
+        46: '海南',
+        50: '重庆',
+        51: '四川',
+        52: '贵州',
+        53: '云南',
+        54: '西藏',
+        61: '陕西',
+        62: '甘肃',
+        63: '青海',
+        64: '宁夏',
+        65: '新疆',
+        71: '台湾',
+        81: '香港',
+        82: '澳门',
       };
 
       const provinceCode = code.substring(0, 2);
@@ -136,7 +136,7 @@ export default {
       const provinceData = {};
       const scatterData = [];
 
-      props.wishlistItems.forEach((item) => {
+      props.wishlistItems.forEach(item => {
         const province = getProvinceFromAdcode(item.cityCode);
         if (province) {
           // 统计省份城市数量
@@ -155,7 +155,7 @@ export default {
             name: item.cityName,
             value: [Math.random() * 100, Math.random() * 50, 1], // 临时随机坐标
             itemStyle: {
-              color: "#91A8D0",
+              color: '#91A8D0',
             },
             data: item,
           });
@@ -169,19 +169,21 @@ export default {
     };
 
     // 城市坐标获取（使用高德地图API）
-    const getCityCoordinates = async (cityName) => {
+    const getCityCoordinates = async cityName => {
       try {
         // 使用高德地图API获取精确坐标
         const coordinates = await getCityCoordinate(cityName);
         return coordinates;
       } catch (error) {
         console.warn(`获取城市坐标失败 [${cityName}]:`, error);
-        
+
         // API失败时的备选方案：使用城市名称hash生成相对固定的坐标
-        const hash = cityName.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-        const lng = 104 + (hash % 60 - 30); // 经度范围 74-134
-        const lat = 35 + ((hash * 7) % 30 - 15); // 纬度范围 20-50
-        
+        const hash = cityName
+          .split('')
+          .reduce((a, b) => a + b.charCodeAt(0), 0);
+        const lng = 104 + ((hash % 60) - 30); // 经度范围 74-134
+        const lat = 35 + (((hash * 7) % 30) - 15); // 纬度范围 20-50
+
         console.log(`使用备选坐标 [${cityName}]: [${lng}, ${lat}]`);
         return [lng, lat];
       }
@@ -196,12 +198,12 @@ export default {
         await nextTick();
 
         if (!mapContainer.value) {
-          console.error("Map container not found");
+          console.error('Map container not found');
           return;
         }
 
         // 加载中国地图GeoJSON数据
-        const response = await fetch("/data/china.json");
+        const response = await fetch('/data/china.json');
         if (!response.ok) {
           throw new Error(`加载地图数据失败: ${response.status}`);
         }
@@ -211,16 +213,16 @@ export default {
         chartInstance.value = echarts.init(mapContainer.value);
 
         // 注册中国地图
-        echarts.registerMap("china", chinaGeoJSON);
+        echarts.registerMap('china', chinaGeoJSON);
 
         // 处理心愿清单数据，区分状态
         // 批量获取所有城市的坐标（优化性能）
         const cityNames = props.wishlistItems.map(item => item.cityName);
         const cityCoordinatesMap = await getBatchCityCoordinates(cityNames, 50); // 50ms间隔避免限流
 
-        const scatterData = props.wishlistItems.map((item) => {
+        const scatterData = props.wishlistItems.map(item => {
           const coordinates = cityCoordinatesMap[item.cityName] || [104, 35];
-          const isVisited = item.status === "visited";
+          const isVisited = item.status === 'visited';
           const isHighlighted = props.highlightedCity === item.cityName;
 
           return {
@@ -228,21 +230,21 @@ export default {
             value: [...coordinates, item.cityName],
             itemStyle: {
               color: isHighlighted
-                ? "#ff6b6b"
+                ? '#ff6b6b'
                 : isVisited
-                  ? "#f59e0b"
-                  : "#91A8D0",
+                  ? '#f59e0b'
+                  : '#91A8D0',
               borderColor: isHighlighted
-                ? "#ffffff"
+                ? '#ffffff'
                 : isVisited
-                  ? "#d97706"
-                  : "#6366f1",
+                  ? '#d97706'
+                  : '#6366f1',
               borderWidth: isHighlighted ? 3 : 2,
               shadowColor: isHighlighted
-                ? "rgba(255, 107, 107, 0.5)"
+                ? 'rgba(255, 107, 107, 0.5)'
                 : isVisited
-                  ? "rgba(245, 158, 11, 0.3)"
-                  : "rgba(145, 168, 208, 0.3)",
+                  ? 'rgba(245, 158, 11, 0.3)'
+                  : 'rgba(145, 168, 208, 0.3)',
               shadowBlur: isHighlighted ? 12 : 8,
             },
             data: item,
@@ -252,42 +254,42 @@ export default {
         const option = {
           title: {
             text: `中国地图`,
-            left: "center",
+            left: 'center',
             top: 10,
             textStyle: {
-              color: "#91A8D0",
+              color: '#91A8D0',
               fontSize: 16,
-              fontWeight: "bold",
+              fontWeight: 'bold',
             },
           },
           tooltip: {
-            trigger: "item",
-            backgroundColor: "rgba(255, 255, 255, 0.95)",
-            borderColor: "#91A8D0",
+            trigger: 'item',
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            borderColor: '#91A8D0',
             borderWidth: 1,
             textStyle: {
-              color: "#333",
+              color: '#333',
             },
             formatter: function (params) {
-              if (params.seriesType === "map") {
+              if (params.seriesType === 'map') {
                 return `${params.name}<br/>点击查看详细信息`;
-              } else if (params.seriesType === "scatter") {
+              } else if (params.seriesType === 'scatter') {
                 const cityData = params.data.data;
                 const tags = cityData.tags
-                  ? cityData.tags.slice(0, 3).join("、")
-                  : "无标签";
+                  ? cityData.tags.slice(0, 3).join('、')
+                  : '无标签';
                 return `<div style="padding: 5px;">
                           <div style="font-weight: bold; margin-bottom: 5px;">${cityData.cityName}</div>
                           <div style="color: #666;">标签: ${tags}</div>
                           <div style="color: #666;">添加: ${new Date(cityData.createdAt).toLocaleDateString()}</div>
-                          ${cityData.reason ? `<div style="color: #666; margin-top: 5px; font-style: italic;">${cityData.reason.slice(0, 50)}${cityData.reason.length > 50 ? "..." : ""}</div>` : ""}
+                          ${cityData.reason ? `<div style="color: #666; margin-top: 5px; font-style: italic;">${cityData.reason.slice(0, 50)}${cityData.reason.length > 50 ? '...' : ''}</div>` : ''}
                         </div>`;
               }
               return params.name;
             },
           },
           geo: {
-            map: "china",
+            map: 'china',
             roam: true, // 允许缩放和平移
             scaleLimit: {
               min: 0.8,
@@ -296,25 +298,23 @@ export default {
             zoom: 1.1,
             center: [104, 35], // 中国中心点
             itemStyle: {
-              areaColor: "#f8fafc",
-              borderColor: "#d1d5db",
+              areaColor: '#f8fafc',
+              borderColor: '#d1d5db',
               borderWidth: 1,
             },
             emphasis: {
               itemStyle: {
-                areaColor: "#f1f5f9",
-                borderColor: "#91A8D0",
+                areaColor: '#f1f5f9',
+                borderColor: '#91A8D0',
                 borderWidth: 2,
-                shadowColor: "rgba(145, 168, 208, 0.3)",
+                shadowColor: 'rgba(145, 168, 208, 0.3)',
                 shadowBlur: 15,
               },
               label: {
                 show: props.enableMapClick,
-                textStyle: {
-                  color: "#91A8D0",
-                  fontSize: 14,
-                  fontWeight: "bold",
-                },
+                color: '#91A8D0',
+                fontSize: 14,
+                fontWeight: 'bold',
                 formatter: function (params) {
                   return `点击添加城市到${params.name}`;
                 },
@@ -323,9 +323,9 @@ export default {
           },
           series: [
             {
-              name: "心愿城市",
-              type: "scatter",
-              coordinateSystem: "geo",
+              name: '心愿城市',
+              type: 'scatter',
+              coordinateSystem: 'geo',
               data: scatterData,
               symbolSize: function (val, params) {
                 // 根据城市名长度和标签数量调整大小
@@ -339,45 +339,41 @@ export default {
                 );
               },
               itemStyle: {
-                color: "#F7CAC9",
-                borderColor: "#91A8D0",
+                color: '#F7CAC9',
+                borderColor: '#91A8D0',
                 borderWidth: 2,
-                shadowColor: "rgba(145, 168, 208, 0.3)",
+                shadowColor: 'rgba(145, 168, 208, 0.3)',
                 shadowBlur: 8,
               },
               emphasis: {
                 itemStyle: {
-                  color: "#91A8D0",
-                  borderColor: "#F7CAC9",
+                  color: '#91A8D0',
+                  borderColor: '#F7CAC9',
                   borderWidth: 3,
-                  shadowColor: "rgba(145, 168, 208, 0.6)",
+                  shadowColor: 'rgba(145, 168, 208, 0.6)',
                   shadowBlur: 15,
                 },
                 scale: 1.3,
                 label: {
                   show: true,
-                  textStyle: {
-                    color: "#91A8D0",
-                    fontSize: 13,
-                  },
+                  color: '#91A8D0',
+                  fontSize: 13,
                 },
               },
               label: {
                 show: true,
-                position: "top",
+                position: 'top',
                 formatter: function (params) {
                   return params.data.data.cityName;
                 },
-                textStyle: {
-                  color: "#374151",
-                  fontSize: 11,
-                  fontWeight: "bold",
-                  textBorderColor: "#fff",
-                  textBorderWidth: 1,
-                },
+                color: '#374151',
+                fontSize: 11,
+                fontWeight: 'bold',
+                textBorderColor: '#fff',
+                textBorderWidth: 1,
               },
               animationDuration: 1500,
-              animationEasing: "elasticOut",
+              animationEasing: 'elasticOut',
               animationDelay: function (idx) {
                 return idx * 100;
               },
@@ -388,52 +384,52 @@ export default {
         chartInstance.value.setOption(option);
 
         // 增强的点击事件处理
-        chartInstance.value.on("click", (params) => {
+        chartInstance.value.on('click', params => {
           if (
-            params.componentType === "series" &&
-            params.seriesType === "scatter" &&
+            params.componentType === 'series' &&
+            params.seriesType === 'scatter' &&
             params.data.data
           ) {
             // 点击现有城市
-            emit("city-click", params.data.data);
-          } else if (params.componentType === "geo" && props.enableMapClick) {
+            emit('city-click', params.data.data);
+          } else if (params.componentType === 'geo' && props.enableMapClick) {
             // 点击地图空白区域，添加新城市
-            emit("map-click", {
+            emit('map-click', {
               provinceName: params.name,
               coordinates: [params.event.offsetX, params.event.offsetY], // 屏幕坐标
-              type: "add-city",
+              type: 'add-city',
             });
           }
         });
 
         // 添加右键点击事件（可选）
-        chartInstance.value.on("contextmenu", (params) => {
+        chartInstance.value.on('contextmenu', params => {
           // 阻止默认右键菜单
           if (params.event && params.event.event) {
             params.event.event.preventDefault();
           }
 
-          if (params.componentType === "geo" && props.enableMapClick) {
-            emit("map-right-click", {
+          if (params.componentType === 'geo' && props.enableMapClick) {
+            emit('map-right-click', {
               provinceName: params.name,
               coordinates: [params.event.offsetX, params.event.offsetY],
-              type: "quick-add",
+              type: 'quick-add',
             });
           }
         });
 
         // 监听窗口大小变化（先清除旧的监听器，避免重复绑定）
         if (resizeHandler) {
-          window.removeEventListener("resize", resizeHandler);
+          window.removeEventListener('resize', resizeHandler);
         }
         resizeHandler = () => {
           chartInstance.value?.resize();
         };
-        window.addEventListener("resize", resizeHandler);
+        window.addEventListener('resize', resizeHandler);
 
         loading.value = false;
       } catch (error) {
-        console.error("初始化中国地图失败:", error);
+        console.error('初始化中国地图失败:', error);
         // 如果地图加载失败，回退到简化版本
         await initMapWithoutGeoData();
       }
@@ -447,7 +443,7 @@ export default {
         await nextTick();
 
         if (!mapContainer.value) {
-          console.error("Map container not found");
+          console.error('Map container not found');
           return;
         }
 
@@ -458,32 +454,32 @@ export default {
           // 显示空状态
           const emptyOption = {
             title: {
-              text: "还没有心愿城市",
-              subtext: "添加你想去的城市，它们将在地图上显示",
-              left: "center",
-              top: "middle",
+              text: '还没有心愿城市',
+              subtext: '添加你想去的城市，它们将在地图上显示',
+              left: 'center',
+              top: 'middle',
               textStyle: {
-                color: "#91A8D0",
+                color: '#91A8D0',
                 fontSize: 20,
-                fontWeight: "bold",
+                fontWeight: 'bold',
               },
               subtextStyle: {
-                color: "#6b7280",
+                color: '#6b7280',
                 fontSize: 14,
               },
             },
-            backgroundColor: "transparent",
+            backgroundColor: 'transparent',
             graphic: {
-              type: "image",
+              type: 'image',
               style: {
                 image:
-                  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiM5MUE4RDAiIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTIgMmwtNS41IDlIOS41bDIuNS00IDIuNSA0SDE3TDEyIDJ6bTAgMTBsLTUuNSA5aDN2LTRoNXY0aDNMMTIgMTJ6Ii8+PC9zdmc+",
+                  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiM5MUE4RDAiIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTIgMmwtNS41IDlIOS41bDIuNS00IDIuNSA0SDE3TDEyIDJ6bTAgMTBsLTUuNSA5aDN2LTRoNXY0aDNMMTIgMTJ6Ii8+PC9zdmc+',
                 width: 64,
                 height: 64,
                 opacity: 0.3,
               },
-              left: "center",
-              top: "35%",
+              left: 'center',
+              top: '35%',
             },
           };
           chartInstance.value.setOption(emptyOption);
@@ -497,27 +493,27 @@ export default {
         const option = {
           title: {
             text: `我的心愿城市分布 (${props.wishlistItems.length}个城市)`,
-            left: "center",
+            left: 'center',
             top: 10,
             textStyle: {
-              color: "#91A8D0",
+              color: '#91A8D0',
               fontSize: 16,
-              fontWeight: "bold",
+              fontWeight: 'bold',
             },
           },
           tooltip: {
-            trigger: "item",
-            backgroundColor: "rgba(255, 255, 255, 0.95)",
-            borderColor: "#91A8D0",
+            trigger: 'item',
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            borderColor: '#91A8D0',
             borderWidth: 1,
             textStyle: {
-              color: "#333",
+              color: '#333',
             },
             formatter: function (params) {
               const cityData = params.data;
               const tags = cityData.tags
-                ? cityData.tags.slice(0, 3).join("、")
-                : "无标签";
+                ? cityData.tags.slice(0, 3).join('、')
+                : '无标签';
               return `<div style="padding: 5px;">
                         <div style="font-weight: bold; margin-bottom: 5px;">${cityData.cityName}</div>
                         <div style="color: #666;">标签: ${tags}</div>
@@ -526,77 +522,77 @@ export default {
             },
           },
           grid: {
-            left: "8%",
-            right: "8%",
-            bottom: "8%",
-            top: "20%",
+            left: '8%',
+            right: '8%',
+            bottom: '8%',
+            top: '20%',
             containLabel: true,
           },
           xAxis: {
-            type: "value",
-            name: "经度分布",
-            nameLocation: "middle",
+            type: 'value',
+            name: '经度分布',
+            nameLocation: 'middle',
             nameGap: 25,
             nameTextStyle: {
-              color: "#666",
+              color: '#666',
               fontSize: 12,
             },
             min: 70,
             max: 140,
             axisLine: {
-              lineStyle: { color: "#e0e0e0" },
+              lineStyle: { color: '#e0e0e0' },
             },
             axisTick: { show: false },
             axisLabel: {
               show: true,
-              color: "#999",
+              color: '#999',
               fontSize: 10,
             },
             splitLine: {
               lineStyle: {
-                color: "#f5f5f5",
-                type: "dashed",
+                color: '#f5f5f5',
+                type: 'dashed',
               },
             },
           },
           yAxis: {
-            type: "value",
-            name: "纬度分布",
-            nameLocation: "middle",
+            type: 'value',
+            name: '纬度分布',
+            nameLocation: 'middle',
             nameGap: 35,
             nameTextStyle: {
-              color: "#666",
+              color: '#666',
               fontSize: 12,
             },
             min: 15,
             max: 55,
             axisLine: {
-              lineStyle: { color: "#e0e0e0" },
+              lineStyle: { color: '#e0e0e0' },
             },
             axisTick: { show: false },
             axisLabel: {
               show: true,
-              color: "#999",
+              color: '#999',
               fontSize: 10,
             },
             splitLine: {
               lineStyle: {
-                color: "#f5f5f5",
-                type: "dashed",
+                color: '#f5f5f5',
+                type: 'dashed',
               },
             },
           },
           series: [
             {
-              name: "心愿城市",
-              type: "scatter",
+              name: '心愿城市',
+              type: 'scatter',
               data: props.wishlistItems.map((item, index) => {
                 // 基于城市名生成更自然的分布坐标
                 const hash1 = item.cityName
-                  .split("")
+                  .split('')
                   .reduce((a, b) => a + b.charCodeAt(0), 0);
                 const hash2 = item.cityCode ? parseInt(item.cityCode) : hash1;
-                const isVisited = item.status === "visited";
+                const isVisited = item.status === 'visited';
                 const isHighlighted = props.highlightedCity === item.cityName;
 
                 return {
@@ -608,21 +604,21 @@ export default {
                   ],
                   itemStyle: {
                     color: isHighlighted
-                      ? "#ff6b6b"
+                      ? '#ff6b6b'
                       : isVisited
-                        ? "#f59e0b"
-                        : "#F7CAC9",
+                        ? '#f59e0b'
+                        : '#F7CAC9',
                     borderColor: isHighlighted
-                      ? "#ffffff"
+                      ? '#ffffff'
                       : isVisited
-                        ? "#d97706"
-                        : "#91A8D0",
+                        ? '#d97706'
+                        : '#91A8D0',
                     borderWidth: isHighlighted ? 3 : 2,
                     shadowColor: isHighlighted
-                      ? "rgba(255, 107, 107, 0.5)"
+                      ? 'rgba(255, 107, 107, 0.5)'
                       : isVisited
-                        ? "rgba(245, 158, 11, 0.3)"
-                        : "rgba(145, 168, 208, 0.3)",
+                        ? 'rgba(245, 158, 11, 0.3)'
+                        : 'rgba(145, 168, 208, 0.3)',
                     shadowBlur: isHighlighted ? 12 : 8,
                   },
                   tags: item.tags,
@@ -635,7 +631,7 @@ export default {
                 // 根据城市名长度和标签数量调整大小
                 const cityNameLength = data[2]?.length || 0;
                 const item = props.wishlistItems.find(
-                  (i) => i.cityName === data[2]
+                  i => i.cityName === data[2]
                 );
                 const tagCount = item?.tags?.length || 0;
                 return Math.max(
@@ -645,46 +641,46 @@ export default {
               },
               emphasis: {
                 itemStyle: {
-                  color: "#91A8D0",
-                  borderColor: "#F7CAC9",
+                  color: '#91A8D0',
+                  borderColor: '#F7CAC9',
                   borderWidth: 3,
-                  shadowColor: "rgba(145, 168, 208, 0.6)",
+                  shadowColor: 'rgba(145, 168, 208, 0.6)',
                   shadowBlur: 15,
                 },
                 scale: 1.3,
               },
               animationDuration: 1500,
-              animationEasing: "elasticOut",
+              animationEasing: 'elasticOut',
               animationDelay: function (idx) {
                 return idx * 100;
               },
             },
           ],
-          backgroundColor: "transparent",
+          backgroundColor: 'transparent',
           animation: true,
         };
 
         chartInstance.value.setOption(option);
 
         // 添加点击事件
-        chartInstance.value.on("click", (params) => {
-          if (params.componentType === "series" && params.data.originalData) {
-            emit("city-click", params.data.originalData);
+        chartInstance.value.on('click', params => {
+          if (params.componentType === 'series' && params.data.originalData) {
+            emit('city-click', params.data.originalData);
           }
         });
 
         // 监听窗口大小变化（先清除旧的监听器，避免重复绑定）
         if (resizeHandler) {
-          window.removeEventListener("resize", resizeHandler);
+          window.removeEventListener('resize', resizeHandler);
         }
         resizeHandler = () => {
           chartInstance.value?.resize();
         };
-        window.addEventListener("resize", resizeHandler);
+        window.addEventListener('resize', resizeHandler);
 
         loading.value = false;
       } catch (error) {
-        console.error("初始化简化地图失败:", error);
+        console.error('初始化简化地图失败:', error);
         loading.value = false;
       }
     };
@@ -696,7 +692,7 @@ export default {
           // 空状态：显示中国地图但没有标记点
           chartInstance.value.setOption({
             title: {
-              text: "中国心愿地图 (0个城市)",
+              text: '中国心愿地图 (0个城市)',
             },
             series: [
               {
@@ -708,28 +704,28 @@ export default {
         }
 
         // 批量获取坐标，避免逐个await造成的卡顿
-        const cityNames = props.wishlistItems.map((item) => item.cityName);
+        const cityNames = props.wishlistItems.map(item => item.cityName);
         const coordinatesMap = await getBatchCityCoordinates(cityNames, 50);
 
         // 更新散点数据
-        const updatedScatterData = props.wishlistItems.map((item) => {
+        const updatedScatterData = props.wishlistItems.map(item => {
           const coordinates = coordinatesMap[item.cityName] || [104, 35];
-          const isVisited = item.status === "visited";
+          const isVisited = item.status === 'visited';
           const isHighlighted = props.highlightedCity === item.cityName;
           return {
             name: item.cityName,
             value: [...coordinates, item.cityName],
             itemStyle: {
               color: isHighlighted
-                ? "#ff6b6b"
+                ? '#ff6b6b'
                 : isVisited
-                  ? "#f59e0b"
-                  : "#91A8D0",
+                  ? '#f59e0b'
+                  : '#91A8D0',
               borderColor: isHighlighted
-                ? "#ffffff"
+                ? '#ffffff'
                 : isVisited
-                  ? "#d97706"
-                  : "#6366f1",
+                  ? '#d97706'
+                  : '#6366f1',
               borderWidth: isHighlighted ? 3 : 2,
             },
             data: item,
@@ -783,7 +779,7 @@ export default {
       try {
         await initRealChinaMap();
       } catch (error) {
-        console.error("加载真实地图失败，回退到简化版本:", error);
+        console.error('加载真实地图失败，回退到简化版本:', error);
         // 如果真实地图加载失败，回退到简化版本
         await initMapWithoutGeoData();
       }
@@ -791,7 +787,7 @@ export default {
 
     onBeforeUnmount(() => {
       if (resizeHandler) {
-        window.removeEventListener("resize", resizeHandler);
+        window.removeEventListener('resize', resizeHandler);
         resizeHandler = null;
       }
       if (chartInstance.value) {
@@ -807,32 +803,32 @@ export default {
           // 显示空状态
           const emptyOption = {
             title: {
-              text: "还没有心愿城市",
-              subtext: "添加你想去的城市，它们将在地图上显示",
-              left: "center",
-              top: "middle",
+              text: '还没有心愿城市',
+              subtext: '添加你想去的城市，它们将在地图上显示',
+              left: 'center',
+              top: 'middle',
               textStyle: {
-                color: "#91A8D0",
+                color: '#91A8D0',
                 fontSize: 20,
-                fontWeight: "bold",
+                fontWeight: 'bold',
               },
               subtextStyle: {
-                color: "#6b7280",
+                color: '#6b7280',
                 fontSize: 14,
               },
             },
-            backgroundColor: "transparent",
+            backgroundColor: 'transparent',
             graphic: {
-              type: "image",
+              type: 'image',
               style: {
                 image:
-                  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiM5MUE4RDAiIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTIgMmwtNS41IDlIOS41bDIuNS00IDIuNSA0SDE3TDEyIDJ6bTAgMTBsLTUuNSA5aDN2LTRoNXY0aDNMMTIgMTJ6Ii8+PC9zdmc+",
+                  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIGZpbGw9IiM5MUE4RDAiIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTIgMmwtNS41IDlIOS41bDIuNS00IDIuNSA0SDE3TDEyIDJ6bTAgMTBsLTUuNSA5aDN2LTRoNXY0aDNMMTIgMTJ6Ii8+PC9zdmc+',
                 width: 64,
                 height: 64,
                 opacity: 0.3,
               },
-              left: "center",
-              top: "35%",
+              left: 'center',
+              top: '35%',
             },
             series: [], // 清空系列数据
             xAxis: null,
@@ -845,11 +841,11 @@ export default {
 
         const updatedData = props.wishlistItems.map((item, index) => {
           const hash1 = item.cityName
-            .split("")
+            .split('')
             .reduce((a, b) => a + b.charCodeAt(0), 0);
           const hash2 = item.cityCode ? parseInt(item.cityCode) : hash1;
 
-          const isVisited = item.status === "visited";
+          const isVisited = item.status === 'visited';
           const isHighlighted = props.highlightedCity === item.cityName;
 
           return {
@@ -861,21 +857,21 @@ export default {
             ],
             itemStyle: {
               color: isHighlighted
-                ? "#ff6b6b"
+                ? '#ff6b6b'
                 : isVisited
-                  ? "#f59e0b"
-                  : "#F7CAC9",
+                  ? '#f59e0b'
+                  : '#F7CAC9',
               borderColor: isHighlighted
-                ? "#ffffff"
+                ? '#ffffff'
                 : isVisited
-                  ? "#d97706"
-                  : "#91A8D0",
+                  ? '#d97706'
+                  : '#91A8D0',
               borderWidth: isHighlighted ? 3 : 2,
               shadowColor: isHighlighted
-                ? "rgba(255, 107, 107, 0.5)"
+                ? 'rgba(255, 107, 107, 0.5)'
                 : isVisited
-                  ? "rgba(245, 158, 11, 0.3)"
-                  : "rgba(145, 168, 208, 0.3)",
+                  ? 'rgba(245, 158, 11, 0.3)'
+                  : 'rgba(145, 168, 208, 0.3)',
               shadowBlur: isHighlighted ? 12 : 8,
             },
             tags: item.tags,

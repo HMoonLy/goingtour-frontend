@@ -51,11 +51,11 @@
 </template>
 
 <script>
-import { computed, defineComponent, onBeforeUnmount } from "vue";
-import CityCard from "./CityCard.vue";
+import { computed, defineComponent, onBeforeUnmount } from 'vue';
+import CityCard from './CityCard.vue';
 
 export default defineComponent({
-  name: "CityGridList",
+  name: 'CityGridList',
   components: {
     CityCard,
   },
@@ -73,11 +73,11 @@ export default defineComponent({
       default: false,
     },
   },
-  emits: ["selectCity", "toggleWishlist"],
+  emits: ['selectCity', 'toggleWishlist'],
   setup(props, { emit }) {
     // 使用Set缓存心愿清单城市编码，提升查询性能
     const wishlistSet = computed(() => {
-      return new Set(props.wishlistItems.map((item) => item.cityCode));
+      return new Set(props.wishlistItems.map(item => item.cityCode));
     });
 
     // 是否有收藏的城市
@@ -93,19 +93,19 @@ export default defineComponent({
     let selectTimeout = null;
     let wishlistTimeout = null;
 
-    const handleSelectCity = (city) => {
+    const handleSelectCity = city => {
       // 防止快速点击导致的多次触发
       if (selectTimeout) clearTimeout(selectTimeout);
       selectTimeout = setTimeout(() => {
-        emit("selectCity", city);
+        emit('selectCity', city);
       }, 50);
     };
 
-    const handleToggleWishlist = (city) => {
+    const handleToggleWishlist = city => {
       // 防止快速点击导致的多次切换
       if (wishlistTimeout) clearTimeout(wishlistTimeout);
       wishlistTimeout = setTimeout(() => {
-        emit("toggleWishlist", city);
+        emit('toggleWishlist', city);
       }, 100);
     };
 

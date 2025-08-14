@@ -133,7 +133,7 @@ export function withCache(cacheKey, ttl) {
 
     descriptor.value = async function (...args) {
       const key =
-        typeof cacheKey === "function"
+        typeof cacheKey === 'function'
           ? cacheKey.apply(this, args)
           : `${cacheKey}:${JSON.stringify(args)}`;
 
@@ -181,7 +181,7 @@ export function createCachedRequest(apiFunction, options = {}) {
 
     // 生成缓存键
     const key = cacheKey
-      ? typeof cacheKey === "function"
+      ? typeof cacheKey === 'function'
         ? cacheKey(...args)
         : cacheKey
       : apiCache.generateKey(apiFunction.name, args);
@@ -296,7 +296,7 @@ export function startCacheCleanup(interval = 10 * 60 * 1000) {
 
     // 强制触发一次垃圾回收（通过访问所有键）
     const keys = Array.from(apiCache.cache.keys());
-    keys.forEach((key) => {
+    keys.forEach(key => {
       apiCache.get(key); // 这会自动清理过期的条目
     });
 

@@ -6,15 +6,15 @@
 
 <script>
 export default {
-  name: "AuthLayout",
+  name: 'AuthLayout',
   mounted() {
     // 页面背景设置
     document.body.style.background =
-      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
+      'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
   },
   unmounted() {
     // 清理背景设置
-    document.body.style.background = "";
+    document.body.style.background = '';
   },
 };
 </script>

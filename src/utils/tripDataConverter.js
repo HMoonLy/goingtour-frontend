@@ -20,7 +20,7 @@ export function convertBackendTripToFrontend(backendTrip) {
     // 构建每日计划结构
     const dayMap = new Map();
 
-    backendTrip.tripDetails.forEach((detail) => {
+    backendTrip.tripDetails.forEach(detail => {
       const dayIndex = detail.day - 1; // 转换为0-based索引
 
       if (!dayMap.has(dayIndex)) {
@@ -33,19 +33,19 @@ export function convertBackendTripToFrontend(backendTrip) {
       const activity = {
         time: getTimeFromSlot(detail.timeSlot, detail.sequence),
         duration: detail.duration || 120,
-        notes: detail.notes || "",
-        description: detail.notes || "",
+        notes: detail.notes || '',
+        description: detail.notes || '',
       };
 
       if (detail.attraction) {
         activity.name = detail.attraction.name;
-        activity.type = "attraction";
+        activity.type = 'attraction';
         activity.id = detail.attraction.id;
         activity.data = detail.attraction;
         activity.tags = getAttractionTags(detail.attraction);
 
         // 添加到景点列表（去重）
-        if (!attractions.find((a) => a.id === detail.attraction.id)) {
+        if (!attractions.find(a => a.id === detail.attraction.id)) {
           attractions.push({
             id: detail.attraction.id,
             name: detail.attraction.name,
@@ -61,13 +61,13 @@ export function convertBackendTripToFrontend(backendTrip) {
         }
       } else if (detail.restaurant) {
         activity.name = detail.restaurant.name;
-        activity.type = "restaurant";
+        activity.type = 'restaurant';
         activity.id = detail.restaurant.id;
         activity.data = detail.restaurant;
         activity.tags = getRestaurantTags(detail.restaurant);
 
         // 添加到餐厅列表（去重）
-        if (!restaurants.find((r) => r.id === detail.restaurant.id)) {
+        if (!restaurants.find(r => r.id === detail.restaurant.id)) {
           restaurants.push({
             id: detail.restaurant.id,
             name: detail.restaurant.name,
@@ -92,8 +92,8 @@ export function convertBackendTripToFrontend(backendTrip) {
         const dayPlan = dayMap.get(i);
         // 按时间排序活动
         dayPlan.activities.sort((a, b) => {
-          const timeA = a.time.replace(":", "");
-          const timeB = b.time.replace(":", "");
+          const timeA = a.time.replace(':', '');
+          const timeB = b.time.replace(':', '');
           return parseInt(timeA) - parseInt(timeB);
         });
         dailyPlan.push(dayPlan);
@@ -109,16 +109,16 @@ export function convertBackendTripToFrontend(backendTrip) {
 
   // 生成城市名称映射
   const cityNameMap = {
-    beijing: "北京",
-    shanghai: "上海",
-    guangzhou: "广州",
-    shenzhen: "深圳",
-    hangzhou: "杭州",
-    nanjing: "南京",
-    suzhou: "苏州",
-    chengdu: "成都",
-    chongqing: "重庆",
-    xian: "西安",
+    beijing: '北京',
+    shanghai: '上海',
+    guangzhou: '广州',
+    shenzhen: '深圳',
+    hangzhou: '杭州',
+    nanjing: '南京',
+    suzhou: '苏州',
+    chengdu: '成都',
+    chongqing: '重庆',
+    xian: '西安',
   };
 
   return {
@@ -181,7 +181,7 @@ export function convertFrontendTripToBackend(frontendTrip) {
     totalBudget: parseBudgetValue(
       frontendTrip.budget ||
         frontendTrip.estimatedCost ||
-        frontendTrip.totalBudget,
+        frontendTrip.totalBudget
     ),
     tripDetails: convertDailyPlanToTripDetails(frontendTrip.dailyPlan),
   };
@@ -212,13 +212,13 @@ export function convertDailyPlanToTripDetails(dailyPlan) {
         timeSlot: timeSlot,
         sequence: actIndex + 1,
         duration: activity.duration || 120,
-        notes: activity.description || activity.notes || "",
+        notes: activity.description || activity.notes || '',
       };
 
       // 根据活动类型设置对应的ID
-      if (activity.type === "attraction" && activity.id) {
+      if (activity.type === 'attraction' && activity.id) {
         detail.attractionId = parseInt(activity.id) || null;
-      } else if (activity.type === "restaurant" && activity.id) {
+      } else if (activity.type === 'restaurant' && activity.id) {
         detail.restaurantId = parseInt(activity.id) || null;
       }
 
@@ -236,12 +236,12 @@ export function convertDailyPlanToTripDetails(dailyPlan) {
  */
 function getTimeFromSlot(timeSlot, sequence = 1) {
   const timeMap = {
-    morning: ["09:00", "10:30"],
-    afternoon: ["13:00", "14:30", "16:00"],
-    evening: ["18:00", "19:30"],
+    morning: ['09:00', '10:30'],
+    afternoon: ['13:00', '14:30', '16:00'],
+    evening: ['18:00', '19:30'],
   };
 
-  const times = timeMap[timeSlot] || timeMap["morning"];
+  const times = timeMap[timeSlot] || timeMap['morning'];
   const index = Math.min(sequence - 1, times.length - 1);
   return times[index];
 }
@@ -250,17 +250,17 @@ function getTimeFromSlot(timeSlot, sequence = 1) {
  * 根据时间判断时段
  */
 function getTimeSlot(timeStr) {
-  if (!timeStr) return "morning";
+  if (!timeStr) return 'morning';
 
-  const time = timeStr.split(":")[0];
+  const time = timeStr.split(':')[0];
   const hour = parseInt(time);
 
   if (hour >= 6 && hour < 12) {
-    return "morning";
+    return 'morning';
   } else if (hour >= 12 && hour < 18) {
-    return "afternoon";
+    return 'afternoon';
   } else {
-    return "evening";
+    return 'evening';
   }
 }
 
@@ -270,12 +270,12 @@ function getTimeSlot(timeStr) {
 function getAttractionTags(attraction) {
   const tags = [];
   if (attraction.rating && attraction.rating > 4.5) {
-    tags.push("高评分");
+    tags.push('高评分');
   }
   if (attraction.price === 0) {
-    tags.push("免费");
+    tags.push('免费');
   }
-  tags.push("必游景点");
+  tags.push('必游景点');
   return tags;
 }
 
@@ -285,9 +285,9 @@ function getAttractionTags(attraction) {
 function getRestaurantTags(restaurant) {
   const tags = [];
   if (restaurant.rating && restaurant.rating > 4.5) {
-    tags.push("高评分");
+    tags.push('高评分');
   }
-  tags.push("当地美食");
+  tags.push('当地美食');
   return tags;
 }
 
@@ -297,13 +297,13 @@ function getRestaurantTags(restaurant) {
 function getStatusText(statusCode) {
   switch (statusCode) {
     case 1:
-      return "draft";
+      return 'draft';
     case 2:
-      return "published";
+      return 'published';
     case 3:
-      return "completed";
+      return 'completed';
     default:
-      return "draft";
+      return 'draft';
   }
 }
 
@@ -312,11 +312,11 @@ function getStatusText(statusCode) {
  */
 function getFrontendStatusCode(status) {
   switch (status) {
-    case "draft":
+    case 'draft':
       return 1;
-    case "published":
+    case 'published':
       return 2;
-    case "completed":
+    case 'completed':
       return 3;
     default:
       return 1;
@@ -327,7 +327,7 @@ function getFrontendStatusCode(status) {
  * 格式化预算文本
  */
 function formatBudgetText(budget) {
-  if (!budget) return "预算待定";
+  if (!budget) return '预算待定';
   if (budget < 1000) {
     return `约 ¥${budget}`;
   } else {
@@ -339,7 +339,7 @@ function formatBudgetText(budget) {
  * 格式化预估花费
  */
 function formatEstimatedCost(budget) {
-  if (!budget) return "约 ¥0";
+  if (!budget) return '约 ¥0';
   return `约 ¥${budget.toLocaleString()}`;
 }
 
@@ -347,13 +347,13 @@ function formatEstimatedCost(budget) {
  * 解析预算数值
  */
 function parseBudgetValue(budgetValue) {
-  if (typeof budgetValue === "number") {
+  if (typeof budgetValue === 'number') {
     return budgetValue;
   }
 
-  if (typeof budgetValue === "string") {
+  if (typeof budgetValue === 'string') {
     // 移除所有非数字字符，只保留数字和小数点
-    const numberStr = budgetValue.replace(/[^0-9.]/g, "");
+    const numberStr = budgetValue.replace(/[^0-9.]/g, '');
     const number = parseFloat(numberStr);
     return isNaN(number) ? 0 : number;
   }

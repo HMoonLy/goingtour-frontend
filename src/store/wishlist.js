@@ -1,13 +1,13 @@
 /**
  * 愿望清单 Store - 管理用户的旅行愿望清单
  */
-import { defineStore } from "pinia";
-import { ref, computed } from "vue";
-import { wishlistApi } from "@/api/wishlist.js";
-import { cityPhotosApi } from "@/api/cityPhotos.js";
-import { ElMessage } from "element-plus";
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
+import { wishlistApi } from '@/api/wishlist.js';
+import { cityPhotosApi } from '@/api/cityPhotos.js';
+import { ElMessage } from 'element-plus';
 
-export const useWishlistStore = defineStore("wishlist", () => {
+export const useWishlistStore = defineStore('wishlist', () => {
   // 状态
   const wishlistItems = ref([]);
   const loading = ref(false);
@@ -20,24 +20,22 @@ export const useWishlistStore = defineStore("wishlist", () => {
 
   // 去过的城市数量
   const visitedCount = computed(
-    () =>
-      wishlistItems.value.filter((item) => item.status === "visited").length,
+    () => wishlistItems.value.filter(item => item.status === 'visited').length
   );
 
   // 想去的城市数量
   const wishlistOnlyCount = computed(
-    () =>
-      wishlistItems.value.filter((item) => item.status === "wishlist").length,
+    () => wishlistItems.value.filter(item => item.status === 'wishlist').length
   );
 
   // 已探索的省份数量（基于去过的城市）
   const exploredProvincesCount = computed(() => {
     const visitedCities = wishlistItems.value.filter(
-      (item) => item.status === "visited",
+      item => item.status === 'visited'
     );
     const provinces = new Set();
 
-    visitedCities.forEach((city) => {
+    visitedCities.forEach(city => {
       if (city.cityCode) {
         const provinceCode = city.cityCode.toString().substring(0, 2);
         provinces.add(provinceCode);
@@ -60,11 +58,11 @@ export const useWishlistStore = defineStore("wishlist", () => {
   }));
 
   const cityNames = computed(() =>
-    wishlistItems.value.map((item) => item.cityName),
+    wishlistItems.value.map(item => item.cityName)
   );
 
   const cityCodes = computed(() =>
-    wishlistItems.value.map((item) => item.cityCode),
+    wishlistItems.value.map(item => item.cityCode)
   );
 
   // 获取随机城市（用于天气轮播）
@@ -80,12 +78,12 @@ export const useWishlistStore = defineStore("wishlist", () => {
    * 加载用户的愿望清单
    */
   const loadWishlist = async () => {
-    const { useUserStore } = await import("@/store/user.js");
+    const { useUserStore } = await import('@/store/user.js');
     const userStore = useUserStore();
     const userId = userStore.currentUser?.id || userStore.userId;
 
     if (!userId) {
-      console.warn("用户未登录，无法加载愿望清单");
+      console.warn('用户未登录，无法加载愿望清单');
       return;
     }
 
@@ -93,9 +91,9 @@ export const useWishlistStore = defineStore("wishlist", () => {
     try {
       const response = await wishlistApi.getUserWishlist(userId);
       wishlistItems.value = response.data || [];
-      console.log("✅ 愿望清单加载成功:", wishlistItems.value.length, "个城市");
+      console.log('✅ 愿望清单加载成功:', wishlistItems.value.length, '个城市');
     } catch (error) {
-      console.error("❌ 加载愿望清单失败:", error);
+      console.error('❌ 加载愿望清单失败:', error);
       wishlistItems.value = [];
     } finally {
       loading.value = false;
@@ -105,13 +103,13 @@ export const useWishlistStore = defineStore("wishlist", () => {
   /**
    * 添加城市到愿望清单
    */
-  const addToWishlist = async (cityData) => {
-    const { useUserStore } = await import("@/store/user.js");
+  const addToWishlist = async cityData => {
+    const { useUserStore } = await import('@/store/user.js');
     const userStore = useUserStore();
     const userId = userStore.currentUser?.id || userStore.userId;
 
     if (!userId) {
-      ElMessage.warning("请先登录");
+      ElMessage.warning('请先登录');
       return false;
     }
 
@@ -126,9 +124,9 @@ export const useWishlistStore = defineStore("wishlist", () => {
         userId,
         cityCode: cityData.cityCode,
         cityName: cityData.cityName,
-        reason: cityData.reason || "",
+        reason: cityData.reason || '',
         tags: cityData.tags || [],
-        status: cityData.status || "wishlist", // 默认为想去
+        status: cityData.status || 'wishlist', // 默认为想去
       };
 
       const response = await wishlistApi.addToWishlist(wishData);
@@ -145,8 +143,8 @@ export const useWishlistStore = defineStore("wishlist", () => {
         return true;
       }
     } catch (error) {
-      console.error("❌ 添加到愿望清单失败:", error);
-      ElMessage.error("添加失败，请重试");
+      console.error('❌ 添加到愿望清单失败:', error);
+      ElMessage.error('添加失败，请重试');
       return false;
     }
   };
@@ -154,8 +152,8 @@ export const useWishlistStore = defineStore("wishlist", () => {
   /**
    * 从愿望清单删除城市
    */
-  const removeFromWishlist = async (wishlistId) => {
-    const { useUserStore } = await import("@/store/user.js");
+  const removeFromWishlist = async wishlistId => {
+    const { useUserStore } = await import('@/store/user.js');
     const userStore = useUserStore();
     const userId = userStore.currentUser?.id || userStore.userId;
 
@@ -166,7 +164,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
 
       // 从本地状态删除
       const index = wishlistItems.value.findIndex(
-        (item) => item.id === wishlistId,
+        item => item.id === wishlistId
       );
       if (index !== -1) {
         const cityName = wishlistItems.value[index].cityName;
@@ -176,8 +174,8 @@ export const useWishlistStore = defineStore("wishlist", () => {
 
       return true;
     } catch (error) {
-      console.error("❌ 从愿望清单删除失败:", error);
-      ElMessage.error("删除失败，请重试");
+      console.error('❌ 从愿望清单删除失败:', error);
+      ElMessage.error('删除失败，请重试');
       return false;
     }
   };
@@ -185,32 +183,32 @@ export const useWishlistStore = defineStore("wishlist", () => {
   /**
    * 检查城市是否在愿望清单中
    */
-  const isCityInWishlist = (cityCode) => {
-    return wishlistItems.value.some((item) => item.cityCode === cityCode);
+  const isCityInWishlist = cityCode => {
+    return wishlistItems.value.some(item => item.cityCode === cityCode);
   };
 
   /**
    * 根据城市编码获取愿望清单项
    */
-  const getWishlistItemByCityCode = (cityCode) => {
-    return wishlistItems.value.find((item) => item.cityCode === cityCode);
+  const getWishlistItemByCityCode = cityCode => {
+    return wishlistItems.value.find(item => item.cityCode === cityCode);
   };
 
   /**
    * 快速切换城市状态（想去/去过）
    */
   const toggleCityStatus = async (wishlistId, newStatus) => {
-    const { useUserStore } = await import("@/store/user.js");
+    const { useUserStore } = await import('@/store/user.js');
     const userStore = useUserStore();
     const userId = userStore.currentUser?.id || userStore.userId;
 
     if (!userId) {
-      console.error("❌ 用户ID不存在，当前用户状态:", {
+      console.error('❌ 用户ID不存在，当前用户状态:', {
         isLoggedIn: userStore.isLoggedIn,
         currentUser: userStore.currentUser,
-        userId: userStore.userId
+        userId: userStore.userId,
       });
-      ElMessage.error("用户未登录，请先登录");
+      ElMessage.error('用户未登录，请先登录');
       return false;
     }
 
@@ -222,7 +220,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
 
       // 更新本地状态
       const index = wishlistItems.value.findIndex(
-        (item) => item.id === wishlistId,
+        item => item.id === wishlistId
       );
       if (index !== -1) {
         const cityName = wishlistItems.value[index].cityName;
@@ -232,14 +230,14 @@ export const useWishlistStore = defineStore("wishlist", () => {
           updatedAt: new Date().toISOString(),
         };
 
-        const statusText = newStatus === "visited" ? "去过" : "想去";
+        const statusText = newStatus === 'visited' ? '去过' : '想去';
         ElMessage.success(`已将 ${cityName} 标记为${statusText}`);
       }
 
       return true;
     } catch (error) {
-      console.error("❌ 切换城市状态失败:", error);
-      ElMessage.error("操作失败，请重试");
+      console.error('❌ 切换城市状态失败:', error);
+      ElMessage.error('操作失败，请重试');
       return false;
     }
   };
@@ -248,7 +246,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
    * 批量标记城市状态
    */
   const batchUpdateStatus = async (cityIds, newStatus) => {
-    const { useUserStore } = await import("@/store/user.js");
+    const { useUserStore } = await import('@/store/user.js');
     const userStore = useUserStore();
     const userId = userStore.currentUser?.id || userStore.userId;
 
@@ -257,14 +255,14 @@ export const useWishlistStore = defineStore("wishlist", () => {
     try {
       // 这里假设后端支持批量更新，如果不支持则需要逐个更新
       await Promise.all(
-        cityIds.map((id) =>
-          wishlistApi.updateWishlistItem(id, { userId, status: newStatus }),
-        ),
+        cityIds.map(id =>
+          wishlistApi.updateWishlistItem(id, { userId, status: newStatus })
+        )
       );
 
       // 更新本地状态
-      cityIds.forEach((id) => {
-        const index = wishlistItems.value.findIndex((item) => item.id === id);
+      cityIds.forEach(id => {
+        const index = wishlistItems.value.findIndex(item => item.id === id);
         if (index !== -1) {
           wishlistItems.value[index] = {
             ...wishlistItems.value[index],
@@ -274,12 +272,12 @@ export const useWishlistStore = defineStore("wishlist", () => {
         }
       });
 
-      const statusText = newStatus === "visited" ? "去过" : "想去";
+      const statusText = newStatus === 'visited' ? '去过' : '想去';
       ElMessage.success(`已批量标记 ${cityIds.length} 个城市为${statusText}`);
       return true;
     } catch (error) {
-      console.error("❌ 批量更新状态失败:", error);
-      ElMessage.error("批量操作失败，请重试");
+      console.error('❌ 批量更新状态失败:', error);
+      ElMessage.error('批量操作失败，请重试');
       return false;
     }
   };
@@ -288,7 +286,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
    * 更新愿望清单项
    */
   const updateWishlistItem = async (wishlistId, updateData) => {
-    const { useUserStore } = await import("@/store/user.js");
+    const { useUserStore } = await import('@/store/user.js');
     const userStore = useUserStore();
     const userId = userStore.currentUser?.id || userStore.userId;
 
@@ -302,7 +300,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
 
       // 更新本地状态
       const index = wishlistItems.value.findIndex(
-        (item) => item.id === wishlistId,
+        item => item.id === wishlistId
       );
       if (index !== -1) {
         wishlistItems.value[index] = {
@@ -310,13 +308,13 @@ export const useWishlistStore = defineStore("wishlist", () => {
           ...updateData,
           updatedAt: new Date().toISOString(),
         };
-        ElMessage.success("愿望清单更新成功");
+        ElMessage.success('愿望清单更新成功');
       }
 
       return true;
     } catch (error) {
-      console.error("❌ 更新愿望清单失败:", error);
-      ElMessage.error("更新失败，请重试");
+      console.error('❌ 更新愿望清单失败:', error);
+      ElMessage.error('更新失败，请重试');
       return false;
     }
   };
@@ -324,7 +322,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
   /**
    * 设置当前天气显示的城市
    */
-  const setCurrentWeatherCity = (city) => {
+  const setCurrentWeatherCity = city => {
     currentWeatherCity.value = city;
   };
 
@@ -336,7 +334,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
 
     const currentIndex = currentWeatherCity.value
       ? wishlistItems.value.findIndex(
-          (item) => item.id === currentWeatherCity.value.id,
+          item => item.id === currentWeatherCity.value.id
         )
       : -1;
 
@@ -363,14 +361,14 @@ export const useWishlistStore = defineStore("wishlist", () => {
   const uploadCityPhoto = async (
     file,
     wishlistItemId,
-    caption = "",
-    tags = [],
+    caption = '',
+    tags = []
   ) => {
-    const { useUserStore } = await import("@/store/user.js");
+    const { useUserStore } = await import('@/store/user.js');
     const userStore = useUserStore();
 
     if (!userStore.isLoggedIn) {
-      ElMessage.error("请先登录");
+      ElMessage.error('请先登录');
       return null;
     }
 
@@ -384,7 +382,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
 
       // 压缩图片
       const compressedFile = await cityPhotosApi.compressImage(file);
-      
+
       // 上传照片
       const response = await cityPhotosApi.uploadPhoto({
         file: compressedFile,
@@ -394,14 +392,14 @@ export const useWishlistStore = defineStore("wishlist", () => {
       });
 
       if (response.data) {
-        ElMessage.success("照片上传成功");
+        ElMessage.success('照片上传成功');
         return response.data;
       } else {
-        throw new Error("上传失败");
+        throw new Error('上传失败');
       }
     } catch (error) {
-      console.error("❌ 上传照片失败:", error);
-      ElMessage.error("照片上传失败，请重试");
+      console.error('❌ 上传照片失败:', error);
+      ElMessage.error('照片上传失败，请重试');
       return null;
     }
   };
@@ -409,8 +407,8 @@ export const useWishlistStore = defineStore("wishlist", () => {
   /**
    * 获取城市照片列表
    */
-  const getCityPhotos = async (wishlistItemId) => {
-    const { useUserStore } = await import("@/store/user.js");
+  const getCityPhotos = async wishlistItemId => {
+    const { useUserStore } = await import('@/store/user.js');
     const userStore = useUserStore();
 
     if (!userStore.isLoggedIn) {
@@ -421,7 +419,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
       const response = await cityPhotosApi.getCityPhotos(wishlistItemId);
       return response.data || [];
     } catch (error) {
-      console.error("❌ 获取城市照片失败:", error);
+      console.error('❌ 获取城市照片失败:', error);
       return [];
     }
   };
@@ -430,7 +428,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
    * 获取用户所有照片
    */
   const getUserPhotos = async () => {
-    const { useUserStore } = await import("@/store/user.js");
+    const { useUserStore } = await import('@/store/user.js');
     const userStore = useUserStore();
 
     if (!userStore.isLoggedIn) {
@@ -441,7 +439,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
       const response = await cityPhotosApi.getUserPhotos();
       return response.data || [];
     } catch (error) {
-      console.error("❌ 获取用户照片失败:", error);
+      console.error('❌ 获取用户照片失败:', error);
       return [];
     }
   };
@@ -450,11 +448,11 @@ export const useWishlistStore = defineStore("wishlist", () => {
    * 更新照片信息
    */
   const updatePhoto = async (photoId, caption, tags = []) => {
-    const { useUserStore } = await import("@/store/user.js");
+    const { useUserStore } = await import('@/store/user.js');
     const userStore = useUserStore();
 
     if (!userStore.isLoggedIn) {
-      ElMessage.error("请先登录");
+      ElMessage.error('请先登录');
       return false;
     }
 
@@ -465,14 +463,14 @@ export const useWishlistStore = defineStore("wishlist", () => {
       });
 
       if (response.data) {
-        ElMessage.success("照片信息更新成功");
+        ElMessage.success('照片信息更新成功');
         return response.data;
       } else {
-        throw new Error("更新失败");
+        throw new Error('更新失败');
       }
     } catch (error) {
-      console.error("❌ 更新照片失败:", error);
-      ElMessage.error("更新照片失败，请重试");
+      console.error('❌ 更新照片失败:', error);
+      ElMessage.error('更新照片失败，请重试');
       return false;
     }
   };
@@ -480,27 +478,27 @@ export const useWishlistStore = defineStore("wishlist", () => {
   /**
    * 删除照片
    */
-  const deletePhoto = async (photoId) => {
-    const { useUserStore } = await import("@/store/user.js");
+  const deletePhoto = async photoId => {
+    const { useUserStore } = await import('@/store/user.js');
     const userStore = useUserStore();
 
     if (!userStore.isLoggedIn) {
-      ElMessage.error("请先登录");
+      ElMessage.error('请先登录');
       return false;
     }
 
     try {
       const response = await cityPhotosApi.deletePhoto(photoId);
-      
+
       if (response.success !== false) {
-        ElMessage.success("照片删除成功");
+        ElMessage.success('照片删除成功');
         return true;
       } else {
-        throw new Error("删除失败");
+        throw new Error('删除失败');
       }
     } catch (error) {
-      console.error("❌ 删除照片失败:", error);
-      ElMessage.error("删除照片失败，请重试");
+      console.error('❌ 删除照片失败:', error);
+      ElMessage.error('删除照片失败，请重试');
       return false;
     }
   };
@@ -508,27 +506,27 @@ export const useWishlistStore = defineStore("wishlist", () => {
   /**
    * 设置封面照片
    */
-  const setCoverPhoto = async (photoId) => {
-    const { useUserStore } = await import("@/store/user.js");
+  const setCoverPhoto = async photoId => {
+    const { useUserStore } = await import('@/store/user.js');
     const userStore = useUserStore();
 
     if (!userStore.isLoggedIn) {
-      ElMessage.error("请先登录");
+      ElMessage.error('请先登录');
       return false;
     }
 
     try {
       const response = await cityPhotosApi.setCoverPhoto(photoId);
-      
+
       if (response.success !== false) {
-        ElMessage.success("封面设置成功");
+        ElMessage.success('封面设置成功');
         return true;
       } else {
-        throw new Error("设置封面失败");
+        throw new Error('设置封面失败');
       }
     } catch (error) {
-      console.error("❌ 设置封面失败:", error);
-      ElMessage.error("设置封面失败，请重试");
+      console.error('❌ 设置封面失败:', error);
+      ElMessage.error('设置封面失败，请重试');
       return false;
     }
   };
@@ -537,7 +535,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
    * 获取照片统计信息
    */
   const getPhotoStats = async () => {
-    const { useUserStore } = await import("@/store/user.js");
+    const { useUserStore } = await import('@/store/user.js');
     const userStore = useUserStore();
 
     if (!userStore.isLoggedIn) {
@@ -548,7 +546,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
       const response = await cityPhotosApi.getPhotoStats();
       return response.data || { totalPhotos: 0, citiesWithPhotos: 0 };
     } catch (error) {
-      console.error("❌ 获取照片统计失败:", error);
+      console.error('❌ 获取照片统计失败:', error);
       return { totalPhotos: 0, citiesWithPhotos: 0 };
     }
   };
@@ -559,11 +557,11 @@ export const useWishlistStore = defineStore("wishlist", () => {
    * 批量上传照片
    */
   const batchUploadPhotos = async (files, wishlistItemId, options = {}) => {
-    const { useUserStore } = await import("@/store/user.js");
+    const { useUserStore } = await import('@/store/user.js');
     const userStore = useUserStore();
 
     if (!userStore.isLoggedIn) {
-      ElMessage.error("请先登录");
+      ElMessage.error('请先登录');
       return { success: 0, failed: 0, results: [] };
     }
 
@@ -573,7 +571,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      
+
       try {
         const result = await uploadCityPhoto(
           file,
@@ -581,15 +579,15 @@ export const useWishlistStore = defineStore("wishlist", () => {
           options.caption || `照片 ${i + 1}`,
           options.tags || []
         );
-        
+
         if (result) {
           results.push({ file: file.name, success: true, data: result });
           successCount++;
         } else {
-          results.push({ file: file.name, success: false, error: "上传失败" });
+          results.push({ file: file.name, success: false, error: '上传失败' });
           failedCount++;
         }
-        
+
         // 调用进度回调
         if (options.onProgress) {
           options.onProgress({
@@ -597,7 +595,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
             total: files.length,
             currentFile: file.name,
             success: successCount,
-            failed: failedCount
+            failed: failedCount,
           });
         }
       } catch (error) {
@@ -622,27 +620,27 @@ export const useWishlistStore = defineStore("wishlist", () => {
   /**
    * 更新照片排序
    */
-  const updatePhotoOrder = async (photoIds) => {
-    const { useUserStore } = await import("@/store/user.js");
+  const updatePhotoOrder = async photoIds => {
+    const { useUserStore } = await import('@/store/user.js');
     const userStore = useUserStore();
 
     if (!userStore.isLoggedIn) {
-      ElMessage.error("请先登录");
+      ElMessage.error('请先登录');
       return false;
     }
 
     try {
       const response = await cityPhotosApi.updatePhotoOrder(photoIds);
-      
+
       if (response.success !== false) {
-        ElMessage.success("照片排序更新成功");
+        ElMessage.success('照片排序更新成功');
         return true;
       } else {
-        throw new Error("更新排序失败");
+        throw new Error('更新排序失败');
       }
     } catch (error) {
-      console.error("❌ 更新照片排序失败:", error);
-      ElMessage.error("更新排序失败，请重试");
+      console.error('❌ 更新照片排序失败:', error);
+      ElMessage.error('更新排序失败，请重试');
       return false;
     }
   };
@@ -650,24 +648,24 @@ export const useWishlistStore = defineStore("wishlist", () => {
   /**
    * 批量删除照片
    */
-  const batchDeletePhotos = async (photoIds) => {
-    const { useUserStore } = await import("@/store/user.js");
+  const batchDeletePhotos = async photoIds => {
+    const { useUserStore } = await import('@/store/user.js');
     const userStore = useUserStore();
 
     if (!userStore.isLoggedIn) {
-      ElMessage.error("请先登录");
+      ElMessage.error('请先登录');
       return 0;
     }
 
     try {
       const response = await cityPhotosApi.batchDeletePhotos(photoIds);
       const deletedCount = response.data || 0;
-      
+
       ElMessage.success(`成功删除 ${deletedCount} 张照片`);
       return deletedCount;
     } catch (error) {
-      console.error("❌ 批量删除照片失败:", error);
-      ElMessage.error("批量删除失败，请重试");
+      console.error('❌ 批量删除照片失败:', error);
+      ElMessage.error('批量删除失败，请重试');
       return 0;
     }
   };
@@ -675,8 +673,8 @@ export const useWishlistStore = defineStore("wishlist", () => {
   /**
    * 根据ID获取照片详情
    */
-  const getPhotoById = async (photoId) => {
-    const { useUserStore } = await import("@/store/user.js");
+  const getPhotoById = async photoId => {
+    const { useUserStore } = await import('@/store/user.js');
     const userStore = useUserStore();
 
     if (!userStore.isLoggedIn) {
@@ -687,7 +685,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
       const response = await cityPhotosApi.getPhotoById(photoId);
       return response.data || null;
     } catch (error) {
-      console.error("❌ 获取照片详情失败:", error);
+      console.error('❌ 获取照片详情失败:', error);
       return null;
     }
   };
@@ -696,7 +694,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
    * 迁移legacy照片数据
    * 将wishlist item中的photo字段迁移到city_photos表
    */
-  const migrateLegacyPhoto = async (wishlistItem) => {
+  const migrateLegacyPhoto = async wishlistItem => {
     if (!wishlistItem.photo) {
       return false; // 没有legacy照片需要迁移
     }
@@ -711,13 +709,15 @@ export const useWishlistStore = defineStore("wishlist", () => {
       // 创建一个模拟的File对象用于上传（如果photo是URL的话）
       // 实际实现中，你可能需要从URL下载图片然后上传
       // 这里先记录需要迁移，但不实际实现复杂的迁移逻辑
-      
+
       console.info(`发现需要迁移的legacy照片: ${wishlistItem.cityName}`);
-      ElMessage.info(`检测到 ${wishlistItem.cityName} 有旧格式照片，建议重新上传以获得更好的功能`);
-      
+      ElMessage.info(
+        `检测到 ${wishlistItem.cityName} 有旧格式照片，建议重新上传以获得更好的功能`
+      );
+
       return true;
     } catch (error) {
-      console.error("❌ 迁移legacy照片失败:", error);
+      console.error('❌ 迁移legacy照片失败:', error);
       return false;
     }
   };
@@ -760,7 +760,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
     deletePhoto,
     setCoverPhoto,
     getPhotoStats,
-    
+
     // 新增照片管理方法
     batchUploadPhotos,
     updatePhotoOrder,

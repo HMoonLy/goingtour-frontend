@@ -1,4 +1,4 @@
-import { http } from "./request.js";
+import { http } from './request.js';
 
 /**
  * 行程相关API接口
@@ -59,7 +59,7 @@ export const tripApi = {
    */
   duplicateTrip(tripId, userId, newTitle) {
     return http.post(
-      `/trips/${tripId}/duplicate?userId=${userId}&newTitle=${encodeURIComponent(newTitle)}`,
+      `/trips/${tripId}/duplicate?userId=${userId}&newTitle=${encodeURIComponent(newTitle)}`
     );
   },
 
@@ -71,7 +71,7 @@ export const tripApi = {
    */
   updateTripStatus(tripId, userId, status) {
     return http.patch(
-      `/trips/${tripId}/status?userId=${userId}&status=${status}`,
+      `/trips/${tripId}/status?userId=${userId}&status=${status}`
     );
   },
 

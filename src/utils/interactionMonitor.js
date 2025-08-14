@@ -4,7 +4,7 @@
  */
 
 export class InteractionMonitor {
-  constructor(name = "交互监控") {
+  constructor(name = '交互监控') {
     this.name = name;
     this.interactions = [];
     this.isMonitoring = false;
@@ -54,11 +54,11 @@ export class InteractionMonitor {
     if (!window.PerformanceObserver) return;
 
     try {
-      this.longTaskObserver = new PerformanceObserver((list) => {
+      this.longTaskObserver = new PerformanceObserver(list => {
         const entries = list.getEntries();
-        entries.forEach((entry) => {
+        entries.forEach(entry => {
           this.interactions.push({
-            type: "long-task",
+            type: 'long-task',
             duration: entry.duration,
             startTime: entry.startTime,
             timestamp: Date.now(),
@@ -66,15 +66,15 @@ export class InteractionMonitor {
 
           if (import.meta.env.DEV && entry.duration > 50) {
             console.warn(
-              `⚠️ [${this.name}] 检测到长任务: ${entry.duration.toFixed(2)}ms`,
+              `⚠️ [${this.name}] 检测到长任务: ${entry.duration.toFixed(2)}ms`
             );
           }
         });
       });
 
-      this.longTaskObserver.observe({ entryTypes: ["longtask"] });
+      this.longTaskObserver.observe({ entryTypes: ['longtask'] });
     } catch (error) {
-      console.warn("Long Task Observer not supported:", error);
+      console.warn('Long Task Observer not supported:', error);
     }
   }
 
@@ -83,10 +83,10 @@ export class InteractionMonitor {
     if (!window.PerformanceObserver) return;
 
     try {
-      this.performanceObserver = new PerformanceObserver((list) => {
+      this.performanceObserver = new PerformanceObserver(list => {
         const entries = list.getEntries();
-        entries.forEach((entry) => {
-          if (entry.entryType === "event") {
+        entries.forEach(entry => {
+          if (entry.entryType === 'event') {
             this.interactions.push({
               type: `event-${entry.name}`,
               duration: entry.duration,
@@ -100,7 +100,7 @@ export class InteractionMonitor {
             if (entry.duration > 100) {
               if (import.meta.env.DEV) {
                 console.warn(
-                  `🐌 [${this.name}] 慢交互 ${entry.name}: ${entry.duration.toFixed(2)}ms`,
+                  `🐌 [${this.name}] 慢交互 ${entry.name}: ${entry.duration.toFixed(2)}ms`
                 );
               }
             }
@@ -109,11 +109,11 @@ export class InteractionMonitor {
       });
 
       this.performanceObserver.observe({
-        entryTypes: ["event"],
+        entryTypes: ['event'],
         buffered: true,
       });
     } catch (error) {
-      console.warn("Event timing not supported:", error);
+      console.warn('Event timing not supported:', error);
     }
   }
 
@@ -139,7 +139,7 @@ export class InteractionMonitor {
         const fps = 1000 / avgFrameTime;
 
         this.interactions.push({
-          type: "fps",
+          type: 'fps',
           value: fps,
           avgFrameTime,
           timestamp: Date.now(),
@@ -171,7 +171,7 @@ export class InteractionMonitor {
       const duration = endTime - startTime;
 
       this.interactions.push({
-        type: "user-interaction",
+        type: 'user-interaction',
         name: interactionName,
         duration,
         startTime,
@@ -180,21 +180,21 @@ export class InteractionMonitor {
       });
 
       if (import.meta.env.DEV) {
-        const color = duration > 100 ? "🔴" : duration > 50 ? "🟡" : "🟢";
+        const color = duration > 100 ? '🔴' : duration > 50 ? '🟡' : '🟢';
         console.log(
-          `${color} [${this.name}] ${interactionName}: ${duration.toFixed(2)}ms`,
+          `${color} [${this.name}] ${interactionName}: ${duration.toFixed(2)}ms`
         );
       }
 
       return duration;
     };
 
-    if (typeof callback === "function") {
+    if (typeof callback === 'function') {
       try {
         const result = callback();
 
         // 如果返回Promise，等待完成
-        if (result && typeof result.then === "function") {
+        if (result && typeof result.then === 'function') {
           return result.finally(finishMeasurement);
         } else {
           finishMeasurement();
@@ -246,7 +246,7 @@ export class InteractionMonitor {
     }, {});
 
     // 计算统计信息
-    Object.keys(groups).forEach((type) => {
+    Object.keys(groups).forEach(type => {
       const durations = groups[type];
       if (durations.length === 0) return;
 
@@ -266,8 +266,8 @@ export class InteractionMonitor {
 
     // 计算FPS统计
     const fpsData = this.interactions
-      .filter((i) => i.type === "fps")
-      .map((i) => i.value);
+      .filter(i => i.type === 'fps')
+      .map(i => i.value);
     if (fpsData.length > 0) {
       const avgFps = fpsData.reduce((a, b) => a + b, 0) / fpsData.length;
       const minFps = Math.min(...fpsData);
@@ -299,7 +299,7 @@ export class InteractionMonitor {
     console.log(`总交互次数: ${report.totalInteractions}`);
 
     Object.entries(report.summary).forEach(([type, stats]) => {
-      if (type === "fps") {
+      if (type === 'fps') {
         console.log(`${type}:`, {
           平均FPS: stats.average,
           最低FPS: stats.minimum,
@@ -329,7 +329,7 @@ export class InteractionMonitor {
 }
 
 // 创建全局交互监控实例
-export const interactionMonitor = new InteractionMonitor("页面交互");
+export const interactionMonitor = new InteractionMonitor('页面交互');
 
 // 工具函数：创建防抖的交互处理器
 export function createDebouncedHandler(handler, delay = 100) {
@@ -339,7 +339,7 @@ export function createDebouncedHandler(handler, delay = 100) {
     clearTimeout(timeoutId);
 
     timeoutId = setTimeout(() => {
-      interactionMonitor.measureInteraction("debounced-handler", () => {
+      interactionMonitor.measureInteraction('debounced-handler', () => {
         return handler.apply(this, args);
       });
     }, delay);
@@ -356,7 +356,7 @@ export function createThrottledHandler(handler, delay = 100) {
 
     if (now - lastCall >= delay) {
       lastCall = now;
-      return interactionMonitor.measureInteraction("throttled-handler", () => {
+      return interactionMonitor.measureInteraction('throttled-handler', () => {
         return handler.apply(this, args);
       });
     } else {
@@ -365,13 +365,13 @@ export function createThrottledHandler(handler, delay = 100) {
         () => {
           lastCall = Date.now();
           interactionMonitor.measureInteraction(
-            "throttled-handler-delayed",
+            'throttled-handler-delayed',
             () => {
               return handler.apply(this, args);
-            },
+            }
           );
         },
-        delay - (now - lastCall),
+        delay - (now - lastCall)
       );
     }
   };

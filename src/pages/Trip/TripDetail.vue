@@ -3,10 +3,7 @@
     <!-- 页面头部 -->
     <div class="page-header">
       <div class="header-left">
-        <el-button
-link @click="goBack"
-class="back-btn"
->
+        <el-button link class="back-btn" @click="goBack">
           <el-icon><ArrowLeft /></el-icon>
           返回列表
         </el-button>
@@ -22,24 +19,17 @@ class="back-btn"
           编辑行程
         </el-button>
         <template v-else>
-          <el-button @click="cancelEdit"> 取消
-</el-button>
-          <el-button type="primary"
-@click="saveChanges"
->
-保存修改
-</el-button>
+          <el-button @click="cancelEdit"> 取消 </el-button>
+          <el-button type="primary" @click="saveChanges"> 保存修改 </el-button>
         </template>
       </div>
     </div>
 
     <!-- 行程概览卡片 -->
-    <el-card class="trip-overview-card"
-shadow="hover">
+    <el-card class="trip-overview-card" shadow="hover">
       <div class="trip-header">
         <div class="trip-title-section">
-          <h1 v-if="!isEditing"
-class="trip-title">
+          <h1 v-if="!isEditing" class="trip-title">
             {{ tripData.title }}
           </h1>
           <el-input
@@ -51,9 +41,11 @@ class="trip-title">
           />
           <div class="trip-status">
             <el-tag :type="tripData.status === 'draft' ? 'info' : 'success'">
-              {{ tripData.status === "draft" ? "草稿" : "已完成" }}
+              {{ tripData.status === 'draft' ? '草稿' : '已完成' }}
             </el-tag>
-            <span class="create-time">创建于 {{ formatDate(tripData.createdAt) }}</span>
+            <span class="create-time"
+              >创建于 {{ formatDate(tripData.createdAt) }}</span
+            >
           </div>
         </div>
         <div class="trip-actions">
@@ -79,8 +71,7 @@ class="trip-title">
                 <el-dropdown-item command="template">
                   保存为模板
                 </el-dropdown-item>
-                <el-dropdown-item command="delete"
-divided>
+                <el-dropdown-item command="delete" divided>
                   删除行程
                 </el-dropdown-item>
               </el-dropdown-menu>
@@ -143,9 +134,9 @@ divided>
           <div class="info-content">
             <h4>内容统计</h4>
             <p>
-              {{ (tripData.attractions?.length || 0) + "个景点" }}
+              {{ (tripData.attractions?.length || 0) + '个景点' }}
               ·
-              {{ (tripData.restaurants?.length || 0) + "家餐厅" }}
+              {{ (tripData.restaurants?.length || 0) + '家餐厅' }}
             </p>
           </div>
         </div>
@@ -171,7 +162,7 @@ divided>
               <span class="day-date">{{ formatDayDate(dayIndex) }}</span>
             </div>
             <div class="day-stats">
-              <span>{{ (day.activities?.length || 0) + "个活动" }}</span>
+              <span>{{ (day.activities?.length || 0) + '个活动' }}</span>
             </div>
           </div>
 
@@ -199,9 +190,9 @@ divided>
                     >
                       {{ getActivityTypeText(activity.type) }}
                     </el-tag>
-                    <span v-if="activity.price"
-class="activity-price"
-                    >¥{{ activity.price }}</span>
+                    <span v-if="activity.price" class="activity-price"
+                      >¥{{ activity.price }}</span
+                    >
                   </div>
                 </div>
 
@@ -221,8 +212,7 @@ class="activity-price"
                 </div>
 
                 <!-- 编辑模式下的操作按钮 -->
-                <div v-if="isEditing"
-class="activity-actions">
+                <div v-if="isEditing" class="activity-actions">
                   <el-button
                     size="small"
                     @click="editActivity(dayIndex, actIndex)"
@@ -250,10 +240,8 @@ class="activity-actions">
             </div>
 
             <!-- 添加活动按钮（编辑模式） -->
-            <div v-if="isEditing"
-class="add-activity">
-              <el-button type="dashed"
-@click="addActivity(dayIndex)">
+            <div v-if="isEditing" class="add-activity">
+              <el-button type="dashed" @click="addActivity(dayIndex)">
                 <el-icon><Plus /></el-icon>
                 添加活动
               </el-button>
@@ -264,8 +252,7 @@ class="add-activity">
     </div>
 
     <!-- 行程偏好设置 -->
-    <el-card class="preferences-card"
-shadow="hover">
+    <el-card class="preferences-card" shadow="hover">
       <template #header>
         <div class="card-header">
           <h3>
@@ -330,9 +317,9 @@ shadow="hover">
 </template>
 
 <script>
-import { ref, computed, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import { ElMessage, ElMessageBox } from "element-plus";
+import { ref, computed, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   ArrowLeft,
   Edit,
@@ -350,15 +337,15 @@ import {
   Refresh,
   Delete,
   Setting,
-} from "@element-plus/icons-vue";
-import { useUserStore } from "@/store/user.js";
+} from '@element-plus/icons-vue';
+import { useUserStore } from '@/store/user.js';
 import {
   convertBackendTripToFrontend,
   convertFrontendTripToBackend,
-} from "@/utils/tripDataConverter.js";
+} from '@/utils/tripDataConverter.js';
 
 export default {
-  name: "TripDetail",
+  name: 'TripDetail',
   components: {
     ArrowLeft,
     Edit,
@@ -402,17 +389,17 @@ export default {
 
         // 首先尝试从API加载数据
         try {
-          const { userApi } = await import("@/api/user.js");
+          const { userApi } = await import('@/api/user.js');
           const userStore = useUserStore();
 
           if (!userStore.currentUser?.id) {
-            throw new Error("用户未登录");
+            throw new Error('用户未登录');
           }
 
-          const { tripApi } = await import("@/api/trip.js");
+          const { tripApi } = await import('@/api/trip.js');
           const response = await tripApi.getTripDetail(
             tripId.value,
-            userStore.currentUser.id,
+            userStore.currentUser.id
           );
 
           if (response.data) {
@@ -421,43 +408,43 @@ export default {
             editedTrip.value = JSON.parse(JSON.stringify(convertedTrip)); // 深拷贝
 
             // 检查是否需要自动进入编辑模式
-            if (route.query.edit === "true") {
+            if (route.query.edit === 'true') {
               isEditing.value = true;
-              console.log("🔧 自动进入编辑模式");
+              console.log('🔧 自动进入编辑模式');
             }
 
-            console.log("✅ 从API加载行程数据成功:", convertedTrip);
+            console.log('✅ 从API加载行程数据成功:', convertedTrip);
             return;
           }
         } catch (apiError) {
-          console.warn("⚠️ 从API加载失败，尝试本地存储:", apiError);
+          console.warn('⚠️ 从API加载失败，尝试本地存储:', apiError);
         }
 
         // 降级到localStorage
         const savedTrips = JSON.parse(
-          localStorage.getItem("savedTrips") || "[]",
+          localStorage.getItem('savedTrips') || '[]'
         );
-        const trip = savedTrips.find((t) => t.id === tripId.value);
+        const trip = savedTrips.find(t => t.id === tripId.value);
 
         if (trip) {
           tripData.value = trip;
           editedTrip.value = JSON.parse(JSON.stringify(trip)); // 深拷贝
 
           // 检查是否需要自动进入编辑模式
-          if (route.query.edit === "true") {
+          if (route.query.edit === 'true') {
             isEditing.value = true;
-            console.log("🔧 自动进入编辑模式");
+            console.log('🔧 自动进入编辑模式');
           }
 
-          console.log("✅ 从本地存储加载行程数据成功:", trip);
+          console.log('✅ 从本地存储加载行程数据成功:', trip);
         } else {
-          ElMessage.error("找不到该行程");
-          router.push("/home");
+          ElMessage.error('找不到该行程');
+          router.push('/home');
         }
       } catch (error) {
-        console.error("❌ 加载行程数据失败:", error);
-        ElMessage.error("加载失败，请重试");
-        router.push("/home");
+        console.error('❌ 加载行程数据失败:', error);
+        ElMessage.error('加载失败，请重试');
+        router.push('/home');
       } finally {
         loading.value = false;
       }
@@ -467,22 +454,22 @@ export default {
       // 如果正在编辑，询问用户是否保存
       if (isEditing.value) {
         ElMessageBox.confirm(
-          "您有未保存的修改，确定要离开吗？",
-          "未保存的修改",
+          '您有未保存的修改，确定要离开吗？',
+          '未保存的修改',
           {
-            confirmButtonText: "离开",
-            cancelButtonText: "取消",
-            type: "warning",
-          },
+            confirmButtonText: '离开',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }
         )
           .then(() => {
-            router.push("/home");
+            router.push('/home');
           })
           .catch(() => {
             // 用户选择取消
           });
       } else {
-        router.push("/home");
+        router.push('/home');
       }
     };
 
@@ -496,18 +483,18 @@ export default {
     const cancelEdit = () => {
       isEditing.value = false;
       editedTrip.value = JSON.parse(JSON.stringify(tripData.value));
-      router.push("/home");
+      router.push('/home');
     };
 
     // 解析预算字符串为数字（处理格式化字符串如"约 ¥1,600"）
-    const parseBudgetToNumber = (budgetValue) => {
-      if (typeof budgetValue === "number") {
+    const parseBudgetToNumber = budgetValue => {
+      if (typeof budgetValue === 'number') {
         return budgetValue;
       }
 
-      if (typeof budgetValue === "string") {
+      if (typeof budgetValue === 'string') {
         // 移除所有非数字字符，只保留数字和小数点
-        const numberStr = budgetValue.replace(/[^0-9.]/g, "");
+        const numberStr = budgetValue.replace(/[^0-9.]/g, '');
         const number = parseFloat(numberStr);
         return isNaN(number) ? 0 : number;
       }
@@ -521,25 +508,25 @@ export default {
 
         // 首先尝试调用API保存
         try {
-          const { userApi } = await import("@/api/user.js");
+          const { userApi } = await import('@/api/user.js');
           const userStore = useUserStore();
 
           if (!userStore.currentUser?.id) {
-            throw new Error("用户未登录");
+            throw new Error('用户未登录');
           }
 
-          const { tripApi } = await import("@/api/trip.js");
+          const { tripApi } = await import('@/api/trip.js');
 
           // 使用转换工具将前端数据转换为后端格式
           const tripRequest = convertFrontendTripToBackend(editedTrip.value);
 
-          console.log("📤 发送到API的数据:", tripRequest); // 调试日志
-          console.log("📋 行程详情数据:", tripRequest.tripDetails); // 调试详情数据
+          console.log('📤 发送到API的数据:', tripRequest); // 调试日志
+          console.log('📋 行程详情数据:', tripRequest.tripDetails); // 调试详情数据
 
           const response = await tripApi.updateTrip(
             tripId.value,
             userStore.currentUser.id,
-            tripRequest,
+            tripRequest
           );
 
           if (response.data) {
@@ -549,73 +536,73 @@ export default {
             isEditing.value = false;
 
             // 清理URL中的编辑参数
-            if (route.query.edit === "true") {
+            if (route.query.edit === 'true') {
               router.replace({
-                name: "TripDetail",
+                name: 'TripDetail',
                 params: { id: tripId.value },
               });
             }
 
-            ElMessage.success("保存成功！");
-            console.log("💾 API保存行程成功:", convertedTrip.title);
+            ElMessage.success('保存成功！');
+            console.log('💾 API保存行程成功:', convertedTrip.title);
 
             // 确保数据保存完成后再跳转
             setTimeout(() => {
-              router.push("/home");
+              router.push('/home');
             }, 500);
             return;
           }
         } catch (apiError) {
-          console.warn("⚠️ API保存失败，尝试本地存储:", apiError);
+          console.warn('⚠️ API保存失败，尝试本地存储:', apiError);
         }
 
         // 降级到localStorage保存
         const savedTrips = JSON.parse(
-          localStorage.getItem("savedTrips") || "[]",
+          localStorage.getItem('savedTrips') || '[]'
         );
-        const index = savedTrips.findIndex((t) => t.id === tripId.value);
+        const index = savedTrips.findIndex(t => t.id === tripId.value);
 
         if (index !== -1) {
           editedTrip.value.updatedAt = new Date().toISOString();
           savedTrips[index] = editedTrip.value;
-          localStorage.setItem("savedTrips", JSON.stringify(savedTrips));
+          localStorage.setItem('savedTrips', JSON.stringify(savedTrips));
 
           tripData.value = JSON.parse(JSON.stringify(editedTrip.value));
           isEditing.value = false;
 
           // 清理URL中的编辑参数
-          if (route.query.edit === "true") {
+          if (route.query.edit === 'true') {
             router.replace({
-              name: "TripDetail",
+              name: 'TripDetail',
               params: { id: tripId.value },
             });
           }
 
-          ElMessage.success("保存成功！");
-          console.log("💾 本地保存行程成功:", editedTrip.value.title);
+          ElMessage.success('保存成功！');
+          console.log('💾 本地保存行程成功:', editedTrip.value.title);
 
           // 确保数据保存完成后再跳转
           setTimeout(() => {
-            router.push("/home");
+            router.push('/home');
           }, 500);
         }
       } catch (error) {
-        console.error("❌ 保存失败:", error);
-        ElMessage.error("加载失败，请重试");
+        console.error('❌ 保存失败:', error);
+        ElMessage.error('加载失败，请重试');
       } finally {
         loading.value = false;
       }
     };
 
-    const formatDate = (dateString) => {
+    const formatDate = dateString => {
       try {
-        return new Date(dateString).toLocaleDateString("zh-CN");
+        return new Date(dateString).toLocaleDateString('zh-CN');
       } catch {
-        return "";
+        return '';
       }
     };
 
-    const formatDateRange = (createTime) => {
+    const formatDateRange = createTime => {
       // 如果传入了createTime参数，使用它来生成日期范围
       if (createTime) {
         try {
@@ -623,32 +610,32 @@ export default {
           const endDate = new Date(startDate);
           endDate.setDate(startDate.getDate() + (tripData.value.days || 1) - 1);
 
-          const start = startDate.toLocaleDateString("zh-CN");
-          const end = endDate.toLocaleDateString("zh-CN");
+          const start = startDate.toLocaleDateString('zh-CN');
+          const end = endDate.toLocaleDateString('zh-CN');
           return `${start} - ${end}`;
         } catch {
-          return "";
+          return '';
         }
       }
 
       // 原有逻辑：使用dateRange
       if (!tripData.value.dateRange || tripData.value.dateRange.length !== 2) {
-        return "";
+        return '';
       }
       try {
         const start = new Date(tripData.value.dateRange[0]).toLocaleDateString(
-          navigator.language || "en-US",
+          navigator.language || 'en-US'
         );
         const end = new Date(tripData.value.dateRange[1]).toLocaleDateString(
-          navigator.language || "en-US",
+          navigator.language || 'en-US'
         );
         return `${start} - ${end}`;
       } catch {
-        return "";
+        return '';
       }
     };
 
-    const formatDayDate = (dayIndex) => {
+    const formatDayDate = dayIndex => {
       if (!tripData.value.dateRange || tripData.value.dateRange.length !== 2) {
         return `第${dayIndex + 1}天`;
       }
@@ -665,50 +652,50 @@ export default {
       }
     };
 
-    const getActivityTypeColor = (type) => {
+    const getActivityTypeColor = type => {
       const colors = {
-        attraction: "primary",
-        restaurant: "success",
-        transport: "info",
-        hotel: "warning",
+        attraction: 'primary',
+        restaurant: 'success',
+        transport: 'info',
+        hotel: 'warning',
       };
-      return colors[type] || "default";
+      return colors[type] || 'default';
     };
 
-    const getActivityTypeText = (type) => {
+    const getActivityTypeText = type => {
       const texts = {
-        attraction: "景点",
-        restaurant: "餐厅",
-        transport: "交通",
-        hotel: "酒店",
+        attraction: '景点',
+        restaurant: '餐厅',
+        transport: '交通',
+        hotel: '酒店',
       };
-      return texts[type] || "其他";
+      return texts[type] || '其他';
     };
 
-    const getIntensityText = (intensity) => {
+    const getIntensityText = intensity => {
       const texts = {
-        relaxed: "轻松休闲",
-        moderate: "适中节奏",
-        intensive: "紧凑高效",
+        relaxed: '轻松休闲',
+        moderate: '适中节奏',
+        intensive: '紧凑高效',
       };
-      return texts[intensity] || "未设置";
+      return texts[intensity] || '未设置';
     };
 
-    const getExperienceText = (experience) => {
+    const getExperienceText = experience => {
       const texts = {
-        photography: "摄影打卡",
-        local_events: "当地活动",
-        hidden_gems: "小众景点",
-        seasonal: "季节特色",
+        photography: '摄影打卡',
+        local_events: '当地活动',
+        hidden_gems: '小众景点',
+        seasonal: '季节特色',
       };
       return texts[experience] || experience;
     };
 
-    const getTransportText = (transport) => {
+    const getTransportText = transport => {
       const texts = {
-        walking: "多走路",
-        scenic_route: "风景路线",
-        fast_route: "快速到达",
+        walking: '多走路',
+        scenic_route: '风景路线',
+        fast_route: '快速到达',
       };
       return texts[transport] || transport;
     };
@@ -725,20 +712,20 @@ export default {
             text: shareText,
             url: window.location.href,
           });
-          ElMessage.success("分享成功！");
+          ElMessage.success('分享成功！');
         } else {
           // 降级到复制链接
           await navigator.clipboard.writeText(
-            shareText + "\n\n查看详情：" + window.location.href,
+            shareText + '\n\n查看详情：' + window.location.href
           );
-          ElMessage.success("行程信息已复制到剪贴板！");
+          ElMessage.success('行程信息已复制到剪贴板！');
         }
       } catch (error) {
-        console.error("分享失败:", error);
-        if (error.name === "NotAllowedError") {
-          ElMessage.error("请允许访问剪贴板以完成分享");
+        console.error('分享失败:', error);
+        if (error.name === 'NotAllowedError') {
+          ElMessage.error('请允许访问剪贴板以完成分享');
         } else {
-          ElMessage.error("分享失败，请重试");
+          ElMessage.error('分享失败，请重试');
         }
       }
     };
@@ -748,10 +735,10 @@ export default {
       try {
         // 创建并下载JSON文件
         const dataStr = JSON.stringify(tripData.value, null, 2);
-        const dataBlob = new Blob([dataStr], { type: "application/json" });
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
         const url = URL.createObjectURL(dataBlob);
 
-        const link = document.createElement("a");
+        const link = document.createElement('a');
         link.href = url;
         link.download = `${tripData.value.title}-${new Date().toLocaleDateString()}.json`;
         document.body.appendChild(link);
@@ -759,22 +746,22 @@ export default {
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
 
-        ElMessage.success("行程已导出到下载文件夹！");
+        ElMessage.success('行程已导出到下载文件夹！');
       } catch (error) {
-        console.error("导出失败:", error);
-        ElMessage.error("导出失败，请重试");
+        console.error('导出失败:', error);
+        ElMessage.error('导出失败，请重试');
       }
     };
 
-    const handleMoreAction = async (command) => {
+    const handleMoreAction = async command => {
       switch (command) {
-        case "duplicate":
+        case 'duplicate':
           await duplicateTrip();
           break;
-        case "template":
+        case 'template':
           await saveAsTemplate();
           break;
-        case "delete":
+        case 'delete':
           deleteTrip();
           break;
       }
@@ -784,14 +771,14 @@ export default {
     const duplicateTrip = async () => {
       try {
         const { value: newTitle } = await ElMessageBox.prompt(
-          "请输入新行程的标题：",
-          "复制行程",
+          '请输入新行程的标题：',
+          '复制行程',
           {
-            confirmButtonText: "复制",
-            cancelButtonText: "取消",
+            confirmButtonText: '复制',
+            cancelButtonText: '取消',
             inputValue: `${tripData.value.title} - 副本`,
-            inputPlaceholder: "输入新行程标题",
-          },
+            inputPlaceholder: '输入新行程标题',
+          }
         );
 
         if (newTitle) {
@@ -799,26 +786,26 @@ export default {
             ...JSON.parse(JSON.stringify(tripData.value)),
             id: Date.now().toString(),
             title: newTitle,
-            status: "draft",
+            status: 'draft',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           };
 
           // 保存到localStorage
           const savedTrips = JSON.parse(
-            localStorage.getItem("savedTrips") || "[]",
+            localStorage.getItem('savedTrips') || '[]'
           );
           savedTrips.push(duplicatedTrip);
-          localStorage.setItem("savedTrips", JSON.stringify(savedTrips));
+          localStorage.setItem('savedTrips', JSON.stringify(savedTrips));
 
-          ElMessage.success("行程已复制成功！");
+          ElMessage.success('行程已复制成功！');
 
           // 询问是否跳转到新行程
           try {
-            await ElMessageBox.confirm("是否跳转到新复制的行程？", "跳转确认", {
-              confirmButtonText: "跳转",
-              cancelButtonText: "留在当前页面",
-              type: "info",
+            await ElMessageBox.confirm('是否跳转到新复制的行程？', '跳转确认', {
+              confirmButtonText: '跳转',
+              cancelButtonText: '留在当前页面',
+              type: 'info',
             });
             router.push(`/trip/${duplicatedTrip.id}`);
           } catch {
@@ -826,8 +813,8 @@ export default {
           }
         }
       } catch (error) {
-        if (error !== "cancel") {
-          ElMessage.error("复制行程失败，请重试");
+        if (error !== 'cancel') {
+          ElMessage.error('复制行程失败，请重试');
         }
       }
     };
@@ -836,14 +823,14 @@ export default {
     const saveAsTemplate = async () => {
       try {
         const { value: templateName } = await ElMessageBox.prompt(
-          "请输入模板名称：",
-          "保存为模板",
+          '请输入模板名称：',
+          '保存为模板',
           {
-            confirmButtonText: "保存",
-            cancelButtonText: "取消",
+            confirmButtonText: '保存',
+            cancelButtonText: '取消',
             inputValue: `${tripData.value.destinationName}${tripData.value.days}日游模板`,
-            inputPlaceholder: "输入模板名称",
-          },
+            inputPlaceholder: '输入模板名称',
+          }
         );
 
         if (templateName) {
@@ -853,9 +840,9 @@ export default {
             destination: tripData.value.destination,
             destinationName: tripData.value.destinationName,
             days: tripData.value.days,
-            dailyPlan: tripData.value.dailyPlan.map((day) => ({
+            dailyPlan: tripData.value.dailyPlan.map(day => ({
               ...day,
-              activities: day.activities.map((activity) => ({
+              activities: day.activities.map(activity => ({
                 ...activity,
                 // 移除特定的行程ID，保留可复用的信息
                 tripId: undefined,
@@ -867,23 +854,23 @@ export default {
               transport: tripData.value.preferences?.transport,
             },
             createdAt: new Date().toISOString(),
-            type: "template",
+            type: 'template',
           };
 
           // 保存到localStorage的模板存储
           const savedTemplates = JSON.parse(
-            localStorage.getItem("tripTemplates") || "[]",
+            localStorage.getItem('tripTemplates') || '[]'
           );
           savedTemplates.push(template);
-          localStorage.setItem("tripTemplates", JSON.stringify(savedTemplates));
+          localStorage.setItem('tripTemplates', JSON.stringify(savedTemplates));
 
           ElMessage.success(`模板"${templateName}"已保存成功！`);
 
-          ElMessage.info("模板已保存，可在创建新行程时使用");
+          ElMessage.info('模板已保存，可在创建新行程时使用');
         }
       } catch (error) {
-        if (error !== "cancel") {
-          ElMessage.error("保存模板失败，请重试");
+        if (error !== 'cancel') {
+          ElMessage.error('保存模板失败，请重试');
         }
       }
     };
@@ -891,62 +878,62 @@ export default {
     const deleteTrip = async () => {
       try {
         await ElMessageBox.confirm(
-          "确定要删除这个行程吗？删除后无法恢复。",
-          "删除行程",
+          '确定要删除这个行程吗？删除后无法恢复。',
+          '删除行程',
           {
-            confirmButtonText: "删除",
-            cancelButtonText: "取消",
-            type: "warning",
-          },
+            confirmButtonText: '删除',
+            cancelButtonText: '取消',
+            type: 'warning',
+          }
         );
 
         loading.value = true;
 
         // 首先尝试调用API删除
         try {
-          const { userApi } = await import("@/api/user.js");
+          const { userApi } = await import('@/api/user.js');
           const userStore = useUserStore();
 
           if (!userStore.currentUser?.id) {
-            throw new Error("用户未登录");
+            throw new Error('用户未登录');
           }
 
-          const { tripApi } = await import("@/api/trip.js");
+          const { tripApi } = await import('@/api/trip.js');
           await tripApi.deleteTrip(tripId.value, userStore.currentUser.id);
 
-          ElMessage.success("行程删除成功");
-          console.log("🗑️ API删除行程成功, ID:", tripId.value);
+          ElMessage.success('行程删除成功');
+          console.log('🗑️ API删除行程成功, ID:', tripId.value);
 
           // 确保删除操作完成后再跳转
           setTimeout(() => {
-            router.push("/home");
+            router.push('/home');
           }, 500);
           return;
         } catch (apiError) {
-          console.warn("⚠️ API删除失败，尝试本地存储:", apiError);
+          console.warn('⚠️ API删除失败，尝试本地存储:', apiError);
         }
 
         // 降级到localStorage删除
         const savedTrips = JSON.parse(
-          localStorage.getItem("savedTrips") || "[]",
+          localStorage.getItem('savedTrips') || '[]'
         );
-        const filteredTrips = savedTrips.filter((t) => t.id !== tripId.value);
-        localStorage.setItem("savedTrips", JSON.stringify(filteredTrips));
+        const filteredTrips = savedTrips.filter(t => t.id !== tripId.value);
+        localStorage.setItem('savedTrips', JSON.stringify(filteredTrips));
 
-        ElMessage.success("行程删除成功");
-        console.log("🗑️ 本地删除行程成功, ID:", tripId.value);
+        ElMessage.success('行程删除成功');
+        console.log('🗑️ 本地删除行程成功, ID:', tripId.value);
 
         // 确保删除操作完成后再跳转
         setTimeout(() => {
-          router.push("/home");
+          router.push('/home');
         }, 500);
       } catch (error) {
-        if (error === "cancel") {
+        if (error === 'cancel') {
           // 用户取消删除
           return;
         }
-        console.error("❌ 删除行程失败:", error);
-        ElMessage.error("删除行程失败：" + (error.message || "请重试"));
+        console.error('❌ 删除行程失败:', error);
+        ElMessage.error('删除行程失败：' + (error.message || '请重试'));
       } finally {
         loading.value = false;
       }
@@ -960,36 +947,36 @@ export default {
       try {
         const { value: formData } = await ElMessageBox.prompt(
           `编辑活动信息：\n当前：${activity.name}`,
-          "编辑活动",
+          '编辑活动',
           {
-            confirmButtonText: "保存",
-            cancelButtonText: "取消",
-            inputType: "textarea",
-            inputValue: `名称：${activity.name}\n描述：${activity.description || ""}\n时间：${activity.time}`,
+            confirmButtonText: '保存',
+            cancelButtonText: '取消',
+            inputType: 'textarea',
+            inputValue: `名称：${activity.name}\n描述：${activity.description || ''}\n时间：${activity.time}`,
             inputPlaceholder:
-              "请按格式修改：\n名称：xxx\n描述：xxx\n时间：xx:xx",
-            inputValidator: (value) => {
-              if (!value || !value.includes("名称：")) {
-                return "请保持正确的格式";
+              '请按格式修改：\n名称：xxx\n描述：xxx\n时间：xx:xx',
+            inputValidator: value => {
+              if (!value || !value.includes('名称：')) {
+                return '请保持正确的格式';
               }
               return true;
             },
-          },
+          }
         );
 
         // 解析用户输入
-        const lines = formData.split("\n");
+        const lines = formData.split('\n');
         const newName = lines
-          .find((line) => line.startsWith("名称："))
-          ?.replace("名称：", "")
+          .find(line => line.startsWith('名称：'))
+          ?.replace('名称：', '')
           .trim();
         const newDesc = lines
-          .find((line) => line.startsWith("描述："))
-          ?.replace("描述：", "")
+          .find(line => line.startsWith('描述：'))
+          ?.replace('描述：', '')
           .trim();
         const newTime = lines
-          .find((line) => line.startsWith("时间："))
-          ?.replace("时间：", "")
+          .find(line => line.startsWith('时间：'))
+          ?.replace('时间：', '')
           .trim();
 
         if (newName) {
@@ -1006,7 +993,7 @@ export default {
             newTime;
         }
 
-        ElMessage.success("活动信息已更新");
+        ElMessage.success('活动信息已更新');
       } catch (error) {
         // 用户取消编辑
       }
@@ -1018,22 +1005,22 @@ export default {
         editedTrip.value.dailyPlan[dayIndex].activities[actIndex];
 
       try {
-        if (currentActivity.type === "attraction") {
+        if (currentActivity.type === 'attraction') {
           await replaceWithAlternativeAttraction(
             dayIndex,
             actIndex,
-            currentActivity,
+            currentActivity
           );
-        } else if (currentActivity.type === "restaurant") {
+        } else if (currentActivity.type === 'restaurant') {
           await replaceWithAlternativeRestaurant(
             dayIndex,
             actIndex,
-            currentActivity,
+            currentActivity
           );
         }
       } catch (error) {
-        console.error("替换活动失败:", error);
-        ElMessage.error("替换失败，请重试");
+        console.error('替换活动失败:', error);
+        ElMessage.error('替换失败，请重试');
       }
     };
 
@@ -1041,46 +1028,46 @@ export default {
     const replaceWithAlternativeAttraction = async (
       dayIndex,
       actIndex,
-      currentActivity,
+      currentActivity
     ) => {
       try {
         // 获取备选景点（排除已选的）
         const usedAttractionIds = editedTrip.value.dailyPlan
-          .flatMap((day) => day.activities)
-          .filter((act) => act.type === "attraction")
-          .map((act) => act.id);
+          .flatMap(day => day.activities)
+          .filter(act => act.type === 'attraction')
+          .map(act => act.id);
 
         const response = await fetch(
-          `http://localhost:8080/api/attractions/city/${tripData.value.destination}`,
+          `http://localhost:8080/api/attractions/city/${tripData.value.destination}`
         );
 
         if (response.ok) {
           const allAttractions = await response.json();
           const alternatives = (allAttractions.data || allAttractions)
-            .filter((attr) => !usedAttractionIds.includes(attr.id))
+            .filter(attr => !usedAttractionIds.includes(attr.id))
             .slice(0, 5); // 最多5个备选
 
           if (alternatives.length === 0) {
-            ElMessage.warning("没有更多备选景点");
+            ElMessage.warning('没有更多备选景点');
             return;
           }
 
           // 用户选择替换的景点
           const { value: selectedIndex } = await ElMessageBox.prompt(
-            "请选择要替换的景点（输入序号）：\n" +
+            '请选择要替换的景点（输入序号）：\n' +
               alternatives
                 .map(
                   (attr, i) =>
-                    `${i + 1}. ${attr.name} - ${attr.description || "精彩景点"}`,
+                    `${i + 1}. ${attr.name} - ${attr.description || '精彩景点'}`
                 )
-                .join("\n"),
-            "选择替换景点",
+                .join('\n'),
+            '选择替换景点',
             {
-              confirmButtonText: "确定",
-              cancelButtonText: "取消",
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
               inputPattern: /^[1-5]$/,
-              inputErrorMessage: "请输入有效的序号（1-5）",
-            },
+              inputErrorMessage: '请输入有效的序号（1-5）',
+            }
           );
 
           const selectedAttr = alternatives[parseInt(selectedIndex) - 1];
@@ -1088,7 +1075,7 @@ export default {
             // 替换活动
             editedTrip.value.dailyPlan[dayIndex].activities[actIndex] = {
               ...selectedAttr,
-              type: "attraction",
+              type: 'attraction',
               time: currentActivity.time, // 保持原时间
             };
             ElMessage.success(`已替换为：${selectedAttr.name}`);
@@ -1097,44 +1084,44 @@ export default {
           // 使用模拟数据
           const mockAlternatives = [
             {
-              id: "alt_attr_1",
-              name: "替代景点A",
-              description: "精彩的替代景点",
-              price: "￥30",
+              id: 'alt_attr_1',
+              name: '替代景点A',
+              description: '精彩的替代景点',
+              price: '￥30',
             },
             {
-              id: "alt_attr_2",
-              name: "替代景点B",
-              description: "另一个不错的选择",
-              price: "￥25",
+              id: 'alt_attr_2',
+              name: '替代景点B',
+              description: '另一个不错的选择',
+              price: '￥25',
             },
           ];
 
           const { value: selectedIndex } = await ElMessageBox.prompt(
-            "请选择要替换的景点（输入序号）：\n1. 替代景点A\n2. 替代景点B",
-            "选择替换景点",
+            '请选择要替换的景点（输入序号）：\n1. 替代景点A\n2. 替代景点B',
+            '选择替换景点',
             {
-              confirmButtonText: "确定",
-              cancelButtonText: "取消",
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
               inputPattern: /^[1-2]$/,
-              inputErrorMessage: "请输入有效的序号（1-2）",
-            },
+              inputErrorMessage: '请输入有效的序号（1-2）',
+            }
           );
 
           const selectedAttr = mockAlternatives[parseInt(selectedIndex) - 1];
           if (selectedAttr) {
             editedTrip.value.dailyPlan[dayIndex].activities[actIndex] = {
               ...selectedAttr,
-              type: "attraction",
+              type: 'attraction',
               time: currentActivity.time,
             };
             ElMessage.success(`已替换为：${selectedAttr.name}`);
           }
         }
       } catch (error) {
-        if (error !== "cancel") {
-          console.error("替换景点失败:", error);
-          ElMessage.error("替换失败，请重试");
+        if (error !== 'cancel') {
+          console.error('替换景点失败:', error);
+          ElMessage.error('替换失败，请重试');
         }
       }
     };
@@ -1143,53 +1130,53 @@ export default {
     const replaceWithAlternativeRestaurant = async (
       dayIndex,
       actIndex,
-      currentActivity,
+      currentActivity
     ) => {
       try {
         // 获取备选餐厅（排除已选的）
         const usedRestaurantIds = editedTrip.value.dailyPlan
-          .flatMap((day) => day.activities)
-          .filter((act) => act.type === "restaurant")
-          .map((act) => act.id);
+          .flatMap(day => day.activities)
+          .filter(act => act.type === 'restaurant')
+          .map(act => act.id);
 
         const response = await fetch(
-          `http://localhost:8080/api/restaurants/city/${tripData.value.destination}`,
+          `http://localhost:8080/api/restaurants/city/${tripData.value.destination}`
         );
 
         if (response.ok) {
           const allRestaurants = await response.json();
           const alternatives = (allRestaurants.data || allRestaurants)
-            .filter((rest) => !usedRestaurantIds.includes(rest.id))
+            .filter(rest => !usedRestaurantIds.includes(rest.id))
             .slice(0, 5); // 最多5个备选
 
           if (alternatives.length === 0) {
-            ElMessage.warning("没有更多备选餐厅");
+            ElMessage.warning('没有更多备选餐厅');
             return;
           }
 
           // 用户选择替换的餐厅
           const { value: selectedIndex } = await ElMessageBox.prompt(
-            "请选择要替换的餐厅（输入序号）：\n" +
+            '请选择要替换的餐厅（输入序号）：\n' +
               alternatives
                 .map(
                   (rest, i) =>
-                    `${i + 1}. ${rest.name} - ${rest.cuisine || "美食"}`,
+                    `${i + 1}. ${rest.name} - ${rest.cuisine || '美食'}`
                 )
-                .join("\n"),
-            "选择替换餐厅",
+                .join('\n'),
+            '选择替换餐厅',
             {
-              confirmButtonText: "确定",
-              cancelButtonText: "取消",
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
               inputPattern: /^[1-5]$/,
-              inputErrorMessage: "请输入有效的序号（1-5）",
-            },
+              inputErrorMessage: '请输入有效的序号（1-5）',
+            }
           );
 
           const selectedRest = alternatives[parseInt(selectedIndex) - 1];
           if (selectedRest) {
             editedTrip.value.dailyPlan[dayIndex].activities[actIndex] = {
               ...selectedRest,
-              type: "restaurant",
+              type: 'restaurant',
               time: currentActivity.time,
             };
             ElMessage.success(`已替换为：${selectedRest.name}`);
@@ -1198,82 +1185,82 @@ export default {
           // 使用模拟数据
           const mockAlternatives = [
             {
-              id: "alt_rest_1",
-              name: "替代餐厅A",
-              cuisine: "本地美食",
-              price: "￥80/人",
+              id: 'alt_rest_1',
+              name: '替代餐厅A',
+              cuisine: '本地美食',
+              price: '￥80/人',
             },
             {
-              id: "alt_rest_2",
-              name: "替代餐厅B",
-              cuisine: "特色料理",
-              price: "￥60/人",
+              id: 'alt_rest_2',
+              name: '替代餐厅B',
+              cuisine: '特色料理',
+              price: '￥60/人',
             },
           ];
 
           const { value: selectedIndex } = await ElMessageBox.prompt(
-            "请选择要替换的餐厅（输入序号）：\n1. 替代餐厅A\n2. 替代餐厅B",
-            "选择替换餐厅",
+            '请选择要替换的餐厅（输入序号）：\n1. 替代餐厅A\n2. 替代餐厅B',
+            '选择替换餐厅',
             {
-              confirmButtonText: "确定",
-              cancelButtonText: "取消",
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
               inputPattern: /^[1-2]$/,
-              inputErrorMessage: "请输入有效的序号（1-2）",
-            },
+              inputErrorMessage: '请输入有效的序号（1-2）',
+            }
           );
 
           const selectedRest = mockAlternatives[parseInt(selectedIndex) - 1];
           if (selectedRest) {
             editedTrip.value.dailyPlan[dayIndex].activities[actIndex] = {
               ...selectedRest,
-              type: "restaurant",
+              type: 'restaurant',
               time: currentActivity.time,
             };
             ElMessage.success(`已替换为：${selectedRest.name}`);
           }
         }
       } catch (error) {
-        if (error !== "cancel") {
-          console.error("替换餐厅失败:", error);
-          ElMessage.error("替换失败，请重试");
+        if (error !== 'cancel') {
+          console.error('替换餐厅失败:', error);
+          ElMessage.error('替换失败，请重试');
         }
       }
     };
 
     const removeActivity = async (dayIndex, actIndex) => {
       try {
-        await ElMessageBox.confirm("确定要移除这个活动吗？", "移除活动", {
-          confirmButtonText: "移除",
-          cancelButtonText: "取消",
-          type: "warning",
+        await ElMessageBox.confirm('确定要移除这个活动吗？', '移除活动', {
+          confirmButtonText: '移除',
+          cancelButtonText: '取消',
+          type: 'warning',
         });
 
         editedTrip.value.dailyPlan[dayIndex].activities.splice(actIndex, 1);
-        ElMessage.success("活动已移除");
+        ElMessage.success('活动已移除');
       } catch {
         // 用户取消
       }
     };
 
     // 添加活动
-    const addActivity = async (dayIndex) => {
+    const addActivity = async dayIndex => {
       try {
         const { value: activityType } = await ElMessageBox.prompt(
-          "请选择要添加的活动类型（输入序号）：\n1. 景点参观\n2. 餐厅用餐\n3. 自定义活动",
-          "选择活动类型",
+          '请选择要添加的活动类型（输入序号）：\n1. 景点参观\n2. 餐厅用餐\n3. 自定义活动',
+          '选择活动类型',
           {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
             inputPattern: /^[1-3]$/,
-            inputErrorMessage: "请输入有效的序号（1-3）",
-          },
+            inputErrorMessage: '请输入有效的序号（1-3）',
+          }
         );
 
-        if (activityType === "1") {
+        if (activityType === '1') {
           await addAttractionActivity(dayIndex);
-        } else if (activityType === "2") {
+        } else if (activityType === '2') {
           await addRestaurantActivity(dayIndex);
-        } else if (activityType === "3") {
+        } else if (activityType === '3') {
           await addCustomActivity(dayIndex);
         }
       } catch (error) {
@@ -1282,62 +1269,62 @@ export default {
     };
 
     // 添加景点活动
-    const addAttractionActivity = async (dayIndex) => {
+    const addAttractionActivity = async dayIndex => {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/attractions/city/${tripData.value.destination}`,
+          `http://localhost:8080/api/attractions/city/${tripData.value.destination}`
         );
 
         if (response.ok) {
           const allAttractions = await response.json();
           const usedAttractionIds = editedTrip.value.dailyPlan
-            .flatMap((day) => day.activities)
-            .filter((act) => act.type === "attraction")
-            .map((act) => act.id);
+            .flatMap(day => day.activities)
+            .filter(act => act.type === 'attraction')
+            .map(act => act.id);
 
           const availableAttractions = (allAttractions.data || allAttractions)
-            .filter((attr) => !usedAttractionIds.includes(attr.id))
+            .filter(attr => !usedAttractionIds.includes(attr.id))
             .slice(0, 5);
 
           if (availableAttractions.length === 0) {
-            ElMessage.warning("没有景点可添加");
+            ElMessage.warning('没有景点可添加');
             return;
           }
 
           const { value: selectedIndex } = await ElMessageBox.prompt(
-            "请选择要添加的景点（输入序号）：\n" +
+            '请选择要添加的景点（输入序号）：\n' +
               availableAttractions
                 .map(
                   (attr, i) =>
-                    `${i + 1}. ${attr.name} - ${attr.description || "精彩景点"}`,
+                    `${i + 1}. ${attr.name} - ${attr.description || '精彩景点'}`
                 )
-                .join("\n"),
-            "选择景点",
+                .join('\n'),
+            '选择景点',
             {
-              confirmButtonText: "添加",
-              cancelButtonText: "取消",
+              confirmButtonText: '添加',
+              cancelButtonText: '取消',
               inputPattern: /^[1-5]$/,
-              inputErrorMessage: "请输入有效的序号",
-            },
+              inputErrorMessage: '请输入有效的序号',
+            }
           );
 
           const selectedAttr =
             availableAttractions[parseInt(selectedIndex) - 1];
           if (selectedAttr) {
             const { value: timeInput } = await ElMessageBox.prompt(
-              "请输入活动时间（例如：14:30）：",
-              "设置时间",
+              '请输入活动时间（例如：14:30）：',
+              '设置时间',
               {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
                 inputPattern: /^\d{2}:\d{2}$/,
-                inputErrorMessage: "请输入正确的时间格式（如：14:30）",
-              },
+                inputErrorMessage: '请输入正确的时间格式（如：14:30）',
+              }
             );
 
             editedTrip.value.dailyPlan[dayIndex].activities.push({
               ...selectedAttr,
-              type: "attraction",
+              type: 'attraction',
               time: timeInput,
             });
 
@@ -1345,72 +1332,72 @@ export default {
           }
         } else {
           // 使用模拟数据
-          await addCustomActivity(dayIndex, "attraction");
+          await addCustomActivity(dayIndex, 'attraction');
         }
       } catch (error) {
-        if (error !== "cancel") {
-          ElMessage.error("添加景点失败，请重试");
+        if (error !== 'cancel') {
+          ElMessage.error('添加景点失败，请重试');
         }
       }
     };
 
     // 添加餐厅活动
-    const addRestaurantActivity = async (dayIndex) => {
+    const addRestaurantActivity = async dayIndex => {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/restaurants/city/${tripData.value.destination}`,
+          `http://localhost:8080/api/restaurants/city/${tripData.value.destination}`
         );
 
         if (response.ok) {
           const allRestaurants = await response.json();
           const usedRestaurantIds = editedTrip.value.dailyPlan
-            .flatMap((day) => day.activities)
-            .filter((act) => act.type === "restaurant")
-            .map((act) => act.id);
+            .flatMap(day => day.activities)
+            .filter(act => act.type === 'restaurant')
+            .map(act => act.id);
 
           const availableRestaurants = (allRestaurants.data || allRestaurants)
-            .filter((rest) => !usedRestaurantIds.includes(rest.id))
+            .filter(rest => !usedRestaurantIds.includes(rest.id))
             .slice(0, 5);
 
           if (availableRestaurants.length === 0) {
-            ElMessage.warning("没有餐厅可添加");
+            ElMessage.warning('没有餐厅可添加');
             return;
           }
 
           const { value: selectedIndex } = await ElMessageBox.prompt(
-            "请选择要添加的餐厅（输入序号）：\n" +
+            '请选择要添加的餐厅（输入序号）：\n' +
               availableRestaurants
                 .map(
                   (rest, i) =>
-                    `${i + 1}. ${rest.name} - ${rest.cuisine || "美食"}`,
+                    `${i + 1}. ${rest.name} - ${rest.cuisine || '美食'}`
                 )
-                .join("\n"),
-            "选择餐厅",
+                .join('\n'),
+            '选择餐厅',
             {
-              confirmButtonText: "添加",
-              cancelButtonText: "取消",
+              confirmButtonText: '添加',
+              cancelButtonText: '取消',
               inputPattern: /^[1-5]$/,
-              inputErrorMessage: "请输入有效的序号",
-            },
+              inputErrorMessage: '请输入有效的序号',
+            }
           );
 
           const selectedRest =
             availableRestaurants[parseInt(selectedIndex) - 1];
           if (selectedRest) {
             const { value: timeInput } = await ElMessageBox.prompt(
-              "请输入用餐时间（例如：12:00）：",
-              "设置时间",
+              '请输入用餐时间（例如：12:00）：',
+              '设置时间',
               {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
                 inputPattern: /^\d{2}:\d{2}$/,
-                inputErrorMessage: "请输入正确的时间格式（如：12:00）",
-              },
+                inputErrorMessage: '请输入正确的时间格式（如：12:00）',
+              }
             );
 
             editedTrip.value.dailyPlan[dayIndex].activities.push({
               ...selectedRest,
-              type: "restaurant",
+              type: 'restaurant',
               time: timeInput,
             });
 
@@ -1418,77 +1405,77 @@ export default {
           }
         } else {
           // 使用模拟数据
-          await addCustomActivity(dayIndex, "restaurant");
+          await addCustomActivity(dayIndex, 'restaurant');
         }
       } catch (error) {
-        if (error !== "cancel") {
-          ElMessage.error("添加餐厅失败，请重试");
+        if (error !== 'cancel') {
+          ElMessage.error('添加餐厅失败，请重试');
         }
       }
     };
 
     // 添加自定义活动
-    const addCustomActivity = async (dayIndex, defaultType = "custom") => {
+    const addCustomActivity = async (dayIndex, defaultType = 'custom') => {
       try {
         const { value: formData } = await ElMessageBox.prompt(
-          "请输入自定义活动信息：",
-          "添加自定义活动",
+          '请输入自定义活动信息：',
+          '添加自定义活动',
           {
-            confirmButtonText: "添加",
-            cancelButtonText: "取消",
-            inputType: "textarea",
+            confirmButtonText: '添加',
+            cancelButtonText: '取消',
+            inputType: 'textarea',
             inputPlaceholder:
-              "名称：xxx\n描述：xxx\n时间：xx:xx\n价格：￥xx（可选）",
-            inputValidator: (value) => {
+              '名称：xxx\n描述：xxx\n时间：xx:xx\n价格：￥xx（可选）',
+            inputValidator: value => {
               if (
                 !value ||
-                !value.includes("名称：") ||
-                !value.includes("时间：")
+                !value.includes('名称：') ||
+                !value.includes('时间：')
               ) {
-                return "请填写名称和时间信息";
+                return '请填写名称和时间信息';
               }
               return true;
             },
-          },
+          }
         );
 
         // 解析用户输入
-        const lines = formData.split("\n");
+        const lines = formData.split('\n');
         const name = lines
-          .find((line) => line.startsWith("名称："))
-          ?.replace("名称：", "")
+          .find(line => line.startsWith('名称：'))
+          ?.replace('名称：', '')
           .trim();
         const description = lines
-          .find((line) => line.startsWith("描述："))
-          ?.replace("描述：", "")
+          .find(line => line.startsWith('描述：'))
+          ?.replace('描述：', '')
           .trim();
         const time = lines
-          .find((line) => line.startsWith("时间："))
-          ?.replace("时间：", "")
+          .find(line => line.startsWith('时间：'))
+          ?.replace('时间：', '')
           .trim();
         const price = lines
-          .find((line) => line.startsWith("价格："))
-          ?.replace("价格：", "")
+          .find(line => line.startsWith('价格：'))
+          ?.replace('价格：', '')
           .trim();
 
         if (name && time && /^\d{2}:\d{2}$/.test(time)) {
           const newActivity = {
             id: `custom_${Date.now()}`,
             name,
-            description: description || "自定义活动",
+            description: description || '自定义活动',
             time,
             type: defaultType,
-            price: price || "自定义",
+            price: price || '自定义',
           };
 
           editedTrip.value.dailyPlan[dayIndex].activities.push(newActivity);
           ElMessage.success(`已添加活动：${name}`);
         } else {
-          ElMessage.error("请确保名称和时间格式正确");
+          ElMessage.error('请确保名称和时间格式正确');
         }
       } catch (error) {
-        if (error !== "cancel") {
-          ElMessage.error("添加活动失败，请重试");
+        if (error !== 'cancel') {
+          ElMessage.error('添加活动失败，请重试');
         }
       }
     };

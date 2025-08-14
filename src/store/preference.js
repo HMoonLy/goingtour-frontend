@@ -3,11 +3,11 @@
  * 用于更好地集成用户偏好和行程偏好设置
  */
 
-import { defineStore } from "pinia";
-import { ref, computed } from "vue";
-import { useUserStore } from "./user.js";
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
+import { useUserStore } from './user.js';
 
-export const usePreferenceStore = defineStore("preference", () => {
+export const usePreferenceStore = defineStore('preference', () => {
   // 用户Store引用
   const userStore = useUserStore();
 
@@ -15,12 +15,12 @@ export const usePreferenceStore = defineStore("preference", () => {
   const tripPreferenceForm = ref({
     tripGoals: [],
     focusAreas: [],
-    pacePreference: "",
-    socialPreference: "",
-    photoPreference: "",
+    pacePreference: '',
+    socialPreference: '',
+    photoPreference: '',
     dietaryRestrictions: [],
-    customDietaryNotes: "",
-    specialRequirements: "",
+    customDietaryNotes: '',
+    specialRequirements: '',
   });
 
   // 是否从草稿加载的标识
@@ -37,7 +37,7 @@ export const usePreferenceStore = defineStore("preference", () => {
         ...userPrefs,
         ...tripPrefs,
         // 确保草稿数据优先级更高
-        source: "draft",
+        source: 'draft',
       };
     }
 
@@ -57,19 +57,19 @@ export const usePreferenceStore = defineStore("preference", () => {
 
       // 节奏偏好：优先使用行程偏好，否则使用用户偏好或默认值
       pacePreference:
-        tripPrefs.pacePreference || userPrefs.pacePreference || "balanced",
+        tripPrefs.pacePreference || userPrefs.pacePreference || 'balanced',
 
       // 社交偏好：优先使用行程偏好，否则基于MBTI推导
       socialPreference:
         tripPrefs.socialPreference ||
         deriveSocialPreference(userPrefs.mbtiType) ||
-        "mixed",
+        'mixed',
 
       // 拍照偏好：优先使用行程偏好，否则基于标签推导
       photoPreference:
         tripPrefs.photoPreference ||
         derivePhotoPreference(userPrefs.selectedTags || []) ||
-        "casual",
+        'casual',
 
       // 饮食禁忌：合并用户和行程的饮食禁忌
       dietaryRestrictions: [
@@ -79,107 +79,107 @@ export const usePreferenceStore = defineStore("preference", () => {
 
       // 其他饮食需求：合并
       customDietaryNotes: [
-        userPrefs.customDietaryNotes || "",
-        tripPrefs.customDietaryNotes || "",
+        userPrefs.customDietaryNotes || '',
+        tripPrefs.customDietaryNotes || '',
       ]
-        .filter((note) => note.trim())
-        .join("；"),
+        .filter(note => note.trim())
+        .join('；'),
 
       // 特殊需求：合并
       specialRequirements: [
-        userPrefs.specialRequirements || "",
-        tripPrefs.specialRequirements || "",
+        userPrefs.specialRequirements || '',
+        tripPrefs.specialRequirements || '',
       ]
-        .filter((req) => req.trim())
-        .join("；"),
+        .filter(req => req.trim())
+        .join('；'),
 
-      source: "merged",
+      source: 'merged',
     };
   });
 
   // 用户标签到行程目标的映射
-  const mapUserTagsToTripGoals = (tags) => {
+  const mapUserTagsToTripGoals = tags => {
     const tagGoalMap = {
-      family: "family",
-      romantic: "romantic",
-      friends: "friendship",
-      solo: "solo",
-      business: "business",
-      photography: "photography",
-      adventure: "adventure",
-      relaxation: "relaxation",
-      culture: "learning",
-      celebration: "celebration",
+      family: 'family',
+      romantic: 'romantic',
+      friends: 'friendship',
+      solo: 'solo',
+      business: 'business',
+      photography: 'photography',
+      adventure: 'adventure',
+      relaxation: 'relaxation',
+      culture: 'learning',
+      celebration: 'celebration',
     };
 
-    const mappedGoals = tags.map((tag) => tagGoalMap[tag]).filter(Boolean);
+    const mappedGoals = tags.map(tag => tagGoalMap[tag]).filter(Boolean);
 
-    return mappedGoals.length > 0 ? mappedGoals : ["relaxation"];
+    return mappedGoals.length > 0 ? mappedGoals : ['relaxation'];
   };
 
   // 用户标签到重点体验的映射
-  const mapUserTagsToFocusAreas = (tags) => {
+  const mapUserTagsToFocusAreas = tags => {
     const tagFocusMap = {
-      culture: "local_culture",
-      history: "historical_sites",
-      art: "local_culture",
-      food: "food_experience",
-      local_cuisine: "food_experience",
-      nature: "natural_scenery",
-      mountains: "natural_scenery",
-      scenic: "natural_scenery",
-      cities: "urban_life",
-      urban: "urban_life",
-      modern: "modern_attractions",
-      shopping: "shopping",
-      nightlife: "nightlife",
+      culture: 'local_culture',
+      history: 'historical_sites',
+      art: 'local_culture',
+      food: 'food_experience',
+      local_cuisine: 'food_experience',
+      nature: 'natural_scenery',
+      mountains: 'natural_scenery',
+      scenic: 'natural_scenery',
+      cities: 'urban_life',
+      urban: 'urban_life',
+      modern: 'modern_attractions',
+      shopping: 'shopping',
+      nightlife: 'nightlife',
     };
 
-    return tags.map((tag) => tagFocusMap[tag]).filter(Boolean);
+    return tags.map(tag => tagFocusMap[tag]).filter(Boolean);
   };
 
   // 基于MBTI推导社交偏好
-  const deriveSocialPreference = (mbtiType) => {
-    if (!mbtiType) return "mixed";
-    return mbtiType.startsWith("E") ? "lively" : "quiet";
+  const deriveSocialPreference = mbtiType => {
+    if (!mbtiType) return 'mixed';
+    return mbtiType.startsWith('E') ? 'lively' : 'quiet';
   };
 
   // 基于标签推导拍照偏好
-  const derivePhotoPreference = (tags) => {
-    const photoTags = ["photography", "urban", "modern"];
-    return tags.some((tag) => photoTags.includes(tag)) ? "essential" : "casual";
+  const derivePhotoPreference = tags => {
+    const photoTags = ['photography', 'urban', 'modern'];
+    return tags.some(tag => photoTags.includes(tag)) ? 'essential' : 'casual';
   };
 
   // 初始化行程偏好（从用户偏好推导默认值）
   const initializeTripPreferences = () => {
-    console.log("🔄 初始化行程偏好设置...");
+    console.log('🔄 初始化行程偏好设置...');
 
     const userPrefs = userStore.userPreferences || {};
-    console.log("👤 用户偏好数据:", userPrefs);
+    console.log('👤 用户偏好数据:', userPrefs);
 
     // 只在没有草稿数据时才从用户偏好推导
     if (!isFromDraft.value) {
       tripPreferenceForm.value = {
         tripGoals: mapUserTagsToTripGoals(userPrefs.selectedTags || []),
         focusAreas: mapUserTagsToFocusAreas(userPrefs.selectedTags || []),
-        pacePreference: userPrefs.pacePreference || "",
-        socialPreference: deriveSocialPreference(userPrefs.mbtiType) || "",
+        pacePreference: userPrefs.pacePreference || '',
+        socialPreference: deriveSocialPreference(userPrefs.mbtiType) || '',
         photoPreference:
-          derivePhotoPreference(userPrefs.selectedTags || []) || "",
+          derivePhotoPreference(userPrefs.selectedTags || []) || '',
         dietaryRestrictions: [...(userPrefs.dietaryRestrictions || [])],
-        customDietaryNotes: userPrefs.customDietaryNotes || "",
-        specialRequirements: userPrefs.specialRequirements || "",
+        customDietaryNotes: userPrefs.customDietaryNotes || '',
+        specialRequirements: userPrefs.specialRequirements || '',
       };
 
-      console.log("✅ 行程偏好初始化完成:", tripPreferenceForm.value);
+      console.log('✅ 行程偏好初始化完成:', tripPreferenceForm.value);
     } else {
-      console.log("📂 从草稿加载，跳过用户偏好初始化");
+      console.log('📂 从草稿加载，跳过用户偏好初始化');
     }
   };
 
   // 加载草稿偏好数据
-  const loadDraftPreferences = (draftPreferenceData) => {
-    console.log("📂 加载草稿偏好数据:", draftPreferenceData);
+  const loadDraftPreferences = draftPreferenceData => {
+    console.log('📂 加载草稿偏好数据:', draftPreferenceData);
 
     // 标记为从草稿加载
     isFromDraft.value = true;
@@ -188,20 +188,20 @@ export const usePreferenceStore = defineStore("preference", () => {
     tripPreferenceForm.value = {
       tripGoals: draftPreferenceData.tripGoals || [],
       focusAreas: draftPreferenceData.focusAreas || [],
-      pacePreference: draftPreferenceData.pacePreference || "",
-      socialPreference: draftPreferenceData.socialPreference || "",
-      photoPreference: draftPreferenceData.photoPreference || "",
+      pacePreference: draftPreferenceData.pacePreference || '',
+      socialPreference: draftPreferenceData.socialPreference || '',
+      photoPreference: draftPreferenceData.photoPreference || '',
       dietaryRestrictions: draftPreferenceData.dietaryRestrictions || [],
-      customDietaryNotes: draftPreferenceData.customDietaryNotes || "",
-      specialRequirements: draftPreferenceData.specialRequirements || "",
+      customDietaryNotes: draftPreferenceData.customDietaryNotes || '',
+      specialRequirements: draftPreferenceData.specialRequirements || '',
     };
 
-    console.log("✅ 草稿偏好数据加载完成");
+    console.log('✅ 草稿偏好数据加载完成');
   };
 
   // 重置偏好设置（清除草稿状态）
   const resetPreferences = () => {
-    console.log("🔄 重置偏好设置...");
+    console.log('🔄 重置偏好设置...');
 
     // 重置草稿标识
     isFromDraft.value = false;
@@ -209,7 +209,7 @@ export const usePreferenceStore = defineStore("preference", () => {
     // 重新从用户偏好初始化
     initializeTripPreferences();
 
-    console.log("✅ 偏好设置已重置");
+    console.log('✅ 偏好设置已重置');
   };
 
   // 更新行程偏好的特定字段
@@ -219,8 +219,8 @@ export const usePreferenceStore = defineStore("preference", () => {
   };
 
   // 批量更新行程偏好
-  const updateTripPreferences = (preferences) => {
-    console.log("🔧 批量更新行程偏好:", preferences);
+  const updateTripPreferences = preferences => {
+    console.log('🔧 批量更新行程偏好:', preferences);
     Object.assign(tripPreferenceForm.value, preferences);
   };
 

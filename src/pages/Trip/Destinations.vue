@@ -20,10 +20,7 @@
               <el-icon><Search /></el-icon>
             </template>
           </el-input>
-          <el-button
-class="hero-btn" type="primary"
-@click="debouncedSearch()"
->
+          <el-button class="hero-btn" type="primary" @click="debouncedSearch()">
             搜索
           </el-button>
         </div>
@@ -33,34 +30,22 @@ class="hero-btn" type="primary"
     <!-- 内容区域 -->
     <div class="cities-content-wrapper">
       <!-- 滚动指示器（隐藏） -->
-      <div
-class="scroll-indicator" style="display: none"
->
+      <div class="scroll-indicator" style="display: none">
         {{ activeLetter }}
       </div>
 
-      <div
-ref="citiesContent" class="cities-content"
->
+      <div ref="citiesContent" class="cities-content">
         <!-- 加载状态 -->
-        <div
-v-if="loading" class="loading-container"
->
-          <el-skeleton
-:rows="10" animated
-/>
+        <div v-if="loading" class="loading-container">
+          <el-skeleton :rows="10" animated />
         </div>
 
         <!-- 搜索结果 -->
-        <div
-v-else-if="isSearchMode" class="search-results"
->
+        <div v-else-if="isSearchMode" class="search-results">
           <h2 v-if="searchResults?.length > 0">
             搜索结果 ({{ searchResults?.length || 0 }})
           </h2>
-          <el-empty
-v-else description="未找到匹配的城市，请尝试其他关键词"
-/>
+          <el-empty v-else description="未找到匹配的城市，请尝试其他关键词" />
 
           <!-- 列表视图（默认，仅显示结果，不展示收藏按钮） -->
           <div class="city-rows">
@@ -69,9 +54,7 @@ v-else description="未找到匹配的城市，请尝试其他关键词"
               :key="city.adcode"
               class="city-row"
             >
-              <div
-class="city-left" @click="selectCity(city)"
->
+              <div class="city-left" @click="selectCity(city)">
                 <span class="city-name">{{ city.中文名 }}</span>
                 <span class="city-province">{{ getProvinceName(city) }}</span>
               </div>
@@ -115,7 +98,7 @@ class="city-left" @click="selectCity(city)"
                 </LazyImage>
                 <div class="destination-info">
                   <h3 class="destination-name">
-                    {{ city.name.replace("市", "") }}
+                    {{ city.name.replace('市', '') }}
                   </h3>
                   <p class="destination-description">
                     {{ city.description }}
@@ -123,19 +106,13 @@ class="city-left" @click="selectCity(city)"
                 </div>
               </div>
             </div>
-            <div
-v-else class="loading-placeholder"
->
-              <el-skeleton
-:rows="3" animated
-/>
+            <div v-else class="loading-placeholder">
+              <el-skeleton :rows="3" animated />
             </div>
           </div>
 
           <!-- 热门目的地（分组标签云 - 隐藏） -->
-          <div
-class="city-section hot-group-section" style="display: none"
->
+          <div class="city-section hot-group-section" style="display: none">
             <h2><i class="hot-icon">🔥</i> 热门目的地</h2>
             <div class="group-tabs">
               <button
@@ -200,7 +177,7 @@ class="city-section hot-group-section" style="display: none"
                     {{ item.name }}
                   </div>
                   <div class="dest-sub">
-                    {{ item.province || "" }}
+                    {{ item.province || '' }}
                   </div>
                 </div>
               </div>
@@ -256,13 +233,8 @@ class="city-section hot-group-section" style="display: none"
         </template>
 
         <!-- 导航辅助按钮组（隐藏） -->
-        <div
-class="nav-assist-buttons" style="display: none"
->
-          <el-tooltip
-content="热门城市" placement="left"
-:offset="10"
->
+        <div class="nav-assist-buttons" style="display: none">
+          <el-tooltip content="热门城市" placement="left" :offset="10">
             <el-button
               class="nav-button hot-button"
               circle
@@ -273,19 +245,13 @@ content="热门城市" placement="left"
             </el-button>
           </el-tooltip>
 
-          <el-backtop
-target=".cities-content" :right="50"
-:bottom="100"
->
+          <el-backtop target=".cities-content" :right="50" :bottom="100">
             <div class="back-top">
               <el-icon><Top /></el-icon>
             </div>
           </el-backtop>
 
-          <el-tooltip
-content="跳至Z" placement="left"
-:offset="10"
->
+          <el-tooltip content="跳至Z" placement="left" :offset="10">
             <el-button
               class="nav-button z-button"
               circle
@@ -299,9 +265,7 @@ content="跳至Z" placement="left"
       </div>
 
       <!-- 添加快捷字母导航（隐藏） -->
-      <div
-class="letter-nav" style="display: none"
->
+      <div class="letter-nav" style="display: none">
         <div
           class="letter-item special"
           :class="{ active: activeLetter === hotLabel }"
@@ -329,9 +293,9 @@ class="letter-nav" style="display: none"
 </template>
 
 <script>
-import { ref, computed, onMounted, onBeforeUnmount } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import { ElMessage } from "element-plus";
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { ElMessage } from 'element-plus';
 import {
   Search,
   Top,
@@ -341,27 +305,27 @@ import {
   ArrowDown,
   ArrowUp,
   MagicStick,
-} from "@element-plus/icons-vue";
-import pinyin from "pinyin";
-import { createCachedRequest, debounce } from "@/utils/apiOptimizer.js";
-import { useOptimizedWishlistStore } from "@/store/optimizedWishlist.js";
-import { hotRegions, findCity, seasonalByMonth } from "@/data/destinations.js";
-import { hotCategories as hotCategoriesData } from "@/data/hotGroups.js";
-import LazyImage from "@/components/Common/UI/LazyImage.vue";
-import OptimizedVirtualCityList from "@/components/Common/City/OptimizedVirtualCityList.vue";
-import VirtualCityGrid from "@/components/Common/City/VirtualCityGrid.vue";
-import CityGridList from "@/components/Common/City/CityGridList.vue";
+} from '@element-plus/icons-vue';
+import pinyin from 'pinyin';
+import { createCachedRequest, debounce } from '@/utils/apiOptimizer.js';
+import { useOptimizedWishlistStore } from '@/store/optimizedWishlist.js';
+import { hotRegions, findCity, seasonalByMonth } from '@/data/destinations.js';
+import { hotCategories as hotCategoriesData } from '@/data/hotGroups.js';
+import LazyImage from '@/components/Common/UI/LazyImage.vue';
+import OptimizedVirtualCityList from '@/components/Common/City/OptimizedVirtualCityList.vue';
+import VirtualCityGrid from '@/components/Common/City/VirtualCityGrid.vue';
+import CityGridList from '@/components/Common/City/CityGridList.vue';
 import {
   pagePerformance,
   imagePerformance,
-} from "@/utils/performanceMonitor.js";
+} from '@/utils/performanceMonitor.js';
 import {
   interactionMonitor,
   createDebouncedHandler,
-} from "@/utils/interactionMonitor.js";
+} from '@/utils/interactionMonitor.js';
 
 export default {
-  name: "Destinations",
+  name: 'Destinations',
   components: {
     Search,
     Top,
@@ -382,13 +346,13 @@ export default {
     const wishlistStore = useOptimizedWishlistStore();
 
     // 响应式数据
-    const searchKeyword = ref("");
+    const searchKeyword = ref('');
     // 统一使用现代卡片布局
     const allCities = ref([]);
     const loading = ref(true);
     const isSearchMode = ref(false);
     const searchResults = ref([]);
-    const hotLabel = "热门";
+    const hotLabel = '热门';
     const activeLetter = ref(hotLabel);
     const citiesContent = ref(null);
     const letterSections = ref([]);
@@ -408,13 +372,13 @@ export default {
     const seasonalDisplayCities = computed(() => {
       const names = seasonalByMonth[selectedMonth.value] || [];
       // 在 hotRegions 或 themeGroups 中尝试匹配 adcode/封面
-      const mapped = names.map((n) => {
+      const mapped = names.map(n => {
         const hit = findCity(n);
         return {
           name: n,
-          adcode: hit?.adcode || "",
-          cover: hit?.cover || "",
-          province: "",
+          adcode: hit?.adcode || '',
+          cover: hit?.cover || '',
+          province: '',
         };
       });
       return mapped;
@@ -440,16 +404,16 @@ export default {
       return item.cover
         ? {
             backgroundImage: `url(${item.cover})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
           }
-        : { background: "linear-gradient(135deg, #eef2ff, #f8fafc)" };
+        : { background: 'linear-gradient(135deg, #eef2ff, #f8fafc)' };
     }
 
     function handleCityClick(name) {
       // 直接进入创建行程页面
-      const hit = findCity(name) || { adcode: "", name };
-      selectCity({ 中文名: name, adcode: hit.adcode || "" });
+      const hit = findCity(name) || { adcode: '', name };
+      selectCity({ 中文名: name, adcode: hit.adcode || '' });
     }
 
     // 批量操作相关状态
@@ -459,32 +423,32 @@ export default {
     // 字母导航列表 - 单独定义每个字母
     const letterNavs = [
       hotLabel,
-      "A",
-      "B",
-      "C",
-      "D",
-      "E",
-      "F",
-      "G",
-      "H",
-      "I",
-      "J",
-      "K",
-      "L",
-      "M",
-      "N",
-      "O",
-      "P",
-      "Q",
-      "R",
-      "S",
-      "T",
-      "U",
-      "V",
-      "W",
-      "X",
-      "Y",
-      "Z",
+      'A',
+      'B',
+      'C',
+      'D',
+      'E',
+      'F',
+      'G',
+      'H',
+      'I',
+      'J',
+      'K',
+      'L',
+      'M',
+      'N',
+      'O',
+      'P',
+      'Q',
+      'R',
+      'S',
+      'T',
+      'U',
+      'V',
+      'W',
+      'X',
+      'Y',
+      'Z',
     ];
 
     // 热门城市列表
@@ -496,7 +460,7 @@ export default {
       ) {
         return [];
       }
-      return (hotRegions[0]?.cities || []).map((c) => ({
+      return (hotRegions[0]?.cities || []).map(c => ({
         中文名: c.name,
         adcode: c.adcode,
       }));
@@ -504,7 +468,7 @@ export default {
 
     // 原始城市数据加载函数
     const fetchCityData = async () => {
-      const response = await fetch("/data/city-codes.json");
+      const response = await fetch('/data/city-codes.json');
       if (!response.ok) {
         throw new Error(`加载城市数据失败: ${response.status}`);
       }
@@ -513,14 +477,14 @@ export default {
 
     // 带缓存的城市数据加载函数
     const cachedFetchCityData = createCachedRequest(fetchCityData, {
-      cacheKey: "city-data",
+      cacheKey: 'city-data',
       ttl: 30 * 60 * 1000, // 缓存30分钟
       enableCache: true,
     });
 
     // 加载城市数据
     const loadCityData = async () => {
-      pagePerformance.start("city-data-load");
+      pagePerformance.start('city-data-load');
       loading.value = true;
       try {
         const cityData = await cachedFetchCityData();
@@ -530,13 +494,13 @@ export default {
         }
 
         // 过滤只保留市级城市
-        allCities.value = cityData.filter((city) => {
-          const name = city.中文名 || "";
+        allCities.value = cityData.filter(city => {
+          const name = city.中文名 || '';
           return (
-            name.includes("市") ||
-            name.includes("自治州") ||
-            name.includes("地区") ||
-            name.includes("盟")
+            name.includes('市') ||
+            name.includes('自治州') ||
+            name.includes('地区') ||
+            name.includes('盟')
           );
         });
 
@@ -546,8 +510,8 @@ export default {
 
         pagePerformance.end();
       } catch (error) {
-        console.error("加载城市数据失败:", error);
-        ElMessage.error("城市数据加载失败，请刷新重试");
+        console.error('加载城市数据失败:', error);
+        ElMessage.error('城市数据加载失败，请刷新重试');
         allCities.value = [];
         pagePerformance.end();
       } finally {
@@ -564,8 +528,8 @@ export default {
       const groups = {};
 
       // 使用汉字拼音首字母作为分组键
-      allCities.value.forEach((city) => {
-        const cityName = city.中文名 || "";
+      allCities.value.forEach(city => {
+        const cityName = city.中文名 || '';
         if (!cityName) return;
 
         try {
@@ -585,13 +549,13 @@ export default {
           // 将城市添加到对应字母分组
           groups[firstLetter].cities.push(city);
         } catch (e) {
-          console.warn("处理城市拼音失败:", cityName, e);
+          console.warn('处理城市拼音失败:', cityName, e);
         }
       });
 
       // 转换为数组并按字母排序
       return Object.values(groups).sort((a, b) =>
-        a.letter.localeCompare(b.letter),
+        a.letter.localeCompare(b.letter)
       );
     });
 
@@ -611,9 +575,9 @@ export default {
         return;
       }
 
-      searchResults.value = allCities.value.filter((city) => {
-        const cityName = city.中文名 || "";
-        const province = city.province || "";
+      searchResults.value = allCities.value.filter(city => {
+        const cityName = city.中文名 || '';
+        const province = city.province || '';
 
         // 简单模糊匹配，可以根据需要扩展
         return cityName.includes(keyword) || province.includes(keyword);
@@ -622,7 +586,7 @@ export default {
 
     // 清除搜索
     const clearSearch = () => {
-      searchKeyword.value = "";
+      searchKeyword.value = '';
       isSearchMode.value = false;
       searchResults.value = [];
     };
@@ -631,11 +595,11 @@ export default {
     const debouncedSearch = debounce(searchCities, 300);
 
     // 选择城市
-    const selectCity = (city) => {
-      console.log("选择城市:", city);
+    const selectCity = city => {
+      console.log('选择城市:', city);
       // 跳转到创建行程页面
       router.push({
-        name: "TripCreate",
+        name: 'TripCreate',
         query: {
           city: city.adcode,
           cityName: city.中文名,
@@ -644,7 +608,7 @@ export default {
     };
 
     // 滚动到指定字母区域
-    const scrollToLetter = (letter) => {
+    const scrollToLetter = letter => {
       // 设置激活字母（即使在搜索模式下也应该更新）
       activeLetter.value = letter;
 
@@ -662,7 +626,7 @@ export default {
 
         if (letter === hotLabel) {
           // 滚动到热门城市区域
-          targetElement = document.getElementById("hot-cities");
+          targetElement = document.getElementById('hot-cities');
         } else {
           // 滚动到对应字母区域
           targetElement = document.getElementById(`letter-${letter}`);
@@ -671,16 +635,16 @@ export default {
         if (targetElement) {
           // 平滑滚动到目标元素
           targetElement.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
+            behavior: 'smooth',
+            block: 'start',
           });
 
           // 视觉反馈 - 高亮显示区域
-          targetElement.classList.add("highlight");
+          targetElement.classList.add('highlight');
 
           // 移除高亮效果
           setTimeout(() => {
-            targetElement.classList.remove("highlight");
+            targetElement.classList.remove('highlight');
 
             // 隐藏滚动指示器
             setTimeout(() => {
@@ -696,12 +660,12 @@ export default {
       if (!citiesContent.value || isSearchMode.value) return;
 
       // 获取所有字母区域元素
-      const sections = [...document.getElementsByClassName("city-section")];
+      const sections = [...document.getElementsByClassName('city-section')];
       if (sections.length === 0) return;
 
       // 获取搜索框的高度，作为偏移量计算
       const searchSectionHeight =
-        document.querySelector(".search-section")?.offsetHeight || 0;
+        document.querySelector('.search-section')?.offsetHeight || 0;
 
       // 检查元素是否在可见区域，考虑搜索框的高度
       const isElementInView = (el, offset = 0) => {
@@ -722,7 +686,7 @@ export default {
         }
       } else {
         // 检查热门区域是否在视口内
-        const hotSection = document.getElementById("hot-cities");
+        const hotSection = document.getElementById('hot-cities');
         if (hotSection && isElementInView(hotSection, 0)) {
           if (activeLetter.value !== hotLabel) {
             newActiveLetter = hotLabel;
@@ -734,10 +698,10 @@ export default {
 
           for (let i = 0; i < sections.length; i++) {
             const section = sections[i];
-            if (!section.id.startsWith("letter-")) continue;
+            if (!section.id.startsWith('letter-')) continue;
 
             if (isElementInView(section)) {
-              const letter = section.id.replace("letter-", "");
+              const letter = section.id.replace('letter-', '');
               if (activeLetter.value !== letter) {
                 newActiveLetter = letter;
                 letterChanged = true;
@@ -756,9 +720,9 @@ export default {
               scrollBottom / citiesContent.value.scrollHeight;
 
             if (scrollPercentage > 0.95) {
-              const zSection = document.getElementById("letter-Z");
-              if (zSection && activeLetter.value !== "Z") {
-                newActiveLetter = "Z";
+              const zSection = document.getElementById('letter-Z');
+              if (zSection && activeLetter.value !== 'Z') {
+                newActiveLetter = 'Z';
                 letterChanged = true;
               }
             } else {
@@ -768,7 +732,7 @@ export default {
 
               for (let i = 0; i < sections.length; i++) {
                 const section = sections[i];
-                if (!section.id.startsWith("letter-")) continue;
+                if (!section.id.startsWith('letter-')) continue;
 
                 const rect = section.getBoundingClientRect();
                 const distance = Math.abs(rect.top - searchSectionHeight);
@@ -780,7 +744,7 @@ export default {
               }
 
               if (closestSection) {
-                const letter = closestSection.id.replace("letter-", "");
+                const letter = closestSection.id.replace('letter-', '');
                 if (activeLetter.value !== letter) {
                   newActiveLetter = letter;
                   letterChanged = true;
@@ -804,18 +768,18 @@ export default {
     };
 
     // 获取字母导航项的title
-    const getLetterTitle = (letter) => {
+    const getLetterTitle = letter => {
       if (letter === hotLabel) {
-        return "热门城市";
+        return '热门城市';
       }
       return letter;
     };
 
     // 获取省份名称
-    const getProvinceName = (city) => {
-      const adcode = String(city.adcode || "");
+    const getProvinceName = city => {
+      const adcode = String(city.adcode || '');
       if (!adcode || adcode.length < 2) {
-        return "";
+        return '';
       }
 
       // 通过adcode前两位判断省份
@@ -823,49 +787,49 @@ export default {
 
       // 省份编码映射
       const provinceMap = {
-        11: "北京市",
-        12: "天津市",
-        13: "河北省",
-        14: "山西省",
-        15: "内蒙古",
-        21: "辽宁省",
-        22: "吉林省",
-        23: "黑龙江省",
-        31: "上海市",
-        32: "江苏省",
-        33: "浙江省",
-        34: "安徽省",
-        35: "福建省",
-        36: "江西省",
-        37: "山东省",
-        41: "河南省",
-        42: "湖北省",
-        43: "湖南省",
-        44: "广东省",
-        45: "广西",
-        46: "海南省",
-        50: "重庆市",
-        51: "四川省",
-        52: "贵州省",
-        53: "云南省",
-        54: "西藏",
-        61: "陕西省",
-        62: "甘肃省",
-        63: "青海省",
-        64: "宁夏",
-        65: "新疆",
-        71: "台湾省",
-        81: "香港",
-        82: "澳门",
+        11: '北京市',
+        12: '天津市',
+        13: '河北省',
+        14: '山西省',
+        15: '内蒙古',
+        21: '辽宁省',
+        22: '吉林省',
+        23: '黑龙江省',
+        31: '上海市',
+        32: '江苏省',
+        33: '浙江省',
+        34: '安徽省',
+        35: '福建省',
+        36: '江西省',
+        37: '山东省',
+        41: '河南省',
+        42: '湖北省',
+        43: '湖南省',
+        44: '广东省',
+        45: '广西',
+        46: '海南省',
+        50: '重庆市',
+        51: '四川省',
+        52: '贵州省',
+        53: '云南省',
+        54: '西藏',
+        61: '陕西省',
+        62: '甘肃省',
+        63: '青海省',
+        64: '宁夏',
+        65: '新疆',
+        71: '台湾省',
+        81: '香港',
+        82: '澳门',
       };
 
-      return provinceMap[provinceCode] || "";
+      return provinceMap[provinceCode] || '';
     };
 
     // 生命周期钩子
     onMounted(() => {
       // 启动页面性能监控
-      pagePerformance.start("page-mount");
+      pagePerformance.start('page-mount');
       pagePerformance.observePageRender();
 
       // 启动交互性能监控
@@ -877,7 +841,7 @@ export default {
       wishlistStore.loadWishlist();
 
       // 添加resize事件监听
-      window.addEventListener("resize", handleScroll);
+      window.addEventListener('resize', handleScroll);
 
       // 检查是否有重定向消息
       if (route.query.message) {
@@ -906,19 +870,19 @@ export default {
       interactionMonitor.stop();
 
       // 移除resize事件监听
-      window.removeEventListener("resize", handleScroll);
+      window.removeEventListener('resize', handleScroll);
     });
 
     // 愿望清单相关方法 - 优化版
-    const toggleWishlist = createDebouncedHandler(async (city) => {
+    const toggleWishlist = createDebouncedHandler(async city => {
       return interactionMonitor.measureInteraction(
-        "wishlist-toggle",
+        'wishlist-toggle',
         async () => {
           try {
             if (wishlistStore.isCityInWishlist(city.adcode)) {
               // 从愿望清单移除
               const wishlistItem = wishlistStore.getWishlistItemByCityCode(
-                city.adcode,
+                city.adcode
               );
               if (wishlistItem) {
                 await wishlistStore.removeFromWishlist(wishlistItem.id);
@@ -928,15 +892,15 @@ export default {
               await wishlistStore.addToWishlist({
                 cityCode: city.adcode,
                 cityName: city.中文名,
-                reason: "从目的地界面添加",
-                tags: ["目的地浏览"],
+                reason: '从目的地界面添加',
+                tags: ['目的地浏览'],
               });
             }
           } catch (error) {
-            console.error("愿望清单操作失败:", error);
+            console.error('愿望清单操作失败:', error);
             // 错误消息已在store中处理，这里不再重复显示
           }
-        },
+        }
       );
     }, 150);
 
@@ -949,25 +913,25 @@ export default {
       try {
         // 从热门城市中随机选择未添加的城市
         const availableHotCities = hotCities.value.filter(
-          (city) => !wishlistStore.isCityInWishlist(city.adcode),
+          city => !wishlistStore.isCityInWishlist(city.adcode)
         );
 
         // 从所有城市中随机选择一些有趣的城市
         const interestingCities = [
-          { 中文名: "拉萨市", adcode: "540100" },
-          { 中文名: "乌鲁木齐市", adcode: "650100" },
-          { 中文名: "银川市", adcode: "640100" },
-          { 中文名: "兰州市", adcode: "620100" },
-          { 中文名: "呼和浩特市", adcode: "150100" },
-          { 中文名: "太原市", adcode: "140100" },
-          { 中文名: "贵阳市", adcode: "520100" },
-          { 中文名: "海口市", adcode: "460100" },
-          { 中文名: "长春市", adcode: "220100" },
-          { 中文名: "哈尔滨市", adcode: "230100" },
+          { 中文名: '拉萨市', adcode: '540100' },
+          { 中文名: '乌鲁木齐市', adcode: '650100' },
+          { 中文名: '银川市', adcode: '640100' },
+          { 中文名: '兰州市', adcode: '620100' },
+          { 中文名: '呼和浩特市', adcode: '150100' },
+          { 中文名: '太原市', adcode: '140100' },
+          { 中文名: '贵阳市', adcode: '520100' },
+          { 中文名: '海口市', adcode: '460100' },
+          { 中文名: '长春市', adcode: '220100' },
+          { 中文名: '哈尔滨市', adcode: '230100' },
         ];
 
         const availableInterestingCities = interestingCities.filter(
-          (city) => !wishlistStore.isCityInWishlist(city.adcode),
+          city => !wishlistStore.isCityInWishlist(city.adcode)
         );
 
         // 合并所有可选城市
@@ -977,33 +941,33 @@ export default {
         ];
 
         if (allAvailableCities.length === 0) {
-          ElMessage.info("已经添加了所有推荐城市！");
+          ElMessage.info('已经添加了所有推荐城市！');
           return;
         }
 
         // 随机选择3-5个城市
         const numToAdd = Math.min(
           Math.floor(Math.random() * 3) + 3,
-          allAvailableCities.length,
+          allAvailableCities.length
         );
         const citiesContainer = [...allAvailableCities];
         const citiesToAdd = [];
 
         for (let i = 0; i < numToAdd; i++) {
           const randomIndex = Math.floor(
-            Math.random() * citiesContainer.length,
+            Math.random() * citiesContainer.length
           );
           citiesToAdd.push(citiesContainer.splice(randomIndex, 1)[0]);
         }
 
         // 批量添加到愿望清单
-        const addPromises = citiesToAdd.map((city) =>
+        const addPromises = citiesToAdd.map(city =>
           wishlistStore.addToWishlist({
             cityCode: city.adcode,
             cityName: city.中文名,
-            reason: "系统智能推荐",
-            tags: ["智能推荐", "精选目的地"],
-          }),
+            reason: '系统智能推荐',
+            tags: ['智能推荐', '精选目的地'],
+          })
         );
 
         await Promise.all(addPromises);
@@ -1013,8 +977,8 @@ export default {
         // 自动展开愿望清单预览
         showWishlistQuickView.value = true;
       } catch (error) {
-        console.error("添加推荐城市失败:", error);
-        ElMessage.error("推荐失败，请重试");
+        console.error('添加推荐城市失败:', error);
+        ElMessage.error('推荐失败，请重试');
       } finally {
         addingRecommendations.value = false;
       }
@@ -1183,7 +1147,7 @@ export default {
   inset: 0;
   background:
     linear-gradient(180deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
-    url("/images/scenarios/weekend_citywalk.jpg");
+    url('/images/scenarios/weekend_citywalk.jpg');
   background-size: cover;
   background-position: center;
   filter: saturate(1.05);
@@ -1243,7 +1207,7 @@ export default {
 }
 
 .search-container h1:after {
-  content: "";
+  content: '';
   position: absolute;
   bottom: -8px;
   left: 50%;
@@ -1353,7 +1317,7 @@ export default {
 }
 
 .letter-item:after {
-  content: "";
+  content: '';
   position: absolute;
   left: 0;
   width: 2px;
@@ -1729,7 +1693,7 @@ export default {
 }
 
 .month-tab.active::after {
-  content: "";
+  content: '';
   position: absolute;
   left: 50%;
   transform: translateX(-50%);

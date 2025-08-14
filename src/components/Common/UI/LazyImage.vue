@@ -6,26 +6,19 @@
     :style="containerStyle"
   >
     <!-- 占位图/骨架屏 -->
-    <div
-v-if="!isLoaded" class="lazy-image-placeholder"
->
-      <div
-v-if="showSkeleton" class="skeleton-shimmer" />
-      <div
-v-else class="gradient-placeholder" />
+    <div v-if="!isLoaded" class="lazy-image-placeholder">
+      <div v-if="showSkeleton" class="skeleton-shimmer" />
+      <div v-else class="gradient-placeholder" />
     </div>
 
     <!-- 实际图片 -->
-    <div v-show="isLoaded"
-class="lazy-image" :style="imageStyle" :title="alt">
+    <div v-show="isLoaded" class="lazy-image" :style="imageStyle" :title="alt">
       <!-- 插槽内容，如覆盖层等 -->
       <slot />
     </div>
 
     <!-- 加载失败占位 -->
-    <div
-v-if="hasError" class="error-placeholder"
->
+    <div v-if="hasError" class="error-placeholder">
       <span class="error-icon">🏞️</span>
       <span class="error-text">图片加载失败</span>
     </div>
@@ -33,10 +26,10 @@ v-if="hasError" class="error-placeholder"
 </template>
 
 <script>
-import { ref, onMounted, onBeforeUnmount, computed, watch } from "vue";
+import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue';
 
 export default {
-  name: "LazyImage",
+  name: 'LazyImage',
   props: {
     src: {
       type: String,
@@ -44,15 +37,15 @@ export default {
     },
     alt: {
       type: String,
-      default: "",
+      default: '',
     },
     width: {
       type: [String, Number],
-      default: "100%",
+      default: '100%',
     },
     height: {
       type: [String, Number],
-      default: "200px",
+      default: '200px',
     },
     showSkeleton: {
       type: Boolean,
@@ -60,7 +53,7 @@ export default {
     },
     rootMargin: {
       type: String,
-      default: "50px",
+      default: '50px',
     },
     threshold: {
       type: Number,
@@ -76,19 +69,19 @@ export default {
 
     // 容器样式
     const containerStyle = computed(() => ({
-      width: typeof props.width === "number" ? `${props.width}px` : props.width,
+      width: typeof props.width === 'number' ? `${props.width}px` : props.width,
       height:
-        typeof props.height === "number" ? `${props.height}px` : props.height,
+        typeof props.height === 'number' ? `${props.height}px` : props.height,
     }));
 
     // 图片样式
     const imageStyle = computed(() => ({
-      backgroundImage: isLoaded.value ? `url(${props.src})` : "none",
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      backgroundRepeat: "no-repeat",
-      width: "100%",
-      height: "100%",
+      backgroundImage: isLoaded.value ? `url(${props.src})` : 'none',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      width: '100%',
+      height: '100%',
     }));
 
     // 加载图片
@@ -107,7 +100,7 @@ export default {
         // 添加淡入效果的延迟
         setTimeout(() => {
           if (imageContainer.value) {
-            imageContainer.value.classList.add("fade-in");
+            imageContainer.value.classList.add('fade-in');
           }
         }, 50);
       };
@@ -130,7 +123,7 @@ export default {
       }
 
       observer.value = new IntersectionObserver(
-        (entries) => {
+        entries => {
           const entry = entries[0];
           if (entry.isIntersecting) {
             loadImage();
@@ -143,7 +136,7 @@ export default {
         {
           rootMargin: props.rootMargin,
           threshold: props.threshold,
-        },
+        }
       );
 
       if (imageContainer.value) {
@@ -166,7 +159,7 @@ export default {
             observer.value.observe(imageContainer.value);
           }
         }
-      },
+      }
     );
 
     onMounted(() => {

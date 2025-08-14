@@ -1,14 +1,10 @@
 <template>
   <div class="profile-page">
     <div class="profile-header">
-      <el-avatar
-:src="userStore.avatar" :size="72"
-/>
+      <el-avatar :src="userStore.avatar" :size="72" />
       <div class="profile-basic">
         <h2>{{ userStore.nickname }}</h2>
-        <p
-v-if="userStore.email" class="email"
->
+        <p v-if="userStore.email" class="email">
           {{ userStore.email }}
         </p>
       </div>
@@ -18,45 +14,31 @@ v-if="userStore.email" class="email"
 
     <el-card class="quick-nav">
       <div class="grid">
-        <div
-class="grid-item" @click="openSecurity()"
->
+        <div class="grid-item" @click="openSecurity()">
           <el-icon><Lock /></el-icon>
           <span class="title">安全设置</span>
         </div>
-        <div
-class="grid-item" @click="openPreferences()"
->
+        <div class="grid-item" @click="openPreferences()">
           <el-icon><Setting /></el-icon>
           <span class="title">个性化设置</span>
         </div>
-        <div
-class="grid-item" @click="openNotifications()"
->
+        <div class="grid-item" @click="openNotifications()">
           <el-icon><Bell /></el-icon>
           <span class="title">通知设置</span>
         </div>
-        <div
-class="grid-item" @click="openSystem()"
->
+        <div class="grid-item" @click="openSystem()">
           <el-icon><Cpu /></el-icon>
           <span class="title">系统设置</span>
         </div>
-        <div
-class="grid-item" @click="openHistory()"
->
+        <div class="grid-item" @click="openHistory()">
           <el-icon><Timer /></el-icon>
           <span class="title">登录历史</span>
         </div>
-        <div
-class="grid-item" @click="openData()"
->
+        <div class="grid-item" @click="openData()">
           <el-icon><Document /></el-icon>
           <span class="title">隐私设置</span>
         </div>
-        <div
-class="grid-item danger" @click="openDanger()"
->
+        <div class="grid-item danger" @click="openDanger()">
           <el-icon><Warning /></el-icon>
           <span class="title">删除账户</span>
         </div>
@@ -76,7 +58,7 @@ class="grid-item danger" @click="openDanger()"
         <div class="row">
           <span class="label">手机号</span>
           <span class="value">{{
-            userStore.currentUser?.phone || "未绑定"
+            userStore.currentUser?.phone || '未绑定'
           }}</span>
         </div>
         <div class="row">
@@ -92,9 +74,7 @@ class="grid-item danger" @click="openDanger()"
             <span>我的偏好</span>
           </div>
         </template>
-        <div
-v-if="parsedPreferences.mbtiType" class="summary-row"
->
+        <div v-if="parsedPreferences.mbtiType" class="summary-row">
           <img
             class="mbti-badge"
             :src="`/images/mbti/${parsedPreferences.mbtiType}.png`"
@@ -104,34 +84,23 @@ v-if="parsedPreferences.mbtiType" class="summary-row"
             {{ getMbtiName(parsedPreferences.mbtiType) }}
           </span>
         </div>
-        <div
-v-if="summaryTransportText" class="summary-row"
->
+        <div v-if="summaryTransportText" class="summary-row">
           <span class="summary-label">交通方式</span>
           <span class="summary-text">{{ summaryTransportText }}</span>
         </div>
-        <div
-v-if="summaryPaceText" class="summary-row"
->
+        <div v-if="summaryPaceText" class="summary-row">
           <span class="summary-label">旅行节奏</span>
           <span class="summary-text">{{ summaryPaceText }}</span>
         </div>
-        <div
-v-if="summaryDietText" class="summary-row"
->
+        <div v-if="summaryDietText" class="summary-row">
           <span class="summary-label">饮食偏好</span>
           <span class="summary-text">{{ summaryDietText }}</span>
         </div>
       </el-card>
     </div>
   </div>
-  <el-drawer
-v-model="showPref" title="个性化设置"
-size="60%" destroy-on-close
->
-    <Preferences
-embedded @saved="onPrefSaved"
-/>
+  <el-drawer v-model="showPref" title="个性化设置" size="60%" destroy-on-close>
+    <Preferences embedded @saved="onPrefSaved" />
   </el-drawer>
 
   <el-drawer
@@ -152,45 +121,33 @@ embedded @saved="onPrefSaved"
     <Notifications embedded />
   </el-drawer>
 
-  <el-drawer
-v-model="showSystem" title="系统设置"
-size="60%" destroy-on-close
->
+  <el-drawer v-model="showSystem" title="系统设置" size="60%" destroy-on-close>
     <SystemSettings embedded />
   </el-drawer>
 
-  <el-drawer
-v-model="showHistory" title="登录历史"
-size="60%" destroy-on-close
->
+  <el-drawer v-model="showHistory" title="登录历史" size="60%" destroy-on-close>
     <LoginHistory embedded />
   </el-drawer>
 
-  <el-drawer
-v-model="showData" title="隐私设置"
-size="60%" destroy-on-close
->
+  <el-drawer v-model="showData" title="隐私设置" size="60%" destroy-on-close>
     <DataAndPrivacy embedded />
   </el-drawer>
 
-  <el-drawer
-v-model="showDanger" title="删除账户"
-size="60%" destroy-on-close
->
+  <el-drawer v-model="showDanger" title="删除账户" size="60%" destroy-on-close>
     <DangerZone embedded />
   </el-drawer>
 </template>
 
 <script>
-import { computed, onMounted, ref } from "vue";
-import { useRouter } from "vue-router";
-import { useUserStore } from "@/store/user.js";
+import { computed, onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useUserStore } from '@/store/user.js';
 // 自定义日期格式化函数
 const formatDate = (date, options = {}) => {
-  if (!date) return "";
-  const defaultOptions = { year: "numeric", month: "long", day: "numeric" };
+  if (!date) return '';
+  const defaultOptions = { year: 'numeric', month: 'long', day: 'numeric' };
   try {
-    return new Intl.DateTimeFormat("zh-CN", {
+    return new Intl.DateTimeFormat('zh-CN', {
       ...defaultOptions,
       ...options,
     }).format(new Date(date));
@@ -206,19 +163,19 @@ import {
   Timer,
   Document,
   Warning,
-} from "@element-plus/icons-vue";
-import UserCenterNav from "@/components/User/UserCenterNav.vue";
-import { translateTag, getMbtiName } from "@/utils/tagMapping.js";
-import Preferences from "../Settings/Preferences.vue";
-import Security from "../Settings/Security.vue";
-import Notifications from "../Settings/Notifications.vue";
-import SystemSettings from "../Settings/SystemSettings.vue";
-import LoginHistory from "../Settings/LoginHistory.vue";
-import DataAndPrivacy from "../Settings/DataAndPrivacy.vue";
-import DangerZone from "../Settings/DangerZone.vue";
+} from '@element-plus/icons-vue';
+import UserCenterNav from '@/components/User/UserCenterNav.vue';
+import { translateTag, getMbtiName } from '@/utils/tagMapping.js';
+import Preferences from '../Settings/Preferences.vue';
+import Security from '../Settings/Security.vue';
+import Notifications from '../Settings/Notifications.vue';
+import SystemSettings from '../Settings/SystemSettings.vue';
+import LoginHistory from '../Settings/LoginHistory.vue';
+import DataAndPrivacy from '../Settings/DataAndPrivacy.vue';
+import DangerZone from '../Settings/DangerZone.vue';
 
 export default {
-  name: "Profile",
+  name: 'Profile',
   components: {
     UserCenterNav,
     Preferences,
@@ -249,17 +206,17 @@ export default {
 
     const joinDateText = computed(() => {
       const ts = userStore.currentUser?.createTime;
-      if (!ts) return "";
+      if (!ts) return '';
       try {
         const date = new Date(ts);
-        const pretty = formatDate(date, { year: "numeric", month: "long" });
+        const pretty = formatDate(date, { year: 'numeric', month: 'long' });
         return `加入于 ${pretty}`;
       } catch (e) {
-        return "";
+        return '';
       }
     });
 
-    const goAccountSettings = () => router.push("/account-settings");
+    const goAccountSettings = () => router.push('/account-settings');
     const goPreferences = () => (showPref.value = true);
     const openSecurity = () => (showSecurity.value = true);
     const openPreferences = () => {
@@ -279,7 +236,7 @@ export default {
       try {
         const preferences = userStore.currentUser?.preferences;
         if (!preferences) return {};
-        return typeof preferences === "string"
+        return typeof preferences === 'string'
           ? JSON.parse(preferences)
           : preferences;
       } catch {
@@ -291,13 +248,13 @@ export default {
       return transports.length
         ? transports
             .slice(0, 3)
-            .map((x) => translateTag(x))
-            .join("、")
-        : "";
+            .map(x => translateTag(x))
+            .join('、')
+        : '';
     });
     const summaryPaceText = computed(() => {
       const pace = parsedPreferences.value.travelPace;
-      return pace ? translateTag(pace) : "";
+      return pace ? translateTag(pace) : '';
     });
     const summaryDietText = computed(() => {
       const tastes = parsedPreferences.value.foodTastes || [];
@@ -307,21 +264,21 @@ export default {
         parts.push(
           tastes
             .slice(0, 2)
-            .map((x) => translateTag(x))
-            .join("、"),
+            .map(x => translateTag(x))
+            .join('、')
         );
       if (restrictions.length)
         parts.push(
           restrictions
             .slice(0, 2)
-            .map((x) => translateTag(x, "dietary"))
-            .join("、"),
+            .map(x => translateTag(x, 'dietary'))
+            .join('、')
         );
-      return parts.join(" · ");
+      return parts.join(' · ');
     });
 
     onMounted(() => {
-      if (!userStore.isLoggedIn) router.push("/login");
+      if (!userStore.isLoggedIn) router.push('/login');
     });
 
     return {
@@ -387,7 +344,7 @@ export default {
   overflow: hidden;
 }
 .profile-header::after {
-  content: "";
+  content: '';
   position: absolute;
   right: -40px;
   top: -40px;
@@ -553,7 +510,7 @@ export default {
   padding-left: 10px;
 }
 .card-header::before {
-  content: "";
+  content: '';
   position: absolute;
   left: 0;
   top: 50%;

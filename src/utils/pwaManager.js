@@ -3,8 +3,8 @@
  * 处理Service Worker注册、更新、离线检测等
  */
 
-import { ref, computed } from "vue";
-import { ElMessage, ElNotification } from "element-plus";
+import { ref, computed } from 'vue';
+import { ElMessage, ElNotification } from 'element-plus';
 
 /**
  * PWA管理器类
@@ -34,7 +34,7 @@ class PWAManager {
     this.setupInstallPrompt();
 
     // 注册Service Worker
-    if ("serviceWorker" in navigator) {
+    if ('serviceWorker' in navigator) {
       await this.registerServiceWorker();
     }
 
@@ -48,9 +48,9 @@ class PWAManager {
   checkInstallStatus() {
     // 检查是否在独立模式下运行（已安装）
     this.isInstalled.value =
-      window.matchMedia("(display-mode: standalone)").matches ||
+      window.matchMedia('(display-mode: standalone)').matches ||
       window.navigator.standalone ||
-      document.referrer.includes("android-app://");
+      document.referrer.includes('android-app://');
   }
 
   /**
@@ -63,8 +63,8 @@ class PWAManager {
 
       if (navigator.onLine && wasOffline) {
         ElNotification.success({
-          title: "网络已恢复",
-          message: "您现在可以正常使用所有功能了",
+          title: '网络已恢复',
+          message: '您现在可以正常使用所有功能了',
           duration: 3000,
         });
 
@@ -72,22 +72,22 @@ class PWAManager {
         this.syncOfflineData();
       } else if (!navigator.onLine) {
         ElNotification.warning({
-          title: "网络连接断开",
-          message: "应用将切换到离线模式",
+          title: '网络连接断开',
+          message: '应用将切换到离线模式',
           duration: 3000,
         });
       }
     };
 
-    window.addEventListener("online", updateOnlineStatus);
-    window.addEventListener("offline", updateOnlineStatus);
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
   }
 
   /**
    * 设置安装提示
    */
   setupInstallPrompt() {
-    window.addEventListener("beforeinstallprompt", (e) => {
+    window.addEventListener('beforeinstallprompt', e => {
       e.preventDefault();
       this.deferredPrompt = e;
 
@@ -96,13 +96,13 @@ class PWAManager {
     });
 
     // 监听安装完成事件
-    window.addEventListener("appinstalled", () => {
+    window.addEventListener('appinstalled', () => {
       this.isInstalled.value = true;
       this.deferredPrompt = null;
 
       ElNotification.success({
-        title: "安装成功",
-        message: "GoingTour已成功安装到您的设备",
+        title: '安装成功',
+        message: 'GoingTour已成功安装到您的设备',
         duration: 3000,
       });
     });
@@ -115,12 +115,12 @@ class PWAManager {
     if (!this.deferredPrompt || this.isInstalled.value) return;
 
     ElNotification({
-      title: "安装应用",
-      message: "将GoingTour添加到主屏幕，获得更好的使用体验",
-      type: "info",
+      title: '安装应用',
+      message: '将GoingTour添加到主屏幕，获得更好的使用体验',
+      type: 'info',
       duration: 0,
       showClose: true,
-      customClass: "install-prompt",
+      customClass: 'install-prompt',
       dangerouslyUseHTMLString: true,
       message: `
         <p>将GoingTour添加到主屏幕，获得更好的使用体验</p>
@@ -131,20 +131,20 @@ class PWAManager {
       `,
       onClose: () => {
         // 用户关闭了提示，24小时后再显示
-        localStorage.setItem("install-prompt-dismissed", Date.now().toString());
+        localStorage.setItem('install-prompt-dismissed', Date.now().toString());
       },
     });
 
     // 绑定按钮事件
     setTimeout(() => {
-      const installBtn = document.getElementById("install-btn");
-      const dismissBtn = document.getElementById("dismiss-btn");
+      const installBtn = document.getElementById('install-btn');
+      const dismissBtn = document.getElementById('dismiss-btn');
 
       if (installBtn) {
         installBtn.onclick = () => {
           this.installApp();
           document
-            .querySelector(".install-prompt .el-notification__closeBtn")
+            .querySelector('.install-prompt .el-notification__closeBtn')
             .click();
         };
       }
@@ -152,11 +152,11 @@ class PWAManager {
       if (dismissBtn) {
         dismissBtn.onclick = () => {
           localStorage.setItem(
-            "install-prompt-dismissed",
-            Date.now().toString(),
+            'install-prompt-dismissed',
+            Date.now().toString()
           );
           document
-            .querySelector(".install-prompt .el-notification__closeBtn")
+            .querySelector('.install-prompt .el-notification__closeBtn')
             .click();
         };
       }
@@ -173,15 +173,15 @@ class PWAManager {
       this.deferredPrompt.prompt();
       const { outcome } = await this.deferredPrompt.userChoice;
 
-      if (outcome === "accepted") {
-        console.log("用户接受了安装提示");
+      if (outcome === 'accepted') {
+        console.log('用户接受了安装提示');
         return true;
       } else {
-        console.log("用户拒绝了安装提示");
+        console.log('用户拒绝了安装提示');
         return false;
       }
     } catch (error) {
-      console.error("安装失败:", error);
+      console.error('安装失败:', error);
       return false;
     } finally {
       this.deferredPrompt = null;
@@ -193,20 +193,20 @@ class PWAManager {
    */
   async registerServiceWorker() {
     try {
-      const registration = await navigator.serviceWorker.register("/sw.js", {
-        scope: "/",
+      const registration = await navigator.serviceWorker.register('/sw.js', {
+        scope: '/',
       });
 
       this.registration = registration;
-      console.log("Service Worker注册成功:", registration);
+      console.log('Service Worker注册成功:', registration);
 
       // 监听更新
-      registration.addEventListener("updatefound", () => {
+      registration.addEventListener('updatefound', () => {
         const newWorker = registration.installing;
 
-        newWorker.addEventListener("statechange", () => {
+        newWorker.addEventListener('statechange', () => {
           if (
-            newWorker.state === "installed" &&
+            newWorker.state === 'installed' &&
             navigator.serviceWorker.controller
           ) {
             this.isUpdateAvailable.value = true;
@@ -216,11 +216,11 @@ class PWAManager {
       });
 
       // 监听控制器变化
-      navigator.serviceWorker.addEventListener("controllerchange", () => {
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
         window.location.reload();
       });
     } catch (error) {
-      console.error("Service Worker注册失败:", error);
+      console.error('Service Worker注册失败:', error);
     }
   }
 
@@ -229,12 +229,12 @@ class PWAManager {
    */
   showUpdatePrompt() {
     ElNotification({
-      title: "应用更新",
-      message: "发现新版本，是否立即更新？",
-      type: "info",
+      title: '应用更新',
+      message: '发现新版本，是否立即更新？',
+      type: 'info',
       duration: 0,
       showClose: true,
-      customClass: "update-prompt",
+      customClass: 'update-prompt',
       dangerouslyUseHTMLString: true,
       message: `
         <p>发现新版本，包含性能优化和新功能</p>
@@ -247,14 +247,14 @@ class PWAManager {
 
     // 绑定按钮事件
     setTimeout(() => {
-      const updateBtn = document.getElementById("update-btn");
-      const laterBtn = document.getElementById("later-btn");
+      const updateBtn = document.getElementById('update-btn');
+      const laterBtn = document.getElementById('later-btn');
 
       if (updateBtn) {
         updateBtn.onclick = () => {
           this.applyUpdate();
           document
-            .querySelector(".update-prompt .el-notification__closeBtn")
+            .querySelector('.update-prompt .el-notification__closeBtn')
             .click();
         };
       }
@@ -262,7 +262,7 @@ class PWAManager {
       if (laterBtn) {
         laterBtn.onclick = () => {
           document
-            .querySelector(".update-prompt .el-notification__closeBtn")
+            .querySelector('.update-prompt .el-notification__closeBtn')
             .click();
         };
       }
@@ -276,21 +276,21 @@ class PWAManager {
     if (!this.registration || !this.registration.waiting) return;
 
     // 发送跳过等待消息
-    this.registration.waiting.postMessage({ type: "SKIP_WAITING" });
+    this.registration.waiting.postMessage({ type: 'SKIP_WAITING' });
   }
 
   /**
    * 设置推送通知
    */
   async setupPushNotifications() {
-    if (!("Notification" in window) || !("serviceWorker" in navigator)) {
+    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
       return;
     }
 
     // 检查通知权限
-    if (Notification.permission === "default") {
+    if (Notification.permission === 'default') {
       // 可以在适当的时候请求权限
-      console.log("可以请求通知权限");
+      console.log('可以请求通知权限');
     }
   }
 
@@ -298,31 +298,31 @@ class PWAManager {
    * 请求通知权限
    */
   async requestNotificationPermission() {
-    if (!("Notification" in window)) {
-      ElMessage.warning("您的浏览器不支持通知功能");
+    if (!('Notification' in window)) {
+      ElMessage.warning('您的浏览器不支持通知功能');
       return false;
     }
 
-    if (Notification.permission === "granted") {
+    if (Notification.permission === 'granted') {
       return true;
     }
 
-    if (Notification.permission === "denied") {
-      ElMessage.warning("通知权限已被拒绝，请在浏览器设置中启用");
+    if (Notification.permission === 'denied') {
+      ElMessage.warning('通知权限已被拒绝，请在浏览器设置中启用');
       return false;
     }
 
     try {
       const permission = await Notification.requestPermission();
-      if (permission === "granted") {
-        ElMessage.success("通知权限已开启");
+      if (permission === 'granted') {
+        ElMessage.success('通知权限已开启');
         return true;
       } else {
-        ElMessage.info("通知权限被拒绝");
+        ElMessage.info('通知权限被拒绝');
         return false;
       }
     } catch (error) {
-      console.error("请求通知权限失败:", error);
+      console.error('请求通知权限失败:', error);
       return false;
     }
   }
@@ -331,11 +331,11 @@ class PWAManager {
    * 发送本地通知
    */
   sendNotification(title, options = {}) {
-    if (Notification.permission !== "granted") return;
+    if (Notification.permission !== 'granted') return;
 
     const defaultOptions = {
-      icon: "/icons/icon-192x192.png",
-      badge: "/icons/badge-72x72.png",
+      icon: '/icons/icon-192x192.png',
+      badge: '/icons/badge-72x72.png',
       vibrate: [200, 100, 200],
       ...options,
     };
@@ -356,10 +356,10 @@ class PWAManager {
     if (!this.registration || !this.registration.sync) return;
 
     try {
-      await this.registration.sync.register("background-sync-trips");
-      console.log("后台同步已注册");
+      await this.registration.sync.register('background-sync-trips');
+      console.log('后台同步已注册');
     } catch (error) {
-      console.error("后台同步注册失败:", error);
+      console.error('后台同步注册失败:', error);
     }
   }
 
@@ -369,15 +369,13 @@ class PWAManager {
   async clearCache() {
     try {
       const cacheNames = await caches.keys();
-      await Promise.all(
-        cacheNames.map((cacheName) => caches.delete(cacheName)),
-      );
+      await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
 
-      ElMessage.success("缓存已清理");
+      ElMessage.success('缓存已清理');
       return true;
     } catch (error) {
-      console.error("清理缓存失败:", error);
-      ElMessage.error("清理缓存失败");
+      console.error('清理缓存失败:', error);
+      ElMessage.error('清理缓存失败');
       return false;
     }
   }
@@ -386,7 +384,7 @@ class PWAManager {
    * 获取缓存大小
    */
   async getCacheSize() {
-    if (!("storage" in navigator) || !("estimate" in navigator.storage)) {
+    if (!('storage' in navigator) || !('estimate' in navigator.storage)) {
       return null;
     }
 
@@ -399,7 +397,7 @@ class PWAManager {
         quotaMB: (estimate.quota / 1024 / 1024).toFixed(2),
       };
     } catch (error) {
-      console.error("获取缓存大小失败:", error);
+      console.error('获取缓存大小失败:', error);
       return null;
     }
   }
@@ -436,7 +434,7 @@ export function usePWA() {
  */
 export class OfflineDataManager {
   constructor() {
-    this.dbName = "GoingTourOffline";
+    this.dbName = 'GoingTourOffline';
     this.dbVersion = 1;
     this.db = null;
   }
@@ -454,23 +452,23 @@ export class OfflineDataManager {
         resolve(this.db);
       };
 
-      request.onupgradeneeded = (event) => {
+      request.onupgradeneeded = event => {
         const db = event.target.result;
 
         // 创建行程存储
-        if (!db.objectStoreNames.contains("trips")) {
-          const tripStore = db.createObjectStore("trips", { keyPath: "id" });
-          tripStore.createIndex("userId", "userId", { unique: false });
-          tripStore.createIndex("createdAt", "createdAt", { unique: false });
+        if (!db.objectStoreNames.contains('trips')) {
+          const tripStore = db.createObjectStore('trips', { keyPath: 'id' });
+          tripStore.createIndex('userId', 'userId', { unique: false });
+          tripStore.createIndex('createdAt', 'createdAt', { unique: false });
         }
 
         // 创建待同步数据存储
-        if (!db.objectStoreNames.contains("pendingSync")) {
-          const syncStore = db.createObjectStore("pendingSync", {
-            keyPath: "id",
+        if (!db.objectStoreNames.contains('pendingSync')) {
+          const syncStore = db.createObjectStore('pendingSync', {
+            keyPath: 'id',
           });
-          syncStore.createIndex("type", "type", { unique: false });
-          syncStore.createIndex("createdAt", "createdAt", { unique: false });
+          syncStore.createIndex('type', 'type', { unique: false });
+          syncStore.createIndex('createdAt', 'createdAt', { unique: false });
         }
       };
     });
@@ -483,7 +481,7 @@ export class OfflineDataManager {
     if (!this.db) await this.init();
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction([storeName], "readwrite");
+      const transaction = this.db.transaction([storeName], 'readwrite');
       const store = transaction.objectStore(storeName);
       const request = store.put(data);
 
@@ -499,7 +497,7 @@ export class OfflineDataManager {
     if (!this.db) await this.init();
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction([storeName], "readonly");
+      const transaction = this.db.transaction([storeName], 'readonly');
       const store = transaction.objectStore(storeName);
       const request = store.get(key);
 
@@ -515,7 +513,7 @@ export class OfflineDataManager {
     if (!this.db) await this.init();
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction([storeName], "readonly");
+      const transaction = this.db.transaction([storeName], 'readonly');
       const store = transaction.objectStore(storeName);
       const request = store.getAll();
 
@@ -531,7 +529,7 @@ export class OfflineDataManager {
     if (!this.db) await this.init();
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction([storeName], "readwrite");
+      const transaction = this.db.transaction([storeName], 'readwrite');
       const store = transaction.objectStore(storeName);
       const request = store.delete(key);
 
