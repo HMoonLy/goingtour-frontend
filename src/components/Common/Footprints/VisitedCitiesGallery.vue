@@ -168,9 +168,9 @@ const normalizePhotoUrl = url => {
 
 const getCoverUrl = city => coverMap.value[city.id] || '';
 
-const refreshCoverForCity = async cityId => {
+const refreshCoverForCity = async (cityId, bustCache = false) => {
   try {
-    const photos = await wishlistStore.getCityPhotos(cityId);
+    const photos = await wishlistStore.getCityPhotos(cityId, bustCache);
     if (photos && photos.length > 0) {
       const cover = photos.find(p => p.isCover) || photos[0];
       // 优先使用缩略图，如果没有则使用原图
@@ -182,9 +182,13 @@ const refreshCoverForCity = async cityId => {
       imageUrl = normalizePhotoUrl(imageUrl);
       
       if (imageUrl) {
+        // 添加缓存破坏参数，确保显示最新照片
+        const cacheBuster = `?t=${Date.now()}`;
+        const finalUrl = imageUrl + cacheBuster;
+        
         coverMap.value = {
           ...coverMap.value,
-          [cityId]: imageUrl,
+          [cityId]: finalUrl,
         };
       } else {
         // 如果是占位符或无有效照片，从 coverMap 中移除
@@ -254,7 +258,8 @@ const uploadPhoto = async file => {
 
     if (result) {
       ElMessage.success(`${currentCity.value.cityName} 的照片上传成功！`);
-      await refreshCoverForCity(currentCity.value.id);
+      // 使用缓存破坏强制刷新最新照片
+      await refreshCoverForCity(currentCity.value.id, true);
       emit('photo-uploaded', currentCity.value);
     } else {
       ElMessage.error('照片上传失败，请重试');
@@ -299,7 +304,8 @@ const handleDeletePhoto = async city => {
     const ok = await wishlistStore.deletePhoto(cover.id);
     if (ok) {
       ElMessage.success(`${city.cityName} 的照片已删除`);
-      await refreshCoverForCity(city.id);
+      // 使用缓存破坏强制刷新
+      await refreshCoverForCity(city.id, true);
       emit('photo-deleted', city);
     } else {
       ElMessage.error('照片删除失败，请重试');
