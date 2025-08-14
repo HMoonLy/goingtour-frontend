@@ -80,7 +80,7 @@ export const useWishlistStore = defineStore('wishlist', () => {
         const { useUserStore } = await
         import ('@/store/user.js');
         const userStore = useUserStore();
-        const userId = userStore.currentUser ? .id || userStore.userId;
+        const userId = userStore.currentUser?.id || userStore.userId;
 
         if (!userId) {
             console.warn('用户未登录，无法加载愿望清单');
@@ -107,7 +107,7 @@ export const useWishlistStore = defineStore('wishlist', () => {
         const { useUserStore } = await
         import ('@/store/user.js');
         const userStore = useUserStore();
-        const userId = userStore.currentUser ? .id || userStore.userId;
+        const userId = userStore.currentUser?.id || userStore.userId;
 
         if (!userId) {
             ElMessage.warning('请先登录');
@@ -157,7 +157,7 @@ export const useWishlistStore = defineStore('wishlist', () => {
         const { useUserStore } = await
         import ('@/store/user.js');
         const userStore = useUserStore();
-        const userId = userStore.currentUser ? .id || userStore.userId;
+        const userId = userStore.currentUser?.id || userStore.userId;
 
         if (!userId) return false;
 
@@ -203,7 +203,7 @@ export const useWishlistStore = defineStore('wishlist', () => {
         const { useUserStore } = await
         import ('@/store/user.js');
         const userStore = useUserStore();
-        const userId = userStore.currentUser ? .id || userStore.userId;
+        const userId = userStore.currentUser?.id || userStore.userId;
 
         if (!userId) {
             console.error('❌ 用户ID不存在，当前用户状态:', {
@@ -233,7 +233,7 @@ export const useWishlistStore = defineStore('wishlist', () => {
                     updatedAt: new Date().toISOString(),
                 };
 
-                const statusText = newStatus === 'visited' ? '去过' : '想去';
+                const statusText = newStatus === 'visited'?'去过' : '想去';
                 ElMessage.success(`已将 ${cityName} 标记为${statusText}`);
             }
 
@@ -252,7 +252,7 @@ export const useWishlistStore = defineStore('wishlist', () => {
         const { useUserStore } = await
         import ('@/store/user.js');
         const userStore = useUserStore();
-        const userId = userStore.currentUser ? .id || userStore.userId;
+        const userId = userStore.currentUser?.id || userStore.userId;
 
         if (!userId) return false;
 
@@ -276,7 +276,7 @@ export const useWishlistStore = defineStore('wishlist', () => {
                 }
             });
 
-            const statusText = newStatus === 'visited' ? '去过' : '想去';
+            const statusText = newStatus === 'visited'?'去过' : '想去';
             ElMessage.success(`已批量标记 ${cityIds.length} 个城市为${statusText}`);
             return true;
         } catch (error) {
@@ -293,7 +293,7 @@ export const useWishlistStore = defineStore('wishlist', () => {
         const { useUserStore } = await
         import ('@/store/user.js');
         const userStore = useUserStore();
-        const userId = userStore.currentUser ? .id || userStore.userId;
+        const userId = userStore.currentUser?.id || userStore.userId;
 
         if (!userId) return false;
 

@@ -3,12 +3,26 @@
     <!-- 标题区域 -->
     <div class="gallery-header">
       <div class="header-title">
-        <el-icon size="20"><Camera /></el-icon>
-        <h3>去过的城市</h3>
-        <span v-if="visitedCities.length > 0" class="photo-count"
-          >({{ visitedCities.length }}个城市
-          <template v-if="visitedCities.length > 12">，可滚动查看</template>)</span
+        <el-icon size="20" class="title-icon"><Camera /></el-icon>
+        <h3 class="title-text">去过的城市</h3>
+        <span v-if="visitedCities.length > 0" class="photo-count">
+          ({{ visitedCities.length }}个城市)
+        </span>
+      </div>
+      
+      <!-- 展开/收起按钮 -->
+      <div v-if="needsToggle" class="toggle-section">
+        <el-button 
+          type="text" 
+          size="small" 
+          class="toggle-btn"
+          @click="toggleExpanded"
         >
+          <span>{{ isExpanded ? '收起' : `展示更多 (${visitedCities.length - maxDisplayCount}+)` }}</span>
+          <el-icon class="toggle-icon" :class="{ 'expanded': isExpanded }">
+            <ArrowDown />
+          </el-icon>
+        </el-button>
       </div>
     </div>
 
@@ -17,7 +31,7 @@
       <!-- 有去过城市的情况 -->
       <div v-if="visitedCities.length > 0" class="photos-grid">
         <div
-          v-for="(city, index) in visitedCities"
+          v-for="(city, index) in displayedCities"
           :key="city.id"
           class="city-photo-item"
           :style="{ animationDelay: `${index * 0.1}s` }"
@@ -122,7 +136,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { Camera, Plus, Delete, CameraFilled } from '@element-plus/icons-vue';
+import { Camera, Plus, Delete, CameraFilled, ArrowDown } from '@element-plus/icons-vue';
 import { useWishlistStore } from '@/store/wishlist.js';
 import { getCityPhotoUrl, getCityThumbnailUrl } from '@/utils/media/imageUrl.js';
 
@@ -153,6 +167,8 @@ const fileInput = ref(null);
 const currentCity = ref(null);
 const uploading = ref(false);
 const coverMap = ref({}); // wishlistItemId -> cover URL
+const isExpanded = ref(false); // 展开/收起状态
+const maxDisplayCount = ref(10); // 默认显示的城市数量
 
 // 方法
 
@@ -167,6 +183,24 @@ const normalizePhotoUrl = url => {
 };
 
 const getCoverUrl = city => coverMap.value[city.id] || '';
+
+// 计算显示的城市列表
+const displayedCities = computed(() => {
+  if (isExpanded.value || props.visitedCities.length <= maxDisplayCount.value) {
+    return props.visitedCities;
+  }
+  return props.visitedCities.slice(0, maxDisplayCount.value);
+});
+
+// 是否需要显示展开/收起按钮
+const needsToggle = computed(() => {
+  return props.visitedCities.length > maxDisplayCount.value;
+});
+
+// 切换展开/收起状态
+const toggleExpanded = () => {
+  isExpanded.value = !isExpanded.value;
+};
 
 const refreshCoverForCity = async (cityId, bustCache = false) => {
   try {
@@ -547,26 +581,85 @@ const formatVisitDate = dateString => {
   margin-bottom: 20px;
   padding-bottom: 16px;
   border-bottom: 1px solid rgba(145, 168, 208, 0.15);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .header-title {
   display: flex;
   align-items: center;
   gap: 12px;
-  color: #91a8d0;
+  flex: 1;
+  min-width: 0;
 }
 
-.header-title h3 {
+.title-icon {
+  color: #91a8d0;
+  flex-shrink: 0;
+}
+
+.title-text {
   margin: 0;
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 700;
   color: #1f2937;
   letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  flex-shrink: 0;
 }
 
 .photo-count {
-  font-size: 12px;
+  font-size: 13px;
   color: #6b7280;
+  font-weight: 500;
+  background: rgba(145, 168, 208, 0.08);
+  padding: 4px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+/* 展开/收起按钮区域 */
+.toggle-section {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px !important;
+  border-radius: 20px !important;
+  background: linear-gradient(135deg, rgba(145, 168, 208, 0.08) 0%, rgba(247, 202, 201, 0.08) 100%) !important;
+  border: 1px solid rgba(145, 168, 208, 0.15) !important;
+  color: #4a5568 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+  height: auto !important;
+}
+
+.toggle-btn:hover {
+  background: linear-gradient(135deg, rgba(145, 168, 208, 0.12) 0%, rgba(247, 202, 201, 0.12) 100%) !important;
+  border-color: rgba(145, 168, 208, 0.25) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(145, 168, 208, 0.15) !important;
+}
+
+.toggle-icon {
+  transition: transform 0.3s ease;
+  font-size: 14px;
+}
+
+.toggle-icon.expanded {
+  transform: rotate(180deg);
 }
 
 /* 照片展示区域 */
@@ -597,8 +690,7 @@ const formatVisitDate = dateString => {
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 20px;
   padding: 16px 8px;
-  max-height: 600px;
-  overflow-y: auto;
+  transition: all 0.5s ease;
   scroll-behavior: smooth;
   /* 优化滚动条样式 */
   scrollbar-width: thin;
@@ -897,11 +989,35 @@ const formatVisitDate = dateString => {
     border-radius: 16px;
   }
 
+  .gallery-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .header-title {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .title-text {
+    font-size: 18px;
+  }
+
+  .toggle-section {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .toggle-btn {
+    padding: 10px 20px !important;
+    font-size: 14px !important;
+  }
+
   .photos-grid {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 12px;
     padding: 12px 4px;
-    max-height: 450px;
   }
 
   .photo-wrapper {
