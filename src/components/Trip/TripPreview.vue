@@ -1,7 +1,9 @@
 <template>
   <div class="step-content">
-    <el-card class="info-card" shadow="hover">
-      <div v-if="tripData" class="trip-preview">
+    <el-card class="info-card"
+shadow="hover">
+      <div v-if="tripData"
+class="trip-preview">
         <!-- 行程概述 -->
         <div class="trip-summary">
           <div class="summary-header">
@@ -22,14 +24,15 @@
                 </div>
                 <div class="stat-item">
                   <el-icon><Money /></el-icon>
-                  <span>{{ '预计花费' }}：{{ getEstimatedCost() }}</span>
+                  <span>{{ "预计花费" }}：{{ getEstimatedCost() }}</span>
                 </div>
               </div>
             </div>
             <div class="summary-actions">
-              <el-button type="primary" size="large" @click="shareTrip">
+              <el-button type="primary"
+size="large" @click="shareTrip">
                 <el-icon><Share /></el-icon>
-                {{ '分享' }}
+                {{ "分享" }}
               </el-button>
             </div>
           </div>
@@ -82,7 +85,8 @@
                         @confirm="removeActivity(index, activityIndex)"
                       >
                         <template #reference>
-                          <el-button size="small" circle type="danger">
+                          <el-button size="small"
+circle type="danger">
                             <el-icon><Delete /></el-icon>
                           </el-button>
                         </template>
@@ -97,15 +101,19 @@
       </div>
 
       <!-- 加载中状态 -->
-      <div v-else-if="isLoading" class="no-trip-data">
-        <el-skeleton :rows="10" animated />
+      <div v-else-if="isLoading"
+class="no-trip-data">
+        <el-skeleton :rows="10"
+animated />
       </div>
 
       <!-- 无数据状态 -->
-      <div v-else class="no-trip-data">
+      <div v-else
+class="no-trip-data">
         <el-empty :description="'暂无行程数据'">
-          <el-button type="primary" @click="$emit('prev-step')">
-            {{ '生成行程' }}
+          <el-button type="primary"
+@click="$emit('prev-step')">
+            {{ "生成行程" }}
           </el-button>
         </el-empty>
       </div>
@@ -113,9 +121,10 @@
 
     <!-- 步骤操作按钮 -->
     <div class="step-actions">
-      <el-button size="large" @click="$emit('prev-step')">
+      <el-button size="large"
+@click="$emit('prev-step')">
         <el-icon><ArrowLeft /></el-icon>
-        {{ '上一步' }}
+        {{ "上一步" }}
       </el-button>
 
       <el-button
@@ -124,15 +133,15 @@
         :disabled="!tripData"
         @click="saveTrip"
       >
-        {{ '保存行程' }}
+        {{ "保存行程" }}
       </el-button>
     </div>
   </div>
 </template>
 
 <script>
-import { ref, computed, reactive, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, reactive, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import {
   MapLocation,
   Shop,
@@ -143,10 +152,10 @@ import {
   ArrowLeft,
   Delete,
   Refresh,
-} from '@element-plus/icons-vue';
+} from "@element-plus/icons-vue";
 
 export default {
-  name: 'TripPreview',
+  name: "TripPreview",
   components: {
     MapLocation,
     Shop,
@@ -175,24 +184,24 @@ export default {
       default: false,
     },
   },
-  emits: ['regenerate', 'saved', 'prev-step'],
+  emits: ["regenerate", "saved", "prev-step"],
   setup(props, { emit }) {
     // 城市信息数据库
     const cityInfoDatabase = {
       beijing: {
-        name: '北京',
-        description: '千年古都，文化底蕴深厚',
+        name: "北京",
+        description: "千年古都，文化底蕴深厚",
       },
       shanghai: {
-        name: '上海',
-        description: '国际化大都市，东西文化交汇',
+        name: "上海",
+        description: "国际化大都市，东西文化交汇",
       },
     };
 
     // 获取城市名称
     const getSelectedCityName = () => {
       if (!props.baseForm || !props.baseForm.destination) {
-        return '未选择';
+        return "未选择";
       }
 
       const cityCode = props.baseForm.destination;
@@ -207,7 +216,7 @@ export default {
     };
 
     // 格式化日期
-    const formatDayDate = dayIndex => {
+    const formatDayDate = (dayIndex) => {
       if (
         !props.baseForm ||
         !props.baseForm.dateRange ||
@@ -223,12 +232,12 @@ export default {
 
         const month = currentDate.getMonth() + 1;
         const day = currentDate.getDate();
-        const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+        const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
         const weekday = weekdays[currentDate.getDay()];
 
         return `第${dayIndex + 1}天 ${month}月${day}日 (周${weekday})`;
       } catch (error) {
-        console.error('日期格式化失败:', error);
+        console.error("日期格式化失败:", error);
         return `第${dayIndex + 1}天`;
       }
     };
@@ -236,14 +245,14 @@ export default {
     // 获取预算文本
     const getBudgetText = () => {
       const budgetMap = {
-        budget: { text: '经济实惠', price: '约400元/天' },
-        moderate: { text: '适中舒适', price: '约750元/天' },
-        comfort: { text: '舒适便利', price: '约1000元/天' },
-        luxury: { text: '豪华奢华', price: '约1500元/天' },
+        budget: { text: "经济实惠", price: "约400元/天" },
+        moderate: { text: "适中舒适", price: "约750元/天" },
+        comfort: { text: "舒适便利", price: "约1000元/天" },
+        luxury: { text: "豪华奢华", price: "约1500元/天" },
       };
 
       const option = budgetMap[props.baseForm.budget];
-      if (!option) return '';
+      if (!option) return "";
 
       return `${option.text}(${option.price})`;
     };
@@ -256,7 +265,7 @@ export default {
         !props.baseForm.days ||
         !props.baseForm.travelers
       ) {
-        return '计算中...';
+        return "计算中...";
       }
 
       const budgetMap = {
@@ -272,53 +281,53 @@ export default {
 
     // 获取活动标签类型
     const getTagType = (tag, activityType) => {
-      if (activityType === 'attraction') {
-        return 'success'; // 景点
-      } else if (activityType === 'restaurant') {
-        return 'info'; // 餐厅
+      if (activityType === "attraction") {
+        return "success"; // 景点
+      } else if (activityType === "restaurant") {
+        return "info"; // 餐厅
       } else {
-        return 'primary'; // 其他
+        return "primary"; // 其他
       }
     };
 
     // 跳转到生成步骤
     const goToGenerationStep = () => {
-      emit('prev-step'); // 假设第三步（index 2）是生成步骤
+      emit("prev-step"); // 假设第三步（index 2）是生成步骤
     };
 
     // 替换活动
     const replaceActivity = (dayIndex, activityIndex) => {
-      emit('regenerate', dayIndex, activityIndex);
+      emit("regenerate", dayIndex, activityIndex);
     };
 
     // 移除活动
     const removeActivity = (dayIndex, activityIndex) => {
-      emit('regenerate', dayIndex, activityIndex);
+      emit("regenerate", dayIndex, activityIndex);
     };
 
     // 分享行程
     const shareTrip = () => {
-      emit('saved');
+      emit("saved");
     };
 
     // 导出行程
     const exportTrip = () => {
-      emit('saved');
+      emit("saved");
     };
 
     // 预览行程
     const previewTrip = () => {
-      emit('saved');
+      emit("saved");
     };
 
     // 保存行程
     const saveTrip = () => {
-      emit('saved');
+      emit("saved");
     };
 
     // 组件挂载时的处理
     onMounted(() => {
-      console.log('�� TripPreview组件挂载');
+      console.log("�� TripPreview组件挂载");
     });
 
     return {

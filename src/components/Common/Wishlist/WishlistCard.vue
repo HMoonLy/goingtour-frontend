@@ -35,7 +35,8 @@
       <div class="card-actions">
         <!-- 直观操作按钮 -->
         <div class="action-buttons">
-          <el-tooltip content="查看天气" placement="top">
+          <el-tooltip content="查看天气"
+placement="top">
             <el-button
               class="action-btn weather-btn"
               circle
@@ -46,7 +47,8 @@
             </el-button>
           </el-tooltip>
 
-          <el-tooltip content="编辑信息" placement="top">
+          <el-tooltip content="编辑信息"
+placement="top">
             <el-button
               class="action-btn edit-btn"
               circle
@@ -57,7 +59,8 @@
             </el-button>
           </el-tooltip>
 
-          <el-tooltip content="规划行程" placement="top">
+          <el-tooltip content="规划行程"
+placement="top">
             <el-button
               class="action-btn plan-btn"
               circle
@@ -68,7 +71,8 @@
             </el-button>
           </el-tooltip>
 
-          <el-tooltip content="移除城市" placement="top">
+          <el-tooltip content="移除城市"
+placement="top">
             <el-button
               class="action-btn remove-btn"
               circle
@@ -83,7 +87,8 @@
     </div>
 
     <div class="card-content">
-      <div v-if="wishlistItem.reason" class="reason">
+      <div v-if="wishlistItem.reason"
+class="reason">
         <p class="reason-text">
           {{ wishlistItem.reason }}
         </p>
@@ -95,7 +100,8 @@
           <span>{{ formatDate(wishlistItem.createdAt) }}</span>
         </div>
 
-        <div v-if="isCurrentWeatherCity" class="weather-indicator">
+        <div v-if="isCurrentWeatherCity"
+class="weather-indicator">
           <el-icon><View /></el-icon>
           <span>天气预览中</span>
         </div>
@@ -103,8 +109,10 @@
     </div>
 
     <!-- 编辑对话框 -->
-    <el-dialog v-model="editDialogVisible" title="编辑愿望清单" width="400px">
-      <el-form ref="editFormRef" :model="editForm" label-position="top">
+    <el-dialog v-model="editDialogVisible"
+title="编辑愿望清单" width="400px">
+      <el-form ref="editFormRef"
+:model="editForm" label-position="top">
         <el-form-item label="想去的原因">
           <el-input
             v-model="editForm.reason"
@@ -163,7 +171,7 @@
             :disabled="!hasChanges"
             @click="handleSave"
           >
-            {{ hasChanges ? '保存' : '无变更' }}
+            {{ hasChanges ? "保存" : "无变更" }}
           </el-button>
         </div>
       </template>
@@ -172,8 +180,8 @@
 </template>
 
 <script>
-import { ref, computed, nextTick } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ref, computed, nextTick } from "vue";
+import { ElMessage, ElMessageBox } from "element-plus";
 import {
   Sunny,
   Edit,
@@ -182,11 +190,11 @@ import {
   Clock,
   View,
   Plus,
-} from '@element-plus/icons-vue';
-import { useWishlistStore } from '@/store/wishlist.js';
+} from "@element-plus/icons-vue";
+import { useWishlistStore } from "@/store/wishlist.js";
 
 export default {
-  name: 'WishlistCard',
+  name: "WishlistCard",
   components: {
     Sunny,
     Edit,
@@ -206,42 +214,42 @@ export default {
       default: false,
     },
   },
-  emits: ['remove', 'edit', 'view-weather', 'plan-trip'],
+  emits: ["remove", "edit", "view-weather", "plan-trip"],
   setup(props, { emit }) {
     const wishlistStore = useWishlistStore();
 
     // 编辑对话框
     const editDialogVisible = ref(false);
     const editForm = ref({
-      reason: '',
+      reason: "",
       tags: [],
     });
     const saving = ref(false);
 
     // 原始数据，用于检测变更
     const originalData = ref({
-      reason: '',
+      reason: "",
       tags: [],
     });
 
     // 标签输入
     const inputVisible = ref(false);
-    const inputValue = ref('');
+    const inputValue = ref("");
     const inputRef = ref();
 
     // 处理操作命令
-    const handleCommand = async command => {
+    const handleCommand = async (command) => {
       switch (command) {
-        case 'weather':
-          emit('view-weather', props.wishlistItem);
+        case "weather":
+          emit("view-weather", props.wishlistItem);
           break;
-        case 'edit':
+        case "edit":
           openEditDialog();
           break;
-        case 'plan':
-          emit('plan-trip', props.wishlistItem);
+        case "plan":
+          emit("plan-trip", props.wishlistItem);
           break;
-        case 'remove':
+        case "remove":
           await handleRemove();
           break;
       }
@@ -249,7 +257,7 @@ export default {
 
     // 打开编辑对话框
     const openEditDialog = () => {
-      const currentReason = props.wishlistItem.reason || '';
+      const currentReason = props.wishlistItem.reason || "";
       const currentTags = [...(props.wishlistItem.tags || [])];
 
       editForm.value = {
@@ -279,19 +287,19 @@ export default {
     const validateForm = () => {
       // 验证原因长度
       if (editForm.value.reason && editForm.value.reason.length > 200) {
-        ElMessage.warning('想去的原因不能超过200个字符');
+        ElMessage.warning("想去的原因不能超过200个字符");
         return false;
       }
 
       // 验证标签数量和长度
       if (editForm.value.tags.length > 10) {
-        ElMessage.warning('标签数量不能超过10个');
+        ElMessage.warning("标签数量不能超过10个");
         return false;
       }
 
       for (const tag of editForm.value.tags) {
         if (tag.length > 20) {
-          ElMessage.warning('单个标签长度不能超过20个字符');
+          ElMessage.warning("单个标签长度不能超过20个字符");
           return false;
         }
       }
@@ -303,7 +311,7 @@ export default {
     const handleSave = async () => {
       // 检查是否有变更
       if (!hasChanges.value) {
-        ElMessage.info('没有检测到数据变更');
+        ElMessage.info("没有检测到数据变更");
         return;
       }
 
@@ -321,12 +329,12 @@ export default {
           {
             reason: editForm.value.reason,
             tags: editForm.value.tags,
-          }
+          },
         );
 
         if (success) {
           // 发送事件给父组件（如果需要的话）
-          emit('edit', {
+          emit("edit", {
             id: props.wishlistItem.id,
             updateData: {
               reason: editForm.value.reason,
@@ -338,7 +346,7 @@ export default {
           // Store已经显示成功消息，不需要重复显示
         }
       } catch (error) {
-        console.error('保存愿望清单编辑失败:', error);
+        console.error("保存愿望清单编辑失败:", error);
         // Store已经显示错误消息，不需要重复显示
       } finally {
         saving.value = false;
@@ -350,23 +358,23 @@ export default {
       try {
         await ElMessageBox.confirm(
           `确定要将 ${props.wishlistItem.cityName} 从愿望清单中移除吗？`,
-          '确认删除',
+          "确认删除",
           {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning',
-          }
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning",
+          },
         );
 
-        emit('remove', props.wishlistItem.id);
+        emit("remove", props.wishlistItem.id);
       } catch {
         // 用户取消
       }
     };
 
     // 标签操作
-    const removeTag = tag => {
-      editForm.value.tags = editForm.value.tags.filter(t => t !== tag);
+    const removeTag = (tag) => {
+      editForm.value.tags = editForm.value.tags.filter((t) => t !== tag);
     };
 
     const showInput = () => {
@@ -381,51 +389,51 @@ export default {
 
       if (!trimmedValue) {
         inputVisible.value = false;
-        inputValue.value = '';
+        inputValue.value = "";
         return;
       }
 
       // 检查重复标签
       if (editForm.value.tags.includes(trimmedValue)) {
-        ElMessage.warning('标签已存在');
-        inputValue.value = '';
+        ElMessage.warning("标签已存在");
+        inputValue.value = "";
         return;
       }
 
       // 检查标签长度
       if (trimmedValue.length > 20) {
-        ElMessage.warning('标签长度不能超过20个字符');
+        ElMessage.warning("标签长度不能超过20个字符");
         return;
       }
 
       // 检查标签数量
       if (editForm.value.tags.length >= 10) {
-        ElMessage.warning('标签数量不能超过10个');
+        ElMessage.warning("标签数量不能超过10个");
         return;
       }
 
       editForm.value.tags.push(trimmedValue);
       inputVisible.value = false;
-      inputValue.value = '';
+      inputValue.value = "";
     };
 
     // 格式化日期
-    const formatDate = dateString => {
-      if (!dateString) return '';
+    const formatDate = (dateString) => {
+      if (!dateString) return "";
 
       const date = new Date(dateString);
       const now = new Date();
       const diffTime = now - date;
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-      if (diffDays === 0) return '今天';
-      if (diffDays === 1) return '昨天';
+      if (diffDays === 0) return "今天";
+      if (diffDays === 1) return "昨天";
       if (diffDays < 7) return `${diffDays}天前`;
       if (diffDays < 30) return `${Math.floor(diffDays / 7)}周前`;
 
-      return date.toLocaleDateString('zh-CN', {
-        month: 'short',
-        day: 'numeric',
+      return date.toLocaleDateString("zh-CN", {
+        month: "short",
+        day: "numeric",
       });
     };
 
@@ -479,7 +487,7 @@ export default {
 }
 
 .wishlist-card.current-weather::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -565,7 +573,7 @@ export default {
 }
 
 .action-btn::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;

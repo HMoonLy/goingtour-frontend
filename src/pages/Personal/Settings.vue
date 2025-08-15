@@ -2,7 +2,8 @@
   <div class="page-shell settings-page">
     <!-- 设置头部 -->
     <div class="settings-header">
-      <el-button link class="back-btn" @click="$router.back()">
+      <el-button link
+class="back-btn" @click="$router.back()">
         <el-icon><ArrowLeft /></el-icon>
         返回
       </el-button>
@@ -32,7 +33,8 @@
       <!-- 设置面板 -->
       <div class="settings-panel">
         <!-- 基本信息 -->
-        <div v-if="activeSection === 'profile'" class="settings-section">
+        <div v-if="activeSection === 'profile'"
+class="settings-section">
           <div class="section-title">
             <h3>基本信息</h3>
             <p>管理你的个人资料和基本信息</p>
@@ -55,7 +57,8 @@
             </el-form-item>
 
             <!-- 昵称 -->
-            <el-form-item label="昵称" prop="nickname">
+            <el-form-item label="昵称"
+prop="nickname">
               <el-input
                 v-model="profileForm.nickname"
                 placeholder="请输入昵称"
@@ -75,14 +78,15 @@
                     :type="profileForm.emailVerified ? 'success' : 'warning'"
                     size="small"
                   >
-                    {{ profileForm.emailVerified ? '已验证' : '未验证' }}
+                    {{ profileForm.emailVerified ? "已验证" : "未验证" }}
                   </el-tag>
                 </template>
               </el-input>
             </el-form-item>
 
             <!-- 手机号 -->
-            <el-form-item label="手机号" prop="phone">
+            <el-form-item label="手机号"
+prop="phone">
               <el-input
                 v-model="profileForm.phone"
                 placeholder="请输入手机号"
@@ -103,7 +107,8 @@
             </el-form-item>
 
             <el-form-item>
-              <el-button type="primary" :loading="saving" @click="saveProfile">
+              <el-button type="primary"
+:loading="saving" @click="saveProfile">
                 保存修改
               </el-button>
             </el-form-item>
@@ -253,7 +258,8 @@
         </div>
 
         <!-- 隐私设置 -->
-        <div v-else-if="activeSection === 'privacy'" class="settings-section">
+        <div v-else-if="activeSection === 'privacy'"
+class="settings-section">
           <div class="section-title">
             <h3>隐私设置</h3>
             <p>控制你的隐私和数据使用</p>
@@ -285,7 +291,8 @@
             </div>
 
             <div class="privacy-actions">
-              <el-button type="primary" :loading="saving" @click="savePrivacy">
+              <el-button type="primary"
+:loading="saving" @click="savePrivacy">
                 保存设置
               </el-button>
               <el-button @click="exportUserData"> 导出我的数据 </el-button>
@@ -294,7 +301,8 @@
         </div>
 
         <!-- 账户安全 -->
-        <div v-else-if="activeSection === 'security'" class="settings-section">
+        <div v-else-if="activeSection === 'security'"
+class="settings-section">
           <div class="section-title">
             <h3>账户安全</h3>
             <p>管理你的账户安全设置</p>
@@ -318,7 +326,7 @@
                 :type="securityForm.twoFactorEnabled ? 'danger' : 'primary'"
                 @click="toggleTwoFactor"
               >
-                {{ securityForm.twoFactorEnabled ? '关闭' : '开启' }}两步验证
+                {{ securityForm.twoFactorEnabled ? "关闭" : "开启" }}两步验证
               </el-button>
             </div>
 
@@ -335,7 +343,8 @@
                 <h4>注销账户</h4>
                 <p>永久删除你的账户和所有数据</p>
               </div>
-              <el-button type="danger" @click="deleteAccount">
+              <el-button type="danger"
+@click="deleteAccount">
                 注销账户
               </el-button>
             </div>
@@ -347,9 +356,9 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ref, reactive, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { ElMessage, ElMessageBox } from "element-plus";
 import {
   ArrowLeft,
   User,
@@ -359,13 +368,13 @@ import {
   Setting,
   Document,
   Warning,
-} from '@element-plus/icons-vue';
-import { useUserStore } from '@/store/user.js';
-import { userApi } from '@/api/user.js';
-import AvatarUploader from '@/components/Common/UI/AvatarUploader.vue';
+} from "@element-plus/icons-vue";
+import { useUserStore } from "@/store/user.js";
+import { userApi } from "@/api/user.js";
+import AvatarUploader from "@/components/Common/UI/AvatarUploader.vue";
 
 export default {
-  name: 'PersonalSettings',
+  name: "PersonalSettings",
   components: {
     ArrowLeft,
     User,
@@ -382,33 +391,33 @@ export default {
     const userStore = useUserStore();
 
     // 当前激活的设置部分
-    const activeSection = ref('profile');
+    const activeSection = ref("profile");
     const saving = ref(false);
 
     // 设置导航
     const sections = [
-      { key: 'profile', title: '基本信息', icon: 'User' },
-      { key: 'preferences', title: '旅行偏好', icon: 'Star' },
-      { key: 'notifications', title: '通知设置', icon: 'Bell' },
-      { key: 'privacy', title: '隐私设置', icon: 'setting' },
-      { key: 'security', title: '账户安全', icon: 'Lock' },
+      { key: "profile", title: "基本信息", icon: "User" },
+      { key: "preferences", title: "旅行偏好", icon: "Star" },
+      { key: "notifications", title: "通知设置", icon: "Bell" },
+      { key: "privacy", title: "隐私设置", icon: "setting" },
+      { key: "security", title: "账户安全", icon: "Lock" },
     ];
 
     // 基本信息表单
     const profileForm = reactive({
-      avatar: '',
-      nickname: '',
-      email: '',
-      phone: '',
-      bio: '',
+      avatar: "",
+      nickname: "",
+      email: "",
+      phone: "",
+      bio: "",
       emailVerified: false,
     });
 
     // 旅行偏好表单
     const preferencesForm = reactive({
-      mbtiType: '',
+      mbtiType: "",
       travelTypes: [],
-      budgetRange: '',
+      budgetRange: "",
       dietaryRestrictions: [],
       transportPreferences: [],
     });
@@ -434,74 +443,74 @@ export default {
 
     // 选项数据
     const mbtiTypes = [
-      { value: 'INTJ', label: 'INTJ - 建筑师' },
-      { value: 'INTP', label: 'INTP - 思想家' },
-      { value: 'ENTJ', label: 'ENTJ - 指挥官' },
-      { value: 'ENTP', label: 'ENTP - 辩论家' },
-      { value: 'INFJ', label: 'INFJ - 提倡者' },
-      { value: 'INFP', label: 'INFP - 调停者' },
-      { value: 'ENFJ', label: 'ENFJ - 主人公' },
-      { value: 'ENFP', label: 'ENFP - 竞选者' },
-      { value: 'ISTJ', label: 'ISTJ - 物流师' },
-      { value: 'ISFJ', label: 'ISFJ - 守护者' },
-      { value: 'ESTJ', label: 'ESTJ - 总经理' },
-      { value: 'ESFJ', label: 'ESFJ - 执政官' },
-      { value: 'ISTP', label: 'ISTP - 鉴赏家' },
-      { value: 'ISFP', label: 'ISFP - 探险家' },
-      { value: 'ESTP', label: 'ESTP - 企业家' },
-      { value: 'ESFP', label: 'ESFP - 娱乐家' },
+      { value: "INTJ", label: "INTJ - 建筑师" },
+      { value: "INTP", label: "INTP - 思想家" },
+      { value: "ENTJ", label: "ENTJ - 指挥官" },
+      { value: "ENTP", label: "ENTP - 辩论家" },
+      { value: "INFJ", label: "INFJ - 提倡者" },
+      { value: "INFP", label: "INFP - 调停者" },
+      { value: "ENFJ", label: "ENFJ - 主人公" },
+      { value: "ENFP", label: "ENFP - 竞选者" },
+      { value: "ISTJ", label: "ISTJ - 物流师" },
+      { value: "ISFJ", label: "ISFJ - 守护者" },
+      { value: "ESTJ", label: "ESTJ - 总经理" },
+      { value: "ESFJ", label: "ESFJ - 执政官" },
+      { value: "ISTP", label: "ISTP - 鉴赏家" },
+      { value: "ISFP", label: "ISFP - 探险家" },
+      { value: "ESTP", label: "ESTP - 企业家" },
+      { value: "ESFP", label: "ESFP - 娱乐家" },
     ];
 
     const travelTypes = [
-      { value: 'cultural', label: '文化历史' },
-      { value: 'nature', label: '自然风光' },
-      { value: 'adventure', label: '冒险户外' },
-      { value: 'relaxation', label: '休闲度假' },
-      { value: 'food', label: '美食之旅' },
-      { value: 'photography', label: '摄影采风' },
-      { value: 'shopping', label: '购物血拼' },
-      { value: 'nightlife', label: '夜生活' },
+      { value: "cultural", label: "文化历史" },
+      { value: "nature", label: "自然风光" },
+      { value: "adventure", label: "冒险户外" },
+      { value: "relaxation", label: "休闲度假" },
+      { value: "food", label: "美食之旅" },
+      { value: "photography", label: "摄影采风" },
+      { value: "shopping", label: "购物血拼" },
+      { value: "nightlife", label: "夜生活" },
     ];
 
     const budgetRanges = [
-      { value: 'budget', label: '经济型 (￥500以下/天)' },
-      { value: 'mid', label: '舒适型 (￥500-1000/天)' },
-      { value: 'luxury', label: '奢华型 (￥1000+/天)' },
+      { value: "budget", label: "经济型 (￥500以下/天)" },
+      { value: "mid", label: "舒适型 (￥500-1000/天)" },
+      { value: "luxury", label: "奢华型 (￥1000+/天)" },
     ];
 
     const dietaryRestrictions = [
-      { value: 'vegetarian', label: '素食主义' },
-      { value: 'vegan', label: '严格素食' },
-      { value: 'halal', label: '清真食品' },
-      { value: 'glutenfree', label: '无麸质' },
-      { value: 'lactosefree', label: '无乳糖' },
+      { value: "vegetarian", label: "素食主义" },
+      { value: "vegan", label: "严格素食" },
+      { value: "halal", label: "清真食品" },
+      { value: "glutenfree", label: "无麸质" },
+      { value: "lactosefree", label: "无乳糖" },
     ];
 
     const transportOptions = [
-      { value: 'plane', label: '飞机' },
-      { value: 'train', label: '火车' },
-      { value: 'car', label: '自驾' },
-      { value: 'bus', label: '大巴' },
-      { value: 'bike', label: '骑行' },
-      { value: 'walk', label: '徒步' },
+      { value: "plane", label: "飞机" },
+      { value: "train", label: "火车" },
+      { value: "car", label: "自驾" },
+      { value: "bus", label: "大巴" },
+      { value: "bike", label: "骑行" },
+      { value: "walk", label: "徒步" },
     ];
 
     // 方法
     const loadUserData = () => {
       const user = userStore.currentUser;
       if (user) {
-        profileForm.avatar = user.avatar || '';
-        profileForm.nickname = user.nickname || '';
-        profileForm.email = user.email || '';
-        profileForm.phone = user.phone || '';
-        profileForm.bio = user.bio || '';
+        profileForm.avatar = user.avatar || "";
+        profileForm.nickname = user.nickname || "";
+        profileForm.email = user.email || "";
+        profileForm.phone = user.phone || "";
+        profileForm.bio = user.bio || "";
         profileForm.emailVerified = user.emailVerified || false;
 
         // 加载用户偏好
         const preferences = user.preferences || {};
-        preferencesForm.mbtiType = preferences.mbtiType || '';
+        preferencesForm.mbtiType = preferences.mbtiType || "";
         preferencesForm.travelTypes = preferences.travelTypes || [];
-        preferencesForm.budgetRange = preferences.budgetRange || '';
+        preferencesForm.budgetRange = preferences.budgetRange || "";
         preferencesForm.dietaryRestrictions =
           preferences.dietaryRestrictions || [];
         preferencesForm.transportPreferences =
@@ -532,12 +541,12 @@ export default {
       avatarDialogVisible.value = true;
     };
 
-    const handleAvatarChange = async newAvatarUrl => {
+    const handleAvatarChange = async (newAvatarUrl) => {
       try {
         // 调用API更新用户头像
         const userId = userStore.currentUser?.id;
         if (!userId) {
-          throw new Error('用户未登录');
+          throw new Error("用户未登录");
         }
 
         await userApi.updateInfo(userId, { avatar: newAvatarUrl });
@@ -547,10 +556,10 @@ export default {
         userStore.updateProfile({ avatar: newAvatarUrl });
 
         avatarDialogVisible.value = false;
-        ElMessage.success('头像更新成功！');
+        ElMessage.success("头像更新成功！");
       } catch (error) {
-        console.error('头像更新失败:', error);
-        ElMessage.error('头像更新失败，请重试');
+        console.error("头像更新失败:", error);
+        ElMessage.error("头像更新失败，请重试");
       }
     };
 
@@ -565,15 +574,15 @@ export default {
         };
 
         // 模拟API调用
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         // 更新userStore中的用户信息
         userStore.updateProfile(userData);
 
-        ElMessage.success('基本信息保存成功！');
+        ElMessage.success("基本信息保存成功！");
       } catch (error) {
-        console.error('保存基本信息失败:', error);
-        ElMessage.error('保存失败，请重试');
+        console.error("保存基本信息失败:", error);
+        ElMessage.error("保存失败，请重试");
       } finally {
         saving.value = false;
       }
@@ -592,15 +601,15 @@ export default {
         };
 
         // 模拟API调用
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         // TODO: 调用用户API保存偏好设置
         userStore.updatePreferences(preferences);
 
-        ElMessage.success('偏好设置保存成功！');
+        ElMessage.success("偏好设置保存成功！");
       } catch (error) {
-        console.error('保存偏好设置失败:', error);
-        ElMessage.error('保存失败，请重试');
+        console.error("保存偏好设置失败:", error);
+        ElMessage.error("保存失败，请重试");
       } finally {
         saving.value = false;
       }
@@ -616,15 +625,15 @@ export default {
         };
 
         // 模拟API调用
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         // TODO: 调用用户API保存通知设置
         userStore.updateNotificationSettings(notifications);
 
-        ElMessage.success('通知设置保存成功！');
+        ElMessage.success("通知设置保存成功！");
       } catch (error) {
-        console.error('保存通知设置失败:', error);
-        ElMessage.error('保存失败，请重试');
+        console.error("保存通知设置失败:", error);
+        ElMessage.error("保存失败，请重试");
       } finally {
         saving.value = false;
       }
@@ -640,15 +649,15 @@ export default {
         };
 
         // 模拟API调用
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         // TODO: 调用用户API保存隐私设置
         userStore.updatePrivacySettings(privacy);
 
-        ElMessage.success('隐私设置保存成功！');
+        ElMessage.success("隐私设置保存成功！");
       } catch (error) {
-        console.error('保存隐私设置失败:', error);
-        ElMessage.error('保存失败，请重试');
+        console.error("保存隐私设置失败:", error);
+        ElMessage.error("保存失败，请重试");
       } finally {
         saving.value = false;
       }
@@ -665,48 +674,48 @@ export default {
         };
 
         const dataStr = JSON.stringify(userData, null, 2);
-        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const dataBlob = new Blob([dataStr], { type: "application/json" });
 
         const url = URL.createObjectURL(dataBlob);
-        const link = document.createElement('a');
+        const link = document.createElement("a");
         link.href = url;
-        link.download = `我的个人数据_${new Date().toLocaleDateString('zh-CN')}.json`;
+        link.download = `我的个人数据_${new Date().toLocaleDateString("zh-CN")}.json`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
 
-        ElMessage.success('个人数据导出成功！');
+        ElMessage.success("个人数据导出成功！");
       } catch (error) {
-        ElMessage.error('导出失败，请重试');
+        ElMessage.error("导出失败，请重试");
       }
     };
 
     const changePassword = () => {
-      ElMessage.info('密码修改功能正在开发中...');
+      ElMessage.info("密码修改功能正在开发中...");
     };
 
     const toggleTwoFactor = () => {
-      ElMessage.info('两步验证功能正在开发中...');
+      ElMessage.info("两步验证功能正在开发中...");
     };
 
     const viewLoginHistory = () => {
-      ElMessage.info('登录历史功能正在开发中...');
+      ElMessage.info("登录历史功能正在开发中...");
     };
 
     const deleteAccount = async () => {
       try {
         await ElMessageBox.confirm(
-          '此操作将永久删除你的账户和所有数据，无法恢复。确定要继续吗？',
-          '危险操作',
+          "此操作将永久删除你的账户和所有数据，无法恢复。确定要继续吗？",
+          "危险操作",
           {
-            confirmButtonText: '确定删除',
-            cancelButtonText: '取消',
-            type: 'error',
-          }
+            confirmButtonText: "确定删除",
+            cancelButtonText: "取消",
+            type: "error",
+          },
         );
 
-        ElMessage.info('账户注销功能正在开发中...');
+        ElMessage.info("账户注销功能正在开发中...");
       } catch (error) {
         // 用户取消
       }

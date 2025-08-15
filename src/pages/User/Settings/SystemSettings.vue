@@ -1,7 +1,9 @@
 <template>
-  <div class="personal-page simple" :class="{ embedded }">
+  <div class="personal-page simple"
+:class="{ embedded }">
     <UserCenterNav v-if="!embedded" />
-    <h2 v-if="!embedded" class="title">系统设置</h2>
+    <h2
+v-if="!embedded" class="title">系统设置</h2>
     <el-card class="section">
       <div class="row">
         <span>主题模式</span>
@@ -15,13 +17,13 @@
   </div>
 </template>
 <script>
-import { ref, onMounted, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { useUserStore } from '@/store/user.js';
-import { useTheme } from '@/utils/ui/theme.js';
-import UserCenterNav from '@/components/User/UserCenterNav.vue';
+import { ref, onMounted, watch } from "vue";
+import { useRouter } from "vue-router";
+import { useUserStore } from "@/store/user.js";
+import { useTheme } from "@/utils/ui/theme.js";
+import UserCenterNav from "@/components/User/UserCenterNav.vue";
 export default {
-  name: 'SystemSettings',
+  name: "SystemSettings",
   components: { UserCenterNav },
   props: { embedded: Boolean },
   setup(props) {
@@ -31,12 +33,12 @@ export default {
 
     const theme = ref(getTheme());
 
-    watch(theme, val => {
+    watch(theme, (val) => {
       if (val) setTheme(val);
     });
 
     onMounted(() => {
-      if (!userStore.isLoggedIn) return router.push('/login');
+      if (!userStore.isLoggedIn) return router.push("/login");
       theme.value = getTheme();
     });
 

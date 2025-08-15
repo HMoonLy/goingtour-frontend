@@ -18,9 +18,11 @@
     </div>
 
     <!-- 空状态提示 -->
-    <div v-if="!hasData" class="empty-state">
+    <div v-if="!hasData"
+class="empty-state">
       <div class="empty-icon">
-        <el-icon size="48" color="#C0C4CC">
+        <el-icon size="48"
+color="#C0C4CC">
           <LocationInformation />
         </el-icon>
       </div>
@@ -30,7 +32,8 @@
       </div>
     </div>
 
-    <div v-if="hasData" class="stats-grid">
+    <div v-if="hasData"
+class="stats-grid">
       <!-- 总城市数 -->
       <div class="stat-item total">
         <div class="stat-icon">
@@ -85,7 +88,8 @@
     </div>
 
     <!-- 成就徽章 -->
-    <div v-if="hasData && achievements.length > 0" class="achievements-section">
+    <div v-if="hasData && achievements.length > 0"
+class="achievements-section">
       <h4 class="achievements-title">
         <el-icon><Medal /></el-icon>
         最新成就
@@ -118,7 +122,8 @@
     </div>
 
     <!-- 分享按钮 -->
-    <div v-if="hasData" class="stats-actions">
+    <div v-if="hasData"
+class="stats-actions">
       <el-button
         type="primary"
         :loading="sharing"
@@ -126,9 +131,10 @@
         @click="handleShare"
       >
         <el-icon><Share /></el-icon>
-        {{ sharing ? '正在生成...' : '分享我的足迹' }}
+        {{ sharing ? "正在生成..." : "分享我的足迹" }}
       </el-button>
-      <el-button class="view-all-btn" @click="handleViewAllAchievements">
+      <el-button class="view-all-btn"
+@click="handleViewAllAchievements">
         <el-icon><View /></el-icon>
         查看全部成就
       </el-button>
@@ -137,9 +143,9 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue';
-import { ElMessage } from 'element-plus';
-import { FootprintShareUtil } from '@/utils/media/footprintShare.js';
+import { ref, computed } from "vue";
+import { ElMessage } from "element-plus";
+import { FootprintShareUtil } from "@/utils/media/footprintShare.js";
 import {
   TrophyBase,
   LocationInformation,
@@ -152,10 +158,10 @@ import {
   Trophy,
   Flag,
   Compass,
-} from '@element-plus/icons-vue';
+} from "@element-plus/icons-vue";
 
 export default {
-  name: 'FootprintStats',
+  name: "FootprintStats",
   components: {
     TrophyBase,
     LocationInformation,
@@ -179,17 +185,17 @@ export default {
       default: true,
     },
   },
-  emits: ['share', 'view-achievements'],
+  emits: ["share", "view-achievements"],
   setup(props, { emit }) {
     const sharing = ref(false);
 
     // 进度条颜色
     const progressColor = computed(() => {
       const rate = props.stats.explorationRate;
-      if (rate >= 50) return '#10b981'; // 绿色
-      if (rate >= 25) return '#f59e0b'; // 橙色
-      if (rate >= 10) return '#3b82f6'; // 蓝色
-      return '#91a8d0'; // 默认色
+      if (rate >= 50) return "#10b981"; // 绿色
+      if (rate >= 25) return "#f59e0b"; // 橙色
+      if (rate >= 10) return "#3b82f6"; // 蓝色
+      return "#91a8d0"; // 默认色
     });
 
     // 模拟成就数据（实际应该从store获取）
@@ -200,11 +206,11 @@ export default {
       // 第一次添加城市
       if (totalCities >= 1) {
         result.push({
-          id: 'first-city',
-          title: '旅行启程',
-          description: '添加了第一个心愿城市',
-          icon: 'Flag',
-          level: 'bronze',
+          id: "first-city",
+          title: "旅行启程",
+          description: "添加了第一个心愿城市",
+          icon: "Flag",
+          level: "bronze",
           unlockedAt: new Date(),
         });
       }
@@ -212,11 +218,11 @@ export default {
       // 去过5个城市
       if (visitedCities >= 5) {
         result.push({
-          id: 'visited-5',
-          title: '足迹初现',
-          description: '已经去过5个城市',
-          icon: 'Check',
-          level: 'silver',
+          id: "visited-5",
+          title: "足迹初现",
+          description: "已经去过5个城市",
+          icon: "Check",
+          level: "silver",
           unlockedAt: new Date(),
         });
       }
@@ -224,11 +230,11 @@ export default {
       // 去过10个城市
       if (visitedCities >= 10) {
         result.push({
-          id: 'visited-10',
-          title: '城市达人',
-          description: '已经去过10个城市',
-          icon: 'Trophy',
-          level: 'gold',
+          id: "visited-10",
+          title: "城市达人",
+          description: "已经去过10个城市",
+          icon: "Trophy",
+          level: "gold",
           unlockedAt: new Date(),
         });
       }
@@ -236,11 +242,11 @@ export default {
       // 探索3个省份
       if (exploredProvinces >= 3) {
         result.push({
-          id: 'provinces-3',
-          title: '跨省旅行者',
-          description: '足迹遍布3个省份',
-          icon: 'MapLocation',
-          level: 'silver',
+          id: "provinces-3",
+          title: "跨省旅行者",
+          description: "足迹遍布3个省份",
+          icon: "MapLocation",
+          level: "silver",
           unlockedAt: new Date(),
         });
       }
@@ -248,36 +254,36 @@ export default {
       // 探索5个省份
       if (exploredProvinces >= 5) {
         result.push({
-          id: 'provinces-5',
-          title: '地理专家',
-          description: '足迹遍布5个省份',
-          icon: 'Compass',
-          level: 'gold',
+          id: "provinces-5",
+          title: "地理专家",
+          description: "足迹遍布5个省份",
+          icon: "Compass",
+          level: "gold",
           unlockedAt: new Date(),
         });
       }
 
       return result.sort(
-        (a, b) => new Date(b.unlockedAt) - new Date(a.unlockedAt)
+        (a, b) => new Date(b.unlockedAt) - new Date(a.unlockedAt),
       );
     });
 
     // 格式化日期
-    const formatDate = date => {
+    const formatDate = (date) => {
       const now = new Date();
       const diffTime = now - new Date(date);
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-      if (diffDays === 0) return '今天解锁';
-      if (diffDays === 1) return '昨天解锁';
+      if (diffDays === 0) return "今天解锁";
+      if (diffDays === 1) return "昨天解锁";
       if (diffDays < 7) return `${diffDays}天前解锁`;
       if (diffDays < 30) return `${Math.floor(diffDays / 7)}周前解锁`;
 
       return (
-        new Date(date).toLocaleDateString('zh-CN', {
-          month: 'short',
-          day: 'numeric',
-        }) + '解锁'
+        new Date(date).toLocaleDateString("zh-CN", {
+          month: "short",
+          day: "numeric",
+        }) + "解锁"
       );
     };
 
@@ -286,9 +292,9 @@ export default {
       sharing.value = true;
       try {
         // 获取整个统计卡片元素
-        const element = document.querySelector('.footprint-stats-card');
+        const element = document.querySelector(".footprint-stats-card");
         if (!element) {
-          throw new Error('找不到统计卡片元素');
+          throw new Error("找不到统计卡片元素");
         }
 
         // 使用新的分享工具类
@@ -297,9 +303,9 @@ export default {
           wishlistCities: props.stats.totalCities - props.stats.visitedCities, // 计算想去的城市数量
         });
 
-        emit('share', props.stats);
+        emit("share", props.stats);
       } catch (error) {
-        console.error('分享失败:', error);
+        console.error("分享失败:", error);
         ElMessage.error(`分享失败: ${error.message}`);
       } finally {
         sharing.value = false;
@@ -308,7 +314,7 @@ export default {
 
     // 查看全部成就
     const handleViewAllAchievements = () => {
-      emit('view-achievements');
+      emit("view-achievements");
     };
 
     return {
@@ -411,7 +417,7 @@ export default {
 }
 
 .stat-item::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;

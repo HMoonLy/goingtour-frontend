@@ -1,7 +1,8 @@
 <template>
   <div class="city-grid-container">
     <!-- 网格布局的城市卡片 - 性能优化版本 -->
-    <div class="city-grid" :class="{ 'has-wishlist': hasWishlistItems }">
+    <div class="city-grid"
+:class="{ 'has-wishlist': hasWishlistItems }">
       <!-- 使用v-memo优化大列表渲染性能 -->
       <CityCard
         v-for="city in cities"
@@ -15,9 +16,11 @@
     </div>
 
     <!-- 空状态展示 -->
-    <div v-if="cities.length === 0 && !loading" class="empty-state">
+    <div v-if="cities.length === 0 && !loading"
+class="empty-state">
       <div class="empty-icon">
-        <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
+        <svg width="64"
+height="64" viewBox="0 0 24 24" fill="none">
           <path
             d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
             fill="#9ca3af"
@@ -29,7 +32,8 @@
     </div>
 
     <!-- 加载骨架屏 -->
-    <div v-if="loading" class="loading-grid">
+    <div v-if="loading"
+class="loading-grid">
       <div
         v-for="i in skeletonCount"
         :key="'skeleton-' + i"
@@ -51,11 +55,11 @@
 </template>
 
 <script>
-import { computed, defineComponent, onBeforeUnmount } from 'vue';
-import CityCard from './CityCard.vue';
+import { computed, defineComponent, onBeforeUnmount } from "vue";
+import CityCard from "./CityCard.vue";
 
 export default defineComponent({
-  name: 'CityGridList',
+  name: "CityGridList",
   components: {
     CityCard,
   },
@@ -73,11 +77,11 @@ export default defineComponent({
       default: false,
     },
   },
-  emits: ['selectCity', 'toggleWishlist'],
+  emits: ["selectCity", "toggleWishlist"],
   setup(props, { emit }) {
     // 使用Set缓存心愿清单城市编码，提升查询性能
     const wishlistSet = computed(() => {
-      return new Set(props.wishlistItems.map(item => item.cityCode));
+      return new Set(props.wishlistItems.map((item) => item.cityCode));
     });
 
     // 是否有收藏的城市
@@ -93,19 +97,19 @@ export default defineComponent({
     let selectTimeout = null;
     let wishlistTimeout = null;
 
-    const handleSelectCity = city => {
+    const handleSelectCity = (city) => {
       // 防止快速点击导致的多次触发
       if (selectTimeout) clearTimeout(selectTimeout);
       selectTimeout = setTimeout(() => {
-        emit('selectCity', city);
+        emit("selectCity", city);
       }, 50);
     };
 
-    const handleToggleWishlist = city => {
+    const handleToggleWishlist = (city) => {
       // 防止快速点击导致的多次切换
       if (wishlistTimeout) clearTimeout(wishlistTimeout);
       wishlistTimeout = setTimeout(() => {
-        emit('toggleWishlist', city);
+        emit("toggleWishlist", city);
       }, 100);
     };
 

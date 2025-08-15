@@ -1,8 +1,8 @@
 /**
  * 足迹分享工具 - 生成分享图片和内容
  */
-import html2canvas from 'html2canvas';
-import { ElMessage } from 'element-plus';
+import html2canvas from "html2canvas";
+import { ElMessage } from "element-plus";
 
 export class FootprintShareUtil {
   /**
@@ -14,10 +14,10 @@ export class FootprintShareUtil {
    * @returns {Promise<Blob>}
    */
   static async generateShareImage(options) {
-    const { element, stats, title = '我的旅行足迹' } = options;
+    const { element, stats, title = "我的旅行足迹" } = options;
 
     if (!element) {
-      throw new Error('未找到要截图的元素');
+      throw new Error("未找到要截图的元素");
     }
 
     try {
@@ -31,7 +31,7 @@ export class FootprintShareUtil {
 
       // 生成截图
       const canvas = await html2canvas(shareContainer, {
-        backgroundColor: '#ffffff',
+        backgroundColor: "#ffffff",
         scale: 2,
         logging: false,
         useCORS: true,
@@ -47,15 +47,15 @@ export class FootprintShareUtil {
       // 转换为Blob
       return new Promise((resolve, reject) => {
         canvas.toBlob(
-          blob => {
+          (blob) => {
             if (blob) {
               resolve(blob);
             } else {
-              reject(new Error('截图生成失败'));
+              reject(new Error("截图生成失败"));
             }
           },
-          'image/png',
-          0.9
+          "image/png",
+          0.9,
         );
       });
     } catch (error) {
@@ -67,8 +67,8 @@ export class FootprintShareUtil {
    * 创建分享容器
    */
   static createShareContainer(element, stats, title) {
-    const container = document.createElement('div');
-    container.className = 'footprint-share-container';
+    const container = document.createElement("div");
+    container.className = "footprint-share-container";
     container.style.cssText = `
       position: fixed;
       left: -9999px;
@@ -83,10 +83,10 @@ export class FootprintShareUtil {
 
     // 克隆原始元素
     const clonedElement = element.cloneNode(true);
-    clonedElement.style.cssText = 'margin-bottom: 20px;';
+    clonedElement.style.cssText = "margin-bottom: 20px;";
 
     // 创建头部
-    const header = document.createElement('div');
+    const header = document.createElement("div");
     header.style.cssText = `
       text-align: center;
       margin-bottom: 24px;
@@ -112,7 +112,7 @@ export class FootprintShareUtil {
     `;
 
     // 创建底部水印
-    const footer = document.createElement('div');
+    const footer = document.createElement("div");
     footer.style.cssText = `
       text-align: center;
       margin-top: 24px;
@@ -143,7 +143,7 @@ export class FootprintShareUtil {
    * 创建水印样式
    */
   static createWatermarkStyle() {
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.textContent = `
       .footprint-share-container * {
         box-sizing: border-box;
@@ -185,21 +185,21 @@ export class FootprintShareUtil {
     // 检查是否支持原生分享
     if (navigator.share && navigator.canShare) {
       try {
-        const file = new File([imageBlob], '我的足迹成就.png', {
-          type: 'image/png',
+        const file = new File([imageBlob], "我的足迹成就.png", {
+          type: "image/png",
         });
 
         if (navigator.canShare({ files: [file] })) {
           await navigator.share({
-            title: '我的旅行足迹',
+            title: "我的旅行足迹",
             text: shareText,
             files: [file],
           });
-          ElMessage.success('分享成功！');
+          ElMessage.success("分享成功！");
           return;
         }
       } catch (shareError) {
-        console.log('原生分享失败，使用下载方式:', shareError);
+        console.log("原生分享失败，使用下载方式:", shareError);
       }
     }
 
@@ -210,12 +210,12 @@ export class FootprintShareUtil {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       try {
         await navigator.clipboard.writeText(shareText);
-        ElMessage.success('足迹图片已保存，分享文案已复制到剪贴板！');
+        ElMessage.success("足迹图片已保存，分享文案已复制到剪贴板！");
       } catch (error) {
-        ElMessage.success('足迹图片已保存到本地！');
+        ElMessage.success("足迹图片已保存到本地！");
       }
     } else {
-      ElMessage.success('足迹图片已保存到本地！');
+      ElMessage.success("足迹图片已保存到本地！");
     }
   }
 
@@ -224,9 +224,9 @@ export class FootprintShareUtil {
    */
   static async downloadImage(imageBlob, stats) {
     const url = URL.createObjectURL(imageBlob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    link.download = `我的足迹成就_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.png`;
+    link.download = `我的足迹成就_${new Date().toLocaleDateString("zh-CN").replace(/\//g, "-")}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -240,17 +240,17 @@ export class FootprintShareUtil {
    */
   static async shareFootprint(element, stats) {
     try {
-      ElMessage.info('正在生成足迹分享图片...');
+      ElMessage.info("正在生成足迹分享图片...");
 
       const imageBlob = await this.generateShareImage({
         element,
         stats,
-        title: '我的旅行足迹',
+        title: "我的旅行足迹",
       });
 
       await this.executeShare(imageBlob, stats);
     } catch (error) {
-      console.error('分享失败:', error);
+      console.error("分享失败:", error);
       ElMessage.error(`分享失败: ${error.message}`);
     }
   }

@@ -6,7 +6,8 @@
       processing: isProcessing,
     }"
   >
-    <div class="city-left" @click="handleCitySelect">
+    <div class="city-left"
+@click="handleCitySelect">
       <span class="city-name">{{ city.中文名 }}</span>
       <span class="city-province">{{ provinceName }}</span>
     </div>
@@ -22,10 +23,12 @@
         @click.stop="handleWishlistToggle"
       >
         <!-- 处理中显示旋转效果 -->
-        <div v-if="isProcessing" class="star-loading">⭐</div>
+        <div
+v-if="isProcessing" class="star-loading">⭐</div>
         <!-- 正常状态显示五角星 -->
-        <div v-else class="star-icon">
-          {{ isInWishlist ? '⭐' : '☆' }}
+        <div v-else
+class="star-icon">
+          {{ isInWishlist ? "⭐" : "☆" }}
         </div>
       </div>
     </div>
@@ -33,10 +36,10 @@
 </template>
 
 <script>
-import { computed, ref, defineComponent } from 'vue';
+import { computed, ref, defineComponent } from "vue";
 
 export default defineComponent({
-  name: 'OptimizedCityRow',
+  name: "OptimizedCityRow",
   props: {
     city: {
       type: Object,
@@ -47,58 +50,58 @@ export default defineComponent({
       default: false,
     },
   },
-  emits: ['selectCity', 'toggleWishlist'],
+  emits: ["selectCity", "toggleWishlist"],
   setup(props, { emit }) {
     const isProcessing = ref(false);
 
     // 缓存省份名称计算
     const provinceName = computed(() => {
-      const adcode = String(props.city.adcode || '');
-      if (!adcode || adcode.length < 2) return '';
+      const adcode = String(props.city.adcode || "");
+      if (!adcode || adcode.length < 2) return "";
 
       const provinceCode = adcode.substring(0, 2);
       const provinceMap = {
-        11: '北京市',
-        12: '天津市',
-        13: '河北省',
-        14: '山西省',
-        15: '内蒙古',
-        21: '辽宁省',
-        22: '吉林省',
-        23: '黑龙江省',
-        31: '上海市',
-        32: '江苏省',
-        33: '浙江省',
-        34: '安徽省',
-        35: '福建省',
-        36: '江西省',
-        37: '山东省',
-        41: '河南省',
-        42: '湖北省',
-        43: '湖南省',
-        44: '广东省',
-        45: '广西',
-        46: '海南省',
-        50: '重庆市',
-        51: '四川省',
-        52: '贵州省',
-        53: '云南省',
-        54: '西藏',
-        61: '陕西省',
-        62: '甘肃省',
-        63: '青海省',
-        64: '宁夏',
-        65: '新疆',
-        71: '台湾省',
-        81: '香港',
-        82: '澳门',
+        11: "北京市",
+        12: "天津市",
+        13: "河北省",
+        14: "山西省",
+        15: "内蒙古",
+        21: "辽宁省",
+        22: "吉林省",
+        23: "黑龙江省",
+        31: "上海市",
+        32: "江苏省",
+        33: "浙江省",
+        34: "安徽省",
+        35: "福建省",
+        36: "江西省",
+        37: "山东省",
+        41: "河南省",
+        42: "湖北省",
+        43: "湖南省",
+        44: "广东省",
+        45: "广西",
+        46: "海南省",
+        50: "重庆市",
+        51: "四川省",
+        52: "贵州省",
+        53: "云南省",
+        54: "西藏",
+        61: "陕西省",
+        62: "甘肃省",
+        63: "青海省",
+        64: "宁夏",
+        65: "新疆",
+        71: "台湾省",
+        81: "香港",
+        82: "澳门",
       };
-      return provinceMap[provinceCode] || '';
+      return provinceMap[provinceCode] || "";
     });
 
     const wishlistTitle = computed(() => {
-      if (isProcessing.value) return '处理中...';
-      return props.isInWishlist ? '从愿望清单移除' : '添加到愿望清单';
+      if (isProcessing.value) return "处理中...";
+      return props.isInWishlist ? "从愿望清单移除" : "添加到愿望清单";
     });
 
     // 防抖处理城市选择
@@ -106,7 +109,7 @@ export default defineComponent({
     const handleCitySelect = () => {
       clearTimeout(selectTimeout);
       selectTimeout = setTimeout(() => {
-        emit('selectCity', props.city);
+        emit("selectCity", props.city);
       }, 100);
     };
 
@@ -120,7 +123,7 @@ export default defineComponent({
         isProcessing.value = true;
 
         try {
-          await emit('toggleWishlist', props.city);
+          await emit("toggleWishlist", props.city);
         } finally {
           // 添加短暂延迟，让用户看到反馈
           setTimeout(() => {

@@ -1,8 +1,10 @@
 <template>
   <div :class="embedded ? 'preferences-embedded' : 'preferences-page'">
     <!-- 加载提示 -->
-    <div v-if="loading" class="loading-section">
-      <el-skeleton animated :loading="true">
+    <div v-if="loading"
+class="loading-section">
+      <el-skeleton animated
+:loading="true">
         <template #template>
           <div class="preferences-container">
             <el-skeleton-item
@@ -45,7 +47,8 @@
     </div>
 
     <!-- 主要内容 -->
-    <div v-else class="preferences-container">
+    <div v-else
+class="preferences-container">
       <UserCenterNav v-if="!embedded" />
       <div class="page-header">
         <h1>偏好设置</h1>
@@ -95,25 +98,29 @@
             @change="handleMbtiChange"
           >
             <el-option-group label="分析家 (NT)">
-              <el-option label="INTJ - 建筑师" value="INTJ">
+              <el-option label="INTJ - 建筑师"
+value="INTJ">
                 <div class="mbti-option">
                   <span class="mbti-code">INTJ</span>
                   <span class="mbti-name">建筑师</span>
                 </div>
               </el-option>
-              <el-option label="INTP - 逻辑学家" value="INTP">
+              <el-option label="INTP - 逻辑学家"
+value="INTP">
                 <div class="mbti-option">
                   <span class="mbti-code">INTP</span>
                   <span class="mbti-name">逻辑学家</span>
                 </div>
               </el-option>
-              <el-option label="ENTJ - 指挥官" value="ENTJ">
+              <el-option label="ENTJ - 指挥官"
+value="ENTJ">
                 <div class="mbti-option">
                   <span class="mbti-code">ENTJ</span>
                   <span class="mbti-name">指挥官</span>
                 </div>
               </el-option>
-              <el-option label="ENTP - 辩论家" value="ENTP">
+              <el-option label="ENTP - 辩论家"
+value="ENTP">
                 <div class="mbti-option">
                   <span class="mbti-code">ENTP</span>
                   <span class="mbti-name">辩论家</span>
@@ -122,25 +129,29 @@
             </el-option-group>
 
             <el-option-group label="外交家 (NF)">
-              <el-option label="INFJ - 提倡者" value="INFJ">
+              <el-option label="INFJ - 提倡者"
+value="INFJ">
                 <div class="mbti-option">
                   <span class="mbti-code">INFJ</span>
                   <span class="mbti-name">提倡者</span>
                 </div>
               </el-option>
-              <el-option label="INFP - 调停者" value="INFP">
+              <el-option label="INFP - 调停者"
+value="INFP">
                 <div class="mbti-option">
                   <span class="mbti-code">INFP</span>
                   <span class="mbti-name">调停者</span>
                 </div>
               </el-option>
-              <el-option label="ENFJ - 主人公" value="ENFJ">
+              <el-option label="ENFJ - 主人公"
+value="ENFJ">
                 <div class="mbti-option">
                   <span class="mbti-code">ENFJ</span>
                   <span class="mbti-name">主人公</span>
                 </div>
               </el-option>
-              <el-option label="ENFP - 活动家" value="ENFP">
+              <el-option label="ENFP - 活动家"
+value="ENFP">
                 <div class="mbti-option">
                   <span class="mbti-code">ENFP</span>
                   <span class="mbti-name">活动家</span>
@@ -149,25 +160,29 @@
             </el-option-group>
 
             <el-option-group label="守护者 (SJ)">
-              <el-option label="ISTJ - 物流师" value="ISTJ">
+              <el-option label="ISTJ - 物流师"
+value="ISTJ">
                 <div class="mbti-option">
                   <span class="mbti-code">ISTJ</span>
                   <span class="mbti-name">物流师</span>
                 </div>
               </el-option>
-              <el-option label="ISFJ - 守护者" value="ISFJ">
+              <el-option label="ISFJ - 守护者"
+value="ISFJ">
                 <div class="mbti-option">
                   <span class="mbti-code">ISFJ</span>
                   <span class="mbti-name">守护者</span>
                 </div>
               </el-option>
-              <el-option label="ESTJ - 总经理" value="ESTJ">
+              <el-option label="ESTJ - 总经理"
+value="ESTJ">
                 <div class="mbti-option">
                   <span class="mbti-code">ESTJ</span>
                   <span class="mbti-name">总经理</span>
                 </div>
               </el-option>
-              <el-option label="ESFJ - 执政官" value="ESFJ">
+              <el-option label="ESFJ - 执政官"
+value="ESFJ">
                 <div class="mbti-option">
                   <span class="mbti-code">ESFJ</span>
                   <span class="mbti-name">执政官</span>
@@ -176,25 +191,29 @@
             </el-option-group>
 
             <el-option-group label="探险家 (SP)">
-              <el-option label="ISTP - 鉴赏家" value="ISTP">
+              <el-option label="ISTP - 鉴赏家"
+value="ISTP">
                 <div class="mbti-option">
                   <span class="mbti-code">ISTP</span>
                   <span class="mbti-name">鉴赏家</span>
                 </div>
               </el-option>
-              <el-option label="ISFP - 探险家" value="ISFP">
+              <el-option label="ISFP - 探险家"
+value="ISFP">
                 <div class="mbti-option">
                   <span class="mbti-code">ISFP</span>
                   <span class="mbti-name">探险家</span>
                 </div>
               </el-option>
-              <el-option label="ESTP - 企业家" value="ESTP">
+              <el-option label="ESTP - 企业家"
+value="ESTP">
                 <div class="mbti-option">
                   <span class="mbti-code">ESTP</span>
                   <span class="mbti-name">企业家</span>
                 </div>
               </el-option>
-              <el-option label="ESFP - 娱乐家" value="ESFP">
+              <el-option label="ESFP - 娱乐家"
+value="ESFP">
                 <div class="mbti-option">
                   <span class="mbti-code">ESFP</span>
                   <span class="mbti-name">娱乐家</span>
@@ -203,9 +222,11 @@
             </el-option-group>
           </el-select>
 
-          <div v-if="mbtiType" class="mbti-preview">
+          <div v-if="mbtiType"
+class="mbti-preview">
             <div class="mbti-avatar">
-              <img :src="`/images/mbti/${mbtiType}.png`" :alt="mbtiType" />
+              <img
+:src="`/images/mbti/${mbtiType}.png`" :alt="mbtiType" />
             </div>
             <div class="mbti-info">
               <h4>{{ getMbtiName(mbtiType) }}</h4>
@@ -263,7 +284,8 @@
             }"
             @click="toggleTransport(transport.value)"
           >
-            <component :is="transport.icon" class="transport-icon" />
+            <component :is="transport.icon"
+class="transport-icon" />
             <span class="transport-label">{{ transport.label }}</span>
             <span class="transport-desc">{{ transport.desc }}</span>
           </div>
@@ -291,9 +313,10 @@
                 <House />
               </el-icon>
               <span class="accommodation-title">{{
-                translateTag('budget')
+                translateTag("budget")
               }}</span>
-              <span v-if="false" class="accommodation-desc">Budget</span>
+              <span v-if="false"
+class="accommodation-desc">Budget</span>
             </div>
 
             <div
@@ -307,9 +330,10 @@
                 <Monitor />
               </el-icon>
               <span class="accommodation-title">{{
-                translateTag('comfort')
+                translateTag("comfort")
               }}</span>
-              <span v-if="false" class="accommodation-desc"
+              <span
+v-if="false" class="accommodation-desc"
                 >3-star / Boutique</span
               >
             </div>
@@ -324,8 +348,9 @@
               <el-icon class="accommodation-icon">
                 <Coffee />
               </el-icon>
-              <span class="accommodation-title">{{ translateTag('bnb') }}</span>
-              <span v-if="false" class="accommodation-desc"
+              <span class="accommodation-title">{{ translateTag("bnb") }}</span>
+              <span
+v-if="false" class="accommodation-desc"
                 >Local homestay</span
               >
             </div>
@@ -341,9 +366,10 @@
                 <Trophy />
               </el-icon>
               <span class="accommodation-title">{{
-                translateTag('luxury')
+                translateTag("luxury")
               }}</span>
-              <span v-if="false" class="accommodation-desc"
+              <span
+v-if="false" class="accommodation-desc"
                 >5-star / Resort</span
               >
             </div>
@@ -367,19 +393,19 @@
               class="taste-group"
             >
               <el-checkbox value="spicy">
-                {{ translateTag('spicy') }}
+                {{ translateTag("spicy") }}
               </el-checkbox>
               <el-checkbox value="sweet">
-                {{ translateTag('sweet') }}
+                {{ translateTag("sweet") }}
               </el-checkbox>
               <el-checkbox value="sour">
-                {{ translateTag('sour') }}
+                {{ translateTag("sour") }}
               </el-checkbox>
               <el-checkbox value="light">
-                {{ translateTag('light') }}
+                {{ translateTag("light") }}
               </el-checkbox>
               <el-checkbox value="heavy">
-                {{ translateTag('heavy') }}
+                {{ translateTag("heavy") }}
               </el-checkbox>
             </el-checkbox-group>
           </div>
@@ -391,28 +417,28 @@
               class="restriction-group"
             >
               <el-checkbox value="halal">
-                {{ translateTag('halal', 'dietary') }}
+                {{ translateTag("halal", "dietary") }}
               </el-checkbox>
               <el-checkbox value="vegetarian">
-                {{ translateTag('vegetarian', 'dietary') }}
+                {{ translateTag("vegetarian", "dietary") }}
               </el-checkbox>
               <el-checkbox value="vegan">
-                {{ translateTag('vegan', 'dietary') }}
+                {{ translateTag("vegan", "dietary") }}
               </el-checkbox>
               <el-checkbox value="no_pork">
-                {{ translateTag('no_pork', 'dietary') }}
+                {{ translateTag("no_pork", "dietary") }}
               </el-checkbox>
               <el-checkbox value="no_beef">
-                {{ translateTag('no_beef', 'dietary') }}
+                {{ translateTag("no_beef", "dietary") }}
               </el-checkbox>
               <el-checkbox value="no_seafood">
-                {{ translateTag('no_seafood', 'dietary') }}
+                {{ translateTag("no_seafood", "dietary") }}
               </el-checkbox>
               <el-checkbox value="no_spicy">
-                {{ translateTag('no_spicy', 'dietary') }}
+                {{ translateTag("no_spicy", "dietary") }}
               </el-checkbox>
               <el-checkbox value="gluten_free">
-                {{ translateTag('gluten_free', 'dietary') }}
+                {{ translateTag("gluten_free", "dietary") }}
               </el-checkbox>
               <el-checkbox value="no_alcohol">
                 translateTag("no_alcohol", "dietary")
@@ -451,7 +477,7 @@
           >
             <el-icon><Sunrise /></el-icon>
             <div class="time-info">
-              <span class="time-title">{{ translateTag('morning') }}</span>
+              <span class="time-title">{{ translateTag("morning") }}</span>
               <span class="time-desc">6:00-10:00</span>
             </div>
           </div>
@@ -465,7 +491,7 @@
           >
             <el-icon><Trophy /></el-icon>
             <div class="time-info">
-              <span class="time-title">{{ translateTag('afternoon') }}</span>
+              <span class="time-title">{{ translateTag("afternoon") }}</span>
               <span class="time-desc">10:00-16:00</span>
             </div>
           </div>
@@ -479,7 +505,7 @@
           >
             <el-icon><Camera /></el-icon>
             <div class="time-info">
-              <span class="time-title">{{ translateTag('evening') }}</span>
+              <span class="time-title">{{ translateTag("evening") }}</span>
               <span class="time-desc">16:00-22:00</span>
             </div>
           </div>
@@ -537,27 +563,27 @@
           </div>
 
           <div class="preference-item">
-            <span>{{ translateTag('avoidCrowds') }}</span>
+            <span>{{ translateTag("avoidCrowds") }}</span>
             <el-switch v-model="preferences.avoidCrowds" />
           </div>
 
           <div class="preference-item">
-            <span>{{ translateTag('includeShopping') }}</span>
+            <span>{{ translateTag("includeShopping") }}</span>
             <el-switch v-model="preferences.includeShopping" />
           </div>
 
           <div class="preference-item">
-            <span>{{ translateTag('preferPublicTransport') }}</span>
+            <span>{{ translateTag("preferPublicTransport") }}</span>
             <el-switch v-model="preferences.preferPublicTransport" />
           </div>
 
           <div class="preference-item">
-            <span>{{ translateTag('includeKidsActivities') }}</span>
+            <span>{{ translateTag("includeKidsActivities") }}</span>
             <el-switch v-model="preferences.includeKidsActivities" />
           </div>
 
           <div class="preference-item">
-            <span>{{ translateTag('needAccessibility') }}</span>
+            <span>{{ translateTag("needAccessibility") }}</span>
             <el-switch v-model="preferences.needAccessibility" />
           </div>
         </div>
@@ -581,9 +607,9 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted, watch, computed } from 'vue';
-import { ElMessage } from 'element-plus';
-import { useUserStore } from '@/store/user.js';
+import { ref, reactive, onMounted, watch, computed } from "vue";
+import { ElMessage } from "element-plus";
+import { useUserStore } from "@/store/user.js";
 import {
   Collection,
   Money,
@@ -599,17 +625,17 @@ import {
   Monitor,
   Bicycle,
   User,
-} from '@element-plus/icons-vue';
-import { useRouter, useRoute } from 'vue-router';
+} from "@element-plus/icons-vue";
+import { useRouter, useRoute } from "vue-router";
 import {
   getMbtiName,
   getMbtiTravelDescription,
   translateTag,
-} from '@/utils/data/tagMapping.js';
-import UserCenterNav from '@/components/User/UserCenterNav.vue';
+} from "@/utils/data/tagMapping.js";
+import UserCenterNav from "@/components/User/UserCenterNav.vue";
 
 export default {
-  name: 'Preferences',
+  name: "Preferences",
   components: {
     UserCenterNav,
     Collection,
@@ -630,7 +656,7 @@ export default {
   props: {
     embedded: { type: Boolean, default: false },
   },
-  emits: ['saved', 'close'],
+  emits: ["saved", "close"],
   setup(props, { emit }) {
     const userStore = useUserStore();
     const router = useRouter();
@@ -645,69 +671,69 @@ export default {
       popularFirst: true,
       includeFood: true,
       avoidCrowds: false,
-      accommodationType: 'comfort',
+      accommodationType: "comfort",
       foodTastes: [],
       dietaryRestrictions: [],
-      preferredTimes: ['afternoon'],
+      preferredTimes: ["afternoon"],
       travelPace: 3,
       includeShopping: true,
       preferPublicTransport: true,
       includeKidsActivities: false,
       needAccessibility: false,
-      customDietaryNotes: '', // 新增：用于存储其他饮食需求
+      customDietaryNotes: "", // 新增：用于存储其他饮食需求
     });
 
     // MBTI性格类型选择
-    const mbtiType = ref('');
+    const mbtiType = ref("");
 
     // 可选择的旅行偏好标签 - 使用统一的标签映射
     const availableTags = [
-      { label: translateTag('historical'), value: 'historical', icon: School },
-      { label: translateTag('nature'), value: 'nature', icon: Sunrise },
-      { label: translateTag('food'), value: 'food', icon: Coffee },
+      { label: translateTag("historical"), value: "historical", icon: School },
+      { label: translateTag("nature"), value: "nature", icon: Sunrise },
+      { label: translateTag("food"), value: "food", icon: Coffee },
       {
-        label: translateTag('photography'),
-        value: 'photography',
+        label: translateTag("photography"),
+        value: "photography",
         icon: Camera,
       },
-      { label: translateTag('family'), value: 'family', icon: Trophy },
-      { label: translateTag('urban'), value: 'urban', icon: MapLocation },
-      { label: translateTag('culture'), value: 'culture', icon: School },
-      { label: translateTag('relaxation'), value: 'relaxation', icon: Coffee },
-      { label: translateTag('adventure'), value: 'adventure', icon: Trophy },
-      { label: translateTag('wellness'), value: 'wellness', icon: House },
+      { label: translateTag("family"), value: "family", icon: Trophy },
+      { label: translateTag("urban"), value: "urban", icon: MapLocation },
+      { label: translateTag("culture"), value: "culture", icon: School },
+      { label: translateTag("relaxation"), value: "relaxation", icon: Coffee },
+      { label: translateTag("adventure"), value: "adventure", icon: Trophy },
+      { label: translateTag("wellness"), value: "wellness", icon: House },
     ];
 
     // 出行方式偏好 - 使用统一的标签映射
     const transportTypes = [
       {
-        label: translateTag('car'),
-        value: 'car',
+        label: translateTag("car"),
+        value: "car",
         icon: MapLocation,
-        desc: '自由自在，不受公共交通限制',
+        desc: "自由自在，不受公共交通限制",
       },
       {
-        label: translateTag('public'),
-        value: 'public',
+        label: translateTag("public"),
+        value: "public",
         icon: Monitor,
-        desc: '环保出行，了解当地文化',
+        desc: "环保出行，了解当地文化",
       },
       {
-        label: translateTag('walk'),
-        value: 'walk',
+        label: translateTag("walk"),
+        value: "walk",
         icon: Bicycle,
-        desc: '深度体验，探索城市细节',
+        desc: "深度体验，探索城市细节",
       },
       {
-        label: translateTag('shared'),
-        value: 'shared',
+        label: translateTag("shared"),
+        value: "shared",
         icon: House,
-        desc: '灵活安排，节省时间',
+        desc: "灵活安排，节省时间",
       },
     ];
 
     // 切换标签选择
-    const toggleTag = tagValue => {
+    const toggleTag = (tagValue) => {
       const index = selectedTags.value.indexOf(tagValue);
       if (index > -1) {
         selectedTags.value.splice(index, 1);
@@ -718,7 +744,7 @@ export default {
 
     // 切换出行方式偏好
     const selectedTransports = ref([]);
-    const toggleTransport = transportValue => {
+    const toggleTransport = (transportValue) => {
       const index = selectedTransports.value.indexOf(transportValue);
       if (index > -1) {
         selectedTransports.value.splice(index, 1);
@@ -728,7 +754,7 @@ export default {
     };
 
     // 切换活动时间偏好
-    const toggleTime = time => {
+    const toggleTime = (time) => {
       const index = preferences.preferredTimes.indexOf(time);
       if (index > -1) {
         preferences.preferredTimes.splice(index, 1);
@@ -738,132 +764,132 @@ export default {
     };
 
     // MBTI性格类型变化处理
-    const handleMbtiChange = value => {
+    const handleMbtiChange = (value) => {
       mbtiType.value = value;
       // 根据MBTI类型更新偏好
-      if (value === 'INTJ') {
+      if (value === "INTJ") {
         preferences.travelPace = 5; // 暴走型
-        preferences.preferredTimes = ['morning', 'afternoon'];
+        preferences.preferredTimes = ["morning", "afternoon"];
         preferences.includeFood = true;
         preferences.includeShopping = true;
         preferences.preferPublicTransport = false;
         preferences.includeKidsActivities = false;
         preferences.needAccessibility = false;
-      } else if (value === 'INTP') {
+      } else if (value === "INTP") {
         preferences.travelPace = 3; // 平衡型
-        preferences.preferredTimes = ['afternoon'];
+        preferences.preferredTimes = ["afternoon"];
         preferences.includeFood = true;
         preferences.includeShopping = true;
         preferences.preferPublicTransport = true;
         preferences.includeKidsActivities = false;
         preferences.needAccessibility = false;
-      } else if (value === 'ENTJ') {
+      } else if (value === "ENTJ") {
         preferences.travelPace = 4; // 紧凑型
-        preferences.preferredTimes = ['morning', 'afternoon', 'evening'];
+        preferences.preferredTimes = ["morning", "afternoon", "evening"];
         preferences.includeFood = true;
         preferences.includeShopping = true;
         preferences.preferPublicTransport = false;
         preferences.includeKidsActivities = false;
         preferences.needAccessibility = false;
-      } else if (value === 'ENTP') {
+      } else if (value === "ENTP") {
         preferences.travelPace = 2; // 悠闲型
-        preferences.preferredTimes = ['afternoon'];
+        preferences.preferredTimes = ["afternoon"];
         preferences.includeFood = true;
         preferences.includeShopping = true;
         preferences.preferPublicTransport = true;
         preferences.includeKidsActivities = false;
         preferences.needAccessibility = false;
-      } else if (value === 'INFJ') {
+      } else if (value === "INFJ") {
         preferences.travelPace = 3; // 平衡型
-        preferences.preferredTimes = ['afternoon'];
+        preferences.preferredTimes = ["afternoon"];
         preferences.includeFood = true;
         preferences.includeShopping = true;
         preferences.preferPublicTransport = true;
         preferences.includeKidsActivities = false;
         preferences.needAccessibility = false;
-      } else if (value === 'INFP') {
+      } else if (value === "INFP") {
         preferences.travelPace = 2; // 悠闲型
-        preferences.preferredTimes = ['afternoon'];
+        preferences.preferredTimes = ["afternoon"];
         preferences.includeFood = true;
         preferences.includeShopping = true;
         preferences.preferPublicTransport = true;
         preferences.includeKidsActivities = false;
         preferences.needAccessibility = false;
-      } else if (value === 'ENFJ') {
+      } else if (value === "ENFJ") {
         preferences.travelPace = 4; // 紧凑型
-        preferences.preferredTimes = ['morning', 'afternoon', 'evening'];
+        preferences.preferredTimes = ["morning", "afternoon", "evening"];
         preferences.includeFood = true;
         preferences.includeShopping = true;
         preferences.preferPublicTransport = false;
         preferences.includeKidsActivities = false;
         preferences.needAccessibility = false;
-      } else if (value === 'ENFP') {
+      } else if (value === "ENFP") {
         preferences.travelPace = 3; // 平衡型
-        preferences.preferredTimes = ['afternoon'];
+        preferences.preferredTimes = ["afternoon"];
         preferences.includeFood = true;
         preferences.includeShopping = true;
         preferences.preferPublicTransport = true;
         preferences.includeKidsActivities = false;
         preferences.needAccessibility = false;
-      } else if (value === 'ISTJ') {
+      } else if (value === "ISTJ") {
         preferences.travelPace = 1; // 慢悠悠
-        preferences.preferredTimes = ['morning'];
+        preferences.preferredTimes = ["morning"];
         preferences.includeFood = true;
         preferences.includeShopping = true;
         preferences.preferPublicTransport = true;
         preferences.includeKidsActivities = false;
         preferences.needAccessibility = false;
-      } else if (value === 'ISFJ') {
+      } else if (value === "ISFJ") {
         preferences.travelPace = 2; // 悠闲型
-        preferences.preferredTimes = ['afternoon'];
+        preferences.preferredTimes = ["afternoon"];
         preferences.includeFood = true;
         preferences.includeShopping = true;
         preferences.preferPublicTransport = true;
         preferences.includeKidsActivities = false;
         preferences.needAccessibility = false;
-      } else if (value === 'ESTJ') {
+      } else if (value === "ESTJ") {
         preferences.travelPace = 4; // 紧凑型
-        preferences.preferredTimes = ['morning', 'afternoon', 'evening'];
+        preferences.preferredTimes = ["morning", "afternoon", "evening"];
         preferences.includeFood = true;
         preferences.includeShopping = true;
         preferences.preferPublicTransport = false;
         preferences.includeKidsActivities = false;
         preferences.needAccessibility = false;
-      } else if (value === 'ESFJ') {
+      } else if (value === "ESFJ") {
         preferences.travelPace = 3; // 平衡型
-        preferences.preferredTimes = ['afternoon'];
+        preferences.preferredTimes = ["afternoon"];
         preferences.includeFood = true;
         preferences.includeShopping = true;
         preferences.preferPublicTransport = true;
         preferences.includeKidsActivities = false;
         preferences.needAccessibility = false;
-      } else if (value === 'ISTP') {
+      } else if (value === "ISTP") {
         preferences.travelPace = 5; // 暴走型
-        preferences.preferredTimes = ['morning', 'afternoon', 'evening'];
+        preferences.preferredTimes = ["morning", "afternoon", "evening"];
         preferences.includeFood = true;
         preferences.includeShopping = true;
         preferences.preferPublicTransport = false;
         preferences.includeKidsActivities = false;
         preferences.needAccessibility = false;
-      } else if (value === 'ISFP') {
+      } else if (value === "ISFP") {
         preferences.travelPace = 2; // 悠闲型
-        preferences.preferredTimes = ['afternoon'];
+        preferences.preferredTimes = ["afternoon"];
         preferences.includeFood = true;
         preferences.includeShopping = true;
         preferences.preferPublicTransport = true;
         preferences.includeKidsActivities = false;
         preferences.needAccessibility = false;
-      } else if (value === 'ESTP') {
+      } else if (value === "ESTP") {
         preferences.travelPace = 4; // 紧凑型
-        preferences.preferredTimes = ['morning', 'afternoon', 'evening'];
+        preferences.preferredTimes = ["morning", "afternoon", "evening"];
         preferences.includeFood = true;
         preferences.includeShopping = true;
         preferences.preferPublicTransport = false;
         preferences.includeKidsActivities = false;
         preferences.needAccessibility = false;
-      } else if (value === 'ESFP') {
+      } else if (value === "ESFP") {
         preferences.travelPace = 3; // 平衡型
-        preferences.preferredTimes = ['afternoon'];
+        preferences.preferredTimes = ["afternoon"];
         preferences.includeFood = true;
         preferences.includeShopping = true;
         preferences.preferPublicTransport = true;
@@ -886,9 +912,9 @@ export default {
         // 首先尝试从API获取最新的偏好数据
         try {
           await userStore.fetchUserPreferences();
-          console.log('✅ 从API获取偏好数据成功');
+          console.log("✅ 从API获取偏好数据成功");
         } catch (apiError) {
-          console.warn('⚠️ API获取偏好失败，使用本地数据:', apiError.message);
+          console.warn("⚠️ API获取偏好失败，使用本地数据:", apiError.message);
         }
 
         // 从userStore中加载偏好数据（可能是从API获取的最新数据，也可能是本地缓存）
@@ -903,7 +929,7 @@ export default {
         // 如果有偏好数据则解析并加载
         if (userPrefs) {
           const parsed =
-            typeof userPrefs === 'string' ? JSON.parse(userPrefs) : userPrefs;
+            typeof userPrefs === "string" ? JSON.parse(userPrefs) : userPrefs;
 
           // 加载旅行类型标签
           if (parsed.selectedTags && Array.isArray(parsed.selectedTags)) {
@@ -964,7 +990,7 @@ export default {
           // 加载其他偏好
           if (
             parsed.otherPreferences &&
-            typeof parsed.otherPreferences === 'object'
+            typeof parsed.otherPreferences === "object"
           ) {
             const otherPrefs = parsed.otherPreferences;
             preferences.popularFirst = otherPrefs.popularFirst || false;
@@ -979,18 +1005,18 @@ export default {
               otherPrefs.needAccessibility || false;
           }
 
-          console.log('✅ 用户偏好加载完成:', {
+          console.log("✅ 用户偏好加载完成:", {
             tags: selectedTags.value.length,
             transports: selectedTransports.value.length,
             budget: budget.value,
             mbti: mbtiType.value,
           });
         } else {
-          console.log('⚠️ 未找到用户偏好数据，使用默认值');
+          console.log("⚠️ 未找到用户偏好数据，使用默认值");
         }
       } catch (error) {
-        console.error('❌ 加载用户偏好失败:', error);
-        ElMessage.error('加载偏好设置失败');
+        console.error("❌ 加载用户偏好失败:", error);
+        ElMessage.error("加载偏好设置失败");
       } finally {
         loading.value = false;
       }
@@ -1027,16 +1053,16 @@ export default {
           isCompleted: true,
         };
 
-        console.log('💾 保存偏好数据:', preferencesData);
+        console.log("💾 保存偏好数据:", preferencesData);
 
         // 调用新的API保存偏好
         await userStore.updateUserPreferences(preferencesData);
 
-        ElMessage.success('偏好设置已保存');
+        ElMessage.success("偏好设置已保存");
 
         // 嵌入模式下不跳转，发出事件交给父级关闭抽屉
         if (props.embedded) {
-          emit('saved');
+          emit("saved");
         } else {
           // 根据query参数决定跳转目标
           const returnTo = route.query.returnTo;
@@ -1048,17 +1074,17 @@ export default {
                 router.push({ path: returnTo, query: queryParams });
                 console.log(`🔄 返回到: ${returnTo}`);
               } catch (error) {
-                console.error('解析返回参数失败:', error);
+                console.error("解析返回参数失败:", error);
                 router.push(returnTo);
               }
             } else {
-              router.push('/home');
+              router.push("/home");
             }
           }, 800);
         }
       } catch (error) {
-        console.error('保存偏好设置失败:', error);
-        ElMessage.error('保存失败：' + (error.message || '请重试'));
+        console.error("保存偏好设置失败:", error);
+        ElMessage.error("保存失败：" + (error.message || "请重试"));
       } finally {
         saving.value = false;
       }
@@ -1073,9 +1099,9 @@ export default {
         try {
           // 刷新用户信息，确保偏好数据是最新的
           await userStore.fetchUserInfo();
-          console.log('🔄 用户信息已刷新');
+          console.log("🔄 用户信息已刷新");
         } catch (error) {
-          console.warn('⚠️ 刷新用户信息失败:', error);
+          console.warn("⚠️ 刷新用户信息失败:", error);
         }
       }
 
@@ -1088,11 +1114,11 @@ export default {
       () => userStore.currentUser?.preferences,
       (newPreferences, oldPreferences) => {
         if (newPreferences !== oldPreferences) {
-          console.log('🔄 检测到用户偏好数据变化，重新加载');
+          console.log("🔄 检测到用户偏好数据变化，重新加载");
           loadPreferences();
         }
       },
-      { deep: true }
+      { deep: true },
     );
 
     return {

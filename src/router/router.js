@@ -1,210 +1,210 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import { useUserStore } from '@/store/user';
+import { createRouter, createWebHistory } from "vue-router";
+import { useUserStore } from "@/store/user";
 
 const routes = [
   // ========== 认证相关页面（无需登录） ==========
   {
-    path: '/login',
-    name: 'Login',
-    component: () => import('../pages/User/Auth/Login.vue'),
+    path: "/login",
+    name: "Login",
+    component: () => import("../pages/User/Auth/Login.vue"),
     meta: {
-      titleKey: 'route.login',
+      titleKey: "route.login",
       requiresAuth: false,
     },
   },
   {
-    path: '/register',
-    name: 'Register',
-    component: () => import('../pages/User/Auth/Register.vue'),
+    path: "/register",
+    name: "Register",
+    component: () => import("../pages/User/Auth/Register.vue"),
     meta: {
-      titleKey: 'route.register',
+      titleKey: "route.register",
       requiresAuth: false,
     },
   },
 
   // ========== 主应用页面（使用DefaultLayout） ==========
   {
-    path: '/',
-    component: () => import('../layouts/DefaultLayout.vue'),
+    path: "/",
+    component: () => import("../layouts/DefaultLayout.vue"),
     children: [
       // 默认重定向到首页
       {
-        path: '',
-        redirect: '/home',
+        path: "",
+        redirect: "/home",
       },
 
       // 用户模块
       {
-        path: 'home',
-        name: 'Home',
-        component: () => import('../pages/Home/Dashboard.vue'),
+        path: "home",
+        name: "Home",
+        component: () => import("../pages/Home/Dashboard.vue"),
         meta: {
-          titleKey: 'route.home',
+          titleKey: "route.home",
           requiresAuth: true,
         },
       },
       {
-        path: 'personal',
-        name: 'Personal',
-        component: () => import('../pages/Personal/PersonalCenter.vue'),
+        path: "personal",
+        name: "Personal",
+        component: () => import("../pages/Personal/PersonalCenter.vue"),
         meta: {
-          titleKey: 'route.personal',
+          titleKey: "route.personal",
           requiresAuth: true,
         },
       },
       {
-        path: 'personal/settings',
-        name: 'PersonalSettings',
-        component: () => import('../pages/Personal/Settings.vue'),
+        path: "personal/settings",
+        name: "PersonalSettings",
+        component: () => import("../pages/Personal/Settings.vue"),
         meta: {
-          titleKey: '个人设置',
+          titleKey: "个人设置",
           requiresAuth: true,
         },
       },
       {
-        path: 'personal/profile',
-        name: 'PersonalProfile',
-        component: () => import('../pages/User/Profile/Profile.vue'),
+        path: "personal/profile",
+        name: "PersonalProfile",
+        component: () => import("../pages/User/Profile/Profile.vue"),
         meta: {
-          titleKey: 'route.personalProfile',
+          titleKey: "route.personalProfile",
           requiresAuth: true,
         },
       },
       {
-        path: 'personal/security',
-        name: 'PersonalSecurity',
-        component: () => import('../pages/User/Settings/Security.vue'),
+        path: "personal/security",
+        name: "PersonalSecurity",
+        component: () => import("../pages/User/Settings/Security.vue"),
         meta: {
-          titleKey: 'settings.securitySettings',
+          titleKey: "settings.securitySettings",
           requiresAuth: true,
         },
       },
       {
-        path: 'personal/preferences',
-        name: 'PersonalPreferences',
-        component: () => import('../pages/User/Settings/Preferences.vue'),
+        path: "personal/preferences",
+        name: "PersonalPreferences",
+        component: () => import("../pages/User/Settings/Preferences.vue"),
         meta: {
-          titleKey: 'settings.preferences',
+          titleKey: "settings.preferences",
           requiresAuth: true,
         },
       },
       {
-        path: 'personal/notifications',
-        name: 'PersonalNotifications',
-        component: () => import('../pages/User/Settings/Notifications.vue'),
+        path: "personal/notifications",
+        name: "PersonalNotifications",
+        component: () => import("../pages/User/Settings/Notifications.vue"),
         meta: {
-          titleKey: 'settings.notifications',
+          titleKey: "settings.notifications",
           requiresAuth: true,
         },
       },
       {
-        path: 'personal/system',
-        name: 'PersonalSystem',
-        component: () => import('../pages/User/Settings/SystemSettings.vue'),
+        path: "personal/system",
+        name: "PersonalSystem",
+        component: () => import("../pages/User/Settings/SystemSettings.vue"),
         meta: {
-          titleKey: 'settings.systemSettings',
+          titleKey: "settings.systemSettings",
           requiresAuth: true,
         },
       },
       {
-        path: 'personal/history',
-        name: 'PersonalHistory',
-        component: () => import('../pages/User/Settings/LoginHistory.vue'),
+        path: "personal/history",
+        name: "PersonalHistory",
+        component: () => import("../pages/User/Settings/LoginHistory.vue"),
         meta: {
-          titleKey: 'settings.loginHistory',
+          titleKey: "settings.loginHistory",
           requiresAuth: true,
         },
       },
       {
-        path: 'personal/data',
-        name: 'PersonalData',
-        component: () => import('../pages/User/Settings/DataAndPrivacy.vue'),
+        path: "personal/data",
+        name: "PersonalData",
+        component: () => import("../pages/User/Settings/DataAndPrivacy.vue"),
         meta: {
-          titleKey: 'settings.exportData',
+          titleKey: "settings.exportData",
           requiresAuth: true,
         },
       },
       {
-        path: 'personal/danger',
-        name: 'PersonalDanger',
-        component: () => import('../pages/User/Settings/DangerZone.vue'),
+        path: "personal/danger",
+        name: "PersonalDanger",
+        component: () => import("../pages/User/Settings/DangerZone.vue"),
         meta: {
-          titleKey: 'settings.deleteAccount',
+          titleKey: "settings.deleteAccount",
           requiresAuth: true,
         },
       },
       {
-        path: 'account-settings',
-        name: 'AccountSettings',
-        component: () => import('../pages/User/Profile/AccountSettings.vue'),
+        path: "account-settings",
+        name: "AccountSettings",
+        component: () => import("../pages/User/Profile/AccountSettings.vue"),
         meta: {
-          titleKey: 'route.accountSettings',
+          titleKey: "route.accountSettings",
           requiresAuth: true,
         },
       },
       {
-        path: 'preferences',
-        name: 'Preferences',
-        component: () => import('../pages/User/Settings/Preferences.vue'),
+        path: "preferences",
+        name: "Preferences",
+        component: () => import("../pages/User/Settings/Preferences.vue"),
         meta: {
-          titleKey: 'route.preferences',
+          titleKey: "route.preferences",
           requiresAuth: true,
         },
       },
 
       // 足迹模块
       {
-        path: 'footprints',
-        name: 'Footprints',
-        component: () => import('../pages/Footprints/FootprintsPage.vue'),
+        path: "footprints",
+        name: "Footprints",
+        component: () => import("../pages/Footprints/FootprintsPage.vue"),
         meta: {
-          titleKey: 'route.footprints',
+          titleKey: "route.footprints",
           requiresAuth: true,
         },
       },
       // 向后兼容：愿望清单路由重定向到足迹
       {
-        path: 'wishlist',
-        redirect: '/footprints',
+        path: "wishlist",
+        redirect: "/footprints",
       },
 
       // 行程模块
       {
-        path: 'destinations',
-        name: 'Destinations',
-        component: () => import('../pages/Trip/Destinations.vue'),
+        path: "destinations",
+        name: "Destinations",
+        component: () => import("../pages/Trip/Destinations.vue"),
         meta: {
-          titleKey: 'route.destinations',
+          titleKey: "route.destinations",
           requiresAuth: true,
         },
       },
       {
-        path: 'trip/create',
-        name: 'TripCreate',
-        component: () => import('../pages/Trip/TripCreate.vue'),
+        path: "trip/create",
+        name: "TripCreate",
+        component: () => import("../pages/Trip/TripCreate.vue"),
         meta: {
-          titleKey: 'route.tripCreate',
+          titleKey: "route.tripCreate",
           requiresAuth: true,
           requiresDestination: true, // 需要先选择目的地
         },
       },
       {
-        path: 'trip/:id',
-        name: 'TripDetail',
-        component: () => import('../pages/Trip/TripDetail.vue'),
+        path: "trip/:id",
+        name: "TripDetail",
+        component: () => import("../pages/Trip/TripDetail.vue"),
         props: true,
         meta: {
-          titleKey: 'route.tripDetail',
+          titleKey: "route.tripDetail",
           requiresAuth: true,
         },
       },
       {
-        path: 'ai-trip/:id/edit',
-        name: 'AiTripEdit',
-        component: () => import('../pages/Trip/AiTripEdit.vue'),
+        path: "ai-trip/:id/edit",
+        name: "AiTripEdit",
+        component: () => import("../pages/Trip/AiTripEdit.vue"),
         props: true,
         meta: {
-          titleKey: 'route.aiTripEdit',
+          titleKey: "route.aiTripEdit",
           requiresAuth: true,
         },
       },
@@ -213,23 +213,23 @@ const routes = [
 
   // ========== 分享页面（无需登录） ==========
   {
-    path: '/share/trip/:id',
-    name: 'TripShare',
-    component: () => import('../pages/Trip/TripShare.vue'),
+    path: "/share/trip/:id",
+    name: "TripShare",
+    component: () => import("../pages/Trip/TripShare.vue"),
     props: true,
     meta: {
-      titleKey: 'route.tripShare',
+      titleKey: "route.tripShare",
       requiresAuth: false,
     },
   },
 
   // ========== 404页面 ==========
   {
-    path: '/:pathMatch(.*)*',
-    name: 'NotFound',
-    component: () => import('../pages/Error/NotFound.vue'),
+    path: "/:pathMatch(.*)*",
+    name: "NotFound",
+    component: () => import("../pages/Error/NotFound.vue"),
     meta: {
-      titleKey: 'route.notFound',
+      titleKey: "route.notFound",
       requiresAuth: false,
     },
   },
@@ -254,34 +254,34 @@ router.beforeEach(async (to, from, next) => {
 
   // 路由标题映射
   const titleMap = {
-    'route.login': '登录',
-    'route.register': '注册',
-    'route.home': '首页',
-    'route.personal': '个人中心',
-    'route.personalProfile': '个人资料',
-    'route.accountSettings': '账户设置',
-    'route.preferences': '偏好设置',
-    'route.destinations': '选择目的地',
-    'route.tripCreate': '创建行程',
-    'route.tripDetail': '行程详情',
-    'route.aiTripEdit': '编辑AI行程',
-    'route.attractionDetail': '景点详情',
-    'route.restaurantList': '餐厅列表',
-    'route.search': '搜索结果',
-    'route.tripShare': '行程分享',
-    'route.notFound': '页面不存在',
-    'route.footprints': '我的足迹',
-    'route.wishlist': '愿望清单', // 向后兼容
-    'settings.securitySettings': '安全设置',
-    'settings.notifications': '通知设置',
-    'settings.systemSettings': '系统设置',
-    'settings.loginHistory': '登录记录',
-    'settings.exportData': '导出数据',
-    'settings.deleteAccount': '注销账户',
+    "route.login": "登录",
+    "route.register": "注册",
+    "route.home": "首页",
+    "route.personal": "个人中心",
+    "route.personalProfile": "个人资料",
+    "route.accountSettings": "账户设置",
+    "route.preferences": "偏好设置",
+    "route.destinations": "选择目的地",
+    "route.tripCreate": "创建行程",
+    "route.tripDetail": "行程详情",
+    "route.aiTripEdit": "编辑AI行程",
+    "route.attractionDetail": "景点详情",
+    "route.restaurantList": "餐厅列表",
+    "route.search": "搜索结果",
+    "route.tripShare": "行程分享",
+    "route.notFound": "页面不存在",
+    "route.footprints": "我的足迹",
+    "route.wishlist": "愿望清单", // 向后兼容
+    "settings.securitySettings": "安全设置",
+    "settings.notifications": "通知设置",
+    "settings.systemSettings": "系统设置",
+    "settings.loginHistory": "登录记录",
+    "settings.exportData": "导出数据",
+    "settings.deleteAccount": "注销账户",
   };
 
   const titleKey = to.meta.titleKey;
-  const translated = titleKey ? titleMap[titleKey] || 'GoingTour' : 'GoingTour';
+  const translated = titleKey ? titleMap[titleKey] || "GoingTour" : "GoingTour";
   document.title = `${translated} - GoingTour`;
 
   // 检查是否需要登录
@@ -289,7 +289,7 @@ router.beforeEach(async (to, from, next) => {
     if (!userStore.isLoggedIn) {
       // 未登录，重定向到登录页
       next({
-        path: '/login',
+        path: "/login",
         query: { redirect: to.fullPath }, // 保存原始路径，登录后跳转
       });
       return;
@@ -300,18 +300,18 @@ router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresDestination) {
     // 检查是否有城市参数或保存的进度
     const hasDestinationParam = to.query.city && to.query.cityName;
-    const hasSavedProgress = localStorage.getItem('goingtour_trip_progress');
+    const hasSavedProgress = localStorage.getItem("goingtour_trip_progress");
 
     // 检查是否有草稿正在加载（通过Pinia store）
     let hasDraftToRestore = false;
     try {
       // 动态导入并检查草稿store
-      const { useDraftStore } = await import('@/store/draft.js');
+      const { useDraftStore } = await import("@/store/draft.js");
       const draftStore = useDraftStore();
       hasDraftToRestore = draftStore.hasDraftToRestore();
-      console.log('🔍 路由守卫检查草稿状态:', hasDraftToRestore);
+      console.log("🔍 路由守卫检查草稿状态:", hasDraftToRestore);
     } catch (error) {
-      console.warn('检查草稿store失败:', error);
+      console.warn("检查草稿store失败:", error);
     }
 
     let hasValidDestination = hasDestinationParam || hasDraftToRestore;
@@ -328,17 +328,17 @@ router.beforeEach(async (to, from, next) => {
 
         hasValidDestination = isValidProgress;
       } catch (error) {
-        console.warn('解析保存的进度失败:', error);
+        console.warn("解析保存的进度失败:", error);
       }
     }
 
     if (!hasValidDestination) {
       // 没有目的地信息，重定向到目的地选择页面
       next({
-        path: '/destinations',
+        path: "/destinations",
         query: {
           redirect: to.fullPath,
-          message: '请先选择目的地再创建行程',
+          message: "请先选择目的地再创建行程",
         },
       });
       return;
@@ -348,9 +348,9 @@ router.beforeEach(async (to, from, next) => {
   // 如果已登录用户访问登录页，重定向到首页
   if (
     userStore.isLoggedIn &&
-    (to.path === '/login' || to.path === '/register')
+    (to.path === "/login" || to.path === "/register")
   ) {
-    next('/home');
+    next("/home");
     return;
   }
 

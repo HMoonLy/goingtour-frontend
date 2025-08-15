@@ -3,7 +3,11 @@
  * 现在使用统一的图片URL规范化工具
  */
 
-import { getAvatarUrl as getAvatarUrlFromImageUtils, isOSSImage, getInitials as getInitialsFromImageUtils } from '../media/imageUrl.js';
+import {
+  getAvatarUrl as getAvatarUrlFromImageUtils,
+  isOSSImage,
+  getInitials as getInitialsFromImageUtils,
+} from "../media/imageUrl.js";
 
 /**
  * 获取有效的头像访问URL
@@ -12,7 +16,7 @@ import { getAvatarUrl as getAvatarUrlFromImageUtils, isOSSImage, getInitials as 
  * @returns {string} 可访问的头像URL
  */
 export function getAvatarUrl(avatar, userId = null) {
-    return getAvatarUrlFromImageUtils(avatar, userId);
+  return getAvatarUrlFromImageUtils(avatar, userId);
 }
 
 /**
@@ -21,7 +25,7 @@ export function getAvatarUrl(avatar, userId = null) {
  * @returns {boolean}
  */
 export function isOSSAvatar(avatar) {
-    return isOSSImage(avatar);
+  return isOSSImage(avatar);
 }
 
 /**
@@ -30,5 +34,5 @@ export function isOSSAvatar(avatar) {
  * @returns {string} 首字母
  */
 export function getInitials(name) {
-    return getInitialsFromImageUtils(name);
+  return getInitialsFromImageUtils(name);
 }

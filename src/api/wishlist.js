@@ -1,7 +1,7 @@
 /**
  * 愿望清单相关API接口
  */
-import { http } from './request.js';
+import { http } from "./request.js";
 
 export const wishlistApi = {
   /**
@@ -24,7 +24,7 @@ export const wishlistApi = {
    * @returns {Promise} 创建结果
    */
   addToWishlist(wishData) {
-    return http.post('/wishlist', wishData);
+    return http.post("/wishlist", wishData);
   },
 
   /**
@@ -81,7 +81,7 @@ export const wishlistApi = {
    * @returns {Promise} 批量添加结果
    */
   batchAddRecommendations(userId, cities) {
-    return http.post('/wishlist/batch', {
+    return http.post("/wishlist/batch", {
       userId,
       cities,
     });

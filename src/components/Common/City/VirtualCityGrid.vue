@@ -1,5 +1,6 @@
 <template>
-  <div ref="containerRef" class="virtual-city-grid-container">
+  <div ref="containerRef"
+class="virtual-city-grid-container">
     <!-- 虚拟滚动容器 - 移除内部滚动 -->
     <div class="virtual-scroll-wrapper">
       <!-- 可见的城市分组 - 显示全部 -->
@@ -41,11 +42,11 @@ import {
   watch,
   nextTick,
   shallowRef,
-} from 'vue';
-import CityGridList from './CityGridList.vue';
+} from "vue";
+import CityGridList from "./CityGridList.vue";
 
 export default {
-  name: 'VirtualCityGrid',
+  name: "VirtualCityGrid",
   components: {
     CityGridList,
   },
@@ -59,7 +60,7 @@ export default {
       default: () => [],
     },
   },
-  emits: ['selectCity', 'toggleWishlist'],
+  emits: ["selectCity", "toggleWishlist"],
   setup(props) {
     const containerRef = ref(null);
     const groupRefs = shallowRef(new Map());
@@ -83,7 +84,7 @@ export default {
     // 简化生命周期钩子 - 移除滚动监听
     onMounted(() => {
       // 不再需要复杂的滚动和容器高度监听
-      console.log('VirtualCityGrid mounted - 显示所有城市分组');
+      console.log("VirtualCityGrid mounted - 显示所有城市分组");
     });
 
     onBeforeUnmount(() => {
@@ -94,8 +95,8 @@ export default {
     watch(
       () => props.cityGroups.length,
       () => {
-        console.log('城市数据变化:', props.cityGroups.length);
-      }
+        console.log("城市数据变化:", props.cityGroups.length);
+      },
     );
 
     return {

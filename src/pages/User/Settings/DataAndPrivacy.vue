@@ -1,65 +1,69 @@
 <template>
-  <div class="personal-page simple" :class="{ embedded }">
+  <div class="personal-page simple"
+:class="{ embedded }">
     <UserCenterNav v-if="!embedded" />
-    <h2 v-if="!embedded" class="title">
-      {{ '数据与隐私' }}
+    <h2 v-if="!embedded"
+class="title">
+      {{ "数据与隐私" }}
     </h2>
     <el-card class="section">
       <div class="row">
-        <span>{{ '导出数据' }}</span>
-        <el-button type="primary" plain @click="exportData">
-          {{ '导出数据' }}
+        <span>{{ "导出数据" }}</span>
+        <el-button type="primary"
+plain @click="exportData">
+          {{ "导出数据" }}
         </el-button>
       </div>
       <div class="row">
-        <span>{{ '清除本地数据' }}</span>
-        <el-button type="danger" plain @click="clearLocal">
-          {{ '清除本地数据' }}
+        <span>{{ "清除本地数据" }}</span>
+        <el-button type="danger"
+plain @click="clearLocal">
+          {{ "清除本地数据" }}
         </el-button>
       </div>
     </el-card>
   </div>
 </template>
 <script>
-import { onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useUserStore } from '@/store/user.js';
-import { ElMessage } from 'element-plus';
-import UserCenterNav from '@/components/User/UserCenterNav.vue';
+import { onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useUserStore } from "@/store/user.js";
+import { ElMessage } from "element-plus";
+import UserCenterNav from "@/components/User/UserCenterNav.vue";
 export default {
-  name: 'DataAndPrivacy',
+  name: "DataAndPrivacy",
   components: { UserCenterNav },
   props: { embedded: Boolean },
   setup(props) {
     const router = useRouter();
     const userStore = useUserStore();
     onMounted(() => {
-      if (!userStore.isLoggedIn) router.push('/login');
+      if (!userStore.isLoggedIn) router.push("/login");
     });
     const exportData = async () => {
       try {
-        const { userApi } = await import('@/api/user.js');
+        const { userApi } = await import("@/api/user.js");
         const resp = await userApi.exportUserData(userStore.currentUser.id);
         const payload = resp?.data || {};
         const data = JSON.stringify(payload, null, 2);
-        const blob = new Blob([data], { type: 'application/json' });
+        const blob = new Blob([data], { type: "application/json" });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
-        a.download = 'goingtour_user_data.json';
+        a.download = "goingtour_user_data.json";
         a.click();
         URL.revokeObjectURL(url);
-        ElMessage.success('操作成功');
+        ElMessage.success("操作成功");
       } catch {
-        ElMessage.error('操作失败');
+        ElMessage.error("操作失败");
       }
     };
     const clearLocal = () => {
       try {
         localStorage.clear();
-        ElMessage.success('操作成功');
+        ElMessage.success("操作成功");
       } catch {
-        ElMessage.error('操作失败');
+        ElMessage.error("操作失败");
       }
     };
     return { exportData, clearLocal, embedded: props.embedded };

@@ -12,10 +12,12 @@
   >
     <!-- 状态图标 -->
     <div class="status-icon">
-      <el-icon v-if="wishlistItem.status === 'visited'" class="visited-icon">
+      <el-icon v-if="wishlistItem.status === 'visited'"
+class="visited-icon">
         <Check />
       </el-icon>
-      <el-icon v-else class="wishlist-icon">
+      <el-icon v-else
+class="wishlist-icon">
         <Star />
       </el-icon>
     </div>
@@ -25,16 +27,20 @@
       <span class="city-name">{{ wishlistItem.cityName }}</span>
       <div class="city-meta">
         <!-- 主要标签 -->
-        <span v-if="primaryTag" class="primary-tag">{{ primaryTag }}</span>
+        <span v-if="primaryTag"
+class="primary-tag">{{ primaryTag }}</span>
         <!-- 添加时间 -->
         <span class="added-time">{{ formatTime(wishlistItem.createdAt) }}</span>
       </div>
     </div>
 
     <!-- 快捷操作菜单 -->
-    <div v-show="showActions" class="actions-menu">
-      <el-dropdown trigger="click" @command="handleCommand">
-        <el-button class="action-trigger" circle size="small" text>
+    <div v-show="showActions"
+class="actions-menu">
+      <el-dropdown trigger="click"
+@command="handleCommand">
+        <el-button class="action-trigger"
+circle size="small" text>
           <el-icon><MoreFilled /></el-icon>
         </el-button>
         <template #dropdown>
@@ -47,10 +53,10 @@
               "
             >
               <el-icon>
-                <{{ wishlistItem.status === 'visited' ? 'Star' : 'Check' }}
+                <{{ wishlistItem.status === "visited" ? "Star" : "Check" }}
               </el-icon>
               {{
-                wishlistItem.status === 'visited' ? '标记为想去' : '标记为去过'
+                wishlistItem.status === "visited" ? "标记为想去" : "标记为去过"
               }}
             </el-dropdown-item>
             <el-dropdown-item command="edit">
@@ -65,7 +71,8 @@
               <el-icon><MapLocation /></el-icon>
               规划行程
             </el-dropdown-item>
-            <el-dropdown-item command="remove" divided>
+            <el-dropdown-item command="remove"
+divided>
               <el-icon><Delete /></el-icon>
               移除城市
             </el-dropdown-item>
@@ -75,7 +82,8 @@
     </div>
 
     <!-- 状态切换快捷按钮 -->
-    <div class="status-toggle" @click.stop="handleStatusToggle">
+    <div class="status-toggle"
+@click.stop="handleStatusToggle">
       <el-tooltip
         :content="
           wishlistItem.status === 'visited' ? '标记为想去' : '标记为去过'
@@ -100,7 +108,7 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue';
+import { ref, computed } from "vue";
 import {
   Star,
   Check,
@@ -109,10 +117,10 @@ import {
   MapLocation,
   Delete,
   MoreFilled,
-} from '@element-plus/icons-vue';
+} from "@element-plus/icons-vue";
 
 export default {
-  name: 'MiniWishlistCard',
+  name: "MiniWishlistCard",
   components: {
     Star,
     Check,
@@ -133,13 +141,13 @@ export default {
     },
   },
   emits: [
-    'click',
-    'hover',
-    'status-change',
-    'edit',
-    'weather',
-    'plan',
-    'remove',
+    "click",
+    "hover",
+    "status-change",
+    "edit",
+    "weather",
+    "plan",
+    "remove",
   ],
   setup(props, { emit }) {
     const showActions = ref(false);
@@ -153,77 +161,77 @@ export default {
     });
 
     // 格式化时间
-    const formatTime = dateString => {
-      if (!dateString) return '';
+    const formatTime = (dateString) => {
+      if (!dateString) return "";
 
       const date = new Date(dateString);
       const now = new Date();
       const diffTime = now - date;
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-      if (diffDays === 0) return '今天';
-      if (diffDays === 1) return '昨天';
+      if (diffDays === 0) return "今天";
+      if (diffDays === 1) return "昨天";
       if (diffDays < 7) return `${diffDays}天前`;
       if (diffDays < 30) return `${Math.floor(diffDays / 7)}周前`;
 
-      return date.toLocaleDateString('zh-CN', {
-        month: 'short',
-        day: 'numeric',
+      return date.toLocaleDateString("zh-CN", {
+        month: "short",
+        day: "numeric",
       });
     };
 
     // 卡片点击
     const handleCardClick = () => {
-      emit('click', props.wishlistItem);
+      emit("click", props.wishlistItem);
     };
 
     // 鼠标悬停
     const handleMouseEnter = () => {
       showActions.value = true;
-      emit('hover', { item: props.wishlistItem, type: 'enter' });
+      emit("hover", { item: props.wishlistItem, type: "enter" });
     };
 
     const handleMouseLeave = () => {
       showActions.value = false;
-      emit('hover', { item: props.wishlistItem, type: 'leave' });
+      emit("hover", { item: props.wishlistItem, type: "leave" });
     };
 
     // 状态切换
     const handleStatusToggle = () => {
       const newStatus =
-        props.wishlistItem.status === 'visited' ? 'wishlist' : 'visited';
-      emit('status-change', {
+        props.wishlistItem.status === "visited" ? "wishlist" : "visited";
+      emit("status-change", {
         id: props.wishlistItem.id,
         status: newStatus,
       });
     };
 
     // 下拉菜单命令处理
-    const handleCommand = command => {
+    const handleCommand = (command) => {
       switch (command) {
-        case 'mark-visited':
-          emit('status-change', {
+        case "mark-visited":
+          emit("status-change", {
             id: props.wishlistItem.id,
-            status: 'visited',
+            status: "visited",
           });
           break;
-        case 'mark-wishlist':
-          emit('status-change', {
+        case "mark-wishlist":
+          emit("status-change", {
             id: props.wishlistItem.id,
-            status: 'wishlist',
+            status: "wishlist",
           });
           break;
-        case 'edit':
-          emit('edit', props.wishlistItem);
+        case "edit":
+          emit("edit", props.wishlistItem);
           break;
-        case 'weather':
-          emit('weather', props.wishlistItem);
+        case "weather":
+          emit("weather", props.wishlistItem);
           break;
-        case 'plan':
-          emit('plan', props.wishlistItem);
+        case "plan":
+          emit("plan", props.wishlistItem);
           break;
-        case 'remove':
-          emit('remove', props.wishlistItem.id);
+        case "remove":
+          emit("remove", props.wishlistItem.id);
           break;
       }
     };
@@ -260,7 +268,7 @@ export default {
 }
 
 .mini-wishlist-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;

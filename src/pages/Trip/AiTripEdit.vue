@@ -3,14 +3,17 @@
     <!-- 页面头部 -->
     <div class="page-header">
       <div class="header-left">
-        <el-button link class="back-btn" @click="goBack">
+        <el-button link
+class="back-btn" @click="goBack">
           <el-icon><ArrowLeft /></el-icon>
           返回个人中心
         </el-button>
       </div>
       <div class="header-right">
-        <div v-if="!isReadOnly" class="header-actions">
-          <el-button :loading="saving" type="primary" @click="saveChanges">
+        <div v-if="!isReadOnly"
+class="header-actions">
+          <el-button :loading="saving"
+type="primary" @click="saveChanges">
             <el-icon><Edit /></el-icon>
             保存修改
           </el-button>
@@ -20,27 +23,32 @@
           @click="toggleReadOnly"
         >
           <el-icon><View v-if="isReadOnly" /><Edit v-else /></el-icon>
-          {{ isReadOnly ? '编辑模式' : '预览模式' }}
+          {{ isReadOnly ? "编辑模式" : "预览模式" }}
         </el-button>
       </div>
     </div>
 
     <!-- 加载状态 -->
-    <div v-if="loading" class="loading-container">
-      <el-skeleton :rows="8" animated />
+    <div v-if="loading"
+class="loading-container">
+      <el-skeleton :rows="8"
+animated />
     </div>
 
     <!-- 行程展示内容 -->
-    <div v-else-if="tripData && tripData.id" class="ai-trip-display">
+    <div v-else-if="tripData && tripData.id"
+class="ai-trip-display">
       <!-- 行程标题卡片 - 使用自定义div -->
       <div class="trip-header-card-custom">
         <div class="trip-header-content">
           <div class="trip-title-section">
             <div class="title-with-icon">
-              <el-icon class="ai-icon" color="#91A8D0">
+              <el-icon class="ai-icon"
+color="#91A8D0">
                 <Cpu />
               </el-icon>
-              <h1 v-if="isReadOnly" class="trip-main-title">
+              <h1 v-if="isReadOnly"
+class="trip-main-title">
                 {{ tripData.title }}
               </h1>
               <el-input
@@ -54,7 +62,7 @@
             </div>
             <p class="trip-subtitle">
               AI {{ editedTrip?.days || tripData.days || 3 }}
-              {{ tripData?.destinationInfo?.name || tripData.city || '' }}
+              {{ tripData?.destinationInfo?.name || tripData.city || "" }}
             </p>
           </div>
           <div class="trip-stats">
@@ -65,7 +73,8 @@
                 </el-icon>
               </div>
               <div class="stat-content">
-                <div v-if="isReadOnly" class="stat-number">
+                <div v-if="isReadOnly"
+class="stat-number">
                   {{ editedTrip?.days || tripData.days || 0 }}
                 </div>
                 <el-input-number
@@ -86,7 +95,8 @@
                 </el-icon>
               </div>
               <div class="stat-content">
-                <div v-if="isReadOnly" class="stat-number">
+                <div v-if="isReadOnly"
+class="stat-number">
                   {{ editedTrip?.mate || tripData.mate || 0 }}
                 </div>
                 <el-input-number
@@ -220,8 +230,10 @@
       <!-- 完整的行程内容 - 使用自定义div -->
       <div class="content-card-custom">
         <!-- 编辑模式选择（仅在非只读模式显示） -->
-        <div v-if="!isReadOnly" class="editor-tabs">
-          <el-radio-group v-model="editMode" class="edit-mode-selector">
+        <div v-if="!isReadOnly"
+class="editor-tabs">
+          <el-radio-group v-model="editMode"
+class="edit-mode-selector">
             <el-radio-button value="preview"> 预览模式 </el-radio-button>
             <el-radio-button value="markdown"> Markdown编辑 </el-radio-button>
           </el-radio-group>
@@ -250,7 +262,8 @@
         />
       </div>
 
-      <el-card v-if="!isReadOnly" class="budget-card" shadow="never">
+      <el-card v-if="!isReadOnly"
+class="budget-card" shadow="never">
         <template #header>
           <div class="card-header">
             <el-icon class="header-icon">
@@ -273,16 +286,17 @@
       </el-card>
     </div>
 
-    <div v-else class="no-data">
+    <div v-else
+class="no-data">
       <el-empty description="暂无行程数据" />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { ElMessageBox } from 'element-plus';
+import { ref, computed, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { ElMessageBox } from "element-plus";
 import {
   ArrowLeft,
   Edit,
@@ -293,33 +307,33 @@ import {
   User,
   Trophy,
   Timer,
-} from '@element-plus/icons-vue';
-import { http } from '@/api/request';
-import { useUserStore } from '@/store/user';
-import MarkdownIt from 'markdown-it';
-import { sanitizeMarkdownHtml } from '@/utils/security/xssFilter.js';
-import { handleApiError, handleSuccess } from '@/utils/api/errorHandler.js';
+} from "@element-plus/icons-vue";
+import { http } from "@/api/request";
+import { useUserStore } from "@/store/user";
+import MarkdownIt from "markdown-it";
+import { sanitizeMarkdownHtml } from "@/utils/security/xssFilter.js";
+import { handleApiError, handleSuccess } from "@/utils/api/errorHandler.js";
 
 // Add missing t function
-const t = key => {
+const t = (key) => {
   const translations = {
-    'trip.inputTitle': '请输入行程标题',
-    'trip.daysLabel': '天数',
-    'trip.travelersLabel': '人数',
-    'trip.qualityScore': '质量分',
-    'trip.durationLabel': '用时',
-    'trip.previewMode': '预览模式',
-    'trip.markdownEdit': 'Markdown编辑',
-    'trip.contentPlaceholder': '请输入行程内容...',
-    'trip.budgetSettings': '预算设置',
-    'trip.totalBudget': '总预算',
-    'trip.budgetPlaceholder': '请输入预算',
-    'trip.yuan': '元',
-    'trip.noTripData': '暂无行程数据',
-    'messages.unsavedMessage': '您有未保存的修改，确定要离开吗？',
-    'messages.unsavedTitle': '未保存的修改',
-    'messages.leave': '离开',
-    'messages.stay': '继续编辑',
+    "trip.inputTitle": "请输入行程标题",
+    "trip.daysLabel": "天数",
+    "trip.travelersLabel": "人数",
+    "trip.qualityScore": "质量分",
+    "trip.durationLabel": "用时",
+    "trip.previewMode": "预览模式",
+    "trip.markdownEdit": "Markdown编辑",
+    "trip.contentPlaceholder": "请输入行程内容...",
+    "trip.budgetSettings": "预算设置",
+    "trip.totalBudget": "总预算",
+    "trip.budgetPlaceholder": "请输入预算",
+    "trip.yuan": "元",
+    "trip.noTripData": "暂无行程数据",
+    "messages.unsavedMessage": "您有未保存的修改，确定要离开吗？",
+    "messages.unsavedTitle": "未保存的修改",
+    "messages.leave": "离开",
+    "messages.stay": "继续编辑",
   };
   return translations[key] || key;
 };
@@ -333,7 +347,7 @@ const userStore = useUserStore();
 const loading = ref(true);
 const saving = ref(false);
 const isReadOnly = ref(true);
-const editMode = ref('preview');
+const editMode = ref("preview");
 const tripData = ref(null);
 const editedTrip = ref({});
 
@@ -347,7 +361,7 @@ const md = new MarkdownIt({
 
 // 自定义渲染规则 - 优化行程展示
 md.renderer.rules.strong_open = (tokens, idx) => {
-  const content = tokens[idx + 1]?.content || '';
+  const content = tokens[idx + 1]?.content || "";
   // 检查是否是时间格式（如 07:00-08:30）
   const isTimeRange = /^\d{2}:\d{2}-\d{2}:\d{2}$/.test(content);
   if (isTimeRange) {
@@ -355,7 +369,7 @@ md.renderer.rules.strong_open = (tokens, idx) => {
   }
   return '<p class="trip-highlight">';
 };
-md.renderer.rules.strong_close = () => '</p>';
+md.renderer.rules.strong_close = () => "</p>";
 
 // 计算属性
 const tripId = computed(() => route.params.id);
@@ -368,53 +382,53 @@ const renderedContent = computed(() => {
 
   // 删除餐饮信息前的时间点 - 通用方法处理各种HTML结构
   const mealKeywords = [
-    '晚餐',
-    '午餐',
-    '早餐',
-    '下午茶',
-    '夜宵',
-    '小食',
-    '点心',
-    '茶歇',
-    '返程前休整',
-    '购物',
-    '休息',
-    '整理',
+    "晚餐",
+    "午餐",
+    "早餐",
+    "下午茶",
+    "夜宵",
+    "小食",
+    "点心",
+    "茶歇",
+    "返程前休整",
+    "购物",
+    "休息",
+    "整理",
   ];
 
-  mealKeywords.forEach(keyword => {
+  mealKeywords.forEach((keyword) => {
     // 处理各种可能的HTML标签包装的时间
     html = html
       // 处理 <p class="trip-highlight">时间</p> 餐饮
       .replace(
         new RegExp(
           `<p[^>]*class="trip-highlight[^"]*"[^>]*>\\d{1,2}:\\d{2}</p>\\s*(${keyword}[:：])`,
-          'g'
+          "g",
         ),
-        '$1'
+        "$1",
       )
       // 处理 <strong>时间</strong> 餐饮
       .replace(
         new RegExp(
           `<strong[^>]*>\\d{1,2}:\\d{2}</strong>\\s*(${keyword}[:：])`,
-          'g'
+          "g",
         ),
-        '$1'
+        "$1",
       )
       // 处理 <span>时间</span> 餐饮
       .replace(
         new RegExp(
           `<span[^>]*>\\d{1,2}:\\d{2}</span>\\s*(${keyword}[:：])`,
-          'g'
+          "g",
         ),
-        '$1'
+        "$1",
       )
       // 处理纯文本 时间 餐饮
-      .replace(new RegExp(`\\b\\d{1,2}:\\d{2}\\s+(${keyword}[:：])`, 'g'), '$1')
+      .replace(new RegExp(`\\b\\d{1,2}:\\d{2}\\s+(${keyword}[:：])`, "g"), "$1")
       // 处理任何标签包装的时间
       .replace(
-        new RegExp(`<[^>]+>\\d{1,2}:\\d{2}</[^>]+>\\s*(${keyword}[:：])`, 'g'),
-        '$1'
+        new RegExp(`<[^>]+>\\d{1,2}:\\d{2}</[^>]+>\\s*(${keyword}[:：])`, "g"),
+        "$1",
       );
   });
 
@@ -427,7 +441,7 @@ const renderedContent = computed(() => {
 // 生命周期
 onMounted(() => {
   // 根据路由参数判断是否为只读模式
-  isReadOnly.value = route.query.readonly === 'true';
+  isReadOnly.value = route.query.readonly === "true";
   loadTripData();
 });
 
@@ -435,7 +449,7 @@ onMounted(() => {
 const toggleReadOnly = () => {
   isReadOnly.value = !isReadOnly.value;
   if (isReadOnly.value) {
-    editMode.value = 'preview';
+    editMode.value = "preview";
   }
 };
 
@@ -446,7 +460,7 @@ const loadTripData = async () => {
 
     // 调用后端API获取AI行程数据
     const response = await http.get(
-      `/trips/${tripId.value}?userId=${userStore.userId || 1}`
+      `/trips/${tripId.value}?userId=${userStore.userId || 1}`,
     );
 
     if (response.code === 200 && response.data) {
@@ -461,7 +475,7 @@ const loadTripData = async () => {
           ? JSON.parse(data.destinationInfo)
           : {};
       } catch (e) {
-        console.warn('解析destinationInfo失败:', e);
+        console.warn("解析destinationInfo失败:", e);
       }
 
       try {
@@ -469,7 +483,7 @@ const loadTripData = async () => {
           ? JSON.parse(data.tripBasicInfo)
           : {};
       } catch (e) {
-        console.warn('解析tripBasicInfo失败:', e);
+        console.warn("解析tripBasicInfo失败:", e);
       }
 
       // 设置tripData
@@ -491,19 +505,19 @@ const loadTripData = async () => {
         days: data.days,
         mate: data.mate,
         totalBudget: data.totalBudget,
-        aiContent: data.aiContent || '',
+        aiContent: data.aiContent || "",
       };
 
       // 数据加载成功，在开发环境下记录日志
       if (import.meta.env.DEV) {
-        console.log('✅ AI行程数据加载成功');
+        console.log("✅ AI行程数据加载成功");
       }
     } else {
-      throw new Error(response.msg || '获取行程数据失败');
+      throw new Error(response.msg || "获取行程数据失败");
     }
   } catch (error) {
-    handleApiError(error, '加载行程数据失败，请重试');
-    router.push('/home');
+    handleApiError(error, "加载行程数据失败，请重试");
+    router.push("/home");
   } finally {
     loading.value = false;
   }
@@ -538,17 +552,17 @@ const saveChanges = async () => {
     const response = await http.put(`/ai/trip/${tripId.value}`, updateRequest);
 
     if (response.code === 200) {
-      handleSuccess('行程修改已保存！');
+      handleSuccess("行程修改已保存！");
       // 更新本地数据
       tripData.value = { ...tripData.value, ...editedTrip.value };
       // 切换回预览模式
       isReadOnly.value = true;
-      editMode.value = 'preview';
+      editMode.value = "preview";
     } else {
-      throw new Error(response.msg || '保存失败');
+      throw new Error(response.msg || "保存失败");
     }
   } catch (error) {
-    handleApiError(error, '保存失败，请重试');
+    handleApiError(error, "保存失败，请重试");
   } finally {
     saving.value = false;
   }
@@ -556,13 +570,13 @@ const saveChanges = async () => {
 
 const confirmUnsavedChanges = () => {
   return ElMessageBox.confirm(
-    '您有未保存的修改，确定要离开吗？',
-    '未保存的修改',
+    "您有未保存的修改，确定要离开吗？",
+    "未保存的修改",
     {
-      confirmButtonText: '离开',
-      cancelButtonText: '继续编辑',
-      type: 'warning',
-    }
+      confirmButtonText: "离开",
+      cancelButtonText: "继续编辑",
+      type: "warning",
+    },
   );
 };
 
@@ -570,13 +584,13 @@ const goBack = () => {
   if (!isReadOnly.value && hasUnsavedChanges()) {
     confirmUnsavedChanges()
       .then(() => {
-        router.push('/home');
+        router.push("/home");
       })
       .catch(() => {
         // 用户选择继续编辑
       });
   } else {
-    router.push('/home');
+    router.push("/home");
   }
 };
 
@@ -594,8 +608,8 @@ const hasUnsavedChanges = () => {
 };
 
 // 工具函数
-const formatProcessingTime = time => {
-  if (!time) return '0s';
+const formatProcessingTime = (time) => {
+  if (!time) return "0s";
   return time < 1000 ? `${time}ms` : `${Math.round(time / 1000)}s`;
 };
 </script>
@@ -870,7 +884,7 @@ const formatProcessingTime = time => {
   color: #4a5568;
   font-size: 15px;
   font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .markdown-content :deep(h1),
@@ -1050,7 +1064,7 @@ const formatProcessingTime = time => {
   background: #f1f5f9;
   padding: 2px 6px;
   border-radius: 3px;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
   font-size: 12px;
   color: #718096;
   font-weight: 500;
@@ -1167,7 +1181,7 @@ const formatProcessingTime = time => {
 }
 
 .content-textarea :deep(.el-textarea__inner) {
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
   font-size: 14px;
   line-height: 1.6;
   border: 1px solid #e2e8f0;

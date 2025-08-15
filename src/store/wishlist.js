@@ -1,787 +1,879 @@
 /**
  * 愿望清单 Store - 管理用户的旅行愿望清单
  */
-import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
-import { wishlistApi } from '@/api/wishlist.js';
-import { cityPhotosApi } from '@/api/cityPhotos.js';
-import { ElMessage } from 'element-plus';
+import { defineStore } from "pinia";
+import { ref, computed } from "vue";
+import { wishlistApi } from "@/api/wishlist.js";
+import { cityPhotosApi } from "@/api/cityPhotos.js";
+import { ElMessage } from "element-plus";
 
-export const useWishlistStore = defineStore('wishlist', () => {
-    // 状态
-    const wishlistItems = ref([]);
-    const loading = ref(false);
-    const currentWeatherCity = ref(null); // 当前天气预览显示的城市
+export const useWishlistStore = defineStore("wishlist", () => {
+  // 状态
+  const wishlistItems = ref([]);
+  const loading = ref(false);
+  const currentWeatherCity = ref(null); // 当前天气预览显示的城市
 
-    // 计算属性
-    const wishlistCount = computed(() => wishlistItems.value.length);
+  // 计算属性 - 重构为新的状态模型
+  const wishlistCount = computed(() => wishlistItems.value.length);
 
-    const hasCities = computed(() => wishlistCount.value > 0);
+  const hasCities = computed(() => wishlistCount.value > 0);
 
-    // 去过的城市数量
-    const visitedCount = computed(
-        () => wishlistItems.value.filter(item => item.status === 'visited').length
+  // 去过的城市数量（有历史记录的）
+  const visitedCount = computed(
+    () =>
+      wishlistItems.value.filter((item) => item.ever_visited === true).length,
+  );
+
+  // 想去的城市数量（包括想再去的和从未去过的）
+  const wishlistOnlyCount = computed(
+    () =>
+      wishlistItems.value.filter((item) => 
+        item.want_to_visit_again === true || item.ever_visited === false
+      ).length,
+  );
+
+  // 已探索的省份数量（基于去过的城市）
+  const exploredProvincesCount = computed(() => {
+    const visitedCities = wishlistItems.value.filter(
+      (item) => item.ever_visited === true,
     );
+    const provinces = new Set();
 
-    // 想去的城市数量
-    const wishlistOnlyCount = computed(
-        () => wishlistItems.value.filter(item => item.status === 'wishlist').length
-    );
+    visitedCities.forEach((city) => {
+      if (city.cityCode) {
+        const provinceCode = city.cityCode.toString().substring(0, 2);
+        provinces.add(provinceCode);
+      }
+    });
 
-    // 已探索的省份数量（基于去过的城市）
-    const exploredProvincesCount = computed(() => {
-        const visitedCities = wishlistItems.value.filter(
-            item => item.status === 'visited'
-        );
-        const provinces = new Set();
+    return provinces.size;
+  });
 
-        visitedCities.forEach(city => {
-            if (city.cityCode) {
-                const provinceCode = city.cityCode.toString().substring(0, 2);
-                provinces.add(provinceCode);
-            }
+  // 足迹统计
+  const footprintStats = computed(() => ({
+    totalCities: wishlistCount.value,
+    visitedCities: visitedCount.value,
+    wishlistCities: wishlistOnlyCount.value,
+    exploredProvinces: exploredProvincesCount.value,
+    explorationRate:
+      exploredProvincesCount.value > 0
+        ? Math.round((exploredProvincesCount.value / 34) * 100)
+        : 0, // 中国34个省级行政区
+  }));
+
+  const cityNames = computed(() =>
+    wishlistItems.value.map((item) => item.cityName),
+  );
+
+  const cityCodes = computed(() =>
+    wishlistItems.value.map((item) => item.cityCode),
+  );
+
+  // 获取随机城市（用于天气轮播）
+  const getRandomCity = computed(() => {
+    if (!hasCities.value) return null;
+    const randomIndex = Math.floor(Math.random() * wishlistItems.value.length);
+    return wishlistItems.value[randomIndex];
+  });
+
+  // 新增的计算属性：支持新的数据模型
+  
+  // 所有有照片的城市（去过的城市）
+  const citiesWithPhotos = computed(() => 
+    wishlistItems.value.filter(item => item.ever_visited === true)
+  );
+  
+  // 想去的城市列表（包括从未去过和想再去的）
+  const wishlistCities = computed(() => 
+    wishlistItems.value.filter(item => 
+      item.want_to_visit_again === true || item.ever_visited === false
+    )
+  );
+  
+  // 去过的城市列表
+  const visitedCities = computed(() => 
+    wishlistItems.value.filter(item => item.ever_visited === true)
+  );
+
+  // 方法
+
+  /**
+   * 加载用户的愿望清单
+   */
+  const loadWishlist = async () => {
+    const { useUserStore } = await import("@/store/user.js");
+    const userStore = useUserStore();
+    const userId = userStore.currentUser?.id || userStore.userId;
+
+    if (!userId) {
+      console.warn("用户未登录，无法加载愿望清单");
+      return;
+    }
+
+    loading.value = true;
+    try {
+      const response = await wishlistApi.getUserWishlist(userId);
+      wishlistItems.value = response.data || [];
+      console.log("✅ 愿望清单加载成功:", wishlistItems.value.length, "个城市");
+    } catch (error) {
+      console.error("❌ 加载愿望清单失败:", error);
+      wishlistItems.value = [];
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  /**
+   * 添加城市到愿望清单
+   */
+  const addToWishlist = async (cityData) => {
+    const { useUserStore } = await import("@/store/user.js");
+    const userStore = useUserStore();
+    const userId = userStore.currentUser?.id || userStore.userId;
+
+    if (!userId) {
+      ElMessage.warning("请先登录");
+      return false;
+    }
+
+    // 检查是否已存在该城市
+    const existingCity = getWishlistItemByCityCode(cityData.cityCode);
+    if (existingCity) {
+      // 如果已经去过，询问是否想再去
+      if (existingCity.ever_visited && !existingCity.want_to_visit_again) {
+        // 直接标记为想再去
+        return await markWantToVisitAgain(existingCity.id, true);
+      } else if (existingCity.want_to_visit_again || !existingCity.ever_visited) {
+        ElMessage.info(`${cityData.cityName} 已在愿望清单中`);
+        return false;
+      }
+    }
+
+    try {
+      const wishData = {
+        userId,
+        cityCode: cityData.cityCode,
+        cityName: cityData.cityName,
+        reason: cityData.reason || "",
+        tags: cityData.tags || [],
+        ever_visited: false,
+        want_to_visit_again: false, // 新加入的默认为想去（通过ever_visited=false体现）
+      };
+
+      const response = await wishlistApi.addToWishlist(wishData);
+
+      if (response.data) {
+        // 添加到本地状态
+        wishlistItems.value.push({
+          id: response.data.id,
+          ...wishData,
+          createdAt: new Date().toISOString(),
         });
 
-        return provinces.size;
-    });
+        ElMessage.success(`已将 ${cityData.cityName} 添加到愿望清单`);
+        return true;
+      }
+    } catch (error) {
+      console.error("❌ 添加到愿望清单失败:", error);
+      ElMessage.error("添加失败，请重试");
+      return false;
+    }
+  };
 
-    // 足迹统计
-    const footprintStats = computed(() => ({
-        totalCities: wishlistCount.value,
-        visitedCities: visitedCount.value,
-        wishlistCities: wishlistOnlyCount.value,
-        exploredProvinces: exploredProvincesCount.value,
-        explorationRate: exploredProvincesCount.value > 0 ?
-            Math.round((exploredProvincesCount.value / 34) * 100) :
-            0, // 中国34个省级行政区
-    }));
+  /**
+   * 从愿望清单删除城市
+   */
+  const removeFromWishlist = async (wishlistId) => {
+    const { useUserStore } = await import("@/store/user.js");
+    const userStore = useUserStore();
+    const userId = userStore.currentUser?.id || userStore.userId;
 
-    const cityNames = computed(() =>
-        wishlistItems.value.map(item => item.cityName)
-    );
+    if (!userId) return false;
 
-    const cityCodes = computed(() =>
-        wishlistItems.value.map(item => item.cityCode)
-    );
+    try {
+      await wishlistApi.removeFromWishlist(wishlistId, userId);
 
-    // 获取随机城市（用于天气轮播）
-    const getRandomCity = computed(() => {
-        if (!hasCities.value) return null;
-        const randomIndex = Math.floor(Math.random() * wishlistItems.value.length);
-        return wishlistItems.value[randomIndex];
-    });
+      // 从本地状态删除
+      const index = wishlistItems.value.findIndex(
+        (item) => item.id === wishlistId,
+      );
+      if (index !== -1) {
+        const cityName = wishlistItems.value[index].cityName;
+        wishlistItems.value.splice(index, 1);
+        ElMessage.success(`已从愿望清单移除 ${cityName}`);
+      }
 
-    // 方法
+      return true;
+    } catch (error) {
+      console.error("❌ 从愿望清单删除失败:", error);
+      ElMessage.error("删除失败，请重试");
+      return false;
+    }
+  };
 
-    /**
-     * 加载用户的愿望清单
-     */
-    const loadWishlist = async() => {
-        const { useUserStore } = await
-        import ('@/store/user.js');
-        const userStore = useUserStore();
-        const userId = userStore.currentUser?.id || userStore.userId;
+  /**
+   * 检查城市是否在愿望清单中（新版本：只要存在记录就返回true）
+   */
+  const isCityInWishlist = (cityCode) => {
+    return wishlistItems.value.some((item) => item.cityCode === cityCode);
+  };
 
-        if (!userId) {
-            console.warn('用户未登录，无法加载愿望清单');
-            return;
+  /**
+   * 检查城市是否想去（包括从未去过和想再去的）
+   */
+  const isCityInWishlistToVisit = (cityCode) => {
+    const city = getWishlistItemByCityCode(cityCode);
+    if (!city) return false;
+    return city.want_to_visit_again === true || city.ever_visited === false;
+  };
+
+  /**
+   * 检查城市是否去过
+   */
+  const isCityVisited = (cityCode) => {
+    const city = getWishlistItemByCityCode(cityCode);
+    return city ? city.ever_visited === true : false;
+  };
+
+  /**
+   * 根据城市编码获取愿望清单项
+   */
+  const getWishlistItemByCityCode = (cityCode) => {
+    return wishlistItems.value.find((item) => item.cityCode === cityCode);
+  };
+
+  /**
+   * 标记城市为已去过
+   */
+  const markAsVisited = async (wishlistId) => {
+    const { useUserStore } = await import("@/store/user.js");
+    const userStore = useUserStore();
+    const userId = userStore.currentUser?.id || userStore.userId;
+
+    if (!userId) {
+      ElMessage.error("用户未登录，请先登录");
+      return false;
+    }
+
+    try {
+      await wishlistApi.updateWishlistItem(wishlistId, {
+        userId,
+        ever_visited: true,
+        want_to_visit_again: false,
+        visit_date: new Date().toISOString(),
+      });
+
+      // 更新本地状态
+      const index = wishlistItems.value.findIndex(
+        (item) => item.id === wishlistId,
+      );
+      if (index !== -1) {
+        const cityName = wishlistItems.value[index].cityName;
+        wishlistItems.value[index] = {
+          ...wishlistItems.value[index],
+          ever_visited: true,
+          want_to_visit_again: false,
+          visit_date: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+
+        ElMessage.success(`已将 ${cityName} 标记为去过`);
+      }
+
+      return true;
+    } catch (error) {
+      console.error("❌ 标记城市为已去过失败:", error);
+      ElMessage.error("操作失败，请重试");
+      return false;
+    }
+  };
+
+  /**
+   * 标记是否想再去
+   */
+  const markWantToVisitAgain = async (wishlistId, wantToVisit = true) => {
+    const { useUserStore } = await import("@/store/user.js");
+    const userStore = useUserStore();
+    const userId = userStore.currentUser?.id || userStore.userId;
+
+    if (!userId) {
+      ElMessage.error("用户未登录，请先登录");
+      return false;
+    }
+
+    try {
+      await wishlistApi.updateWishlistItem(wishlistId, {
+        userId,
+        want_to_visit_again: wantToVisit,
+      });
+
+      // 更新本地状态
+      const index = wishlistItems.value.findIndex(
+        (item) => item.id === wishlistId,
+      );
+      if (index !== -1) {
+        const cityName = wishlistItems.value[index].cityName;
+        wishlistItems.value[index] = {
+          ...wishlistItems.value[index],
+          want_to_visit_again: wantToVisit,
+          updatedAt: new Date().toISOString(),
+        };
+
+        const actionText = wantToVisit ? "想再去" : "取消想再去";
+        ElMessage.success(`已将 ${cityName} 标记为${actionText}`);
+      }
+
+      return true;
+    } catch (error) {
+      console.error("❌ 更新想再去状态失败:", error);
+      ElMessage.error("操作失败，请重试");
+      return false;
+    }
+  };
+
+  /**
+   * 批量标记城市状态
+   */
+  const batchMarkAsVisited = async (cityIds) => {
+    const { useUserStore } = await import("@/store/user.js");
+    const userStore = useUserStore();
+    const userId = userStore.currentUser?.id || userStore.userId;
+
+    if (!userId) return false;
+
+    try {
+      // 批量更新为已去过
+      await Promise.all(
+        cityIds.map((id) =>
+          wishlistApi.updateWishlistItem(id, { 
+            userId, 
+            ever_visited: true, 
+            want_to_visit_again: false,
+            visit_date: new Date().toISOString()
+          }),
+        ),
+      );
+
+      // 更新本地状态
+      cityIds.forEach((id) => {
+        const index = wishlistItems.value.findIndex((item) => item.id === id);
+        if (index !== -1) {
+          wishlistItems.value[index] = {
+            ...wishlistItems.value[index],
+            ever_visited: true,
+            want_to_visit_again: false,
+            visit_date: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
         }
+      });
 
-        loading.value = true;
-        try {
-            const response = await wishlistApi.getUserWishlist(userId);
-            wishlistItems.value = response.data || [];
-            console.log('✅ 愿望清单加载成功:', wishlistItems.value.length, '个城市');
-        } catch (error) {
-            console.error('❌ 加载愿望清单失败:', error);
-            wishlistItems.value = [];
-        } finally {
-            loading.value = false;
-        }
-    };
+      ElMessage.success(`已批量标记 ${cityIds.length} 个城市为去过`);
+      return true;
+    } catch (error) {
+      console.error("❌ 批量标记为去过失败:", error);
+      ElMessage.error("批量操作失败，请重试");
+      return false;
+    }
+  };
 
-    /**
-     * 添加城市到愿望清单
-     */
-    const addToWishlist = async cityData => {
-        const { useUserStore } = await
-        import ('@/store/user.js');
-        const userStore = useUserStore();
-        const userId = userStore.currentUser?.id || userStore.userId;
+  /**
+   * 更新愿望清单项
+   */
+  const updateWishlistItem = async (wishlistId, updateData) => {
+    const { useUserStore } = await import("@/store/user.js");
+    const userStore = useUserStore();
+    const userId = userStore.currentUser?.id || userStore.userId;
 
-        if (!userId) {
-            ElMessage.warning('请先登录');
-            return false;
-        }
+    if (!userId) return false;
 
-        // 检查是否已存在
-        if (isCityInWishlist(cityData.cityCode)) {
-            ElMessage.info(`${cityData.cityName} 已在愿望清单中`);
-            return false;
-        }
+    try {
+      await wishlistApi.updateWishlistItem(wishlistId, {
+        userId,
+        ...updateData,
+      });
 
-        try {
-            const wishData = {
-                userId,
-                cityCode: cityData.cityCode,
-                cityName: cityData.cityName,
-                reason: cityData.reason || '',
-                tags: cityData.tags || [],
-                status: cityData.status || 'wishlist', // 默认为想去
-            };
+      // 更新本地状态
+      const index = wishlistItems.value.findIndex(
+        (item) => item.id === wishlistId,
+      );
+      if (index !== -1) {
+        wishlistItems.value[index] = {
+          ...wishlistItems.value[index],
+          ...updateData,
+          updatedAt: new Date().toISOString(),
+        };
+        ElMessage.success("愿望清单更新成功");
+      }
 
-            const response = await wishlistApi.addToWishlist(wishData);
+      return true;
+    } catch (error) {
+      console.error("❌ 更新愿望清单失败:", error);
+      ElMessage.error("更新失败，请重试");
+      return false;
+    }
+  };
 
-            if (response.data) {
-                // 添加到本地状态
-                wishlistItems.value.push({
-                    id: response.data.id,
-                    ...wishData,
-                    createdAt: new Date().toISOString(),
-                });
+  /**
+   * 设置当前天气显示的城市
+   */
+  const setCurrentWeatherCity = (city) => {
+    currentWeatherCity.value = city;
+  };
 
-                ElMessage.success(`已将 ${cityData.cityName} 添加到愿望清单`);
-                return true;
-            }
-        } catch (error) {
-            console.error('❌ 添加到愿望清单失败:', error);
-            ElMessage.error('添加失败，请重试');
-            return false;
-        }
-    };
+  /**
+   * 获取下一个城市（用于天气轮播）
+   */
+  const getNextWeatherCity = () => {
+    if (!hasCities.value) return null;
 
-    /**
-     * 从愿望清单删除城市
-     */
-    const removeFromWishlist = async wishlistId => {
-        const { useUserStore } = await
-        import ('@/store/user.js');
-        const userStore = useUserStore();
-        const userId = userStore.currentUser?.id || userStore.userId;
+    const currentIndex = currentWeatherCity.value
+      ? wishlistItems.value.findIndex(
+          (item) => item.id === currentWeatherCity.value.id,
+        )
+      : -1;
 
-        if (!userId) return false;
+    const nextIndex = (currentIndex + 1) % wishlistItems.value.length;
+    const nextCity = wishlistItems.value[nextIndex];
 
-        try {
-            await wishlistApi.removeFromWishlist(wishlistId, userId);
+    setCurrentWeatherCity(nextCity);
+    return nextCity;
+  };
 
-            // 从本地状态删除
-            const index = wishlistItems.value.findIndex(
-                item => item.id === wishlistId
-            );
-            if (index !== -1) {
-                const cityName = wishlistItems.value[index].cityName;
-                wishlistItems.value.splice(index, 1);
-                ElMessage.success(`已从愿望清单移除 ${cityName}`);
-            }
+  /**
+   * 清空愿望清单
+   */
+  const clearWishlist = () => {
+    wishlistItems.value = [];
+    currentWeatherCity.value = null;
+  };
 
-            return true;
-        } catch (error) {
-            console.error('❌ 从愿望清单删除失败:', error);
-            ElMessage.error('删除失败，请重试');
-            return false;
-        }
-    };
+  // ========== 照片管理功能 ==========
 
-    /**
-     * 检查城市是否在愿望清单中
-     */
-    const isCityInWishlist = cityCode => {
-        return wishlistItems.value.some(item => item.cityCode === cityCode);
-    };
+  /**
+   * 上传城市照片
+   */
+  const uploadCityPhoto = async (
+    file,
+    wishlistItemId,
+    caption = "",
+    tags = [],
+  ) => {
+    const { useUserStore } = await import("@/store/user.js");
+    const userStore = useUserStore();
 
-    /**
-     * 根据城市编码获取愿望清单项
-     */
-    const getWishlistItemByCityCode = cityCode => {
-        return wishlistItems.value.find(item => item.cityCode === cityCode);
-    };
+    if (!userStore.isLoggedIn) {
+      ElMessage.error("请先登录");
+      return null;
+    }
 
-    /**
-     * 快速切换城市状态（想去/去过）
-     */
-    const toggleCityStatus = async(wishlistId, newStatus) => {
-        const { useUserStore } = await
-        import ('@/store/user.js');
-        const userStore = useUserStore();
-        const userId = userStore.currentUser?.id || userStore.userId;
+    try {
+      // 验证文件
+      const validation = cityPhotosApi.validateImageFile(file);
+      if (!validation.valid) {
+        ElMessage.error(validation.error);
+        return null;
+      }
 
-        if (!userId) {
-            console.error('❌ 用户ID不存在，当前用户状态:', {
-                isLoggedIn: userStore.isLoggedIn,
-                currentUser: userStore.currentUser,
-                userId: userStore.userId,
-            });
-            ElMessage.error('用户未登录，请先登录');
-            return false;
-        }
+      // 压缩图片
+      const compressedFile = await cityPhotosApi.compressImage(file);
 
-        try {
-            await wishlistApi.updateWishlistItem(wishlistId, {
-                userId,
-                status: newStatus,
-            });
-
-            // 更新本地状态
-            const index = wishlistItems.value.findIndex(
-                item => item.id === wishlistId
-            );
-            if (index !== -1) {
-                const cityName = wishlistItems.value[index].cityName;
-                wishlistItems.value[index] = {
-                    ...wishlistItems.value[index],
-                    status: newStatus,
-                    updatedAt: new Date().toISOString(),
-                };
-
-                const statusText = newStatus === 'visited'?'去过' : '想去';
-                ElMessage.success(`已将 ${cityName} 标记为${statusText}`);
-            }
-
-            return true;
-        } catch (error) {
-            console.error('❌ 切换城市状态失败:', error);
-            ElMessage.error('操作失败，请重试');
-            return false;
-        }
-    };
-
-    /**
-     * 批量标记城市状态
-     */
-    const batchUpdateStatus = async(cityIds, newStatus) => {
-        const { useUserStore } = await
-        import ('@/store/user.js');
-        const userStore = useUserStore();
-        const userId = userStore.currentUser?.id || userStore.userId;
-
-        if (!userId) return false;
-
-        try {
-            // 这里假设后端支持批量更新，如果不支持则需要逐个更新
-            await Promise.all(
-                cityIds.map(id =>
-                    wishlistApi.updateWishlistItem(id, { userId, status: newStatus })
-                )
-            );
-
-            // 更新本地状态
-            cityIds.forEach(id => {
-                const index = wishlistItems.value.findIndex(item => item.id === id);
-                if (index !== -1) {
-                    wishlistItems.value[index] = {
-                        ...wishlistItems.value[index],
-                        status: newStatus,
-                        updatedAt: new Date().toISOString(),
-                    };
-                }
-            });
-
-            const statusText = newStatus === 'visited'?'去过' : '想去';
-            ElMessage.success(`已批量标记 ${cityIds.length} 个城市为${statusText}`);
-            return true;
-        } catch (error) {
-            console.error('❌ 批量更新状态失败:', error);
-            ElMessage.error('批量操作失败，请重试');
-            return false;
-        }
-    };
-
-    /**
-     * 更新愿望清单项
-     */
-    const updateWishlistItem = async(wishlistId, updateData) => {
-        const { useUserStore } = await
-        import ('@/store/user.js');
-        const userStore = useUserStore();
-        const userId = userStore.currentUser?.id || userStore.userId;
-
-        if (!userId) return false;
-
-        try {
-            await wishlistApi.updateWishlistItem(wishlistId, {
-                userId,
-                ...updateData,
-            });
-
-            // 更新本地状态
-            const index = wishlistItems.value.findIndex(
-                item => item.id === wishlistId
-            );
-            if (index !== -1) {
-                wishlistItems.value[index] = {
-                    ...wishlistItems.value[index],
-                    ...updateData,
-                    updatedAt: new Date().toISOString(),
-                };
-                ElMessage.success('愿望清单更新成功');
-            }
-
-            return true;
-        } catch (error) {
-            console.error('❌ 更新愿望清单失败:', error);
-            ElMessage.error('更新失败，请重试');
-            return false;
-        }
-    };
-
-    /**
-     * 设置当前天气显示的城市
-     */
-    const setCurrentWeatherCity = city => {
-        currentWeatherCity.value = city;
-    };
-
-    /**
-     * 获取下一个城市（用于天气轮播）
-     */
-    const getNextWeatherCity = () => {
-        if (!hasCities.value) return null;
-
-        const currentIndex = currentWeatherCity.value ?
-            wishlistItems.value.findIndex(
-                item => item.id === currentWeatherCity.value.id
-            ) :
-            -1;
-
-        const nextIndex = (currentIndex + 1) % wishlistItems.value.length;
-        const nextCity = wishlistItems.value[nextIndex];
-
-        setCurrentWeatherCity(nextCity);
-        return nextCity;
-    };
-
-    /**
-     * 清空愿望清单
-     */
-    const clearWishlist = () => {
-        wishlistItems.value = [];
-        currentWeatherCity.value = null;
-    };
-
-    // ========== 照片管理功能 ==========
-
-    /**
-     * 上传城市照片
-     */
-    const uploadCityPhoto = async(
-        file,
+      // 上传照片
+      const response = await cityPhotosApi.uploadPhoto({
+        file: compressedFile,
         wishlistItemId,
-        caption = '',
-        tags = []
-    ) => {
-        const { useUserStore } = await
-        import ('@/store/user.js');
-        const userStore = useUserStore();
+        caption,
+        tags,
+      });
 
-        if (!userStore.isLoggedIn) {
-            ElMessage.error('请先登录');
-            return null;
-        }
+      if (response.data) {
+        ElMessage.success("照片上传成功");
+        return response.data;
+      } else {
+        throw new Error("上传失败");
+      }
+    } catch (error) {
+      console.error("❌ 上传照片失败:", error);
+      ElMessage.error("照片上传失败，请重试");
+      return null;
+    }
+  };
 
-        try {
-            // 验证文件
-            const validation = cityPhotosApi.validateImageFile(file);
-            if (!validation.valid) {
-                ElMessage.error(validation.error);
-                return null;
-            }
+  /**
+   * 获取城市照片列表
+   */
+  const getCityPhotos = async (wishlistItemId, bustCache = false) => {
+    const { useUserStore } = await import("@/store/user.js");
+    const userStore = useUserStore();
 
-            // 压缩图片
-            const compressedFile = await cityPhotosApi.compressImage(file);
+    if (!userStore.isLoggedIn) {
+      return [];
+    }
 
-            // 上传照片
-            const response = await cityPhotosApi.uploadPhoto({
-                file: compressedFile,
-                wishlistItemId,
-                caption,
-                tags,
-            });
+    try {
+      const response = await cityPhotosApi.getCityPhotos(
+        wishlistItemId,
+        bustCache,
+      );
+      return response.data || [];
+    } catch (error) {
+      console.error("❌ 获取城市照片失败:", error);
+      return [];
+    }
+  };
 
-            if (response.data) {
-                ElMessage.success('照片上传成功');
-                return response.data;
-            } else {
-                throw new Error('上传失败');
-            }
-        } catch (error) {
-            console.error('❌ 上传照片失败:', error);
-            ElMessage.error('照片上传失败，请重试');
-            return null;
-        }
-    };
+  /**
+   * 获取用户所有照片
+   */
+  const getUserPhotos = async () => {
+    const { useUserStore } = await import("@/store/user.js");
+    const userStore = useUserStore();
 
-    /**
-     * 获取城市照片列表
-     */
-    const getCityPhotos = async(wishlistItemId, bustCache = false) => {
-        const { useUserStore } = await
-        import ('@/store/user.js');
-        const userStore = useUserStore();
+    if (!userStore.isLoggedIn) {
+      return [];
+    }
 
-        if (!userStore.isLoggedIn) {
-            return [];
-        }
+    try {
+      const response = await cityPhotosApi.getUserPhotos();
+      return response.data || [];
+    } catch (error) {
+      console.error("❌ 获取用户照片失败:", error);
+      return [];
+    }
+  };
 
-        try {
-            const response = await cityPhotosApi.getCityPhotos(wishlistItemId, bustCache);
-            return response.data || [];
-        } catch (error) {
-            console.error('❌ 获取城市照片失败:', error);
-            return [];
-        }
-    };
+  /**
+   * 更新照片信息
+   */
+  const updatePhoto = async (photoId, caption, tags = []) => {
+    const { useUserStore } = await import("@/store/user.js");
+    const userStore = useUserStore();
 
-    /**
-     * 获取用户所有照片
-     */
-    const getUserPhotos = async() => {
-        const { useUserStore } = await
-        import ('@/store/user.js');
-        const userStore = useUserStore();
+    if (!userStore.isLoggedIn) {
+      ElMessage.error("请先登录");
+      return false;
+    }
 
-        if (!userStore.isLoggedIn) {
-            return [];
-        }
+    try {
+      const response = await cityPhotosApi.updatePhoto(photoId, {
+        caption,
+        tags,
+      });
 
-        try {
-            const response = await cityPhotosApi.getUserPhotos();
-            return response.data || [];
-        } catch (error) {
-            console.error('❌ 获取用户照片失败:', error);
-            return [];
-        }
-    };
+      if (response.data) {
+        ElMessage.success("照片信息更新成功");
+        return response.data;
+      } else {
+        throw new Error("更新失败");
+      }
+    } catch (error) {
+      console.error("❌ 更新照片失败:", error);
+      ElMessage.error("更新照片失败，请重试");
+      return false;
+    }
+  };
 
-    /**
-     * 更新照片信息
-     */
-    const updatePhoto = async(photoId, caption, tags = []) => {
-        const { useUserStore } = await
-        import ('@/store/user.js');
-        const userStore = useUserStore();
+  /**
+   * 删除照片
+   */
+  const deletePhoto = async (photoId) => {
+    const { useUserStore } = await import("@/store/user.js");
+    const userStore = useUserStore();
 
-        if (!userStore.isLoggedIn) {
-            ElMessage.error('请先登录');
-            return false;
-        }
+    if (!userStore.isLoggedIn) {
+      ElMessage.error("请先登录");
+      return false;
+    }
 
-        try {
-            const response = await cityPhotosApi.updatePhoto(photoId, {
-                caption,
-                tags,
-            });
+    try {
+      const response = await cityPhotosApi.deletePhoto(photoId);
 
-            if (response.data) {
-                ElMessage.success('照片信息更新成功');
-                return response.data;
-            } else {
-                throw new Error('更新失败');
-            }
-        } catch (error) {
-            console.error('❌ 更新照片失败:', error);
-            ElMessage.error('更新照片失败，请重试');
-            return false;
-        }
-    };
+      if (response.success !== false) {
+        ElMessage.success("照片删除成功");
+        return true;
+      } else {
+        throw new Error("删除失败");
+      }
+    } catch (error) {
+      console.error("❌ 删除照片失败:", error);
+      ElMessage.error("删除照片失败，请重试");
+      return false;
+    }
+  };
 
-    /**
-     * 删除照片
-     */
-    const deletePhoto = async photoId => {
-        const { useUserStore } = await
-        import ('@/store/user.js');
-        const userStore = useUserStore();
+  /**
+   * 设置封面照片
+   */
+  const setCoverPhoto = async (photoId) => {
+    const { useUserStore } = await import("@/store/user.js");
+    const userStore = useUserStore();
 
-        if (!userStore.isLoggedIn) {
-            ElMessage.error('请先登录');
-            return false;
-        }
+    if (!userStore.isLoggedIn) {
+      ElMessage.error("请先登录");
+      return false;
+    }
 
-        try {
-            const response = await cityPhotosApi.deletePhoto(photoId);
+    try {
+      const response = await cityPhotosApi.setCoverPhoto(photoId);
 
-            if (response.success !== false) {
-                ElMessage.success('照片删除成功');
-                return true;
-            } else {
-                throw new Error('删除失败');
-            }
-        } catch (error) {
-            console.error('❌ 删除照片失败:', error);
-            ElMessage.error('删除照片失败，请重试');
-            return false;
-        }
-    };
+      if (response.success !== false) {
+        ElMessage.success("封面设置成功");
+        return true;
+      } else {
+        throw new Error("设置封面失败");
+      }
+    } catch (error) {
+      console.error("❌ 设置封面失败:", error);
+      ElMessage.error("设置封面失败，请重试");
+      return false;
+    }
+  };
 
-    /**
-     * 设置封面照片
-     */
-    const setCoverPhoto = async photoId => {
-        const { useUserStore } = await
-        import ('@/store/user.js');
-        const userStore = useUserStore();
+  /**
+   * 获取照片统计信息
+   */
+  const getPhotoStats = async () => {
+    const { useUserStore } = await import("@/store/user.js");
+    const userStore = useUserStore();
 
-        if (!userStore.isLoggedIn) {
-            ElMessage.error('请先登录');
-            return false;
-        }
+    if (!userStore.isLoggedIn) {
+      return { totalPhotos: 0, citiesWithPhotos: 0 };
+    }
 
-        try {
-            const response = await cityPhotosApi.setCoverPhoto(photoId);
+    try {
+      const response = await cityPhotosApi.getPhotoStats();
+      return response.data || { totalPhotos: 0, citiesWithPhotos: 0 };
+    } catch (error) {
+      console.error("❌ 获取照片统计失败:", error);
+      return { totalPhotos: 0, citiesWithPhotos: 0 };
+    }
+  };
 
-            if (response.success !== false) {
-                ElMessage.success('封面设置成功');
-                return true;
-            } else {
-                throw new Error('设置封面失败');
-            }
-        } catch (error) {
-            console.error('❌ 设置封面失败:', error);
-            ElMessage.error('设置封面失败，请重试');
-            return false;
-        }
-    };
+  // ========== 新增照片管理方法 ==========
 
-    /**
-     * 获取照片统计信息
-     */
-    const getPhotoStats = async() => {
-        const { useUserStore } = await
-        import ('@/store/user.js');
-        const userStore = useUserStore();
+  /**
+   * 批量上传照片
+   */
+  const batchUploadPhotos = async (files, wishlistItemId, options = {}) => {
+    const { useUserStore } = await import("@/store/user.js");
+    const userStore = useUserStore();
 
-        if (!userStore.isLoggedIn) {
-            return { totalPhotos: 0, citiesWithPhotos: 0 };
-        }
+    if (!userStore.isLoggedIn) {
+      ElMessage.error("请先登录");
+      return { success: 0, failed: 0, results: [] };
+    }
 
-        try {
-            const response = await cityPhotosApi.getPhotoStats();
-            return response.data || { totalPhotos: 0, citiesWithPhotos: 0 };
-        } catch (error) {
-            console.error('❌ 获取照片统计失败:', error);
-            return { totalPhotos: 0, citiesWithPhotos: 0 };
-        }
-    };
+    const results = [];
+    let successCount = 0;
+    let failedCount = 0;
 
-    // ========== 新增照片管理方法 ==========
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
 
-    /**
-     * 批量上传照片
-     */
-    const batchUploadPhotos = async(files, wishlistItemId, options = {}) => {
-        const { useUserStore } = await
-        import ('@/store/user.js');
-        const userStore = useUserStore();
+      try {
+        const result = await uploadCityPhoto(
+          file,
+          wishlistItemId,
+          options.caption || `照片 ${i + 1}`,
+          options.tags || [],
+        );
 
-        if (!userStore.isLoggedIn) {
-            ElMessage.error('请先登录');
-            return { success: 0, failed: 0, results: [] };
-        }
-
-        const results = [];
-        let successCount = 0;
-        let failedCount = 0;
-
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-
-            try {
-                const result = await uploadCityPhoto(
-                    file,
-                    wishlistItemId,
-                    options.caption || `照片 ${i + 1}`,
-                    options.tags || []
-                );
-
-                if (result) {
-                    results.push({ file: file.name, success: true, data: result });
-                    successCount++;
-                } else {
-                    results.push({ file: file.name, success: false, error: '上传失败' });
-                    failedCount++;
-                }
-
-                // 调用进度回调
-                if (options.onProgress) {
-                    options.onProgress({
-                        current: i + 1,
-                        total: files.length,
-                        currentFile: file.name,
-                        success: successCount,
-                        failed: failedCount,
-                    });
-                }
-            } catch (error) {
-                console.error(`上传文件 ${file.name} 失败:`, error);
-                results.push({ file: file.name, success: false, error: error.message });
-                failedCount++;
-            }
-        }
-
-        const message = `批量上传完成：成功 ${successCount} 张，失败 ${failedCount} 张`;
-        if (successCount > 0 && failedCount === 0) {
-            ElMessage.success(message);
-        } else if (successCount > 0) {
-            ElMessage.warning(message);
+        if (result) {
+          results.push({ file: file.name, success: true, data: result });
+          successCount++;
         } else {
-            ElMessage.error(message);
+          results.push({ file: file.name, success: false, error: "上传失败" });
+          failedCount++;
         }
 
-        return { success: successCount, failed: failedCount, results };
-    };
-
-    /**
-     * 更新照片排序
-     */
-    const updatePhotoOrder = async photoIds => {
-        const { useUserStore } = await
-        import ('@/store/user.js');
-        const userStore = useUserStore();
-
-        if (!userStore.isLoggedIn) {
-            ElMessage.error('请先登录');
-            return false;
+        // 调用进度回调
+        if (options.onProgress) {
+          options.onProgress({
+            current: i + 1,
+            total: files.length,
+            currentFile: file.name,
+            success: successCount,
+            failed: failedCount,
+          });
         }
+      } catch (error) {
+        console.error(`上传文件 ${file.name} 失败:`, error);
+        results.push({ file: file.name, success: false, error: error.message });
+        failedCount++;
+      }
+    }
 
-        try {
-            const response = await cityPhotosApi.updatePhotoOrder(photoIds);
+    const message = `批量上传完成：成功 ${successCount} 张，失败 ${failedCount} 张`;
+    if (successCount > 0 && failedCount === 0) {
+      ElMessage.success(message);
+    } else if (successCount > 0) {
+      ElMessage.warning(message);
+    } else {
+      ElMessage.error(message);
+    }
 
-            if (response.success !== false) {
-                ElMessage.success('照片排序更新成功');
-                return true;
-            } else {
-                throw new Error('更新排序失败');
-            }
-        } catch (error) {
-            console.error('❌ 更新照片排序失败:', error);
-            ElMessage.error('更新排序失败，请重试');
-            return false;
-        }
-    };
+    return { success: successCount, failed: failedCount, results };
+  };
 
-    /**
-     * 批量删除照片
-     */
-    const batchDeletePhotos = async photoIds => {
-        const { useUserStore } = await
-        import ('@/store/user.js');
-        const userStore = useUserStore();
+  /**
+   * 更新照片排序
+   */
+  const updatePhotoOrder = async (photoIds) => {
+    const { useUserStore } = await import("@/store/user.js");
+    const userStore = useUserStore();
 
-        if (!userStore.isLoggedIn) {
-            ElMessage.error('请先登录');
-            return 0;
-        }
+    if (!userStore.isLoggedIn) {
+      ElMessage.error("请先登录");
+      return false;
+    }
 
-        try {
-            const response = await cityPhotosApi.batchDeletePhotos(photoIds);
-            const deletedCount = response.data || 0;
+    try {
+      const response = await cityPhotosApi.updatePhotoOrder(photoIds);
 
-            ElMessage.success(`成功删除 ${deletedCount} 张照片`);
-            return deletedCount;
-        } catch (error) {
-            console.error('❌ 批量删除照片失败:', error);
-            ElMessage.error('批量删除失败，请重试');
-            return 0;
-        }
-    };
+      if (response.success !== false) {
+        ElMessage.success("照片排序更新成功");
+        return true;
+      } else {
+        throw new Error("更新排序失败");
+      }
+    } catch (error) {
+      console.error("❌ 更新照片排序失败:", error);
+      ElMessage.error("更新排序失败，请重试");
+      return false;
+    }
+  };
 
-    /**
-     * 根据ID获取照片详情
-     */
-    const getPhotoById = async photoId => {
-        const { useUserStore } = await
-        import ('@/store/user.js');
-        const userStore = useUserStore();
+  /**
+   * 批量删除照片
+   */
+  const batchDeletePhotos = async (photoIds) => {
+    const { useUserStore } = await import("@/store/user.js");
+    const userStore = useUserStore();
 
-        if (!userStore.isLoggedIn) {
-            return null;
-        }
+    if (!userStore.isLoggedIn) {
+      ElMessage.error("请先登录");
+      return 0;
+    }
 
-        try {
-            const response = await cityPhotosApi.getPhotoById(photoId);
-            return response.data || null;
-        } catch (error) {
-            console.error('❌ 获取照片详情失败:', error);
-            return null;
-        }
-    };
+    try {
+      const response = await cityPhotosApi.batchDeletePhotos(photoIds);
+      const deletedCount = response.data || 0;
 
-    /**
-     * 迁移legacy照片数据
-     * 将wishlist item中的photo字段迁移到city_photos表
-     */
-    const migrateLegacyPhoto = async wishlistItem => {
-        if (!wishlistItem.photo) {
-            return false; // 没有legacy照片需要迁移
-        }
+      ElMessage.success(`成功删除 ${deletedCount} 张照片`);
+      return deletedCount;
+    } catch (error) {
+      console.error("❌ 批量删除照片失败:", error);
+      ElMessage.error("批量删除失败，请重试");
+      return 0;
+    }
+  };
 
-        try {
-            // 检查是否已经有新格式的照片
-            const existingPhotos = await getCityPhotos(wishlistItem.id);
-            if (existingPhotos.length > 0) {
-                return false; // 已经有新照片了，不需要迁移
-            }
+  /**
+   * 根据ID获取照片详情
+   */
+  const getPhotoById = async (photoId) => {
+    const { useUserStore } = await import("@/store/user.js");
+    const userStore = useUserStore();
 
-            // 创建一个模拟的File对象用于上传（如果photo是URL的话）
-            // 实际实现中，你可能需要从URL下载图片然后上传
-            // 这里先记录需要迁移，但不实际实现复杂的迁移逻辑
+    if (!userStore.isLoggedIn) {
+      return null;
+    }
 
-            console.info(`发现需要迁移的legacy照片: ${wishlistItem.cityName}`);
-            ElMessage.info(
-                `检测到 ${wishlistItem.cityName} 有旧格式照片，建议重新上传以获得更好的功能`
-            );
+    try {
+      const response = await cityPhotosApi.getPhotoById(photoId);
+      return response.data || null;
+    } catch (error) {
+      console.error("❌ 获取照片详情失败:", error);
+      return null;
+    }
+  };
 
-            return true;
-        } catch (error) {
-            console.error('❌ 迁移legacy照片失败:', error);
-            return false;
-        }
-    };
+  /**
+   * 迁移legacy照片数据
+   * 将wishlist item中的photo字段迁移到city_photos表
+   */
+  const migrateLegacyPhoto = async (wishlistItem) => {
+    if (!wishlistItem.photo) {
+      return false; // 没有legacy照片需要迁移
+    }
 
-    return {
-        // 状态
-        wishlistItems,
-        loading,
-        currentWeatherCity,
+    try {
+      // 检查是否已经有新格式的照片
+      const existingPhotos = await getCityPhotos(wishlistItem.id);
+      if (existingPhotos.length > 0) {
+        return false; // 已经有新照片了，不需要迁移
+      }
 
-        // 计算属性
-        wishlistCount,
-        hasCities,
-        cityNames,
-        cityCodes,
-        getRandomCity,
-        visitedCount,
-        wishlistOnlyCount,
-        exploredProvincesCount,
-        footprintStats,
+      // 创建一个模拟的File对象用于上传（如果photo是URL的话）
+      // 实际实现中，你可能需要从URL下载图片然后上传
+      // 这里先记录需要迁移，但不实际实现复杂的迁移逻辑
 
-        // 愿望清单方法
-        loadWishlist,
-        addToWishlist,
-        removeFromWishlist,
-        isCityInWishlist,
-        getWishlistItemByCityCode,
-        updateWishlistItem,
-        toggleCityStatus,
-        batchUpdateStatus,
-        setCurrentWeatherCity,
-        getNextWeatherCity,
-        clearWishlist,
+      console.info(`发现需要迁移的legacy照片: ${wishlistItem.cityName}`);
+      ElMessage.info(
+        `检测到 ${wishlistItem.cityName} 有旧格式照片，建议重新上传以获得更好的功能`,
+      );
 
-        // 照片管理方法
-        uploadCityPhoto,
-        getCityPhotos,
-        getUserPhotos,
-        updatePhoto,
-        deletePhoto,
-        setCoverPhoto,
-        getPhotoStats,
+      return true;
+    } catch (error) {
+      console.error("❌ 迁移legacy照片失败:", error);
+      return false;
+    }
+  };
 
-        // 新增照片管理方法
-        batchUploadPhotos,
-        updatePhotoOrder,
-        batchDeletePhotos,
-        getPhotoById,
-        migrateLegacyPhoto,
-    };
+  return {
+    // 状态
+    wishlistItems,
+    loading,
+    currentWeatherCity,
+
+    // 计算属性
+    wishlistCount,
+    hasCities,
+    cityNames,
+    cityCodes,
+    getRandomCity,
+    visitedCount,
+    wishlistOnlyCount,
+    exploredProvincesCount,
+    footprintStats,
+
+    // 新的计算属性
+    citiesWithPhotos,
+    wishlistCities,
+    visitedCities,
+    
+    // 新的状态检查方法
+    isCityInWishlistToVisit,
+    isCityVisited,
+
+    // 愿望清单方法
+    loadWishlist,
+    addToWishlist,
+    removeFromWishlist,
+    isCityInWishlist,
+    getWishlistItemByCityCode,
+    updateWishlistItem,
+    markAsVisited,
+    markWantToVisitAgain,
+    batchMarkAsVisited,
+    setCurrentWeatherCity,
+    getNextWeatherCity,
+    clearWishlist,
+
+    // 照片管理方法
+    uploadCityPhoto,
+    getCityPhotos,
+    getUserPhotos,
+    updatePhoto,
+    deletePhoto,
+    setCoverPhoto,
+    getPhotoStats,
+
+    // 新增照片管理方法
+    batchUploadPhotos,
+    updatePhotoOrder,
+    batchDeletePhotos,
+    getPhotoById,
+    migrateLegacyPhoto,
+  };
 });

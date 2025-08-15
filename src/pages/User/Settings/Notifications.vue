@@ -1,27 +1,32 @@
 <template>
-  <div class="personal-page simple" :class="{ embedded }">
+  <div class="personal-page simple"
+:class="{ embedded }">
     <UserCenterNav v-if="!embedded" />
-    <h2 v-if="!embedded" class="title">通知设置</h2>
+    <h2
+v-if="!embedded" class="title">通知设置</h2>
     <el-card class="section">
       <div class="row">
-        <span>Email</span><el-switch v-model="email" @change="persist" />
+        <span>Email</span><el-switch v-model="email"
+@change="persist" />
       </div>
       <div class="row">
-        <span>SMS</span><el-switch v-model="sms" @change="persist" />
+        <span>SMS</span><el-switch v-model="sms"
+@change="persist" />
       </div>
       <div class="row">
-        <span>In-app</span><el-switch v-model="inapp" @change="persist" />
+        <span>In-app</span><el-switch v-model="inapp"
+@change="persist" />
       </div>
     </el-card>
   </div>
 </template>
 <script>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useUserStore } from '@/store/user.js';
-import UserCenterNav from '@/components/User/UserCenterNav.vue';
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useUserStore } from "@/store/user.js";
+import UserCenterNav from "@/components/User/UserCenterNav.vue";
 export default {
-  name: 'Notifications',
+  name: "Notifications",
   components: { UserCenterNav },
   props: { embedded: Boolean },
   setup(props) {
@@ -31,7 +36,7 @@ export default {
       sms = ref(false),
       inapp = ref(true);
 
-    const storageKey = () => `goingtour_notify_${userStore.userId || 'guest'}`;
+    const storageKey = () => `goingtour_notify_${userStore.userId || "guest"}`;
     const load = () => {
       try {
         const raw = localStorage.getItem(storageKey());
@@ -51,7 +56,7 @@ export default {
     };
 
     onMounted(() => {
-      if (!userStore.isLoggedIn) return router.push('/login');
+      if (!userStore.isLoggedIn) return router.push("/login");
       load();
     });
 

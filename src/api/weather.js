@@ -1,6 +1,6 @@
-import { http } from './request.js';
-import { amapKey } from './amap.js';
-import axios from 'axios'; // Added axios import
+import { http } from "./request.js";
+import { amapKey } from "./amap.js";
+import axios from "axios"; // Added axios import
 
 /**
  * 天气相关API接口
@@ -8,34 +8,34 @@ import axios from 'axios'; // Added axios import
 export const weatherApi = {
   // 常用城市的编码映射表 (作为缓存使用，会从city-codes.json动态加载更多数据)
   cityCodeMap: {
-    beijing: '110000',
-    shanghai: '310000',
-    guangzhou: '440100',
-    shenzhen: '440300',
-    hangzhou: '330100', // 添加杭州以确保兼容性
+    beijing: "110000",
+    shanghai: "310000",
+    guangzhou: "440100",
+    shenzhen: "440300",
+    hangzhou: "330100", // 添加杭州以确保兼容性
   },
 
   // 拼音/英文名称到中文名称的映射
   pinyinToChinese: {
-    beijing: '北京市',
-    shanghai: '上海市',
-    guangzhou: '广州市',
-    shenzhen: '深圳市',
-    hangzhou: '杭州市',
-    nanjing: '南京市',
-    tianjin: '天津市',
-    chengdu: '成都市',
-    wuhan: '武汉市',
-    xian: '西安市',
-    chongqing: '重庆市',
-    suzhou: '苏州市',
-    xiamen: '厦门市',
-    qingdao: '青岛市',
-    dalian: '大连市',
-    shenyang: '沈阳市',
-    taiyuan: '太原市',
-    kunming: '昆明市',
-    guiyang: '贵阳市',
+    beijing: "北京市",
+    shanghai: "上海市",
+    guangzhou: "广州市",
+    shenzhen: "深圳市",
+    hangzhou: "杭州市",
+    nanjing: "南京市",
+    tianjin: "天津市",
+    chengdu: "成都市",
+    wuhan: "武汉市",
+    xian: "西安市",
+    chongqing: "重庆市",
+    suzhou: "苏州市",
+    xiamen: "厦门市",
+    qingdao: "青岛市",
+    dalian: "大连市",
+    shenyang: "沈阳市",
+    taiyuan: "太原市",
+    kunming: "昆明市",
+    guiyang: "贵阳市",
   },
 
   // 城市编码数据是否已加载
@@ -52,7 +52,7 @@ export const weatherApi = {
 
     try {
       // console.log('🌏 正在加载城市编码数据...');
-      const response = await fetch('/data/city-codes.json');
+      const response = await fetch("/data/city-codes.json");
 
       if (!response.ok) {
         throw new Error(`加载失败: ${response.status} ${response.statusText}`);
@@ -64,7 +64,7 @@ export const weatherApi = {
       if (data && Array.isArray(data)) {
         let processedCount = 0;
 
-        data.forEach(city => {
+        data.forEach((city) => {
           if (city.中文名 && city.adcode) {
             // 将adcode转为字符串类型，确保一致性
             const adcodeStr = String(city.adcode);
@@ -74,22 +74,22 @@ export const weatherApi = {
             this.cityCodeMap[cityName.toLowerCase()] = adcodeStr;
 
             // 如果城市名以"市"、"区"、"县"等结尾，添加不带这些后缀的映射
-            ['市', '区', '县', '自治区', '自治州', '特别行政区'].forEach(
-              suffix => {
+            ["市", "区", "县", "自治区", "自治州", "特别行政区"].forEach(
+              (suffix) => {
                 if (cityName.endsWith(suffix)) {
                   const shortName = cityName.slice(
                     0,
-                    cityName.length - suffix.length
+                    cityName.length - suffix.length,
                   );
                   if (shortName.length > 0) {
                     this.cityCodeMap[shortName.toLowerCase()] = adcodeStr;
                   }
                 }
-              }
+              },
             );
 
             // 添加citycode映射（如果不是\N）
-            if (city.citycode && city.citycode !== '\\N') {
+            if (city.citycode && city.citycode !== "\\N") {
               this.cityCodeMap[city.citycode] = adcodeStr;
             }
 
@@ -99,15 +99,15 @@ export const weatherApi = {
 
         this.cityCodesLoaded = true;
         console.log(
-          `✅ 城市编码数据加载完成，共处理 ${processedCount}/${data.length} 条有效记录`
+          `✅ 城市编码数据加载完成，共处理 ${processedCount}/${data.length} 条有效记录`,
         );
         return true;
       } else {
-        console.warn('⚠️ 城市编码数据格式不正确');
+        console.warn("⚠️ 城市编码数据格式不正确");
         return false;
       }
     } catch (error) {
-      console.error('❌ 加载城市编码数据失败:', error);
+      console.error("❌ 加载城市编码数据失败:", error);
       return false;
     }
   },
@@ -118,7 +118,7 @@ export const weatherApi = {
    * @returns {string} - 中文城市名或原始输入
    */
   convertPinyinToChinese(cityName) {
-    if (!cityName) return '';
+    if (!cityName) return "";
 
     const lowerName = cityName.toLowerCase();
     return this.pinyinToChinese[lowerName] || cityName;
@@ -131,7 +131,7 @@ export const weatherApi = {
    */
   async getCityCode(cityName) {
     if (!cityName) {
-      return '';
+      return "";
     }
 
     // 0. 检查输入是否已经是城市编码（6位数字形式）
@@ -157,7 +157,7 @@ export const weatherApi = {
       const lowerName = name.toLowerCase();
       if (this.cityCodeMap[lowerName]) {
         console.log(
-          `🗺️ 从缓存获取城市编码: ${name} -> ${this.cityCodeMap[lowerName]}`
+          `🗺️ 从缓存获取城市编码: ${name} -> ${this.cityCodeMap[lowerName]}`,
         );
         return this.cityCodeMap[lowerName];
       }
@@ -171,7 +171,7 @@ export const weatherApi = {
       const lowerName = name.toLowerCase();
       if (this.cityCodeMap[lowerName]) {
         console.log(
-          `🗺️ 从本地数据获取城市编码: ${name} -> ${this.cityCodeMap[lowerName]}`
+          `🗺️ 从本地数据获取城市编码: ${name} -> ${this.cityCodeMap[lowerName]}`,
         );
         return this.cityCodeMap[lowerName];
       }
@@ -203,7 +203,7 @@ export const weatherApi = {
     try {
       // 检查API密钥是否存在
       if (!amapKey) {
-        throw new Error('高德地图API密钥未设置');
+        throw new Error("高德地图API密钥未设置");
       }
 
       // 先获取城市编码
@@ -215,17 +215,17 @@ export const weatherApi = {
       const params = {
         key: amapKey,
         city: cityCode,
-        extensions: 'all',
+        extensions: "all",
       };
 
       // 使用直接调用axios的方式，避免可能的参数处理问题
       const response = await axios.get(
-        'https://restapi.amap.com/v3/weather/weatherInfo',
-        { params }
+        "https://restapi.amap.com/v3/weather/weatherInfo",
+        { params },
       );
 
       // 输出响应以供调试
-      console.log('天气API响应:', response.config.url);
+      console.log("天气API响应:", response.config.url);
 
       return response;
     } catch (error) {
@@ -243,7 +243,7 @@ export const weatherApi = {
     try {
       // 检查API密钥是否存在
       if (!amapKey) {
-        throw new Error('高德地图API密钥未设置');
+        throw new Error("高德地图API密钥未设置");
       }
 
       // 先获取城市编码
@@ -255,17 +255,17 @@ export const weatherApi = {
       const params = {
         key: amapKey,
         city: cityCode,
-        extensions: 'all',
+        extensions: "all",
       };
 
       // 使用直接调用axios的方式
       const response = await axios.get(
-        'https://restapi.amap.com/v3/weather/weatherInfo',
-        { params }
+        "https://restapi.amap.com/v3/weather/weatherInfo",
+        { params },
       );
 
       // 输出响应以供调试
-      console.log('天气预报API响应状态:', response.status);
+      console.log("天气预报API响应状态:", response.status);
 
       return response;
     } catch (error) {
@@ -291,19 +291,19 @@ export const weatherApi = {
 
     // 如果是超过7天的未来日期，使用历史天气数据和季节分析
     if (daysDiff > 7) {
-      console.log('出行日期超过天气预报范围，使用历史天气分析...');
+      console.log("出行日期超过天气预报范围，使用历史天气分析...");
       return this.generateHistoricalWeatherSuggestions(city, startDate, days);
     }
     try {
       console.log(`正在获取${city}的天气建议...`);
 
       if (!city) {
-        throw new Error('城市名称为空，无法获取天气');
+        throw new Error("城市名称为空，无法获取天气");
       }
 
       // 检查API密钥是否存在
       if (!amapKey) {
-        throw new Error('高德地图API密钥未设置');
+        throw new Error("高德地图API密钥未设置");
       }
 
       try {
@@ -313,32 +313,32 @@ export const weatherApi = {
 
         // 详细输出响应数据以便调试
         if (forecastResponse) {
-          console.log('天气预报API响应状态码:', forecastResponse.status);
+          console.log("天气预报API响应状态码:", forecastResponse.status);
           if (forecastResponse.data) {
             console.log(
-              '天气预报API响应数据结构:',
-              JSON.stringify(forecastResponse.data).substring(0, 200) + '...'
+              "天气预报API响应数据结构:",
+              JSON.stringify(forecastResponse.data).substring(0, 200) + "...",
             );
           } else {
-            console.log('天气预报API响应数据结构: 无数据');
+            console.log("天气预报API响应数据结构: 无数据");
           }
         } else {
-          console.log('天气预报API响应: 无响应');
-          throw new Error('获取天气预报时发生错误，请检查网络连接');
+          console.log("天气预报API响应: 无响应");
+          throw new Error("获取天气预报时发生错误，请检查网络连接");
         }
 
         if (!forecastResponse.data) {
-          throw new Error('天气API响应中不包含data字段');
+          throw new Error("天气API响应中不包含data字段");
         }
 
         // 检查API状态码
-        if (forecastResponse.data.status !== '1') {
+        if (forecastResponse.data.status !== "1") {
           console.error(
-            '天气API错误响应详情:',
-            JSON.stringify(forecastResponse.data)
+            "天气API错误响应详情:",
+            JSON.stringify(forecastResponse.data),
           );
-          const errorCode = forecastResponse.data.infocode || '未知';
-          const errorMsg = forecastResponse.data.info || '未知错误';
+          const errorCode = forecastResponse.data.infocode || "未知";
+          const errorMsg = forecastResponse.data.info || "未知错误";
           throw new Error(`天气API错误: ${errorMsg} (错误码: ${errorCode})`);
         }
 
@@ -348,15 +348,15 @@ export const weatherApi = {
           forecastResponse.data.forecasts.length === 0
         ) {
           console.error(
-            '天气API返回格式不正确:',
-            JSON.stringify(forecastResponse.data)
+            "天气API返回格式不正确:",
+            JSON.stringify(forecastResponse.data),
           );
-          throw new Error('返回的天气数据中无forecasts数组');
+          throw new Error("返回的天气数据中无forecasts数组");
         }
 
         // 获取天气预报数据
         const forecastData = forecastResponse.data.forecasts[0];
-        console.log('✅ 成功获取天气预报数据:', forecastData);
+        console.log("✅ 成功获取天气预报数据:", forecastData);
 
         // 方法2：获取实时天气数据（备用方案）
         // 如果需要更详细的实时天气，可以单独请求
@@ -378,18 +378,18 @@ export const weatherApi = {
               reporttime: forecastData.reporttime,
               weather: today.dayweather, // 使用白天天气
               temperature: today.daytemp, // 使用白天温度
-              humidity: '未知', // 预报中可能没有湿度
+              humidity: "未知", // 预报中可能没有湿度
               winddirection: today.daywind,
               windpower: today.daypower,
             };
 
-            console.log('✅ 从预报数据构建实时天气:', currentWeather);
+            console.log("✅ 从预报数据构建实时天气:", currentWeather);
           }
 
           // 如果有需要，可以尝试单独获取实时天气数据
           // 但为了减少API调用，我们这里使用预报中的今日数据
         } catch (liveError) {
-          console.warn('获取实时天气失败，将只使用天气预报数据:', liveError);
+          console.warn("获取实时天气失败，将只使用天气预报数据:", liveError);
         }
 
         // 生成天气建议（使用预报数据和构建的当前天气数据）
@@ -397,14 +397,14 @@ export const weatherApi = {
           currentWeather,
           forecastData,
           startDate,
-          days
+          days,
         );
       } catch (error) {
-        console.error('获取天气信息失败:', error);
+        console.error("获取天气信息失败:", error);
         return null;
       }
     } catch (error) {
-      console.error('获取天气API数据失败:', error);
+      console.error("获取天气API数据失败:", error);
       throw error;
     }
   },
@@ -433,38 +433,38 @@ export const weatherApi = {
         reporttime: forecastWeather.reporttime,
         weather: today.dayweather, // 使用白天天气
         temperature: today.daytemp, // 使用白天温度
-        humidity: '未知', // 预报中可能没有湿度
+        humidity: "未知", // 预报中可能没有湿度
         winddirection: today.daywind,
         windpower: today.daypower,
       };
-      console.log('在建议生成中使用预报的第一天作为实时天气数据');
+      console.log("在建议生成中使用预报的第一天作为实时天气数据");
     }
 
     // 如果仍然没有天气数据，返回null
     if (!liveWeather) {
-      console.error('无法生成天气建议：没有可用的天气数据');
+      console.error("无法生成天气建议：没有可用的天气数据");
       return null;
     }
 
     // 天气类型映射
     const weatherTypeMap = {
-      晴: '晴天',
-      多云: '多云',
-      阴: '阴天',
-      小雨: '小雨',
-      中雨: '中雨',
-      大雨: '大雨',
-      暴雨: '暴雨',
-      雷阵雨: '雷阵雨',
-      小雪: '小雪',
-      中雪: '中雪',
-      大雪: '大雪',
-      暴雪: '暴雪',
-      雨夹雪: '雨夹雪',
-      阵雨: '阵雨',
-      雾: '雾天',
-      霾: '霾天',
-      沙尘暴: '沙尘暴',
+      晴: "晴天",
+      多云: "多云",
+      阴: "阴天",
+      小雨: "小雨",
+      中雨: "中雨",
+      大雨: "大雨",
+      暴雨: "暴雨",
+      雷阵雨: "雷阵雨",
+      小雪: "小雪",
+      中雪: "中雪",
+      大雪: "大雪",
+      暴雪: "暴雪",
+      雨夹雪: "雨夹雪",
+      阵雨: "阵雨",
+      雾: "雾天",
+      霾: "霾天",
+      沙尘暴: "沙尘暴",
     };
 
     // 分析天气情况
@@ -488,7 +488,7 @@ export const weatherApi = {
     ) {
       const relevantForecasts = forecastWeather.casts.slice(0, days);
 
-      relevantForecasts.forEach(forecast => {
+      relevantForecasts.forEach((forecast) => {
         if (forecast.dayweather) weatherTypes.add(forecast.dayweather);
         if (forecast.nightweather) weatherTypes.add(forecast.nightweather);
 
@@ -502,8 +502,8 @@ export const weatherApi = {
 
     // 生成天气描述
     const weatherDesc = Array.from(weatherTypes)
-      .map(w => weatherTypeMap[w] || w)
-      .join('、');
+      .map((w) => weatherTypeMap[w] || w)
+      .join("、");
 
     // 温差计算
     const tempDiff = maxTemp - minTemp;
@@ -518,61 +518,61 @@ export const weatherApi = {
     // console.log("当前天气类型:", currentWeatherType);
 
     // 根据天气类型生成建议 - 优化并扩充多种天气类型
-    if (currentWeatherType.includes('晴')) {
-      activities.push('户外活动', '城市观光', '公园游览', '户外摄影');
+    if (currentWeatherType.includes("晴")) {
+      activities.push("户外活动", "城市观光", "公园游览", "户外摄影");
       tips.push(`当前气温${currentTemp}℃，预计温度范围${minTemp}℃~${maxTemp}℃`);
 
       if (currentTemp > 28) {
-        tips.push('天气较热，请注意防晒和补水');
-        avoid.push('避免长时间暴露在阳光下');
-        activities.push('水上活动', '室内博物馆');
+        tips.push("天气较热，请注意防晒和补水");
+        avoid.push("避免长时间暴露在阳光下");
+        activities.push("水上活动", "室内博物馆");
       } else if (currentTemp < 10) {
-        tips.push('天气晴朗但温度较低，请注意保暖');
-        activities.push('温泉', '室内购物');
+        tips.push("天气晴朗但温度较低，请注意保暖");
+        activities.push("温泉", "室内购物");
       }
     }
 
-    if (currentWeatherType.includes('多云')) {
-      activities.push('户外活动', '城市观光', '街区探索');
+    if (currentWeatherType.includes("多云")) {
+      activities.push("户外活动", "城市观光", "街区探索");
       tips.push(`多云天气适合户外活动，温度范围${minTemp}℃~${maxTemp}℃`);
     }
 
-    if (currentWeatherType.includes('阴')) {
-      activities.push('户外活动', '城市观光', '历史景点', '购物');
+    if (currentWeatherType.includes("阴")) {
+      activities.push("户外活动", "城市观光", "历史景点", "购物");
       tips.push(`阴天光线柔和，适合拍照，温度范围${minTemp}℃~${maxTemp}℃`);
     }
 
     if (
-      currentWeatherType.includes('雨') ||
-      currentWeatherType.includes('雪')
+      currentWeatherType.includes("雨") ||
+      currentWeatherType.includes("雪")
     ) {
       // 根据雨量大小分类处理
       if (
-        currentWeatherType.includes('小雨') ||
-        currentWeatherType.includes('小雪')
+        currentWeatherType.includes("小雨") ||
+        currentWeatherType.includes("小雪")
       ) {
-        activities.push('室内博物馆', '购物中心', '美食探索', '咖啡馆文化');
-        tips.push('天气有小雨/雪，建议携带雨具或保暖衣物');
-        avoid.push('避免在雨雪天气进行远距离户外活动');
+        activities.push("室内博物馆", "购物中心", "美食探索", "咖啡馆文化");
+        tips.push("天气有小雨/雪，建议携带雨具或保暖衣物");
+        avoid.push("避免在雨雪天气进行远距离户外活动");
       } else if (
-        currentWeatherType.includes('中雨') ||
-        currentWeatherType.includes('阵雨') ||
-        currentWeatherType.includes('雷阵雨') ||
-        currentWeatherType.includes('中雪')
+        currentWeatherType.includes("中雨") ||
+        currentWeatherType.includes("阵雨") ||
+        currentWeatherType.includes("雷阵雨") ||
+        currentWeatherType.includes("中雪")
       ) {
-        activities.push('室内博物馆', '购物中心', '当地特色餐厅', '文化展览');
-        tips.push('天气有中雨/雪，出行请务必携带雨具或保暖衣物');
-        avoid.push('不建议进行户外活动', '注意路面湿滑');
+        activities.push("室内博物馆", "购物中心", "当地特色餐厅", "文化展览");
+        tips.push("天气有中雨/雪，出行请务必携带雨具或保暖衣物");
+        avoid.push("不建议进行户外活动", "注意路面湿滑");
       } else if (
-        currentWeatherType.includes('大雨') ||
-        currentWeatherType.includes('暴雨') ||
-        currentWeatherType.includes('大雪') ||
-        currentWeatherType.includes('暴雪')
+        currentWeatherType.includes("大雨") ||
+        currentWeatherType.includes("暴雨") ||
+        currentWeatherType.includes("大雪") ||
+        currentWeatherType.includes("暴雪")
       ) {
-        activities = ['室内活动', '博物馆', '购物中心', '酒店休闲'];
-        tips.push('目前有大雨/暴雨或大雪/暴雪，请做好防护准备');
-        tips.push('建议调整行程，选择室内活动');
-        avoid.push('避免任何户外活动', '注意交通安全', '关注天气预警信息');
+        activities = ["室内活动", "博物馆", "购物中心", "酒店休闲"];
+        tips.push("目前有大雨/暴雨或大雪/暴雪，请做好防护准备");
+        tips.push("建议调整行程，选择室内活动");
+        avoid.push("避免任何户外活动", "注意交通安全", "关注天气预警信息");
       }
     }
 
@@ -581,12 +581,12 @@ export const weatherApi = {
     }
 
     if (currentTemp >= 30 || maxTemp >= 30) {
-      tips.push('气温较高，注意防暑降温');
-      avoid.push('避免午后高温时段户外活动');
+      tips.push("气温较高，注意防暑降温");
+      avoid.push("避免午后高温时段户外活动");
     }
 
     if (currentTemp <= 5 || minTemp <= 5) {
-      tips.push('气温较低，请做好保暖措施');
+      tips.push("气温较低，请做好保暖措施");
     }
 
     // 添加湿度信息
@@ -601,11 +601,11 @@ export const weatherApi = {
 
     // 确保有默认建议
     if (activities.length === 0) {
-      activities = ['城市观光', '当地美食', '特色文化体验'];
+      activities = ["城市观光", "当地美食", "特色文化体验"];
     }
 
     if (tips.length === 0) {
-      tips.push('请关注当地天气预报，及时调整行程');
+      tips.push("请关注当地天气预报，及时调整行程");
     }
 
     // 添加城市和省份信息
@@ -644,10 +644,10 @@ export const weatherApi = {
           }
 
           // 格式化日期
-          const dateStr = forecastDate.toLocaleDateString('zh-CN', {
-            month: 'long',
-            day: 'numeric',
-            weekday: 'long',
+          const dateStr = forecastDate.toLocaleDateString("zh-CN", {
+            month: "long",
+            day: "numeric",
+            weekday: "long",
           });
 
           // 添加到预报列表
@@ -672,7 +672,7 @@ export const weatherApi = {
 
     console.log(
       `✅ 最终构造的天气预报数据共${forecastList.length}条:`,
-      forecastList
+      forecastList,
     );
 
     return {
@@ -681,7 +681,7 @@ export const weatherApi = {
       currentTemp: currentTemp,
       weatherDesc,
       tempRange: `${minTemp}℃~${maxTemp}℃`,
-      humidity: liveWeather.humidity ? `${liveWeather.humidity}%` : '未知',
+      humidity: liveWeather.humidity ? `${liveWeather.humidity}%` : "未知",
       tempDiff,
       activities,
       tips,
@@ -712,10 +712,10 @@ export const weatherApi = {
         historicalData,
         city,
         startDate,
-        days
+        days,
       );
     } catch (error) {
-      console.error('生成历史天气建议失败:', error);
+      console.error("生成历史天气建议失败:", error);
       // 降级到季节性建议
       return this.generateSeasonalFallbackSuggestions(city, startDate, days);
     }
@@ -739,41 +739,41 @@ export const weatherApi = {
           // 3-5月
           avgTempHigh: 22,
           avgTempLow: 8,
-          commonWeather: ['晴', '多云', '小雨'],
+          commonWeather: ["晴", "多云", "小雨"],
           rainProbability: 30,
-          windLevel: '微风',
+          windLevel: "微风",
           tips: [
-            '春季是北京最佳旅游季节',
-            '温差较大，注意增减衣物',
-            '可能有沙尘天气',
+            "春季是北京最佳旅游季节",
+            "温差较大，注意增减衣物",
+            "可能有沙尘天气",
           ],
         },
         夏季: {
           // 6-8月
           avgTempHigh: 31,
           avgTempLow: 21,
-          commonWeather: ['晴', '多云', '雷阵雨'],
+          commonWeather: ["晴", "多云", "雷阵雨"],
           rainProbability: 60,
-          windLevel: '微风',
-          tips: ['夏季炎热多雨', '注意防暑降温', '雷雨天气较多'],
+          windLevel: "微风",
+          tips: ["夏季炎热多雨", "注意防暑降温", "雷雨天气较多"],
         },
         秋季: {
           // 9-11月
           avgTempHigh: 20,
           avgTempLow: 6,
-          commonWeather: ['晴', '多云'],
+          commonWeather: ["晴", "多云"],
           rainProbability: 20,
-          windLevel: '微风',
-          tips: ['秋季天高气爽', '是最佳旅游季节', '温差较大'],
+          windLevel: "微风",
+          tips: ["秋季天高气爽", "是最佳旅游季节", "温差较大"],
         },
         冬季: {
           // 12-2月
           avgTempHigh: 4,
           avgTempLow: -8,
-          commonWeather: ['晴', '多云', '小雪'],
+          commonWeather: ["晴", "多云", "小雪"],
           rainProbability: 10,
-          windLevel: '3-4级',
-          tips: ['冬季寒冷干燥', '注意防寒保暖', '可能有雾霾'],
+          windLevel: "3-4级",
+          tips: ["冬季寒冷干燥", "注意防寒保暖", "可能有雾霾"],
         },
       },
 
@@ -782,34 +782,34 @@ export const weatherApi = {
         春季: {
           avgTempHigh: 20,
           avgTempLow: 12,
-          commonWeather: ['多云', '小雨', '晴'],
+          commonWeather: ["多云", "小雨", "晴"],
           rainProbability: 45,
-          windLevel: '微风',
-          tips: ['春季温暖湿润', '雨水较多', '适合户外活动'],
+          windLevel: "微风",
+          tips: ["春季温暖湿润", "雨水较多", "适合户外活动"],
         },
         夏季: {
           avgTempHigh: 32,
           avgTempLow: 25,
-          commonWeather: ['晴', '多云', '雷阵雨'],
+          commonWeather: ["晴", "多云", "雷阵雨"],
           rainProbability: 55,
-          windLevel: '微风',
-          tips: ['夏季炎热潮湿', '台风季节', '注意防暑防雨'],
+          windLevel: "微风",
+          tips: ["夏季炎热潮湿", "台风季节", "注意防暑防雨"],
         },
         秋季: {
           avgTempHigh: 23,
           avgTempLow: 15,
-          commonWeather: ['晴', '多云'],
+          commonWeather: ["晴", "多云"],
           rainProbability: 25,
-          windLevel: '微风',
-          tips: ['秋季最舒适', '天气稳定', '适合各种活动'],
+          windLevel: "微风",
+          tips: ["秋季最舒适", "天气稳定", "适合各种活动"],
         },
         冬季: {
           avgTempHigh: 10,
           avgTempLow: 3,
-          commonWeather: ['多云', '阴', '小雨'],
+          commonWeather: ["多云", "阴", "小雨"],
           rainProbability: 35,
-          windLevel: '微风',
-          tips: ['冬季阴冷潮湿', '少有雪天', '注意保暖防潮'],
+          windLevel: "微风",
+          tips: ["冬季阴冷潮湿", "少有雪天", "注意保暖防潮"],
         },
       },
 
@@ -818,34 +818,34 @@ export const weatherApi = {
         春季: {
           avgTempHigh: 26,
           avgTempLow: 18,
-          commonWeather: ['多云', '小雨', '晴'],
+          commonWeather: ["多云", "小雨", "晴"],
           rainProbability: 50,
-          windLevel: '微风',
-          tips: ['春季温暖潮湿', '雨季开始', '适合旅游'],
+          windLevel: "微风",
+          tips: ["春季温暖潮湿", "雨季开始", "适合旅游"],
         },
         夏季: {
           avgTempHigh: 33,
           avgTempLow: 26,
-          commonWeather: ['晴', '多云', '雷阵雨'],
+          commonWeather: ["晴", "多云", "雷阵雨"],
           rainProbability: 70,
-          windLevel: '微风',
-          tips: ['夏季炎热多雨', '台风影响', '注意防暑防雨'],
+          windLevel: "微风",
+          tips: ["夏季炎热多雨", "台风影响", "注意防暑防雨"],
         },
         秋季: {
           avgTempHigh: 28,
           avgTempLow: 20,
-          commonWeather: ['晴', '多云'],
+          commonWeather: ["晴", "多云"],
           rainProbability: 30,
-          windLevel: '微风',
-          tips: ['秋季舒适干燥', '最佳旅游季节', '天气稳定'],
+          windLevel: "微风",
+          tips: ["秋季舒适干燥", "最佳旅游季节", "天气稳定"],
         },
         冬季: {
           avgTempHigh: 20,
           avgTempLow: 11,
-          commonWeather: ['多云', '晴'],
+          commonWeather: ["多云", "晴"],
           rainProbability: 25,
-          windLevel: '微风',
-          tips: ['冬季温和干燥', '偶有冷空气', '适合旅游'],
+          windLevel: "微风",
+          tips: ["冬季温和干燥", "偶有冷空气", "适合旅游"],
         },
       },
 
@@ -854,34 +854,34 @@ export const weatherApi = {
         春季: {
           avgTempHigh: 22,
           avgTempLow: 12,
-          commonWeather: ['多云', '小雨', '阴'],
+          commonWeather: ["多云", "小雨", "阴"],
           rainProbability: 55,
-          windLevel: '微风',
-          tips: ['春季温润多雨', '雾天较多', '注意保暖'],
+          windLevel: "微风",
+          tips: ["春季温润多雨", "雾天较多", "注意保暖"],
         },
         夏季: {
           avgTempHigh: 28,
           avgTempLow: 21,
-          commonWeather: ['多云', '雷阵雨', '阴'],
+          commonWeather: ["多云", "雷阵雨", "阴"],
           rainProbability: 75,
-          windLevel: '微风',
-          tips: ['夏季凉爽多雨', '避暑胜地', '雨具必备'],
+          windLevel: "微风",
+          tips: ["夏季凉爽多雨", "避暑胜地", "雨具必备"],
         },
         秋季: {
           avgTempHigh: 23,
           avgTempLow: 15,
-          commonWeather: ['多云', '阴', '小雨'],
+          commonWeather: ["多云", "阴", "小雨"],
           rainProbability: 60,
-          windLevel: '微风',
-          tips: ['秋季阴雨绵绵', '雾天增多', '适度保暖'],
+          windLevel: "微风",
+          tips: ["秋季阴雨绵绵", "雾天增多", "适度保暖"],
         },
         冬季: {
           avgTempHigh: 12,
           avgTempLow: 5,
-          commonWeather: ['阴', '多云', '雾'],
+          commonWeather: ["阴", "多云", "雾"],
           rainProbability: 25,
-          windLevel: '微风',
-          tips: ['冬季阴冷潮湿', '雾霾较重', '注意保暖防雾'],
+          windLevel: "微风",
+          tips: ["冬季阴冷潮湿", "雾霾较重", "注意保暖防雾"],
         },
       },
     };
@@ -909,10 +909,10 @@ export const weatherApi = {
    * @returns {string} - 季节名称
    */
   getSeason(month) {
-    if (month >= 3 && month <= 5) return '春季';
-    if (month >= 6 && month <= 8) return '夏季';
-    if (month >= 9 && month <= 11) return '秋季';
-    return '冬季';
+    if (month >= 3 && month <= 5) return "春季";
+    if (month >= 6 && month <= 8) return "夏季";
+    if (month >= 9 && month <= 11) return "秋季";
+    return "冬季";
   },
 
   /**
@@ -922,24 +922,24 @@ export const weatherApi = {
    */
   normalizeCityName(cityName) {
     const cityMap = {
-      北京: 'beijing',
-      北京市: 'beijing',
-      beijing: 'beijing',
-      上海: 'shanghai',
-      上海市: 'shanghai',
-      shanghai: 'shanghai',
-      广州: 'guangzhou',
-      广州市: 'guangzhou',
-      guangzhou: 'guangzhou',
-      深圳: 'shenzhen',
-      深圳市: 'shenzhen',
-      shenzhen: 'shenzhen',
-      成都: 'chengdu',
-      成都市: 'chengdu',
-      chengdu: 'chengdu',
-      杭州: 'hangzhou',
-      杭州市: 'hangzhou',
-      hangzhou: 'hangzhou',
+      北京: "beijing",
+      北京市: "beijing",
+      beijing: "beijing",
+      上海: "shanghai",
+      上海市: "shanghai",
+      shanghai: "shanghai",
+      广州: "guangzhou",
+      广州市: "guangzhou",
+      guangzhou: "guangzhou",
+      深圳: "shenzhen",
+      深圳市: "shenzhen",
+      shenzhen: "shenzhen",
+      成都: "chengdu",
+      成都市: "chengdu",
+      chengdu: "chengdu",
+      杭州: "hangzhou",
+      杭州市: "hangzhou",
+      hangzhou: "hangzhou",
     };
 
     return cityMap[cityName] || cityName.toLowerCase();
@@ -964,22 +964,22 @@ export const weatherApi = {
 
     // 根据平均温度和降雨概率生成建议
     if (avgTempHigh >= 25) {
-      activities.push('户外活动', '水上项目', '夜市游览');
+      activities.push("户外活动", "水上项目", "夜市游览");
       if (avgTempHigh >= 30) {
-        weatherTips.push('气温较高，注意防暑降温');
-        avoid.push('避免午后高温时段长时间户外活动');
+        weatherTips.push("气温较高，注意防暑降温");
+        avoid.push("避免午后高温时段长时间户外活动");
       }
     } else if (avgTempHigh <= 10) {
-      activities.push('室内博物馆', '温泉', '购物中心', '特色火锅');
-      weatherTips.push('气温较低，做好保暖措施');
+      activities.push("室内博物馆", "温泉", "购物中心", "特色火锅");
+      weatherTips.push("气温较低，做好保暖措施");
     } else {
-      activities.push('城市观光', '历史景点', '公园游览', '美食探索');
+      activities.push("城市观光", "历史景点", "公园游览", "美食探索");
     }
 
     if (rainProbability >= 50) {
-      activities.push('室内博物馆', '购物中心', '美食街', '文化体验');
+      activities.push("室内博物馆", "购物中心", "美食街", "文化体验");
       weatherTips.push(`降雨概率较高(${rainProbability}%)，建议携带雨具`);
-      avoid.push('减少户外长时间活动');
+      avoid.push("减少户外长时间活动");
     }
 
     // 生成温差提醒
@@ -991,21 +991,21 @@ export const weatherApi = {
     return {
       city: city,
       season: historicalData.season,
-      weatherDesc: `${historicalData.season}典型天气，以${commonWeather.join('、')}为主`,
+      weatherDesc: `${historicalData.season}典型天气，以${commonWeather.join("、")}为主`,
       tempRange: `${avgTempLow}℃~${avgTempHigh}℃`,
       currentTemp: Math.round((avgTempHigh + avgTempLow) / 2),
       rainProbability: `${rainProbability}%`,
       activities,
       tips: weatherTips,
       avoid,
-      dataSource: '历史气候数据',
+      dataSource: "历史气候数据",
       isHistorical: true,
-      startDate: startDate.toLocaleDateString('zh-CN'),
+      startDate: startDate.toLocaleDateString("zh-CN"),
       duration: `${days}天`,
       forecast: this.generateHistoricalForecast(
         historicalData,
         startDate,
-        days
+        days,
       ),
     };
   },
@@ -1035,10 +1035,10 @@ export const weatherApi = {
         commonWeather[Math.floor(Math.random() * commonWeather.length)];
 
       forecast.push({
-        date: forecastDate.toLocaleDateString('zh-CN', {
-          month: 'long',
-          day: 'numeric',
-          weekday: 'long',
+        date: forecastDate.toLocaleDateString("zh-CN", {
+          month: "long",
+          day: "numeric",
+          weekday: "long",
         }),
         dayWeather: weatherType,
         nightWeather: weatherType,
@@ -1065,36 +1065,36 @@ export const weatherApi = {
     // 通用季节建议
     const seasonalAdvice = {
       春季: {
-        tempRange: '10℃~22℃',
-        activities: ['户外踏青', '公园游览', '城市观光', '摄影采风'],
+        tempRange: "10℃~22℃",
+        activities: ["户外踏青", "公园游览", "城市观光", "摄影采风"],
         tips: [
-          '春季气候宜人，适合户外活动',
-          '注意昼夜温差',
-          '可能有春雨，建议携带雨具',
+          "春季气候宜人，适合户外活动",
+          "注意昼夜温差",
+          "可能有春雨，建议携带雨具",
         ],
-        commonWeather: '多云转晴',
+        commonWeather: "多云转晴",
       },
       夏季: {
-        tempRange: '22℃~32℃',
-        activities: ['室内博物馆', '购物中心', '水上活动', '夜间游览'],
+        tempRange: "22℃~32℃",
+        activities: ["室内博物馆", "购物中心", "水上活动", "夜间游览"],
         tips: [
-          '夏季炎热，注意防暑降温',
-          '多补充水分',
-          '避免午后高温时段户外活动',
+          "夏季炎热，注意防暑降温",
+          "多补充水分",
+          "避免午后高温时段户外活动",
         ],
-        commonWeather: '晴转多云',
+        commonWeather: "晴转多云",
       },
       秋季: {
-        tempRange: '12℃~25℃',
-        activities: ['户外登山', '公园游览', '城市观光', '美食探索'],
-        tips: ['秋季天高气爽，最适宜旅游', '注意早晚温差', '天气相对稳定'],
-        commonWeather: '晴',
+        tempRange: "12℃~25℃",
+        activities: ["户外登山", "公园游览", "城市观光", "美食探索"],
+        tips: ["秋季天高气爽，最适宜旅游", "注意早晚温差", "天气相对稳定"],
+        commonWeather: "晴",
       },
       冬季: {
-        tempRange: '0℃~12℃',
-        activities: ['室内博物馆', '温泉', '购物中心', '特色美食'],
-        tips: ['冬季寒冷，注意保暖', '北方可能有雪天', '南方相对温和'],
-        commonWeather: '多云',
+        tempRange: "0℃~12℃",
+        activities: ["室内博物馆", "温泉", "购物中心", "特色美食"],
+        tips: ["冬季寒冷，注意保暖", "北方可能有雪天", "南方相对温和"],
+        commonWeather: "多云",
       },
     };
 
@@ -1108,10 +1108,10 @@ export const weatherApi = {
       activities: advice.activities,
       tips: advice.tips,
       avoid: [],
-      dataSource: '季节性气候统计',
+      dataSource: "季节性气候统计",
       isHistorical: true,
       isFallback: true,
-      startDate: startDate.toLocaleDateString('zh-CN'),
+      startDate: startDate.toLocaleDateString("zh-CN"),
       duration: `${days}天`,
     };
   },

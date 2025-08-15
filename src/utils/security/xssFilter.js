@@ -8,66 +8,66 @@
  */
 const ALLOWED_TAGS = {
   // 文本格式
-  p: ['class'],
+  p: ["class"],
   br: [],
-  span: ['class'],
-  div: ['class'],
+  span: ["class"],
+  div: ["class"],
 
   // 标题
-  h1: ['class'],
-  h2: ['class'],
-  h3: ['class'],
-  h4: ['class'],
-  h5: ['class'],
-  h6: ['class'],
+  h1: ["class"],
+  h2: ["class"],
+  h3: ["class"],
+  h4: ["class"],
+  h5: ["class"],
+  h6: ["class"],
 
   // 列表
-  ul: ['class'],
-  ol: ['class'],
-  li: ['class'],
+  ul: ["class"],
+  ol: ["class"],
+  li: ["class"],
 
   // 表格
-  table: ['class'],
-  thead: ['class'],
-  tbody: ['class'],
-  tr: ['class'],
-  th: ['class'],
-  td: ['class'],
+  table: ["class"],
+  thead: ["class"],
+  tbody: ["class"],
+  tr: ["class"],
+  th: ["class"],
+  td: ["class"],
 
   // 强调
-  strong: ['class'],
-  b: ['class'],
-  em: ['class'],
-  i: ['class'],
+  strong: ["class"],
+  b: ["class"],
+  em: ["class"],
+  i: ["class"],
 
   // 引用
-  blockquote: ['class'],
+  blockquote: ["class"],
 
   // 代码
-  code: ['class'],
-  pre: ['class'],
+  code: ["class"],
+  pre: ["class"],
 
   // 分割线
-  hr: ['class'],
+  hr: ["class"],
 
   // 链接（仅允许安全属性）
-  a: ['href', 'title', 'class'],
+  a: ["href", "title", "class"],
 };
 
 /**
  * 危险的属性（完全禁止）
  */
 const DANGEROUS_ATTRS = [
-  'onclick',
-  'onload',
-  'onerror',
-  'onmouseover',
-  'onfocus',
-  'onblur',
-  'javascript:',
-  'vbscript:',
-  'data:',
-  'style',
+  "onclick",
+  "onload",
+  "onerror",
+  "onmouseover",
+  "onfocus",
+  "onblur",
+  "javascript:",
+  "vbscript:",
+  "data:",
+  "style",
 ];
 
 /**
@@ -76,24 +76,24 @@ const DANGEROUS_ATTRS = [
  * @returns {string} - 过滤后的安全HTML
  */
 export function sanitizeHtml(html) {
-  if (!html || typeof html !== 'string') {
-    return '';
+  if (!html || typeof html !== "string") {
+    return "";
   }
 
   // 1. 移除script标签及其内容
   html = html.replace(
     /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
-    ''
+    "",
   );
 
   // 2. 移除危险的事件属性
-  DANGEROUS_ATTRS.forEach(attr => {
-    const regex = new RegExp(`\\s*${attr}\\s*=\\s*[^\\s>]*`, 'gi');
-    html = html.replace(regex, '');
+  DANGEROUS_ATTRS.forEach((attr) => {
+    const regex = new RegExp(`\\s*${attr}\\s*=\\s*[^\\s>]*`, "gi");
+    html = html.replace(regex, "");
   });
 
   // 3. 移除style属性（防止CSS注入）
-  html = html.replace(/\s*style\s*=\s*[^>]*/gi, '');
+  html = html.replace(/\s*style\s*=\s*[^>]*/gi, "");
 
   // 4. 过滤不允许的标签（简单实现）
   html = html.replace(
@@ -103,7 +103,7 @@ export function sanitizeHtml(html) {
 
       // 检查是否是允许的标签
       if (!ALLOWED_TAGS[lowerTagName]) {
-        return ''; // 移除不允许的标签
+        return ""; // 移除不允许的标签
       }
 
       // 过滤属性
@@ -116,14 +116,14 @@ export function sanitizeHtml(html) {
             if (allowedAttrs.includes(attrName.toLowerCase())) {
               return ` ${attrName}="${attrValue}"`;
             }
-            return '';
-          }
+            return "";
+          },
         );
         return `<${slash}${tagName}${filteredAttrs}>`;
       }
 
       return `<${slash}${tagName}>`;
-    }
+    },
   );
 
   return html;
@@ -149,7 +149,7 @@ export function sanitizeMarkdownHtml(html) {
       }
       // 移除不安全的链接
       return '<a href="#"';
-    }
+    },
   );
 
   return safeHtml;
@@ -161,16 +161,16 @@ export function sanitizeMarkdownHtml(html) {
  * @returns {string} - 转义后的文本
  */
 export function escapeHtml(text) {
-  if (!text) return '';
+  if (!text) return "";
 
   const escapeMap = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#x27;',
-    '/': '&#x2F;',
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#x27;",
+    "/": "&#x2F;",
   };
 
-  return text.replace(/[&<>"'\/]/g, char => escapeMap[char]);
+  return text.replace(/[&<>"'\/]/g, (char) => escapeMap[char]);
 }

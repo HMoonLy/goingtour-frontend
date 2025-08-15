@@ -1,18 +1,18 @@
-import axios from 'axios';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import axios from "axios";
+import { ElMessage, ElMessageBox } from "element-plus";
 
 // 创建独立的axios实例用于刷新令牌，避免循环依赖
 const refreshTokenRequest = axios.create({
-  baseURL: '/api',
+  baseURL: "/api",
   timeout: 5000,
 });
 
 // 创建axios实例
 const request = axios.create({
-  baseURL: '/api', // 基础URL，与vite.config.js中的proxy配置对应
+  baseURL: "/api", // 基础URL，与vite.config.js中的proxy配置对应
   timeout: 10000, // 请求超时时间
   headers: {
-    'Content-Type': 'application/json;charset=UTF-8',
+    "Content-Type": "application/json;charset=UTF-8",
   },
 });
 
@@ -21,12 +21,12 @@ const request = axios.create({
  * @param {object} config - 请求配置
  * @returns {object} 处理后的请求配置
  */
-const requestHandler = config => {
+const requestHandler = (config) => {
   // 添加时间戳防止缓存
   const timestamp = Date.now();
 
   // 根据请求方法设置参数
-  if (config.method === 'get') {
+  if (config.method === "get") {
     config.params = {
       ...config.params,
       _t: timestamp,
@@ -38,12 +38,12 @@ const requestHandler = config => {
 
   // 隐藏敏感信息
   if (logParams && logParams.key) {
-    logParams.key = '***隐藏***';
+    logParams.key = "***隐藏***";
   }
 
   console.log(
     `🚀 API Request: ${config.method.toUpperCase()} ${config.url}`,
-    logParams
+    logParams,
   );
 
   return config;
@@ -51,12 +51,12 @@ const requestHandler = config => {
 
 // 请求拦截器
 request.interceptors.request.use(
-  async config => {
+  async (config) => {
     // 添加token（如果存在）
-    const token = localStorage.getItem('goingtour_token');
+    const token = localStorage.getItem("goingtour_token");
     if (token) {
       // 检查令牌是否即将过期
-      const tokenExpiry = localStorage.getItem('goingtour_token_expiry');
+      const tokenExpiry = localStorage.getItem("goingtour_token_expiry");
       if (tokenExpiry) {
         const expiryTime = parseInt(tokenExpiry);
         const fiveMinutes = 5 * 60 * 1000;
@@ -65,14 +65,14 @@ request.interceptors.request.use(
         if (Date.now() + fiveMinutes >= expiryTime) {
           try {
             const refreshToken = localStorage.getItem(
-              'goingtour_refresh_token'
+              "goingtour_refresh_token",
             );
             if (refreshToken) {
               const refreshResponse = await refreshTokenRequest.post(
-                '/user/refresh-token',
+                "/user/refresh-token",
                 {
                   refreshToken: refreshToken,
-                }
+                },
               );
 
               if (refreshResponse.data.code === 200) {
@@ -80,17 +80,17 @@ request.interceptors.request.use(
                 const newExpiry =
                   Date.now() + refreshResponse.data.data.expiresIn;
 
-                localStorage.setItem('goingtour_token', newToken);
+                localStorage.setItem("goingtour_token", newToken);
                 localStorage.setItem(
-                  'goingtour_token_expiry',
-                  newExpiry.toString()
+                  "goingtour_token_expiry",
+                  newExpiry.toString(),
                 );
 
                 config.headers.Authorization = `Bearer ${newToken}`;
               }
             }
           } catch (refreshError) {
-            console.warn('令牌刷新失败:', refreshError);
+            console.warn("令牌刷新失败:", refreshError);
             // 刷新失败，使用原令牌继续请求
             config.headers.Authorization = `Bearer ${token}`;
           }
@@ -111,17 +111,17 @@ request.interceptors.request.use(
     // 使用请求处理函数处理请求
     return requestHandler(config);
   },
-  error => {
+  (error) => {
     // 对请求错误做些什么
-    console.error('❌ Request Error:', error);
-    ElMessage.error('请求配置错误');
+    console.error("❌ Request Error:", error);
+    ElMessage.error("请求配置错误");
     return Promise.reject(error);
-  }
+  },
 );
 
 // 响应拦截器
 request.interceptors.response.use(
-  response => {
+  (response) => {
     // 对响应数据做点什么
     const { data } = response;
 
@@ -132,7 +132,7 @@ request.interceptors.response.use(
         return data;
       } else {
         // 业务错误
-        const errorMsg = data.msg || '请求失败';
+        const errorMsg = data.msg || "请求失败";
 
         // 根据错误类型显示不同的提示
         if (data.code >= 1000 && data.code < 2000) {
@@ -158,11 +158,11 @@ request.interceptors.response.use(
     // 非统一格式响应，直接返回
     return data;
   },
-  error => {
+  (error) => {
     // 对响应错误做点什么
-    console.error('❌ API Response Error:', error);
+    console.error("❌ API Response Error:", error);
 
-    let errorMessage = '请求失败';
+    let errorMessage = "请求失败";
 
     if (error.response) {
       // 服务器响应了错误状态码
@@ -170,30 +170,30 @@ request.interceptors.response.use(
 
       switch (status) {
         case 400:
-          errorMessage = data && data.msg ? data.msg : '请求参数错误';
+          errorMessage = data && data.msg ? data.msg : "请求参数错误";
           ElMessage.error(errorMessage);
           break;
         case 401:
-          errorMessage = '登录已过期，请重新登录';
+          errorMessage = "登录已过期，请重新登录";
           ElMessage.warning(errorMessage);
           // 清除所有token信息并跳转到登录页
-          localStorage.removeItem('goingtour_token');
-          localStorage.removeItem('goingtour_refresh_token');
-          localStorage.removeItem('goingtour_token_expiry');
-          localStorage.removeItem('goingtour_user');
-          localStorage.removeItem('goingtour_preferences');
-          window.location.href = '/login';
+          localStorage.removeItem("goingtour_token");
+          localStorage.removeItem("goingtour_refresh_token");
+          localStorage.removeItem("goingtour_token_expiry");
+          localStorage.removeItem("goingtour_user");
+          localStorage.removeItem("goingtour_preferences");
+          window.location.href = "/login";
           break;
         case 403:
-          errorMessage = '拒绝访问';
+          errorMessage = "拒绝访问";
           ElMessage.error(errorMessage);
           break;
         case 404:
-          errorMessage = '请求的资源不存在';
+          errorMessage = "请求的资源不存在";
           ElMessage.error(errorMessage);
           break;
         case 500:
-          errorMessage = '服务器内部错误';
+          errorMessage = "服务器内部错误";
           ElMessage.error(errorMessage);
           break;
         default:
@@ -202,16 +202,16 @@ request.interceptors.response.use(
       }
     } else if (error.request) {
       // 请求已发出但没有收到响应
-      errorMessage = '网络连接失败，请检查网络';
+      errorMessage = "网络连接失败，请检查网络";
       ElMessage.error(errorMessage);
     } else {
       // 其他错误
-      errorMessage = error.message || '请求配置错误';
+      errorMessage = error.message || "请求配置错误";
       ElMessage.error(errorMessage);
     }
 
     return Promise.reject(new Error(errorMessage));
-  }
+  },
 );
 
 // 封装常用的HTTP方法
@@ -224,7 +224,7 @@ export const http = {
    */
   get(url, params, config = {}) {
     return request({
-      method: 'get',
+      method: "get",
       url,
       params,
       ...config,
@@ -239,7 +239,7 @@ export const http = {
    */
   post(url, data = {}, config = {}) {
     return request({
-      method: 'post',
+      method: "post",
       url,
       data,
       ...config,
@@ -254,7 +254,7 @@ export const http = {
    */
   put(url, data = {}, config = {}) {
     return request({
-      method: 'put',
+      method: "put",
       url,
       data,
       ...config,
@@ -268,7 +268,7 @@ export const http = {
    */
   delete(url, config = {}) {
     return request({
-      method: 'delete',
+      method: "delete",
       url,
       ...config,
     });
@@ -282,11 +282,11 @@ export const http = {
    */
   upload(url, formData, config = {}) {
     return request({
-      method: 'post',
+      method: "post",
       url,
       data: formData,
       headers: {
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
       },
       ...config,
     });

@@ -47,7 +47,8 @@
             我的行程
           </h3>
           <div class="header-actions">
-            <el-button type="primary" size="small" @click="goToCreate">
+            <el-button type="primary"
+size="small" @click="goToCreate">
               <el-icon><Plus /></el-icon>
               创建新行程
             </el-button>
@@ -56,7 +57,8 @@
 
         <!-- 行程筛选标签 -->
         <div class="filter-tabs">
-          <el-radio-group v-model="activeFilter" size="small">
+          <el-radio-group v-model="activeFilter"
+size="small">
             <el-radio-button value="all"> 全部 </el-radio-button>
             <el-radio-button value="saved"> 已保存 </el-radio-button>
             <el-radio-button value="draft"> 草稿 </el-radio-button>
@@ -66,24 +68,31 @@
 
         <!-- 行程列表 -->
         <div class="trips-container">
-          <div v-if="loading" class="loading-state">
-            <el-skeleton :rows="3" animated />
+          <div v-if="loading"
+class="loading-state">
+            <el-skeleton :rows="3"
+animated />
           </div>
 
-          <div v-else-if="filteredTrips.length === 0" class="empty-state">
-            <el-empty :description="getEmptyDescription()" :image-size="120">
+          <div v-else-if="filteredTrips.length === 0"
+class="empty-state">
+            <el-empty :description="getEmptyDescription()"
+:image-size="120">
               <template #image>
-                <el-icon size="80" color="#d3d3d3">
+                <el-icon size="80"
+color="#d3d3d3">
                   <DocumentCopy />
                 </el-icon>
               </template>
-              <el-button type="primary" @click="goToCreate">
+              <el-button type="primary"
+@click="goToCreate">
                 创建第一个行程
               </el-button>
             </el-empty>
           </div>
 
-          <div v-else class="trips-grid">
+          <div v-else
+class="trips-grid">
             <div
               v-for="trip in filteredTrips"
               :key="trip.id"
@@ -98,8 +107,9 @@
                 <h4 class="trip-title">
                   {{ trip.title }}
                 </h4>
-                <el-dropdown @command="cmd => handleTripAction(cmd, trip)">
-                  <el-button size="small" link @click.stop>
+                <el-dropdown @command="(cmd) => handleTripAction(cmd, trip)">
+                  <el-button size="small"
+link @click.stop>
                     <el-icon><More /></el-icon>
                   </el-button>
                   <template #dropdown>
@@ -113,7 +123,8 @@
                       <el-dropdown-item command="share">
                         <el-icon><Share /></el-icon>分享
                       </el-dropdown-item>
-                      <el-dropdown-item command="delete" divided>
+                      <el-dropdown-item command="delete"
+divided>
                         <el-icon><Delete /></el-icon>删除
                       </el-dropdown-item>
                     </el-dropdown-menu>
@@ -125,21 +136,23 @@
                 <div class="meta-item">
                   <el-icon><MapLocation /></el-icon>
                   <span>{{
-                    trip.destinationName || trip.destination || '未知目的地'
+                    trip.destinationName || trip.destination || "未知目的地"
                   }}</span>
                 </div>
                 <div class="meta-item">
                   <el-icon><Calendar /></el-icon>
                   <span>{{ trip.days }}天</span>
                 </div>
-                <div v-if="trip.totalBudget" class="meta-item">
+                <div v-if="trip.totalBudget"
+class="meta-item">
                   <el-icon><Money /></el-icon>
                   <span>{{ trip.totalBudget }}</span>
                 </div>
               </div>
 
               <div class="trip-status">
-                <el-tag v-if="trip.isDraft" type="warning" size="small">
+                <el-tag v-if="trip.isDraft"
+type="warning" size="small">
                   草稿
                 </el-tag>
                 <el-tag
@@ -149,7 +162,8 @@
                 >
                   AI生成
                 </el-tag>
-                <el-tag v-else type="success" size="small"> 已完成 </el-tag>
+                <el-tag
+v-else type="success" size="small"> 已完成 </el-tag>
 
                 <span class="update-time">
                   {{ formatTime(trip.updatedAt || trip.createdAt) }}
@@ -170,7 +184,8 @@
         </div>
 
         <div class="actions-grid">
-          <div class="action-card" @click="$router.push('/destinations')">
+          <div class="action-card"
+@click="$router.push('/destinations')">
             <el-icon><MapLocation /></el-icon>
             <div class="action-info">
               <h4>选择目的地</h4>
@@ -178,7 +193,8 @@
             </div>
           </div>
 
-          <div class="action-card" @click="$router.push('/footprints')">
+          <div class="action-card"
+@click="$router.push('/footprints')">
             <el-icon><Star /></el-icon>
             <div class="action-info">
               <h4>我的足迹</h4>
@@ -186,7 +202,8 @@
             </div>
           </div>
 
-          <div class="action-card" @click="exportTrips">
+          <div class="action-card"
+@click="exportTrips">
             <el-icon><Download /></el-icon>
             <div class="action-info">
               <h4>导出数据</h4>
@@ -194,7 +211,8 @@
             </div>
           </div>
 
-          <div class="action-card" @click="$router.push('/personal/settings')">
+          <div class="action-card"
+@click="$router.push('/personal/settings')">
             <el-icon><Setting /></el-icon>
             <div class="action-info">
               <h4>账户设置</h4>
@@ -208,9 +226,9 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { ElMessage, ElMessageBox } from "element-plus";
 import {
   Tickets,
   Plus,
@@ -227,17 +245,17 @@ import {
   User,
   Setting,
   Download,
-} from '@element-plus/icons-vue';
+} from "@element-plus/icons-vue";
 
-import { useUserStore } from '@/store/user.js';
-import { useDraftStore } from '@/store/draft.js';
-import { draftManager } from '@/utils/storage/draftManager.js';
-import { convertBackendTripToFrontend } from '@/utils/data/tripDataConverter.js';
-import { handleApiError } from '@/utils/api/errorHandler.js';
-import AvatarUploader from '@/components/Common/UI/AvatarUploader.vue';
+import { useUserStore } from "@/store/user.js";
+import { useDraftStore } from "@/store/draft.js";
+import { draftManager } from "@/utils/storage/draftManager.js";
+import { convertBackendTripToFrontend } from "@/utils/data/tripDataConverter.js";
+import { handleApiError } from "@/utils/api/errorHandler.js";
+import AvatarUploader from "@/components/Common/UI/AvatarUploader.vue";
 
 export default {
-  name: 'PersonalCenter',
+  name: "PersonalCenter",
   components: {
     AvatarUploader,
     Tickets,
@@ -263,20 +281,20 @@ export default {
 
     // 响应式数据
     const loading = ref(false);
-    const activeFilter = ref('all');
+    const activeFilter = ref("all");
     const savedTrips = ref([]);
     const drafts = ref([]);
 
     // 计算属性
     const joinDateText = computed(() => {
       const createTime = userStore.currentUser?.createTime;
-      if (!createTime) return '';
+      if (!createTime) return "";
 
       try {
         const date = new Date(createTime);
         return `加入于 ${date.getFullYear()}年`;
       } catch {
-        return '';
+        return "";
       }
     });
 
@@ -284,10 +302,10 @@ export default {
       const trips = [...savedTrips.value];
 
       // 添加草稿数据
-      const draftTrips = drafts.value.map(draft => ({
+      const draftTrips = drafts.value.map((draft) => ({
         id: draft.id,
-        title: draft.name || '未命名行程',
-        destinationName: draft.baseForm?.destinationName || '未知目的地',
+        title: draft.name || "未命名行程",
+        destinationName: draft.baseForm?.destinationName || "未知目的地",
         destination: draft.baseForm?.destination,
         days: draft.baseForm?.days || 0,
         totalBudget: draft.baseForm?.totalBudget,
@@ -304,19 +322,19 @@ export default {
       return trips.sort(
         (a, b) =>
           new Date(b.updatedAt || b.createdAt) -
-          new Date(a.updatedAt || a.createdAt)
+          new Date(a.updatedAt || a.createdAt),
       );
     });
 
     const filteredTrips = computed(() => {
       switch (activeFilter.value) {
-        case 'saved':
-          return allTrips.value.filter(trip => !trip.isDraft);
-        case 'draft':
-          return allTrips.value.filter(trip => trip.isDraft);
-        case 'ai':
+        case "saved":
+          return allTrips.value.filter((trip) => !trip.isDraft);
+        case "draft":
+          return allTrips.value.filter((trip) => trip.isDraft);
+        case "ai":
           return allTrips.value.filter(
-            trip => trip.aiGenerated && !trip.isDraft
+            (trip) => trip.aiGenerated && !trip.isDraft,
           );
         default:
           return allTrips.value;
@@ -325,10 +343,10 @@ export default {
 
     const totalTrips = computed(() => allTrips.value.length);
     const savedTripsCount = computed(
-      () => allTrips.value.filter(trip => !trip.isDraft).length
+      () => allTrips.value.filter((trip) => !trip.isDraft).length,
     );
     const draftTrips = computed(
-      () => allTrips.value.filter(trip => trip.isDraft).length
+      () => allTrips.value.filter((trip) => trip.isDraft).length,
     );
 
     // 方法
@@ -339,19 +357,19 @@ export default {
         // 加载已保存的行程
         if (userStore.currentUser?.id) {
           try {
-            const { tripApi } = await import('@/api/trip.js');
+            const { tripApi } = await import("@/api/trip.js");
             const response = await tripApi.getUserTrips(
-              userStore.currentUser.id
+              userStore.currentUser.id,
             );
             if (response.data) {
               savedTrips.value = response.data.map(
-                convertBackendTripToFrontend
+                convertBackendTripToFrontend,
               );
             }
           } catch (error) {
-            console.warn('从API加载行程失败，尝试本地存储:', error);
+            console.warn("从API加载行程失败，尝试本地存储:", error);
             // 降级到本地存储
-            const trips = localStorage.getItem('savedTrips');
+            const trips = localStorage.getItem("savedTrips");
             savedTrips.value = trips
               ? JSON.parse(trips).map(convertBackendTripToFrontend)
               : [];
@@ -361,18 +379,18 @@ export default {
         // 加载草稿
         drafts.value = await draftManager.getAllDrafts();
       } catch (error) {
-        console.error('加载行程数据失败:', error);
-        handleApiError(error, '加载行程数据失败', { showNotification: false });
+        console.error("加载行程数据失败:", error);
+        handleApiError(error, "加载行程数据失败", { showNotification: false });
       } finally {
         loading.value = false;
       }
     };
 
     const goToCreate = () => {
-      router.push('/destinations');
+      router.push("/destinations");
     };
 
-    const viewTrip = trip => {
+    const viewTrip = (trip) => {
       if (trip.isDraft) {
         // 加载草稿并跳转到创建页面
         router.push(`/trip/create?loadDraft=${trip.id}`);
@@ -385,7 +403,7 @@ export default {
 
     const handleTripAction = async (command, trip) => {
       switch (command) {
-        case 'edit':
+        case "edit":
           if (trip.isDraft) {
             router.push(`/trip/create?loadDraft=${trip.id}`);
           } else if (trip.aiGenerated) {
@@ -394,98 +412,98 @@ export default {
             router.push(`/trip/${trip.id}?edit=true`);
           }
           break;
-        case 'duplicate':
+        case "duplicate":
           await duplicateTrip(trip);
           break;
-        case 'share':
+        case "share":
           await shareTrip(trip);
           break;
-        case 'delete':
+        case "delete":
           await deleteTrip(trip);
           break;
       }
     };
 
-    const duplicateTrip = async trip => {
+    const duplicateTrip = async (trip) => {
       try {
         const { value: newTitle } = await ElMessageBox.prompt(
-          '请输入新行程的标题：',
-          '复制行程',
+          "请输入新行程的标题：",
+          "复制行程",
           {
-            confirmButtonText: '复制',
-            cancelButtonText: '取消',
+            confirmButtonText: "复制",
+            cancelButtonText: "取消",
             inputValue: `${trip.title} - 副本`,
-            inputPlaceholder: '输入新行程标题',
-          }
+            inputPlaceholder: "输入新行程标题",
+          },
         );
 
         if (newTitle) {
           // TODO: 实现复制逻辑
-          ElMessage.success('行程已复制成功！');
+          ElMessage.success("行程已复制成功！");
           await loadTrips();
         }
       } catch (error) {
-        if (error !== 'cancel') {
-          ElMessage.error('复制行程失败，请重试');
+        if (error !== "cancel") {
+          ElMessage.error("复制行程失败，请重试");
         }
       }
     };
 
-    const shareTrip = async trip => {
+    const shareTrip = async (trip) => {
       try {
         const shareUrl = `${window.location.origin}/share/trip/${trip.id}`;
         await navigator.clipboard.writeText(shareUrl);
-        ElMessage.success('行程链接已复制到剪贴板！');
+        ElMessage.success("行程链接已复制到剪贴板！");
       } catch (error) {
-        ElMessage.error('分享失败，请重试');
+        ElMessage.error("分享失败，请重试");
       }
     };
 
-    const deleteTrip = async trip => {
+    const deleteTrip = async (trip) => {
       try {
         await ElMessageBox.confirm(
           `确定要删除行程"${trip.title}"吗？删除后无法恢复。`,
-          '删除行程',
+          "删除行程",
           {
-            confirmButtonText: '删除',
-            cancelButtonText: '取消',
-            type: 'warning',
-          }
+            confirmButtonText: "删除",
+            cancelButtonText: "取消",
+            type: "warning",
+          },
         );
 
         if (trip.isDraft) {
           await draftManager.deleteDraft(trip.id);
         } else {
           // TODO: 调用API删除行程
-          const { tripApi } = await import('@/api/trip.js');
+          const { tripApi } = await import("@/api/trip.js");
           await tripApi.deleteTrip(trip.id, userStore.currentUser.id);
         }
 
-        ElMessage.success('行程删除成功！');
+        ElMessage.success("行程删除成功！");
         await loadTrips();
       } catch (error) {
-        if (error !== 'cancel') {
-          console.error('删除行程失败:', error);
-          ElMessage.error('删除行程失败，请重试');
+        if (error !== "cancel") {
+          console.error("删除行程失败:", error);
+          ElMessage.error("删除行程失败，请重试");
         }
       }
     };
 
     const getEmptyDescription = () => {
       switch (activeFilter.value) {
-        case 'saved':
-          return '还没有已保存的行程';
-        case 'draft':
-          return '还没有草稿行程';
-        case 'ai':
-          return '还没有AI生成的行程';
+        case "saved":
+          return "还没有已保存的行程";
+        case "draft":
+          return "还没有草稿行程";
+        case "ai":
+          return "还没有AI生成的行程";
         default:
-          return '还没有任何行程，开始创建你的第一个行程吧！';
+          return "还没有任何行程，开始创建你的第一个行程吧！";
       }
     };
 
-    const formatTime = timestamp => {
-      if (!timestamp) return '';
+    const formatTime = (timestamp) => {
+      if (!timestamp) return "";
 
       try {
         const date = new Date(timestamp);
@@ -493,65 +511,65 @@ export default {
         const diff = now - date;
 
         if (diff < 24 * 60 * 60 * 1000) {
-          return '今天';
+          return "今天";
         } else if (diff < 48 * 60 * 60 * 1000) {
-          return '昨天';
+          return "昨天";
         } else {
-          return date.toLocaleDateString('zh-CN');
+          return date.toLocaleDateString("zh-CN");
         }
       } catch {
-        return '';
+        return "";
       }
     };
 
     const exportTrips = async () => {
       try {
-        const tripsData = allTrips.value.map(trip => ({
+        const tripsData = allTrips.value.map((trip) => ({
           title: trip.title,
           destination: trip.destinationName || trip.destination,
           days: trip.days,
           budget: trip.totalBudget,
           status: trip.isDraft
-            ? '草稿'
+            ? "草稿"
             : trip.aiGenerated
-              ? 'AI生成'
-              : '已完成',
+              ? "AI生成"
+              : "已完成",
           createdAt: trip.createdAt,
           updatedAt: trip.updatedAt,
         }));
 
         const dataStr = JSON.stringify(tripsData, null, 2);
-        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const dataBlob = new Blob([dataStr], { type: "application/json" });
 
         const url = URL.createObjectURL(dataBlob);
-        const link = document.createElement('a');
+        const link = document.createElement("a");
         link.href = url;
-        link.download = `我的行程数据_${new Date().toLocaleDateString('zh-CN')}.json`;
+        link.download = `我的行程数据_${new Date().toLocaleDateString("zh-CN")}.json`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
 
-        ElMessage.success('行程数据导出成功！');
+        ElMessage.success("行程数据导出成功！");
       } catch (error) {
-        ElMessage.error('导出失败，请重试');
+        ElMessage.error("导出失败，请重试");
       }
     };
 
-    const handleAvatarUpdate = async newAvatar => {
+    const handleAvatarUpdate = async (newAvatar) => {
       try {
         await userStore.updateUserInfo(userStore.nickname, newAvatar);
-        ElMessage.success('头像更新成功！');
+        ElMessage.success("头像更新成功！");
       } catch (error) {
-        console.error('头像更新失败:', error);
-        ElMessage.error('头像更新失败，请重试');
+        console.error("头像更新失败:", error);
+        ElMessage.error("头像更新失败，请重试");
       }
     };
 
     // 生命周期
     onMounted(async () => {
       if (!userStore.isLoggedIn) {
-        router.push('/login');
+        router.push("/login");
         return;
       }
 

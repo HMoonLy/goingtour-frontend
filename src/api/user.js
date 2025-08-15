@@ -1,4 +1,4 @@
-import { http } from './request.js';
+import { http } from "./request.js";
 
 /**
  * 用户相关API接口
@@ -11,7 +11,7 @@ export const userApi = {
    * @param {Object} data - {email: string, type: string}
    */
   sendCode(data) {
-    return http.post('/user/send-code', data);
+    return http.post("/user/send-code", data);
   },
 
   /**
@@ -19,7 +19,7 @@ export const userApi = {
    * @param {Object} data - {email: string, code: string, nickname?: string}
    */
   register(data) {
-    return http.post('/user/register', data);
+    return http.post("/user/register", data);
   },
 
   /**
@@ -27,7 +27,7 @@ export const userApi = {
    * @param {Object} data - {email: string, code: string}
    */
   login(data) {
-    return http.post('/user/login', data);
+    return http.post("/user/login", data);
   },
 
   /**
@@ -35,7 +35,7 @@ export const userApi = {
    * @param {string} refreshToken - 刷新令牌
    */
   refreshToken(refreshToken) {
-    return http.post('/user/refresh-token', { refreshToken });
+    return http.post("/user/refresh-token", { refreshToken });
   },
 
   // ========== 用户信息管理 ==========
@@ -97,7 +97,7 @@ export const userApi = {
    */
   uploadAvatar(userId, file) {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
     return http.upload(`/user/${userId}/avatar`, formData);
   },
 
@@ -142,7 +142,7 @@ export const userApi = {
    * @param {number} maxBudget - 最大预算
    */
   getUsersByBudget(minBudget, maxBudget) {
-    return http.get('/user/budget', {
+    return http.get("/user/budget", {
       minBudget,
       maxBudget,
     });
@@ -152,7 +152,7 @@ export const userApi = {
    * 获取用户统计信息
    */
   getUserStats() {
-    return http.get('/user/stats');
+    return http.get("/user/stats");
   },
 
   // ========== 账户设置 ==========

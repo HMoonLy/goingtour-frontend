@@ -3,23 +3,33 @@
     <!-- 标题区域 -->
     <div class="gallery-header">
       <div class="header-title">
-        <el-icon size="20" class="title-icon"><Camera /></el-icon>
+        <el-icon size="20"
+class="title-icon">
+          <Camera />
+        </el-icon>
         <h3 class="title-text">去过的城市</h3>
-        <span v-if="visitedCities.length > 0" class="photo-count">
-          ({{ visitedCities.length }}个城市)
+        <span v-if="citiesWithPhotos.length > 0"
+class="photo-count">
+          ({{ citiesWithPhotos.length }}个城市)
         </span>
       </div>
-      
+
       <!-- 展开/收起按钮 -->
-      <div v-if="needsToggle" class="toggle-section">
-        <el-button 
-          type="text" 
-          size="small" 
+      <div v-if="needsToggle"
+class="toggle-section">
+        <el-button
+          type="text"
+          size="small"
           class="toggle-btn"
           @click="toggleExpanded"
         >
-          <span>{{ isExpanded ? '收起' : `展示更多 (${visitedCities.length - maxDisplayCount}+)` }}</span>
-          <el-icon class="toggle-icon" :class="{ 'expanded': isExpanded }">
+          <span>{{
+            isExpanded
+              ? "收起"
+              : `展示更多 (${citiesWithPhotos.length - props.maxDisplayCount}+)`
+          }}</span>
+          <el-icon class="toggle-icon"
+:class="{ expanded: isExpanded }">
             <ArrowDown />
           </el-icon>
         </el-button>
@@ -29,14 +39,22 @@
     <!-- 照片展示区域 -->
     <div class="photos-container">
       <!-- 有去过城市的情况 -->
-      <div v-if="visitedCities.length > 0" class="photos-grid">
+      <div v-if="citiesWithPhotos.length > 0"
+class="photos-grid">
         <div
           v-for="(city, index) in displayedCities"
           :key="city.id"
           class="city-photo-item"
           :style="{ animationDelay: `${index * 0.1}s` }"
         >
-          <div class="photo-wrapper" @click="handlePhotoClick(city)">
+          <div class="photo-wrapper"
+@click="handlePhotoClick(city)">
+            <!-- 想再去标识 -->
+            <div v-if="city.ever_visited && city.want_to_visit_again" class="want-again-badge">
+              <el-icon><Star /></el-icon>
+              <span>想再去</span>
+            </div>
+
             <!-- 有照片的情况（显示封面/第一张） -->
             <template v-if="getCoverUrl(city)">
               <img
@@ -50,14 +68,20 @@
             <!-- 没有照片的情况 - 上传引导 -->
             <template v-else>
               <div class="upload-placeholder">
-                <el-icon size="32" class="upload-icon"><Plus /></el-icon>
-                <p class="upload-text">{{ city.cityName }}</p>
+                <el-icon size="32"
+class="upload-icon">
+                  <Plus />
+                </el-icon>
+                <p class="upload-text">
+                  {{ city.cityName }}
+                </p>
                 <p class="upload-hint">点击添加照片</p>
               </div>
             </template>
 
             <!-- 照片信息遮罩 -->
-            <div v-if="getCoverUrl(city)" class="photo-overlay">
+            <div v-if="getCoverUrl(city)"
+class="photo-overlay">
               <div class="city-info">
                 <span class="city-name">{{ city.cityName }}</span>
                 <span class="visit-date">{{
@@ -67,7 +91,8 @@
 
               <!-- 操作按钮 -->
               <div class="photo-actions">
-                <el-tooltip content="更换照片" placement="top">
+                <el-tooltip content="更换照片"
+placement="top">
                   <el-button
                     size="small"
                     type="primary"
@@ -79,7 +104,8 @@
                   </el-button>
                 </el-tooltip>
 
-                <el-tooltip content="删除照片" placement="top">
+                <el-tooltip content="删除照片"
+placement="top">
                   <el-button
                     size="small"
                     type="danger"
@@ -90,31 +116,51 @@
                     <el-icon><Delete /></el-icon>
                   </el-button>
                 </el-tooltip>
+
+                <el-tooltip :content="city.want_to_visit_again ? '取消想再去' : '标记想再去'"
+placement="top">
+                  <el-button
+                    size="small"
+                    :type="city.want_to_visit_again ? 'warning' : 'info'"
+                    circle
+                    class="action-btn"
+                    @click.stop="handleToggleWantAgain(city)"
+                  >
+                    <el-icon><Star /></el-icon>
+                  </el-button>
+                </el-tooltip>
               </div>
             </div>
 
             <!-- 城市名称 (无照片时显示) -->
-            <div v-if="!getCoverUrl(city)" class="city-name-bottom">
+            <div v-if="!getCoverUrl(city)"
+class="city-name-bottom">
               {{ city.cityName }}
             </div>
 
             <!-- 胶片孔效果 -->
-            <div v-if="city.photo" class="film-holes">
-              <div class="hole"></div>
-              <div class="hole"></div>
-              <div class="hole"></div>
+            <div v-if="city.photo"
+class="film-holes">
+              <div class="hole" />
+              <div class="hole" />
+              <div class="hole" />
             </div>
           </div>
         </div>
       </div>
 
       <!-- 完全没有去过城市的空状态 -->
-      <div v-else class="empty-gallery">
+      <div v-else
+class="empty-gallery">
         <div class="empty-content">
-          <el-icon size="64" class="empty-icon"><CameraFilled /></el-icon>
+          <el-icon size="64"
+class="empty-icon">
+            <CameraFilled />
+          </el-icon>
           <h4>还没有足迹照片</h4>
           <p>标记一些城市为"去过"，然后上传你的旅行照片</p>
-          <el-button type="primary" @click="$emit('add-visited-city')">
+          <el-button type="primary"
+@click="$emit('add-visited-city')">
             <el-icon><Plus /></el-icon>
             添加去过的城市
           </el-button>
@@ -134,18 +180,24 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
-import { Camera, Plus, Delete, CameraFilled, ArrowDown } from '@element-plus/icons-vue';
-import { useWishlistStore } from '@/store/wishlist.js';
-import { getCityPhotoUrl, getCityThumbnailUrl } from '@/utils/media/imageUrl.js';
+import { ref, computed, onMounted, watch } from "vue";
+import { ElMessage, ElMessageBox } from "element-plus";
+import {
+  Camera,
+  Plus,
+  Delete,
+  CameraFilled,
+  ArrowDown,
+  Star,
+} from "@element-plus/icons-vue";
+import { useWishlistStore } from "@/store/wishlist.js";
+import {
+  getCityPhotoUrl,
+  getCityThumbnailUrl,
+} from "@/utils/media/imageUrl.js";
 
-// Props
+// Props - 现在使用store中的数据
 const props = defineProps({
-  visitedCities: {
-    type: Array,
-    default: () => [],
-  },
   maxDisplayCount: {
     type: Number,
     default: 6,
@@ -154,13 +206,16 @@ const props = defineProps({
 
 // Emits
 const emit = defineEmits([
-  'photo-uploaded',
-  'photo-deleted',
-  'add-visited-city',
+  "photo-uploaded",
+  "photo-deleted",
+  "add-visited-city",
 ]);
 
 // Store
 const wishlistStore = useWishlistStore();
+
+// 使用store中的citiesWithPhotos数据
+const citiesWithPhotos = computed(() => wishlistStore.citiesWithPhotos);
 
 // 响应式数据
 const fileInput = ref(null);
@@ -172,29 +227,29 @@ const maxDisplayCount = ref(10); // 默认显示的城市数量
 
 // 方法
 
-const normalizePhotoUrl = url => {
-  if (!url) return '';
+const normalizePhotoUrl = (url) => {
+  if (!url) return "";
   // 服务端在标记为 visited 时可能插入占位图片记录，路径为 /static/images/visited-placeholder*.jpg。
   // 该静态路径并不存在于前端工程，视为"无照片"以展示上传占位。
-  if (url.startsWith('/static/images/visited-placeholder')) return '';
-  
+  if (url.startsWith("/static/images/visited-placeholder")) return "";
+
   // 使用统一的图片URL规范化工具
   return getCityPhotoUrl(url);
 };
 
-const getCoverUrl = city => coverMap.value[city.id] || '';
+const getCoverUrl = (city) => coverMap.value[city.id] || "";
 
 // 计算显示的城市列表
 const displayedCities = computed(() => {
-  if (isExpanded.value || props.visitedCities.length <= maxDisplayCount.value) {
-    return props.visitedCities;
+  if (isExpanded.value || citiesWithPhotos.value.length <= props.maxDisplayCount) {
+    return citiesWithPhotos.value;
   }
-  return props.visitedCities.slice(0, maxDisplayCount.value);
+  return citiesWithPhotos.value.slice(0, props.maxDisplayCount);
 });
 
 // 是否需要显示展开/收起按钮
 const needsToggle = computed(() => {
-  return props.visitedCities.length > maxDisplayCount.value;
+  return citiesWithPhotos.value.length > props.maxDisplayCount;
 });
 
 // 切换展开/收起状态
@@ -206,20 +261,20 @@ const refreshCoverForCity = async (cityId, bustCache = false) => {
   try {
     const photos = await wishlistStore.getCityPhotos(cityId, bustCache);
     if (photos && photos.length > 0) {
-      const cover = photos.find(p => p.isCover) || photos[0];
+      const cover = photos.find((p) => p.isCover) || photos[0];
       // 优先使用缩略图，如果没有则使用原图
-      let imageUrl = cover.thumbnailUrl 
+      let imageUrl = cover.thumbnailUrl
         ? getCityThumbnailUrl(cover.thumbnailUrl)
         : getCityPhotoUrl(cover.photoUrl);
-      
+
       // 使用 normalizePhotoUrl 过滤占位符
       imageUrl = normalizePhotoUrl(imageUrl);
-      
+
       if (imageUrl) {
         // 添加缓存破坏参数，确保显示最新照片
         const cacheBuster = `?t=${Date.now()}`;
         const finalUrl = imageUrl + cacheBuster;
-        
+
         coverMap.value = {
           ...coverMap.value,
           [cityId]: finalUrl,
@@ -240,14 +295,14 @@ const refreshCoverForCity = async (cityId, bustCache = false) => {
 };
 
 const refreshAllCovers = async () => {
-  const ids = props.visitedCities.map(c => c.id);
-  await Promise.all(ids.map(id => refreshCoverForCity(id)));
+  const ids = citiesWithPhotos.value.map((c) => c.id);
+  await Promise.all(ids.map((id) => refreshCoverForCity(id)));
 };
 
 /**
  * 处理照片点击 - 上传或替换照片
  */
-const handlePhotoClick = city => {
+const handlePhotoClick = (city) => {
   currentCity.value = city;
   fileInput.value?.click();
 };
@@ -255,7 +310,7 @@ const handlePhotoClick = city => {
 /**
  * 处理文件选择
  */
-const handleFileSelect = event => {
+const handleFileSelect = (event) => {
   const file = event.target.files[0];
   if (!file || !currentCity.value) return;
 
@@ -272,7 +327,7 @@ const handleFileSelect = event => {
 /**
  * 上传照片
  */
-const uploadPhoto = async file => {
+const uploadPhoto = async (file) => {
   if (uploading.value) return;
 
   uploading.value = true;
@@ -286,28 +341,28 @@ const uploadPhoto = async file => {
     const result = await wishlistStore.uploadCityPhoto(
       file,
       currentCity.value.id,
-      '',
-      []
+      "",
+      [],
     );
 
     if (result) {
       ElMessage.success(`${currentCity.value.cityName} 的照片上传成功！`);
       // 使用缓存破坏强制刷新最新照片
       await refreshCoverForCity(currentCity.value.id, true);
-      emit('photo-uploaded', currentCity.value);
+      emit("photo-uploaded", currentCity.value);
     } else {
-      ElMessage.error('照片上传失败，请重试');
+      ElMessage.error("照片上传失败，请重试");
     }
   } catch (error) {
-    console.error('照片上传失败:', error);
-    ElMessage.error('照片上传失败，请重试');
+    console.error("照片上传失败:", error);
+    ElMessage.error("照片上传失败，请重试");
   } finally {
     loadingMessage.close();
     uploading.value = false;
     currentCity.value = null;
     // 清空文件输入
     if (fileInput.value) {
-      fileInput.value.value = '';
+      fileInput.value.value = "";
     }
   }
 };
@@ -315,23 +370,23 @@ const uploadPhoto = async file => {
 /**
  * 删除照片
  */
-const handleDeletePhoto = async city => {
+const handleDeletePhoto = async (city) => {
   try {
     await ElMessageBox.confirm(
       `确定要删除 ${city.cityName} 的封面照片吗？`,
-      '删除照片',
+      "删除照片",
       {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-      }
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      },
     );
 
     // 查询该城市的照片并删除封面（或第一张）
     const photos = await wishlistStore.getCityPhotos(city.id);
-    const cover = photos.find(p => p.isCover) || photos[0];
+    const cover = photos.find((p) => p.isCover) || photos[0];
     if (!cover) {
-      ElMessage.info('当前城市没有可删除的照片');
+      ElMessage.info("当前城市没有可删除的照片");
       return;
     }
 
@@ -340,55 +395,76 @@ const handleDeletePhoto = async city => {
       ElMessage.success(`${city.cityName} 的照片已删除`);
       // 使用缓存破坏强制刷新
       await refreshCoverForCity(city.id, true);
-      emit('photo-deleted', city);
+      emit("photo-deleted", city);
     } else {
-      ElMessage.error('照片删除失败，请重试');
+      ElMessage.error("照片删除失败，请重试");
     }
   } catch (error) {
     // 用户取消或删除失败
   }
 };
 
+/**
+ * 切换想再去状态
+ */
+const handleToggleWantAgain = async (city) => {
+  try {
+    const newStatus = !city.want_to_visit_again;
+    const success = await wishlistStore.markWantToVisitAgain(city.id, newStatus);
+    if (success) {
+      // 状态更新成功，citiesWithPhotos会自动响应式更新
+      ElMessage.success(
+        newStatus 
+          ? `已将 ${city.cityName} 标记为想再去` 
+          : `已取消 ${city.cityName} 的想再去标记`
+      );
+    }
+  } catch (error) {
+    console.error('切换想再去状态失败:', error);
+    ElMessage.error('操作失败，请重试');
+  }
+};
+
 onMounted(() => {
-  if (props.visitedCities && props.visitedCities.length > 0) {
+  if (citiesWithPhotos.value && citiesWithPhotos.value.length > 0) {
     refreshAllCovers();
   }
 });
 
 watch(
-  () => props.visitedCities.map(c => c.id).join(','),
+  () => citiesWithPhotos.value.map((c) => c.id).join(","),
   () => {
     refreshAllCovers();
-  }
+  },
 );
 
 /**
  * 处理图片加载错误
  */
-const handleImageError = event => {
+const handleImageError = (event) => {
   const img = event.target;
 
   // 若已尝试过回退且已处理，则直接返回
-  if (img.dataset.errorHandled === 'true') {
+  if (img.dataset.errorHandled === "true") {
     return;
   }
 
   // 优先尝试从缩略图回退到原图
-  const currentSrc = img.getAttribute('src') || '';
-  const hasTriedFallback = img.dataset.fallbackTried === 'true';
-  if (!hasTriedFallback && currentSrc.includes('/thumbnails/')) {
-    const fallbackSrc = currentSrc.replace('/thumbnails/', '/');
-    img.dataset.fallbackTried = 'true';
+  const currentSrc = img.getAttribute("src") || "";
+  const hasTriedFallback = img.dataset.fallbackTried === "true";
+  if (!hasTriedFallback && currentSrc.includes("/thumbnails/")) {
+    const fallbackSrc = currentSrc.replace("/thumbnails/", "/");
+    img.dataset.fallbackTried = "true";
     img.src = fallbackSrc;
     return;
   }
 
   // 回退失败或无回退路径时，显示占位符
-  img.dataset.errorHandled = 'true';
-  img.style.display = 'none';
+  img.dataset.errorHandled = "true";
+  img.style.display = "none";
 
-  const placeholder = document.createElement('div');
-  placeholder.className = 'image-error-placeholder';
+  const placeholder = document.createElement("div");
+  placeholder.className = "image-error-placeholder";
   placeholder.style.cssText = `
     width: 100%;
     height: 100%;
@@ -408,38 +484,38 @@ const handleImageError = event => {
     left: 0;
     transition: all 0.3s ease;
   `;
-  
+
   // 创建图标元素
-  const iconElement = document.createElement('div');
-  iconElement.innerHTML = '📷';
+  const iconElement = document.createElement("div");
+  iconElement.innerHTML = "📷";
   iconElement.style.cssText = `
     font-size: 24px;
     margin-bottom: 4px;
     opacity: 0.6;
   `;
-  
+
   // 创建文字元素
-  const textElement = document.createElement('div');
-  textElement.textContent = '图片加载失败';
+  const textElement = document.createElement("div");
+  textElement.textContent = "图片加载失败";
   textElement.style.cssText = `
     margin-bottom: 2px;
   `;
-  
+
   // 创建提示元素
-  const hintElement = document.createElement('div');
-  hintElement.textContent = '点击重新上传';
+  const hintElement = document.createElement("div");
+  hintElement.textContent = "点击重新上传";
   hintElement.style.cssText = `
     font-size: 10px;
     opacity: 0.7;
   `;
-  
+
   placeholder.appendChild(iconElement);
   placeholder.appendChild(textElement);
   placeholder.appendChild(hintElement);
 
   const parent = img.parentNode;
   if (parent) {
-    parent.style.position = 'relative';
+    parent.style.position = "relative";
     parent.appendChild(placeholder);
   }
 };
@@ -447,21 +523,21 @@ const handleImageError = event => {
 /**
  * 验证文件
  */
-const validateFile = file => {
+const validateFile = (file) => {
   if (!file) {
-    return { valid: false, error: '请选择文件' };
+    return { valid: false, error: "请选择文件" };
   }
 
   // 检查文件大小 (5MB)
   const maxSize = 5 * 1024 * 1024;
   if (file.size > maxSize) {
-    return { valid: false, error: '文件大小不能超过5MB' };
+    return { valid: false, error: "文件大小不能超过5MB" };
   }
 
   // 检查文件类型
-  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+  const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
   if (!allowedTypes.includes(file.type.toLowerCase())) {
-    return { valid: false, error: '只支持 JPG、PNG、GIF 格式的图片' };
+    return { valid: false, error: "只支持 JPG、PNG、GIF 格式的图片" };
   }
 
   return { valid: true };
@@ -474,11 +550,11 @@ const compressImage = (
   file,
   maxWidth = 800,
   maxHeight = 600,
-  quality = 0.8
+  quality = 0.8,
 ) => {
   return new Promise((resolve, reject) => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
     const img = new Image();
 
     img.onload = () => {
@@ -498,23 +574,23 @@ const compressImage = (
       ctx.drawImage(img, 0, 0, width, height);
 
       canvas.toBlob(
-        blob => {
+        (blob) => {
           if (blob) {
             const compressedFile = new File([blob], file.name, {
-              type: 'image/jpeg',
+              type: "image/jpeg",
               lastModified: Date.now(),
             });
             resolve(compressedFile);
           } else {
-            reject(new Error('图片压缩失败'));
+            reject(new Error("图片压缩失败"));
           }
         },
-        'image/jpeg',
-        quality
+        "image/jpeg",
+        quality,
       );
     };
 
-    img.onerror = () => reject(new Error('图片加载失败'));
+    img.onerror = () => reject(new Error("图片加载失败"));
     img.src = URL.createObjectURL(file);
   });
 };
@@ -522,11 +598,11 @@ const compressImage = (
 /**
  * 文件转Base64
  */
-const fileToBase64 = file => {
+const fileToBase64 = (file) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(new Error('文件读取失败'));
+    reader.onerror = () => reject(new Error("文件读取失败"));
     reader.readAsDataURL(file);
   });
 };
@@ -534,29 +610,30 @@ const fileToBase64 = file => {
 /**
  * 格式化访问日期
  */
-const formatVisitDate = dateString => {
+const formatVisitDate = (dateString) => {
   const date = new Date(dateString);
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, "0");
   return `${year}.${month}`;
 };
 </script>
 
 <style scoped>
 .visited-cities-gallery {
-  background: linear-gradient(135deg, #ffffff 0%, #fefefe 100%);
-  border-radius: 16px;
-  padding: 24px;
-  border: 1px solid rgba(145, 168, 208, 0.08);
-  box-shadow:
+  /* background: linear-gradient(135deg, #ffffff 0%, #fefefe 100%); */
+  /* border-radius: 16px; */
+  /* padding: 24px; */
+  /* border: 1px solid rgba(145, 168, 208, 0.08); */
+  /* box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.04),
-    0 2px 8px rgba(145, 168, 208, 0.06);
+    0 2px 8px rgba(145, 168, 208, 0.06); */
+  margin-top: 10px;
   position: relative;
   overflow: hidden;
 }
 
 .visited-cities-gallery::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -637,7 +714,11 @@ const formatVisitDate = dateString => {
   gap: 6px;
   padding: 8px 16px !important;
   border-radius: 20px !important;
-  background: linear-gradient(135deg, rgba(145, 168, 208, 0.08) 0%, rgba(247, 202, 201, 0.08) 100%) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(145, 168, 208, 0.08) 0%,
+    rgba(247, 202, 201, 0.08) 100%
+  ) !important;
   border: 1px solid rgba(145, 168, 208, 0.15) !important;
   color: #4a5568 !important;
   font-size: 13px !important;
@@ -647,7 +728,11 @@ const formatVisitDate = dateString => {
 }
 
 .toggle-btn:hover {
-  background: linear-gradient(135deg, rgba(145, 168, 208, 0.12) 0%, rgba(247, 202, 201, 0.12) 100%) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(145, 168, 208, 0.12) 0%,
+    rgba(247, 202, 201, 0.12) 100%
+  ) !important;
   border-color: rgba(145, 168, 208, 0.25) !important;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(145, 168, 208, 0.15) !important;
@@ -669,7 +754,7 @@ const formatVisitDate = dateString => {
 
 /* 滚动提示渐变 */
 .photos-container::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 0;
@@ -716,6 +801,39 @@ const formatVisitDate = dateString => {
   background: linear-gradient(180deg, #7a94c2, #f0b5b4);
 }
 
+/* 想再去标识 */
+.want-again-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: white;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 6px rgba(251, 191, 36, 0.4);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.want-again-badge .el-icon {
+  font-size: 10px;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
 /* 城市照片项 */
 .city-photo-item {
   width: 100%;
@@ -733,22 +851,22 @@ const formatVisitDate = dateString => {
 }
 
 /* 创建错落有致的布局 */
-.city-photo-item:nth-child(4n+1) {
+.city-photo-item:nth-child(4n + 1) {
   transform: rotate(-1.5deg) translateY(-8px);
   margin-top: 12px;
 }
 
-.city-photo-item:nth-child(4n+2) {
+.city-photo-item:nth-child(4n + 2) {
   transform: rotate(1deg) translateY(4px);
   margin-bottom: 8px;
 }
 
-.city-photo-item:nth-child(4n+3) {
+.city-photo-item:nth-child(4n + 3) {
   transform: rotate(-0.8deg) translateY(-12px);
   margin-top: 16px;
 }
 
-.city-photo-item:nth-child(4n+4) {
+.city-photo-item:nth-child(4n + 4) {
   transform: rotate(1.2deg) translateY(8px);
   margin-bottom: 12px;
 }
@@ -865,7 +983,7 @@ const formatVisitDate = dateString => {
   font-weight: 600;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
   line-height: 1.2;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-family: "Helvetica Neue", Arial, sans-serif;
   letter-spacing: 0.5px;
 }
 
@@ -873,7 +991,7 @@ const formatVisitDate = dateString => {
   font-size: 10px;
   font-weight: 400;
   color: rgba(255, 255, 255, 0.8);
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   letter-spacing: 0.5px;
 }
 
@@ -893,22 +1011,22 @@ const formatVisitDate = dateString => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
 }
 
-.action-btn[type='primary'] {
+.action-btn[type="primary"] {
   background: rgba(145, 168, 208, 0.9) !important;
   color: white !important;
 }
 
-.action-btn[type='primary']:hover {
+.action-btn[type="primary"]:hover {
   background: #91a8d0 !important;
   transform: scale(1.1) !important;
 }
 
-.action-btn[type='danger'] {
+.action-btn[type="danger"] {
   background: rgba(239, 68, 68, 0.9) !important;
   color: white !important;
 }
 
-.action-btn[type='danger']:hover {
+.action-btn[type="danger"]:hover {
   background: #ef4444 !important;
   transform: scale(1.1) !important;
 }
@@ -946,8 +1064,6 @@ const formatVisitDate = dateString => {
   border-radius: 50%;
   box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.8);
 }
-
-
 
 /* 空状态 */
 .empty-gallery {
@@ -1030,29 +1146,28 @@ const formatVisitDate = dateString => {
   }
 
   /* 移动端减少错落效果 */
-  .city-photo-item:nth-child(4n+1),
-  .city-photo-item:nth-child(4n+2),
-  .city-photo-item:nth-child(4n+3),
-  .city-photo-item:nth-child(4n+4) {
+  .city-photo-item:nth-child(4n + 1),
+  .city-photo-item:nth-child(4n + 2),
+  .city-photo-item:nth-child(4n + 3),
+  .city-photo-item:nth-child(4n + 4) {
     margin-top: 4px;
     margin-bottom: 4px;
   }
 
-  .city-photo-item:nth-child(4n+1) {
+  .city-photo-item:nth-child(4n + 1) {
     transform: rotate(-1deg) translateY(-4px);
   }
 
-  .city-photo-item:nth-child(4n+2) {
+  .city-photo-item:nth-child(4n + 2) {
     transform: rotate(0.5deg) translateY(2px);
   }
 
-  .city-photo-item:nth-child(4n+3) {
+  .city-photo-item:nth-child(4n + 3) {
     transform: rotate(-0.5deg) translateY(-2px);
   }
 
-  .city-photo-item:nth-child(4n+4) {
+  .city-photo-item:nth-child(4n + 4) {
     transform: rotate(1deg) translateY(4px);
   }
 }
 </style>
-

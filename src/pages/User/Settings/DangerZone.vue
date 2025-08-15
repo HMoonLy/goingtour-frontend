@@ -1,8 +1,10 @@
 <template>
-  <div class="personal-page simple" :class="{ embedded }">
+  <div class="personal-page simple"
+:class="{ embedded }">
     <UserCenterNav v-if="!embedded" />
-    <h2 v-if="!embedded" class="title">
-      {{ '删除账户' }}
+    <h2 v-if="!embedded"
+class="title">
+      {{ "删除账户" }}
     </h2>
     <el-alert
       type="warning"
@@ -12,49 +14,50 @@
       description="此操作不可逆，请谨慎操作。"
     />
     <el-card class="section">
-      <el-button type="danger" @click="deleteAccount">
-        {{ '删除账户' }}
+      <el-button type="danger"
+@click="deleteAccount">
+        {{ "删除账户" }}
       </el-button>
     </el-card>
   </div>
 </template>
 <script>
-import { onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useUserStore } from '@/store/user.js';
-import { ElMessageBox, ElMessage } from 'element-plus';
-import UserCenterNav from '@/components/User/UserCenterNav.vue';
+import { onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useUserStore } from "@/store/user.js";
+import { ElMessageBox, ElMessage } from "element-plus";
+import UserCenterNav from "@/components/User/UserCenterNav.vue";
 export default {
-  name: 'DangerZone',
+  name: "DangerZone",
   components: { UserCenterNav },
   props: { embedded: Boolean },
   setup(props) {
     const router = useRouter();
     const userStore = useUserStore();
     onMounted(() => {
-      if (!userStore.isLoggedIn) router.push('/login');
+      if (!userStore.isLoggedIn) router.push("/login");
     });
     const deleteAccount = async () => {
       try {
         await ElMessageBox.confirm(
-          '确认要注销账号吗？该操作不可撤销。',
-          '危险操作',
+          "确认要注销账号吗？该操作不可撤销。",
+          "危险操作",
           {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning',
-          }
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning",
+          },
         );
-        const { userApi } = await import('@/api/user.js');
+        const { userApi } = await import("@/api/user.js");
         await userApi.deleteAccount(userStore.currentUser?.id, {
           email: userStore.email,
-          confirmText: 'DELETE',
+          confirmText: "DELETE",
         });
-        ElMessage.success('操作成功');
+        ElMessage.success("操作成功");
         userStore.logout();
-        router.push('/login');
+        router.push("/login");
       } catch (e) {
-        if (e !== 'cancel') ElMessage.error('操作失败');
+        if (e !== "cancel") ElMessage.error("操作失败");
       }
     };
     return { deleteAccount, embedded: props.embedded };
