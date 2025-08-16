@@ -17,7 +17,7 @@ export const wishlistApi = {
    * 添加城市到愿望清单
    * @param {Object} wishData - 愿望数据
    * @param {number} wishData.userId - 用户ID
-   * @param {string} wishData.cityCode - 城市编码
+   * @param {string} wishData.adcode - 城市编码
    * @param {string} wishData.cityName - 城市名称
    * @param {string} wishData.reason - 想去的原因(可选)
    * @param {Array} wishData.tags - 标签(可选)
@@ -56,12 +56,12 @@ export const wishlistApi = {
   /**
    * 检查城市是否在愿望清单中
    * @param {number} userId - 用户ID
-   * @param {string} cityCode - 城市编码
+   * @param {string} adcode - 城市编码
    * @returns {Promise} 是否存在
    */
-  checkCityInWishlist(userId, cityCode) {
+  checkCityInWishlist(userId, adcode) {
     return http.get(`/wishlist/check`, {
-      params: { userId, cityCode },
+      params: { userId, adcode },
     });
   },
 

@@ -906,7 +906,7 @@ export default {
             } else {
               // 添加到愿望清单
               await wishlistStore.addToWishlist({
-                cityCode: city.adcode,
+                adcode: city.adcode,
                 cityName: city.中文名,
                 reason: "从目的地界面添加",
                 tags: ["目的地浏览"],
@@ -979,7 +979,7 @@ export default {
         // 批量添加到愿望清单
         const addPromises = citiesToAdd.map((city) =>
           wishlistStore.addToWishlist({
-            cityCode: city.adcode,
+            adcode: city.adcode,
             cityName: city.中文名,
             reason: "系统智能推荐",
             tags: ["智能推荐", "精选目的地"],

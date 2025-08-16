@@ -35,8 +35,7 @@
     <!-- 足迹内容 -->
     <div class="page-content">
       <!-- 状态切换控制区域 -->
-      <div v-if="wishlistStore.hasCities"
-class="view-control-section">
+      <div v-if="wishlistStore.hasCities" class="view-control-section">
         <div class="control-header">
           <h3 class="control-title">
             <el-icon><View /></el-icon>
@@ -81,8 +80,7 @@ class="view-control-section">
       </div>
 
       <!-- 地图区域 -->
-      <div v-if="wishlistStore.hasCities"
-class="map-section">
+      <div v-if="wishlistStore.hasCities" class="map-section">
         <div class="map-header">
           <div class="map-title-group">
             <h3 class="map-title">
@@ -105,8 +103,7 @@ class="map-section">
             </div>
           </div>
           <div class="map-controls">
-            <el-button size="small"
-type="primary" @click="handleFullscreenMap">
+            <el-button size="small" type="primary" @click="handleFullscreenMap">
               <el-icon><View /></el-icon>
               全屏查看
             </el-button>
@@ -127,8 +124,7 @@ type="primary" @click="handleFullscreenMap">
       </div>
 
       <!-- 动态内容展示区域 -->
-      <div v-if="wishlistStore.hasCities"
-class="content-display-area">
+      <div v-if="wishlistStore.hasCities" class="content-display-area">
         <!-- 想去的城市卡片展示 -->
         <div
           v-if="wishlistStore.wishlistOnlyCount > 0"
@@ -148,10 +144,8 @@ class="content-display-area">
                   style="width: 120px"
                   @change="handleSortChange"
                 >
-                  <el-option label="添加时间"
-value="date" />
-                  <el-option label="城市名称"
-value="name" />
+                  <el-option label="添加时间" value="date" />
+                  <el-option label="城市名称" value="name" />
                 </el-select>
               </div>
 
@@ -173,16 +167,18 @@ value="name" />
               class="enhanced-wishlist-card"
               @click="handleCardClick(item)"
             >
-
               <div class="card-main-content">
                 <div class="card-header">
                   <div class="city-info">
                     <!-- 重访标识 -->
-                    <div v-if="item.ever_visited && item.want_to_visit_again" class="revisit-badge">
+                    <div
+                      v-if="item.ever_visited && item.want_to_visit_again"
+                      class="revisit-badge"
+                    >
                       <el-icon><Star /></el-icon>
                       <span>想再去</span>
                     </div>
-                    
+
                     <h5 class="card-city-name">
                       {{ item.cityName }}
                     </h5>
@@ -244,8 +240,7 @@ value="name" />
                   </div>
                 </div>
 
-                <div v-if="item.tags && item.tags.length > 0"
-class="card-tags">
+                <div v-if="item.tags && item.tags.length > 0" class="card-tags">
                   <el-tag
                     v-for="tag in item.tags.slice(0, 3)"
                     :key="tag"
@@ -258,24 +253,18 @@ class="card-tags">
                     </el-icon>
                     {{ tag }}
                   </el-tag>
-                  <span v-if="item.tags.length > 3"
-class="more-tags">
+                  <span v-if="item.tags.length > 3" class="more-tags">
                     +{{ item.tags.length - 3 }}
                   </span>
                 </div>
 
-                <p v-if="item.reason"
-class="card-reason">
+                <p v-if="item.reason" class="card-reason">
                   {{ item.reason }}
                 </p>
 
                 <!-- 规划信息 -->
-                <div
-                  v-if="item.plannedDate"
-                  class="planning-info"
-                >
-                  <div v-if="item.plannedDate"
-class="plan-item">
+                <div v-if="item.plannedDate" class="planning-info">
+                  <div v-if="item.plannedDate" class="plan-item">
                     <el-icon class="plan-icon">
                       <Calendar />
                     </el-icon>
@@ -289,7 +278,7 @@ class="plan-item">
             <div
               v-if="
                 filteredAndSortedWishlistCities.length === 0 &&
-                  wishlistCities.length > 0
+                wishlistCities.length > 0
               "
               class="empty-filtered"
             >
@@ -303,8 +292,7 @@ class="plan-item">
             </div>
 
             <!-- 完全空状态 -->
-            <div v-if="wishlistCities.length === 0"
-class="empty-wishlist">
+            <div v-if="wishlistCities.length === 0" class="empty-wishlist">
               <el-icon size="48">
                 <Star />
               </el-icon>
@@ -326,14 +314,12 @@ class="empty-wishlist">
           class="empty-wishlist-state"
         >
           <div class="empty-content">
-            <el-icon size="64"
-color="#C0C4CC">
+            <el-icon size="64" color="#C0C4CC">
               <Star />
             </el-icon>
             <h4>还没有心愿城市</h4>
             <p>添加你想去的城市，开始规划你的旅行</p>
-            <el-button type="primary"
-@click="handleOpenTypeSelection">
+            <el-button type="primary" @click="handleOpenTypeSelection">
               <el-icon><Plus /></el-icon>
               添加第一个心愿城市
             </el-button>
@@ -342,18 +328,15 @@ color="#C0C4CC">
       </div>
 
       <!-- 完全没有数据的空状态 -->
-      <div v-if="!wishlistStore.hasCities"
-class="empty-wishlist">
-        <el-icon size="64"
-color="#C0C4CC">
+      <div v-if="!wishlistStore.hasCities" class="empty-wishlist">
+        <el-icon size="64" color="#C0C4CC">
           <Star />
         </el-icon>
         <h4>开始你的足迹之旅</h4>
         <p>添加想去或去过的城市，在地图上记录你的足迹</p>
 
         <div class="empty-actions">
-          <el-button type="primary"
-@click="handleOpenTypeSelection">
+          <el-button type="primary" @click="handleOpenTypeSelection">
             <el-icon><Plus /></el-icon>
             添加第一个城市
           </el-button>
@@ -428,8 +411,7 @@ color="#C0C4CC">
         </div>
 
         <div class="type-selection-actions">
-          <el-button size="large"
-@click="showTypeSelection = false">
+          <el-button size="large" @click="showTypeSelection = false">
             取消
           </el-button>
         </div>
@@ -458,8 +440,7 @@ color="#C0C4CC">
           </div>
         </div>
 
-        <el-form :model="quickAddForm"
-label-position="top" class="add-form">
+        <el-form :model="quickAddForm" label-position="top" class="add-form">
           <el-form-item label="选择城市">
             <el-select
               v-model="quickAddForm.selectedCity"
@@ -504,8 +485,7 @@ label-position="top" class="add-form">
             </el-select>
           </el-form-item>
 
-          <el-form-item label="选择标签"
-class="tags-form-item">
+          <el-form-item label="选择标签" class="tags-form-item">
             <div class="tags-selection">
               <div class="predefined-tags">
                 <el-check-tag
@@ -523,8 +503,8 @@ class="tags-form-item">
           </el-form-item>
 
           <!-- 旅行时间选择 - 仅在添加去过的城市时显示 -->
-          <el-form-item 
-            v-if="quickAddForm.ever_visited" 
+          <el-form-item
+            v-if="quickAddForm.ever_visited"
             label="旅行时间"
             class="travel-time-form-item"
           >
@@ -538,14 +518,12 @@ class="tags-form-item">
               size="large"
               class="travel-time-picker"
             />
-            <div class="form-hint">
-              选择你去这个城市旅行的大致时间
-            </div>
+            <div class="form-hint">选择你去这个城市旅行的大致时间</div>
           </el-form-item>
 
           <!-- 旅行感受 - 仅在添加去过的城市时显示 -->
-          <el-form-item 
-            v-if="quickAddForm.ever_visited" 
+          <el-form-item
+            v-if="quickAddForm.ever_visited"
             label="旅行感受"
             class="travel-feeling-form-item"
           >
@@ -685,11 +663,9 @@ class="tags-form-item">
       class="edit-city-dialog"
       align-center
     >
-      <el-form :model="editForm"
-label-position="top" class="edit-form">
+      <el-form :model="editForm" label-position="top" class="edit-form">
         <el-form-item label="城市名称">
-          <el-input v-model="editForm.cityName"
-disabled />
+          <el-input v-model="editForm.cityName" disabled />
         </el-form-item>
 
         <el-form-item label="优先级">
@@ -697,18 +673,15 @@ disabled />
             v-model="editForm.priority"
             class="priority-radio-group"
           >
-            <el-radio-button value="high"
-class="priority-high-radio">
+            <el-radio-button value="high" class="priority-high-radio">
               <el-icon><Star /></el-icon>
               高优先级
             </el-radio-button>
-            <el-radio-button value="medium"
-class="priority-medium-radio">
+            <el-radio-button value="medium" class="priority-medium-radio">
               <el-icon><Star /></el-icon>
               中优先级
             </el-radio-button>
-            <el-radio-button value="low"
-class="priority-low-radio">
+            <el-radio-button value="low" class="priority-low-radio">
               <el-icon><Star /></el-icon>
               低优先级
             </el-radio-button>
@@ -809,6 +782,7 @@ import FootprintStats from "@/components/Common/Stats/FootprintStats.vue";
 import VisitedCitiesGallery from "@/components/Common/Footprints/VisitedCitiesGallery.vue";
 import pinyin from "pinyin";
 import { debounce } from "@/utils/api/apiOptimizer.js";
+import { weatherApi } from "@/api/weather.js";
 
 export default {
   name: "FootprintsPage",
@@ -1031,15 +1005,15 @@ export default {
           ElMessage.success(`已将 ${item.cityName} 标记为去过`);
         }
       } catch (error) {
-        console.error('标记城市为已去过失败:', error);
-        ElMessage.error('操作失败，请重试');
+        console.error("标记城市为已去过失败:", error);
+        ElMessage.error("操作失败，请重试");
       }
     };
 
     // 状态切换处理（保留兼容性）
     const handleStatusChange = async ({ id, status }) => {
-      if (status === 'visited') {
-        const item = wishlistStore.wishlistItems.find(i => i.id === id);
+      if (status === "visited") {
+        const item = wishlistStore.wishlistItems.find((i) => i.id === id);
         if (item) {
           await handleMarkAsVisited(item);
         }
@@ -1065,7 +1039,7 @@ export default {
       router.push({
         path: "/trip/create",
         query: {
-          city: city.cityCode,
+          city: city.adcode,
           cityName: encodeURIComponent(city.cityName),
         },
       });
@@ -1135,7 +1109,7 @@ export default {
           "乌鲁木齐市",
         ];
         hotCities.value = cities.filter((city) =>
-          hotCityNames.includes(city.中文名),
+          hotCityNames.includes(city.中文名)
         );
       } catch (error) {
         console.error("加载城市数据失败:", error);
@@ -1188,14 +1162,14 @@ export default {
     }, 300);
 
     // 处理城市选择
-    const handleCitySelect = (cityAdcode) => {
+    const handleCitySelect = async (cityAdcode) => {
       const selectedCity = allCities.value.find(
-        (city) => city.adcode === cityAdcode,
+        (city) => city.adcode === cityAdcode
       );
       if (selectedCity) {
         quickAddForm.value.cityName = selectedCity.中文名;
-        quickAddForm.value.cityCode =
-          selectedCity.citycode || selectedCity.adcode.toString();
+        // 直接使用选中城市的adcode（6位行政区划代码，如"110000", "420100"）
+        quickAddForm.value.adcode = String(selectedCity.adcode);
 
         // 自动在地图上高亮选择的城市
         highlightedCity.value = selectedCity.中文名;
@@ -1229,7 +1203,7 @@ export default {
       }
 
       const selectedCity = allCities.value.find(
-        (city) => city.adcode === quickAddForm.value.selectedCity,
+        (city) => city.adcode === quickAddForm.value.selectedCity
       );
       if (!selectedCity) {
         ElMessage.warning("请选择有效的城市");
@@ -1243,8 +1217,11 @@ export default {
             ? quickAddForm.value.selectedTags
             : ["快速添加"];
 
+        // 直接使用选中城市的adcode（6位行政区划代码，如"110000", "420100"）
+        const adcode = String(selectedCity.adcode);
+
         const success = await wishlistStore.addToWishlist({
-          cityCode: selectedCity.citycode || selectedCity.adcode.toString(),
+          adcode: adcode,
           cityName: selectedCity.中文名,
           reason: quickAddForm.value.reason,
           tags: tags,
@@ -1253,18 +1230,6 @@ export default {
           want_to_visit_again: quickAddForm.value.want_to_visit_again, // 新的布尔字段
           travelTime: quickAddForm.value.travelTime, // 旅行时间
           travelFeeling: quickAddForm.value.travelFeeling, // 旅行感受
-        });
-
-        console.log("📤 提交到Store的数据:", {
-          cityCode: selectedCity.citycode || selectedCity.adcode.toString(),
-          cityName: selectedCity.中文名,
-          reason: quickAddForm.value.reason,
-          tags: tags,
-          status: quickAddForm.value.status,
-          ever_visited: quickAddForm.value.ever_visited,
-          want_to_visit_again: quickAddForm.value.want_to_visit_again,
-          travelTime: quickAddForm.value.travelTime,
-          travelFeeling: quickAddForm.value.travelFeeling
         });
 
         if (success) {
@@ -1280,28 +1245,28 @@ export default {
     // 处理类型选择
     const handleAddTypeSelection = (type) => {
       selectedAddType.value = type;
-      
+
       // 设置新的数据模型字段
-      if (type === 'visited') {
+      if (type === "visited") {
         // 添加去过的城市
         quickAddForm.value.ever_visited = true;
         quickAddForm.value.want_to_visit_again = false;
-      } else if (type === 'wishlist') {
+      } else if (type === "wishlist") {
         // 添加想去的城市
         quickAddForm.value.ever_visited = false;
         quickAddForm.value.want_to_visit_again = true;
       }
-      
+
       // 保留status字段用于向后兼容
       quickAddForm.value.status = type;
-      
+
       console.log("🎯 类型选择后的表单状态:", {
         type,
         ever_visited: quickAddForm.value.ever_visited,
         want_to_visit_again: quickAddForm.value.want_to_visit_again,
-        status: quickAddForm.value.status
+        status: quickAddForm.value.status,
       });
-      
+
       showTypeSelection.value = false;
       showQuickAdd.value = true;
     };
@@ -1331,7 +1296,7 @@ export default {
     // 照片事件处理
     const handlePhotoUploaded = async (city, photoData) => {
       console.log("🎉 父组件接收到照片上传成功事件:", city.cityName);
-      
+
       // 直接使用上传返回的照片数据，无需重新加载
       ElMessage.success(`${city.cityName} 的照片上传成功！`);
       console.log("✅ 父组件照片上传处理完成");
@@ -1339,7 +1304,7 @@ export default {
 
     const handlePhotoDeleted = async (city) => {
       console.log("🗑️ 父组件接收到照片删除成功事件:", city);
-      
+
       // 直接信任子组件的删除操作，无需重新加载数据
       ElMessage.success("照片删除成功");
       console.log("✅ 父组件照片删除处理完成");
@@ -1350,7 +1315,6 @@ export default {
       showFullscreenMap.value = true;
       fullscreenMapMode.value = mapDisplayMode.value; // 继承当前显示模式
     };
-
 
     // 标签相关方法
     const getTagType = (tag) => {
@@ -1436,7 +1400,7 @@ export default {
             cancelButtonText: "取消",
             type: "warning",
             confirmButtonClass: "el-button--danger",
-          },
+          }
         );
 
         await wishlistStore.removeFromWishlist(city.id);
@@ -1482,7 +1446,7 @@ export default {
     const handleSortChange = (value) => {
       sortBy.value = value;
       ElMessage.success(
-        `已按${value === "date" ? "添加时间" : "城市名称"}排序`,
+        `已按${value === "date" ? "添加时间" : "城市名称"}排序`
       );
     };
 
@@ -1511,14 +1475,14 @@ export default {
     // 页面初始化
     onMounted(async () => {
       loadCityData();
-      
+
       // 等待用户状态稳定后加载数据
       console.log("🔍 onMounted 检查用户状态:", {
         isLoggedIn: userStore.isLoggedIn,
         userId: userStore.userId,
-        currentUser: !!userStore.currentUser
+        currentUser: !!userStore.currentUser,
       });
-      
+
       // 如果用户状态已就绪，立即加载
       if (userStore.isLoggedIn && userStore.userId) {
         await loadWishlistData();
@@ -1537,12 +1501,12 @@ export default {
     watch(
       () => userStore.isLoggedIn,
       (isLoggedIn, oldValue) => {
-        console.log("👤 用户登录状态变化:", { 
-          from: oldValue, 
-          to: isLoggedIn, 
-          userId: userStore.userId 
+        console.log("👤 用户登录状态变化:", {
+          from: oldValue,
+          to: isLoggedIn,
+          userId: userStore.userId,
         });
-        
+
         if (isLoggedIn && userStore.userId) {
           loadWishlistData();
         }
@@ -1554,12 +1518,12 @@ export default {
     watch(
       () => userStore.userId,
       (userId, oldValue) => {
-        console.log("🆔 用户ID变化:", { 
-          from: oldValue, 
-          to: userId, 
-          isLoggedIn: userStore.isLoggedIn 
+        console.log("🆔 用户ID变化:", {
+          from: oldValue,
+          to: userId,
+          isLoggedIn: userStore.isLoggedIn,
         });
-        
+
         if (userId && userStore.isLoggedIn) {
           loadWishlistData();
         }
@@ -1581,7 +1545,7 @@ export default {
         return {
           userStore: userStore,
           wishlistStore: wishlistStore,
-          loadWishlistData: loadWishlistData
+          loadWishlistData: loadWishlistData,
         };
       };
 
@@ -2764,8 +2728,6 @@ export default {
   box-shadow: 0 8px 24px rgba(145, 168, 208, 0.15);
 }
 
-
-
 /* 卡片主要内容区域 - 去掉优先级后的优化 */
 .card-main-content {
   padding: 16px;
@@ -2809,7 +2771,8 @@ export default {
 }
 
 @keyframes revisitPulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -3417,31 +3380,31 @@ export default {
     border-top: 1px solid #f1f5f9;
     min-width: auto;
   }
-  
+
   .card-main-content {
     padding: 14px;
     padding-right: 14px;
   }
-  
+
   .primary-action {
     flex: 1;
   }
-  
+
   .secondary-actions {
     flex-shrink: 0;
   }
-  
+
   .action-btn {
     min-height: 36px !important;
     touch-action: manipulation;
     font-size: 11px !important;
   }
-  
+
   .visited-btn {
     width: 100% !important;
     justify-content: center !important;
   }
-  
+
   .action-btn .action-text {
     font-size: 10px;
   }
@@ -3472,11 +3435,11 @@ export default {
     right: 12px;
     padding: 4px 8px;
   }
-  
+
   .priority-label {
     font-size: 10px;
   }
-  
+
   .priority-star {
     font-size: 8px;
   }

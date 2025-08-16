@@ -446,7 +446,7 @@ export default {
     // 天气相关方法
     const loadWeatherForCity = async (
       cityName,
-      cityCode = null,
+      adcode = null,
       fromWishlist = false,
     ) => {
       if (!cityName) return;
@@ -456,7 +456,7 @@ export default {
 
       try {
         const ws = await weatherApi.getWeatherSuggestions(
-          cityCode || cityName,
+          adcode || cityName,
           new Date(),
           3,
         );
@@ -492,7 +492,7 @@ export default {
       if (randomCity) {
         await loadWeatherForCity(
           randomCity.cityName,
-          randomCity.cityCode,
+          randomCity.adcode,
           true,
         );
         wishlistStore.setCurrentWeatherCity(randomCity);
@@ -502,7 +502,7 @@ export default {
 
     // 处理愿望清单天气城市变更
     const handleWeatherCityChange = async (city) => {
-      await loadWeatherForCity(city.cityName, city.cityCode, true);
+      await loadWeatherForCity(city.cityName, city.adcode, true);
     };
 
     // 切换自动刷新
@@ -551,7 +551,7 @@ export default {
         if (randomCity) {
           await loadWeatherForCity(
             randomCity.cityName,
-            randomCity.cityCode,
+            randomCity.adcode,
             true,
           );
           wishlistStore.setCurrentWeatherCity(randomCity);

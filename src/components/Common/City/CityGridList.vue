@@ -81,7 +81,7 @@ export default defineComponent({
   setup(props, { emit }) {
     // 使用Set缓存心愿清单城市编码，提升查询性能
     const wishlistSet = computed(() => {
-      return new Set(props.wishlistItems.map((item) => item.cityCode));
+      return new Set(props.wishlistItems.map((item) => item.adcode));
     });
 
     // 是否有收藏的城市

@@ -1307,7 +1307,7 @@ export default {
         console.log("🔍 开始加载城市信息和推荐:", city);
         cityInfo.value = city;
 
-        // 2. 获取推荐景点 - 使用城市名称而不是cityCode
+        // 2. 获取推荐景点 - 使用城市名称而不是adcode
         loadingAttractions.value = true;
         attractionsPage.value = 1; // 重置页码
         noMoreAttractions.value = false;
@@ -1395,7 +1395,7 @@ export default {
           loadingAttractions.value = false;
         }
 
-        // 3. 获取推荐餐厅 - 使用城市名称而不是cityCode
+        // 3. 获取推荐餐厅 - 使用城市名称而不是adcode
         loadingRestaurants.value = true;
         restaurantsPage.value = 1; // 重置页码
         noMoreRestaurants.value = false;
@@ -1728,7 +1728,7 @@ export default {
       try {
         loadingMoreAttractions.value = true;
 
-        // 使用城市名称而不是cityCode
+        // 使用城市名称而不是adcode
         const cityName = props.baseForm.destinationName;
         console.log("加载更多景点，城市名称:", cityName);
 
@@ -1916,7 +1916,7 @@ export default {
       try {
         loadingMoreRestaurants.value = true;
 
-        // 使用城市名称而不是cityCode
+        // 使用城市名称而不是adcode
         const cityName = props.baseForm.destinationName;
         console.log("加载更餐厅，城市名称:", cityName);
         // 增加页码

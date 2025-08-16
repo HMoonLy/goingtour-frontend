@@ -421,7 +421,7 @@ export const useUserStore = defineStore("user", {
           try {
             const preferences = JSON.parse(response.data.preferences);
             this.userPreferences = {
-              tags: Array.isArray(preferences) ? preferences : [],
+              tags: Array.isArray(preferences)?preferences : [],
               budget: response.data.budget || 500,
             };
           } catch (e) {

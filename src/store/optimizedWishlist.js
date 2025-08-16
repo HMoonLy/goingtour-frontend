@@ -24,7 +24,7 @@ export const useOptimizedWishlistStore = defineStore(
     const currentWeatherCity = ref(null);
 
     // 缓存城市编码映射，避免每次遍历
-    const cityCodeMap = ref(new Map());
+    const adcodeMap = ref(new Map());
 
     // 批量操作队列
     const operationQueue = ref([]);
@@ -41,9 +41,9 @@ export const useOptimizedWishlistStore = defineStore(
     const updateCityCodeMap = () => {
       const newMap = new Map();
       wishlistItems.value.forEach((item) => {
-        newMap.set(item.cityCode, item);
+        newMap.set(item.adcode, item);
       });
-      cityCodeMap.value = newMap;
+      adcodeMap.value = newMap;
     };
 
     // 防抖的消息显示
@@ -57,7 +57,7 @@ export const useOptimizedWishlistStore = defineStore(
       const newItem = {
         id: tempId,
         userId: cityData.userId,
-        cityCode: cityData.cityCode,
+        adcode: cityData.adcode,
         cityName: cityData.cityName,
         reason: cityData.reason || "",
         tags: cityData.tags || [],
@@ -72,13 +72,13 @@ export const useOptimizedWishlistStore = defineStore(
       return tempId;
     };
 
-    const optimisticRemove = (cityCode) => {
-      const item = cityCodeMap.value.get(cityCode);
+    const optimisticRemove = (adcode) => {
+      const item = adcodeMap.value.get(adcode);
       if (!item) return null;
 
       // 立即更新UI
       wishlistItems.value = wishlistItems.value.filter(
-        (i) => i.cityCode !== cityCode,
+        (i) => i.adcode !== adcode,
       );
       updateCityCodeMap();
 
@@ -191,7 +191,7 @@ export const useOptimizedWishlistStore = defineStore(
       } catch (error) {
         console.error("❌ 加载愿望清单失败:", error);
         wishlistItems.value = [];
-        cityCodeMap.value.clear();
+        adcodeMap.value.clear();
       } finally {
         loading.value = false;
       }
@@ -211,14 +211,14 @@ export const useOptimizedWishlistStore = defineStore(
       }
 
       // 检查是否已存在
-      if (isCityInWishlist(cityData.cityCode)) {
+      if (isCityInWishlist(cityData.adcode)) {
         debouncedMessage("info", `${cityData.cityName} 已在愿望清单中`);
         return false;
       }
 
       const wishData = {
         userId,
-        cityCode: cityData.cityCode,
+        adcode: cityData.adcode,
         cityName: cityData.cityName,
         reason: cityData.reason || "",
         tags: cityData.tags || [],
@@ -270,7 +270,7 @@ export const useOptimizedWishlistStore = defineStore(
       if (!originalItem) return false;
 
       // 乐观更新
-      const removedItem = optimisticRemove(originalItem.cityCode);
+      const removedItem = optimisticRemove(originalItem.adcode);
 
       return new Promise((resolve, reject) => {
         // 添加到队列
@@ -303,15 +303,15 @@ export const useOptimizedWishlistStore = defineStore(
     /**
      * 优化的检查城市是否在愿望清单中
      */
-    const isCityInWishlist = (cityCode) => {
-      return cityCodeMap.value.has(cityCode);
+    const isCityInWishlist = (adcode) => {
+      return adcodeMap.value.has(adcode);
     };
 
     /**
      * 根据城市编码获取愿望清单项
      */
-    const getWishlistItemByCityCode = (cityCode) => {
-      return cityCodeMap.value.get(cityCode) || null;
+    const getWishlistItemByCityCode = (adcode) => {
+      return adcodeMap.value.get(adcode) || null;
     };
 
     /**
@@ -326,7 +326,7 @@ export const useOptimizedWishlistStore = defineStore(
      */
     const clearWishlist = () => {
       wishlistItems.value = [];
-      cityCodeMap.value.clear();
+      adcodeMap.value.clear();
       currentWeatherCity.value = null;
       operationQueue.value = [];
     };

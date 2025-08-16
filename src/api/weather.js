@@ -207,14 +207,14 @@ export const weatherApi = {
       }
 
       // 先获取城市编码
-      const cityCode = await this.getCityCode(city);
+      const adcode = await this.getCityCode(city);
 
-      console.log(`正在获取${city}(${cityCode})的实时天气数据`);
+      console.log(`正在获取${city}(${adcode})的实时天气数据`);
 
       // 准备参数，与示例代码保持一致
       const params = {
         key: amapKey,
-        city: cityCode,
+        city: adcode,
         extensions: "all",
       };
 
@@ -247,14 +247,14 @@ export const weatherApi = {
       }
 
       // 先获取城市编码
-      const cityCode = await this.getCityCode(city);
+      const adcode = await this.getCityCode(city);
 
-      console.log(`正在获取${city}(${cityCode})的天气预报数据`);
+      console.log(`正在获取${city}(${adcode})的天气预报数据`);
 
       // 准备参数
       const params = {
         key: amapKey,
-        city: cityCode,
+        city: adcode,
         extensions: "all",
       };
 

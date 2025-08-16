@@ -150,7 +150,7 @@ export default {
       const scatterData = [];
 
       props.wishlistItems.forEach((item) => {
-        const province = getProvinceFromAdcode(item.cityCode);
+        const province = getProvinceFromAdcode(item.adcode);
         if (province) {
           // 统计省份城市数量
           if (!provinceData[province]) {
@@ -647,7 +647,7 @@ export default {
                 const hash1 = item.cityName
                   .split("")
                   .reduce((a, b) => a + b.charCodeAt(0), 0);
-                const hash2 = item.cityCode ? parseInt(item.cityCode) : hash1;
+                const hash2 = item.adcode ? parseInt(item.adcode) : hash1;
                 const isVisited = item.ever_visited === true;
                 const isHighlighted = props.highlightedCity === item.cityName;
 
@@ -945,7 +945,7 @@ export default {
           const hash1 = item.cityName
             .split("")
             .reduce((a, b) => a + b.charCodeAt(0), 0);
-          const hash2 = item.cityCode ? parseInt(item.cityCode) : hash1;
+          const hash2 = item.adcode ? parseInt(item.adcode) : hash1;
 
           const isVisited = item.ever_visited === true;
           const isHighlighted = props.highlightedCity === item.cityName;

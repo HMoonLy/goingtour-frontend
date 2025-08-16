@@ -295,6 +295,7 @@ import {
   getCityPhotoUrl,
   getCityThumbnailUrl,
 } from "@/utils/media/imageUrl.js";
+import { weatherApi } from "@/api/weather.js";
 
 // Props - 现在使用store中的数据
 const props = defineProps({
@@ -378,7 +379,16 @@ const toggleExpanded = () => {
 
 const refreshCoverForCity = async (cityId, bustCache = false) => {
   try {
-    const photos = await wishlistStore.getCityPhotos(cityId, bustCache);
+    // 通过cityId找到对应的城市对象
+    const city = citiesWithPhotos.value.find(c => c.id === cityId);
+    if (!city) {
+      console.warn(`找不到ID为 ${cityId} 的城市`);
+      return;
+    }
+    
+    // 使用城市名称获取正确的城市编码
+    const adcode = await weatherApi.getCityCode(city.cityName);
+    const photos = await wishlistStore.getCityPhotos(adcode, bustCache);
     if (photos && photos.length > 0) {
       const cover = photos.find((p) => p.isCover) || photos[0];
       // 优先使用缩略图，如果没有则使用原图
@@ -461,7 +471,7 @@ const uploadPhoto = async (file) => {
     // 使用新的visited cities API上传照片
     const result = await wishlistStore.uploadCityPhoto(
       file,
-      currentCity.value.cityCode || currentCity.value.city_code,
+      currentCity.value.adcode || currentCity.value.cityCode,
       currentCity.value.cityName,
       "",
       [],
@@ -522,7 +532,9 @@ const handleDeletePhoto = async (city) => {
     );
 
     // 查询该城市的照片并删除封面（或第一张）
-    const photos = await wishlistStore.getCityPhotos(city.id);
+    // 使用城市名称获取正确的城市编码
+    const adcode = await weatherApi.getCityCode(city.cityName);
+    const photos = await wishlistStore.getCityPhotos(adcode);
     const cover = photos.find((p) => p.isCover) || photos[0];
     if (!cover) {
       ElMessage.info("当前城市没有可删除的照片");

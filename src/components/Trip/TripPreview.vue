@@ -204,15 +204,15 @@ export default {
         return "未选择";
       }
 
-      const cityCode = props.baseForm.destination;
+      const adcode = props.baseForm.destination;
 
       // 从cityInfoDatabase获取城市名称
-      if (cityInfoDatabase[cityCode]) {
-        return cityInfoDatabase[cityCode].name;
+      if (cityInfoDatabase[adcode]) {
+        return cityInfoDatabase[adcode].name;
       }
 
       // 没有找到城市信息，返回城市代码
-      return cityCode;
+      return adcode;
     };
 
     // 格式化日期

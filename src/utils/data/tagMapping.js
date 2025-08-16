@@ -400,23 +400,23 @@ export function getBudgetText(budgetType) {
 
 /**
  * 获取城市名称
- * @param {string} cityCode - 城市代码
+ * @param {string} adcode - 城市代码
  * @param {string} cityName - 城市名称（优先使用）
  * @returns {string} 城市名称
  */
-export function getCityName(cityCode, cityName = null) {
+export function getCityName(adcode, cityName = null) {
   // 优先使用传入的城市名称
   if (cityName) {
     return cityName;
   }
 
   // 从数据库获取城市名称
-  if (cityCode && cityInfoDatabase[cityCode]) {
-    return cityInfoDatabase[cityCode].name;
+  if (adcode && cityInfoDatabase[adcode]) {
+    return cityInfoDatabase[adcode].name;
   }
 
   // 没有找到城市信息，返回城市代码
-  return cityCode || "未选择";
+  return adcode || "未选择";
 }
 
 /**
@@ -477,14 +477,14 @@ export function getMbtiTravelDescription(type) {
 
 /**
  * 获取城市详细信息
- * @param {string} cityCode - 城市代码
+ * @param {string} adcode - 城市代码
  * @returns {object|null} 城市详细信息
  */
-export function getCityInfo(cityCode) {
-  if (!cityCode || !cityInfoDatabase[cityCode]) {
+export function getCityInfo(adcode) {
+  if (!adcode || !cityInfoDatabase[adcode]) {
     return null;
   }
-  return cityInfoDatabase[cityCode];
+  return cityInfoDatabase[adcode];
 }
 
 /**
