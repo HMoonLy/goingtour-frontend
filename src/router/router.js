@@ -229,18 +229,6 @@ const routes = [
                     requiresAuth: true,
                 },
             },
-
-            // 演示和开发页面
-            {
-                path: "demo/city-card",
-                name: "CityCardDemo",
-                component: () =>
-                    import ("../pages/Demo/CityCardDemo.vue"),
-                meta: {
-                    titleKey: "demo.cityCard",
-                    requiresAuth: false, // 演示页面不需要登录
-                },
-            },
         ],
     },
 
@@ -313,7 +301,6 @@ router.beforeEach(async(to, from, next) => {
         "settings.loginHistory": "登录记录",
         "settings.exportData": "导出数据",
         "settings.deleteAccount": "注销账户",
-        "demo.cityCard": "城市卡片设计演示",
     };
 
     const titleKey = to.meta.titleKey;

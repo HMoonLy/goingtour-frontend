@@ -12,9 +12,6 @@
         class="grid-item"
         @select-city="handleSelectCity"
         @toggle-wishlist="handleToggleWishlist"
-        @plan-trip="handlePlanTrip"
-        @view-details="handleViewDetails"
-        @edit="handleEdit"
       />
     </div>
 
@@ -80,7 +77,7 @@ export default defineComponent({
       default: false,
     },
   },
-  emits: ["selectCity", "toggleWishlist", "planTrip", "viewDetails", "edit"],
+  emits: ["selectCity", "toggleWishlist"],
   setup(props, { emit }) {
     // 使用Set缓存心愿清单城市编码，提升查询性能
     const wishlistSet = computed(() => {
@@ -99,9 +96,6 @@ export default defineComponent({
     // 性能优化：防抖处理事件发射
     let selectTimeout = null;
     let wishlistTimeout = null;
-    let planTripTimeout = null;
-    let viewDetailsTimeout = null;
-    let editTimeout = null;
 
     const handleSelectCity = (city) => {
       // 防止快速点击导致的多次触发
@@ -119,34 +113,10 @@ export default defineComponent({
       }, 100);
     };
 
-    const handlePlanTrip = (city) => {
-      if (planTripTimeout) clearTimeout(planTripTimeout);
-      planTripTimeout = setTimeout(() => {
-        emit("planTrip", city);
-      }, 50);
-    };
-
-    const handleViewDetails = (city) => {
-      if (viewDetailsTimeout) clearTimeout(viewDetailsTimeout);
-      viewDetailsTimeout = setTimeout(() => {
-        emit("viewDetails", city);
-      }, 50);
-    };
-
-    const handleEdit = (city) => {
-      if (editTimeout) clearTimeout(editTimeout);
-      editTimeout = setTimeout(() => {
-        emit("edit", city);
-      }, 50);
-    };
-
     // 清理定时器
     onBeforeUnmount(() => {
       if (selectTimeout) clearTimeout(selectTimeout);
       if (wishlistTimeout) clearTimeout(wishlistTimeout);
-      if (planTripTimeout) clearTimeout(planTripTimeout);
-      if (viewDetailsTimeout) clearTimeout(viewDetailsTimeout);
-      if (editTimeout) clearTimeout(editTimeout);
     });
 
     return {
@@ -155,9 +125,6 @@ export default defineComponent({
       skeletonCount,
       handleSelectCity,
       handleToggleWishlist,
-      handlePlanTrip,
-      handleViewDetails,
-      handleEdit,
     };
   },
 });
@@ -170,20 +137,17 @@ export default defineComponent({
   min-height: 200px;
 }
 
-/* ===== 瀑布流网格布局 ===== */
+/* ===== 响应式网格布局 ===== */
 .city-grid {
   display: grid;
-  gap: 20px;
+  gap: 14px;
   width: 100%;
 
-  /* 瀑布流布局：一行放3-4个，自适应高度 */
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  
-  /* 关键：允许行高自适应，像照片墙一样 */
-  grid-auto-rows: auto;
-  
-  /* 顶部对齐，让卡片从顶部开始排列 */
-  align-items: start;
+  /* 一行放5个左右的紧凑布局 */
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+
+  /* 确保网格项目等高 */
+  align-items: stretch;
 
   /* 性能优化：启用GPU加速 */
   will-change: transform;
@@ -193,39 +157,35 @@ export default defineComponent({
   contain: layout style paint;
 }
 
-/* 中等屏幕：一行2-3个 */
+/* 中等屏幕：一行4-5个 */
 @media (max-width: 1400px) and (min-width: 1024px) {
   .city-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 18px;
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+    gap: 14px;
   }
 }
 
-/* 平板屏幕：一行2个 */
+/* 平板屏幕：一行3-4个 */
 @media (max-width: 1024px) and (min-width: 640px) {
   .city-grid {
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
   }
 }
 
-/* 手机屏幕：一行1个 */
+/* 手机屏幕：一行2个 */
 @media (max-width: 640px) {
   .city-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
 }
 
-/* 网格项目样式 - 瀑布流适配 */
+/* 网格项目样式 */
 .grid-item {
   width: 100%;
-  /* 移除固定高度，让卡片自适应内容 */
-  height: auto;
-
-  /* 防止卡片在打印或分栏时被分割 */
-  break-inside: avoid;
-  page-break-inside: avoid;
+  height: 100%;
+  min-height: 60px; /* 减少高度让卡片更紧凑 */
 
   /* 性能优化：减少重排重绘 */
   backface-visibility: hidden;
@@ -266,97 +226,56 @@ export default defineComponent({
   line-height: 1.5;
 }
 
-/* ===== 加载骨架屏样式 - 瀑布流适配 ===== */
+/* ===== 加载骨架屏样式 ===== */
 .loading-grid {
   display: grid;
-  gap: 20px;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  grid-auto-rows: auto;
-  align-items: start;
-}
-
-@media (max-width: 1400px) and (min-width: 1024px) {
-  .loading-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 18px;
-  }
+  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
 }
 
 @media (max-width: 1024px) and (min-width: 640px) {
   .loading-grid {
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
   }
 }
 
 @media (max-width: 640px) {
   .loading-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
 }
 
 .skeleton-card {
-  background: white;
-  border-radius: 16px;
-  /* 骨架屏也使用自适应高度，模拟真实卡片 */
-  height: auto;
-  min-height: 240px;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.08),
-    0 2px 4px rgba(0, 0, 0, 0.04);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  padding: 8px;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  animation: shimmer 1.5s ease-in-out infinite;
 }
 
-/* 骨架屏封面区域 */
-.skeleton-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 180px;
+.skeleton-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.skeleton-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
 
-@media (max-width: 640px) {
-  .skeleton-card {
-    min-height: 200px;
-  }
-  
-  .skeleton-card::before {
-    height: 140px;
-  }
-}
-
-/* 骨架屏内容区域 - 匹配照片墙结构 */
-.skeleton-header {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 2;
-}
-
-.skeleton-circle {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: linear-gradient(90deg, rgba(255,255,255,0.8) 25%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.8) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
 .skeleton-content {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 20px;
-  background: white;
-  min-height: 80px;
+  flex: 1;
+  margin-bottom: 16px;
 }
 
 .skeleton-line {
@@ -369,49 +288,26 @@ export default defineComponent({
 }
 
 .skeleton-title {
-  height: 18px;
-  width: 65%;
-  margin-bottom: 8px;
-  border-radius: 9px;
+  height: 16px;
+  width: 70%;
+  margin-bottom: 12px;
 }
 
 .skeleton-subtitle {
-  height: 14px;
-  width: 45%;
-  margin-bottom: 12px;
-  border-radius: 7px;
+  height: 12px;
+  width: 50%;
 }
 
 .skeleton-footer {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  margin-top: 8px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .skeleton-badge {
-  height: 20px;
-  width: 40px;
-  border-radius: 10px;
+  height: 10px;
+  width: 60px;
   margin: 0;
-}
-
-/* 移动端骨架屏适配 */
-@media (max-width: 640px) {
-  .skeleton-content {
-    padding: 16px;
-    min-height: 60px;
-  }
-  
-  .skeleton-header {
-    top: 8px;
-    right: 8px;
-  }
-  
-  .skeleton-circle {
-    width: 28px;
-    height: 28px;
-  }
 }
 
 @keyframes shimmer {
