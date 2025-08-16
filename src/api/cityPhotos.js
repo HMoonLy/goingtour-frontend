@@ -99,11 +99,12 @@ export const cityPhotosApi = {
                 headers: {
                     'Cache-Control': 'no-cache',
                     'X-Requested-At': Date.now().toString()
-                },
-                params: { _t: Date.now() }
+                }
+                // 不需要手动添加 _t 参数，request拦截器会自动添加
             });
         } else {
-            return http.get(url, { params: { _t: Date.now() } });
+            return http.get(url);
+            // 不需要手动添加 _t 参数，request拦截器会自动添加
         }
     },
 
