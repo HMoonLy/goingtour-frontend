@@ -249,7 +249,7 @@ export default {
               const coordinates = cityCoordinatesMap[item.cityName] || [
                 104, 35,
               ];
-              const isVisited = item.ever_visited === true;
+              const isVisited = item._type === 'visited';
               const isHighlighted = props.highlightedCity === item.cityName;
 
               return {
@@ -648,7 +648,7 @@ export default {
                   .split("")
                   .reduce((a, b) => a + b.charCodeAt(0), 0);
                 const hash2 = item.adcode ? parseInt(item.adcode) : hash1;
-                const isVisited = item.ever_visited === true;
+                const isVisited = item._type === 'visited';
                 const isHighlighted = props.highlightedCity === item.cityName;
 
                 return {
@@ -772,7 +772,7 @@ export default {
         // 更新散点数据
         const updatedScatterData = props.wishlistItems.map((item) => {
           const coordinates = coordinatesMap[item.cityName] || [104, 35];
-          const isVisited = item.ever_visited === true;
+          const isVisited = item._type === 'visited';
           const isHighlighted = props.highlightedCity === item.cityName;
           return {
             name: item.cityName,
@@ -947,7 +947,7 @@ export default {
             .reduce((a, b) => a + b.charCodeAt(0), 0);
           const hash2 = item.adcode ? parseInt(item.adcode) : hash1;
 
-          const isVisited = item.ever_visited === true;
+          const isVisited = item._type === 'visited';
           const isHighlighted = props.highlightedCity === item.cityName;
 
           return {

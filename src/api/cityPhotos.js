@@ -8,7 +8,7 @@ export const cityPhotosApi = {
      * 上传城市照片
      * @param {Object} uploadData - 上传数据
      * @param {File} uploadData.file - 图片文件
-     * @param {string} uploadData.adcode - 城市编码
+     * @param {string} uploadData.cityCode - 城市编码
      * @param {string} uploadData.cityName - 城市名称
      * @param {string} uploadData.caption - 照片描述（可选）
      * @param {string} uploadData.travelTime - 旅行时间（YYYY-MM-DD格式，可选）
@@ -19,7 +19,7 @@ export const cityPhotosApi = {
     uploadPhoto(uploadData) {
         const formData = new FormData();
         formData.append("file", uploadData.file);
-        formData.append("adcode", uploadData.adcode);
+        formData.append("cityCode", uploadData.cityCode);
         formData.append("cityName", uploadData.cityName);
 
         if (uploadData.caption) {
@@ -48,7 +48,8 @@ export const cityPhotosApi = {
     /**
      * 添加去过的城市（不含照片）
      * @param {Object} cityData - 城市数据
-     * @param {string} cityData.adcode - 城市编码
+     * @param {string} cityData.adcode - 城市行政区划代码
+     * @param {string} cityData.citycode - 城市电话区号（可选）
      * @param {string} cityData.cityName - 城市名称
      * @param {string} cityData.travelTime - 旅行时间（YYYY-MM-DD格式，可选）
      * @param {string} cityData.travelFeeling - 旅行感受（可选）
@@ -56,17 +57,13 @@ export const cityPhotosApi = {
      * @returns {Promise} 添加结果
      */
     addVisitedCity(cityData) {
-        // 验证必需参数
-        if (!cityData.adcode) {
-            throw new Error("adcode不能为空");
-        }
-        if (!cityData.cityName) {
-            throw new Error("cityName不能为空");
-        }
-
         const formData = new FormData();
         formData.append("adcode", cityData.adcode);
         formData.append("cityName", cityData.cityName);
+
+        if (cityData.citycode) {
+            formData.append("citycode", cityData.citycode);
+        }
 
         if (cityData.travelTime) {
             formData.append("travelTime", cityData.travelTime);
@@ -85,24 +82,23 @@ export const cityPhotosApi = {
 
     /**
      * 获取指定城市的记录
-     * @param {string} adcode - 城市编码
+     * @param {string} cityCode - 城市编码
      * @param {boolean} bustCache - 是否破坏缓存
      * @returns {Promise} 城市记录
      */
-    getCityPhotos(adcode, bustCache = false) {
-        const url = `/visited-cities/city/${adcode}`;
+    getCityPhotos(cityCode, bustCache = false) {
+        const url = `/visited-cities/city/${cityCode}`;
 
         if (bustCache) {
             return http.get(url, {
                 headers: {
                     'Cache-Control': 'no-cache',
                     'X-Requested-At': Date.now().toString()
-                }
-                // 移除params参数，让requestHandler统一处理时间戳
+                },
+                params: { _t: Date.now() }
             });
         } else {
-            return http.get(url);
-            // 移除params参数，让requestHandler统一处理时间戳
+            return http.get(url, { params: { _t: Date.now() } });
         }
     },
 

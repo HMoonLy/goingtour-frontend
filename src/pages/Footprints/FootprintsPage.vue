@@ -908,11 +908,15 @@ export default {
     // 地图显示的城市数据 - 适配新数据模型
     const mapDisplayItems = computed(() => {
       if (mapDisplayMode.value === "all") {
-        return wishlistStore.wishlistItems;
+        // 合并心愿城市和足迹城市，添加类型标识
+        return [
+          ...wishlistStore.wishlistCities.map(city => ({ ...city, _type: 'wishlist' })),
+          ...wishlistStore.visitedCities.map(city => ({ ...city, _type: 'visited' }))
+        ];
       } else if (mapDisplayMode.value === "visited") {
-        return wishlistStore.visitedCities;
+        return wishlistStore.visitedCities.map(city => ({ ...city, _type: 'visited' }));
       } else if (mapDisplayMode.value === "wishlist") {
-        return wishlistStore.wishlistCities;
+        return wishlistStore.wishlistCities.map(city => ({ ...city, _type: 'wishlist' }));
       }
       return [];
     });
@@ -951,11 +955,15 @@ export default {
     // 全屏地图显示的城市数据 - 适配新数据模型
     const fullscreenMapDisplayItems = computed(() => {
       if (fullscreenMapMode.value === "all") {
-        return wishlistStore.wishlistItems;
+        // 合并心愿城市和足迹城市，添加类型标识
+        return [
+          ...wishlistStore.wishlistCities.map(city => ({ ...city, _type: 'wishlist' })),
+          ...wishlistStore.visitedCities.map(city => ({ ...city, _type: 'visited' }))
+        ];
       } else if (fullscreenMapMode.value === "visited") {
-        return wishlistStore.visitedCities;
+        return wishlistStore.visitedCities.map(city => ({ ...city, _type: 'visited' }));
       } else if (fullscreenMapMode.value === "wishlist") {
-        return wishlistStore.wishlistCities;
+        return wishlistStore.wishlistCities.map(city => ({ ...city, _type: 'wishlist' }));
       }
       return [];
     });
@@ -1013,7 +1021,7 @@ export default {
     // 状态切换处理（保留兼容性）
     const handleStatusChange = async ({ id, status }) => {
       if (status === "visited") {
-        const item = wishlistStore.wishlistItems.find((i) => i.id === id);
+        const item = wishlistStore.wishlistCities.find((i) => i.id === id);
         if (item) {
           await handleMarkAsVisited(item);
         }
@@ -1217,11 +1225,13 @@ export default {
             ? quickAddForm.value.selectedTags
             : ["快速添加"];
 
-        // 直接使用选中城市的adcode（6位行政区划代码，如"110000", "420100"）
+        // 使用选中城市的完整信息（adcode + citycode）
         const adcode = String(selectedCity.adcode);
+        const citycode = selectedCity.citycode === '\\N' ? null : selectedCity.citycode;
 
         const success = await wishlistStore.addToWishlist({
           adcode: adcode,
+          citycode: citycode,
           cityName: selectedCity.中文名,
           reason: quickAddForm.value.reason,
           tags: tags,
@@ -1297,8 +1307,8 @@ export default {
     const handlePhotoUploaded = async (city, photoData) => {
       console.log("🎉 父组件接收到照片上传成功事件:", city.cityName);
 
-      // 直接使用上传返回的照片数据，无需重新加载
-      ElMessage.success(`${city.cityName} 的照片上传成功！`);
+      // 子组件已经显示了成功提示，父组件不需要重复显示
+      // ElMessage.success(`${city.cityName} 的照片上传成功！`);
       console.log("✅ 父组件照片上传处理完成");
     };
 

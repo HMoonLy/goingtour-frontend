@@ -5,16 +5,7 @@
         <el-icon><TrophyBase /></el-icon>
         我的足迹成就
       </h3>
-      <div class="exploration-rate">
-        <el-progress
-          :percentage="stats.explorationRate"
-          :color="progressColor"
-          :stroke-width="8"
-          striped
-          striped-flow
-        />
-        <span class="rate-text">已探索中国 {{ stats.explorationRate }}%</span>
-      </div>
+
     </div>
 
     <!-- 空状态提示 -->
@@ -189,14 +180,7 @@ export default {
   setup(props, { emit }) {
     const sharing = ref(false);
 
-    // 进度条颜色
-    const progressColor = computed(() => {
-      const rate = props.stats.explorationRate;
-      if (rate >= 50) return "#10b981"; // 绿色
-      if (rate >= 25) return "#f59e0b"; // 橙色
-      if (rate >= 10) return "#3b82f6"; // 蓝色
-      return "#91a8d0"; // 默认色
-    });
+
 
     // 模拟成就数据（实际应该从store获取）
     const achievements = computed(() => {
@@ -319,7 +303,6 @@ export default {
 
     return {
       sharing,
-      progressColor,
       achievements,
       formatDate,
       handleShare,
@@ -354,18 +337,7 @@ export default {
   font-size: 24px;
 }
 
-.exploration-rate {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
 
-.rate-text {
-  font-size: 14px;
-  color: #6b7280;
-  font-weight: 500;
-  text-align: center;
-}
 
 /* 空状态样式 */
 .empty-state {

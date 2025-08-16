@@ -534,6 +534,11 @@
 
 /* 消息提示样式 */
 
+.el-message {
+    z-index: 9999 !important;
+    margin-top: 20px !important;
+}
+
 .el-message--success {
     background-color: rgba(145, 168, 208, 0.1) !important;
     border-color: rgba(145, 168, 208, 0.2) !important;
@@ -560,6 +565,11 @@
 
 
 /* 通知样式 */
+
+.el-notification {
+    z-index: 9999 !important;
+    margin-top: 20px !important;
+}
 
 .el-notification--success {
     background-color: rgba(145, 168, 208, 0.1) !important;

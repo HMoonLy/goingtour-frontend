@@ -30,8 +30,11 @@ export const useWishlistStore = defineStore("wishlist", () => {
         const provinces = new Set();
 
         visitedCities.value.forEach((city) => {
-            if (city.cityCode) {
-                const provinceCode = city.cityCode.toString().substring(0, 2);
+            // 兼容不同的字段名：adcode（后端返回）或 cityCode（前端存储）
+            const cityCode = city.adcode || city.cityCode;
+            if (cityCode) {
+                // 使用adcode前2位确定省份
+                const provinceCode = cityCode.toString().substring(0, 2);
                 provinces.add(provinceCode);
             }
         });
@@ -45,8 +48,6 @@ export const useWishlistStore = defineStore("wishlist", () => {
         visitedCities: visitedCount.value,
         wishlistCities: wishlistOnlyCount.value,
         exploredProvinces: exploredProvincesCount.value,
-        explorationRate: exploredProvincesCount.value > 0 ?
-            Math.round((exploredProvincesCount.value / 34) * 100) : 0, // 中国34个省级行政区
     }));
 
     // 所有城市名称（心愿+足迹）
@@ -58,7 +59,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
     // 所有城市编码（心愿+足迹）
     const cityCodes = computed(() => [
         ...wishlistItems.value.map((item) => item.cityCode),
-        ...visitedCities.value.map((item) => item.cityCode),
+        ...visitedCities.value.map((item) => item.adcode || item.cityCode),
     ]);
 
     // 获取随机城市（用于天气轮播）- 优先选择足迹城市
@@ -137,8 +138,17 @@ export const useWishlistStore = defineStore("wishlist", () => {
 
             // 处理足迹城市数据
             if (visitedResponse && visitedResponse.data) {
-                visitedCities.value = visitedResponse.data;
-
+                // 增强城市数据，确保有完整的adcode和citycode信息
+                try {
+                    const { enhanceCitiesWithCodes } = await
+                    import ('@/utils/cityCodeUtils.js');
+                    const enhancedCities = await enhanceCitiesWithCodes(visitedResponse.data);
+                    visitedCities.value = enhancedCities;
+                    console.log('✅ 足迹城市数据已增强:', enhancedCities.length, '个城市');
+                } catch (error) {
+                    console.warn('⚠️ 增强城市数据失败，使用原始数据:', error);
+                    visitedCities.value = visitedResponse.data;
+                }
             } else {
                 console.warn("⚠️ 足迹城市API返回的数据格式异常:", visitedResponse);
                 visitedCities.value = [];
@@ -186,32 +196,78 @@ export const useWishlistStore = defineStore("wishlist", () => {
             return false;
         }
 
+        // 标准化城市代码字段：兼容 adcode 和 cityCode
+        const normalizedCityData = {
+            ...cityData,
+            cityCode: cityData.cityCode || cityData.adcode,
+            adcode: cityData.adcode || cityData.cityCode
+        };
+
+        console.log('🔍 添加城市调试信息:', {
+            原始数据: cityData,
+            标准化数据: normalizedCityData,
+            是否已去过: normalizedCityData.ever_visited
+        });
+
 
 
         // 如果是添加去过的城市，使用visited cities API
-        if (cityData.ever_visited) {
+        if (normalizedCityData.ever_visited) {
+            // 首先检查是否已经在足迹中
+            const existingVisitedCity = getVisitedCityByCityCode(normalizedCityData.cityCode);
+            console.log('🔍 足迹检查:', {
+                检查的城市代码: normalizedCityData.cityCode,
+                现有足迹城市: existingVisitedCity,
+                足迹城市总数: visitedCities.value.length
+            });
+            if (existingVisitedCity) {
+                ElMessage.info(`${normalizedCityData.cityName} 已在足迹中`);
+                return false;
+            }
+
             try {
+                // 首先增强城市数据，确保有完整的adcode和citycode
+                const { findCityByName, findCityByAdcode } = await
+                import ('@/utils/cityCodeUtils.js');
+
+                let enhancedCityData = {...normalizedCityData };
+
+                // 如果有adcode但缺少citycode，或者只有cityName，尝试查找完整信息
+                if (normalizedCityData.adcode && !normalizedCityData.citycode) {
+                    const cityInfo = await findCityByAdcode(normalizedCityData.adcode);
+                    if (cityInfo) {
+                        enhancedCityData = {...enhancedCityData, ...cityInfo };
+                    }
+                } else if (normalizedCityData.cityName && !normalizedCityData.adcode) {
+                    const cityInfo = await findCityByName(normalizedCityData.cityName);
+                    if (cityInfo) {
+                        enhancedCityData = {...enhancedCityData, ...cityInfo };
+                    }
+                }
+
                 // 使用visitedCities API添加去过的城市
                 const response = await cityPhotosApi.addVisitedCity({
-                    adcode: cityData.adcode,
-                    cityName: cityData.cityName,
-                    travelTime: cityData.travelTime,
-                    travelFeeling: cityData.travelFeeling,
-                    tags: cityData.tags || [],
+                    adcode: enhancedCityData.adcode,
+                    citycode: enhancedCityData.citycode,
+                    cityName: enhancedCityData.cityName,
+                    travelTime: enhancedCityData.travelTime,
+                    travelFeeling: enhancedCityData.travelFeeling,
+                    tags: enhancedCityData.tags || [],
                 });
 
                 if (response.data) {
 
-                    ElMessage.success(`已将 ${cityData.cityName} 添加到足迹`);
+                    ElMessage.success(`已将 ${normalizedCityData.cityName} 添加到足迹`);
 
                     // 直接添加到本地状态，避免立即重新获取所有数据
                     const newCityRecord = {
                         id: response.data.id || Date.now(), // 使用返回的ID或时间戳
-                        cityCode: cityData.adcode, // 使用adcode作为cityCode
-                        cityName: cityData.cityName,
-                        travelTime: cityData.travelTime,
-                        travelFeeling: cityData.travelFeeling,
-                        tags: cityData.tags || [],
+                        adcode: enhancedCityData.adcode, // 确保包含adcode字段
+                        cityCode: enhancedCityData.adcode, // 兼容性：同时设置cityCode
+                        cityName: enhancedCityData.cityName,
+                        travelTime: enhancedCityData.travelTime,
+                        travelFeeling: enhancedCityData.travelFeeling,
+                        tags: enhancedCityData.tags || [],
                         photos: [], // 新添加的城市还没有照片
                         createdAt: new Date().toISOString(),
                         ...response.data
@@ -229,31 +285,54 @@ export const useWishlistStore = defineStore("wishlist", () => {
             }
         }
 
-        // 检查是否已存在该城市
-        const existingCity = getWishlistItemByCityCode(cityData.cityCode);
+        // 检查是否已存在该城市（心愿清单检查）
+        const existingCity = getWishlistItemByCityCode(normalizedCityData.cityCode);
+        console.log('🔍 心愿清单检查:', {
+            检查的城市代码: normalizedCityData.cityCode,
+            现有城市: existingCity,
+            心愿清单总数: wishlistItems.value.length
+        });
         if (existingCity) {
             // 如果已经去过，询问是否想再去
             if (existingCity.ever_visited && !existingCity.want_to_visit_again) {
                 // 直接标记为想再去
                 return await markWantToVisitAgain(existingCity.id, true);
             } else if (existingCity.want_to_visit_again || !existingCity.ever_visited) {
-                ElMessage.info(`${cityData.cityName} 已在愿望清单中`);
+                ElMessage.info(`${normalizedCityData.cityName} 已在愿望清单中`);
                 return false;
             }
         }
 
         try {
+            // 首先增强城市数据，确保有完整的adcode和citycode
+            const { findCityByName, findCityByAdcode } = await
+            import ('@/utils/cityCodeUtils.js');
+
+            let enhancedCityData = {...normalizedCityData };
+
+            // 如果有adcode但缺少citycode，或者只有cityName，尝试查找完整信息
+            if (normalizedCityData.adcode && !normalizedCityData.citycode) {
+                const cityInfo = await findCityByAdcode(normalizedCityData.adcode);
+                if (cityInfo) {
+                    enhancedCityData = {...enhancedCityData, ...cityInfo };
+                }
+            } else if (normalizedCityData.cityName && !normalizedCityData.adcode) {
+                const cityInfo = await findCityByName(normalizedCityData.cityName);
+                if (cityInfo) {
+                    enhancedCityData = {...enhancedCityData, ...cityInfo };
+                }
+            }
+
             const wishData = {
                 userId,
-                cityCode: cityData.adcode, // 使用adcode作为cityCode
-                cityName: cityData.cityName,
-                reason: cityData.reason || "",
-                tags: cityData.tags || [],
-                ever_visited: cityData.ever_visited?? false, // 使用 ?? 避免 false 被替换
-                want_to_visit_again: cityData.want_to_visit_again?? true, // 使用 ?? 避免 false 被替换
+                adcode: enhancedCityData.adcode,
+                citycode: enhancedCityData.citycode,
+                cityName: enhancedCityData.cityName,
+                reason: enhancedCityData.reason || "",
+                tags: enhancedCityData.tags || [],
+                ever_visited: enhancedCityData.ever_visited?? false,
+                want_to_visit_again: enhancedCityData.want_to_visit_again?? true,
             };
-
-
 
             const response = await wishlistApi.addToWishlist(wishData);
 
@@ -312,7 +391,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
      */
     const isCityInWishlist = (cityCode) => {
         return wishlistItems.value.some((item) => item.cityCode === cityCode) ||
-            visitedCities.value.some((item) => item.cityCode === cityCode);
+            visitedCities.value.some((item) => (item.adcode || item.cityCode) === cityCode);
     };
 
     /**
@@ -326,7 +405,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
      * 检查城市是否去过
      */
     const isCityVisited = (cityCode) => {
-        return visitedCities.value.some((item) => item.cityCode === cityCode);
+        return visitedCities.value.some((item) => (item.adcode || item.cityCode) === cityCode);
     };
 
     /**
@@ -338,7 +417,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
         if (wishlistItem) return wishlistItem;
 
         // 再检查足迹城市
-        const visitedItem = visitedCities.value.find((item) => item.cityCode === cityCode);
+        const visitedItem = visitedCities.value.find((item) => (item.adcode || item.cityCode) === cityCode);
         return visitedItem;
     };
 
@@ -346,7 +425,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
      * 根据城市编码获取足迹城市记录
      */
     const getVisitedCityByCityCode = (cityCode) => {
-        return visitedCities.value.find((item) => item.cityCode === cityCode);
+        return visitedCities.value.find((item) => (item.adcode || item.cityCode) === cityCode);
     };
 
     /**
