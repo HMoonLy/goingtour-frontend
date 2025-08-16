@@ -76,8 +76,8 @@
               </div>
             </template>
 
-            <!-- 照片信息遮罩 -->
-            <div v-if="getCoverUrl(city)" class="photo-overlay">
+            <!-- 照片信息遮罩 - 固定在底部 -->
+            <div v-if="getCoverUrl(city)" class="photo-info-overlay">
               <div class="city-info">
                 <span class="city-name">{{ city.cityName }}</span>
                 <span v-if="city.travelTime" class="travel-time">
@@ -90,8 +90,11 @@
                   {{ city.travelFeeling }}
                 </span>
               </div>
+            </div>
 
-              <!-- 操作按钮 -->
+            <!-- 操作按钮层 - 悬浮居中显示 -->
+            <div v-if="getCoverUrl(city)" class="photo-actions-overlay">
+              <div class="actions-backdrop"></div>
               <div class="photo-actions">
                 <el-tooltip content="编辑信息" placement="top">
                   <el-button
@@ -110,7 +113,7 @@
                     size="small"
                     type="primary"
                     circle
-                    class="action-btn"
+                    class="action-btn primary-action"
                     @click.stop="handlePhotoClick(city)"
                   >
                     <el-icon><Camera /></el-icon>
@@ -1320,8 +1323,8 @@ const formatVisitDate = (dateString) => {
   opacity: 0.8;
 }
 
-/* 照片信息遮罩 */
-.photo-overlay {
+/* 照片信息遮罩 - 固定在底部，不与操作按钮争夺空间 */
+.photo-info-overlay {
   position: absolute;
   bottom: 4px;
   left: 4px;
@@ -1332,17 +1335,40 @@ const formatVisitDate = (dateString) => {
   opacity: 0;
   transition: all 0.3s ease;
   border-radius: 0 0 4px 4px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
+  pointer-events: none; /* 不阻挡操作按钮的交互 */
 }
 
-.photo-wrapper:hover .photo-overlay {
+.photo-wrapper:hover .photo-info-overlay {
   opacity: 1;
 }
 
+/* 操作按钮层 - 悬浮居中显示 */
+.photo-actions-overlay {
+  position: absolute;
+  inset: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+}
+
+.photo-wrapper:hover .photo-actions-overlay {
+  opacity: 1;
+}
+
+/* 操作按钮背景遮罩 */
+.actions-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  border-radius: 4px;
+}
+
 .city-info {
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -1365,50 +1391,74 @@ const formatVisitDate = (dateString) => {
   letter-spacing: 0.5px;
 }
 
-/* 操作按钮 */
+/* 操作按钮 - 居中排列 */
 .photo-actions {
+  position: relative;
   display: flex;
-  gap: 4px;
-  flex-shrink: 0;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
 }
 
 .action-btn {
-  width: 26px !important;
-  height: 26px !important;
+  width: 32px !important;
+  height: 32px !important;
   border-radius: 50% !important;
   border: none !important;
-  transition: all 0.3s ease !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* 主要操作按钮 - 更换照片 */
+.action-btn.primary-action {
+  width: 36px !important;
+  height: 36px !important;
+  transform: scale(1.1);
 }
 
 .action-btn[type="info"] {
-  background: rgba(107, 114, 128, 0.9) !important;
+  background: rgba(107, 114, 128, 0.95) !important;
   color: white !important;
 }
 
 .action-btn[type="info"]:hover {
   background: #6b7280 !important;
-  transform: scale(1.1) !important;
+  transform: scale(1.15) !important;
+  box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4) !important;
 }
 
 .action-btn[type="primary"] {
-  background: rgba(145, 168, 208, 0.9) !important;
+  background: rgba(145, 168, 208, 0.95) !important;
   color: white !important;
 }
 
 .action-btn[type="primary"]:hover {
   background: #91a8d0 !important;
-  transform: scale(1.1) !important;
+  transform: scale(1.15) !important;
+  box-shadow: 0 6px 20px rgba(145, 168, 208, 0.4) !important;
 }
 
 .action-btn[type="danger"] {
-  background: rgba(239, 68, 68, 0.9) !important;
+  background: rgba(239, 68, 68, 0.95) !important;
   color: white !important;
 }
 
 .action-btn[type="danger"]:hover {
   background: #ef4444 !important;
-  transform: scale(1.1) !important;
+  transform: scale(1.15) !important;
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4) !important;
+}
+
+.action-btn[type="warning"] {
+  background: rgba(245, 158, 11, 0.95) !important;
+  color: white !important;
+}
+
+.action-btn[type="warning"]:hover {
+  background: #f59e0b !important;
+  transform: scale(1.15) !important;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4) !important;
 }
 
 /* 城市名称（无照片时） */
@@ -1521,8 +1571,23 @@ const formatVisitDate = (dateString) => {
   }
 
   .action-btn {
-    width: 32px !important;
-    height: 32px !important;
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .action-btn.primary-action {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  /* 移动端操作按钮间距调整 */
+  .photo-actions {
+    gap: 10px;
+  }
+
+  /* 移动端操作按钮背景增强 */
+  .actions-backdrop {
+    background: rgba(0, 0, 0, 0.75);
   }
 
   /* 移动端减少错落效果 */
