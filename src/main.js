@@ -75,16 +75,36 @@ const initApp = async () => {
   const userStore = useUserStore();
   userStore.init();
 
-  // 如果用户已登录，刷新用户信息
-  if (userStore.isLoggedIn && userStore.currentUser?.id) {
-    try {
-      await userStore.fetchUserInfo();
-    } catch (error) {
-      console.warn("刷新用户信息失败:", error);
-      // 如果刷新失败，可能token已过期，清除登录状态
-      userStore.logout();
+  // 等待用户状态完全初始化
+  await new Promise(resolve => {
+    // 如果用户已登录，等待用户信息获取完成
+    if (userStore.isLoggedIn && userStore.currentUser?.id) {
+      // 用户状态已完整，直接继续
+      resolve();
+    } else if (userStore.isLoggedIn) {
+      // 用户已登录但信息不完整，尝试获取用户信息
+      userStore.fetchUserInfo()
+        .then(() => {
+          console.log("✅ 用户信息获取成功");
+          resolve();
+        })
+        .catch((error) => {
+          console.warn("⚠️ 刷新用户信息失败:", error);
+          // 如果刷新失败，可能token已过期，清除登录状态
+          userStore.logout();
+          resolve();
+        });
+    } else {
+      // 用户未登录，直接继续
+      resolve();
     }
-  }
+  });
+
+  console.log("🔄 用户状态初始化完成:", {
+    isLoggedIn: userStore.isLoggedIn,
+    userId: userStore.userId,
+    hasUserInfo: !!userStore.currentUser
+  });
 };
 
 // 启动应用

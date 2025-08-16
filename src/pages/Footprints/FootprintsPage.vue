@@ -522,7 +522,47 @@ class="tags-form-item">
             </div>
           </el-form-item>
 
+          <!-- 旅行时间选择 - 仅在添加去过的城市时显示 -->
+          <el-form-item 
+            v-if="quickAddForm.ever_visited" 
+            label="旅行时间"
+            class="travel-time-form-item"
+          >
+            <el-date-picker
+              v-model="quickAddForm.travelTime"
+              type="month"
+              placeholder="选择旅行时间"
+              format="YYYY年MM月"
+              value-format="YYYY-MM-DD"
+              style="width: 100%"
+              size="large"
+              class="travel-time-picker"
+            />
+            <div class="form-hint">
+              选择你去这个城市旅行的大致时间
+            </div>
+          </el-form-item>
+
+          <!-- 旅行感受 - 仅在添加去过的城市时显示 -->
+          <el-form-item 
+            v-if="quickAddForm.ever_visited" 
+            label="旅行感受"
+            class="travel-feeling-form-item"
+          >
+            <el-input
+              v-model="quickAddForm.travelFeeling"
+              type="textarea"
+              :rows="3"
+              placeholder="分享一下你在这里的旅行感受..."
+              maxlength="200"
+              show-word-limit
+              class="travel-feeling-input"
+            />
+          </el-form-item>
+
+          <!-- 想去的原因 - 仅在添加心愿城市时显示 -->
           <el-form-item
+            v-if="!quickAddForm.ever_visited"
             :label="dialogContent.reasonLabel"
             class="reason-form-item"
           >
@@ -732,7 +772,7 @@ class="priority-low-radio">
 </template>
 
 <script>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
@@ -761,6 +801,7 @@ import {
   Location as LocationIcon,
 } from "@element-plus/icons-vue";
 import { useWishlistStore } from "@/store/wishlist.js";
+import { useUserStore } from "@/store/user.js";
 import WishlistCard from "@/components/Common/Wishlist/WishlistCard.vue";
 import MiniWishlistCard from "@/components/Common/Wishlist/MiniWishlistCard.vue";
 import ChinaWishlistMap from "@/components/Common/Map/ChinaWishlistMap.vue";
@@ -803,6 +844,7 @@ export default {
   setup() {
     const router = useRouter();
     const wishlistStore = useWishlistStore();
+    const userStore = useUserStore();
 
     // 快速添加功能
     const showQuickAdd = ref(false);
@@ -813,7 +855,11 @@ export default {
       selectedCity: null,
       selectedTags: [],
       reason: "",
-      status: "wishlist", // 默认为想去
+      status: "wishlist", // 保留用于向后兼容
+      ever_visited: false, // 新的数据模型字段
+      want_to_visit_again: true, // 默认为想去
+      travelTime: null, // 旅行时间
+      travelFeeling: "", // 旅行感受
     });
 
     // 地图-卡片联动状态
@@ -1202,7 +1248,23 @@ export default {
           cityName: selectedCity.中文名,
           reason: quickAddForm.value.reason,
           tags: tags,
-          status: quickAddForm.value.status, // 添加状态字段
+          status: quickAddForm.value.status, // 保留用于向后兼容
+          ever_visited: quickAddForm.value.ever_visited, // 新的布尔字段
+          want_to_visit_again: quickAddForm.value.want_to_visit_again, // 新的布尔字段
+          travelTime: quickAddForm.value.travelTime, // 旅行时间
+          travelFeeling: quickAddForm.value.travelFeeling, // 旅行感受
+        });
+
+        console.log("📤 提交到Store的数据:", {
+          cityCode: selectedCity.citycode || selectedCity.adcode.toString(),
+          cityName: selectedCity.中文名,
+          reason: quickAddForm.value.reason,
+          tags: tags,
+          status: quickAddForm.value.status,
+          ever_visited: quickAddForm.value.ever_visited,
+          want_to_visit_again: quickAddForm.value.want_to_visit_again,
+          travelTime: quickAddForm.value.travelTime,
+          travelFeeling: quickAddForm.value.travelFeeling
         });
 
         if (success) {
@@ -1218,7 +1280,28 @@ export default {
     // 处理类型选择
     const handleAddTypeSelection = (type) => {
       selectedAddType.value = type;
+      
+      // 设置新的数据模型字段
+      if (type === 'visited') {
+        // 添加去过的城市
+        quickAddForm.value.ever_visited = true;
+        quickAddForm.value.want_to_visit_again = false;
+      } else if (type === 'wishlist') {
+        // 添加想去的城市
+        quickAddForm.value.ever_visited = false;
+        quickAddForm.value.want_to_visit_again = true;
+      }
+      
+      // 保留status字段用于向后兼容
       quickAddForm.value.status = type;
+      
+      console.log("🎯 类型选择后的表单状态:", {
+        type,
+        ever_visited: quickAddForm.value.ever_visited,
+        want_to_visit_again: quickAddForm.value.want_to_visit_again,
+        status: quickAddForm.value.status
+      });
+      
       showTypeSelection.value = false;
       showQuickAdd.value = true;
     };
@@ -1235,21 +1318,31 @@ export default {
         selectedCity: null,
         selectedTags: [],
         reason: "",
-        status: "wishlist",
+        status: "wishlist", // 保留用于向后兼容
+        ever_visited: false, // 重置新的数据模型字段
+        want_to_visit_again: true, // 默认为想去
+        travelTime: null, // 重置旅行时间
+        travelFeeling: "", // 重置旅行感受
       };
       searchKeyword.value = "";
       searchResults.value = allCities.value.slice(0, 20);
     };
 
     // 照片事件处理
-    const handlePhotoUploaded = async (city) => {
+    const handlePhotoUploaded = async (city, photoData) => {
+      console.log("🎉 父组件接收到照片上传成功事件:", city.cityName);
+      
+      // 直接使用上传返回的照片数据，无需重新加载
       ElMessage.success(`${city.cityName} 的照片上传成功！`);
-      // 可以在这里执行额外的逻辑，如刷新数据等
+      console.log("✅ 父组件照片上传处理完成");
     };
 
-    const handlePhotoDeleted = async (photo) => {
+    const handlePhotoDeleted = async (city) => {
+      console.log("🗑️ 父组件接收到照片删除成功事件:", city);
+      
+      // 直接信任子组件的删除操作，无需重新加载数据
       ElMessage.success("照片删除成功");
-      // 可以在这里执行额外的逻辑，如刷新数据等
+      console.log("✅ 父组件照片删除处理完成");
     };
 
     // 地图相关功能
@@ -1398,15 +1491,111 @@ export default {
       ElMessage.success("已清除筛选条件");
     };
 
+    // 数据加载方法（必须在 watch 之前定义）
+    const loadWishlistData = async () => {
+      // 确保用户已登录且有用户ID
+      if (!userStore.isLoggedIn || !userStore.userId) {
+        console.warn("⚠️ 用户未登录或用户ID未获取，跳过愿望清单加载");
+        return;
+      }
+
+      console.log("🔄 开始加载愿望清单数据，用户ID:", userStore.userId);
+      try {
+        await wishlistStore.loadWishlist();
+        console.log("✅ 愿望清单数据加载完成");
+      } catch (error) {
+        console.error("❌ 愿望清单数据加载失败:", error);
+      }
+    };
+
     // 页面初始化
-    onMounted(() => {
-      wishlistStore.loadWishlist();
+    onMounted(async () => {
       loadCityData();
+      
+      // 等待用户状态稳定后加载数据
+      console.log("🔍 onMounted 检查用户状态:", {
+        isLoggedIn: userStore.isLoggedIn,
+        userId: userStore.userId,
+        currentUser: !!userStore.currentUser
+      });
+      
+      // 如果用户状态已就绪，立即加载
+      if (userStore.isLoggedIn && userStore.userId) {
+        await loadWishlistData();
+      } else if (userStore.isLoggedIn) {
+        // 用户已登录但ID未获取，等待一下
+        console.log("⏳ 用户已登录但状态未完全恢复，等待200ms...");
+        setTimeout(async () => {
+          if (userStore.userId) {
+            await loadWishlistData();
+          }
+        }, 200);
+      }
     });
+
+    // 监听用户登录状态变化
+    watch(
+      () => userStore.isLoggedIn,
+      (isLoggedIn, oldValue) => {
+        console.log("👤 用户登录状态变化:", { 
+          from: oldValue, 
+          to: isLoggedIn, 
+          userId: userStore.userId 
+        });
+        
+        if (isLoggedIn && userStore.userId) {
+          loadWishlistData();
+        }
+      },
+      { immediate: false } // 改为 false，避免初始化时执行
+    );
+
+    // 监听用户ID变化
+    watch(
+      () => userStore.userId,
+      (userId, oldValue) => {
+        console.log("🆔 用户ID变化:", { 
+          from: oldValue, 
+          to: userId, 
+          isLoggedIn: userStore.isLoggedIn 
+        });
+        
+        if (userId && userStore.isLoggedIn) {
+          loadWishlistData();
+        }
+      },
+      { immediate: false } // 改为 false，避免初始化时执行
+    );
+
+    // 开发环境调试方法
+    if (import.meta.env.DEV) {
+      window.debugFootprints = () => {
+        console.log("🐛 FootprintsPage 调试信息:");
+        console.log("- 用户登录状态:", userStore.isLoggedIn);
+        console.log("- 用户ID:", userStore.userId);
+        console.log("- 用户信息:", userStore.currentUser);
+        console.log("- 愿望清单项目数:", wishlistStore.wishlistItems.length);
+        console.log("- 去过的城市数:", wishlistStore.visitedCount);
+        console.log("- 想去的城市数:", wishlistStore.wishlistOnlyCount);
+        console.log("- 愿望清单详情:", wishlistStore.wishlistItems);
+        return {
+          userStore: userStore,
+          wishlistStore: wishlistStore,
+          loadWishlistData: loadWishlistData
+        };
+      };
+
+      window.forceReloadWishlist = () => {
+        console.log("🔄 强制重新加载愿望清单...");
+        loadWishlistData();
+      };
+    }
 
     return {
       wishlistStore,
+      userStore,
       dialogContent,
+      loadWishlistData,
       // 地图显示控制
       mapDisplayMode,
       mapDisplayItems,
@@ -2230,6 +2419,60 @@ export default {
 .reason-input .el-textarea__inner:focus {
   border-color: #91a8d0;
   box-shadow: 0 0 0 3px rgba(145, 168, 208, 0.1);
+}
+
+/* 旅行时间选择器样式 */
+.travel-time-form-item .el-form-item__label {
+  color: #374151;
+  font-weight: 600;
+}
+
+.travel-time-picker {
+  width: 100%;
+}
+
+.travel-time-picker .el-input__inner {
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.travel-time-picker .el-input__inner:focus {
+  border-color: #91a8d0;
+  box-shadow: 0 0 0 3px rgba(145, 168, 208, 0.1);
+}
+
+/* 旅行感受输入框样式 */
+.travel-feeling-form-item .el-form-item__label {
+  color: #374151;
+  font-weight: 600;
+}
+
+.travel-feeling-input {
+  width: 100%;
+}
+
+.travel-feeling-input .el-textarea__inner {
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  font-size: 15px;
+  line-height: 1.6;
+  resize: none;
+  transition: all 0.3s ease;
+}
+
+.travel-feeling-input .el-textarea__inner:focus {
+  border-color: #91a8d0;
+  box-shadow: 0 0 0 3px rgba(145, 168, 208, 0.1);
+}
+
+/* 表单提示文字样式 */
+.form-hint {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.4;
 }
 
 /* 对话框操作按钮 */

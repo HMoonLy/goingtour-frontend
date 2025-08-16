@@ -3,20 +3,17 @@
     <!-- 标题区域 -->
     <div class="gallery-header">
       <div class="header-title">
-        <el-icon size="20"
-class="title-icon">
+        <el-icon size="20" class="title-icon">
           <Camera />
         </el-icon>
         <h3 class="title-text">去过的城市</h3>
-        <span v-if="citiesWithPhotos.length > 0"
-class="photo-count">
+        <span v-if="citiesWithPhotos.length > 0" class="photo-count">
           ({{ citiesWithPhotos.length }}个城市)
         </span>
       </div>
 
       <!-- 展开/收起按钮 -->
-      <div v-if="needsToggle"
-class="toggle-section">
+      <div v-if="needsToggle" class="toggle-section">
         <el-button
           type="text"
           size="small"
@@ -28,8 +25,7 @@ class="toggle-section">
               ? "收起"
               : `展示更多 (${citiesWithPhotos.length - props.maxDisplayCount}+)`
           }}</span>
-          <el-icon class="toggle-icon"
-:class="{ expanded: isExpanded }">
+          <el-icon class="toggle-icon" :class="{ expanded: isExpanded }">
             <ArrowDown />
           </el-icon>
         </el-button>
@@ -39,18 +35,20 @@ class="toggle-section">
     <!-- 照片展示区域 -->
     <div class="photos-container">
       <!-- 有去过城市的情况 -->
-      <div v-if="citiesWithPhotos.length > 0"
-class="photos-grid">
+      <div v-if="citiesWithPhotos.length > 0" class="photos-grid">
         <div
           v-for="(city, index) in displayedCities"
           :key="city.id"
+          :data-city-id="city.id"
           class="city-photo-item"
           :style="{ animationDelay: `${index * 0.1}s` }"
         >
-          <div class="photo-wrapper"
-@click="handlePhotoClick(city)">
+          <div class="photo-wrapper" @click="handlePhotoClick(city)">
             <!-- 想再去标识 -->
-            <div v-if="city.ever_visited && city.want_to_visit_again" class="want-again-badge">
+            <div
+              v-if="city.ever_visited && city.want_to_visit_again"
+              class="want-again-badge"
+            >
               <el-icon><Star /></el-icon>
               <span>想再去</span>
             </div>
@@ -68,8 +66,7 @@ class="photos-grid">
             <!-- 没有照片的情况 - 上传引导 -->
             <template v-else>
               <div class="upload-placeholder">
-                <el-icon size="32"
-class="upload-icon">
+                <el-icon size="32" class="upload-icon">
                   <Plus />
                 </el-icon>
                 <p class="upload-text">
@@ -80,19 +77,35 @@ class="upload-icon">
             </template>
 
             <!-- 照片信息遮罩 -->
-            <div v-if="getCoverUrl(city)"
-class="photo-overlay">
+            <div v-if="getCoverUrl(city)" class="photo-overlay">
               <div class="city-info">
                 <span class="city-name">{{ city.cityName }}</span>
-                <span class="visit-date">{{
+                <span v-if="city.travelTime" class="travel-time">
+                  {{ formatTravelTime(city.travelTime) }}
+                </span>
+                <span v-else class="visit-date">{{
                   formatVisitDate(city.updatedAt)
                 }}</span>
+                <span v-if="city.travelFeeling" class="travel-feeling">
+                  {{ city.travelFeeling }}
+                </span>
               </div>
 
               <!-- 操作按钮 -->
               <div class="photo-actions">
-                <el-tooltip content="更换照片"
-placement="top">
+                <el-tooltip content="编辑信息" placement="top">
+                  <el-button
+                    size="small"
+                    type="info"
+                    circle
+                    class="action-btn"
+                    @click.stop="handleEditCity(city)"
+                  >
+                    <el-icon><Edit /></el-icon>
+                  </el-button>
+                </el-tooltip>
+
+                <el-tooltip content="更换照片" placement="top">
                   <el-button
                     size="small"
                     type="primary"
@@ -104,8 +117,7 @@ placement="top">
                   </el-button>
                 </el-tooltip>
 
-                <el-tooltip content="删除照片"
-placement="top">
+                <el-tooltip content="删除照片" placement="top">
                   <el-button
                     size="small"
                     type="danger"
@@ -117,8 +129,12 @@ placement="top">
                   </el-button>
                 </el-tooltip>
 
-                <el-tooltip :content="city.want_to_visit_again ? '取消想再去' : '标记想再去'"
-placement="top">
+                <el-tooltip
+                  :content="
+                    city.want_to_visit_again ? '取消想再去' : '标记想再去'
+                  "
+                  placement="top"
+                >
                   <el-button
                     size="small"
                     :type="city.want_to_visit_again ? 'warning' : 'info'"
@@ -133,14 +149,12 @@ placement="top">
             </div>
 
             <!-- 城市名称 (无照片时显示) -->
-            <div v-if="!getCoverUrl(city)"
-class="city-name-bottom">
+            <div v-if="!getCoverUrl(city)" class="city-name-bottom">
               {{ city.cityName }}
             </div>
 
             <!-- 胶片孔效果 -->
-            <div v-if="city.photo"
-class="film-holes">
+            <div v-if="city.photo" class="film-holes">
               <div class="hole" />
               <div class="hole" />
               <div class="hole" />
@@ -150,17 +164,14 @@ class="film-holes">
       </div>
 
       <!-- 完全没有去过城市的空状态 -->
-      <div v-else
-class="empty-gallery">
+      <div v-else class="empty-gallery">
         <div class="empty-content">
-          <el-icon size="64"
-class="empty-icon">
+          <el-icon size="64" class="empty-icon">
             <CameraFilled />
           </el-icon>
           <h4>还没有足迹照片</h4>
           <p>标记一些城市为"去过"，然后上传你的旅行照片</p>
-          <el-button type="primary"
-@click="$emit('add-visited-city')">
+          <el-button type="primary" @click="$emit('add-visited-city')">
             <el-icon><Plus /></el-icon>
             添加去过的城市
           </el-button>
@@ -176,11 +187,99 @@ class="empty-icon">
       style="display: none"
       @change="handleFileSelect"
     />
+
+    <!-- 编辑城市信息对话框 -->
+    <el-dialog
+      v-model="showEditDialog"
+      title="编辑城市信息"
+      width="500"
+      :close-on-click-modal="false"
+      class="edit-city-dialog"
+    >
+      <el-form
+        v-if="editingCity"
+        ref="editFormRef"
+        :model="editForm"
+        label-width="100px"
+        label-position="left"
+        class="edit-form"
+      >
+        <el-form-item label="城市名称">
+          <el-input
+            v-model="editForm.cityName"
+            disabled
+            class="disabled-input"
+          />
+        </el-form-item>
+
+        <el-form-item label="旅行时间">
+          <el-date-picker
+            v-model="editForm.travelTime"
+            type="month"
+            placeholder="选择旅行时间"
+            format="YYYY年MM月"
+            value-format="YYYY-MM-DD"
+            style="width: 100%"
+            class="travel-time-picker"
+          />
+        </el-form-item>
+
+        <el-form-item label="旅行感受">
+          <el-input
+            v-model="editForm.travelFeeling"
+            type="textarea"
+            :rows="3"
+            placeholder="分享一下你在这里的旅行感受..."
+            maxlength="200"
+            show-word-limit
+            class="travel-feeling-input"
+          />
+        </el-form-item>
+
+        <el-form-item label="标签">
+          <el-tag
+            v-for="tag in editForm.tags"
+            :key="tag"
+            closable
+            @close="removeTag(tag)"
+            class="tag-item"
+          >
+            {{ tag }}
+          </el-tag>
+          <el-input
+            v-if="inputVisible"
+            ref="inputRef"
+            v-model="inputValue"
+            class="tag-input"
+            size="small"
+            @keyup.enter="handleInputConfirm"
+            @blur="handleInputConfirm"
+          />
+          <el-button
+            v-else
+            class="add-tag-btn"
+            size="small"
+            @click="showInput"
+          >
+            + 添加标签
+          </el-button>
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="handleEditCancel">取消</el-button>
+          <el-button type="primary" @click="handleEditConfirm" :loading="updating">
+            确定
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, nextTick } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
   Camera,
@@ -189,6 +288,7 @@ import {
   CameraFilled,
   ArrowDown,
   Star,
+  Edit,
 } from "@element-plus/icons-vue";
 import { useWishlistStore } from "@/store/wishlist.js";
 import {
@@ -221,9 +321,25 @@ const citiesWithPhotos = computed(() => wishlistStore.citiesWithPhotos);
 const fileInput = ref(null);
 const currentCity = ref(null);
 const uploading = ref(false);
-const coverMap = ref({}); // wishlistItemId -> cover URL
+const coverMap = ref({}); // cityId -> cover URL
 const isExpanded = ref(false); // 展开/收起状态
 const maxDisplayCount = ref(10); // 默认显示的城市数量
+
+// 编辑相关状态
+const showEditDialog = ref(false);
+const editingCity = ref(null);
+const editFormRef = ref(null);
+const inputRef = ref(null);
+const updating = ref(false);
+const inputVisible = ref(false);
+const inputValue = ref("");
+
+const editForm = ref({
+  cityName: "",
+  travelTime: null,
+  travelFeeling: "",
+  tags: [],
+});
 
 // 方法
 
@@ -241,7 +357,10 @@ const getCoverUrl = (city) => coverMap.value[city.id] || "";
 
 // 计算显示的城市列表
 const displayedCities = computed(() => {
-  if (isExpanded.value || citiesWithPhotos.value.length <= props.maxDisplayCount) {
+  if (
+    isExpanded.value ||
+    citiesWithPhotos.value.length <= props.maxDisplayCount
+  ) {
     return citiesWithPhotos.value;
   }
   return citiesWithPhotos.value.slice(0, props.maxDisplayCount);
@@ -337,19 +456,39 @@ const uploadPhoto = async (file) => {
   });
 
   try {
-    // 直接走服务端上传与持久化
+    console.log("📸 开始上传照片:", currentCity.value.cityName);
+
+    // 使用新的visited cities API上传照片
     const result = await wishlistStore.uploadCityPhoto(
       file,
-      currentCity.value.id,
+      currentCity.value.cityCode || currentCity.value.city_code,
+      currentCity.value.cityName,
       "",
       [],
+      currentCity.value.travelTime,
+      currentCity.value.travelFeeling
     );
 
     if (result) {
+      console.log("✅ 照片上传返回结果:", result);
+
       ElMessage.success(`${currentCity.value.cityName} 的照片上传成功！`);
-      // 使用缓存破坏强制刷新最新照片
-      await refreshCoverForCity(currentCity.value.id, true);
-      emit("photo-uploaded", currentCity.value);
+
+      // 立即更新 coverMap 以显示新照片
+      const imageUrl = result.thumbnailUrl
+        ? getCityThumbnailUrl(result.thumbnailUrl)
+        : getCityPhotoUrl(result.photoUrl);
+
+      if (imageUrl) {
+        const cacheBuster = `?t=${Date.now()}`;
+        coverMap.value = {
+          ...coverMap.value,
+          [currentCity.value.id]: normalizePhotoUrl(imageUrl) + cacheBuster,
+        };
+      }
+
+      // 直接使用上传返回的照片数据，无需重新请求
+      emit("photo-uploaded", currentCity.value, result);
     } else {
       ElMessage.error("照片上传失败，请重试");
     }
@@ -379,7 +518,7 @@ const handleDeletePhoto = async (city) => {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
-      },
+      }
     );
 
     // 查询该城市的照片并删除封面（或第一张）
@@ -393,8 +532,12 @@ const handleDeletePhoto = async (city) => {
     const ok = await wishlistStore.deletePhoto(cover.id);
     if (ok) {
       ElMessage.success(`${city.cityName} 的照片已删除`);
-      // 使用缓存破坏强制刷新
-      await refreshCoverForCity(city.id, true);
+      
+      // 立即更新 coverMap，移除已删除照片的封面
+      const { [city.id]: _, ...rest } = coverMap.value;
+      coverMap.value = rest;
+      
+      // 直接发送删除事件，无需重新获取照片
       emit("photo-deleted", city);
     } else {
       ElMessage.error("照片删除失败，请重试");
@@ -410,18 +553,21 @@ const handleDeletePhoto = async (city) => {
 const handleToggleWantAgain = async (city) => {
   try {
     const newStatus = !city.want_to_visit_again;
-    const success = await wishlistStore.markWantToVisitAgain(city.id, newStatus);
+    const success = await wishlistStore.markWantToVisitAgain(
+      city.id,
+      newStatus
+    );
     if (success) {
       // 状态更新成功，citiesWithPhotos会自动响应式更新
       ElMessage.success(
-        newStatus 
-          ? `已将 ${city.cityName} 标记为想再去` 
+        newStatus
+          ? `已将 ${city.cityName} 标记为想再去`
           : `已取消 ${city.cityName} 的想再去标记`
       );
     }
   } catch (error) {
-    console.error('切换想再去状态失败:', error);
-    ElMessage.error('操作失败，请重试');
+    console.error("切换想再去状态失败:", error);
+    ElMessage.error("操作失败，请重试");
   }
 };
 
@@ -435,7 +581,7 @@ watch(
   () => citiesWithPhotos.value.map((c) => c.id).join(","),
   () => {
     refreshAllCovers();
-  },
+  }
 );
 
 /**
@@ -550,7 +696,7 @@ const compressImage = (
   file,
   maxWidth = 800,
   maxHeight = 600,
-  quality = 0.8,
+  quality = 0.8
 ) => {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement("canvas");
@@ -586,7 +732,7 @@ const compressImage = (
           }
         },
         "image/jpeg",
-        quality,
+        quality
       );
     };
 
@@ -605,6 +751,110 @@ const fileToBase64 = (file) => {
     reader.onerror = () => reject(new Error("文件读取失败"));
     reader.readAsDataURL(file);
   });
+};
+
+/**
+ * 格式化旅行时间
+ */
+const formatTravelTime = (travelTime) => {
+  if (!travelTime) return "";
+  const date = new Date(travelTime);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  return `${year}年${month}月`;
+};
+
+/**
+ * 处理编辑城市信息
+ */
+const handleEditCity = (city) => {
+  editingCity.value = city;
+  editForm.value = {
+    cityName: city.cityName,
+    travelTime: city.travelTime || null,
+    travelFeeling: city.travelFeeling || "",
+    tags: Array.isArray(city.tags) ? [...city.tags] : [],
+  };
+  showEditDialog.value = true;
+};
+
+/**
+ * 处理编辑确认
+ */
+const handleEditConfirm = async () => {
+  if (!editingCity.value) return;
+
+  updating.value = true;
+  try {
+    // 调用API更新城市信息
+    const success = await wishlistStore.updateCityInfo(
+      editingCity.value.id,
+      {
+        travelTime: editForm.value.travelTime,
+        travelFeeling: editForm.value.travelFeeling,
+        tags: editForm.value.tags,
+      }
+    );
+
+    if (success) {
+      ElMessage.success("城市信息更新成功");
+      showEditDialog.value = false;
+      // 重新加载数据
+      await wishlistStore.loadWishlist();
+    } else {
+      ElMessage.error("更新失败，请重试");
+    }
+  } catch (error) {
+    console.error("更新城市信息失败:", error);
+    ElMessage.error("更新失败，请重试");
+  } finally {
+    updating.value = false;
+  }
+};
+
+/**
+ * 处理编辑取消
+ */
+const handleEditCancel = () => {
+  showEditDialog.value = false;
+  editingCity.value = null;
+  editForm.value = {
+    cityName: "",
+    travelTime: null,
+    travelFeeling: "",
+    tags: [],
+  };
+};
+
+/**
+ * 显示输入框
+ */
+const showInput = () => {
+  inputVisible.value = true;
+  nextTick(() => {
+    inputRef.value?.focus();
+  });
+};
+
+/**
+ * 处理标签输入确认
+ */
+const handleInputConfirm = () => {
+  if (inputValue.value && !editForm.value.tags.includes(inputValue.value)) {
+    editForm.value.tags.push(inputValue.value);
+  }
+  inputVisible.value = false;
+  inputValue.value = "";
+};
+
+/**
+ * 移除标签
+ */
+const removeTag = (tag) => {
+  const index = editForm.value.tags.indexOf(tag);
+  if (index > -1) {
+    editForm.value.tags.splice(index, 1);
+  }
 };
 
 /**
@@ -825,8 +1075,36 @@ const formatVisitDate = (dateString) => {
   font-size: 10px;
 }
 
+/* 旅行时间显示样式 */
+.travel-time {
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: "Courier New", monospace;
+  letter-spacing: 0.5px;
+  background: rgba(145, 168, 208, 0.6);
+  padding: 2px 6px;
+  border-radius: 8px;
+  margin-bottom: 2px;
+  display: inline-block;
+}
+
+/* 旅行感受显示样式 */
+.travel-feeling {
+  font-size: 9px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.3;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-style: italic;
+}
+
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -1011,6 +1289,16 @@ const formatVisitDate = (dateString) => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
 }
 
+.action-btn[type="info"] {
+  background: rgba(107, 114, 128, 0.9) !important;
+  color: white !important;
+}
+
+.action-btn[type="info"]:hover {
+  background: #6b7280 !important;
+  transform: scale(1.1) !important;
+}
+
 .action-btn[type="primary"] {
   background: rgba(145, 168, 208, 0.9) !important;
   color: white !important;
@@ -1169,5 +1457,116 @@ const formatVisitDate = (dateString) => {
   .city-photo-item:nth-child(4n + 4) {
     transform: rotate(1deg) translateY(4px);
   }
+}
+
+/* 编辑对话框样式 */
+:deep(.edit-city-dialog) {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+:deep(.edit-city-dialog .el-dialog__header) {
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
+  padding: 20px 24px;
+  margin: 0;
+}
+
+:deep(.edit-city-dialog .el-dialog__title) {
+  color: white;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+:deep(.edit-city-dialog .el-dialog__close) {
+  color: white;
+  font-size: 18px;
+}
+
+:deep(.edit-city-dialog .el-dialog__body) {
+  padding: 24px;
+}
+
+.edit-form {
+  max-width: 100%;
+}
+
+.edit-form .el-form-item {
+  margin-bottom: 20px;
+}
+
+.edit-form .el-form-item__label {
+  color: #374151;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.disabled-input :deep(.el-input__inner) {
+  background-color: #f9fafb;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.travel-time-picker :deep(.el-input__inner) {
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.travel-time-picker :deep(.el-input__inner):focus {
+  border-color: #91a8d0;
+  box-shadow: 0 0 0 3px rgba(145, 168, 208, 0.1);
+}
+
+.travel-feeling-input :deep(.el-textarea__inner) {
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  resize: none;
+  transition: all 0.3s ease;
+}
+
+.travel-feeling-input :deep(.el-textarea__inner):focus {
+  border-color: #91a8d0;
+  box-shadow: 0 0 0 3px rgba(145, 168, 208, 0.1);
+}
+
+/* 标签样式 */
+.tag-item {
+  margin-right: 8px;
+  margin-bottom: 8px;
+  background: rgba(145, 168, 208, 0.1);
+  border-color: rgba(145, 168, 208, 0.3);
+  color: #4a5568;
+}
+
+.tag-input {
+  width: 120px;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+.add-tag-btn {
+  margin-bottom: 8px;
+  border: 1px dashed rgba(145, 168, 208, 0.5);
+  color: #91a8d0;
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+.add-tag-btn:hover {
+  border-color: #91a8d0;
+  color: #7a94c2;
+  background: rgba(145, 168, 208, 0.05);
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.dialog-footer .el-button {
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 500;
 }
 </style>
