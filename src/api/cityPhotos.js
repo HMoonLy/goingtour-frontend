@@ -8,7 +8,8 @@ export const cityPhotosApi = {
      * 上传城市照片
      * @param {Object} uploadData - 上传数据
      * @param {File} uploadData.file - 图片文件
-     * @param {string} uploadData.cityCode - 城市编码
+     * @param {string} uploadData.cityCode - 城市编码(adcode)
+     * @param {string} uploadData.citycode - 城市电话区号（可选）
      * @param {string} uploadData.cityName - 城市名称
      * @param {string} uploadData.caption - 照片描述（可选）
      * @param {string} uploadData.travelTime - 旅行时间（YYYY-MM-DD格式，可选）
@@ -19,8 +20,12 @@ export const cityPhotosApi = {
     uploadPhoto(uploadData) {
         const formData = new FormData();
         formData.append("file", uploadData.file);
-        formData.append("cityCode", uploadData.cityCode);
+        formData.append("adcode", uploadData.cityCode);
         formData.append("cityName", uploadData.cityName);
+
+        if (uploadData.citycode) {
+            formData.append("citycode", uploadData.citycode);
+        }
 
         if (uploadData.caption) {
             formData.append("caption", uploadData.caption);

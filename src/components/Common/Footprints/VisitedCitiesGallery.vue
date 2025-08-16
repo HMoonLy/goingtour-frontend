@@ -388,7 +388,7 @@ const refreshCoverForCity = async (cityId, bustCache = false) => {
     
     // 使用城市名称获取正确的城市编码
     const adcode = await weatherApi.getCityCode(city.cityName);
-    const photos = await wishlistStore.getCityPhotos(adcode, bustCache);
+    const photos = await wishlistStore.getCityPhotos(adcode, bustCache, true); // 使用静默模式
     if (photos && photos.length > 0) {
       const cover = photos.find((p) => p.isCover) || photos[0];
       // 优先使用缩略图，如果没有则使用原图
@@ -414,12 +414,16 @@ const refreshCoverForCity = async (cityId, bustCache = false) => {
         coverMap.value = rest;
       }
     } else {
-      // 无照片
+      // 无照片时静默处理，不显示错误信息
       const { [cityId]: _, ...rest } = coverMap.value;
       coverMap.value = rest;
     }
-  } catch (e) {
-    // 忽略
+  } catch (error) {
+    // 静默处理照片获取失败，避免干扰用户体验
+    // 对于新添加的城市，没有照片是正常情况
+    console.debug(`获取城市 ${cityId} 的封面照片失败:`, error.message);
+    const { [cityId]: _, ...rest } = coverMap.value;
+    coverMap.value = rest;
   }
 };
 

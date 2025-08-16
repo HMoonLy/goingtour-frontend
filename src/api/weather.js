@@ -195,6 +195,35 @@ export const weatherApi = {
     },
 
     /**
+     * 根据 adcode 获取 citycode
+     * @param {string} adcode - 城市行政区划代码
+     * @returns {Promise<string>} - 返回城市电话区号
+     */
+    async getCityCodeByAdcode(adcode) {
+        if (!adcode) {
+            return "";
+        }
+
+        try {
+            const response = await fetch("/data/city-codes.json");
+            if (!response.ok) {
+                return "";
+            }
+
+            const cityData = await response.json();
+            const city = cityData.find(c => String(c.adcode) === String(adcode));
+
+            if (city && city.citycode && city.citycode !== "\\N") {
+                return city.citycode;
+            }
+        } catch (error) {
+            console.error("获取城市电话区号失败:", error);
+        }
+
+        return "";
+    },
+
+    /**
      * 获取城市实时天气信息
      * @param {string} city - 城市名称（中文或拼音）
      * @returns {Promise} - 返回实时天气信息
