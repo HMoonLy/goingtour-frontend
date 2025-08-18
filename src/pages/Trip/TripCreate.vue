@@ -5,18 +5,15 @@
       v-if="!baseForm.destinationName && !isRestoringProgress && !isFromDraft"
       class="no-destination-notice"
     >
-      <el-card class="notice-card"
-shadow="hover">
+      <el-card class="notice-card" shadow="hover">
         <div class="notice-content">
-          <el-icon class="notice-icon"
-color="#F56C6C" size="48">
+          <el-icon class="notice-icon" color="#F56C6C" size="48">
             <Location />
           </el-icon>
           <h2>目的地</h2>
           <p>创建行程</p>
           <div class="notice-actions">
-            <el-button type="primary"
-size="large" @click="goToDestinations">
+            <el-button type="primary" size="large" @click="goToDestinations">
               <el-icon><Location /></el-icon>
               目的地
             </el-button>
@@ -30,8 +27,7 @@ size="large" @click="goToDestinations">
       <h1 class="page-title">创建行程</h1>
 
       <el-card class="steps-card">
-        <el-steps :active="currentStep"
-finish-status="success" align-center>
+        <el-steps :active="currentStep" finish-status="success" align-center>
           <el-step title="基础信息" />
           <el-step title="个性化偏好" />
           <el-step title="智能生成" />
@@ -41,9 +37,7 @@ finish-status="success" align-center>
 
       <!-- 草稿操作区域 - 修改显示条件 -->
       <el-card
-        v-if="
-          !(!baseForm.destinationName && !isRestoringProgress && !isFromDraft)
-        "
+        v-if="!(!baseForm.destinationName && !isRestoringProgress && !isFromDraft)"
         class="draft-actions-card"
       >
         <div class="draft-actions">
@@ -173,15 +167,10 @@ finish-status="success" align-center>
           @prev-step="prevStep"
         />
         <!-- 空状态展示 -->
-        <div v-else-if="currentStep === 3"
-class="empty-trip-state">
-          <el-empty description="未找到行程数据"
-:image-size="200">
+        <div v-else-if="currentStep === 3" class="empty-trip-state">
+          <el-empty description="未找到行程数据" :image-size="200">
             >
-            <el-button type="primary"
-@click="regenerateTrip">
-              生成行程
-            </el-button>
+            <el-button type="primary" @click="regenerateTrip"> 生成行程 </el-button>
           </el-empty>
         </div>
       </div>
@@ -205,8 +194,7 @@ class="empty-trip-state">
           />
         </el-form-item>
         <el-form-item label="当前进度">
-          <el-tag type="info"
-size="small">
+          <el-tag type="info" size="small">
             第{{ currentStep + 1 }}步：{{ getStepName(currentStep) }}
           </el-tag>
         </el-form-item>
@@ -218,11 +206,7 @@ size="small">
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="saveDraftDialog = false"> 取消 </el-button>
-          <el-button
-            type="primary"
-            :loading="savingDraft"
-            @click="handleSaveDraft"
-          >
+          <el-button type="primary" :loading="savingDraft" @click="handleSaveDraft">
             <el-icon><Document /></el-icon>
             保存草稿
           </el-button>
@@ -238,19 +222,15 @@ size="small">
       :before-close="handleCloseDraftList"
     >
       <div class="draft-list-container">
-        <div v-if="drafts.length === 0"
-class="empty-drafts">
-          <el-empty description="暂无保存的草稿"
-image-size="120">
-            <el-button type="primary"
-@click="showDraftList = false">
+        <div v-if="drafts.length === 0" class="empty-drafts">
+          <el-empty description="暂无保存的草稿" image-size="120">
+            <el-button type="primary" @click="showDraftList = false">
               开始创建行程
             </el-button>
           </el-empty>
         </div>
 
-        <div v-else
-class="draft-grid">
+        <div v-else class="draft-grid">
           <div
             v-for="draft in drafts"
             :key="draft.id"
@@ -262,29 +242,21 @@ class="draft-grid">
                 <h4 class="draft-title">
                   {{ draft.name }}
                 </h4>
-                <el-dropdown trigger="click"
-@command="handleDraftAction">
-                  <el-button link
-size="small" class="draft-menu-btn">
+                <el-dropdown trigger="click" @command="handleDraftAction">
+                  <el-button link size="small" class="draft-menu-btn">
                     <el-icon><MoreFilled /></el-icon>
                   </el-button>
                   <template #dropdown>
                     <el-dropdown-menu>
-                      <el-dropdown-item
-                        :command="{ action: 'load', id: draft.id }"
-                      >
+                      <el-dropdown-item :command="{ action: 'load', id: draft.id }">
                         <el-icon><Folder /></el-icon>
                         加载草稿
                       </el-dropdown-item>
-                      <el-dropdown-item
-                        :command="{ action: 'rename', id: draft.id }"
-                      >
+                      <el-dropdown-item :command="{ action: 'rename', id: draft.id }">
                         <el-icon><Edit /></el-icon>
                         重命名
                       </el-dropdown-item>
-                      <el-dropdown-item
-                        :command="{ action: 'copy', id: draft.id }"
-                      >
+                      <el-dropdown-item :command="{ action: 'copy', id: draft.id }">
                         <el-icon><CopyDocument /></el-icon>
                         复制
                       </el-dropdown-item>
@@ -331,17 +303,11 @@ size="small" class="draft-menu-btn">
         </div>
 
         <!-- 草稿统计信息 -->
-        <div v-if="drafts.length > 0"
-class="draft-stats">
+        <div v-if="drafts.length > 0" class="draft-stats">
           <el-divider />
           <div class="stats-row">
             <span>共 {{ drafts.length }} 个草稿</span>
-            <el-button
-              type="danger"
-              size="small"
-              plain
-              @click="handleClearAllDrafts"
-            >
+            <el-button type="danger" size="small" plain @click="handleClearAllDrafts">
               <el-icon><Delete /></el-icon>
               清空所有草稿
             </el-button>
@@ -351,8 +317,7 @@ class="draft-stats">
     </el-dialog>
 
     <!-- 重命名草稿对话框 -->
-    <el-dialog v-model="renameDraftDialog"
-title="重命名草稿" width="400px">
+    <el-dialog v-model="renameDraftDialog" title="重命名草稿" width="400px">
       <el-form label-width="80px">
         <el-form-item label="草稿名称">
           <el-input
@@ -368,11 +333,7 @@ title="重命名草稿" width="400px">
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="renameDraftDialog = false"> 取消 </el-button>
-          <el-button
-            type="primary"
-            :loading="renamingDraft"
-            @click="handleConfirmRename"
-          >
+          <el-button type="primary" :loading="renamingDraft" @click="handleConfirmRename">
             确认重命名
           </el-button>
         </div>
@@ -569,7 +530,7 @@ export default {
           const weatherData = await weatherApi.getWeatherSuggestions(
             city,
             new Date(startDate),
-            days,
+            days
           );
           if (weatherData) {
             weatherSuggestion.value = weatherData;
@@ -578,11 +539,7 @@ export default {
         } else {
           console.log(`🌤️ 开始获取${city}的基础天气数据（不依赖日期选择）`);
           // 获取基础天气数据，不依赖用户的具体日期选择
-          const weatherData = await weatherApi.getWeatherSuggestions(
-            city,
-            new Date(),
-            3,
-          ); // 默认3天
+          const weatherData = await weatherApi.getWeatherSuggestions(city, new Date(), 3); // 默认3天
           if (weatherData) {
             weatherSuggestion.value = weatherData;
             console.log("✅ 基础天气信息获取成功", weatherData);
@@ -624,7 +581,7 @@ export default {
           fetchWeatherForTrip(city, null, null);
         }
       },
-      { immediate: true },
+      { immediate: true }
     );
 
     // 标记数据已更改 - 简化版本（移除draftManager依赖）
@@ -672,9 +629,7 @@ export default {
           const { type, id } = payload || {};
           if (type && id) {
             if (type === "scenario") {
-              const { findScenarioById } = await import(
-                "@/data/aiScenarios.js"
-              );
+              const { findScenarioById } = await import("@/data/aiScenarios.js");
               const sc = findScenarioById(id);
               if (sc?.preset) {
                 Object.assign(baseForm, {
@@ -700,7 +655,7 @@ export default {
         baseForm.destination = route.query.city;
         baseForm.destinationName = decodeURIComponent(route.query.cityName); // 解码中文名称
         console.log(
-          `从URL获取到目的地城市：${baseForm.destinationName}(${baseForm.destination})`,
+          `从URL获取到目的地城市：${baseForm.destinationName}(${baseForm.destination})`
         );
         ElMessage.success(`目的地: ${baseForm.destinationName}`);
 
@@ -728,7 +683,7 @@ export default {
         // 允许在任何情况下标记更改，这样可以保存更多的用户输入状态
         markDataChanged();
       },
-      { deep: true },
+      { deep: true }
     );
 
     // 路由离开前确认 - 简化版
@@ -769,7 +724,12 @@ export default {
 
       // 生成默认草稿名称
       const now = new Date();
-      const defaultName = `行程草稿_${now.getMonth() + 1}月${now.getDate()}日_${now.getHours()}:${now.getMinutes().toString().padStart(2, "0")}`;
+      const defaultName = `行程草稿_${
+        now.getMonth() + 1
+      }月${now.getDate()}日_${now.getHours()}:${now
+        .getMinutes()
+        .toString()
+        .padStart(2, "0")}`;
 
       savingDraft.value = true;
       try {
@@ -841,7 +801,7 @@ export default {
             confirmButtonText: "确定",
             cancelButtonText: "取消",
             type: "warning",
-          },
+          }
         );
 
         // 草稿数据已经加载到store中，现在在当前页面恢复数据
@@ -916,7 +876,7 @@ export default {
         await draftApi.renameDraft(
           currentRenamingDraftId.value,
           newDraftName.value.trim(),
-          userId,
+          userId
         );
         ElMessage.success("重命名成功！");
         renameDraftDialog.value = false;
@@ -965,7 +925,7 @@ export default {
             confirmButtonText: "确定删除",
             cancelButtonText: "取消",
             type: "warning",
-          },
+          }
         );
 
         await draftApi.deleteDraft(draftId, userId);
@@ -990,7 +950,7 @@ export default {
             confirmButtonText: "确定删除",
             cancelButtonText: "取消",
             type: "warning",
-          },
+          }
         );
 
         const { useUserStore } = await import("@/store/user.js");
@@ -1051,7 +1011,7 @@ export default {
       console.log("📍 当前baseForm:", JSON.parse(JSON.stringify(baseForm)));
       console.log(
         "📋 当前preferenceForm:",
-        JSON.parse(JSON.stringify(preferenceStore.tripPreferenceForm)),
+        JSON.parse(JSON.stringify(preferenceStore.tripPreferenceForm))
       );
       console.log("📊 当前状态:", {
         currentStep: currentStep.value,
@@ -1065,13 +1025,9 @@ export default {
         // 模板条件检查
         templateConditions: {
           noDestinationNoticeVisible:
-            !baseForm.destinationName &&
-            !isRestoringProgress.value &&
-            !isFromDraft.value,
+            !baseForm.destinationName && !isRestoringProgress.value && !isFromDraft.value,
           mainContentVisible:
-            baseForm.destinationName ||
-            isRestoringProgress.value ||
-            isFromDraft.value,
+            baseForm.destinationName || isRestoringProgress.value || isFromDraft.value,
         },
       });
       console.log("📦 草稿列表:", drafts.value);
@@ -1086,10 +1042,7 @@ export default {
     const restoreDraftData = () => {
       console.log("🔍 检查是否有草稿需要恢复...");
       console.log("🔍 draftStore.currentDraft:", draftStore.currentDraft);
-      console.log(
-        "🔍 draftStore.isLoadingFromDraft:",
-        draftStore.isLoadingFromDraft,
-      );
+      console.log("🔍 draftStore.isLoadingFromDraft:", draftStore.isLoadingFromDraft);
 
       if (draftStore.hasDraftToRestore()) {
         console.log("🔄 检测到草稿数据，开始恢复:", draftStore.currentDraft);
@@ -1110,10 +1063,7 @@ export default {
         }
 
         // 恢复偏好数据
-        if (
-          draft.preferenceForm &&
-          Object.keys(draft.preferenceForm).length > 0
-        ) {
+        if (draft.preferenceForm && Object.keys(draft.preferenceForm).length > 0) {
           preferenceStore.loadDraftPreferences(draft.preferenceForm);
           console.log("✅ 偏好数据已恢复");
         }
@@ -1217,11 +1167,7 @@ export default {
   width: 100%;
   border-radius: 16px;
   border: 2px solid #f7cac9;
-  background: linear-gradient(
-    135deg,
-    rgba(247, 202, 201, 0.1) 0%,
-    #ffffff 100%
-  );
+  background: linear-gradient(135deg, rgba(247, 202, 201, 0.1) 0%, #ffffff 100%);
 }
 
 .notice-card :deep(.el-card__body) {
