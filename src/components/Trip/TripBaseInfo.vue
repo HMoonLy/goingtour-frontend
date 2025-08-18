@@ -1138,7 +1138,8 @@ export default {
 /* 表单区域 */
 .form-sections {
   padding: 0 24px 32px;
-  max-width: 1200px;
+  width: 100%;
+  max-width: none;
   margin: 0 auto;
 }
 
@@ -1151,6 +1152,8 @@ export default {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   border: 1px solid #e8eaed;
   transition: all 0.3s ease;
+  width: 100%;
+  max-width: none;
 }
 
 .form-section:hover {
@@ -1656,6 +1659,8 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
+  max-width: none;
 }
 
 .action-left {
