@@ -55,11 +55,7 @@ src="../assets/images/default-avatar.jpg" alt="avatar" />
                 <el-dropdown-item command="personal">
                   <el-icon><User /></el-icon>{{ "个人资料" }}
                 </el-dropdown-item>
-                <el-dropdown-item command="preferences">
-                  <el-icon><Setting /></el-icon>{{ "设置" }}
-                </el-dropdown-item>
-                <el-dropdown-item divided
-command="logout">
+                <el-dropdown-item divided command="logout">
                   <el-icon><SwitchButton /></el-icon>{{ "退出登录" }}
                 </el-dropdown-item>
               </el-dropdown-menu>
@@ -96,7 +92,6 @@ import {
   MapLocation,
   Calendar,
   User,
-  Setting,
   SwitchButton,
   ArrowDown,
   House,
@@ -108,7 +103,6 @@ export default {
     MapLocation,
     Calendar,
     User,
-    Setting,
     SwitchButton,
     ArrowDown,
     House,
@@ -173,8 +167,6 @@ export default {
         }
       } else if (command === "personal") {
         router.push("/personal");
-      } else if (command === "preferences") {
-        router.push("/personal/preferences");
       }
     };
 

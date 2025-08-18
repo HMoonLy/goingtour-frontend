@@ -2,8 +2,7 @@
   <div class="page-shell settings-page">
     <!-- 设置头部 -->
     <div class="settings-header">
-      <el-button link
-class="back-btn" @click="$router.back()">
+      <el-button link class="back-btn" @click="$router.back()">
         <el-icon><ArrowLeft /></el-icon>
         返回
       </el-button>
@@ -33,8 +32,7 @@ class="back-btn" @click="$router.back()">
       <!-- 设置面板 -->
       <div class="settings-panel">
         <!-- 基本信息 -->
-        <div v-if="activeSection === 'profile'"
-class="settings-section">
+        <div v-if="activeSection === 'profile'" class="settings-section">
           <div class="section-title">
             <h3>基本信息</h3>
             <p>管理你的个人资料和基本信息</p>
@@ -57,8 +55,7 @@ class="settings-section">
             </el-form-item>
 
             <!-- 昵称 -->
-            <el-form-item label="昵称"
-prop="nickname">
+            <el-form-item label="昵称" prop="nickname">
               <el-input
                 v-model="profileForm.nickname"
                 placeholder="请输入昵称"
@@ -68,11 +65,7 @@ prop="nickname">
 
             <!-- 邮箱 -->
             <el-form-item label="邮箱">
-              <el-input
-                v-model="profileForm.email"
-                disabled
-                placeholder="邮箱地址"
-              >
+              <el-input v-model="profileForm.email" disabled placeholder="邮箱地址">
                 <template #suffix>
                   <el-tag
                     :type="profileForm.emailVerified ? 'success' : 'warning'"
@@ -85,8 +78,7 @@ prop="nickname">
             </el-form-item>
 
             <!-- 手机号 -->
-            <el-form-item label="手机号"
-prop="phone">
+            <el-form-item label="手机号" prop="phone">
               <el-input
                 v-model="profileForm.phone"
                 placeholder="请输入手机号"
@@ -107,8 +99,7 @@ prop="phone">
             </el-form-item>
 
             <el-form-item>
-              <el-button type="primary"
-:loading="saving" @click="saveProfile">
+              <el-button type="primary" :loading="saving" @click="saveProfile">
                 保存修改
               </el-button>
             </el-form-item>
@@ -116,10 +107,7 @@ prop="phone">
         </div>
 
         <!-- 旅行偏好 -->
-        <div
-          v-else-if="activeSection === 'preferences'"
-          class="settings-section"
-        >
+        <div v-else-if="activeSection === 'preferences'" class="settings-section">
           <div class="section-title">
             <h3>旅行偏好</h3>
             <p>设置你的旅行偏好，获得更个性化的推荐</p>
@@ -199,11 +187,7 @@ prop="phone">
             </el-form-item>
 
             <el-form-item>
-              <el-button
-                type="primary"
-                :loading="saving"
-                @click="savePreferences"
-              >
+              <el-button type="primary" :loading="saving" @click="savePreferences">
                 保存偏好
               </el-button>
             </el-form-item>
@@ -211,10 +195,7 @@ prop="phone">
         </div>
 
         <!-- 通知设置 -->
-        <div
-          v-else-if="activeSection === 'notifications'"
-          class="settings-section"
-        >
+        <div v-else-if="activeSection === 'notifications'" class="settings-section">
           <div class="section-title">
             <h3>通知设置</h3>
             <p>管理你的通知偏好</p>
@@ -246,11 +227,7 @@ prop="phone">
             </div>
 
             <div class="notification-actions">
-              <el-button
-                type="primary"
-                :loading="saving"
-                @click="saveNotifications"
-              >
+              <el-button type="primary" :loading="saving" @click="saveNotifications">
                 保存设置
               </el-button>
             </div>
@@ -258,8 +235,7 @@ prop="phone">
         </div>
 
         <!-- 隐私设置 -->
-        <div v-else-if="activeSection === 'privacy'"
-class="settings-section">
+        <div v-else-if="activeSection === 'privacy'" class="settings-section">
           <div class="section-title">
             <h3>隐私设置</h3>
             <p>控制你的隐私和数据使用</p>
@@ -291,8 +267,7 @@ class="settings-section">
             </div>
 
             <div class="privacy-actions">
-              <el-button type="primary"
-:loading="saving" @click="savePrivacy">
+              <el-button type="primary" :loading="saving" @click="savePrivacy">
                 保存设置
               </el-button>
               <el-button @click="exportUserData"> 导出我的数据 </el-button>
@@ -301,8 +276,7 @@ class="settings-section">
         </div>
 
         <!-- 账户安全 -->
-        <div v-else-if="activeSection === 'security'"
-class="settings-section">
+        <div v-else-if="activeSection === 'security'" class="settings-section">
           <div class="section-title">
             <h3>账户安全</h3>
             <p>管理你的账户安全设置</p>
@@ -343,10 +317,7 @@ class="settings-section">
                 <h4>注销账户</h4>
                 <p>永久删除你的账户和所有数据</p>
               </div>
-              <el-button type="danger"
-@click="deleteAccount">
-                注销账户
-              </el-button>
+              <el-button type="danger" @click="deleteAccount"> 注销账户 </el-button>
             </div>
           </div>
         </div>
@@ -511,10 +482,8 @@ export default {
         preferencesForm.mbtiType = preferences.mbtiType || "";
         preferencesForm.travelTypes = preferences.travelTypes || [];
         preferencesForm.budgetRange = preferences.budgetRange || "";
-        preferencesForm.dietaryRestrictions =
-          preferences.dietaryRestrictions || [];
-        preferencesForm.transportPreferences =
-          preferences.transportPreferences || [];
+        preferencesForm.dietaryRestrictions = preferences.dietaryRestrictions || [];
+        preferencesForm.transportPreferences = preferences.transportPreferences || [];
 
         // 加载通知设置
         const notifications = user.notificationSettings || {};
@@ -712,7 +681,7 @@ export default {
             confirmButtonText: "确定删除",
             cancelButtonText: "取消",
             type: "error",
-          },
+          }
         );
 
         ElMessage.info("账户注销功能正在开发中...");

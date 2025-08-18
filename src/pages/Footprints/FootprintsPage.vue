@@ -735,7 +735,9 @@
       width="500px"
       class="edit-city-dialog"
       align-center
-      :show-close="false"
+      :show-close="true"
+      :close-on-click-modal="true"
+      :close-on-press-escape="true"
     >
       <div class="dialog-content">
         <!-- 对话框头部 -->
@@ -2332,6 +2334,112 @@ export default {
 /* 对话框样式 */
 .wishlist-add-dialog {
   border-radius: 20px;
+}
+
+/* 编辑城市对话框样式 */
+.edit-city-dialog {
+  border-radius: 20px;
+}
+
+/* 编辑对话框头部样式 - 只显示关闭按钮 */
+.edit-city-dialog :deep(.el-dialog__header) {
+  background: transparent !important;
+  background-color: transparent !important;
+  padding: 16px 20px 0 20px !important;
+  border: none !important;
+  position: relative !important;
+  height: auto !important;
+}
+
+.edit-city-dialog :deep(.el-dialog__header.show-close) {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.edit-city-dialog :deep(.el-dialog.is-align-center .el-dialog__header) {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.edit-city-dialog :deep(.el-dialog__title) {
+  display: none !important;
+}
+
+.edit-city-dialog :deep(.el-dialog__headerbtn) {
+  position: absolute !important;
+  top: 16px !important;
+  right: 20px !important;
+  z-index: 10 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border-radius: 50% !important;
+  width: 32px !important;
+  height: 32px !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.edit-city-dialog :deep(.el-dialog__headerbtn):before {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.edit-city-dialog :deep(.el-dialog__headerbtn):after {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.edit-city-dialog :deep(.el-dialog__close) {
+  color: #6b7280 !important;
+  font-size: 16px !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+}
+
+.edit-city-dialog :deep(.el-dialog__close):hover {
+  color: #374151 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.edit-city-dialog :deep(.el-dialog__close):focus {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.edit-city-dialog :deep(.el-dialog__close):active {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.edit-city-dialog :deep(.el-dialog__body) {
+  padding: 0 !important;
+  margin-top: -20px !important;
+}
+
+/* 全局强制移除编辑对话框头部和关闭按钮的背景 */
+.el-dialog.edit-city-dialog .el-dialog__header,
+.el-dialog.edit-city-dialog .el-dialog__header.show-close,
+.el-dialog.edit-city-dialog.is-align-center .el-dialog__header {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.el-dialog.edit-city-dialog .el-dialog__headerbtn,
+.el-dialog.edit-city-dialog .el-dialog__close {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.el-dialog.edit-city-dialog .el-dialog__headerbtn:hover,
+.el-dialog.edit-city-dialog .el-dialog__close:hover,
+.el-dialog.edit-city-dialog .el-dialog__headerbtn:focus,
+.el-dialog.edit-city-dialog .el-dialog__close:focus,
+.el-dialog.edit-city-dialog .el-dialog__headerbtn:active,
+.el-dialog.edit-city-dialog .el-dialog__close:active {
+  background: transparent !important;
+  background-color: transparent !important;
 }
 
 /* 类型选择对话框样式 */
