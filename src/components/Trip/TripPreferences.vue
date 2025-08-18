@@ -15,102 +15,7 @@
 
     <!-- 表单区域 -->
     <div class="form-sections">
-      <!-- 选择摘要区域 -->
-      <div
-        v-if="selectedAttractions.length > 0 || selectedRestaurants.length > 0"
-        class="form-section"
-      >
-        <div class="section-title">
-          <el-icon><Check /></el-icon>
-          <span>已选择</span>
-          <el-tag size="small" type="primary">
-            {{ selectedAttractions.length + selectedRestaurants.length }}
-          </el-tag>
-        </div>
 
-        <div class="selection-summary">
-          <el-card class="summary-card" shadow="hover">
-            <div class="selected-items">
-              <!-- 已选择的景点 -->
-              <div
-                v-if="selectedAttractions.length > 0"
-                class="selected-section"
-              >
-                <div class="section-header">
-                  <el-icon class="section-icon" color="#91a8d0">
-                    <Location />
-                    />
-                  </el-icon>
-                  <h4 class="section-title">
-                    必去景点 ({{ selectedAttractions.length }})
-                  </h4>
-                </div>
-                <div class="selected-list">
-                  <el-tag
-                    v-for="attraction in selectedAttractions"
-                    :key="attraction.id"
-                    type="primary"
-                    closable
-                    size="large"
-                    class="selection-tag"
-                    @close="removeAttractionFromPlan(attraction)"
-                  >
-                    <div class="tag-content">
-                      <span class="tag-name">{{ attraction.name }}</span>
-                      <span class="tag-rating">
-                        <el-icon><Star /></el-icon>
-                        {{ attraction.rating }}
-                      </span>
-                    </div>
-                  </el-tag>
-                </div>
-              </div>
-
-              <!-- 已选择的餐厅 -->
-              <div
-                v-if="selectedRestaurants.length > 0"
-                class="selected-section"
-              >
-                <div class="section-header">
-                  <el-icon class="section-icon" color="#E6A23C">
-                    <Food />
-                    />
-                  </el-icon>
-                  <h4 class="section-title">
-                    必去餐厅 ({{ selectedRestaurants.length }})
-                  </h4>
-                </div>
-                <div class="selected-list">
-                  <el-tag
-                    v-for="restaurant in selectedRestaurants"
-                    :key="restaurant.id"
-                    type="warning"
-                    closable
-                    size="large"
-                    class="selection-tag"
-                    @close="removeRestaurantFromPlan(restaurant)"
-                  >
-                    <div class="tag-content">
-                      <span class="tag-name">{{ restaurant.name }}</span>
-                      <span class="tag-rating">
-                        <el-icon><Star /></el-icon>
-                        {{ restaurant.rating }}
-                      </span>
-                    </div>
-                  </el-tag>
-                </div>
-              </div>
-
-              <!-- 操作按钮 -->
-              <div class="summary-actions">
-                <el-button type="danger" link @click="clearAllSelections">
-                  重置
-                </el-button>
-              </div>
-            </div>
-          </el-card>
-        </div>
-      </div>
       <!-- 个性化偏好设置 -->
       <div class="form-section">
         <div class="section-title">
@@ -448,435 +353,30 @@
       </div>
 
       <!-- 推荐区域 -->
-      <div class="form-section">
-        <div class="section-title">
-          <el-icon><Location /></el-icon>
-          <span>{{
-            (cityInfo?.destinationName || "目的地") + "推荐内容"
-          }}</span>
-        </div>
-
-        <!-- 切换标签 -->
-        <div class="tab-switcher">
-          <div
-            class="tab-item"
-            :class="{ active: SisShow }"
-            @click="
-              SisShow = true;
-              RisShow = false;
-            "
-          >
-            <el-icon><Location /></el-icon>
-            <span>必去景点</span>
-            <el-tag size="small" type="success"> 高德天气API </el-tag>
-          </div>
-          <div
-            class="tab-item"
-            :class="{ active: RisShow }"
-            @click="
-              RisShow = true;
-              SisShow = false;
-            "
-          >
-            <el-icon><Food /></el-icon>
-            <span>必去餐厅</span>
-            <el-tag size="small" type="warning"> 高德天气API </el-tag>
-          </div>
-        </div>
-
-        <!-- 搜索功能 -->
-        <div class="search-section">
-          <div class="search-input-group">
-            <el-input
-              v-model="searchKeyword"
-              :placeholder="
-                SisShow ? '请输入景点名称或关键词' : '请输入餐厅名称或关键词'
-              "
-              clearable
-              @keyup.enter="handleSearch"
-              @clear="handleClearSearch"
-            >
-              <template #prefix>
-                <el-icon><Search /></el-icon>
-              </template>
-            </el-input>
-            <el-button
-              type="primary"
-              :loading="searching"
-              @click="handleSearch"
-            >
-              <el-icon><Search /></el-icon>
-              搜索
-            </el-button>
-          </div>
-          <div class="search-filters">
-            <el-select
-              v-model="sortBy"
-              placeholder="排序方式"
-              size="small"
-              style="width: 120px"
-            >
-              <el-option label="默认排序" value="default" />
-              <el-option label="评分优先" value="rating" />
-              <el-option label="距离优先" value="distance" />
-            </el-select>
-          </div>
-        </div>
-
-        <!-- 景点推荐内容 -->
-        <div v-show="SisShow" class="recommendation-content">
-          <!-- 搜索模式提示 -->
-          <div
-            v-if="isSearchMode && searchResults.length > 0"
-            class="search-mode-tip"
-          >
-            <el-alert
-              :title="
-                '搜索结果：' +
-                searchKeyword +
-                '（共 ' +
-                searchResults.filter((item) => item.isAttraction).length +
-                ' 个景点）'
-              "
-              type="info"
-              :closable="false"
-              show-icon
-            />
-            <div style="margin-top: 8px">
-              <el-button size="small" @click="handleClearSearch">
-                返回推荐
-              </el-button>
-            </div>
-          </div>
-
-          <div v-if="loadingAttractions" class="loading-state">
-            <el-skeleton :rows="3" animated />
-          </div>
-
-          <div
-            v-else-if="recommendedAttractions.length === 0 && !apiError"
-            class="empty-state"
-          >
-            <el-empty :description="暂无推荐景点" />
-          </div>
-
-          <div v-else-if="apiError" class="error-state">
-            <el-alert
-              :title="apiError"
-              type="error"
-              :closable="false"
-              show-icon
-            />
-          </div>
-
-          <div v-else class="recommendation-list">
-            <div
-              v-for="attraction in isSearchMode
-                ? searchResults.filter((item) => item.isAttraction)
-                : recommendedAttractions"
-              :key="attraction.id"
-              class="recommendation-item vertical-layout"
-            >
-              <div class="recommendation-image">
-                <img
-                  v-if="attraction.photos && attraction.photos.length > 0"
-                  :src="attraction.photos[0].url"
-                  :alt="attraction.name"
-                  @error="
-                    (e) =>
-                      (e.target.src =
-                        'https://via.placeholder.com/300x200?text=Attraction')
-                  "
-                />
-                <div v-else class="no-image">
-                  <el-icon><Picture /></el-icon>
-                </div>
-              </div>
-              <div class="recommendation-content">
-                <h4 :title="attraction.name" class="full-width-name">
-                  {{ attraction.name }}
-                </h4>
-                <div class="recommendation-rating rating-with-number">
-                  <el-rate
-                    :model-value="Number(attraction.rating)"
-                    disabled
-                    text-color="#ff9900"
-                  />
-                  <span class="rating-value">{{ attraction.rating }}</span>
-                </div>
-                <div class="recommendation-tags">
-                  <el-tag size="small" type="success" class="category-tag">
-                    风景名胜
-                  </el-tag>
-                  <el-tag size="small" class="tag-item">
-                    {{ attraction.type }}
-                  </el-tag>
-                </div>
-
-                <!-- 景点标签信息 -->
-                <div class="attraction-tags">
-                  <p class="tags-title">
-                    <el-icon><Star /></el-icon>
-                    推荐 :
-                  </p>
-                  <div
-                    v-if="extractAttractionTags(attraction).length > 0"
-                    class="feature-tags"
-                  >
-                    <el-tag
-                      v-for="(tag, index) in extractAttractionTags(
-                        attraction
-                      ).slice(0, 3)"
-                      :key="index"
-                      size="small"
-                      effect="plain"
-                      type="info"
-                      class="feature-tag"
-                    >
-                      {{ tag }}
-                    </el-tag>
-                  </div>
-                  <div v-else class="feature-tags">
-                    <el-tag
-                      size="small"
-                      effect="plain"
-                      type="info"
-                      class="feature-tag empty-tag"
-                    >
-                      无
-                    </el-tag>
-                  </div>
-                </div>
-
-                <p class="recommendation-address">
-                  <el-icon><Location /></el-icon>
-                  <span class="address-text">{{
-                    attraction.address || "暂无地址信息"
-                  }}</span>
-                </p>
-
-                <!-- 添加到计划按钮 -->
-                <div class="add-to-plan">
-                  <el-button
-                    v-if="!isAttractionSelected(attraction)"
-                    type="success"
-                    size="small"
-                    plain
-                    @click="addAttractionToPlan(attraction)"
-                  >
-                    <el-icon><Plus /></el-icon>
-                    添加到计划
-                  </el-button>
-                  <el-button
-                    v-else
-                    type="success"
-                    size="small"
-                    @click="removeAttractionFromPlan(attraction)"
-                  >
-                    <el-icon><Check /></el-icon>
-                    已添加
-                  </el-button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div
-            v-if="recommendedAttractions.length > 0 && !isSearchMode"
-            class="view-more-container"
-          >
-            <el-button
-              type="primary"
-              plain
-              size="small"
-              @click="loadMoreAttractions"
-            >
-              <el-icon><More /></el-icon>
-              查看更多景点
-            </el-button>
-          </div>
-        </div>
-
-        <!-- 餐厅推荐内容 -->
-        <div v-show="RisShow" v-if="RisShow" class="recommendation-content">
-          <!-- 搜索模式提示 -->
-          <div
-            v-if="isSearchMode && searchResults.length > 0"
-            class="search-mode-tip"
-          >
-            <el-alert
-              :title="
-                '搜索\'' +
-                searchKeyword +
-                '\'\u7684结果（' +
-                searchResults.filter((item) => !item.isAttraction).length +
-                '家餐厅）'
-              "
-              type="info"
-              :closable="false"
-              show-icon
-            />
-            <div style="margin-top: 8px">
-              <el-button size="small" @click="handleClearSearch">
-                返回推荐
-              </el-button>
-            </div>
-          </div>
-
-          <div v-if="loadingRestaurants" class="loading-state">
-            <el-skeleton :rows="3" animated />
-          </div>
-
-          <div
-            v-else-if="recommendedRestaurants.length === 0 && !apiError"
-            class="empty-state"
-          >
-            <el-empty description="暂无推荐餐厅" />
-          </div>
-
-          <div
-            v-else-if="apiError && recommendedAttractions.length === 0"
-            class="error-state"
-          >
-            <el-alert
-              :title="apiError"
-              type="error"
-              :closable="false"
-              show-icon
-            />
-          </div>
-
-          <div v-else class="recommendation-list">
-            <div
-              v-for="restaurant in isSearchMode
-                ? searchResults.filter((item) => !item.isAttraction)
-                : recommendedRestaurants"
-              :key="restaurant.id"
-              class="recommendation-item vertical-layout"
-            >
-              <div class="recommendation-image">
-                <img
-                  v-if="restaurant.photos && restaurant.photos.length > 0"
-                  :src="restaurant.photos[0].url"
-                  :alt="restaurant.name"
-                  @error="
-                    (e) =>
-                      (e.target.src =
-                        'https://via.placeholder.com/300x200?text=Food')
-                  "
-                />
-                <div v-else class="no-image">
-                  <el-icon><Food /></el-icon>
-                </div>
-              </div>
-              <div class="recommendation-content">
-                <h4 :title="restaurant.name" class="full-width-name">
-                  {{ restaurant.name }}
-                </h4>
-                <div class="recommendation-rating rating-with-number">
-                  <el-rate
-                    :model-value="Number(restaurant.rating)"
-                    disabled
-                    text-color="#ff9900"
-                  />
-                  <span class="rating-value">{{ restaurant.rating }}</span>
-                </div>
-                <div class="recommendation-tags">
-                  <el-tag size="small" type="danger" class="price-tag">
-                    人均￥{{ restaurant.price }}
-                  </el-tag>
-                  <el-tag size="small" type="warning" class="category-tag">
-                    餐饮服务
-                  </el-tag>
-                  <el-tag size="small" class="tag-item">
-                    {{ restaurant.type }}
-                  </el-tag>
-                </div>
-
-                <!-- 招牌菜信息 -->
-                <div class="signature-dishes">
-                  <p class="signature-title">
-                    <el-icon><Star /></el-icon>
-                    {{ "推荐" || "Signature:" }}
-                  </p>
-                  <div
-                    v-if="extractSignatureDishes(restaurant).length > 0"
-                    class="dish-tags"
-                  >
-                    <el-tag
-                      v-for="(dish, index) in extractSignatureDishes(
-                        restaurant
-                      ).slice(0, 3)"
-                      :key="index"
-                      size="small"
-                      effect="plain"
-                      type="success"
-                      class="dish-tag"
-                    >
-                      {{ dish }}
-                    </el-tag>
-                  </div>
-                  <div v-else class="dish-tags">
-                    <el-tag
-                      size="small"
-                      effect="plain"
-                      type="success"
-                      class="dish-tag empty-tag"
-                    >
-                      {{ "无" }}
-                    </el-tag>
-                  </div>
-                </div>
-
-                <p class="recommendation-address">
-                  <el-icon><Location /></el-icon>
-                  <span class="address-text">{{
-                    restaurant.address || "暂无地址信息"
-                  }}</span>
-                </p>
-
-                <!-- 添加到计划按钮 -->
-                <div class="add-to-plan">
-                  <el-button
-                    v-if="!isRestaurantSelected(restaurant)"
-                    type="danger"
-                    size="small"
-                    plain
-                    @click="addRestaurantToPlan(restaurant)"
-                  >
-                    <el-icon><Plus /></el-icon>
-                    添加到计划
-                  </el-button>
-                  <el-button
-                    v-else
-                    type="danger"
-                    size="small"
-                    @click="removeRestaurantFromPlan(restaurant)"
-                  >
-                    <el-icon><Check /></el-icon>
-                    已添加
-                  </el-button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div
-            v-if="recommendedRestaurants.length > 0 && !isSearchMode"
-            class="view-more-container"
-          >
-            <el-button
-              type="primary"
-              plain
-              size="small"
-              @click="loadMoreRestaurants"
-            >
-              <el-icon><More /></el-icon>
-              查看更多餐厅
-            </el-button>
-          </div>
-        </div>
-      </div>
+      <RecommendationSection
+        :city-info="cityInfo"
+        :recommended-attractions="recommendedAttractions"
+        :recommended-restaurants="recommendedRestaurants"
+        :selected-attractions="selectedAttractions"
+        :selected-restaurants="selectedRestaurants"
+        :loading-attractions="loadingAttractions"
+        :loading-restaurants="loadingRestaurants"
+        :api-error="apiError"
+        :search-results="searchResults"
+        :is-search-mode="isSearchMode"
+        :searching="searching"
+        :extract-attraction-tags="extractAttractionTags"
+        :extract-signature-dishes="extractSignatureDishes"
+        @add-attraction="addAttractionToPlan"
+        @remove-attraction="removeAttractionFromPlan"
+        @add-restaurant="addRestaurantToPlan"
+        @remove-restaurant="removeRestaurantFromPlan"
+        @load-more-attractions="loadMoreAttractions"
+        @load-more-restaurants="loadMoreRestaurants"
+        @search="handleSearchFromComponent"
+        @clear-search="handleClearSearch"
+        @clear-all-selections="clearAllSelections"
+      />
 
       <!-- 操作按钮区域 -->
       <div class="action-section">
@@ -913,19 +413,14 @@
 import { ref, computed, watch, onMounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
-  Location,
-  Food,
-  More,
   MagicStick,
   Edit,
   Setting,
   Check,
   Star,
-  Plus,
   ArrowLeft,
   ArrowRight,
   KnifeFork,
-  Search,
   Trophy,
   Timer,
   UserFilled,
@@ -937,6 +432,7 @@ import {
   getRecommendedRestaurants,
   searchPlaces,
 } from "@/api/amap.js";
+import RecommendationSection from "./RecommendationSection.vue";
 import { translateTag } from "@/utils/data/tagMapping.js";
 import { dataCache } from "@/utils/api/dataCache.js";
 import { usePreferenceStore } from "@/store/preference.js";
@@ -944,24 +440,20 @@ import { useUserStore } from "@/store/user.js";
 export default {
   name: "TripPreferences",
   components: {
-    Location,
-    Food,
-    More,
     MagicStick,
     Edit,
     Setting,
     Check,
     Star,
-    Plus,
     ArrowLeft,
     ArrowRight,
     KnifeFork,
-    Search,
     Trophy,
     Timer,
     UserFilled,
     Camera,
     Document,
+    RecommendationSection,
   },
   props: {
     // 从父组件接收的表单数据
@@ -1101,12 +593,8 @@ export default {
     const loadingAttractions = ref(false);
     const loadingRestaurants = ref(false);
     const apiError = ref(null);
-    const RisShow = ref(false);
-    const SisShow = ref(true);
 
     // 搜索相关状态
-    const searchKeyword = ref("");
-    const sortBy = ref("default");
     const searching = ref(false);
     const searchResults = ref([]);
     const isSearchMode = ref(false);
@@ -1779,39 +1267,31 @@ export default {
       }
     };
 
-    // 搜索功能
-    const handleSearch = async () => {
-      if (!searchKeyword.value.trim()) {
-        ElMessage.warning("请输入搜索关键词");
-        return;
-      }
 
-      if (!cityInfo.value?.destinationName) {
-        ElMessage.warning("目的地");
-        return;
-      }
 
+    // 处理来自子组件的搜索事件
+    const handleSearchFromComponent = async (searchParams) => {
       try {
         searching.value = true;
         isSearchMode.value = true;
         apiError.value = null;
 
-        const searchParams = {
-          keywords: searchKeyword.value.trim(),
-          city: cityInfo.value.destinationName,
-          offset: 20, // 搜索时返回更多结果
+        const searchOptions = {
+          keywords: searchParams.keyword,
+          city: cityInfo.value?.destinationName,
+          offset: 20,
           page: 1,
         };
 
-        // 根据当前标签页自动添加类型过滤
-        if (SisShow.value) {
-          searchParams.types = "110000"; // 风景名胜
-        } else if (RisShow.value) {
-          searchParams.types = "050000"; // 餐饮服务
+        // 根据搜索类型添加过滤
+        if (searchParams.type === 'attractions') {
+          searchOptions.types = "110000"; // 风景名胜
+        } else if (searchParams.type === 'restaurants') {
+          searchOptions.types = "050000"; // 餐饮服务
         }
 
-        console.log("🔍 开始搜索:", searchParams);
-        const response = await searchPlaces(searchParams);
+        console.log("🔍 开始搜索:", searchOptions);
+        const response = await searchPlaces(searchOptions);
 
         if (response && response.pois && response.pois.length > 0) {
           console.log("✅ 搜索成功，找到", response.pois.length, "个结果");
@@ -1836,7 +1316,7 @@ export default {
           });
 
           // 根据排序方式排序
-          const sortedResults = sortSearchResults(results, sortBy.value);
+          const sortedResults = sortSearchResults(results, searchParams.sortBy);
           searchResults.value = sortedResults;
 
           ElMessage.success(`找到 ${results.length} 个搜索结果`);
@@ -1846,9 +1326,9 @@ export default {
         }
       } catch (error) {
         console.error("❌ 搜索失败:", error);
-        apiError.value = "操作失败";
+        apiError.value = "搜索失败";
         searchResults.value = [];
-        ElMessage.error("操作失败");
+        ElMessage.error("搜索失败");
       } finally {
         searching.value = false;
       }
@@ -1856,7 +1336,6 @@ export default {
 
     // 清除搜索
     const handleClearSearch = () => {
-      searchKeyword.value = "";
       searchResults.value = [];
       isSearchMode.value = false;
       apiError.value = null;
@@ -2167,19 +1646,15 @@ export default {
       addRestaurantToPlan,
       removeRestaurantFromPlan,
       clearAllSelections,
-      SisShow,
-      RisShow,
       // 新的切换方法
       toggleTripGoal,
       toggleFocusArea,
       toggleDietaryRestriction,
       // 搜索相关
-      searchKeyword,
-      sortBy,
       searching,
       searchResults,
       isSearchMode,
-      handleSearch,
+      handleSearchFromComponent,
       handleClearSearch,
     };
   },
@@ -2190,6 +1665,7 @@ export default {
 /* 整体布局 - 完全按照TripBaseInfo.vue */
 .step-content {
   width: 100%;
+  background: #f8f9fa;
   min-height: 100vh;
 }
 
@@ -2263,7 +1739,7 @@ export default {
   border-radius: 16px;
   padding: 32px;
   margin-bottom: 32px;
-  /* box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   border: 1px solid #e8eaed;
   transition: all 0.3s ease;
   width: 100%;
@@ -2320,6 +1796,7 @@ export default {
   background: white;
   border-radius: 12px;
   padding: 24px;
+  margin-top: 32px;
   margin-bottom: 32px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   border: 1px solid #e4e7ed;
@@ -2385,323 +1862,11 @@ export default {
   border: 1px solid #ebeef5;
 }
 
-/* 标签切换器样式 */
-.tab-switcher {
-  display: flex;
-  background: #f8f9fa;
-  border-bottom: 1px solid #e4e7ed;
-}
 
-.tab-item {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 16px 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border-bottom: 3px solid transparent;
-  position: relative;
-}
 
-.tab-item:hover {
-  background: #f5f7fa;
-}
 
-.tab-item.active {
-  background: #fff;
-  border-bottom-color: #91a8d0;
-  color: #91a8d0;
-  font-weight: 500;
-}
 
-.tab-item .el-icon {
-  font-size: 16px;
-}
 
-.tab-item span {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.tab-item .el-tag {
-  margin-left: auto;
-}
-
-/* 添加切换指示器动画 */
-.tab-item.active::after {
-  content: "";
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: #91a8d0;
-  animation: slideIn 0.3s ease-out;
-}
-
-/* 优化标签内容布局 */
-.tab-item {
-  min-height: 60px;
-}
-
-/* 搜索区域样式 */
-.search-section {
-  padding: 16px 20px;
-  background: #f8f9fa;
-  border-bottom: 1px solid #e4e7ed;
-}
-
-.search-input-group {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.search-input-group .el-input {
-  flex: 1;
-}
-
-.search-filters {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.search-mode-tip {
-  margin-bottom: 16px;
-}
-
-/* 推荐内容样式 */
-.recommendation-content {
-  padding: 20px;
-  background: #fff;
-  border-radius: 0 0 8px 8px;
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* 移除原来的header样式，因为现在使用tab-switcher */
-
-.recommendation-header h3 {
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.loading-state,
-.empty-state,
-.error-state {
-  padding: 40px 20px;
-  text-align: center;
-}
-
-.recommendation-list {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-top: 16px;
-}
-
-.recommendation-item {
-  border: 1px solid #ebeef5;
-  border-radius: 8px;
-  overflow: hidden;
-  transition: all 0.3s;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  background-color: #fff;
-}
-
-.recommendation-item:hover {
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  transform: translateY(-3px);
-}
-
-.recommendation-item.vertical-layout {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.recommendation-image {
-  height: 140px;
-  overflow: hidden;
-  position: relative;
-}
-
-.recommendation-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: all 0.5s;
-}
-
-.recommendation-item:hover .recommendation-image img {
-  transform: scale(1.05);
-}
-
-.no-image {
-  background: #f5f7fa;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #909399;
-  font-size: 24px;
-}
-
-.recommendation-content {
-  padding: 12px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.recommendation-content h4 {
-  margin: 0 0 8px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #303133;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.full-width-name {
-  width: 100%;
-}
-
-.recommendation-rating {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.rating-with-number .el-rate {
-  font-size: 14px;
-  line-height: 1;
-}
-
-.rating-value {
-  margin-left: 8px;
-  color: #ff9900;
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.recommendation-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin-bottom: 6px;
-}
-
-.category-tag {
-  font-size: 11px;
-}
-
-.tag-item {
-  font-size: 11px;
-}
-
-.recommendation-address {
-  display: flex;
-  align-items: flex-start;
-  margin: 6px 0;
-  color: #606266;
-  font-size: 11px;
-  line-height: 1.3;
-}
-
-.address-text {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  margin-left: 4px;
-}
-
-.view-more-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-/* 特色标签和招牌菜样式 */
-.attraction-tags,
-.signature-dishes {
-  margin: 6px 0;
-}
-
-.tags-title,
-.signature-title {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin: 0 0 4px;
-  font-size: 11px;
-  color: #606266;
-}
-
-.feature-tags,
-.dish-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.feature-tag,
-.dish-tag {
-  margin-right: 2px;
-  margin-bottom: 2px;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 10px;
-}
-
-.empty-tag {
-  opacity: 0.6;
-}
-
-.add-to-plan {
-  margin-top: auto;
-  padding-top: 8px;
-  text-align: right;
-}
-
-.add-to-plan .el-button {
-  padding: 6px 12px;
-  font-size: 12px;
-}
-
-@media (max-width: 480px) {
-  .add-to-plan .el-button {
-    padding: 4px 8px;
-    font-size: 11px;
-  }
-}
 
 /* 偏好区域样式 - 重新设计 */
 .preferences-section {
@@ -3509,106 +2674,7 @@ export default {
   font-size: 10px;
 }
 
-/* 选择摘要卡片样式 */
-.selection-summary {
-  margin: 20px 0;
-}
 
-.summary-card {
-  border-radius: 12px;
-  border: 2px solid #e2e8f0;
-  transition: all 0.3s ease;
-}
-
-.summary-card:hover {
-  border-color: #91a8d0;
-  box-shadow: 0 8px 24px rgba(145, 168, 208, 0.12);
-}
-
-.selected-items {
-  padding: 20px;
-}
-
-.selected-section {
-  margin-bottom: 24px;
-}
-
-.selected-section:last-of-type {
-  margin-bottom: 16px;
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.section-icon {
-  font-size: 18px;
-}
-
-.section-title {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #2d3748;
-}
-
-.selected-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.selection-tag {
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: all 0.3s ease;
-}
-
-.selection-tag:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.tag-content {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.tag-name {
-  font-weight: 500;
-}
-
-.tag-rating {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  opacity: 0.8;
-}
-
-.summary-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #e2e8f0;
-  margin-top: 8px;
-}
-
-.summary-actions .el-button--primary {
-  flex: 1;
-  max-width: 300px;
-  height: 48px;
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: 8px;
-}
 
 /* 响应式设计 */
 @media (max-width: 768px) {
