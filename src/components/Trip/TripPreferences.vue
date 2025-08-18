@@ -492,7 +492,7 @@ shadow="hover">
               >
                 <div class="section-header">
                   <el-icon class="section-icon"
-color="#409EFF">
+color="#91a8d0">
                     <Location />
                     />
                   </el-icon>
@@ -2225,7 +2225,7 @@ export default {
 
 /* 页面标题区域 - 完全按照TripBaseInfo.vue */
 .page-title {
-  background: linear-gradient(135deg, #409eff 0%, #5dade2 100%);
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
   color: white;
   padding: 32px 24px;
   margin-bottom: 32px;
@@ -2323,12 +2323,12 @@ export default {
   left: 0;
   width: 60px;
   height: 2px;
-  background: linear-gradient(135deg, #409eff, #5dade2);
+  background: linear-gradient(135deg, #91a8d0, #f7cac9);
   border-radius: 1px;
 }
 
 .section-title .el-icon {
-  color: #409eff;
+  color: #91a8d0;
   font-size: 24px;
 }
 
@@ -2378,12 +2378,12 @@ export default {
   top: -30px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(64, 158, 255, 0.1);
-  border: 1px solid rgba(64, 158, 255, 0.2);
+  background: rgba(145, 168, 208, 0.1);
+  border: 1px solid rgba(145, 168, 208, 0.2);
   border-radius: 16px;
   padding: 6px 12px;
   font-size: 12px;
-  color: #409eff;
+  color: #91a8d0;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -2431,13 +2431,13 @@ export default {
 }
 
 .tab-item:hover {
-  background: #e3f2fd;
+  background: #f5f7fa;
 }
 
 .tab-item.active {
   background: #fff;
-  border-bottom-color: #409eff;
-  color: #409eff;
+  border-bottom-color: #91a8d0;
+  color: #91a8d0;
   font-weight: 500;
 }
 
@@ -2462,7 +2462,7 @@ export default {
   left: 0;
   right: 0;
   height: 3px;
-  background: #409eff;
+  background: #91a8d0;
   animation: slideIn 0.3s ease-out;
 }
 
@@ -2755,14 +2755,14 @@ export default {
 .header-icon {
   width: 56px;
   height: 56px;
-  background: linear-gradient(135deg, #409eff 0%, #67c23a 100%);
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-size: 24px;
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.3);
 }
 
 .header-content {
@@ -2774,7 +2774,7 @@ export default {
   font-size: 24px;
   font-weight: 600;
   color: #303133;
-  background: linear-gradient(135deg, #409eff, #67c23a);
+  background: linear-gradient(135deg, #91a8d0, #f7cac9);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -2791,11 +2791,11 @@ export default {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%);
-  border: 1px solid #b3e5ff;
+  background: linear-gradient(135deg, #f5f7fa 0%, #fafbfc 100%);
+  border: 1px solid #d4dce6;
   border-radius: 20px;
   padding: 8px 16px;
-  color: #1890ff;
+  color: #91a8d0;
   font-size: 13px;
   font-weight: 500;
 }
@@ -2819,7 +2819,7 @@ export default {
 }
 
 .preferences-content h3 .el-icon {
-  color: #409eff;
+  color: #91a8d0;
   font-size: 20px;
 }
 
@@ -2871,10 +2871,10 @@ export default {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #ecf5ff;
+  background: #f5f7fa;
   border-radius: 4px;
   padding: 10px 16px;
-  color: #409eff;
+  color: #91a8d0;
   font-size: 13px;
 }
 
@@ -2945,7 +2945,7 @@ export default {
   background: #f5f7fa;
   padding: 12px 16px;
   border-radius: 6px;
-  border-left: 3px solid #409eff;
+  border-left: 3px solid #91a8d0;
 }
 
 .preference-hint {
@@ -2989,14 +2989,14 @@ export default {
 .group-icon {
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #409eff 0%, #36cfc9 100%);
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-size: 20px;
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.2);
   flex-shrink: 0;
 }
 
@@ -3061,15 +3061,15 @@ export default {
 }
 
 .option-card:hover {
-  border-color: #409eff;
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
+  border-color: #91a8d0;
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15);
   transform: translateY(-2px);
 }
 
 .option-card.active {
-  border-color: #409eff;
-  background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
-  box-shadow: 0 6px 16px rgba(64, 158, 255, 0.2);
+  border-color: #91a8d0;
+  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+  box-shadow: 0 6px 16px rgba(145, 168, 208, 0.2);
 }
 
 .option-content {
@@ -3119,15 +3119,15 @@ export default {
 }
 
 .pace-card:hover {
-  border-color: #409eff;
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
+  border-color: #91a8d0;
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15);
   transform: translateY(-2px);
 }
 
 .pace-card.active {
-  border-color: #409eff;
-  background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
-  box-shadow: 0 6px 16px rgba(64, 158, 255, 0.2);
+  border-color: #91a8d0;
+  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+  box-shadow: 0 6px 16px rgba(145, 168, 208, 0.2);
 }
 
 .pace-icon {
@@ -3189,15 +3189,15 @@ export default {
 }
 
 .experience-tag:hover:not(.disabled) {
-  border-color: #409eff;
+  border-color: #91a8d0;
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.15);
+  box-shadow: 0 2px 8px rgba(145, 168, 208, 0.15);
 }
 
 .experience-tag.active {
-  border-color: #409eff;
-  background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
-  color: #409eff;
+  border-color: #91a8d0;
+  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+  color: #91a8d0;
 }
 
 .experience-tag.recommended {
@@ -3253,15 +3253,15 @@ export default {
 
 .social-card:hover,
 .photo-card:hover {
-  border-color: #409eff;
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
+  border-color: #91a8d0;
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15);
   transform: translateY(-2px);
 }
 
 .social-card.active,
 .photo-card.active {
-  border-color: #409eff;
-  background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+  border-color: #91a8d0;
+  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
 }
 
 .social-emoji,
@@ -3397,7 +3397,7 @@ export default {
 }
 
 .special-input:focus-within {
-  border-color: #409eff;
+  border-color: #91a8d0;
 }
 
 @media (max-width: 1200px) {
@@ -3542,8 +3542,8 @@ export default {
 }
 
 .summary-card:hover {
-  border-color: #409eff;
-  box-shadow: 0 8px 24px rgba(64, 158, 255, 0.12);
+  border-color: #91a8d0;
+  box-shadow: 0 8px 24px rgba(145, 168, 208, 0.12);
 }
 
 .selected-items {
