@@ -1137,7 +1137,7 @@ export default {
 
 /* 表单区域 */
 .form-sections {
-  padding: 0 24px 32px;
+  padding: 0;
   width: 100%;
   max-width: none;
   margin: 0 auto;

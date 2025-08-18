@@ -3,8 +3,7 @@
     <!-- 顶部导航栏 -->
     <header class="layout-header">
       <div class="header-container">
-        <div class="header-logo"
-@click="$router.push('/home')">
+        <div class="header-logo" @click="$router.push('/home')">
           <h2>GoingTour</h2>
         </div>
 
@@ -40,10 +39,8 @@
         <div class="header-user">
           <el-dropdown @command="handleUserCommand">
             <div class="user-info">
-              <el-avatar :src="userStore.avatar"
-:size="32">
-                <img
-src="../assets/images/default-avatar.jpg" alt="avatar" />
+              <el-avatar :src="userStore.avatar" :size="32">
+                <img src="../assets/images/default-avatar.jpg" alt="avatar" />
               </el-avatar>
               <span class="username">{{ userStore.nickname }}</span>
               <el-icon class="dropdown-icon">
@@ -184,7 +181,7 @@ export default {
 
 <style scoped>
 .default-layout {
-  min-height: 100vh;
+  /* min-height: 100vh; */
   display: flex;
   flex-direction: column;
   background-color: var(--bg-color);
@@ -322,7 +319,7 @@ export default {
   flex: 1;
   overflow-y: auto !important; /* 允许垂直滚动 */
   overflow-x: hidden; /* 防止水平滚动 */
-  height: calc(100vh - var(--header-height)); /* 固定高度，作为唯一滚动容器 */
+  height: 100%; /* 固定高度，作为唯一滚动容器 */
   min-height: 0; /* 允许成为滚动容器（flex 子项常见问题） */
   position: relative;
   width: 100%;

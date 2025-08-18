@@ -23,15 +23,13 @@
         <div class="section-title">
           <el-icon><Check /></el-icon>
           <span>已选择</span>
-          <el-tag size="small"
-type="primary">
+          <el-tag size="small" type="primary">
             {{ selectedAttractions.length + selectedRestaurants.length }}
           </el-tag>
         </div>
 
         <div class="selection-summary">
-          <el-card class="summary-card"
-shadow="hover">
+          <el-card class="summary-card" shadow="hover">
             <div class="selected-items">
               <!-- 已选择的景点 -->
               <div
@@ -39,8 +37,7 @@ shadow="hover">
                 class="selected-section"
               >
                 <div class="section-header">
-                  <el-icon class="section-icon"
-color="#91a8d0">
+                  <el-icon class="section-icon" color="#91a8d0">
                     <Location />
                     />
                   </el-icon>
@@ -75,8 +72,7 @@ color="#91a8d0">
                 class="selected-section"
               >
                 <div class="section-header">
-                  <el-icon class="section-icon"
-color="#E6A23C">
+                  <el-icon class="section-icon" color="#E6A23C">
                     <Food />
                     />
                   </el-icon>
@@ -107,8 +103,7 @@ color="#E6A23C">
 
               <!-- 操作按钮 -->
               <div class="summary-actions">
-                <el-button type="danger"
-link @click="clearAllSelections">
+                <el-button type="danger" link @click="clearAllSelections">
                   重置
                 </el-button>
               </div>
@@ -383,8 +378,7 @@ link @click="clearAllSelections">
               <div class="group-info">
                 <h4 class="group-title">
                   饮食禁忌
-                  <el-tag
-type="danger" size="small"> 警告 </el-tag>
+                  <el-tag type="danger" size="small"> 警告 </el-tag>
                 </h4>
                 <p class="group-desc">
                   请告知我们您的饮食限制，确保为您推荐合适的餐厅
@@ -398,7 +392,7 @@ type="danger" size="small"> 警告 </el-tag>
                 class="dietary-tag"
                 :class="{
                   active: localPreferenceForm.dietaryRestrictions.includes(
-                    restriction.value,
+                    restriction.value
                   ),
                 }"
                 @click="toggleDietaryRestriction(restriction.value)"
@@ -407,7 +401,7 @@ type="danger" size="small"> 警告 </el-tag>
                 <el-icon
                   v-if="
                     localPreferenceForm.dietaryRestrictions.includes(
-                      restriction.value,
+                      restriction.value
                     )
                   "
                   class="dietary-check"
@@ -457,7 +451,9 @@ type="danger" size="small"> 警告 </el-tag>
       <div class="form-section">
         <div class="section-title">
           <el-icon><Location /></el-icon>
-          <span>{{ (cityInfo?.destinationName || "目的地") + "推荐内容" }}</span>
+          <span>{{
+            (cityInfo?.destinationName || "目的地") + "推荐内容"
+          }}</span>
         </div>
 
         <!-- 切换标签 -->
@@ -504,7 +500,11 @@ type="danger" size="small"> 警告 </el-tag>
                 <el-icon><Search /></el-icon>
               </template>
             </el-input>
-            <el-button type="primary" :loading="searching" @click="handleSearch">
+            <el-button
+              type="primary"
+              :loading="searching"
+              @click="handleSearch"
+            >
               <el-icon><Search /></el-icon>
               搜索
             </el-button>
@@ -625,7 +625,7 @@ type="danger" size="small"> 警告 </el-tag>
                   >
                     <el-tag
                       v-for="(tag, index) in extractAttractionTags(
-                        attraction,
+                        attraction
                       ).slice(0, 3)"
                       :key="index"
                       size="small"
@@ -805,7 +805,7 @@ type="danger" size="small"> 警告 </el-tag>
                   >
                     <el-tag
                       v-for="(dish, index) in extractSignatureDishes(
-                        restaurant,
+                        restaurant
                       ).slice(0, 3)"
                       :key="index"
                       size="small"
@@ -881,8 +881,7 @@ type="danger" size="small"> 警告 </el-tag>
       <!-- 操作按钮区域 -->
       <div class="action-section">
         <div class="action-left">
-          <el-button size="large"
-@click="$emit('prev-step')">
+          <el-button size="large" @click="$emit('prev-step')">
             <el-icon><ArrowLeft /></el-icon>
             上一步
           </el-button>
@@ -900,8 +899,7 @@ type="danger" size="small"> 警告 </el-tag>
           </el-button>
         </div>
         <div class="action-right">
-          <el-button type="primary"
-size="large" @click="$emit('next-step')">
+          <el-button type="primary" size="large" @click="$emit('next-step')">
             下一步
             <el-icon><ArrowRight /></el-icon>
           </el-button>
@@ -1038,7 +1036,7 @@ export default {
       (newVal) => {
         emit("update:preferenceForm", newVal);
       },
-      { deep: true, immediate: true },
+      { deep: true, immediate: true }
     );
 
     // 监听props.preferenceForm的变化，同步到store
@@ -1069,7 +1067,7 @@ export default {
 
           if (hasRealChange || isInitialLoad) {
             console.log(
-              "🔄 TripPreferences接收到preferenceForm数据变化，同步到store",
+              "🔄 TripPreferences接收到preferenceForm数据变化，同步到store"
             );
 
             if (props.isFromDraft) {
@@ -1090,7 +1088,7 @@ export default {
           preferenceStore.resetPreferences();
         }
       },
-      { deep: true, immediate: true },
+      { deep: true, immediate: true }
     );
 
     // 城市信息相关状态
@@ -1219,7 +1217,7 @@ export default {
       // 从其他偏好中提取标签
       if (props.userPreferences.accommodationType) {
         const chineseTag = translateTag(
-          props.userPreferences.accommodationType,
+          props.userPreferences.accommodationType
         );
         if (
           chineseTag &&
@@ -1252,7 +1250,7 @@ export default {
     const recommendedFocusAreas = computed(() => {
       if (!props.userPreferences?.selectedTags?.length) return [];
       return preferenceStore.mapUserTagsToFocusAreas(
-        props.userPreferences.selectedTags,
+        props.userPreferences.selectedTags
       );
     });
 
@@ -1296,7 +1294,7 @@ export default {
           const cacheKey = dataCache.generateKey(
             "attractions",
             cityName,
-            attractionsPage.value,
+            attractionsPage.value
           );
           let attractionsResponse = dataCache.get(cacheKey);
 
@@ -1305,7 +1303,7 @@ export default {
             attractionsResponse = await getRecommendedAttractions(
               cityName,
               attractionsPage.value,
-              attractionsPageSize,
+              attractionsPageSize
             );
 
             // 缓存响应数据
@@ -1326,7 +1324,7 @@ export default {
             console.log(
               "✅ 成功获取景点数据，共",
               attractionsResponse.pois.length,
-              "条",
+              "条"
             );
             const attractions = attractionsResponse.pois.map((poi) => ({
               id: poi.id,
@@ -1380,7 +1378,7 @@ export default {
           const restaurantCacheKey = dataCache.generateKey(
             "restaurants",
             cityName,
-            restaurantsPage.value,
+            restaurantsPage.value
           );
           let restaurantsResponse = dataCache.get(restaurantCacheKey);
 
@@ -1389,7 +1387,7 @@ export default {
             restaurantsResponse = await getRecommendedRestaurants(
               cityName,
               restaurantsPage.value,
-              restaurantsPageSize,
+              restaurantsPageSize
             );
 
             // 缓存响应数据
@@ -1410,7 +1408,7 @@ export default {
             console.log(
               "✅ 成功获取餐厅数据，共",
               restaurantsResponse.pois.length,
-              "条",
+              "条"
             );
             const restaurants = restaurantsResponse.pois.map((poi) => ({
               id: poi.id,
@@ -1578,7 +1576,7 @@ export default {
         if (trimmedToken.length > 1) {
           // 检查是否包含特色关键词
           const isFeature = featureKeywords.some((keyword) =>
-            trimmedToken.includes(keyword),
+            trimmedToken.includes(keyword)
           );
 
           // 排除一些明显不是特色的标签
@@ -1670,7 +1668,7 @@ export default {
         if (trimmedToken.length > 1) {
           // 检查是否包含菜品关键词
           const isDish = dishKeywords.some((keyword) =>
-            trimmedToken.includes(keyword),
+            trimmedToken.includes(keyword)
           );
 
           // 排除一些明显不是菜品的标签
@@ -1712,7 +1710,7 @@ export default {
         const cacheKey = dataCache.generateKey(
           "attractions",
           cityName,
-          attractionsPage.value,
+          attractionsPage.value
         );
         let response = dataCache.get(cacheKey);
 
@@ -1721,7 +1719,7 @@ export default {
           response = await getRecommendedAttractions(
             cityName,
             attractionsPage.value,
-            attractionsPageSize,
+            attractionsPageSize
           );
 
           // 缓存响应数据
@@ -1871,7 +1869,7 @@ export default {
       switch (sortType) {
         case "rating":
           return sorted.sort(
-            (a, b) => parseFloat(b.rating) - parseFloat(a.rating),
+            (a, b) => parseFloat(b.rating) - parseFloat(a.rating)
           );
         case "distance":
           return sorted.sort((a, b) => {
@@ -1899,7 +1897,7 @@ export default {
         const cacheKey = dataCache.generateKey(
           "restaurants",
           cityName,
-          restaurantsPage.value,
+          restaurantsPage.value
         );
         let response = dataCache.get(cacheKey);
 
@@ -1908,7 +1906,7 @@ export default {
           response = await getRecommendedRestaurants(
             cityName,
             restaurantsPage.value,
-            restaurantsPageSize,
+            restaurantsPageSize
           );
 
           // 缓存响应数据
@@ -1983,7 +1981,7 @@ export default {
 
     const removeAttractionFromPlan = (attraction) => {
       const index = props.selectedAttractions.findIndex(
-        (a) => a.id === attraction.id,
+        (a) => a.id === attraction.id
       );
       if (index !== -1) {
         const updatedAttractions = [...props.selectedAttractions];
@@ -2007,7 +2005,7 @@ export default {
 
     const removeRestaurantFromPlan = (restaurant) => {
       const index = props.selectedRestaurants.findIndex(
-        (r) => r.id === restaurant.id,
+        (r) => r.id === restaurant.id
       );
       if (index !== -1) {
         const updatedRestaurants = [...props.selectedRestaurants];
@@ -2027,7 +2025,7 @@ export default {
             confirmButtonText: "确认",
             cancelButtonText: "取消",
             type: "warning",
-          },
+          }
         );
 
         emit("update:selectedAttractions", []);
@@ -2046,7 +2044,7 @@ export default {
           loadCityInfo(newDestination);
         }
       },
-      { immediate: true },
+      { immediate: true }
     );
 
     // 应用智能推荐（简化版本，主要逻辑由store处理）
@@ -2111,12 +2109,12 @@ export default {
         if (newPreferences && Object.keys(newPreferences).length > 0) {
           console.log(
             "🔄 检测到用户偏好数据变化，重新应用默认值:",
-            newPreferences,
+            newPreferences
           );
           initializePreferences();
         }
       },
-      { deep: true, immediate: false },
+      { deep: true, immediate: false }
     );
 
     // 组件加载时初始化
@@ -2254,7 +2252,7 @@ export default {
 
 /* 表单区域 - 完全按照TripBaseInfo.vue */
 .form-sections {
-  padding: 0 24px 32px;
+  padding: 0;
   width: 100%;
   max-width: none;
   margin: 0 auto;
@@ -2936,6 +2934,9 @@ export default {
   color: #e6a23c;
   font-size: 12px;
   font-weight: normal;
+}
+.trip-preferences-form{
+  margin-top: 40px;
 }
 
 .preference-group {
