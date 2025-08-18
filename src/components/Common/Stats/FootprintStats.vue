@@ -5,15 +5,12 @@
         <el-icon><TrophyBase /></el-icon>
         我的足迹成就
       </h3>
-
     </div>
 
     <!-- 空状态提示 -->
-    <div v-if="!hasData"
-class="empty-state">
+    <div v-if="!hasData" class="empty-state">
       <div class="empty-icon">
-        <el-icon size="48"
-color="#C0C4CC">
+        <el-icon size="48" color="#C0C4CC">
           <LocationInformation />
         </el-icon>
       </div>
@@ -23,8 +20,7 @@ color="#C0C4CC">
       </div>
     </div>
 
-    <div v-if="hasData"
-class="stats-grid">
+    <div v-if="hasData" class="stats-grid">
       <!-- 总城市数 -->
       <div class="stat-item total">
         <div class="stat-icon">
@@ -79,8 +75,7 @@ class="stats-grid">
     </div>
 
     <!-- 成就徽章 -->
-    <div v-if="hasData && achievements.length > 0"
-class="achievements-section">
+    <div v-if="hasData && achievements.length > 0" class="achievements-section">
       <h4 class="achievements-title">
         <el-icon><Medal /></el-icon>
         最新成就
@@ -113,19 +108,12 @@ class="achievements-section">
     </div>
 
     <!-- 分享按钮 -->
-    <div v-if="hasData"
-class="stats-actions">
-      <el-button
-        type="primary"
-        :loading="sharing"
-        class="share-btn"
-        @click="handleShare"
-      >
+    <div v-if="hasData" class="stats-actions">
+      <el-button type="primary" :loading="sharing" class="share-btn" @click="handleShare">
         <el-icon><Share /></el-icon>
         {{ sharing ? "正在生成..." : "分享我的足迹" }}
       </el-button>
-      <el-button class="view-all-btn"
-@click="handleViewAllAchievements">
+      <el-button class="view-all-btn" @click="handleViewAllAchievements">
         <el-icon><View /></el-icon>
         查看全部成就
       </el-button>
@@ -179,8 +167,6 @@ export default {
   emits: ["share", "view-achievements"],
   setup(props, { emit }) {
     const sharing = ref(false);
-
-
 
     // 模拟成就数据（实际应该从store获取）
     const achievements = computed(() => {
@@ -247,9 +233,7 @@ export default {
         });
       }
 
-      return result.sort(
-        (a, b) => new Date(b.unlockedAt) - new Date(a.unlockedAt),
-      );
+      return result.sort((a, b) => new Date(b.unlockedAt) - new Date(a.unlockedAt));
     });
 
     // 格式化日期
@@ -336,8 +320,6 @@ export default {
   color: #f59e0b;
   font-size: 24px;
 }
-
-
 
 /* 空状态样式 */
 .empty-state {

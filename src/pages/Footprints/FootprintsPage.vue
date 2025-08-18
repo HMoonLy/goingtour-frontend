@@ -17,7 +17,7 @@
               :max-display-count="6"
               @photo-uploaded="handlePhotoUploaded"
               @photo-deleted="handlePhotoDeleted"
-              @add-visited-city="handleOpenTypeSelection"
+              @add-visited-city="handleAddVisitedCityDirect"
             />
 
             <!-- 足迹统计卡片 -->
@@ -126,10 +126,7 @@
       <!-- 动态内容展示区域 -->
       <div v-if="wishlistStore.hasCities" class="content-display-area">
         <!-- 想去的城市卡片展示 -->
-        <div
-          v-if="wishlistStore.wishlistOnlyCount > 0"
-          class="wishlist-cities-cards"
-        >
+        <div v-if="wishlistStore.wishlistOnlyCount > 0" class="wishlist-cities-cards">
           <div class="section-header">
             <h4 class="section-title">
               <el-icon><Star /></el-icon>
@@ -149,11 +146,7 @@
                 </el-select>
               </div>
 
-              <el-button
-                size="small"
-                type="primary"
-                @click="handleOpenTypeSelection"
-              >
+              <el-button size="small" type="primary" @click="handleAddWishlistCityDirect">
                 <el-icon><Plus /></el-icon>
                 添加城市
               </el-button>
@@ -187,16 +180,16 @@
                     </span>
                   </div>
                   <div class="card-actions">
-                    <!-- 只有从未去过的城市才显示"已去过"按钮 -->
+                    <!-- 只有从未去过的城市才显示"标记为已去过"按钮 -->
                     <div v-if="!item.ever_visited" class="primary-action">
                       <el-button
                         size="small"
-                        type="success"
+                        type="primary"
                         class="action-btn visited-btn"
                         @click.stop="handleMarkAsVisited(item)"
                       >
                         <el-icon><Check /></el-icon>
-                        <span class="action-text">已去过</span>
+                        <span class="action-text">标记为已去过</span>
                       </el-button>
                     </div>
                     <div class="secondary-actions">
@@ -208,16 +201,8 @@
                         <el-icon><Edit /></el-icon>
                         <span class="action-text">编辑</span>
                       </el-button>
-                      <el-dropdown
-                        trigger="click"
-                        placement="bottom-end"
-                        @click.stop
-                      >
-                        <el-button
-                          size="small"
-                          class="action-btn more-btn"
-                          @click.stop
-                        >
+                      <el-dropdown trigger="click" placement="bottom-end" @click.stop>
+                        <el-button size="small" class="action-btn more-btn" @click.stop>
                           <el-icon><MoreFilled /></el-icon>
                         </el-button>
                         <template #dropdown>
@@ -278,8 +263,7 @@
             <!-- 空状态 -->
             <div
               v-if="
-                filteredAndSortedWishlistCities.length === 0 &&
-                wishlistCities.length > 0
+                filteredAndSortedWishlistCities.length === 0 && wishlistCities.length > 0
               "
               class="empty-filtered"
             >
@@ -298,11 +282,7 @@
                 <Star />
               </el-icon>
               <p>还没有心愿城市</p>
-              <el-button
-                size="small"
-                type="primary"
-                @click="handleOpenTypeSelection"
-              >
+              <el-button size="small" type="primary" @click="handleAddWishlistCityDirect">
                 添加心愿城市
               </el-button>
             </div>
@@ -310,17 +290,14 @@
         </div>
 
         <!-- 想去城市空状态 -->
-        <div
-          v-if="wishlistStore.wishlistOnlyCount === 0"
-          class="empty-wishlist-state"
-        >
+        <div v-if="wishlistStore.wishlistOnlyCount === 0" class="empty-wishlist-state">
           <div class="empty-content">
             <el-icon size="64" color="#C0C4CC">
               <Star />
             </el-icon>
             <h4>还没有心愿城市</h4>
             <p>添加你想去的城市，开始规划你的旅行</p>
-            <el-button type="primary" @click="handleOpenTypeSelection">
+            <el-button type="primary" @click="handleAddWishlistCityDirect">
               <el-icon><Plus /></el-icon>
               添加第一个心愿城市
             </el-button>
@@ -337,9 +314,7 @@
               <el-icon><Star /></el-icon>
               想再去的城市 ({{ wishlistStore.wantToVisitAgainCount }})
             </h4>
-            <div class="section-subtitle">
-              去过但想再次探访的城市
-            </div>
+            <div class="section-subtitle">去过但想再次探访的城市</div>
           </div>
 
           <div class="simple-cards-container">
@@ -375,16 +350,8 @@
                         <el-icon><Edit /></el-icon>
                         <span class="action-text">编辑</span>
                       </el-button>
-                      <el-dropdown
-                        trigger="click"
-                        placement="bottom-end"
-                        @click.stop
-                      >
-                        <el-button
-                          size="small"
-                          class="action-btn more-btn"
-                          @click.stop
-                        >
+                      <el-dropdown trigger="click" placement="bottom-end" @click.stop>
+                        <el-button size="small" class="action-btn more-btn" @click.stop>
                           <el-icon><MoreFilled /></el-icon>
                         </el-button>
                         <template #dropdown>
@@ -526,9 +493,7 @@
         </div>
 
         <div class="type-selection-actions">
-          <el-button size="large" @click="showTypeSelection = false">
-            取消
-          </el-button>
+          <el-button size="large" @click="showTypeSelection = false"> 取消 </el-button>
         </div>
       </div>
     </el-dialog>
@@ -589,9 +554,7 @@
               </el-option-group>
 
               <div
-                v-if="
-                  displayCities.length === 0 && searchKeyword && !searchLoading
-                "
+                v-if="displayCities.length === 0 && searchKeyword && !searchLoading"
                 class="no-results"
               >
                 <el-icon><Search /></el-icon>
@@ -671,11 +634,7 @@
           </el-form-item>
 
           <div class="dialog-actions">
-            <el-button
-              size="large"
-              class="cancel-btn"
-              @click="handleQuickAddClose"
-            >
+            <el-button size="large" class="cancel-btn" @click="handleQuickAddClose">
               取消
             </el-button>
             <el-button
@@ -783,26 +742,6 @@
           <el-input v-model="editForm.cityName" disabled />
         </el-form-item>
 
-        <el-form-item label="优先级">
-          <el-radio-group
-            v-model="editForm.priority"
-            class="priority-radio-group"
-          >
-            <el-radio-button value="high" class="priority-high-radio">
-              <el-icon><Star /></el-icon>
-              高优先级
-            </el-radio-button>
-            <el-radio-button value="medium" class="priority-medium-radio">
-              <el-icon><Star /></el-icon>
-              中优先级
-            </el-radio-button>
-            <el-radio-button value="low" class="priority-low-radio">
-              <el-icon><Star /></el-icon>
-              低优先级
-            </el-radio-button>
-          </el-radio-group>
-        </el-form-item>
-
         <el-form-item label="标签">
           <div class="tags-selection">
             <div class="predefined-tags">
@@ -846,11 +785,7 @@
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="showEditDialog = false"> 取消 </el-button>
-          <el-button
-            type="primary"
-            :loading="editLoading"
-            @click="handleSaveEdit"
-          >
+          <el-button type="primary" :loading="editLoading" @click="handleSaveEdit">
             保存
           </el-button>
         </div>
@@ -1026,13 +961,16 @@ export default {
       if (mapDisplayMode.value === "all") {
         // 合并心愿城市和足迹城市，添加类型标识
         return [
-          ...wishlistStore.wishlistCities.map(city => ({ ...city, _type: 'wishlist' })),
-          ...wishlistStore.visitedCities.map(city => ({ ...city, _type: 'visited' }))
+          ...wishlistStore.wishlistCities.map((city) => ({ ...city, _type: "wishlist" })),
+          ...wishlistStore.visitedCities.map((city) => ({ ...city, _type: "visited" })),
         ];
       } else if (mapDisplayMode.value === "visited") {
-        return wishlistStore.visitedCities.map(city => ({ ...city, _type: 'visited' }));
+        return wishlistStore.visitedCities.map((city) => ({ ...city, _type: "visited" }));
       } else if (mapDisplayMode.value === "wishlist") {
-        return wishlistStore.wishlistCities.map(city => ({ ...city, _type: 'wishlist' }));
+        return wishlistStore.wishlistCities.map((city) => ({
+          ...city,
+          _type: "wishlist",
+        }));
       }
       return [];
     });
@@ -1087,13 +1025,16 @@ export default {
       if (fullscreenMapMode.value === "all") {
         // 合并心愿城市和足迹城市，添加类型标识
         return [
-          ...wishlistStore.wishlistCities.map(city => ({ ...city, _type: 'wishlist' })),
-          ...wishlistStore.visitedCities.map(city => ({ ...city, _type: 'visited' }))
+          ...wishlistStore.wishlistCities.map((city) => ({ ...city, _type: "wishlist" })),
+          ...wishlistStore.visitedCities.map((city) => ({ ...city, _type: "visited" })),
         ];
       } else if (fullscreenMapMode.value === "visited") {
-        return wishlistStore.visitedCities.map(city => ({ ...city, _type: 'visited' }));
+        return wishlistStore.visitedCities.map((city) => ({ ...city, _type: "visited" }));
       } else if (fullscreenMapMode.value === "wishlist") {
-        return wishlistStore.wishlistCities.map(city => ({ ...city, _type: 'wishlist' }));
+        return wishlistStore.wishlistCities.map((city) => ({
+          ...city,
+          _type: "wishlist",
+        }));
       }
       return [];
     });
@@ -1259,9 +1200,7 @@ export default {
           "拉萨市",
           "乌鲁木齐市",
         ];
-        hotCities.value = cities.filter((city) =>
-          hotCityNames.includes(city.中文名)
-        );
+        hotCities.value = cities.filter((city) => hotCityNames.includes(city.中文名));
       } catch (error) {
         console.error("加载城市数据失败:", error);
         ElMessage.error("加载城市数据失败");
@@ -1314,9 +1253,7 @@ export default {
 
     // 处理城市选择
     const handleCitySelect = async (cityAdcode) => {
-      const selectedCity = allCities.value.find(
-        (city) => city.adcode === cityAdcode
-      );
+      const selectedCity = allCities.value.find((city) => city.adcode === cityAdcode);
       if (selectedCity) {
         quickAddForm.value.cityName = selectedCity.中文名;
         // 直接使用选中城市的adcode（6位行政区划代码，如"110000", "420100"）
@@ -1370,7 +1307,7 @@ export default {
 
         // 使用选中城市的完整信息（adcode + citycode）
         const adcode = String(selectedCity.adcode);
-        const citycode = selectedCity.citycode === '\\N' ? null : selectedCity.citycode;
+        const citycode = selectedCity.citycode === "\\N" ? null : selectedCity.citycode;
 
         const success = await wishlistStore.addToWishlist({
           adcode: adcode,
@@ -1427,6 +1364,46 @@ export default {
     // 打开类型选择对话框
     const handleOpenTypeSelection = () => {
       showTypeSelection.value = true;
+    };
+
+    // 直接添加去过的城市 - 从VisitedCitiesGallery触发
+    const handleAddVisitedCityDirect = () => {
+      // 直接设置为去过的城市，跳过类型选择
+      selectedAddType.value = "visited";
+
+      // 设置新的数据模型字段
+      quickAddForm.value.ever_visited = true;
+      quickAddForm.value.want_to_visit_again = false;
+      quickAddForm.value.status = "visited"; // 保留status字段用于向后兼容
+
+      console.log("🎯 直接添加去过城市 - 表单状态:", {
+        ever_visited: quickAddForm.value.ever_visited,
+        want_to_visit_again: quickAddForm.value.want_to_visit_again,
+        status: quickAddForm.value.status,
+      });
+
+      // 直接打开添加对话框，不显示类型选择
+      showQuickAdd.value = true;
+    };
+
+    // 直接添加心愿城市
+    const handleAddWishlistCityDirect = () => {
+      // 直接设置为心愿城市，跳过类型选择
+      selectedAddType.value = "wishlist";
+
+      // 设置新的数据模型字段
+      quickAddForm.value.ever_visited = false;
+      quickAddForm.value.want_to_visit_again = false;
+      quickAddForm.value.status = "wishlist"; // 保留status字段用于向后兼容
+
+      console.log("🎯 直接添加心愿城市 - 表单状态:", {
+        ever_visited: quickAddForm.value.ever_visited,
+        want_to_visit_again: quickAddForm.value.want_to_visit_again,
+        status: quickAddForm.value.status,
+      });
+
+      // 直接打开添加对话框，不显示类型选择
+      showQuickAdd.value = true;
     };
 
     // 关闭快速添加对话框
@@ -1554,15 +1531,17 @@ export default {
 
     const handleDeleteCity = async (city) => {
       try {
-        let confirmMessage = '';
+        let confirmMessage = "";
         let deleteAction = null;
-        
+
         if (city.ever_visited && city.want_to_visit_again) {
           // 这是"想再去"的城市，删除时需要说明会删除访问记录
           confirmMessage = `确定要删除 ${city.cityName} 的访问记录吗？\n\n删除后：\n- 该城市的访问记录和照片将被永久删除\n- 如果您还想去这个城市，它会回到愿望清单中`;
           deleteAction = async () => {
             // 这里需要找到对应的visited_city记录进行删除
-            const visitedCity = wishlistStore.visitedCities.find(vc => vc.adcode === city.adcode);
+            const visitedCity = wishlistStore.visitedCities.find(
+              (vc) => vc.adcode === city.adcode
+            );
             if (visitedCity) {
               return await wishlistStore.deleteVisitedCity(visitedCity.id);
             } else {
@@ -1574,7 +1553,9 @@ export default {
           // 这是只去过但不想再去的城市（理论上不应该出现在这里，但为了安全起见）
           confirmMessage = `确定要删除 ${city.cityName} 的访问记录吗？\n\n删除后该城市的访问记录和照片将被永久删除。`;
           deleteAction = async () => {
-            const visitedCity = wishlistStore.visitedCities.find(vc => vc.adcode === city.adcode);
+            const visitedCity = wishlistStore.visitedCities.find(
+              (vc) => vc.adcode === city.adcode
+            );
             if (visitedCity) {
               return await wishlistStore.deleteVisitedCity(visitedCity.id);
             } else {
@@ -1589,16 +1570,12 @@ export default {
           };
         }
 
-        await ElMessageBox.confirm(
-          confirmMessage,
-          "确认删除",
-          {
-            confirmButtonText: "删除",
-            cancelButtonText: "取消",
-            type: "warning",
-            confirmButtonClass: "el-button--danger",
-          }
-        );
+        await ElMessageBox.confirm(confirmMessage, "确认删除", {
+          confirmButtonText: "删除",
+          cancelButtonText: "取消",
+          type: "warning",
+          confirmButtonClass: "el-button--danger",
+        });
 
         const success = await deleteAction();
         if (success) {
@@ -1644,9 +1621,7 @@ export default {
     // 排序方法
     const handleSortChange = (value) => {
       sortBy.value = value;
-      ElMessage.success(
-        `已按${value === "date" ? "添加时间" : "城市名称"}排序`
-      );
+      ElMessage.success(`已按${value === "date" ? "添加时间" : "城市名称"}排序`);
     };
 
     const clearFilters = () => {
@@ -1806,6 +1781,8 @@ export default {
       selectedAddType,
       handleAddTypeSelection,
       handleOpenTypeSelection,
+      handleAddVisitedCityDirect,
+      handleAddWishlistCityDirect,
       // 快速添加功能
       showQuickAdd,
       quickAdding,
@@ -1853,9 +1830,7 @@ export default {
   border-radius: 20px;
   padding: 32px;
   border: 1px solid rgba(145, 168, 208, 0.08);
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.04),
-    0 2px 8px rgba(145, 168, 208, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(145, 168, 208, 0.06);
 }
 
 .header-content {
@@ -2035,9 +2010,7 @@ export default {
   border-radius: 16px;
   padding: 24px;
   border: 1px solid rgba(145, 168, 208, 0.12);
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.04),
-    0 2px 8px rgba(145, 168, 208, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(145, 168, 208, 0.08);
   margin-bottom: 24px;
   min-height: 500px;
 }
@@ -2089,16 +2062,16 @@ export default {
   border: 1px solid transparent;
 }
 
-.stat-badge.visited {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  color: #d97706;
-  border-color: rgba(217, 119, 6, 0.2);
+  .stat-badge.visited {
+    background: rgba(91, 155, 213, 0.15);
+    color: #5B9BD5;
+    border-color: rgba(91, 155, 213, 0.3);
 }
 
 .stat-badge.wishlist {
-  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-  color: #1d4ed8;
-  border-color: rgba(29, 78, 216, 0.2);
+  background: rgba(247, 202, 201, 0.15);
+  color: #D4969A;
+  border-color: rgba(247, 202, 201, 0.3);
 }
 
 .stat-badge.provinces {
@@ -3109,16 +3082,40 @@ export default {
   font-weight: 500;
 }
 
-.visited-btn {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-  color: white !important;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3) !important;
+  .visited-btn {
+    background: linear-gradient(135deg, #409EFF 0%, #337ECC 100%) !important;
+    color: white !important;
+    box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3) !important;
+    border: none !important;
+    position: relative !important;
+    overflow: hidden !important;
 }
 
-.visited-btn:hover {
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4) !important;
-}
+  .visited-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .visited-btn:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4) !important;
+    background: linear-gradient(135deg, #66B1FF 0%, #409EFF 100%) !important;
+  }
+
+  .visited-btn:hover::before {
+    left: 100%;
+  }
+
+  .visited-btn:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 6px rgba(64, 158, 255, 0.3) !important;
+  }
 
 .edit-btn {
   background: #f8fafc !important;
@@ -3202,6 +3199,7 @@ export default {
   line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -3301,12 +3299,12 @@ export default {
     min-width: 130px;
     gap: 8px;
   }
-  
+
   .action-btn {
     font-size: 10px !important;
     padding: 5px 8px !important;
   }
-  
+
   .card-main-content {
     padding-right: 150px;
   }

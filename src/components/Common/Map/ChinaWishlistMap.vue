@@ -255,24 +255,26 @@ export default {
               return {
                 name: item.cityName,
                 value: [...coordinates, item.cityName],
+                symbol: isVisited ? 'circle' : 'diamond', // 直接在数据点上设置符号
                 itemStyle: {
                   color: isHighlighted
-                    ? "#6366f1"
+                    ? "#7A91C7"
                     : isVisited
-                      ? "#f59e0b"
-                      : "#91A8D0",
+                      ? "#4A90E2"
+                      : "#F7CAC9",
                   borderColor: isHighlighted
-                    ? "#f7cac9"
+                    ? "#ffffff"
                     : isVisited
-                      ? "#d97706"
-                      : "#6366f1",
+                      ? "#ffffff"
+                      : "#ffffff",
                   borderWidth: isHighlighted ? 3 : 2,
                   shadowColor: isHighlighted
-                    ? "rgba(99, 102, 241, 0.4)"
+                    ? "rgba(122, 145, 199, 0.4)"
                     : isVisited
-                      ? "rgba(245, 158, 11, 0.3)"
-                      : "rgba(145, 168, 208, 0.3)",
-                  shadowBlur: isHighlighted ? 12 : 8,
+                      ? "rgba(74, 144, 226, 0.3)"
+                      : "rgba(247, 202, 201, 0.3)",
+                  shadowBlur: isHighlighted ? 15 : 10,
+                  opacity: isHighlighted ? 1 : 0.9,
                 },
                 data: item,
               };
@@ -340,17 +342,17 @@ export default {
             // 移动端优化：更大的触摸区域
             selectedMode: false, // 禁用选择模式，优化触摸体验
             itemStyle: {
-              areaColor: "#f8fafc",
-              borderColor: "#d1d5db",
-              borderWidth: 1,
+              areaColor: "#fafafa",
+              borderColor: "#e5e7eb",
+              borderWidth: 1.2,
             },
             emphasis: {
               itemStyle: {
-                areaColor: "#f1f5f9",
+                areaColor: "#f0f9ff",
                 borderColor: "#91A8D0",
-                borderWidth: 2,
-                shadowColor: "rgba(145, 168, 208, 0.3)",
-                shadowBlur: 15,
+                borderWidth: 2.5,
+                shadowColor: "rgba(145, 168, 208, 0.4)",
+                shadowBlur: 20,
               },
               label: {
                 show: props.enableMapClick,
@@ -369,16 +371,17 @@ export default {
               type: "scatter",
               coordinateSystem: "geo",
               data: scatterData,
+              symbol: "star", // 使用星形图标区分心愿城市
               symbolSize: function (val, params) {
-                // 根据城市名长度和标签数量调整大小
+                // 进一步减小标记尺寸，避免过于夸张
                 const cityData = params.data.data;
-                const baseSize = 15;
-                const tagBonus = (cityData.tags?.length || 0) * 2;
-                const reasonBonus = cityData.reason ? 5 : 0;
-                // 移动端适配：最小尺寸增大到18，确保触摸友好
+                const baseSize = 12; // 进一步减小基础尺寸
+                const tagBonus = (cityData.tags?.length || 0) * 2; // 减少标签加成
+                const reasonBonus = cityData.reason ? 3 : 0; // 减少理由加成
+                // 移动端适配：减小最小和最大尺寸
                 const isMobile = window.innerWidth <= 768;
-                const minSize = isMobile ? 18 : 12;
-                const maxSize = isMobile ? 32 : 28;
+                const minSize = isMobile ? 14 : 10;
+                const maxSize = isMobile ? 22 : 18;
                 return Math.max(
                   minSize,
                   Math.min(maxSize, baseSize + tagBonus + reasonBonus),
@@ -386,24 +389,30 @@ export default {
               },
               itemStyle: {
                 color: "#F7CAC9",
-                borderColor: "#91A8D0",
+                borderColor: "#ffffff",
                 borderWidth: 2,
-                shadowColor: "rgba(145, 168, 208, 0.3)",
+                shadowColor: "rgba(247, 202, 201, 0.3)",
                 shadowBlur: 8,
+                opacity: 0.85,
               },
               emphasis: {
                 itemStyle: {
-                  color: "#6366f1",
-                  borderColor: "#F7CAC9",
+                  color: "#91A8D0",
+                  borderColor: "#ffffff",
                   borderWidth: 3,
-                  shadowColor: "rgba(99, 102, 241, 0.5)",
-                  shadowBlur: 15,
+                  shadowColor: "rgba(145, 168, 208, 0.6)",
+                  shadowBlur: 12,
+                  opacity: 1,
                 },
-                scale: 1.3,
+                scale: 1.4,
                 label: {
                   show: true,
-                  color: "#91A8D0",
-                  fontSize: 13,
+                  color: "#1f2937",
+                  fontSize: 14,
+                  fontWeight: "bold",
+                  backgroundColor: "rgba(255, 255, 255, 0.9)",
+                  padding: [4, 8],
+                  borderRadius: 4,
                 },
               },
               label: {
@@ -559,11 +568,16 @@ export default {
           },
           tooltip: {
             trigger: "item",
-            backgroundColor: "rgba(255, 255, 255, 0.95)",
+            backgroundColor: "rgba(255, 255, 255, 0.98)",
             borderColor: "#91A8D0",
-            borderWidth: 1,
+            borderWidth: 2,
+            borderRadius: 8,
+            padding: [12, 16],
+            boxShadow: "0 8px 24px rgba(145, 168, 208, 0.15)",
             textStyle: {
-              color: "#333",
+              color: "#1f2937",
+              fontSize: 14,
+              fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
             },
             formatter: function (params) {
               const cityData = params.data;
@@ -650,6 +664,9 @@ export default {
                 const hash2 = item.adcode ? parseInt(item.adcode) : hash1;
                 const isVisited = item._type === 'visited';
                 const isHighlighted = props.highlightedCity === item.cityName;
+                
+                // 调试信息
+                console.log(`🗺️ 城市: ${item.cityName}, 类型: ${item._type}, isVisited: ${isVisited}`);
 
                 return {
                   name: item.cityName,
@@ -660,23 +677,25 @@ export default {
                   ],
                   itemStyle: {
                     color: isHighlighted
-                      ? "#6366f1"
+                      ? "#7A91C7"
                       : isVisited
-                        ? "#f59e0b"
+                        ? "#5B9BD5"
                         : "#F7CAC9",
                     borderColor: isHighlighted
-                      ? "#f7cac9"
+                      ? "#ffffff"
                       : isVisited
-                        ? "#d97706"
-                        : "#91A8D0",
+                        ? "#ffffff"
+                        : "#ffffff",
                     borderWidth: isHighlighted ? 3 : 2,
                     shadowColor: isHighlighted
-                      ? "rgba(99, 102, 241, 0.4)"
+                      ? "rgba(122, 145, 199, 0.4)"
                       : isVisited
-                        ? "rgba(245, 158, 11, 0.3)"
-                        : "rgba(145, 168, 208, 0.3)",
-                    shadowBlur: isHighlighted ? 12 : 8,
+                        ? "rgba(91, 155, 213, 0.3)"
+                        : "rgba(247, 202, 201, 0.3)",
+                    shadowBlur: isHighlighted ? 8 : 6,
+                    opacity: isHighlighted ? 1 : 0.85,
                   },
+                  symbol: isVisited ? 'circle' : 'diamond', // 直接在数据点上设置符号
                   tags: item.tags,
                   cityName: item.cityName,
                   createdAt: item.createdAt,
@@ -684,28 +703,29 @@ export default {
                 };
               }),
               symbolSize: function (data) {
-                // 根据城市名长度和标签数量调整大小
+                // 进一步减小标记尺寸，避免过于夸张
                 const cityNameLength = data[2]?.length || 0;
                 const item = props.wishlistItems.find(
                   (i) => i.cityName === data[2],
                 );
                 const tagCount = item?.tags?.length || 0;
-                // 移动端适配：增大触摸区域
+                // 移动端适配：进一步减小触摸区域
                 const isMobile = window.innerWidth <= 768;
-                const baseSize = isMobile ? 24 : 18;
-                const maxSize = isMobile ? 40 : 35;
+                const baseSize = isMobile ? 14 : 10; // 进一步减小基础尺寸
+                const maxSize = isMobile ? 20 : 16; // 进一步减小最大尺寸
                 return Math.max(
                   baseSize,
-                  Math.min(maxSize, cityNameLength * 3 + tagCount * 2),
+                  Math.min(maxSize, Math.ceil(cityNameLength * 1.5) + tagCount * 1.5),
                 );
               },
               emphasis: {
                 itemStyle: {
-                  color: "#6366f1",
-                  borderColor: "#F7CAC9",
+                  color: "#91A8D0",
+                  borderColor: "#ffffff",
                   borderWidth: 3,
-                  shadowColor: "rgba(99, 102, 241, 0.5)",
-                  shadowBlur: 15,
+                  shadowColor: "rgba(145, 168, 208, 0.6)",
+                  shadowBlur: 12,
+                  opacity: 1,
                 },
                 scale: 1.3,
               },
@@ -777,6 +797,7 @@ export default {
           return {
             name: item.cityName,
             value: [...coordinates, item.cityName],
+            symbol: isVisited ? 'circle' : 'diamond', // 直接在数据点上设置符号
             itemStyle: {
               color: isHighlighted
                 ? "#6366f1"
@@ -957,24 +978,26 @@ export default {
               15 + (hash2 % 40), // 纬度范围 15-55
               item.cityName,
             ],
+            symbol: isVisited ? 'circle' : 'diamond', // 直接在数据点上设置符号
             itemStyle: {
               color: isHighlighted
-                ? "#6366f1"
+                ? "#7A91C7"
                 : isVisited
-                  ? "#f59e0b"
+                  ? "#4A90E2"
                   : "#F7CAC9",
               borderColor: isHighlighted
-                ? "#f7cac9"
+                ? "#ffffff"
                 : isVisited
-                  ? "#d97706"
-                  : "#91A8D0",
+                  ? "#ffffff"
+                  : "#ffffff",
               borderWidth: isHighlighted ? 3 : 2,
               shadowColor: isHighlighted
-                ? "rgba(99, 102, 241, 0.4)"
+                ? "rgba(122, 145, 199, 0.4)"
                 : isVisited
-                  ? "rgba(245, 158, 11, 0.3)"
-                  : "rgba(145, 168, 208, 0.3)",
-              shadowBlur: isHighlighted ? 12 : 8,
+                  ? "rgba(74, 144, 226, 0.3)"
+                  : "rgba(247, 202, 201, 0.3)",
+              shadowBlur: isHighlighted ? 8 : 6,
+              opacity: isHighlighted ? 1 : 0.85,
             },
             tags: item.tags,
             cityName: item.cityName,

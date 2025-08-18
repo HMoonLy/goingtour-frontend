@@ -195,10 +195,10 @@
             <CameraFilled />
           </el-icon>
           <h4>还没有足迹照片</h4>
-          <p>标记一些城市为"去过"，然后上传你的旅行照片</p>
+          <p>添加你去过的城市，记录你的旅行足迹</p>
           <el-button type="primary" @click="$emit('add-visited-city')">
             <el-icon><Plus /></el-icon>
-            添加去过的城市
+            记录足迹城市
           </el-button>
         </div>
       </div>
