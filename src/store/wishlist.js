@@ -654,7 +654,8 @@ export const useWishlistStore = defineStore("wishlist", () => {
         caption = "",
         tags = [],
         travelTime = null,
-        travelFeeling = ""
+        travelFeeling = "",
+        citycode = null // 添加可选的 citycode 参数
     ) => {
         const { useUserStore } = await
         import ("@/store/user.js");
@@ -682,16 +683,11 @@ export const useWishlistStore = defineStore("wishlist", () => {
             const compressedFile = await cityPhotosApi.compressImage(file);
 
 
-            // 获取城市电话区号
-            const { weatherApi } = await
-            import ("@/api/weather.js");
-            const citycode = await weatherApi.getCityCodeByAdcode(cityCode);
-
             // 上传照片
             const response = await cityPhotosApi.uploadPhoto({
                 file: compressedFile,
                 cityCode,
-                citycode,
+                citycode, // 传递电话区号
                 cityName,
                 caption,
                 tags,
@@ -733,7 +729,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
     /**
      * 获取城市照片列表
      */
-    const getCityPhotos = async(cityCode, bustCache = false, silentMode = false) => {
+    const getCityPhotos = async(cityCode, bustCache = false) => {
         const { useUserStore } = await
         import ("@/store/user.js");
         const userStore = useUserStore();
@@ -771,10 +767,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
                 return [];
             } else if (error.response?.status === 401) {
                 console.error("❌ 认证失败，需要重新登录");
-                // 只在非静默模式下显示错误提示
-                if (!silentMode) {
-                    ElMessage.error("认证失败，请重新登录");
-                }
+                ElMessage.error("认证失败，请重新登录");
                 return [];
             } else if (error.response?.status >= 500) {
                 console.error("❌ 服务器内部错误");

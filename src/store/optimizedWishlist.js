@@ -172,7 +172,7 @@ export const useOptimizedWishlistStore = defineStore(
             const { useUserStore } = await
             import ("@/store/user.js");
             const userStore = useUserStore();
-            const userId = userStore.currentUser ? .id;
+            const userId = userStore.currentUser?.id;
 
             if (!userId) {
                 console.warn("用户未登录，无法加载愿望清单");
@@ -205,7 +205,7 @@ export const useOptimizedWishlistStore = defineStore(
             const { useUserStore } = await
             import ("@/store/user.js");
             const userStore = useUserStore();
-            const userId = userStore.currentUser ? .id;
+            const userId = userStore.currentUser?.id;
 
             if (!userId) {
                 debouncedMessage("warning", "请先登录");
@@ -263,7 +263,7 @@ export const useOptimizedWishlistStore = defineStore(
             const { useUserStore } = await
             import ("@/store/user.js");
             const userStore = useUserStore();
-            const userId = userStore.currentUser ? .id;
+            const userId = userStore.currentUser?.id;
 
             if (!userId) return false;
 

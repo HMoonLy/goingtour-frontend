@@ -394,14 +394,21 @@ const refreshCoverForCity = async (cityId, bustCache = false) => {
     console.log(`📍 refreshCoverForCity - 城市信息:`, {
       cityId,
       cityName: city.cityName,
+      adcode: city.adcode,
+      cityCode: city.cityCode,
       isNewCity: !previousCityIds.has(cityId)
     });
     
-    // 使用城市名称获取正确的城市编码
-    const adcode = await weatherApi.getCityCode(city.cityName);
-    console.log(`🏙️ 获取到城市编码: ${adcode} for ${city.cityName}`);
+    // 使用城市记录中存储的编码，优先使用 adcode（对应数据库的city_code）
+    const cityCodeForQuery = city.adcode || city.citycode;
+    if (!cityCodeForQuery) {
+      console.warn(`城市 ${city.cityName} 缺少有效的城市编码，可用字段:`, Object.keys(city));
+      return;
+    }
     
-    const photos = await wishlistStore.getCityPhotos(adcode, bustCache, true); // 使用静默模式
+    console.log(`🏙️ 使用城市编码查询照片: ${cityCodeForQuery} for ${city.cityName}`);
+    
+    const photos = await wishlistStore.getCityPhotos(cityCodeForQuery, bustCache, true); // 使用静默模式
     if (photos && photos.length > 0) {
       const cover = photos.find((p) => p.isCover) || photos[0];
       // 优先使用缩略图，如果没有则使用原图
@@ -504,12 +511,13 @@ const uploadPhoto = async (file) => {
     // 使用新的visited cities API上传照片
     const result = await wishlistStore.uploadCityPhoto(
       file,
-      currentCity.value.adcode || currentCity.value.cityCode,
+      currentCity.value.adcode,  // 主要的城市编码（6位数字）
       currentCity.value.cityName,
-      "",
-      [],
+      "",  // caption
+      [],  // tags
       currentCity.value.travelTime,
-      currentCity.value.travelFeeling
+      currentCity.value.travelFeeling,
+      currentCity.value.citycode  // 电话区号（可选）
     );
 
     if (result) {
@@ -565,9 +573,14 @@ const handleDeletePhoto = async (city) => {
     );
 
     // 查询该城市的照片并删除封面（或第一张）
-    // 使用城市名称获取正确的城市编码
-    const adcode = await weatherApi.getCityCode(city.cityName);
-    const photos = await wishlistStore.getCityPhotos(adcode);
+    // 使用城市记录中存储的编码，优先使用 adcode（对应数据库的city_code）
+    const cityCodeForQuery = city.adcode || city.citycode;
+    if (!cityCodeForQuery) {
+      console.warn(`城市 ${city.cityName} 缺少有效的城市编码，可用字段:`, Object.keys(city));
+      return;
+    }
+    
+    const photos = await wishlistStore.getCityPhotos(cityCodeForQuery);
     const cover = photos.find((p) => p.isCover) || photos[0];
     if (!cover) {
       ElMessage.info("当前城市没有可删除的照片");

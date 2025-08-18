@@ -19,7 +19,7 @@ export const cityPhotosApi = {
     uploadPhoto(uploadData) {
         const formData = new FormData();
         formData.append("file", uploadData.file);
-        formData.append("cityCode", uploadData.cityCode);
+        formData.append("adcode", uploadData.cityCode);
         formData.append("cityName", uploadData.cityName);
 
         if (uploadData.caption) {
@@ -36,6 +36,10 @@ export const cityPhotosApi = {
 
         if (uploadData.tags && uploadData.tags.length > 0) {
             formData.append("tags", uploadData.tags.join(","));
+        }
+
+        if (uploadData.citycode) {
+            formData.append("citycode", uploadData.citycode);
         }
 
         return http.post("/visited-cities/upload", formData, {
@@ -94,11 +98,12 @@ export const cityPhotosApi = {
                 headers: {
                     'Cache-Control': 'no-cache',
                     'X-Requested-At': Date.now().toString()
-                },
-                params: { _t: Date.now() }
+                }
+                // 移除手动添加的 params，让 request.js 拦截器统一处理
             });
         } else {
-            return http.get(url, { params: { _t: Date.now() } });
+            return http.get(url);
+            // 移除手动添加的 params，让 request.js 拦截器统一处理
         }
     },
 
