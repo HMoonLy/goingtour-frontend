@@ -247,9 +247,21 @@
           <div v-if="userPreferences.mbtiType" class="preference-group">
             <h4><el-icon><User /></el-icon>性格类型</h4>
             <div class="mbti-display">
-              <el-tag type="info" size="small">
-                {{ userPreferences.mbtiType }} - {{ getMbtiName(userPreferences.mbtiType) }}
-              </el-tag>
+              <div class="mbti-content">
+                <div class="mbti-image">
+                  <img 
+                    :src="`/images/mbti/${userPreferences.mbtiType}.png`" 
+                    :alt="userPreferences.mbtiType"
+                    @error="handleImageError"
+                  />
+                </div>
+                <div class="mbti-info">
+                  <el-tag type="info" size="small" class="mbti-tag">
+                    {{ userPreferences.mbtiType }}
+                  </el-tag>
+                  <span class="mbti-name">{{ getMbtiName(userPreferences.mbtiType) }}</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -715,6 +727,13 @@ export default {
       }
     };
 
+    // 处理MBTI图片加载错误
+    const handleImageError = (event) => {
+      console.warn("MBTI图片加载失败:", event.target.src);
+      // 可以设置一个默认图片或隐藏图片
+      event.target.style.display = 'none';
+    };
+
     // 生命周期
     onMounted(async () => {
       if (!userStore.isLoggedIn) {
@@ -746,6 +765,7 @@ export default {
       formatTime,
       exportTrips,
       handleAvatarUpdate,
+      handleImageError,
       translateTag,
       getMbtiName,
     };
@@ -912,11 +932,56 @@ export default {
 
 .tags-container,
 .budget-display,
-.mbti-display,
 .pace-display {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.mbti-display {
+  display: flex;
+  align-items: center;
+}
+
+.mbti-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mbti-image {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f5f7fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mbti-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.mbti-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mbti-tag {
+  margin: 0;
+  font-weight: 600;
+}
+
+.mbti-name {
+  font-size: 13px;
+  color: #606266;
+  font-weight: 500;
 }
 
 .preference-tag {
