@@ -1283,7 +1283,6 @@ export default {
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
-  background-color: #f5f7fa;
   box-sizing: border-box;
   position: relative;
   height: 100%;

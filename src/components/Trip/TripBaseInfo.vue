@@ -1075,8 +1075,8 @@ export default {
 /* 整体布局 */
 .step-content {
   width: 100%;
-  background: #f8f9fa;
   min-height: 100vh;
+    background: white;
 }
 
 /* 页面标题区域 */
@@ -1149,7 +1149,7 @@ export default {
   border-radius: 16px;
   padding: 32px;
   margin-bottom: 32px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  /* box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); */
   border: 1px solid #e8eaed;
   transition: all 0.3s ease;
   width: 100%;
