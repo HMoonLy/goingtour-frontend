@@ -31,8 +31,7 @@
           <el-row :gutter="24">
             <!-- 目的地选择 -->
             <el-col :span="12">
-              <el-form-item label="目的地"
-prop="destination">
+              <el-form-item label="目的地" prop="destination">
                 <el-input
                   v-model="tripForm.destinationName"
                   placeholder="搜索城市、地区..."
@@ -41,9 +40,8 @@ prop="destination">
                   disabled
                 />
                 <div class="selected-city-info">
-                  <el-tag type="success"
-size="small">
-                    {{ 已选择 }}: {{ tripForm.destinationName }}
+                  <el-tag type="success" size="small">
+                    已选择:{{ tripForm.destinationName }}
                   </el-tag>
                 </div>
               </el-form-item>
@@ -51,8 +49,7 @@ size="small">
 
             <!-- 出行天数 -->
             <el-col :span="12">
-              <el-form-item label="天数"
-prop="days">
+              <el-form-item label="天数" prop="days">
                 <div class="days-input-container">
                   <el-input-number
                     v-model="tripForm.days"
@@ -64,8 +61,7 @@ prop="days">
                     disabled
                   />
                   <!-- 天数描述 -->
-                  <div v-if="tripForm.days"
-class="days-description">
+                  <div v-if="tripForm.days" class="days-description">
                     <span class="days-text">{{ getDaysDescription() }}</span>
                   </div>
                   <div class="form-tip">根据日期范围自动计算天数</div>
@@ -77,11 +73,7 @@ class="days-description">
           <el-row :gutter="24">
             <!-- 出行日期 -->
             <el-col :span="12">
-              <el-form-item
-                label="行程时间"
-                prop="dateRange"
-                :error="dateRangeError"
-              >
+              <el-form-item label="行程时间" prop="dateRange" :error="dateRangeError">
                 <el-date-picker
                   v-model="tripForm.dateRange"
                   type="daterange"
@@ -97,9 +89,7 @@ class="days-description">
                   @change="handleDateChange"
                 />
                 <div class="form-tip">
-                  <template
-                    v-if="tripForm.dateRange && tripForm.dateRange.length === 2"
-                  >
+                  <template v-if="tripForm.dateRange && tripForm.dateRange.length === 2">
                     <div class="date-info">
                       <span class="date-match">
                         <el-icon><Check /></el-icon>
@@ -114,8 +104,7 @@ class="days-description">
 
             <!-- 出行人数 -->
             <el-col :span="12">
-              <el-form-item label="人数"
-prop="travelers">
+              <el-form-item label="人数" prop="travelers">
                 <el-input-number
                   v-model="tripForm.travelers"
                   :min="1"
@@ -156,8 +145,7 @@ prop="travelers">
           </div>
 
           <!-- 天气加载状态 -->
-          <div v-if="loadingWeather"
-class="weather-loading">
+          <div v-if="loadingWeather" class="weather-loading">
             <el-icon class="is-loading">
               <Loading />
             </el-icon>
@@ -165,18 +153,15 @@ class="weather-loading">
           </div>
 
           <!-- 天气错误状态 -->
-          <div v-else-if="weatherError"
-class="weather-error">
+          <div v-else-if="weatherError" class="weather-error">
             <el-icon><Warning /></el-icon>
             <span>{{ weatherError }}</span>
           </div>
 
           <!-- 天气信息显示 -->
-          <div v-else-if="weatherSuggestion"
-class="weather-content">
+          <div v-else-if="weatherSuggestion" class="weather-content">
             <!-- 失效提示 -->
-            <div v-if="isWeatherDisabled()"
-class="weather-disabled-notice">
+            <div v-if="isWeatherDisabled()" class="weather-disabled-notice">
               <el-icon><InfoFilled /></el-icon>
               <span v-if="isDateRangeOutOfForecast()">
                 所选日期超出天气预报范围（{{ formatDateRange() }}）
@@ -190,10 +175,7 @@ class="weather-disabled-notice">
 
             <!-- 天气预报网格 -->
             <div
-              v-if="
-                weatherSuggestion.forecast &&
-                weatherSuggestion.forecast.length > 0
-              "
+              v-if="weatherSuggestion.forecast && weatherSuggestion.forecast.length > 0"
               class="weather-forecast-grid"
             >
               <div
@@ -236,15 +218,11 @@ class="weather-disabled-notice">
           <div class="weather-summary">
             <div class="summary-item">
               <span class="summary-label">温度范围</span>
-              <span class="summary-value">{{
-                weatherSuggestion.tempRange
-              }}</span>
+              <span class="summary-value">{{ weatherSuggestion.tempRange }}</span>
             </div>
             <div class="summary-item">
               <span class="summary-label">预报天数</span>
-              <span class="summary-value"
-                >{{ weatherSuggestion.forecast.length }}天</span
-              >
+              <span class="summary-value">{{ weatherSuggestion.forecast.length }}天</span>
             </div>
             <div class="summary-item">
               <span class="summary-label">数据来源</span>
@@ -253,8 +231,7 @@ class="weather-disabled-notice">
           </div>
 
           <!-- 出行建议 -->
-          <div v-if="getSmartTravelTips().length > 0"
-class="weather-tips">
+          <div v-if="getSmartTravelTips().length > 0" class="weather-tips">
             <div class="tips-header">
               <el-icon><InfoFilled /></el-icon>
               <span class="tips-title">出行建议</span>
@@ -282,8 +259,7 @@ class="weather-tips">
         >
           <el-icon><Star /></el-icon>
           <span>根据您的偏好，推荐预算：¥{{ userPreferences.budget }}/天</span>
-          <el-button type="link"
-size="small" @click="applyRecommendedBudget">
+          <el-button type="link" size="small" @click="applyRecommendedBudget">
             应用推荐
           </el-button>
         </div>
@@ -322,35 +298,18 @@ size="small" @click="applyRecommendedBudget">
                 {{ option.description }}
               </div>
             </div>
-            <div
-              v-if="tripForm.days && tripForm.travelers"
-              class="budget-preview"
-            >
+            <div v-if="tripForm.days && tripForm.travelers" class="budget-preview">
               <div class="preview-label">总预算</div>
               <div class="preview-amount">
                 {{ calculateBudgetPreview(option.value) }}
               </div>
             </div>
-            <div v-if="tripForm.budget === option.value"
-class="budget-check">
+            <div v-if="tripForm.budget === option.value" class="budget-check">
               <el-icon><Check /></el-icon>
             </div>
           </div>
         </div>
 
-        <div v-if="shouldShowBudgetSummary()"
-class="budget-summary">
-          <div class="budget-info-row">
-            <span class="budget-label">{{ 已选择 }}：</span>
-            <span class="budget-value">{{ getBudgetText() }}</span>
-            <span
-              v-if="tripForm.days && tripForm.travelers"
-              class="budget-total"
-            >
-              总预算：{{ getEstimatedCost() }}
-            </span>
-          </div>
-        </div>
       </el-form-item>
     </div>
 
@@ -369,8 +328,7 @@ class="budget-summary">
         </el-button>
       </div>
       <div class="action-right">
-        <el-button type="primary"
-size="large" @click="goToNextStep">
+        <el-button type="primary" size="large" @click="goToNextStep">
           下一步
           <el-icon><ArrowRight /></el-icon>
         </el-button>
@@ -446,13 +404,7 @@ export default {
       default: false,
     },
   },
-  emits: [
-    "update:baseForm",
-    "next-step",
-    "formValid",
-    "fetch-weather",
-    "save-draft",
-  ],
+  emits: ["update:baseForm", "next-step", "formValid", "fetch-weather", "save-draft"],
   setup(props, { emit }) {
     // 使用父组件传递的值初始化本地数据
     const tripForm = ref({ ...props.baseForm });
@@ -472,19 +424,11 @@ export default {
           }
 
           tripForm.value.budget = budgetType;
-          console.log(
-            "✅ 应用用户预算偏好:",
-            userBudget,
-            "-> 档位:",
-            budgetType,
-          );
+          console.log("✅ 应用用户预算偏好:", userBudget, "-> 档位:", budgetType);
         }
 
         // 应用出行人数偏好（如果用户有家庭偏好）
-        if (
-          props.userPreferences.includeKidsActivities &&
-          !tripForm.value.travelers
-        ) {
+        if (props.userPreferences.includeKidsActivities && !tripForm.value.travelers) {
           tripForm.value.travelers = 3; // 家庭出行建议3人
           console.log("✅ 应用家庭出行人数偏好: 3人");
         }
@@ -497,7 +441,7 @@ export default {
       (newVal) => {
         emit("update:baseForm", newVal);
       },
-      { deep: true },
+      { deep: true }
     );
 
     // 监听props.baseForm的变化，同步到本地
@@ -508,7 +452,7 @@ export default {
           tripForm.value = { ...newVal };
         }
       },
-      { deep: true },
+      { deep: true }
     );
 
     const tripFormRef = ref(null);
@@ -538,7 +482,7 @@ export default {
       () => {
         validateForm();
       },
-      { deep: true },
+      { deep: true }
     );
 
     // 可用城市列表 - 从API获取
@@ -625,12 +569,8 @@ export default {
           trigger: "change",
         },
       ],
-      travelers: [
-        { required: true, message: "请填写出行人数", trigger: "blur" },
-      ],
-      budget: [
-        { required: true, message: "请选择预算范围", trigger: "change" },
-      ],
+      travelers: [{ required: true, message: "请填写出行人数", trigger: "blur" }],
+      budget: [{ required: true, message: "请选择预算范围", trigger: "change" }],
     };
 
     // 禁用日期的方法
@@ -680,8 +620,7 @@ export default {
         // console.log("有效的日期对象:", startDate, endDate);
         // console.log("有效的日期范围:", formatDate(startDate), "至", formatDate(endDate));
 
-        const actualDays =
-          Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+        const actualDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
         // console.log(`计算得出实际天数: ${actualDays}天`);
 
         // 根据日期范围自动设置天数
@@ -774,21 +713,6 @@ export default {
       return budgetRecommendation.value === budgetValue;
     };
 
-    // 获取预算文本
-    const getBudgetText = () => {
-      const budgetMap = {
-        budget: { text: "经济实惠", price: "约400元/天" },
-        moderate: { text: "适中舒适", price: "约750元/天" },
-        comfort: { text: "舒适便利", price: "约1000元/天" },
-        luxury: { text: "豪华奢华", price: "约1500元/天" },
-      };
-
-      const option = budgetMap[tripForm.value.budget];
-      if (!option) return "";
-
-      return `${option.text}(${option.price})`;
-    };
-
     // 应用推荐预算
     const applyRecommendedBudget = () => {
       if (budgetRecommendation.value) {
@@ -807,22 +731,6 @@ export default {
       return budgetMap[tripForm.value.budget] || 750;
     };
 
-    // 获取预计总花费
-    const getEstimatedCost = () => {
-      if (
-        !tripForm.value ||
-        !tripForm.value.budget ||
-        !tripForm.value.days ||
-        !tripForm.value.travelers
-      ) {
-        return "计算中...";
-      }
-
-      const dailyBudget = getBudgetDailyAmount();
-      const totalCost =
-        dailyBudget * tripForm.value.days * tripForm.value.travelers;
-      return `¥${totalCost.toLocaleString()}`;
-    };
 
     // 判断是否显示预算摘要
     const shouldShowBudgetSummary = () => {
@@ -857,7 +765,7 @@ export default {
       // 处理从父组件传递的目的地信息
       if (props.baseForm.destination && props.baseForm.destinationName) {
         console.log(
-          `接收到父组件的目的地信息: ${props.baseForm.destinationName}(${props.baseForm.destination})`,
+          `接收到父组件的目的地信息: ${props.baseForm.destinationName}(${props.baseForm.destination})`
         );
 
         // 确保本地表单数据同步
@@ -969,9 +877,7 @@ export default {
       const userEndDate = new Date(tripForm.value.dateRange[1]);
 
       // 获取天气预报的日期范围
-      const forecastDates = props.weatherSuggestion.forecast.map(
-        (f) => new Date(f.date),
-      );
+      const forecastDates = props.weatherSuggestion.forecast.map((f) => new Date(f.date));
       const forecastStartDate = new Date(Math.min(...forecastDates));
       const forecastEndDate = new Date(Math.max(...forecastDates));
 
@@ -1033,9 +939,7 @@ export default {
       const weatherArray = Array.from(weatherTypes);
       const hasRain = weatherArray.some((w) => w.includes("雨"));
       const hasSnow = weatherArray.some((w) => w.includes("雪"));
-      const hasStorm = weatherArray.some(
-        (w) => w.includes("雷") || w.includes("暴"),
-      );
+      const hasStorm = weatherArray.some((w) => w.includes("雷") || w.includes("暴"));
 
       // 根据季节和天气给出合理建议
       const currentMonth = new Date().getMonth() + 1; // 1-12
@@ -1115,15 +1019,13 @@ export default {
 
         // 获取天气预报的日期范围
         const forecastDates = props.weatherSuggestion.forecast.map(
-          (f) => new Date(f.date),
+          (f) => new Date(f.date)
         );
         const forecastStartDate = new Date(Math.min(...forecastDates));
         const forecastEndDate = new Date(Math.max(...forecastDates));
 
         // 检查用户的日期范围是否完全超出预报范围
-        return (
-          userStartDate > forecastEndDate || userEndDate < forecastStartDate
-        );
+        return userStartDate > forecastEndDate || userEndDate < forecastStartDate;
       } catch (error) {
         console.error("日期范围检查错误:", error);
         return false;
@@ -1149,10 +1051,8 @@ export default {
       getDaysDescription,
       budgetRecommendation,
       isRecommendedBudget,
-      getBudgetText,
       applyRecommendedBudget,
       getBudgetDailyAmount,
-      getEstimatedCost,
       shouldShowBudgetSummary,
       goToNextStep,
       dateRangeError,
@@ -1360,7 +1260,7 @@ export default {
 .form-tip {
   font-size: 13px;
   color: #909399;
-  margin-top: 8px;
+  margin-top: 0px;
   line-height: 1.5;
   display: flex;
   align-items: center;
@@ -1369,14 +1269,6 @@ export default {
 
 .selected-city-info {
   margin-top: 8px;
-}
-
-.days-description {
-  margin-top: 8px;
-  padding: 8px 12px;
-  background: #fafbfc;
-  border-radius: 8px;
-  border-left: 3px solid #91a8d0;
 }
 
 .days-text {
