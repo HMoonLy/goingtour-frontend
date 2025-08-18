@@ -187,7 +187,8 @@
                     </span>
                   </div>
                   <div class="card-actions">
-                    <div class="primary-action">
+                    <!-- 只有从未去过的城市才显示"已去过"按钮 -->
+                    <div v-if="!item.ever_visited" class="primary-action">
                       <el-button
                         size="small"
                         type="success"
@@ -323,6 +324,120 @@
               <el-icon><Plus /></el-icon>
               添加第一个心愿城市
             </el-button>
+          </div>
+        </div>
+
+        <!-- 想再去的城市卡片展示 -->
+        <div
+          v-if="wishlistStore.wantToVisitAgainCount > 0"
+          class="want-again-cities-cards"
+        >
+          <div class="section-header">
+            <h4 class="section-title">
+              <el-icon><Star /></el-icon>
+              想再去的城市 ({{ wishlistStore.wantToVisitAgainCount }})
+            </h4>
+            <div class="section-subtitle">
+              去过但想再次探访的城市
+            </div>
+          </div>
+
+          <div class="simple-cards-container">
+            <div
+              v-for="item in sortedWantToVisitAgainCities"
+              :key="item.id"
+              class="enhanced-wishlist-card want-again-card"
+              @click="handleCardClick(item)"
+            >
+              <div class="card-main-content">
+                <div class="card-header">
+                  <div class="city-info">
+                    <!-- 想再去标识 -->
+                    <div class="revisit-badge want-again-badge">
+                      <el-icon><Star /></el-icon>
+                      <span>想再去</span>
+                    </div>
+
+                    <h5 class="card-city-name">
+                      {{ item.cityName }}
+                    </h5>
+                    <span class="added-time">
+                      首次访问：{{ formatVisitDate(item.visit_date) }}
+                    </span>
+                  </div>
+                  <div class="card-actions">
+                    <div class="secondary-actions">
+                      <el-button
+                        size="small"
+                        class="action-btn edit-btn"
+                        @click.stop="handleEditCity(item)"
+                      >
+                        <el-icon><Edit /></el-icon>
+                        <span class="action-text">编辑</span>
+                      </el-button>
+                      <el-dropdown
+                        trigger="click"
+                        placement="bottom-end"
+                        @click.stop
+                      >
+                        <el-button
+                          size="small"
+                          class="action-btn more-btn"
+                          @click.stop
+                        >
+                          <el-icon><MoreFilled /></el-icon>
+                        </el-button>
+                        <template #dropdown>
+                          <el-dropdown-menu>
+                            <el-dropdown-item @click="handlePlanTrip(item)">
+                              <el-icon><Calendar /></el-icon>
+                              规划行程
+                            </el-dropdown-item>
+                            <el-dropdown-item @click="handleCancelWantToVisitAgain(item)">
+                              <el-icon><Close /></el-icon>
+                              取消想再去
+                            </el-dropdown-item>
+                            <el-dropdown-item
+                              divided
+                              class="delete-item"
+                              @click="handleDeleteCity(item)"
+                            >
+                              <el-icon><Delete /></el-icon>
+                              删除城市
+                            </el-dropdown-item>
+                          </el-dropdown-menu>
+                        </template>
+                      </el-dropdown>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-if="item.tags && item.tags.length > 0" class="card-tags">
+                  <el-tag
+                    v-for="tag in item.tags.slice(0, 3)"
+                    :key="tag"
+                    size="small"
+                    :type="getTagType(tag)"
+                    class="enhanced-tag"
+                  >
+                    {{ tag }}
+                  </el-tag>
+                  <el-tag
+                    v-if="item.tags.length > 3"
+                    size="small"
+                    type="info"
+                    class="enhanced-tag more-tags"
+                  >
+                    +{{ item.tags.length - 3 }}
+                  </el-tag>
+                </div>
+
+                <div v-if="item.reason" class="card-reason">
+                  <el-icon><ChatRound /></el-icon>
+                  <span>{{ item.reason }}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -772,6 +887,7 @@ import {
   Picture,
   Basketball,
   Location as LocationIcon,
+  ChatRound,
 } from "@element-plus/icons-vue";
 import { useWishlistStore } from "@/store/wishlist.js";
 import { useUserStore } from "@/store/user.js";
@@ -952,6 +1068,20 @@ export default {
       return cities;
     });
 
+    // 排序后的想再去城市
+    const sortedWantToVisitAgainCities = computed(() => {
+      let cities = [...wishlistStore.wantToVisitAgainCities];
+
+      // 按访问日期排序（最近访问的在前）
+      cities.sort((a, b) => {
+        const dateA = a.visit_date ? new Date(a.visit_date) : new Date(a.createdAt);
+        const dateB = b.visit_date ? new Date(b.visit_date) : new Date(b.createdAt);
+        return dateB - dateA;
+      });
+
+      return cities;
+    });
+
     // 全屏地图显示的城市数据 - 适配新数据模型
     const fullscreenMapDisplayItems = computed(() => {
       if (fullscreenMapMode.value === "all") {
@@ -1014,6 +1144,19 @@ export default {
         }
       } catch (error) {
         console.error("标记城市为已去过失败:", error);
+        ElMessage.error("操作失败，请重试");
+      }
+    };
+
+    // 取消想再去
+    const handleCancelWantToVisitAgain = async (item) => {
+      try {
+        const success = await wishlistStore.markWantToVisitAgain(item, false);
+        if (success) {
+          ElMessage.success(`已取消 ${item.cityName} 的想再去状态`);
+        }
+      } catch (error) {
+        console.error("取消想再去失败:", error);
         ElMessage.error("操作失败，请重试");
       }
     };
@@ -1387,6 +1530,15 @@ export default {
       });
     };
 
+    const formatVisitDate = (dateStr) => {
+      if (!dateStr) return "未知";
+      const date = new Date(dateStr);
+      return date.toLocaleDateString("zh-CN", {
+        year: "numeric",
+        month: "short",
+      });
+    };
+
     // 新的操作方法
     const handleEditCity = (city) => {
       // 填充编辑表单
@@ -1402,8 +1554,43 @@ export default {
 
     const handleDeleteCity = async (city) => {
       try {
+        let confirmMessage = '';
+        let deleteAction = null;
+        
+        if (city.ever_visited && city.want_to_visit_again) {
+          // 这是"想再去"的城市，删除时需要说明会删除访问记录
+          confirmMessage = `确定要删除 ${city.cityName} 的访问记录吗？\n\n删除后：\n- 该城市的访问记录和照片将被永久删除\n- 如果您还想去这个城市，它会回到愿望清单中`;
+          deleteAction = async () => {
+            // 这里需要找到对应的visited_city记录进行删除
+            const visitedCity = wishlistStore.visitedCities.find(vc => vc.adcode === city.adcode);
+            if (visitedCity) {
+              return await wishlistStore.deleteVisitedCity(visitedCity.id);
+            } else {
+              console.warn("未找到对应的访问城市记录，降级为删除wishlist项");
+              return await wishlistStore.removeFromWishlist(city.id);
+            }
+          };
+        } else if (city.ever_visited) {
+          // 这是只去过但不想再去的城市（理论上不应该出现在这里，但为了安全起见）
+          confirmMessage = `确定要删除 ${city.cityName} 的访问记录吗？\n\n删除后该城市的访问记录和照片将被永久删除。`;
+          deleteAction = async () => {
+            const visitedCity = wishlistStore.visitedCities.find(vc => vc.adcode === city.adcode);
+            if (visitedCity) {
+              return await wishlistStore.deleteVisitedCity(visitedCity.id);
+            } else {
+              return await wishlistStore.removeFromWishlist(city.id);
+            }
+          };
+        } else {
+          // 这是纯粹的愿望清单项（想去但未去过）
+          confirmMessage = `确定要从愿望清单中删除 ${city.cityName} 吗？`;
+          deleteAction = async () => {
+            return await wishlistStore.removeFromWishlist(city.id);
+          };
+        }
+
         await ElMessageBox.confirm(
-          `确定要删除 ${city.cityName} 吗？此操作不可恢复。`,
+          confirmMessage,
           "确认删除",
           {
             confirmButtonText: "删除",
@@ -1413,10 +1600,12 @@ export default {
           }
         );
 
-        await wishlistStore.removeFromWishlist(city.id);
-        ElMessage.success("删除成功");
+        const success = await deleteAction();
+        if (success) {
+          ElMessage.success("删除成功");
+        }
       } catch {
-        // 用户取消删除
+        // 用户取消删除或删除失败
       }
     };
 
@@ -1576,6 +1765,7 @@ export default {
       visitedCities,
       wishlistCities,
       filteredAndSortedWishlistCities,
+      sortedWantToVisitAgainCities,
       // 排序控制
       sortBy,
       handleSortChange,
@@ -1599,6 +1789,7 @@ export default {
       handleMapRightClick,
       handleStatusChange,
       handleMarkAsVisited,
+      handleCancelWantToVisitAgain,
       // 足迹功能
       handleShareFootprint,
       handleViewAchievements,
@@ -1640,6 +1831,7 @@ export default {
       getTagIcon,
       formatAddedTime,
       formatPlannedDate,
+      formatVisitDate,
       handleEditCity,
       handleDeleteCity,
     };
@@ -2041,6 +2233,66 @@ export default {
   font-size: 20px;
   font-weight: 600;
   color: #374151;
+}
+
+/* 想再去城市区域样式 */
+.want-again-cities-cards {
+  background: linear-gradient(135deg, #ffffff 0%, #fefefe 100%);
+  border-radius: 16px;
+  padding: 20px 24px;
+  border: 1px solid rgba(145, 168, 208, 0.08);
+  box-shadow: 0 2px 12px rgba(145, 168, 208, 0.06);
+  margin-bottom: 24px;
+}
+
+.want-again-cities-cards .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.want-again-cities-cards .section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.want-again-cities-cards .section-title .el-icon {
+  color: #f59e0b;
+  font-size: 20px;
+}
+
+.want-again-cities-cards .section-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 4px;
+  font-weight: 400;
+}
+
+.want-again-card {
+  border-left: 4px solid #f59e0b;
+  background: linear-gradient(135deg, #fffbeb 0%, #fefefe 100%);
+  transition: all 0.3s ease;
+}
+
+.want-again-card:hover {
+  border-left-color: #d97706;
+  background: linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(251, 191, 36, 0.15);
+}
+
+.want-again-badge {
+  background: linear-gradient(135deg, #f7cac9 0%, #f5b7b1 100%);
+  color: #8b4513;
+  border: 1px solid rgba(247, 202, 201, 0.3);
 }
 
 .empty-wishlist p {
@@ -2738,10 +2990,10 @@ export default {
   box-shadow: 0 8px 24px rgba(145, 168, 208, 0.15);
 }
 
-/* 卡片主要内容区域 - 去掉优先级后的优化 */
+/* 卡片主要内容区域 - 优化按钮空间 */
 .card-main-content {
   padding: 16px;
-  padding-right: 140px; /* 为操作按钮留出空间 */
+  padding-right: 160px; /* 为横向排列的操作按钮留出更多空间 */
 }
 
 .card-header {
@@ -2804,43 +3056,56 @@ export default {
   font-weight: 400;
 }
 
-/* 卡片操作按钮重新设计 - 去掉优先级后的优化 */
+/* 卡片操作按钮重新设计 - 优化布局 */
 .card-actions {
   position: absolute;
   top: 16px;
   right: 16px;
   z-index: 2;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 120px;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 140px;
+}
+
+/* 当没有主要操作按钮时，调整布局 */
+.card-actions:not(:has(.primary-action)) {
+  justify-content: flex-end;
+}
+
+.card-actions:not(:has(.primary-action)) .secondary-actions {
+  gap: 10px;
 }
 
 .primary-action {
   display: flex;
+  flex-shrink: 0;
 }
 
 .secondary-actions {
   display: flex;
-  gap: 6px;
+  align-items: center;
+  gap: 8px;
 }
 
 .action-btn {
   display: flex !important;
   align-items: center !important;
-  gap: 6px !important;
-  padding: 8px 12px !important;
+  gap: 4px !important;
+  padding: 6px 10px !important;
   border-radius: 8px !important;
-  font-size: 12px !important;
+  font-size: 11px !important;
   font-weight: 500 !important;
   transition: all 0.3s ease !important;
   border: 1px solid transparent !important;
-  min-height: 32px !important;
+  min-height: 28px !important;
   white-space: nowrap !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
 }
 
 .action-btn .action-text {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
 }
 
@@ -2873,8 +3138,10 @@ export default {
   background: #f8fafc !important;
   color: #6b7280 !important;
   border-color: #e2e8f0 !important;
-  padding: 8px !important;
-  min-width: 32px !important;
+  padding: 6px !important;
+  min-width: 28px !important;
+  width: 28px !important;
+  height: 28px !important;
 }
 
 .more-btn:hover {
@@ -3027,6 +3294,24 @@ export default {
 }
 
 /* 响应式设计 */
+
+/* 中等屏幕优化 (769px - 1024px) */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .card-actions {
+    min-width: 130px;
+    gap: 8px;
+  }
+  
+  .action-btn {
+    font-size: 10px !important;
+    padding: 5px 8px !important;
+  }
+  
+  .card-main-content {
+    padding-right: 150px;
+  }
+}
+
 @media (max-width: 768px) {
   .footprints-page {
     padding: 16px 12px;
@@ -3304,7 +3589,8 @@ export default {
 
   /* 移动端卡片展示区域 */
   /* 移动端卡片展示区域优化 */
-  .wishlist-cities-cards {
+  .wishlist-cities-cards,
+  .want-again-cities-cards {
     padding: 16px 20px;
   }
 
@@ -3381,14 +3667,14 @@ export default {
 
   /* 移动端卡片操作按钮优化 */
   .card-actions {
-    position: static;
-    flex-direction: row;
-    gap: 6px;
-    margin-top: 12px;
-    margin-left: 0;
-    padding-top: 12px;
-    border-top: 1px solid #f1f5f9;
-    min-width: auto;
+    position: static !important;
+    flex-direction: row !important;
+    gap: 6px !important;
+    margin-top: 12px !important;
+    margin-left: 0 !important;
+    padding-top: 12px !important;
+    border-top: 1px solid #f1f5f9 !important;
+    min-width: auto !important;
   }
 
   .card-main-content {

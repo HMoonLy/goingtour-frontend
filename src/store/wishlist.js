@@ -22,8 +22,11 @@ export const useWishlistStore = defineStore("wishlist", () => {
 
     const hasCities = computed(() => totalCitiesCount.value > 0);
 
-    // 想去的城市数量（纯心愿清单）
-    const wishlistOnlyCount = computed(() => wishlistItems.value.length);
+    // 想去的城市数量（纯心愿清单，从未去过的）
+    const wishlistOnlyCount = computed(() => wishlistCities.value.length);
+
+    // 想再去的城市数量
+    const wantToVisitAgainCount = computed(() => wantToVisitAgainCities.value.length);
 
     // 已探索的省份数量（基于足迹城市）
     const exploredProvincesCount = computed(() => {
@@ -75,8 +78,15 @@ export const useWishlistStore = defineStore("wishlist", () => {
     // 所有去过的城市（直接返回足迹城市状态）
     const citiesWithPhotos = computed(() => visitedCities.value);
 
-    // 想去的城市列表（直接返回心愿清单状态）
-    const wishlistCities = computed(() => wishlistItems.value);
+    // 想去的城市列表（只显示从未去过的城市）
+    const wishlistCities = computed(() =>
+        wishlistItems.value.filter(item => !item.ever_visited)
+    );
+
+    // 想再去的城市列表（去过但想再去的城市）
+    const wantToVisitAgainCities = computed(() =>
+        wishlistItems.value.filter(item => item.ever_visited && item.want_to_visit_again)
+    );
 
     // 方法
 
@@ -478,7 +488,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
     /**
      * 标记是否想再去
      */
-    const markWantToVisitAgain = async(wishlistId, wantToVisit = true) => {
+    const markWantToVisitAgain = async(cityIdOrData, wantToVisit = true) => {
         const { useUserStore } = await
         import ("@/store/user.js");
         const userStore = useUserStore();
@@ -490,28 +500,85 @@ export const useWishlistStore = defineStore("wishlist", () => {
         }
 
         try {
-            await wishlistApi.updateWishlistItem(wishlistId, {
-                userId,
-                want_to_visit_again: wantToVisit,
-            });
+            // 判断是否是从visited city转换过来的情况
+            if (typeof cityIdOrData === 'object' && cityIdOrData.adcode) {
+                // 这是从visited city传来的完整城市数据
+                const cityData = cityIdOrData;
+                console.log("🎯 处理从已去过城市标记为想再去:", cityData);
 
-            // 更新本地状态
-            const index = wishlistItems.value.findIndex(
-                (item) => item.id === wishlistId,
-            );
-            if (index !== -1) {
-                const cityName = wishlistItems.value[index].cityName;
-                wishlistItems.value[index] = {
-                    ...wishlistItems.value[index],
+                if (wantToVisit) {
+                    // 调用新的API将已去过的城市添加到心愿清单
+                    const response = await wishlistApi.addFromVisitedCity(
+                        userId,
+                        cityData.adcode,
+                        cityData.cityName,
+                        cityData.citycode
+                    );
+
+                    // 将新添加的wishlist项添加到本地状态
+                    const newWishlistItem = response.data;
+                    wishlistItems.value.push(newWishlistItem);
+
+                    ElMessage.success(`已将 ${cityData.cityName} 标记为想再去`);
+                    return true;
+                } else {
+                    // 取消想再去：需要从wishlist中移除对应的记录
+                    console.log("🔍 查找要取消的wishlist项:", {
+                        adcode: cityData.adcode,
+                        cityName: cityData.cityName,
+                        wishlistItems: wishlistItems.value.map(item => ({
+                            id: item.id,
+                            adcode: item.adcode,
+                            cityName: item.cityName,
+                            ever_visited: item.ever_visited,
+                            want_to_visit_again: item.want_to_visit_again
+                        }))
+                    });
+
+                    // 根据adcode查找对应的wishlist项
+                    const wishlistItem = wishlistItems.value.find(
+                        item => item.adcode === cityData.adcode && item.ever_visited && item.want_to_visit_again
+                    );
+
+                    console.log("🎯 找到的wishlist项:", wishlistItem);
+
+                    if (wishlistItem) {
+                        const success = await removeFromWishlist(wishlistItem.id);
+                        if (success) {
+                            ElMessage.success(`已取消 ${cityData.cityName} 的想再去标记`);
+                        }
+                        return success;
+                    } else {
+                        console.warn("⚠️ 未找到要取消的wishlist项");
+                        ElMessage.warning(`未找到 ${cityData.cityName} 的想再去记录`);
+                        return false;
+                    }
+                }
+            } else {
+                // 传统的wishlist ID更新方式
+                const wishlistId = cityIdOrData;
+                await wishlistApi.updateWishlistItem(wishlistId, {
+                    userId,
                     want_to_visit_again: wantToVisit,
-                    updatedAt: new Date().toISOString(),
-                };
+                });
 
-                const actionText = wantToVisit?"想再去" : "取消想再去";
-                ElMessage.success(`已将 ${cityName} 标记为${actionText}`);
+                // 更新本地状态
+                const index = wishlistItems.value.findIndex(
+                    (item) => item.id === wishlistId,
+                );
+                if (index !== -1) {
+                    const cityName = wishlistItems.value[index].cityName;
+                    wishlistItems.value[index] = {
+                        ...wishlistItems.value[index],
+                        want_to_visit_again: wantToVisit,
+                        updatedAt: new Date().toISOString(),
+                    };
+
+                    const actionText = wantToVisit?"想再去" : "取消想再去";
+                    ElMessage.success(`已将 ${cityName} 标记为${actionText}`);
+                }
+                return true;
             }
-
-            return true;
         } catch (error) {
             console.error("❌ 更新想再去状态失败:", error);
             ElMessage.error("操作失败，请重试");
@@ -1123,6 +1190,85 @@ export const useWishlistStore = defineStore("wishlist", () => {
         }
     };
 
+    /**
+     * 删除访问城市记录（去过的城市）
+     */
+    const deleteVisitedCity = async(cityId) => {
+        const { useUserStore } = await
+        import ("@/store/user.js");
+        const userStore = useUserStore();
+        const userId = userStore.currentUser?.id || userStore.userId;
+
+        if (!userId) {
+            ElMessage.error("用户未登录");
+            return false;
+        }
+
+        try {
+            console.log("🗑️ 删除访问城市记录:", { cityId, userId });
+
+            // 调用API删除城市记录
+            await cityPhotosApi.deleteVisitedCity(cityId);
+
+            // 从本地状态中移除
+            const index = visitedCities.value.findIndex(city => city.id === cityId);
+            if (index !== -1) {
+                const cityName = visitedCities.value[index].cityName;
+                const adcode = visitedCities.value[index].adcode;
+
+                visitedCities.value.splice(index, 1);
+
+                console.log("✅ 访问城市记录删除成功:", { cityName, adcode });
+
+                // 同时需要处理相关的wishlist记录
+                // 如果该城市在wishlist中有记录且标记为ever_visited=true，需要清理
+                const wishlistItem = wishlistItems.value.find(
+                    item => item.adcode === adcode && item.ever_visited
+                );
+
+                if (wishlistItem) {
+                    console.log("🔄 清理相关的wishlist记录:", wishlistItem);
+
+                    if (wishlistItem.want_to_visit_again) {
+                        // 如果还想再去，保留记录但标记为未去过
+                        await wishlistApi.updateWishlistItem(wishlistItem.id, {
+                            userId,
+                            ever_visited: false,
+                            want_to_visit_again: true,
+                            visit_date: null
+                        });
+
+                        // 更新本地状态
+                        const wishlistIndex = wishlistItems.value.findIndex(item => item.id === wishlistItem.id);
+                        if (wishlistIndex !== -1) {
+                            wishlistItems.value[wishlistIndex].ever_visited = false;
+                            wishlistItems.value[wishlistIndex].visit_date = null;
+                        }
+
+                        ElMessage.success(`已删除 ${cityName} 的访问记录，但保留在愿望清单中`);
+                    } else {
+                        // 如果不想再去，完全删除wishlist记录
+                        await removeFromWishlist(wishlistItem.id);
+                        ElMessage.success(`已完全删除 ${cityName} 的所有记录`);
+                    }
+                } else {
+                    ElMessage.success(`已删除 ${cityName} 的访问记录`);
+                }
+
+                return true;
+            } else {
+                console.warn("⚠️ 在本地状态中未找到要删除的城市记录");
+                ElMessage.warning("城市记录不存在");
+                return false;
+            }
+
+        } catch (error) {
+            console.error("❌ 删除访问城市记录失败:", error);
+            ElMessage.error("删除失败，请重试");
+            return false;
+        }
+    };
+
     return {
         // 状态
         wishlistItems,
@@ -1144,6 +1290,8 @@ export const useWishlistStore = defineStore("wishlist", () => {
         citiesWithPhotos,
         wishlistCities,
         visitedCities,
+        wantToVisitAgainCities,
+        wantToVisitAgainCount,
 
         // 新的状态检查方法
         isCityInWishlistToVisit,
@@ -1182,5 +1330,6 @@ export const useWishlistStore = defineStore("wishlist", () => {
 
         // 足迹城市专用方法
         getVisitedCityByCityCode,
+        deleteVisitedCity,
     };
 });

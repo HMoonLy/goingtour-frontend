@@ -108,46 +108,68 @@
                   </el-button>
                 </el-tooltip>
 
+                <!-- 想再去按钮 -->
+                <el-tooltip 
+                  :content="city.want_to_visit_again ? '取消想再去' : '标记想再去'" 
+                  placement="top"
+                >
+                  <el-button
+                    size="small"
+                    :type="city.want_to_visit_again ? 'warning' : 'success'"
+                    circle
+                    class="action-btn"
+                    @click.stop="handleToggleWantAgain(city)"
+                  >
+                    <el-icon>
+                      <Star v-if="city.want_to_visit_again" />
+                      <StarFilled v-else />
+                    </el-icon>
+                  </el-button>
+                </el-tooltip>
+
                 <el-tooltip content="更换照片" placement="top">
                   <el-button
                     size="small"
                     type="primary"
                     circle
-                    class="action-btn primary-action"
+                    class="action-btn"
                     @click.stop="handlePhotoClick(city)"
                   >
                     <el-icon><Camera /></el-icon>
                   </el-button>
                 </el-tooltip>
 
-                <el-tooltip content="删除照片" placement="top">
+                <el-dropdown
+                  trigger="click"
+                  placement="bottom-end"
+                  @click.stop
+                >
                   <el-button
                     size="small"
                     type="danger"
                     circle
                     class="action-btn"
-                    @click.stop="handleDeletePhoto(city)"
+                    @click.stop
                   >
                     <el-icon><Delete /></el-icon>
                   </el-button>
-                </el-tooltip>
-
-                <el-tooltip
-                  :content="
-                    city.want_to_visit_again ? '取消想再去' : '标记想再去'
-                  "
-                  placement="top"
-                >
-                  <el-button
-                    size="small"
-                    :type="city.want_to_visit_again ? 'warning' : 'info'"
-                    circle
-                    class="action-btn"
-                    @click.stop="handleToggleWantAgain(city)"
-                  >
-                    <el-icon><Star /></el-icon>
-                  </el-button>
-                </el-tooltip>
+                  <template #dropdown>
+                    <el-dropdown-menu>
+                      <el-dropdown-item @click="handleDeletePhoto(city)">
+                        <el-icon><Delete /></el-icon>
+                        删除照片
+                      </el-dropdown-item>
+                      <el-dropdown-item
+                        divided
+                        class="delete-item"
+                        @click="handleDeleteVisitedCity(city)"
+                      >
+                        <el-icon><Delete /></el-icon>
+                        删除城市记录
+                      </el-dropdown-item>
+                    </el-dropdown-menu>
+                  </template>
+                </el-dropdown>
               </div>
             </div>
 
@@ -291,6 +313,7 @@ import {
   CameraFilled,
   ArrowDown,
   Star,
+  StarFilled,
   Edit,
 } from "@element-plus/icons-vue";
 import { useWishlistStore } from "@/store/wishlist.js";
@@ -312,6 +335,7 @@ const props = defineProps({
 const emit = defineEmits([
   "photo-uploaded",
   "photo-deleted",
+  "city-deleted",
   "add-visited-city",
 ]);
 
@@ -611,21 +635,59 @@ const handleDeletePhoto = async (city) => {
 const handleToggleWantAgain = async (city) => {
   try {
     const newStatus = !city.want_to_visit_again;
+    console.log("🎯 切换想再去状态:", { city, newStatus });
+    
+    // 传递完整的城市数据而不是ID，让store判断如何处理
     const success = await wishlistStore.markWantToVisitAgain(
-      city.id,
+      city, // 传递完整的城市对象
       newStatus
     );
+    
     if (success) {
-      // 状态更新成功，citiesWithPhotos会自动响应式更新
-      ElMessage.success(
-        newStatus
-          ? `已将 ${city.cityName} 标记为想再去`
-          : `已取消 ${city.cityName} 的想再去标记`
-      );
+      // 更新本地状态
+      city.want_to_visit_again = newStatus;
+      
+      // 不需要显示消息，store中已经显示了
     }
   } catch (error) {
     console.error("切换想再去状态失败:", error);
     ElMessage.error("操作失败，请重试");
+  }
+};
+
+/**
+ * 删除访问城市记录
+ */
+const handleDeleteVisitedCity = async (city) => {
+  try {
+    await ElMessageBox.confirm(
+      `确定要删除 ${city.cityName} 的访问记录吗？\n\n删除后：\n- 该城市的访问记录和所有照片将被永久删除\n- 如果您还想去这个城市，它会回到愿望清单中`,
+      "删除城市记录",
+      {
+        confirmButtonText: "删除",
+        cancelButtonText: "取消",
+        type: "warning",
+        confirmButtonClass: "el-button--danger",
+      }
+    );
+
+    // 找到对应的visited_city记录
+    const visitedCity = wishlistStore.visitedCities.find(vc => vc.adcode === city.adcode);
+    if (!visitedCity) {
+      ElMessage.error("未找到对应的城市记录");
+      return;
+    }
+
+    const success = await wishlistStore.deleteVisitedCity(visitedCity.id);
+    if (success) {
+      // 发送删除事件，让父组件知道城市被删除了
+      emit("city-deleted", city);
+    }
+  } catch (error) {
+    // 用户取消删除或删除失败
+    if (error !== 'cancel') {
+      console.error("删除城市记录失败:", error);
+    }
   }
 };
 
@@ -1423,12 +1485,7 @@ const formatVisitDate = (dateString) => {
   backdrop-filter: blur(4px) !important;
 }
 
-/* 主要操作按钮 - 更换照片 */
-.action-btn.primary-action {
-  width: 36px !important;
-  height: 36px !important;
-  transform: scale(1.1);
-}
+/* 移除主要操作按钮的特殊大小，保持一致性 */
 
 .action-btn[type="info"] {
   background: rgba(107, 114, 128, 0.95) !important;
@@ -1472,6 +1529,17 @@ const formatVisitDate = (dateString) => {
   background: #f59e0b !important;
   transform: scale(1.15) !important;
   box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4) !important;
+}
+
+.action-btn[type="success"] {
+  background: rgba(34, 197, 94, 0.95) !important;
+  color: white !important;
+}
+
+.action-btn[type="success"]:hover {
+  background: #22c55e !important;
+  transform: scale(1.15) !important;
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4) !important;
 }
 
 /* 城市名称（无照片时） */
@@ -1588,10 +1656,7 @@ const formatVisitDate = (dateString) => {
     height: 36px !important;
   }
 
-  .action-btn.primary-action {
-    width: 40px !important;
-    height: 40px !important;
-  }
+  /* 移动端保持按钮大小一致 */
 
   /* 移动端操作按钮间距调整 */
   .photo-actions {

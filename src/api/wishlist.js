@@ -86,4 +86,21 @@ export const wishlistApi = {
             cities,
         });
     },
+
+    /**
+     * 将已去过的城市标记为想再去
+     * @param {number} userId - 用户ID
+     * @param {string} adcode - 城市编码
+     * @param {string} cityName - 城市名称
+     * @param {string} citycode - 城市电话区号
+     * @returns {Promise} 添加结果
+     */
+    addFromVisitedCity(userId, adcode, cityName, citycode) {
+        return http.post("/wishlist/add-from-visited", {
+            userId,
+            adcode,
+            cityName,
+            citycode,
+        });
+    },
 };
