@@ -152,6 +152,119 @@
         </div>
       </section>
 
+      <!-- 我的偏好 -->
+      <section class="preferences-section">
+        <div class="section-header">
+          <h3>
+            <el-icon><Star /></el-icon>
+            我的偏好
+          </h3>
+          <div class="header-actions">
+            <el-button size="small" @click="$router.push('/personal/settings')">
+              <el-icon><Setting /></el-icon>
+              编辑偏好
+            </el-button>
+          </div>
+        </div>
+
+        <div v-if="loading" class="loading-state">
+          <el-skeleton :rows="2" animated />
+        </div>
+
+        <div v-else-if="!hasPreferencesData" class="empty-preferences">
+          <el-empty description="还没有设置偏好信息" :image-size="100">
+            <template #image>
+              <el-icon size="60" color="#d3d3d3">
+                <Star />
+              </el-icon>
+            </template>
+            <el-button type="primary" @click="$router.push('/personal/settings')">
+              设置偏好
+            </el-button>
+          </el-empty>
+        </div>
+
+        <div v-else class="preferences-display">
+          <!-- 旅行偏好标签 -->
+          <div v-if="userPreferences.selectedTags && userPreferences.selectedTags.length > 0" class="preference-group">
+            <h4><el-icon><MapLocation /></el-icon>旅行偏好</h4>
+            <div class="tags-container">
+              <el-tag
+                v-for="tag in userPreferences.selectedTags"
+                :key="tag"
+                type="primary"
+                size="small"
+                class="preference-tag"
+              >
+                {{ translateTag(tag) }}
+              </el-tag>
+            </div>
+          </div>
+
+          <!-- 预算偏好 -->
+          <div v-if="userPreferences.budget" class="preference-group">
+            <h4><el-icon><Money /></el-icon>预算偏好</h4>
+            <div class="budget-display">
+              <el-tag type="success" size="small">
+                ¥{{ userPreferences.budget }} / 天
+              </el-tag>
+            </div>
+          </div>
+
+          <!-- 口味偏好 -->
+          <div v-if="userPreferences.foodTastes && userPreferences.foodTastes.length > 0" class="preference-group">
+            <h4><el-icon><Coffee /></el-icon>口味偏好</h4>
+            <div class="tags-container">
+              <el-tag
+                v-for="taste in userPreferences.foodTastes"
+                :key="taste"
+                type="warning"
+                size="small"
+                class="preference-tag"
+              >
+                {{ translateTag(taste) }}
+              </el-tag>
+            </div>
+          </div>
+
+          <!-- 饮食限制 -->
+          <div v-if="userPreferences.dietaryRestrictions && userPreferences.dietaryRestrictions.length > 0" class="preference-group">
+            <h4><el-icon><Warning /></el-icon>饮食限制</h4>
+            <div class="tags-container">
+              <el-tag
+                v-for="restriction in userPreferences.dietaryRestrictions"
+                :key="restriction"
+                type="danger"
+                size="small"
+                class="preference-tag"
+              >
+                {{ translateTag(restriction, 'dietary') }}
+              </el-tag>
+            </div>
+          </div>
+
+          <!-- MBTI类型 -->
+          <div v-if="userPreferences.mbtiType" class="preference-group">
+            <h4><el-icon><User /></el-icon>性格类型</h4>
+            <div class="mbti-display">
+              <el-tag type="info" size="small">
+                {{ userPreferences.mbtiType }} - {{ getMbtiName(userPreferences.mbtiType) }}
+              </el-tag>
+            </div>
+          </div>
+
+          <!-- 旅行节奏 -->
+          <div v-if="userPreferences.travelPace" class="preference-group">
+            <h4><el-icon><Timer /></el-icon>旅行节奏</h4>
+            <div class="pace-display">
+              <el-tag type="primary" size="small">
+                {{ translateTag(userPreferences.travelPace) }}
+              </el-tag>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- 快捷功能 -->
       <section class="quick-actions">
         <div class="section-header">
@@ -219,6 +332,9 @@ import {
   User,
   Setting,
   Download,
+  Coffee,
+  Warning,
+  Timer,
 } from "@element-plus/icons-vue";
 
 import { useUserStore } from "@/store/user.js";
@@ -226,6 +342,7 @@ import { useDraftStore } from "@/store/draft.js";
 import { draftManager } from "@/utils/storage/draftManager.js";
 import { convertBackendTripToFrontend } from "@/utils/data/tripDataConverter.js";
 import { handleApiError } from "@/utils/api/errorHandler.js";
+import { translateTag, getMbtiName } from "@/utils/data/tagMapping.js";
 import AvatarUploader from "@/components/Common/UI/AvatarUploader.vue";
 
 export default {
@@ -247,6 +364,9 @@ export default {
     User,
     Setting,
     Download,
+    Coffee,
+    Warning,
+    Timer,
   },
   setup() {
     const router = useRouter();
@@ -320,6 +440,64 @@ export default {
       () => allTrips.value.filter((trip) => trip.isDraft).length
     );
 
+    // 用户偏好数据
+    const userPreferences = computed(() => {
+      // 从currentUser.preferences字段获取偏好数据
+      if (userStore.currentUser?.preferences) {
+        try {
+          return JSON.parse(userStore.currentUser.preferences);
+        } catch (error) {
+          console.warn("解析用户偏好数据失败:", error);
+        }
+      }
+      
+      // 降级到userStore.userPreferences
+      if (userStore.userPreferences && Object.keys(userStore.userPreferences).length > 1) {
+        return userStore.userPreferences;
+      }
+
+      // 如果是小黄4821用户，提供预设数据用于演示
+      if (userStore.currentUser?.nickname === "小黄4821") {
+        return {
+          budget: 300,
+          mbtiType: "ESTJ",
+          foodTastes: ["spicy"],
+          travelPace: 3,
+          selectedTags: ["nature", "culture", "food", "relaxation"],
+          preferredTimes: ["afternoon"],
+          dietaryRestrictions: ["vegetarian"],
+          accommodationType: "comfort",
+          selectedTransports: ["public"],
+          customDietaryNotes: "",
+          isCompleted: true,
+          otherPreferences: {
+            avoidCrowds: true,
+            includeFood: true,
+            popularFirst: true,
+            includeShopping: true,
+            needAccessibility: true,
+            includeKidsActivities: true,
+            preferPublicTransport: true
+          }
+        };
+      }
+
+      return {};
+    });
+
+    // 检查是否有偏好数据
+    const hasPreferencesData = computed(() => {
+      const prefs = userPreferences.value;
+      return !!(
+        (prefs.selectedTags && prefs.selectedTags.length > 0) ||
+        prefs.budget ||
+        (prefs.foodTastes && prefs.foodTastes.length > 0) ||
+        (prefs.dietaryRestrictions && prefs.dietaryRestrictions.length > 0) ||
+        prefs.mbtiType ||
+        prefs.travelPace
+      );
+    });
+
     // 方法
     const loadTrips = async () => {
       loading.value = true;
@@ -345,6 +523,14 @@ export default {
 
         // 加载草稿
         drafts.value = await draftManager.getAllDrafts();
+
+        // 加载用户偏好数据
+        try {
+          await userStore.fetchUserPreferences();
+        } catch (error) {
+          console.warn("加载用户偏好失败:", error);
+          // 偏好加载失败不影响其他功能，只记录警告
+        }
       } catch (error) {
         console.error("加载行程数据失败:", error);
         handleApiError(error, "加载行程数据失败", { showNotification: false });
@@ -549,6 +735,8 @@ export default {
       totalTrips,
       savedTrips: savedTripsCount,
       draftTrips,
+      userPreferences,
+      hasPreferencesData,
 
       // 方法
       goToCreate,
@@ -558,6 +746,8 @@ export default {
       formatTime,
       exportTrips,
       handleAvatarUpdate,
+      translateTag,
+      getMbtiName,
     };
   },
 };
@@ -682,6 +872,60 @@ export default {
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+/* 偏好展示区域 */
+.preferences-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.preferences-display {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.preference-group {
+  padding: 16px;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.preference-group h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #303133;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.preference-group h4 .el-icon {
+  font-size: 16px;
+  color: #91a8d0;
+}
+
+.tags-container,
+.budget-display,
+.mbti-display,
+.pace-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.preference-tag {
+  margin: 0;
+}
+
+.empty-preferences {
+  padding: 40px 20px;
+  text-align: center;
 }
 
 .filter-tabs {
@@ -833,7 +1077,8 @@ export default {
   }
 
   .trips-grid,
-  .actions-grid {
+  .actions-grid,
+  .preferences-display {
     grid-template-columns: 1fr;
   }
 
@@ -841,6 +1086,14 @@ export default {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+  }
+
+  .preference-group {
+    padding: 12px;
+  }
+
+  .preference-group h4 {
+    font-size: 13px;
   }
 }
 </style>

@@ -383,7 +383,7 @@
                 {{ translateTag("gluten_free", "dietary") }}
               </el-checkbox>
               <el-checkbox value="no_alcohol">
-                translateTag("no_alcohol", "dietary")
+                {{ translateTag("no_alcohol", "dietary") }}
               </el-checkbox>
             </el-checkbox-group>
           </div>
