@@ -733,63 +733,89 @@
     <el-dialog
       v-model="showEditDialog"
       width="500px"
-      title="编辑城市信息"
       class="edit-city-dialog"
       align-center
+      :show-close="false"
     >
-      <el-form :model="editForm" label-position="top" class="edit-form">
-        <el-form-item label="城市名称">
-          <el-input v-model="editForm.cityName" disabled />
-        </el-form-item>
-
-        <el-form-item label="标签">
-          <div class="tags-selection">
-            <div class="predefined-tags">
-              <el-check-tag
-                v-for="tag in predefinedTags"
-                :key="tag.name"
-                :checked="editForm.selectedTags.includes(tag.name)"
-                class="tag-item"
-                :style="{ '--tag-color': tag.color }"
-                @change="toggleEditTag(tag.name)"
-              >
-                {{ tag.name }}
-              </el-check-tag>
-            </div>
+      <div class="dialog-content">
+        <!-- 对话框头部 -->
+        <div class="dialog-header">
+          <div class="header-icon">
+            <el-icon size="24">
+              <Edit />
+            </el-icon>
           </div>
-        </el-form-item>
-
-        <el-form-item label="想去的原因">
-          <el-input
-            v-model="editForm.reason"
-            type="textarea"
-            :rows="3"
-            placeholder="分享一下你想去这里的理由..."
-            maxlength="200"
-            show-word-limit
-          />
-        </el-form-item>
-
-        <el-form-item label="计划时间">
-          <el-date-picker
-            v-model="editForm.plannedDate"
-            type="month"
-            placeholder="选择计划去的时间"
-            format="YYYY年MM月"
-            value-format="YYYY-MM"
-            style="width: 100%"
-          />
-        </el-form-item>
-      </el-form>
-
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="showEditDialog = false"> 取消 </el-button>
-          <el-button type="primary" :loading="editLoading" @click="handleSaveEdit">
-            保存
-          </el-button>
+          <div class="header-text">
+            <h3>编辑城市信息</h3>
+            <p>修改 {{ editForm.cityName }} 的旅行信息</p>
+          </div>
         </div>
-      </template>
+
+        <el-form :model="editForm" label-position="top" class="edit-form">
+          <el-form-item label="城市名称">
+            <el-input v-model="editForm.cityName" disabled size="large" />
+          </el-form-item>
+
+          <el-form-item label="标签" class="tags-form-item">
+            <div class="tags-selection">
+              <div class="predefined-tags">
+                <el-check-tag
+                  v-for="tag in predefinedTags"
+                  :key="tag.name"
+                  :checked="editForm.selectedTags.includes(tag.name)"
+                  class="tag-item"
+                  :style="{ '--tag-color': tag.color }"
+                  @change="toggleEditTag(tag.name)"
+                >
+                  {{ tag.name }}
+                </el-check-tag>
+              </div>
+            </div>
+          </el-form-item>
+
+          <el-form-item label="想去的原因" class="reason-form-item">
+            <el-input
+              v-model="editForm.reason"
+              type="textarea"
+              :rows="3"
+              placeholder="分享一下你想去这里的理由..."
+              maxlength="200"
+              show-word-limit
+              class="reason-input"
+            />
+          </el-form-item>
+
+          <el-form-item label="计划时间">
+            <el-date-picker
+              v-model="editForm.plannedDate"
+              type="month"
+              placeholder="选择计划去的时间"
+              format="YYYY年MM月"
+              value-format="YYYY-MM"
+              size="large"
+              style="width: 100%"
+            />
+          </el-form-item>
+
+          <div class="dialog-actions">
+            <el-button size="large" class="cancel-btn" @click="showEditDialog = false">
+              取消
+            </el-button>
+            <el-button
+              type="primary"
+              size="large"
+              :loading="editLoading"
+              class="submit-btn"
+              @click="handleSaveEdit"
+            >
+              <el-icon v-if="!editLoading">
+                <Check />
+              </el-icon>
+              {{ editLoading ? "保存中..." : "保存更改" }}
+            </el-button>
+          </div>
+        </el-form>
+      </div>
     </el-dialog>
   </div>
 </template>
