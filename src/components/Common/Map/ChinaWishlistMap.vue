@@ -800,15 +800,15 @@ export default {
             symbol: isVisited ? 'circle' : 'diamond', // 直接在数据点上设置符号
             itemStyle: {
               color: isHighlighted
-                ? "#6366f1"
+                ? "#7A91C7"
                 : isVisited
-                  ? "#f59e0b"
-                  : "#91A8D0",
+                  ? "#5B9BD5"
+                  : "#F7CAC9",
               borderColor: isHighlighted
-                ? "#f7cac9"
+                ? "#ffffff"
                 : isVisited
-                  ? "#d97706"
-                  : "#6366f1",
+                  ? "#ffffff"
+                  : "#ffffff",
               borderWidth: isHighlighted ? 3 : 2,
             },
             data: item,
