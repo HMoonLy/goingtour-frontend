@@ -10,14 +10,28 @@ class="title">
       type="warning"
       show-icon
       :closable="false"
-      :title="'删除账户'"
-      description="此操作不可逆，请谨慎操作。"
+      title="危险操作警告"
+      description="以下操作具有风险性，执行前请确保您了解其后果。"
     />
+    
     <el-card class="section">
-      <el-button type="danger"
-@click="deleteAccount">
-        {{ "删除账户" }}
-      </el-button>
+      <template #header>
+        <span>账户注销</span>
+      </template>
+      <div class="danger-content">
+        <div class="danger-info">
+          <h4>注销账户将会：</h4>
+          <ul>
+            <li>永久删除您的个人信息和旅行数据</li>
+            <li>取消所有正在进行的预订</li>
+            <li>清除所有旅行记录和收藏</li>
+            <li>此操作不可撤销</li>
+          </ul>
+        </div>
+        <el-button type="danger" @click="deleteAccount">
+          注销账户
+        </el-button>
+      </div>
     </el-card>
   </div>
 </template>
@@ -90,5 +104,33 @@ export default {
     rgba(245, 108, 108, 0.16),
     rgba(244, 63, 94, 0.08)
   );
+}
+
+.danger-content {
+  padding: 16px 0;
+}
+
+.danger-info {
+  margin-bottom: 24px;
+}
+
+.danger-info h4 {
+  margin: 0 0 12px 0;
+  color: #f56c6c;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.danger-info ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style-type: disc;
+}
+
+.danger-info li {
+  margin-bottom: 8px;
+  color: #606266;
+  font-size: 14px;
+  line-height: 1.5;
 }
 </style>
