@@ -60,14 +60,14 @@
           </template>
         </el-popconfirm>
       </div>
-      <el-table :data="loginRecords" style="width: 100%">
-        <el-table-column prop="loginTime" label="登录时间" width="180" />
-        <el-table-column prop="ipAddress" label="登录IP" width="160" />
-        <el-table-column prop="location" label="位置" />
-        <el-table-column prop="deviceType" label="设备类型" width="120" />
-        <el-table-column prop="browser" label="浏览器" width="140" />
-        <el-table-column prop="operatingSystem" label="操作系统" width="140" />
-        <el-table-column prop="sessionDuration" label="会话时长" width="140" />
+      <el-table :data="loginRecords" style="width: 100%" size="small">
+        <el-table-column prop="loginTime" label="登录时间" width="160" />
+        <el-table-column prop="ipAddress" label="登录IP" width="140" />
+        <el-table-column prop="location" label="位置" min-width="100" />
+        <el-table-column prop="deviceType" label="设备类型" width="100" />
+        <el-table-column prop="browser" label="浏览器" width="120" />
+        <el-table-column prop="operatingSystem" label="操作系统" width="120" />
+        <el-table-column prop="sessionDuration" label="会话时长" width="120" />
       </el-table>
     </el-card>
 
@@ -325,6 +325,12 @@ export default {
   margin: 0;
   padding: 0;
 }
+.personal-page.simple.embedded .section {
+  margin-bottom: 20px;
+}
+.personal-page.simple.embedded .el-table {
+  margin-top: 12px;
+}
 .title {
   margin: 0 0 16px 0;
 }
@@ -364,5 +370,34 @@ export default {
     rgba(145, 168, 208, 0.12),
     rgba(247, 202, 201, 0.06)
   );
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .personal-page.simple.embedded .el-table {
+    font-size: 12px;
+  }
+  
+  .row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .row > div:last-child {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .login-history-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .login-history-controls .el-button {
+    width: 100%;
+  }
 }
 </style>

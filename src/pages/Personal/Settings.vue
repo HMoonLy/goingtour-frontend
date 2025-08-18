@@ -196,6 +196,8 @@ export default {
   border: 1px solid #ebeef5;
   padding: 24px;
   min-height: 600px;
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
 }
 
 .settings-section {

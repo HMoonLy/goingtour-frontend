@@ -68,6 +68,9 @@ export default {
   margin: 0;
   padding: 0;
 }
+.personal-page.simple.embedded .section {
+  margin-bottom: 20px;
+}
 .title {
   margin: 0 0 16px 0;
 }

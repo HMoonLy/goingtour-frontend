@@ -197,6 +197,9 @@ export default {
   margin: 0;
   padding: 0;
 }
+.personal-page.simple.embedded .section {
+  margin-bottom: 20px;
+}
 .title {
   margin: 0 0 16px 0;
 }
@@ -235,5 +238,28 @@ export default {
     rgba(102, 126, 234, 0.12),
     rgba(118, 75, 162, 0.06)
   );
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .row > div:last-child {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .el-radio-group {
+    width: 100%;
+  }
+  
+  .el-radio-button {
+    flex: 1;
+  }
 }
 </style>
