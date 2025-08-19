@@ -39,7 +39,7 @@
         <!-- 旅行偏好 -->
         <div v-else-if="activeSection === 'preferences'" class="settings-section">
           <!-- <Preferences :embedded="true" /> -->
-          <PersonalProfile></PersonalProfile>
+          <PersonalProfile :embedded="true"></PersonalProfile>
         </div>
 
         <!-- 通知设置 -->
@@ -72,7 +72,6 @@ import { ArrowLeft, User, Star, Bell, Lock, Setting, Document, Warning } from "@
 
 // 导入User目录下的子组件
 import AccountSettings from "../User/Profile/AccountSettings.vue";
-import Preferences from "../User/Settings/Preferences.vue";
 import Notifications from "../User/Settings/Notifications.vue";
 import PrivacySystem from "../User/Settings/PrivacySystem.vue";
 import AccountSecurity from "../User/Settings/AccountSecurity.vue";
@@ -91,11 +90,11 @@ export default {
     Document,
     Warning,
     AccountSettings,
-    Preferences,
     Notifications,
     PrivacySystem,
     AccountSecurity,
     DangerZone,
+    PersonalProfile,
   },
   setup() {
     // 当前激活的设置部分

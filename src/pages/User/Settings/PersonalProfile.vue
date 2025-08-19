@@ -8,7 +8,7 @@
 -->
 
 <template>
-  <div class="personal-profile-page">
+  <div class="personal-profile-page" :class="{ 'embedded-mode': embedded }">
     <!-- 页面头部 - 清晰说明页面用途 -->
     <div class="page-header">
       <div class="header-content">
@@ -181,7 +181,7 @@
               </div>
               <p class="budget-desc">{{ budget.description }}</p>
               <div class="budget-strategy">
-                <el-icon><Strategy /></el-icon>
+                <!-- <el-icon><Strategy /></el-icon> -->
                 <span>{{ budget.aiStrategy }}</span>
               </div>
             </div>
@@ -263,7 +263,7 @@
     <!-- AI理解预览 -->
     <div v-if="hasValidProfile" class="ai-understanding-preview">
       <div class="preview-header">
-        <el-icon><Robot /></el-icon>
+        <!-- <el-icon><Robot /></el-icon> -->
         <h4>🤖 AI将如何理解您的档案</h4>
       </div>
       <div class="understanding-content">
@@ -297,8 +297,7 @@ import { ref, reactive, computed, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { 
   UserFilled, User, Collection, Money, Coffee, MapLocation, 
-  Star, Lightning, Check, MagicStick, Strategy, InfoFilled, 
-  Robot, Warning 
+  Star, Lightning, Check, MagicStick, InfoFilled,  Warning 
 } from '@element-plus/icons-vue';
 import { useUserStore } from '@/store/user.js';
 import { PERSONAL_PROFILE_OPTIONS } from '@/utils/data/travelDataSystem.js';
@@ -308,10 +307,16 @@ export default {
   name: 'PersonalProfile',
   components: {
     UserFilled, User, Collection, Money, Coffee, MapLocation,
-    Star, Lightning, Check, MagicStick, Strategy, InfoFilled,
-    Robot, Warning
+    Star, Lightning, Check, MagicStick, InfoFilled,
+ Warning
   },
-  setup() {
+  props: {
+    embedded: {
+      type: Boolean,
+      default: false
+    }
+  },
+  setup(props) {
     const userStore = useUserStore();
     const saving = ref(false);
 
@@ -1108,6 +1113,45 @@ export default {
   .dietary-grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 10px;
+  }
+}
+
+/* 嵌入模式样式 */
+.personal-profile-page.embedded-mode {
+  background: transparent;
+  padding: 0;
+  min-height: auto;
+}
+
+.personal-profile-page.embedded-mode .page-header {
+  margin-bottom: 24px;
+  padding: 32px;
+}
+
+.personal-profile-page.embedded-mode .profile-section {
+  margin-bottom: 24px;
+  padding: 24px;
+}
+
+.personal-profile-page.embedded-mode .ai-understanding-preview {
+  margin: 24px 0;
+}
+
+.personal-profile-page.embedded-mode .save-section {
+  padding: 32px 0;
+}
+
+@media (max-width: 768px) {
+  .personal-profile-page.embedded-mode {
+    padding: 0;
+  }
+  
+  .personal-profile-page.embedded-mode .page-header {
+    padding: 24px 16px;
+  }
+  
+  .personal-profile-page.embedded-mode .profile-section {
+    padding: 20px 16px;
   }
 }
 </style>

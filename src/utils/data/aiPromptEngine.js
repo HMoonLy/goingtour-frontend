@@ -325,7 +325,7 @@ export class SmartPrefillEngine {
         }
 
         // 根据核心兴趣映射体验重点
-        if (this.profile.coreInterests ? .length > 0) {
+        if (this.profile.coreInterests?.length > 0) {
             const interestToFocusMapping = {
                 'nature': 'natural_scenery',
                 'culture': 'historical_culture',
@@ -364,10 +364,10 @@ export class SmartPrefillEngine {
             }
         }
 
-        if (this.profile.coreInterests ? .length > 0) {
+        if (this.profile.coreInterests?.length > 0) {
             const interestNames = this.profile.coreInterests.map(interest => {
                 const option = PERSONAL_PROFILE_OPTIONS.coreInterests.options[interest];
-                return option ? option.name : interest;
+                return option?option.name : interest;
             });
             explanations.push(`根据您对${interestNames.join('、')}的兴趣，为您预选了相关体验重点`);
         }

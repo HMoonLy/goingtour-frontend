@@ -77,16 +77,16 @@ const routes = [
                     requiresAuth: true,
                 },
             },
-            {
-                path: "user/preferences",
-                name: "UserPreferences",
-                component: () =>
-                    import ("../pages/User/Settings/Preferences.vue"),
-                meta: {
-                    titleKey: "route.preferences",
-                    requiresAuth: true,
-                },
-            },
+            // {
+            //     path: "user/preferences",
+            //     name: "UserPreferences",
+            //     component: () =>
+            //         import ("../pages/User/Settings/Preferences.vue"),
+            //     meta: {
+            //         titleKey: "route.preferences",
+            //         requiresAuth: true,
+            //     },
+            // },
 
             // 新的用户档案页面
             {
@@ -99,19 +99,6 @@ const routes = [
                     requiresAuth: true,
                 },
             },
-
-            // 演示页面
-            {
-                path: "demo/travel-system",
-                name: "TravelDataSystemDemo",
-                component: () =>
-                    import ("../pages/Demo/TravelDataSystemDemo.vue"),
-                meta: {
-                    title: "旅行数据系统演示",
-                    requiresAuth: false,
-                },
-            },
-
             // 足迹模块
             {
                 path: "footprints",
