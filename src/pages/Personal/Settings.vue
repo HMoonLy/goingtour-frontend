@@ -38,7 +38,8 @@
 
         <!-- 旅行偏好 -->
         <div v-else-if="activeSection === 'preferences'" class="settings-section">
-          <Preferences :embedded="true" />
+          <!-- <Preferences :embedded="true" /> -->
+          <PersonalProfile></PersonalProfile>
         </div>
 
         <!-- 通知设置 -->
@@ -76,6 +77,7 @@ import Notifications from "../User/Settings/Notifications.vue";
 import PrivacySystem from "../User/Settings/PrivacySystem.vue";
 import AccountSecurity from "../User/Settings/AccountSecurity.vue";
 import DangerZone from "../User/Settings/DangerZone.vue";
+import PersonalProfile from "../User/Settings/PersonalProfile.vue";
 
 export default {
   name: "PersonalSettings",

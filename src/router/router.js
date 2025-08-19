@@ -68,6 +68,16 @@ const routes = [
                 },
             },
             {
+                path: "user/personal-profile",
+                name: "PersonalProfile",
+                component: () =>
+                    import ("../pages/User/Settings/PersonalProfile.vue"),
+                meta: {
+                    titleKey: "route.personalProfile",
+                    requiresAuth: true,
+                },
+            },
+            {
                 path: "user/preferences",
                 name: "UserPreferences",
                 component: () =>
@@ -77,14 +87,28 @@ const routes = [
                     requiresAuth: true,
                 },
             },
+
+            // 新的用户档案页面
             {
-                path: "test/preferences-integration",
-                name: "PreferencesIntegrationTest",
+                path: "user/profile",
+                name: "PersonalProfile",
                 component: () =>
-                    import ("../components/Test/PreferencesIntegrationTest.vue"),
+                    import ("../pages/User/Settings/PersonalProfile.vue"),
                 meta: {
-                    title: "偏好设置集成测试",
+                    title: "个人旅行档案",
                     requiresAuth: true,
+                },
+            },
+
+            // 演示页面
+            {
+                path: "demo/travel-system",
+                name: "TravelDataSystemDemo",
+                component: () =>
+                    import ("../pages/Demo/TravelDataSystemDemo.vue"),
+                meta: {
+                    title: "旅行数据系统演示",
+                    requiresAuth: false,
                 },
             },
 
