@@ -1,5 +1,5 @@
 <template>
-  <div class="step-content">
+  <div class="trip-preferences-container">
     <!-- 页面标题区域 -->
     <div class="page-title">
       <div class="title-content">
@@ -7,43 +7,41 @@
           <MagicStick />
         </el-icon>
         <div class="title-text">
-          <h2 class="main-title">个人偏好</h2>
-          <p class="subtitle">准备生成您的专属行程</p>
+          <h2 class="main-title">✈️ 本次行程偏好</h2>
+          <p class="subtitle">为这次旅行量身定制专属推荐</p>
         </div>
+      </div>
+    </div>
+
+    <!-- 智能预填提示 -->
+    <div v-if="hasUserPreferences" class="smart-prefill-tip">
+      <div class="tip-icon">
+        <el-icon><Star /></el-icon>
+      </div>
+      <div class="tip-content">
+        <h4>🎯 智能预填已启用</h4>
+        <p>根据您的个人档案，我们已为您预选了合适的选项，您可以随时调整</p>
       </div>
     </div>
 
     <!-- 表单区域 -->
     <div class="form-sections">
-
-      <!-- 个性化偏好设置 -->
       <div class="form-section">
-        <div class="section-title">
-          <el-icon><MagicStick /></el-icon>
-          <span>个人偏好</span>
-          <div
-            v-if="userPreferences && Object.keys(userPreferences).length > 0"
-            class="section-subtitle"
-          >
-            <el-icon><Star /></el-icon>
-            <span> 已为您智能预填推荐选项 </span>
-          </div>
-        </div>
-
         <el-form
           :model="localPreferenceForm"
           class="trip-preferences-form"
           label-position="top"
         >
-          <!-- 行程目标 -->
+          
+          <!-- 本次行程目标 -->
           <div class="preference-group">
             <div class="group-header">
               <div class="group-icon">
                 <el-icon><Trophy /></el-icon>
               </div>
               <div class="group-info">
-                <h4 class="group-title">本次行程偏好</h4>
-                <p class="group-desc">请在“个性化偏好”步骤中设置本次行程偏好</p>
+                <h4 class="group-title">🎯 本次行程目标</h4>
+                <p class="group-desc">选择这次旅行的主要目的和期望（可多选）</p>
               </div>
             </div>
             <div class="option-cards">
@@ -57,6 +55,7 @@
                 @click="toggleTripGoal(goal.value)"
               >
                 <div class="option-content">
+                  <div class="option-emoji">{{ goal.emoji }}</div>
                   <span class="option-label">{{ goal.label }}</span>
                 </div>
                 <div
@@ -76,7 +75,7 @@
                 <el-icon><Timer /></el-icon>
               </div>
               <div class="group-info">
-                <h4 class="group-title">行程节奏偏好</h4>
+                <h4 class="group-title">⏰ 行程节奏偏好</h4>
                 <p class="group-desc">选择符合您这次旅行的时间安排和体验深度</p>
               </div>
             </div>
@@ -118,7 +117,7 @@
                 <el-icon><Star /></el-icon>
               </div>
               <div class="group-info">
-                <h4 class="group-title">特殊体验</h4>
+                <h4 class="group-title">🌟 重点体验</h4>
                 <p class="group-desc">
                   选择本次行程最想体验的内容（最多5项）
                   <span
@@ -145,6 +144,7 @@
                 }"
                 @click="toggleFocusArea(option.value)"
               >
+                <span class="tag-emoji">{{ option.emoji }}</span>
                 <span class="tag-label">{{ option.label }}</span>
                 <el-icon
                   v-if="isRecommendedFocusArea(option.value)"
@@ -161,19 +161,18 @@
               </div>
             </div>
             <div class="selection-counter">
-              已选择
-              {{ localPreferenceForm.focusAreas.length }}/5
+              已选择 {{ localPreferenceForm.focusAreas.length }}/5
             </div>
           </div>
 
-          <!-- 社交环境偏好 -->
+          <!-- 环境氛围偏好 -->
           <div class="preference-group">
             <div class="group-header">
               <div class="group-icon">
                 <el-icon><UserFilled /></el-icon>
               </div>
               <div class="group-info">
-                <h4 class="group-title">社交环境偏好</h4>
+                <h4 class="group-title">🎭 环境氛围偏好</h4>
                 <p class="group-desc">选择您更喜欢的旅行环境和氛围</p>
               </div>
             </div>
@@ -188,7 +187,7 @@
                 <div class="social-emoji">🎉</div>
                 <div class="social-content">
                   <div class="social-title">热闹有趣</div>
-                  <div class="social-desc">人气餐厅、热门景点</div>
+                  <div class="social-desc">人气餐厅、热门景点、繁华商区</div>
                 </div>
               </div>
               <div
@@ -201,7 +200,7 @@
                 <div class="social-emoji">🌸</div>
                 <div class="social-content">
                   <div class="social-title">安静私密</div>
-                  <div class="social-desc">小众场所、人少景点</div>
+                  <div class="social-desc">小众场所、人少景点、宁静环境</div>
                 </div>
               </div>
               <div
@@ -214,7 +213,7 @@
                 <div class="social-emoji">⚖️</div>
                 <div class="social-content">
                   <div class="social-title">灵活搭配</div>
-                  <div class="social-desc">热门与小众结合</div>
+                  <div class="social-desc">热门与小众结合，丰富多样</div>
                 </div>
               </div>
             </div>
@@ -227,7 +226,7 @@
                 <el-icon><Camera /></el-icon>
               </div>
               <div class="group-info">
-                <h4 class="group-title">拍照打卡需求</h4>
+                <h4 class="group-title">📸 拍照打卡需求</h4>
                 <p class="group-desc">告诉我们您对拍照和分享的重视程度</p>
               </div>
             </div>
@@ -242,7 +241,7 @@
                 <div class="photo-emoji">📸</div>
                 <div class="photo-content">
                   <div class="photo-title">必须有</div>
-                  <div class="photo-desc">网红打卡点优先</div>
+                  <div class="photo-desc">网红打卡点优先，拍照效果佳</div>
                 </div>
               </div>
               <div
@@ -255,7 +254,7 @@
                 <div class="photo-emoji">🌅</div>
                 <div class="photo-content">
                   <div class="photo-title">随性拍拍</div>
-                  <div class="photo-desc">自然美景即可</div>
+                  <div class="photo-desc">自然美景即可，不刻意追求</div>
                 </div>
               </div>
               <div
@@ -268,86 +267,105 @@
                 <div class="photo-emoji">👁️</div>
                 <div class="photo-content">
                   <div class="photo-title">不太在意</div>
-                  <div class="photo-desc">体验优先</div>
+                  <div class="photo-desc">体验优先，拍照其次</div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- 饮食禁忌 -->
+          <!-- 本次行程的特殊限制 -->
           <div class="preference-group important-group">
             <div class="group-header">
               <div class="group-icon important">
-                <el-icon><KnifeFork /></el-icon>
+                <el-icon><Warning /></el-icon>
               </div>
               <div class="group-info">
                 <h4 class="group-title">
-                  饮食禁忌
-                  <el-tag type="danger" size="small"> 警告 </el-tag>
+                  ⚠️ 本次行程的特殊限制
+                  <el-tag type="warning" size="small">重要</el-tag>
                 </h4>
                 <p class="group-desc">
-                  请告知我们您的饮食限制，确保为您推荐合适的餐厅
+                  请告知我们这次旅行的特殊情况和需求，确保为您推荐合适的选项
                 </p>
               </div>
             </div>
-            <div class="dietary-tags">
-              <div
-                v-for="restriction in dietaryOptions"
-                :key="restriction.value"
-                class="dietary-tag"
-                :class="{
-                  active: localPreferenceForm.dietaryRestrictions.includes(
-                    restriction.value
-                  ),
-                }"
-                @click="toggleDietaryRestriction(restriction.value)"
-              >
-                <span class="dietary-label">{{ restriction.label }}</span>
-                <el-icon
-                  v-if="
-                    localPreferenceForm.dietaryRestrictions.includes(
+            
+            <!-- 临时饮食限制 -->
+            <div class="restriction-category">
+              <h5 class="category-title">
+                <el-icon><Coffee /></el-icon>
+                临时饮食限制
+              </h5>
+              <p class="category-desc">如果这次旅行有特殊的饮食需求（与个人档案不同）</p>
+              
+              <div class="dietary-tags">
+                <div
+                  v-for="restriction in dietaryOptions"
+                  :key="restriction.value"
+                  class="dietary-tag"
+                  :class="{
+                    active: localPreferenceForm.temporaryDietaryRestrictions.includes(
                       restriction.value
-                    )
-                  "
-                  class="dietary-check"
+                    ),
+                  }"
+                  @click="toggleTemporaryDietaryRestriction(restriction.value)"
                 >
-                  <Check />
-                </el-icon>
+                  <span class="dietary-label">{{ restriction.label }}</span>
+                  <el-icon
+                    v-if="
+                      localPreferenceForm.temporaryDietaryRestrictions.includes(
+                        restriction.value
+                      )
+                    "
+                    class="dietary-check"
+                  >
+                    <Check />
+                  </el-icon>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 行程限制 -->
+            <div class="restriction-category">
+              <h5 class="category-title">
+                <el-icon><User /></el-icon>
+                行程限制
+              </h5>
+              
+              <div class="trip-restrictions">
+                <div class="restriction-item">
+                  <span>带有小孩（需要亲子友好场所）</span>
+                  <el-switch v-model="localPreferenceForm.hasChildren" />
+                </div>
+                <div class="restriction-item">
+                  <span>带有老人（需要无障碍设施）</span>
+                  <el-switch v-model="localPreferenceForm.hasElderly" />
+                </div>
+                <div class="restriction-item">
+                  <span>行动不便（需要无障碍通道）</span>
+                  <el-switch v-model="localPreferenceForm.needAccessibility" />
+                </div>
+                <div class="restriction-item">
+                  <span>预算紧张（优先经济实惠选项）</span>
+                  <el-switch v-model="localPreferenceForm.budgetConstraint" />
+                </div>
               </div>
             </div>
 
-            <div class="custom-dietary">
-              <h5 class="custom-title">
-                <el-icon><Edit /></el-icon>特殊请求
+            <!-- 特殊请求 -->
+            <div class="restriction-category">
+              <h5 class="category-title">
+                <el-icon><Edit /></el-icon>
+                其他特殊请求
               </h5>
               <el-input
-                v-model="localPreferenceForm.customDietaryNotes"
+                v-model="localPreferenceForm.specialRequirements"
                 type="textarea"
-                :rows="2"
-                :placeholder="'请输入其他饮食禁忌或特殊需求，如宗教禁忌、过敏原等'"
-                class="custom-input"
+                :rows="3"
+                placeholder="请描述任何其他需要特别考虑的情况，如：庆祝生日需要浪漫餐厅、商务出差时间紧张、宠物随行等"
+                class="special-input"
               />
             </div>
-          </div>
-
-          <!-- 特殊需求 -->
-          <div class="preference-group">
-            <div class="group-header">
-              <div class="group-icon">
-                <el-icon><Setting /></el-icon>
-              </div>
-              <div class="group-info">
-                <h4 class="group-title">特殊请求</h4>
-                <p class="group-desc">告诉我们任何需要特别考虑的情况</p>
-              </div>
-            </div>
-            <el-input
-              v-model="localPreferenceForm.specialRequirements"
-              type="textarea"
-              :rows="3"
-              :placeholder="'如：行动不便、带小孩、带宠物、无障碍设施需求等'"
-              class="special-input"
-            />
           </div>
         </el-form>
       </div>
@@ -426,6 +444,9 @@ import {
   UserFilled,
   Camera,
   Document,
+  Warning,
+  Coffee,
+  User,
 } from "@element-plus/icons-vue";
 import {
   getRecommendedAttractions,
@@ -437,6 +458,7 @@ import { translateTag } from "@/utils/data/tagMapping.js";
 import { dataCache } from "@/utils/api/dataCache.js";
 import { usePreferenceStore } from "@/store/preference.js";
 import { useUserStore } from "@/store/user.js";
+
 export default {
   name: "TripPreferences",
   components: {
@@ -453,6 +475,9 @@ export default {
     UserFilled,
     Camera,
     Document,
+    Warning,
+    Coffee,
+    User,
     RecommendationSection,
   },
   props: {
@@ -511,14 +536,19 @@ export default {
       set: (value) => preferenceStore.updateTripPreferences(value),
     });
 
-    // 初始化偏好设置（替代原来的applyUserPreferences）
+    // 检查是否有用户偏好数据
+    const hasUserPreferences = computed(() => {
+      return props.userPreferences && Object.keys(props.userPreferences).length > 0;
+    });
+
+    // 初始化偏好设置
     const initializePreferences = () => {
       if (props.isFromDraft) {
         console.log("🔒 检测到草稿状态，跳过用户偏好初始化");
         return;
       }
 
-      console.log("🔄 初始化偏好设置，使用preferenceStore");
+      console.log("🔄 初始化行程偏好设置，使用preferenceStore");
       preferenceStore.initializeTripPreferences();
     };
 
@@ -535,47 +565,20 @@ export default {
     watch(
       () => props.preferenceForm,
       (newVal, oldVal) => {
-        console.log("🔄 TripPreferences watch触发，props变化检测:", {
-          newVal,
-          oldVal,
-          isFromDraft: props.isFromDraft,
-          hasNewVal: !!newVal,
-          hasOldVal: !!oldVal,
-        });
-
         if (newVal && typeof newVal === "object") {
-          // 检查是否真的有数据变化，避免无意义的更新
-          const hasRealChange =
-            JSON.stringify(newVal) !== JSON.stringify(oldVal);
+          const hasRealChange = JSON.stringify(newVal) !== JSON.stringify(oldVal);
           const isInitialLoad = !oldVal || Object.keys(oldVal).length === 0;
 
-          console.log("🔍 数据变化分析:", {
-            hasRealChange,
-            isInitialLoad,
-            isFromDraft: props.isFromDraft,
-            newValKeys: Object.keys(newVal),
-            oldValKeys: oldVal ? Object.keys(oldVal) : [],
-          });
-
           if (hasRealChange || isInitialLoad) {
-            console.log(
-              "🔄 TripPreferences接收到preferenceForm数据变化，同步到store"
-            );
-
             if (props.isFromDraft) {
-              // 如果是从草稿加载，使用store的草稿加载方法
               console.log("🔒 从草稿加载偏好数据到store");
               preferenceStore.loadDraftPreferences(newVal);
             } else {
-              // 否则直接更新store中的偏好表单
               console.log("📋 更新store中的偏好表单数据");
               preferenceStore.updateTripPreferences(newVal);
             }
-          } else {
-            console.log("🔄 数据无变化，跳过更新");
           }
         } else if (newVal === null || newVal === undefined) {
-          // 如果传入空值，重置store
           console.log("🔄 接收到空的preferenceForm，重置store");
           preferenceStore.resetPreferences();
         }
@@ -609,18 +612,18 @@ export default {
     const noMoreAttractions = ref(false);
     const noMoreRestaurants = ref(false);
 
-    // 行程目标选项
+    // 行程目标选项 - 更新为本次行程专用
     const tripGoalOptions = [
-      { value: "celebration", label: "庆祝节日/生日" },
-      { value: "business", label: "商务出差顺便游玩" },
-      { value: "family", label: "家庭亲子游" },
-      { value: "romantic", label: "情侣蜜月游" },
-      { value: "friendship", label: "朋友聚会游" },
-      { value: "solo", label: "个人独旅" },
-      { value: "learning", label: "学习文化知识" },
-      { value: "relaxation", label: "放松减压" },
-      { value: "adventure", label: "寻求刺激冒险" },
-      { value: "photography", label: "摄影创作" },
+      { value: "celebration", label: "庆祝节日/生日", emoji: "🎂" },
+      { value: "business", label: "商务出差顺便游玩", emoji: "💼" },
+      { value: "family", label: "家庭亲子游", emoji: "👨‍👩‍👧‍👦" },
+      { value: "romantic", label: "情侣蜜月游", emoji: "💕" },
+      { value: "friendship", label: "朋友聚会游", emoji: "👥" },
+      { value: "solo", label: "个人独旅", emoji: "🚶" },
+      { value: "learning", label: "学习文化知识", emoji: "📚" },
+      { value: "relaxation", label: "放松减压", emoji: "🧘" },
+      { value: "adventure", label: "寻求刺激冒险", emoji: "🏔️" },
+      { value: "photography", label: "摄影创作", emoji: "📷" },
     ];
 
     // 行程节奏选项
@@ -628,40 +631,40 @@ export default {
       {
         value: "slow",
         title: "慢节奏",
-        desc: "深度体验，充分休息",
+        desc: "深度体验，充分休息，每天2-3个地点",
         icon: "🐌",
       },
       {
         value: "balanced",
         title: "平衡型",
-        desc: "景点与休息并重",
+        desc: "景点与休息并重，每天4-5个地点",
         icon: "⚖️",
       },
       {
         value: "fast",
         title: "紧凑型",
-        desc: "多看多玩，充实行程",
+        desc: "多看多玩，充实行程，每天6+个地点",
         icon: "⚡",
       },
     ];
 
-    // 所有体验选项（合并原来的最想体验和特别体验）
+    // 体验选项 - 更新为本次行程专用
     const allExperienceOptions = [
-      { value: "historical_culture", label: "历史文化" },
-      { value: "natural_scenery", label: "自然风光" },
-      { value: "local_cuisine", label: "地道美食" },
-      { value: "photo_spots", label: "网红打卡" },
-      { value: "art_culture", label: "文艺体验" },
-      { value: "leisure_entertainment", label: "休闲娱乐" },
-      { value: "outdoor_adventure", label: "户外探险" },
-      { value: "urban_lifestyle", label: "城市风情" },
-      { value: "shopping", label: "购物体验" },
-      { value: "nightlife", label: "夜生活" },
-      { value: "traditional_crafts", label: "传统工艺" },
-      { value: "modern_technology", label: "现代科技" },
-      { value: "religious_sites", label: "宗教文化" },
-      { value: "local_festivals", label: "节庆活动" },
-      { value: "wellness", label: "健康养生" },
+      { value: "historical_culture", label: "历史文化", emoji: "🏛️" },
+      { value: "natural_scenery", label: "自然风光", emoji: "🌄" },
+      { value: "local_cuisine", label: "地道美食", emoji: "🍜" },
+      { value: "photo_spots", label: "网红打卡", emoji: "📸" },
+      { value: "art_culture", label: "文艺体验", emoji: "🎨" },
+      { value: "leisure_entertainment", label: "休闲娱乐", emoji: "🎪" },
+      { value: "outdoor_adventure", label: "户外探险", emoji: "🏕️" },
+      { value: "urban_lifestyle", label: "城市风情", emoji: "🏙️" },
+      { value: "shopping", label: "购物体验", emoji: "🛍️" },
+      { value: "nightlife", label: "夜生活", emoji: "🌃" },
+      { value: "traditional_crafts", label: "传统工艺", emoji: "🏺" },
+      { value: "modern_technology", label: "现代科技", emoji: "🔬" },
+      { value: "religious_sites", label: "宗教文化", emoji: "⛩️" },
+      { value: "local_festivals", label: "节庆活动", emoji: "🎊" },
+      { value: "wellness", label: "健康养生", emoji: "🧘‍♀️" },
     ];
 
     // 饮食禁忌选项
@@ -674,67 +677,10 @@ export default {
       { value: "no_seafood", label: "不吃海鲜" },
       { value: "no_spicy", label: "不吃辣" },
       { value: "gluten_free", label: "无麸质" },
+      { value: "no_alcohol", label: "不饮酒" },
     ];
 
-    // 使用导入的标签映射表
-    // tagMapping 已从 tagMapping.js 导入
-
-    // 计算用户偏好标签的中文显示
-    const selectedPreferenceTags = computed(() => {
-      if (!props.userPreferences) return [];
-      const tags = [];
-
-      // 从旅行类型标签中提取并转换为中文
-      if (props.userPreferences.selectedTags?.length > 0) {
-        props.userPreferences.selectedTags.forEach((tag) => {
-          const chineseTag = translateTag(tag);
-          tags.push(chineseTag);
-        });
-      }
-
-      // 从交通偏好中提取中文标签
-      if (props.userPreferences.selectedTransports?.length > 0) {
-        props.userPreferences.selectedTransports.forEach((transport) => {
-          const chineseTag = translateTag(transport);
-          if (chineseTag && chineseTag !== transport) {
-            tags.push(chineseTag);
-          }
-        });
-      }
-
-      // 从其他偏好中提取标签
-      if (props.userPreferences.accommodationType) {
-        const chineseTag = translateTag(
-          props.userPreferences.accommodationType
-        );
-        if (
-          chineseTag &&
-          chineseTag !== props.userPreferences.accommodationType
-        ) {
-          tags.push(chineseTag);
-        }
-      }
-
-      // 从旅行节奏中提取标签
-      if (props.userPreferences.travelPace) {
-        const chineseTag = translateTag(props.userPreferences.travelPace);
-        if (chineseTag && chineseTag !== props.userPreferences.travelPace) {
-          tags.push(chineseTag);
-        }
-      }
-
-      // 从美食偏好中提取标签
-      if (props.userPreferences.foodTastes?.length > 0) {
-        props.userPreferences.foodTastes.forEach((taste) => {
-          const chineseTag = translateTag(taste);
-          tags.push(chineseTag);
-        });
-      }
-
-      return [...new Set(tags)].slice(0, 15);
-    });
-
-    // 根据用户偏好推荐体验重点 - 使用store中的映射方法
+    // 根据用户偏好推荐体验重点
     const recommendedFocusAreas = computed(() => {
       if (!props.userPreferences?.selectedTags?.length) return [];
       return preferenceStore.mapUserTagsToFocusAreas(
@@ -747,11 +693,47 @@ export default {
       return recommendedFocusAreas.value.includes(areaValue);
     };
 
-    // 加载城市信息和推荐
+    // 切换行程目标选择
+    const toggleTripGoal = (goalValue) => {
+      const goals = [...preferenceStore.tripPreferenceForm.tripGoals];
+      const index = goals.indexOf(goalValue);
+      if (index > -1) {
+        goals.splice(index, 1);
+      } else {
+        goals.push(goalValue);
+      }
+      preferenceStore.updateTripPreference("tripGoals", goals);
+    };
+
+    // 切换体验重点选择
+    const toggleFocusArea = (areaValue) => {
+      const areas = [...preferenceStore.tripPreferenceForm.focusAreas];
+      const index = areas.indexOf(areaValue);
+      if (index > -1) {
+        areas.splice(index, 1);
+      } else if (areas.length < 5) {
+        areas.push(areaValue);
+      }
+      preferenceStore.updateTripPreference("focusAreas", areas);
+    };
+
+    // 切换临时饮食禁忌选择
+    const toggleTemporaryDietaryRestriction = (restrictionValue) => {
+      const restrictions = [
+        ...preferenceStore.tripPreferenceForm.temporaryDietaryRestrictions,
+      ];
+      const index = restrictions.indexOf(restrictionValue);
+      if (index > -1) {
+        restrictions.splice(index, 1);
+      } else {
+        restrictions.push(restrictionValue);
+      }
+      preferenceStore.updateTripPreference("temporaryDietaryRestrictions", restrictions);
+    };
+
+    // 加载城市信息和推荐 (保持原有逻辑)
     const loadCityInfo = async (city) => {
       console.log("加载城市信息和推荐");
-
-      console.log(city);
 
       if (!city) {
         cityInfo.value = null;
@@ -766,19 +748,17 @@ export default {
         console.log("🔍 开始加载城市信息和推荐:", city);
         cityInfo.value = city;
 
-        // 2. 获取推荐景点 - 使用城市名称而不是adcode
+        // 获取推荐景点
         loadingAttractions.value = true;
-        attractionsPage.value = 1; // 重置页码
+        attractionsPage.value = 1;
         noMoreAttractions.value = false;
 
-        // 获取城市的中文名称
         const cityName = city.destinationName;
         console.log("使用城市名称获取推荐:", cityName);
 
         try {
           console.log("🔄 获取景点数据...");
 
-          // 检查缓存
           const cacheKey = dataCache.generateKey(
             "attractions",
             cityName,
@@ -794,15 +774,12 @@ export default {
               attractionsPageSize
             );
 
-            // 缓存响应数据
             if (attractionsResponse && attractionsResponse.pois) {
               dataCache.set(cacheKey, attractionsResponse);
             }
           } else {
             console.log("📦 使用缓存的景点数据");
           }
-
-          console.log("🔄 高德API景点响应:", attractionsResponse);
 
           if (
             attractionsResponse &&
@@ -823,17 +800,13 @@ export default {
               type: poi.type.split(";")[0] || "景点",
               distance: poi.distance || null,
               tags: extractTags(poi),
-              tag: poi.tag, // 保存原始tag字段，用于提取特色标签
-              matchScore: 0, // 初始匹配分数
+              tag: poi.tag,
+              matchScore: 0,
             }));
 
-            // 根据用户偏好计算匹配分数
             calculateAttractionMatchScores(attractions);
-
-            // 按匹配分数排序
             recommendedAttractions.value = sortByRelevance(attractions);
 
-            // 检查是否还有更多数据
             if (
               attractionsResponse.pois.length < attractionsPageSize ||
               !attractionsResponse.count ||
@@ -854,15 +827,14 @@ export default {
           loadingAttractions.value = false;
         }
 
-        // 3. 获取推荐餐厅 - 使用城市名称而不是adcode
+        // 获取推荐餐厅
         loadingRestaurants.value = true;
-        restaurantsPage.value = 1; // 重置页码
+        restaurantsPage.value = 1;
         noMoreRestaurants.value = false;
 
         try {
           console.log("🔄 获取餐厅数据...");
 
-          // 检查缓存
           const restaurantCacheKey = dataCache.generateKey(
             "restaurants",
             cityName,
@@ -878,15 +850,12 @@ export default {
               restaurantsPageSize
             );
 
-            // 缓存响应数据
             if (restaurantsResponse && restaurantsResponse.pois) {
               dataCache.set(restaurantCacheKey, restaurantsResponse);
             }
           } else {
             console.log("📦 使用缓存的餐厅数据");
           }
-
-          console.log("🔄 高德API餐厅响应:", restaurantsResponse);
 
           if (
             restaurantsResponse &&
@@ -907,17 +876,13 @@ export default {
               type: poi.type.split(";")[0] || "餐厅",
               price: (poi.biz_ext && poi.biz_ext.cost) || "¥¥",
               tags: extractTags(poi),
-              tag: poi.tag, // 保存原始tag字段，用于提取招牌菜
-              matchScore: 0, // 初始匹配分数
+              tag: poi.tag,
+              matchScore: 0,
             }));
 
-            // 根据用户偏好计算匹配分数
             calculateRestaurantMatchScores(restaurants);
-
-            // 按匹配分数排序
             recommendedRestaurants.value = sortByRelevance(restaurants);
 
-            // 检查是否还有更多数据
             if (
               restaurantsResponse.pois.length < restaurantsPageSize ||
               !restaurantsResponse.count ||
@@ -952,52 +917,45 @@ export default {
     const extractTags = (poi) => {
       const tags = [];
 
-      // 从类型中提取标签
       if (poi.type && typeof poi.type === "string") {
         const typeTokens = poi.type.split(";");
         tags.push(...typeTokens);
       }
 
-      // 从高德API的tag字段提取标签（这是最重要的标签来源）
       if (poi.tag && typeof poi.tag === "string") {
         const tagTokens = poi.tag.split(",");
         tags.push(...tagTokens);
       }
 
-      // 从商户类型提取标签
       if (poi.biz_type && typeof poi.biz_type === "string") {
         tags.push(poi.biz_type);
       }
 
-      return [...new Set(tags)]; // 去重
+      return [...new Set(tags)];
     };
 
-    // 根据评分计算景点排序分数（简化版）
+    // 计算景点匹配分数
     const calculateAttractionMatchScores = (attractions) => {
       attractions.forEach((attraction) => {
-        // 只使用评分作为排序依据
         const rating = parseFloat(attraction.rating || "0");
-        attraction.matchScore = rating * 10; // 将评分转换为0-100分制
+        attraction.matchScore = rating * 10;
       });
     };
 
-    // 根据评分计算餐厅排序分数（简化版）
+    // 计算餐厅匹配分数
     const calculateRestaurantMatchScores = (restaurants) => {
       restaurants.forEach((restaurant) => {
-        // 只使用评分作为排序依据
         const rating = parseFloat(restaurant.rating || "0");
-        restaurant.matchScore = rating * 10; // 将评分转换为0-100分制
+        restaurant.matchScore = rating * 10;
       });
     };
 
     // 按相关性排序
     const sortByRelevance = (items) => {
       return [...items].sort((a, b) => {
-        // 首先按匹配分数排序
         if (b.matchScore !== a.matchScore) {
           return b.matchScore - a.matchScore;
         }
-        // 其次按评分排序
         return parseFloat(b.rating) - parseFloat(a.rating);
       });
     };
@@ -1014,11 +972,8 @@ export default {
 
       const tags = [];
       const tagContent = attraction.tag;
-
-      // 常见的分隔符
       const separators = [",", "，", "、", ";", "；", "|"];
 
-      // 尝试用不同分隔符分割
       let tagTokens = [tagContent];
       for (const separator of separators) {
         if (tagContent.includes(separator)) {
@@ -1027,62 +982,27 @@ export default {
         }
       }
 
-      // 景点特色关键词
       const featureKeywords = [
-        "文化",
-        "历史",
-        "古迹",
-        "自然",
-        "风景",
-        "公园",
-        "博物馆",
-        "寺庙",
-        "古建筑",
-        "休闲",
-        "娱乐",
-        "购物",
-        "美食",
-        "艺术",
-        "科技",
-        "亲子",
-        "户外",
-        "登山",
-        "湖泊",
-        "森林",
-        "海滩",
-        "名胜",
-        "地标",
-        "观光",
-        "游览",
-        "热门",
-        "网红",
+        "文化", "历史", "古迹", "自然", "风景", "公园", "博物馆", "寺庙",
+        "古建筑", "休闲", "娱乐", "购物", "美食", "艺术", "科技", "亲子",
+        "户外", "登山", "湖泊", "森林", "海滩", "名胜", "地标", "观光",
+        "游览", "热门", "网红",
       ];
 
-      // 检查每个标签是否为景点特色
       tagTokens.forEach((token) => {
         const trimmedToken = token.trim();
         if (trimmedToken.length > 1) {
-          // 检查是否包含特色关键词
           const isFeature = featureKeywords.some((keyword) =>
             trimmedToken.includes(keyword)
           );
 
-          // 排除一些明显不是特色的标签
           const notFeature = [
-            "停车",
-            "位置",
-            "交通",
-            "商圈",
-            "商场",
-            "广场",
-            "服务",
-            "环境",
+            "停车", "位置", "交通", "商圈", "商场", "广场", "服务", "环境",
           ].some((keyword) => trimmedToken.includes(keyword));
 
           if (isFeature && !notFeature) {
             tags.push(trimmedToken);
           } else if (trimmedToken.length <= 6 && !notFeature) {
-            // 短标签可能是特色，也加入
             tags.push(trimmedToken);
           }
         }
@@ -1103,11 +1023,8 @@ export default {
 
       const dishes = [];
       const tagContent = restaurant.tag;
-
-      // 常见的分隔符
       const separators = [",", "，", "、", ";", "；", "|"];
 
-      // 尝试用不同分隔符分割
       let tagTokens = [tagContent];
       for (const separator of separators) {
         if (tagContent.includes(separator)) {
@@ -1116,61 +1033,22 @@ export default {
         }
       }
 
-      // 过滤出可能的菜品名称
       const dishKeywords = [
-        "招牌",
-        "特色",
-        "推荐",
-        "必点",
-        "名菜",
-        "人气",
-        "菜",
-        "饭",
-        "面",
-        "粉",
-        "汤",
-        "锅",
-        "煲",
-        "炒",
-        "烤",
-        "蒸",
-        "炖",
-        "煮",
-        "焖",
-        "烧",
-        "卤",
-        "鱼",
-        "虾",
-        "蟹",
-        "牛",
-        "羊",
-        "猪",
-        "鸡",
-        "鸭",
-        "鹅",
+        "招牌", "特色", "推荐", "必点", "名菜", "人气", "菜", "饭", "面",
+        "粉", "汤", "锅", "煲", "炒", "烤", "蒸", "炖", "煮", "焖", "烧",
+        "卤", "鱼", "虾", "蟹", "牛", "羊", "猪", "鸡", "鸭", "鹅",
       ];
 
-      // 检查每个标签是否可能是菜品
       tagTokens.forEach((token) => {
         const trimmedToken = token.trim();
         if (trimmedToken.length > 1) {
-          // 检查是否包含菜品关键词
           const isDish = dishKeywords.some((keyword) =>
             trimmedToken.includes(keyword)
           );
 
-          // 排除一些明显不是菜品的标签
           const notDish = [
-            "餐饮",
-            "服务",
-            "环境",
-            "价格",
-            "停车",
-            "位置",
-            "交通",
-            "商圈",
-            "商场",
-            "广场",
+            "餐饮", "服务", "环境", "价格", "停车", "位置", "交通",
+            "商圈", "商场", "广场",
           ].some((keyword) => trimmedToken.includes(keyword));
 
           if (isDish && !notDish) {
@@ -1186,15 +1064,9 @@ export default {
     const loadMoreAttractions = async () => {
       try {
         loadingMoreAttractions.value = true;
-
-        // 使用城市名称而不是adcode
         const cityName = props.baseForm.destinationName;
-        console.log("加载更多景点，城市名称:", cityName);
-
-        // 增加页码
         attractionsPage.value += 1;
 
-        // 检查缓存
         const cacheKey = dataCache.generateKey(
           "attractions",
           cityName,
@@ -1203,22 +1075,16 @@ export default {
         let response = dataCache.get(cacheKey);
 
         if (!response) {
-          console.log("🌐 调用API加载更多景点...");
           response = await getRecommendedAttractions(
             cityName,
             attractionsPage.value,
             attractionsPageSize
           );
 
-          // 缓存响应数据
           if (response && response.pois) {
             dataCache.set(cacheKey, response);
           }
-        } else {
-          console.log("📦 使用缓存加载更多景点");
         }
-
-        console.log("加载更多景点响应:", response);
 
         if (response && response.pois && response.pois.length > 0) {
           const newAttractions = response.pois.map((poi) => ({
@@ -1230,14 +1096,11 @@ export default {
             type: poi.type.split(";")[0] || "景点",
             distance: poi.distance || null,
             tags: extractTags(poi),
-            tag: poi.tag, // 保存原始tag字段，用于提取特色标签
-            matchScore: 0, // 初始匹配分数
+            tag: poi.tag,
+            matchScore: 0,
           }));
 
-          // 根据用户偏好计算匹配分数
           calculateAttractionMatchScores(newAttractions);
-
-          // 添加新景点到现有列表
           recommendedAttractions.value = [
             ...recommendedAttractions.value,
             ...newAttractions,
@@ -1245,12 +1108,10 @@ export default {
 
           ElMessage.success(`已加载${newAttractions.length}个新推荐景点`);
 
-          // 检查是否还有更多数据
           if (
             response.pois.length < attractionsPageSize ||
             !response.count ||
-            Number(response.count) <=
-              attractionsPageSize * attractionsPage.value
+            Number(response.count) <= attractionsPageSize * attractionsPage.value
           ) {
             noMoreAttractions.value = true;
             ElMessage.info("已加载全部推荐景点");
@@ -1267,7 +1128,73 @@ export default {
       }
     };
 
+    // 加载更多餐厅数据
+    const loadMoreRestaurants = async () => {
+      try {
+        loadingMoreRestaurants.value = true;
+        const cityName = props.baseForm.destinationName;
+        restaurantsPage.value += 1;
 
+        const cacheKey = dataCache.generateKey(
+          "restaurants",
+          cityName,
+          restaurantsPage.value
+        );
+        let response = dataCache.get(cacheKey);
+
+        if (!response) {
+          response = await getRecommendedRestaurants(
+            cityName,
+            restaurantsPage.value,
+            restaurantsPageSize
+          );
+
+          if (response && response.pois) {
+            dataCache.set(cacheKey, response);
+          }
+        }
+
+        if (response && response.pois && response.pois.length > 0) {
+          const newRestaurants = response.pois.map((poi) => ({
+            id: poi.id,
+            name: poi.name,
+            address: poi.address,
+            rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
+            photos: poi.photos || [],
+            type: poi.type.split(";")[0] || "餐厅",
+            price: (poi.biz_ext && poi.biz_ext.cost) || "¥¥",
+            tags: extractTags(poi),
+            tag: poi.tag,
+            matchScore: 0,
+          }));
+
+          calculateRestaurantMatchScores(newRestaurants);
+          recommendedRestaurants.value = [
+            ...recommendedRestaurants.value,
+            ...newRestaurants,
+          ];
+
+          ElMessage.success(`已加载${newRestaurants.length}个新推荐餐厅`);
+
+          if (
+            response.pois.length < restaurantsPageSize ||
+            !response.count ||
+            Number(response.count) <= restaurantsPageSize * restaurantsPage.value
+          ) {
+            noMoreRestaurants.value = true;
+            ElMessage.info("已加载全部推荐餐厅");
+          }
+        } else {
+          noMoreRestaurants.value = true;
+          ElMessage.info("没有更多推荐餐厅了");
+        }
+      } catch (error) {
+        console.error("❌ 加载更多餐厅失败:", error);
+        ElMessage.error("加载推荐餐厅失败，请稍后再试");
+      } finally {
+        loadingMoreRestaurants.value = false;
+      }
+    };
 
     // 处理来自子组件的搜索事件
     const handleSearchFromComponent = async (searchParams) => {
@@ -1283,11 +1210,10 @@ export default {
           page: 1,
         };
 
-        // 根据搜索类型添加过滤
         if (searchParams.type === 'attractions') {
-          searchOptions.types = "110000"; // 风景名胜
+          searchOptions.types = "110000";
         } else if (searchParams.type === 'restaurants') {
-          searchOptions.types = "050000"; // 餐饮服务
+          searchOptions.types = "050000";
         }
 
         console.log("🔍 开始搜索:", searchOptions);
@@ -1296,7 +1222,6 @@ export default {
         if (response && response.pois && response.pois.length > 0) {
           console.log("✅ 搜索成功，找到", response.pois.length, "个结果");
 
-          // 处理搜索结果
           const results = response.pois.map((poi) => {
             const isAttraction = poi.type && poi.type.includes("风景名胜");
             return {
@@ -1315,7 +1240,6 @@ export default {
             };
           });
 
-          // 根据排序方式排序
           const sortedResults = sortSearchResults(results, searchParams.sortBy);
           searchResults.value = sortedResults;
 
@@ -1358,90 +1282,6 @@ export default {
           });
         default:
           return sorted;
-      }
-    };
-
-    // 加载更多餐厅数据
-    const loadMoreRestaurants = async () => {
-      try {
-        loadingMoreRestaurants.value = true;
-
-        // 使用城市名称而不是adcode
-        const cityName = props.baseForm.destinationName;
-        console.log("加载更餐厅，城市名称:", cityName);
-        // 增加页码
-        restaurantsPage.value += 1;
-
-        // 检查缓存
-        const cacheKey = dataCache.generateKey(
-          "restaurants",
-          cityName,
-          restaurantsPage.value
-        );
-        let response = dataCache.get(cacheKey);
-
-        if (!response) {
-          console.log("🌐 调用API加载更多餐厅...");
-          response = await getRecommendedRestaurants(
-            cityName,
-            restaurantsPage.value,
-            restaurantsPageSize
-          );
-
-          // 缓存响应数据
-          if (response && response.pois) {
-            dataCache.set(cacheKey, response);
-          }
-        } else {
-          console.log("📦 使用缓存加载更多餐厅");
-        }
-
-        console.log("加载更多餐厅响应:", response);
-
-        if (response && response.pois && response.pois.length > 0) {
-          const newRestaurants = response.pois.map((poi) => ({
-            id: poi.id,
-            name: poi.name,
-            address: poi.address,
-            rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
-            photos: poi.photos || [],
-            type: poi.type.split(";")[0] || "餐厅",
-            price: (poi.biz_ext && poi.biz_ext.cost) || "¥¥",
-            tags: extractTags(poi),
-            tag: poi.tag, // 保存原始tag字段，用于提取招牌菜
-            matchScore: 0, // 初始匹配分数
-          }));
-
-          // 根据用户偏好计算匹配分数
-          calculateRestaurantMatchScores(newRestaurants);
-
-          // 添加新餐厅到现有列表
-          recommendedRestaurants.value = [
-            ...recommendedRestaurants.value,
-            ...newRestaurants,
-          ];
-
-          ElMessage.success(`已加载${newRestaurants.length}个新推荐餐厅`);
-
-          // 检查是否还有更多数据
-          if (
-            response.pois.length < restaurantsPageSize ||
-            !response.count ||
-            Number(response.count) <=
-              restaurantsPageSize * restaurantsPage.value
-          ) {
-            noMoreRestaurants.value = true;
-            ElMessage.info("已加载全部推荐餐厅");
-          }
-        } else {
-          noMoreRestaurants.value = true;
-          ElMessage.info("没有更多推荐餐厅了");
-        }
-      } catch (error) {
-        console.error("❌ 加载更多餐厅失败:", error);
-        ElMessage.error("加载推荐餐厅失败，请稍后再试");
-      } finally {
-        loadingMoreRestaurants.value = false;
       }
     };
 
@@ -1526,60 +1366,10 @@ export default {
       { immediate: true }
     );
 
-    // 应用智能推荐（简化版本，主要逻辑由store处理）
-    const applySmartRecommendations = () => {
-      if (props.isFromDraft) {
-        console.log("🔒 检测到草稿状态，跳过智能推荐，保留草稿设置");
-        return;
-      }
-
-      console.log("🤖 使用store应用智能推荐...");
-      // store的初始化方法已经包含了智能推荐逻辑
-    };
-
-    // 切换行程目标选择
-    const toggleTripGoal = (goalValue) => {
-      const goals = [...preferenceStore.tripPreferenceForm.tripGoals];
-      const index = goals.indexOf(goalValue);
-      if (index > -1) {
-        goals.splice(index, 1);
-      } else {
-        goals.push(goalValue);
-      }
-      preferenceStore.updateTripPreference("tripGoals", goals);
-    };
-
-    // 切换体验重点选择
-    const toggleFocusArea = (areaValue) => {
-      const areas = [...preferenceStore.tripPreferenceForm.focusAreas];
-      const index = areas.indexOf(areaValue);
-      if (index > -1) {
-        areas.splice(index, 1);
-      } else if (areas.length < 5) {
-        areas.push(areaValue);
-      }
-      preferenceStore.updateTripPreference("focusAreas", areas);
-    };
-
-    // 切换饮食禁忌选择
-    const toggleDietaryRestriction = (restrictionValue) => {
-      const restrictions = [
-        ...preferenceStore.tripPreferenceForm.dietaryRestrictions,
-      ];
-      const index = restrictions.indexOf(restrictionValue);
-      if (index > -1) {
-        restrictions.splice(index, 1);
-      } else {
-        restrictions.push(restrictionValue);
-      }
-      preferenceStore.updateTripPreference("dietaryRestrictions", restrictions);
-    };
-
     // 监听用户偏好变化，动态应用默认值
     watch(
       () => props.userPreferences,
       (newPreferences) => {
-        // 如果是草稿状态，跳过用户偏好应用
         if (props.isFromDraft) {
           console.log("🔒 草稿状态中，跳过用户偏好变化处理");
           return;
@@ -1598,7 +1388,6 @@ export default {
 
     // 组件加载时初始化
     onMounted(() => {
-      // 根据状态初始化偏好设置
       if (!props.isFromDraft) {
         console.log("🔄 非草稿状态，初始化偏好设置");
         initializePreferences();
@@ -1606,20 +1395,17 @@ export default {
         console.log("🔒 草稿状态，偏好已通过store加载");
       }
 
-      // 如果有目的地，加载相关信息
       if (props.baseForm) {
         console.log("pre 高德");
         setTimeout(async () => {
           await loadCityInfo(props.baseForm);
         }, 1000);
       }
-
-      // 应用智能推荐
-      applySmartRecommendations();
     });
 
     return {
       localPreferenceForm,
+      hasUserPreferences,
       cityInfo,
       recommendedAttractions,
       recommendedRestaurants,
@@ -1633,7 +1419,6 @@ export default {
       allExperienceOptions,
       dietaryOptions,
       translateTag,
-      selectedPreferenceTags,
       recommendedFocusAreas,
       isRecommendedFocusArea,
       extractTags,
@@ -1646,11 +1431,9 @@ export default {
       addRestaurantToPlan,
       removeRestaurantFromPlan,
       clearAllSelections,
-      // 新的切换方法
       toggleTripGoal,
       toggleFocusArea,
-      toggleDietaryRestriction,
-      // 搜索相关
+      toggleTemporaryDietaryRestriction,
       searching,
       searchResults,
       isSearchMode,
@@ -1662,14 +1445,14 @@ export default {
 </script>
 
 <style scoped>
-/* 整体布局 - 完全按照TripBaseInfo.vue */
-.step-content {
+/* 整体布局 */
+.trip-preferences-container {
   width: 100%;
   background: #f8f9fa;
   min-height: 100vh;
 }
 
-/* 页面标题区域 - 完全按照TripBaseInfo.vue */
+/* 页面标题区域 */
 .page-title {
   background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
   color: white;
@@ -1725,7 +1508,47 @@ export default {
   font-weight: 400;
 }
 
-/* 表单区域 - 完全按照TripBaseInfo.vue */
+/* 智能预填提示 */
+.smart-prefill-tip {
+  background: linear-gradient(135deg, #fff7e6 0%, #fffbf0 100%);
+  border: 1px solid #ffe7ba;
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin: 0 24px 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.1);
+}
+
+.tip-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #faad14 0%, #ffc53d 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.tip-content h4 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #d46b08;
+}
+
+.tip-content p {
+  margin: 0;
+  font-size: 14px;
+  color: #ad6800;
+  line-height: 1.4;
+}
+
+/* 表单区域 */
 .form-sections {
   padding: 0;
   width: 100%;
@@ -1733,7 +1556,6 @@ export default {
   margin: 0 auto;
 }
 
-/* 表单分区样式 - 完全按照TripBaseInfo.vue */
 .form-section {
   background: white;
   border-radius: 16px;
@@ -1751,356 +1573,8 @@ export default {
   transform: translateY(-2px);
 }
 
-/* 分区标题 - 完全按照TripBaseInfo.vue */
-.section-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 20px;
-  font-weight: 600;
-  color: #303133;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid #f0f2f5;
-  position: relative;
-}
-
-.section-title::after {
-  content: "";
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 60px;
-  height: 2px;
-  background: linear-gradient(135deg, #91a8d0, #f7cac9);
-  border-radius: 1px;
-}
-
-.section-title .el-icon {
-  color: #91a8d0;
-  font-size: 24px;
-}
-
-.section-subtitle {
-  font-size: 14px;
-  color: #909399;
-  font-weight: 400;
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* 操作按钮区域 - 完全按照TripBaseInfo.vue */
-.action-section {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  margin-top: 32px;
-  margin-bottom: 32px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e4e7ed;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  max-width: none;
-}
-
-.action-left {
-  flex: 0 0 auto;
-}
-
-.action-center {
-  flex: 0 0 auto;
-}
-
-.action-right {
-  flex: 0 0 auto;
-}
-
-/* 城市推荐布局 */
-.city-guide-container {
-  margin-bottom: 24px;
-  position: relative;
-}
-
-.guide-tip {
-  position: absolute;
-  top: -30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(145, 168, 208, 0.1);
-  border: 1px solid rgba(145, 168, 208, 0.2);
-  border-radius: 16px;
-  padding: 6px 12px;
-  font-size: 12px;
-  color: #91a8d0;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  z-index: 10;
-  animation: fadeIn 0.5s ease-in;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-}
-
-/* 统一推荐区域样式 */
-.unified-recommendation-section {
-  background: #fff;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #ebeef5;
-}
-
-
-
-
-
-
-
-/* 偏好区域样式 - 重新设计 */
-.preferences-section {
-  margin-bottom: 24px;
-}
-
-.preferences-card {
-  border-radius: 16px;
-  border: none;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-}
-
-.preferences-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.header-icon {
-  width: 56px;
-  height: 56px;
-  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 24px;
-  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.3);
-}
-
-.header-content {
-  flex: 1;
-}
-
-.header-title {
-  margin: 0 0 4px 0;
-  font-size: 24px;
-  font-weight: 600;
-  color: #303133;
-  background: linear-gradient(135deg, #91a8d0, #f7cac9);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.header-subtitle {
-  margin: 0;
-  font-size: 15px;
-  color: #606266;
-  line-height: 1.4;
-}
-
-.smart-hint {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: linear-gradient(135deg, #f5f7fa 0%, #fafbfc 100%);
-  border: 1px solid #d4dce6;
-  border-radius: 20px;
-  padding: 8px 16px;
-  color: #91a8d0;
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.smart-hint .el-icon {
-  color: #faad14;
-}
-
-.preferences-content {
-  padding: 32px;
-}
-
-.preferences-content h3 {
-  color: #303133;
-  font-size: 18px;
-  margin: 0 0 16px 0;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.preferences-content h3 .el-icon {
-  color: #91a8d0;
-  font-size: 20px;
-}
-
-.preferences-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.preference-details {
-  background: #f5f7fa;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
-}
-
-.preference-row {
-  margin-bottom: 12px;
-}
-
-.preference-row:last-child {
-  margin-bottom: 0;
-}
-
-.preference-item {
-  display: flex;
-  align-items: center;
-}
-
-.preference-label {
-  width: 100px;
-  flex-shrink: 0;
-  color: #606266;
-}
-
-.preference-values {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.preference-tag {
-  margin-right: 4px;
-  margin-bottom: 4px;
-}
-
-.preference-impact {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #f5f7fa;
-  border-radius: 4px;
-  padding: 10px 16px;
-  color: #91a8d0;
-  font-size: 13px;
-}
-
-.no-preferences {
-  padding: 24px 16px;
-}
-
-.step-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 24px;
-}
-
-.empty-state-enhanced {
-  text-align: center;
-}
-
-.empty-icon {
-  margin-bottom: 16px;
-}
-
-.empty-state-enhanced h4 {
-  margin: 0 0 8px;
-  font-weight: 500;
-}
-
-.empty-state-enhanced p {
-  margin: 0 0 16px;
-  color: #606266;
-}
-
-.benefits-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 24px;
-  text-align: left;
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.benefits-list li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-  color: #606266;
-}
-
-.action-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.personalization-section {
-  margin-top: 32px;
-  border-top: 1px solid #ebeef5;
-  padding-top: 24px;
-}
-
-.section-desc {
-  color: #909399;
-  font-size: 14px;
-  margin: 0 0 24px 0;
-  line-height: 1.5;
-  background: #f5f7fa;
-  padding: 12px 16px;
-  border-radius: 6px;
-  border-left: 3px solid #91a8d0;
-}
-
-.preference-hint {
-  color: #67c23a;
-  font-size: 12px;
-}
-
-.recommendation-hint {
-  color: #e6a23c;
-  font-size: 12px;
-  font-weight: normal;
-}
-.trip-preferences-form{
-  margin-top: 40px;
+.trip-preferences-form {
+  margin-top: 0;
 }
 
 .preference-group {
@@ -2186,7 +1660,7 @@ export default {
 /* 选项卡片样式 */
 .option-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
 }
 
@@ -2198,7 +1672,7 @@ export default {
   padding: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
-  min-height: 60px;
+  min-height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2219,6 +1693,14 @@ export default {
 .option-content {
   text-align: center;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.option-emoji {
+  font-size: 24px;
 }
 
 .option-label {
@@ -2245,7 +1727,7 @@ export default {
 /* 节奏卡片样式 */
 .pace-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
 }
 
@@ -2328,7 +1810,7 @@ export default {
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   min-height: 40px;
 }
 
@@ -2352,6 +1834,10 @@ export default {
 .experience-tag.disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.tag-emoji {
+  font-size: 16px;
 }
 
 .tag-label {
@@ -2380,7 +1866,7 @@ export default {
 .social-cards,
 .photo-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 16px;
 }
 
@@ -2434,37 +1920,34 @@ export default {
   line-height: 1.4;
 }
 
-/* 表单组件样式 - 简化设计 */
-.intensity-option {
-  display: flex;
-  flex-direction: column;
+/* 限制条件样式 */
+.restriction-category {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: #fafafa;
+  border-radius: 12px;
+  border: 1px solid #f0f0f0;
 }
 
-.intensity-option small {
-  color: #909399;
-  font-size: 12px;
-}
-
-.recommended-option {
-  color: #e6a23c;
-}
-
-.recommend-icon {
-  color: #e6a23c;
-  margin-left: 4px;
-}
-
-.checkbox-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px 24px;
-}
-
-.checkbox-grid .el-checkbox {
-  margin-right: 0;
+.restriction-category:last-child {
   margin-bottom: 0;
-  flex: 0 0 auto;
-  min-width: 120px;
+}
+
+.category-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.category-desc {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: #909399;
+  line-height: 1.4;
 }
 
 /* 饮食禁忌标签样式 */
@@ -2472,7 +1955,7 @@ export default {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .dietary-tag {
@@ -2511,27 +1994,23 @@ export default {
   font-size: 14px;
 }
 
-/* 自定义饮食需求 */
-.custom-dietary {
-  background: #fef9e7;
-  border: 1px solid #faecd8;
-  border-radius: 12px;
-  padding: 20px;
-  border-left: 4px solid #e6a23c;
-}
-
-.custom-title {
-  margin: 0 0 12px;
-  font-size: 15px;
-  font-weight: 600;
-  color: #d46b08;
+/* 行程限制 */
+.trip-restrictions {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.custom-input {
-  border-radius: 8px;
+.restriction-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.restriction-item:last-child {
+  border-bottom: none;
 }
 
 /* 特殊需求输入框 */
@@ -2544,184 +2023,118 @@ export default {
   border-color: #91a8d0;
 }
 
-@media (max-width: 1200px) {
-  .recommendation-list {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-  }
+/* 操作按钮区域 */
+.action-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 32px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e4e7ed;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: none;
 }
 
-/* 平板端响应式设计 */
-@media (max-width: 1024px) {
-  .style-cards {
-    gap: 12px;
-  }
-
-  .style-card {
-    min-width: 140px;
-  }
+.action-left {
+  flex: 0 0 auto;
 }
 
+.action-center {
+  flex: 0 0 auto;
+}
+
+.action-right {
+  flex: 0 0 auto;
+}
+
+/* 响应式设计 */
 @media (max-width: 768px) {
-  .tab-switcher {
+  .trip-preferences-container {
+    padding: 16px;
+  }
+
+  .page-title {
+    padding: 24px 16px;
+  }
+
+  .smart-prefill-tip {
+    margin: 0 16px 24px;
+    padding: 16px;
     flex-direction: column;
+    text-align: center;
   }
 
-  .tab-item {
-    padding: 12px 16px;
+  .form-section {
+    padding: 24px 20px;
   }
 
-  .search-section {
-    padding: 12px 16px;
-  }
-
-  .search-input-group {
+  .group-header {
     flex-direction: column;
-    gap: 8px;
-  }
-
-  .search-filters {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .recommendation-list {
-    grid-template-columns: repeat(2, 1fr);
+    align-items: center;
+    text-align: center;
     gap: 12px;
   }
 
-  .style-cards {
-    flex-direction: column;
-    gap: 12px;
+  .option-cards {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
   }
 
-  .style-card {
-    min-width: auto;
-  }
-}
-
-@media (max-width: 480px) {
-  .style-cards {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .checkbox-grid {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .recommendation-list {
+  .pace-cards {
     grid-template-columns: 1fr;
     gap: 12px;
   }
 
-  .recommendation-image {
-    height: 120px;
-  }
-
-  .recommendation-content {
-    padding: 8px;
-  }
-
-  .recommendation-content h4 {
-    font-size: 13px;
-    margin-bottom: 6px;
-  }
-
-  .rating-with-number .el-rate {
-    font-size: 12px;
-  }
-
-  .rating-value {
-    font-size: 12px;
-  }
-
-  .attraction-tags,
-  .signature-dishes {
-    margin: 4px 0;
-  }
-}
-
-.signature-dishes {
-  margin: 6px 0;
-}
-
-.signature-title {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin: 0 0 4px;
-  font-size: 11px;
-  color: #606266;
-}
-
-.dish-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  max-height: 22px;
-  overflow: hidden;
-}
-
-.dish-tag {
-  margin-right: 0;
-  margin-bottom: 0;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 10px;
-}
-
-
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .selected-list {
-    gap: 8px;
-  }
-
-  .selection-tag {
-    padding: 6px 10px;
-    font-size: 13px;
-  }
-
-  .summary-actions {
-    flex-direction: column;
+  .social-cards,
+  .photo-cards {
+    grid-template-columns: 1fr;
     gap: 12px;
   }
 
-  .summary-actions .el-button--primary {
-    max-width: 100%;
-    order: 1;
+  .experience-tags {
+    justify-content: center;
   }
 
-  .summary-actions .el-button--danger {
-    order: 2;
+  .dietary-tags {
+    justify-content: center;
+  }
+
+  .trip-restrictions {
+    gap: 12px;
+  }
+
+  .action-section {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .action-section .el-button {
+    width: 100%;
   }
 }
 
 @media (max-width: 480px) {
-  .selected-items {
-    padding: 16px;
+  .title-text .main-title {
+    font-size: 24px;
   }
 
-  .selected-list {
-    gap: 6px;
+  .option-cards {
+    grid-template-columns: 1fr;
+    gap: 8px;
   }
 
-  .selection-tag {
-    padding: 4px 8px;
-    font-size: 12px;
+  .experience-tags {
+    flex-direction: column;
+    align-items: center;
   }
 
-  .tag-content {
-    gap: 6px;
-  }
-
-  .tag-rating {
-    font-size: 11px;
+  .dietary-tags {
+    flex-direction: column;
+    align-items: center;
   }
 }
 </style>

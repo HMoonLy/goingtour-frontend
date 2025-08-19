@@ -67,6 +67,26 @@ const routes = [
                     requiresAuth: true,
                 },
             },
+            {
+                path: "user/preferences",
+                name: "UserPreferences",
+                component: () =>
+                    import ("../pages/User/Settings/Preferences.vue"),
+                meta: {
+                    titleKey: "route.preferences",
+                    requiresAuth: true,
+                },
+            },
+            {
+                path: "test/preferences-integration",
+                name: "PreferencesIntegrationTest",
+                component: () =>
+                    import ("../components/Test/PreferencesIntegrationTest.vue"),
+                meta: {
+                    title: "偏好设置集成测试",
+                    requiresAuth: true,
+                },
+            },
 
             // 足迹模块
             {
