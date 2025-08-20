@@ -184,17 +184,67 @@
               v-for="budget in budgetLevelOptions"
               :key="budget.value"
               class="budget-card"
-              :class="{ selected: profileData.budgetLevel === budget.value }"
+              :class="{ 
+                selected: profileData.budgetLevel === budget.value,
+                'recommended': budget.value === 'moderate'
+              }"
               @click="profileData.budgetLevel = budget.value"
             >
-              <div class="budget-header">
-                <span class="budget-name">{{ budget.name }}</span>
-                <span class="budget-range">{{ budget.range }}</span>
+              <!-- 推荐标签 -->
+              <div v-if="budget.value === 'moderate'" class="recommend-badge">
+                🔥 性价比推荐
               </div>
+              
+              <div class="budget-header">
+                <div class="budget-icon" :class="budget.value">
+                  <span v-if="budget.value === 'budget'">💰</span>
+                  <span v-else-if="budget.value === 'moderate'">⭐</span>
+                  <span v-else-if="budget.value === 'comfort'">🏨</span>
+                  <span v-else-if="budget.value === 'luxury'">💎</span>
+                </div>
+                <div class="budget-info">
+                  <span class="budget-name">{{ budget.name }}</span>
+                  <span class="budget-range">{{ budget.range }}</span>
+                </div>
+              </div>
+              
               <p class="budget-desc">{{ budget.description }}</p>
+              
+              <!-- 特色功能标签 -->
+              <div class="budget-features">
+                <div v-if="budget.value === 'budget'" class="feature-tag-group">
+                  <span class="feature-tag">公共交通</span>
+                  <span class="feature-tag">平价美食</span>
+                  <span class="feature-tag">免费景点</span>
+                </div>
+                <div v-else-if="budget.value === 'moderate'" class="feature-tag-group">
+                  <span class="feature-tag">舒适住宿</span>
+                  <span class="feature-tag">特色体验</span>
+                  <span class="feature-tag">热门景点</span>
+                </div>
+                <div v-else-if="budget.value === 'comfort'" class="feature-tag-group">
+                  <span class="feature-tag">品质酒店</span>
+                  <span class="feature-tag">便利交通</span>
+                  <span class="feature-tag">优质餐厅</span>
+                </div>
+                <div v-else-if="budget.value === 'luxury'" class="feature-tag-group">
+                  <span class="feature-tag">豪华体验</span>
+                  <span class="feature-tag">高端服务</span>
+                  <span class="feature-tag">独特项目</span>
+                </div>
+              </div>
+              
               <div class="budget-strategy">
-                <!-- <el-icon><Strategy /></el-icon> -->
+                <el-icon><InfoFilled /></el-icon>
                 <span>{{ budget.aiStrategy }}</span>
+              </div>
+              
+              <!-- 适用人群提示 -->
+              <div class="target-users">
+                <span v-if="budget.value === 'budget'">💡 学生党、背包客</span>
+                <span v-else-if="budget.value === 'moderate'">💡 年轻白领、小资族</span>
+                <span v-else-if="budget.value === 'comfort'">💡 注重品质、商务出行</span>
+                <span v-else-if="budget.value === 'luxury'">💡 追求极致、高端体验</span>
               </div>
             </div>
           </div>
@@ -618,7 +668,7 @@ export default {
 }
 
 .page-title {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   margin: 0 0 4px 0;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -979,20 +1029,20 @@ export default {
 /* 预算卡片 */
 .budget-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 20px;
 }
 
 .budget-card {
   padding: 24px;
   border: 2px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 16px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  text-align: center;
   background: var(--card-bg);
   position: relative;
   overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .budget-card::before {
@@ -1009,26 +1059,103 @@ export default {
 
 .budget-card:hover {
   border-color: var(--primary-color);
-  box-shadow: 0 6px 20px rgba(145, 168, 208, 0.15);
+  box-shadow: 0 8px 24px rgba(145, 168, 208, 0.15);
   transform: translateY(-4px);
 }
 
 .budget-card:hover::before {
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
   opacity: 1;
+}
+
+.budget-card:hover .budget-icon {
+  transform: scale(1.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
 .budget-card.selected {
   border-color: var(--primary-color);
   background: linear-gradient(135deg, var(--primary-light-9, rgba(145, 168, 208, 0.1)) 0%, var(--card-bg) 100%);
-  box-shadow: 0 4px 16px rgba(145, 168, 208, 0.2);
+  box-shadow: 0 8px 24px rgba(145, 168, 208, 0.2);
 }
 
 .budget-card.selected::before {
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
   opacity: 1;
 }
 
+.budget-card.selected .budget-icon {
+  transform: scale(1.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.budget-card.recommended {
+  border-color: var(--success-color);
+  box-shadow: 0 4px 16px rgba(124, 179, 66, 0.15);
+}
+
+.budget-card.recommended::before {
+  background: linear-gradient(90deg, var(--success-color), #73d13d);
+  opacity: 1;
+}
+
+.recommend-badge {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  background: linear-gradient(45deg, var(--success-color), #73d13d);
+  color: white;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 0 16px 0 16px;
+  box-shadow: 0 2px 8px rgba(124, 179, 66, 0.3);
+  z-index: 2;
+}
+
 .budget-header {
-  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.budget-icon {
+  font-size: 24px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.budget-icon.budget {
+  background: linear-gradient(135deg, #52c41a, #73d13d);
+  color: white;
+}
+
+.budget-icon.moderate {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+}
+
+.budget-icon.comfort {
+  background: linear-gradient(135deg, #fa8c16, #ffa940);
+  color: white;
+}
+
+.budget-icon.luxury {
+  background: linear-gradient(135deg, #eb2f96, #f759ab);
+  color: white;
+}
+
+.budget-info {
+  flex: 1;
+  text-align: left;
 }
 
 .budget-name {
@@ -1053,6 +1180,33 @@ export default {
   line-height: 1.5;
 }
 
+.budget-features {
+  margin-bottom: 16px;
+}
+
+.feature-tag-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.feature-tag {
+  background: var(--primary-light-9, rgba(145, 168, 208, 0.1));
+  color: var(--primary-color);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--primary-light-8, rgba(145, 168, 208, 0.2));
+  transition: all 0.3s ease;
+}
+
+.budget-card:hover .feature-tag {
+  background: var(--primary-light-8, rgba(145, 168, 208, 0.2));
+  transform: scale(1.05);
+}
+
 .budget-strategy {
   display: flex;
   align-items: center;
@@ -1061,10 +1215,21 @@ export default {
   font-size: 13px;
   color: var(--text-muted);
   font-style: italic;
-  padding: 10px;
+  padding: 12px;
   background: var(--bg-secondary);
-  border-radius: 10px;
-  margin-top: 4px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border-light);
+}
+
+.target-users {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
 }
 
 /* 饮食限制网格 */
@@ -1451,7 +1616,34 @@ export default {
   }
 
   .interests-grid,
-  .budget-cards,
+  .budget-cards {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .budget-card {
+    padding: 20px 16px;
+  }
+  
+  .feature-tag-group {
+    display: none; /* 移动端隐藏特性标签节省空间 */
+  }
+  
+  .budget-header {
+    gap: 12px;
+  }
+  
+  .budget-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+  
+  .recommend-badge {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  
   .transport-grid {
     grid-template-columns: 1fr;
     gap: 14px;
