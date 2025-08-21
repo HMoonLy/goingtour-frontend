@@ -119,19 +119,33 @@
       <!-- 搜索功能 -->
       <div class="search-section">
         <div class="search-input-group">
-          <el-input
+          <el-autocomplete
             v-model="searchKeyword"
+            :fetch-suggestions="getSearchSuggestions"
             :placeholder="
-              activeTab === 'attractions' ? '请输入景点名称或关键词' : '请输入餐厅名称或关键词'
+              activeTab === 'attractions' ? '搜索景点名称或输入关键词' : '搜索餐厅名称或输入关键词'
             "
             clearable
+            class="search-autocomplete"
+            @select="handleSuggestionSelect"
             @keyup.enter="handleSearch"
             @clear="handleClearSearch"
           >
             <template #prefix>
               <el-icon><Search /></el-icon>
             </template>
-          </el-input>
+            <template #default="{ item }">
+              <div class="suggestion-item">
+                <el-icon class="suggestion-icon">
+                  <component :is="item.icon" />
+                </el-icon>
+                <span class="suggestion-text">{{ item.value }}</span>
+                <el-tag v-if="item.type" size="small" :type="item.tagType">
+                  {{ item.type }}
+                </el-tag>
+              </div>
+            </template>
+          </el-autocomplete>
           <el-button
             type="primary"
             :loading="searching"
@@ -141,6 +155,21 @@
             搜索
           </el-button>
         </div>
+        
+        <!-- 热门搜索标签 -->
+        <div class="popular-searches" v-if="!searchKeyword">
+          <span class="search-label">热门搜索：</span>
+          <el-tag
+            v-for="keyword in getPopularSearches()"
+            :key="keyword.text"
+            class="popular-tag"
+            @click="quickSearch(keyword.text)"
+          >
+            <el-icon><component :is="keyword.icon" /></el-icon>
+            {{ keyword.text }}
+          </el-tag>
+        </div>
+        
         <div class="search-filters">
           <el-select
             v-model="sortBy"
@@ -182,11 +211,35 @@
         </div>
 
         <div v-if="loadingAttractions" class="loading-state">
-          <el-skeleton :rows="3" animated />
+          <div class="skeleton-grid">
+            <div 
+              v-for="n in 8" 
+              :key="n" 
+              class="skeleton-card"
+            >
+              <el-skeleton animated>
+                <template #template>
+                  <el-skeleton-item variant="image" style="height: 140px; border-radius: 8px 8px 0 0;" />
+                  <div style="padding: 12px;">
+                    <el-skeleton-item variant="h3" style="width: 80%; margin-bottom: 8px;" />
+                    <el-skeleton-item variant="text" style="width: 60%; margin-bottom: 6px;" />
+                    <div style="display: flex; gap: 4px; margin: 8px 0;">
+                      <el-skeleton-item variant="text" style="width: 40px; height: 20px; border-radius: 4px;" />
+                      <el-skeleton-item variant="text" style="width: 50px; height: 20px; border-radius: 4px;" />
+                      <el-skeleton-item variant="text" style="width: 35px; height: 20px; border-radius: 4px;" />
+                    </div>
+                    <el-skeleton-item variant="text" style="width: 90%; margin-bottom: 8px;" />
+                    <el-skeleton-item variant="text" style="width: 70%; margin-bottom: 12px;" />
+                    <el-skeleton-item variant="button" style="width: 100%; height: 32px;" />
+                  </div>
+                </template>
+              </el-skeleton>
+            </div>
+          </div>
         </div>
 
         <div
-          v-else-if="recommendedAttractions.length === 0 && !apiError"
+          v-else-if="sortedAttractions.length === 0 && !apiError"
           class="empty-state"
         >
           <el-empty description="暂无推荐景点" />
@@ -205,7 +258,7 @@
           <div
             v-for="attraction in isSearchMode
               ? searchResults.filter((item) => item.isAttraction)
-              : recommendedAttractions"
+              : sortedAttractions"
             :key="attraction.id"
             class="recommendation-item vertical-layout"
           >
@@ -314,7 +367,7 @@
         </div>
 
         <div
-          v-if="recommendedAttractions.length > 0 && !isSearchMode"
+          v-if="sortedAttractions.length > 0 && !isSearchMode"
           class="view-more-container"
         >
           <el-button
@@ -356,11 +409,35 @@
         </div>
 
         <div v-if="loadingRestaurants" class="loading-state">
-          <el-skeleton :rows="3" animated />
+          <div class="skeleton-grid">
+            <div 
+              v-for="n in 8" 
+              :key="n" 
+              class="skeleton-card"
+            >
+              <el-skeleton animated>
+                <template #template>
+                  <el-skeleton-item variant="image" style="height: 140px; border-radius: 8px 8px 0 0;" />
+                  <div style="padding: 12px;">
+                    <el-skeleton-item variant="h3" style="width: 75%; margin-bottom: 8px;" />
+                    <el-skeleton-item variant="text" style="width: 50%; margin-bottom: 6px;" />
+                    <div style="display: flex; gap: 4px; margin: 8px 0;">
+                      <el-skeleton-item variant="text" style="width: 45px; height: 20px; border-radius: 4px;" />
+                      <el-skeleton-item variant="text" style="width: 40px; height: 20px; border-radius: 4px;" />
+                      <el-skeleton-item variant="text" style="width: 55px; height: 20px; border-radius: 4px;" />
+                    </div>
+                    <el-skeleton-item variant="text" style="width: 85%; margin-bottom: 8px;" />
+                    <el-skeleton-item variant="text" style="width: 95%; margin-bottom: 12px;" />
+                    <el-skeleton-item variant="button" style="width: 100%; height: 32px;" />
+                  </div>
+                </template>
+              </el-skeleton>
+            </div>
+          </div>
         </div>
 
         <div
-          v-else-if="recommendedRestaurants.length === 0 && !apiError"
+          v-else-if="sortedRestaurants.length === 0 && !apiError"
           class="empty-state"
         >
           <el-empty description="暂无推荐餐厅" />
@@ -382,7 +459,7 @@
           <div
             v-for="restaurant in isSearchMode
               ? searchResults.filter((item) => !item.isAttraction)
-              : recommendedRestaurants"
+              : sortedRestaurants"
             :key="restaurant.id"
             class="recommendation-item vertical-layout"
           >
@@ -494,7 +571,7 @@
         </div>
 
         <div
-          v-if="recommendedRestaurants.length > 0 && !isSearchMode"
+          v-if="sortedRestaurants.length > 0 && !isSearchMode"
           class="view-more-container"
         >
           <el-button
@@ -623,6 +700,65 @@ export default {
     // 选择摘要详情展开状态
     const showSummaryDetail = ref(false);
 
+    // 搜索建议数据
+    const attractionSuggestions = [
+      { value: "故宫博物院", icon: "Location", type: "历史文化", tagType: "primary" },
+      { value: "天安门广场", icon: "Location", type: "地标建筑", tagType: "primary" },
+      { value: "颐和园", icon: "Location", type: "园林景观", tagType: "success" },
+      { value: "天坛公园", icon: "Location", type: "历史文化", tagType: "primary" },
+      { value: "长城", icon: "Location", type: "世界遗产", tagType: "warning" },
+      { value: "鸟巢", icon: "Location", type: "现代建筑", tagType: "info" },
+      { value: "水立方", icon: "Location", type: "现代建筑", tagType: "info" },
+      { value: "恭王府", icon: "Location", type: "历史建筑", tagType: "primary" },
+      { value: "南锣鼓巷", icon: "Location", type: "文化街区", tagType: "success" },
+      { value: "798艺术区", icon: "Location", type: "艺术文化", tagType: "success" },
+    ];
+
+    const restaurantSuggestions = [
+      { value: "全聚德烤鸭", icon: "Food", type: "北京菜", tagType: "warning" },
+      { value: "东来顺火锅", icon: "Food", type: "火锅", tagType: "danger" },
+      { value: "便宜坊", icon: "Food", type: "北京菜", tagType: "warning" },
+      { value: "护国寺小吃", icon: "Food", type: "小吃", tagType: "success" },
+      { value: "老北京炸酱面", icon: "Food", type: "面食", tagType: "info" },
+      { value: "豆汁", icon: "Food", type: "传统小吃", tagType: "success" },
+      { value: "糖葫芦", icon: "Food", type: "传统小吃", tagType: "success" },
+      { value: "驴打滚", icon: "Food", type: "传统小吃", tagType: "success" },
+      { value: "艾窝窝", icon: "Food", type: "传统小吃", tagType: "success" },
+      { value: "羊蝎子", icon: "Food", type: "北京菜", tagType: "warning" },
+    ];
+
+    // 排序函数
+    const sortItems = (items, sortType) => {
+      const sorted = [...items];
+      
+      switch (sortType) {
+        case "rating":
+          return sorted.sort((a, b) => {
+            const ratingA = parseFloat(a.rating) || 0;
+            const ratingB = parseFloat(b.rating) || 0;
+            return ratingB - ratingA;
+          });
+        case "distance":
+          return sorted.sort((a, b) => {
+            const distA = parseFloat(a.distance) || Infinity;
+            const distB = parseFloat(b.distance) || Infinity;
+            return distA - distB;
+          });
+        default:
+          return sorted;
+      }
+    };
+
+    // 排序后的景点列表
+    const sortedAttractions = computed(() => {
+      return sortItems(props.recommendedAttractions, sortBy.value);
+    });
+
+    // 排序后的餐厅列表
+    const sortedRestaurants = computed(() => {
+      return sortItems(props.recommendedRestaurants, sortBy.value);
+    });
+
     // 判断景点是否已选择
     const isAttractionSelected = (attraction) => {
       return props.selectedAttractions.some((a) => a.id === attraction.id);
@@ -675,17 +811,73 @@ export default {
       }
     };
 
+    // 获取搜索建议
+    const getSearchSuggestions = (queryString, cb) => {
+      const suggestions = activeTab.value === 'attractions' 
+        ? attractionSuggestions 
+        : restaurantSuggestions;
+      
+      const results = queryString
+        ? suggestions.filter(item => 
+            item.value.toLowerCase().includes(queryString.toLowerCase())
+          )
+        : suggestions.slice(0, 6); // 默认显示前6个
+      
+      cb(results);
+    };
+
+    // 处理建议选择
+    const handleSuggestionSelect = (item) => {
+      searchKeyword.value = item.value;
+      handleSearch();
+    };
+
+    // 快速搜索
+    const quickSearch = (keyword) => {
+      searchKeyword.value = keyword;
+      handleSearch();
+    };
+
+    // 获取热门搜索
+    const getPopularSearches = () => {
+      if (activeTab.value === 'attractions') {
+        return [
+          { text: "故宫", icon: "Location" },
+          { text: "长城", icon: "Location" },
+          { text: "颐和园", icon: "Location" },
+          { text: "天坛", icon: "Location" },
+          { text: "南锣鼓巷", icon: "Location" },
+          { text: "798", icon: "Location" },
+        ];
+      } else {
+        return [
+          { text: "烤鸭", icon: "Food" },
+          { text: "火锅", icon: "Food" },
+          { text: "炸酱面", icon: "Food" },
+          { text: "小吃", icon: "Food" },
+          { text: "豆汁", icon: "Food" },
+          { text: "糖葫芦", icon: "Food" },
+        ];
+      }
+    };
+
     return {
       activeTab,
       searchKeyword,
       sortBy,
       showSummaryDetail,
+      sortedAttractions,
+      sortedRestaurants,
       isAttractionSelected,
       isRestaurantSelected,
       handleSearch,
       handleClearSearch,
       toggleSummaryDetail,
       clearAllSelections,
+      getSearchSuggestions,
+      handleSuggestionSelect,
+      quickSearch,
+      getPopularSearches,
     };
   },
 };
@@ -909,14 +1101,78 @@ export default {
   margin-bottom: 12px;
 }
 
-.search-input-group .el-input {
+.search-input-group .el-input,
+.search-input-group .search-autocomplete {
   flex: 1;
+}
+
+.search-autocomplete {
+  font-size: 16px; /* 防止iOS缩放 */
 }
 
 .search-filters {
   display: flex;
   gap: 12px;
   align-items: center;
+}
+
+/* 搜索建议样式 */
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.suggestion-icon {
+  color: #91a8d0;
+  font-size: 14px;
+}
+
+.suggestion-text {
+  flex: 1;
+  font-size: 14px;
+}
+
+/* 热门搜索样式 */
+.popular-searches {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.search-label {
+  font-size: 13px;
+  color: #606266;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.popular-tag {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  padding: 4px 8px;
+  border: 1px solid #dcdfe6;
+  background: #fff;
+  color: #606266;
+}
+
+.popular-tag:hover {
+  background: #91a8d0;
+  color: white;
+  border-color: #91a8d0;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(145, 168, 208, 0.3);
+}
+
+.popular-tag .el-icon {
+  font-size: 12px;
 }
 
 .search-mode-tip {
@@ -946,11 +1202,30 @@ export default {
   text-align: center;
 }
 
+/* 骨架屏样式 */
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.skeleton-card {
+  background: #ffffff;
+  border: 1px solid #ebeef5;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
 .recommendation-list {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  /* 使用自适应网格，最小280px，自动填充 */
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
   margin-top: 16px;
+  /* 确保容器有最小高度避免内容跳动 */
+  min-height: 200px;
 }
 
 .recommendation-item {
@@ -1135,94 +1410,197 @@ export default {
 /* 响应式设计 */
 @media (max-width: 1200px) {
   .recommendation-list {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
+    /* 中等屏幕：最小260px */
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  
+  .form-section {
+    padding: 24px;
   }
 }
 
 @media (max-width: 768px) {
+  /* 平板适配 */
+  .form-section {
+    padding: 20px 16px;
+    margin: 0 8px;
+  }
+  
+  .section-title {
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+
   .tab-switcher {
-    flex-direction: column;
+    margin-bottom: 20px;
   }
 
   .tab-item {
-    padding: 12px 16px;
+    padding: 14px 16px;
+    min-height: 56px;
+    font-size: 14px;
   }
 
   .search-section {
-    padding: 12px 16px;
+    padding: 16px;
+    margin-bottom: 20px;
   }
 
   .search-input-group {
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
+  }
+  
+  .search-input-group .el-input {
+    font-size: 16px; /* 防止iOS缩放 */
   }
 
   .search-filters {
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 12px;
+    justify-content: flex-start;
   }
 
-  .recommendation-list {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+  .recommendation-list,
+  .skeleton-grid {
+    /* 平板：最小240px，通常显示2-3列 */
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+  }
+
+  /* 选择摘要优化 */
+  .summary-float-card {
+    margin: 0 8px 16px;
   }
 
   .summary-header {
     flex-direction: column;
     gap: 12px;
     align-items: stretch;
+    padding: 16px;
+  }
+
+  .summary-title {
+    justify-content: center;
   }
 
   .selected-list-compact {
-    gap: 4px;
+    gap: 6px;
+  }
+  
+  .selection-tag-compact {
+    font-size: 13px;
+    padding: 6px 10px;
   }
 }
 
 @media (max-width: 480px) {
-  .recommendation-list {
+  /* 手机端优化 */
+  .form-section {
+    padding: 16px 12px;
+    margin: 0 4px;
+    border-radius: 12px;
+  }
+  
+  .section-title {
+    font-size: 16px;
+    margin-bottom: 16px;
+  }
+
+  .recommendation-list,
+  .skeleton-grid {
+    /* 手机端：单列布局 */
     grid-template-columns: 1fr;
     gap: 12px;
   }
 
+  .recommendation-item {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid #f0f0f0;
+  }
+
   .recommendation-image {
-    height: 120px;
+    height: 160px; /* 增加高度以适应手机屏幕 */
   }
 
   .recommendation-content {
-    padding: 8px;
+    padding: 12px;
   }
 
   .recommendation-content h4 {
-    font-size: 13px;
-    margin-bottom: 6px;
+    font-size: 15px; /* 稍大一些以提高可读性 */
+    margin-bottom: 8px;
+    line-height: 1.3;
   }
 
   .rating-with-number .el-rate {
-    font-size: 12px;
+    font-size: 14px;
   }
 
   .rating-value {
-    font-size: 12px;
+    font-size: 13px;
+    margin-left: 6px;
+  }
+
+  .recommendation-tags {
+    margin: 8px 0;
+  }
+
+  .category-tag,
+  .tag-item {
+    font-size: 11px;
+    padding: 2px 6px;
   }
 
   .attraction-tags,
   .signature-dishes {
-    margin: 4px 0;
+    margin: 8px 0;
+  }
+
+  .feature-tag,
+  .dish-tag {
+    font-size: 10px;
+    padding: 2px 4px;
+  }
+
+  .recommendation-address {
+    font-size: 12px;
+    margin: 8px 0;
+  }
+
+  .add-to-plan {
+    padding-top: 12px;
   }
 
   .add-to-plan .el-button {
-    padding: 4px 8px;
-    font-size: 11px;
+    padding: 8px 16px;
+    font-size: 12px;
+    border-radius: 8px;
+    width: 100%;
   }
 
-  .summary-float-card {
-    margin: 0 -10px;
+  /* 搜索区域手机优化 */
+  .search-section {
+    padding: 12px;
     border-radius: 12px;
   }
 
+  .search-input-group .el-button {
+    padding: 12px 20px;
+    font-size: 14px;
+  }
+
+  /* 选择摘要手机优化 */
+  .summary-float-card {
+    margin: 0 4px 12px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(145, 168, 208, 0.15);
+  }
+
   .summary-header {
-    padding: 12px 16px;
+    padding: 14px 16px;
   }
 
   .summary-detail {

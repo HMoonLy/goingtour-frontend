@@ -542,6 +542,7 @@ export default {
   margin: 0 auto;
   background: #fafafa;
   min-height: 100vh;
+  padding: 0 16px;
 }
 
 /* 步骤头部 */
@@ -764,18 +765,51 @@ export default {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+  .trip-recommendation-step {
+    padding: 0 8px;
+  }
+  
   .step-header {
-    padding: 32px 24px;
+    padding: 24px 20px;
+    margin-bottom: 20px;
+    border-radius: 16px;
   }
 
   .header-content {
     flex-direction: column;
     text-align: center;
-    gap: 20px;
+    gap: 16px;
+  }
+
+  .header-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 30px;
   }
 
   .step-title {
     font-size: 28px;
+  }
+
+  .step-subtitle {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .progress-hint {
+    padding: 16px 20px;
+    border-radius: 12px;
+  }
+
+  .hint-content {
+    font-size: 13px;
+    gap: 8px;
+  }
+
+  .step-actions {
+    padding: 24px 16px;
+    border-radius: 16px;
+    margin-bottom: 20px;
   }
 
   .actions-content {
@@ -784,39 +818,83 @@ export default {
     align-items: stretch;
   }
 
+  .selection-summary {
+    text-align: center;
+  }
+
   .summary-stats {
     justify-content: center;
+    gap: 16px;
+  }
+
+  .stat-item {
+    font-size: 15px;
   }
 
   .action-buttons {
     justify-content: stretch;
+    gap: 12px;
   }
 
   .action-buttons .el-button {
     flex: 1;
     min-width: auto;
+    padding: 14px 20px;
+    font-size: 15px;
   }
 
   .ai-tip-card {
     position: relative;
     width: auto;
-    margin: 20px;
+    margin: 16px 8px;
     right: auto;
     bottom: auto;
+    border-radius: 12px;
   }
 }
 
 @media (max-width: 480px) {
-  .step-header {
-    padding: 24px 20px;
+  .trip-recommendation-step {
+    padding: 0 4px;
   }
 
-  .step-title {
+  .step-header {
+    padding: 20px 16px;
+    margin-bottom: 16px;
+    border-radius: 12px;
+  }
+
+  .header-icon {
+    width: 50px;
+    height: 50px;
     font-size: 24px;
   }
 
+  .step-title {
+    font-size: 22px;
+    margin-bottom: 8px;
+  }
+
+  .step-subtitle {
+    font-size: 13px;
+  }
+
+  .progress-hint {
+    padding: 12px 16px;
+  }
+
+  .hint-content {
+    font-size: 12px;
+  }
+
   .step-actions {
-    padding: 24px 20px;
+    padding: 20px 16px;
+    margin-bottom: 16px;
+    border-radius: 12px;
+  }
+
+  .selection-summary {
+    gap: 8px;
   }
 
   .summary-stats {
@@ -825,9 +903,24 @@ export default {
     align-items: center;
   }
 
+  .stat-item {
+    font-size: 14px;
+  }
+
   .action-buttons {
     flex-direction: column;
     gap: 12px;
+  }
+
+  .action-buttons .el-button {
+    padding: 12px 16px;
+    font-size: 14px;
+    min-width: 80px;
+  }
+
+  .ai-tip-card {
+    margin: 12px 4px;
+    border-radius: 8px;
   }
 }
 </style>
