@@ -345,10 +345,10 @@
         @click="savePreferences"
       >
         <el-icon><Check /></el-icon>
-        保存偏好设置
+        保存并继续
       </el-button>
       <p class="save-tip">
-        保存后即可开始生成个性化行程推荐
+        保存后将进入推荐选择，您可以挑选感兴趣的景点和餐厅
       </p>
     </div>
   </div>

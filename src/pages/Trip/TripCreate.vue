@@ -30,6 +30,7 @@
         <el-steps :active="currentStep" finish-status="success" align-center>
           <el-step title="基础信息" />
           <el-step title="个性化偏好" />
+          <el-step title="推荐选择" />
           <el-step title="智能生成" />
           <el-step title="行程预览" />
         </el-steps>
@@ -117,9 +118,22 @@
           @preferences-saved="handlePreferencesSaved"
         />
 
-        <!-- 第三步：智能生成 -->
-        <TripGeneration
+        <!-- 第三步：推荐选择 -->
+        <TripRecommendationStep
           v-show="currentStep === 2"
+          :city-info="{ destinationName: baseForm.destinationName, destination: baseForm.destination }"
+          :base-form="baseForm"
+          :preference-form="preferenceForm"
+          :generating="generating"
+          @prev-step="prevStep"
+          @next-step="nextStep"
+          @selections-updated="handleSelectionsUpdated"
+          @save-draft="handleQuickSaveDraft"
+        />
+
+        <!-- 第四步：智能生成 -->
+        <TripGeneration
+          v-show="currentStep === 3"
           :base-form="baseForm"
           :preference-form="preferenceForm"
           :user-preferences="userStore.userPreferences"
@@ -143,10 +157,10 @@
           @save-draft="handleQuickSaveDraft"
         />
 
-        <!-- 第四步：行程展示 -->
+        <!-- 第五步：行程展示 -->
         <!-- AI生成的行程展示 -->
         <AiTripDisplay
-          v-if="currentStep === 3 && tripData && tripData.content"
+          v-if="currentStep === 4 && tripData && tripData.content"
           :trip-data="tripData"
           @regenerate="regenerateTrip"
           @save="handleTripSaved"
@@ -155,7 +169,7 @@
 
         <!-- 传统结构化行程展示 -->
         <TripPreview
-          v-else-if="currentStep === 3 && tripData && tripData.dailyPlan"
+          v-else-if="currentStep === 4 && tripData && tripData.dailyPlan"
           :trip-data="tripData"
           :is-loading="isLoadingTrip"
           :base-form="baseForm"
@@ -164,7 +178,7 @@
           @prev-step="prevStep"
         />
         <!-- 空状态展示 -->
-        <div v-else-if="currentStep === 3" class="empty-trip-state">
+        <div v-else-if="currentStep === 4" class="empty-trip-state">
           <el-empty description="未找到行程数据" :image-size="200">
             >
             <el-button type="primary" @click="regenerateTrip"> 生成行程 </el-button>
@@ -373,7 +387,8 @@ import TripPreferences from "@/components/Trip/TripPreferences.vue";
 import TripGeneration from "@/components/Trip/TripGeneration.vue";
 import TripPreview from "@/components/Trip/TripPreview.vue";
 import AiTripDisplay from "@/components/Trip/AiTripDisplay.vue";
-import TripPreferencesNew from "@/components/Trip/TripPreferencesNew.vue" 
+import TripPreferencesNew from "@/components/Trip/TripPreferencesNew.vue";
+import TripRecommendationStep from "@/components/Trip/TripRecommendationStep.vue"; 
 
 export default {
   name: "TripCreate",
@@ -381,6 +396,7 @@ export default {
     TripBaseInfo,
     TripPreferences,
     TripPreferencesNew,
+    TripRecommendationStep,
     TripGeneration,
     TripPreview,
     AiTripDisplay,
@@ -475,7 +491,7 @@ export default {
 
     // 步骤控制
     const nextStep = () => {
-      if (currentStep.value < 3) {
+      if (currentStep.value < 4) {
         currentStep.value += 1;
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
@@ -497,7 +513,7 @@ export default {
     // 重新生成行程
     const regenerateTrip = () => {
       // 回到生成步骤
-      currentStep.value = 2;
+      currentStep.value = 3;
       window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
@@ -526,6 +542,14 @@ export default {
       ElMessage.success("偏好设置已保存");
       // 可以自动进入下一步
       nextStep();
+    };
+
+    // 处理推荐选择更新事件
+    const handleSelectionsUpdated = (selections) => {
+      console.log("🎯 推荐选择已更新:", selections);
+      selectedAttractions.value = selections.selectedAttractions || [];
+      selectedRestaurants.value = selections.selectedRestaurants || [];
+      markDataChanged();
     };
 
     // 获取天气信息
@@ -1003,7 +1027,7 @@ export default {
 
     // 获取步骤名称
     const getStepName = (step) => {
-      const stepNames = ["基础信息", "个性化偏好", "智能生成", "行程预览"];
+      const stepNames = ["基础信息", "个性化偏好", "推荐选择", "智能生成", "行程预览"];
       return stepNames[step] || "未知步骤";
     };
 
@@ -1133,6 +1157,7 @@ export default {
       handleTripShare,
       handlePreferencesUpdate,
       handlePreferencesSaved,
+      handleSelectionsUpdated,
       fetchWeatherForTrip,
       isRestoringProgress,
       goToDestinations,
