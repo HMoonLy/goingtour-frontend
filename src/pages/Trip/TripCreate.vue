@@ -116,6 +116,7 @@
           }"
           @preferences-updated="handlePreferencesUpdate"
           @preferences-saved="handlePreferencesSaved"
+          @go-to-previous-step="prevStep"
         />
 
         <!-- 第三步：推荐选择 -->

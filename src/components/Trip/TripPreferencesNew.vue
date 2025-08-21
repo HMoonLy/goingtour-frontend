@@ -335,32 +335,40 @@
       </div>
     </div>
 
-    <!-- 操作按钮区域 -->
-    <div class="action-section">
-      <el-button
-        class="draft-button"
-        @click="saveDraft"
-      >
-        <el-icon><Document /></el-icon>
-        保存草稿
-      </el-button>
+    <!-- 操作区域 -->
+    <div class="step-actions">
+      <div class="action-left">
+        <el-button
+          size="large"
+          type="info"
+          plain
+          @click="saveDraft"
+        >
+          <el-icon><Document /></el-icon>
+          保存草稿
+        </el-button>
+      </div>
       
-      <div class="navigation-buttons">
-        <el-button
-          class="prev-button"
-          @click="goToPreviousStep"
-        >
-          上一步
-        </el-button>
-        
-        <el-button
-          type="primary"
-          :loading="saving"
-          class="next-button"
-          @click="savePreferences"
-        >
-          下一步 <el-icon><ArrowRight /></el-icon>
-        </el-button>
+      <div class="action-right">
+        <div class="navigation-buttons">
+          <el-button
+            size="large"
+            @click="goToPreviousStep"
+          >
+            <el-icon><ArrowLeft /></el-icon>
+            上一步
+          </el-button>
+          
+          <el-button
+            type="primary"
+            :loading="saving"
+            size="large"
+            @click="savePreferences"
+          >
+            下一步 
+            <el-icon><ArrowRight /></el-icon>
+          </el-button>
+        </div>
       </div>
     </div>
   </div>
@@ -371,7 +379,7 @@ import { ref, reactive, computed, onMounted, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { 
   Suitcase, Flag, Star, Timer, UserFilled, Camera, Warning,
-  MagicStick, Check, InfoFilled, Document, ArrowRight
+  MagicStick, Check, InfoFilled, Document, ArrowRight, ArrowLeft
 } from '@element-plus/icons-vue';
 import { TRIP_PREFERENCES_OPTIONS, PERSONAL_PROFILE_OPTIONS } from '@/utils/data/travelDataSystem.js';
 import { 
@@ -385,7 +393,7 @@ export default {
   name: 'TripPreferencesNew',
   components: {
     Suitcase, Flag, Star, Timer, UserFilled, Camera, Warning,
-    MagicStick,  Check, InfoFilled
+    MagicStick,  Check, InfoFilled, Document, ArrowRight, ArrowLeft
   },
   props: {
     tripContext: {
@@ -393,7 +401,7 @@ export default {
       default: () => ({})
     }
   },
-  emits: ['preferences-updated', 'preferences-saved'],
+  emits: ['preferences-updated', 'preferences-saved', 'go-to-previous-step'],
   setup(props, { emit }) {
     const userStore = useUserStore();
     const saving = ref(false);
@@ -1353,33 +1361,25 @@ export default {
 }
 
 /* 操作区域 */
-.action-section {
-  margin-top: 40px;
-  padding: 32px;
+.step-actions {
   background: white;
-  border-radius: 20px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e8eaed;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 24px;
 }
 
-/* 草稿按钮 */
-.draft-button {
-  padding: 12px 24px;
-  font-size: 16px;
-  border: 1px solid #d9d9d9;
-  border-radius: 12px;
-  background: white;
-  color: #666;
-  transition: all 0.3s ease;
+.action-left {
+  flex: 0 0 auto;
 }
 
-.draft-button:hover {
-  border-color: #91a8d0;
-  color: #91a8d0;
-  background: #f8f9fb;
+.action-right {
+  flex: 0 0 auto;
 }
 
 /* 导航按钮容器 */
@@ -1389,37 +1389,19 @@ export default {
   align-items: center;
 }
 
-/* 上一步按钮 */
-.prev-button {
+/* 统一按钮样式 - 与TripBaseInfo保持一致 */
+.step-actions .el-button {
   padding: 12px 24px;
-  font-size: 16px;
-  border: 1px solid #d9d9d9;
-  border-radius: 12px;
-  background: white;
-  color: #666;
-  transition: all 0.3s ease;
-}
-
-.prev-button:hover {
-  border-color: #91a8d0;
-  color: #91a8d0;
-  background: #f8f9fb;
-}
-
-/* 下一步按钮 */
-.next-button {
-  padding: 12px 32px;
   font-size: 16px;
   font-weight: 600;
   border-radius: 12px;
   min-width: 120px;
-  box-shadow: 0 4px 16px rgba(64, 158, 255, 0.3);
   transition: all 0.3s ease;
 }
 
-.next-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(64, 158, 255, 0.4);
+.step-actions .el-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* 响应式设计 */
@@ -1428,7 +1410,7 @@ export default {
     padding: 16px;
   }
   
-  .action-section {
+  .step-actions {
     padding: 20px 16px;
     flex-direction: column;
     gap: 16px;
@@ -1488,15 +1470,8 @@ export default {
     gap: 12px;
   }
   
-  .draft-button,
-  .prev-button,
-  .next-button {
-    padding: 12px 20px;
-    font-size: 14px;
+  .navigation-buttons .el-button {
     flex: 1;
-  }
-  
-  .next-button {
     min-width: auto;
   }
 }

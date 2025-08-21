@@ -314,7 +314,7 @@
     </div>
 
     <!-- 操作按钮区域 -->
-    <div class="action-section">
+    <div class="step-actions">
       <div class="action-left">
         <el-button
           size="large"
@@ -1649,18 +1649,17 @@ export default {
 }
 
 /* 操作按钮区域 */
-.action-section {
+.step-actions {
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 24px;
   margin-bottom: 32px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e4e7ed;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e8eaed;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
-  max-width: none;
+  gap: 24px;
 }
 
 .action-left {
@@ -1669,6 +1668,20 @@ export default {
 
 .action-right {
   flex: 0 0 auto;
+}
+
+.step-actions .el-button {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 12px;
+  min-width: 120px;
+  transition: all 0.3s ease;
+}
+
+.step-actions .el-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* 天数选择相关样式 */
@@ -2078,9 +2091,22 @@ export default {
     width: 100%;
   }
 
-  .action-section {
-    padding: 24px;
+  .step-actions {
+    padding: 20px;
     margin-bottom: 24px;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .action-left,
+  .action-right {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .step-actions .el-button {
+    width: 100%;
+    min-width: auto;
   }
 
   .next-btn {

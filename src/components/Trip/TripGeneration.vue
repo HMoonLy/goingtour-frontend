@@ -713,7 +713,7 @@ class="step-actions">
         <el-button size="large"
 @click="$emit('prev-step')">
           <el-icon><ArrowLeft /></el-icon>
-          {{ "上一步" }}
+          上一步
         </el-button>
       </div>
       <div class="action-center">
@@ -2373,11 +2373,11 @@ export default {
 
 .step-actions {
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 24px;
   margin-top: 24px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e4e7ed;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e8eaed;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -2393,6 +2393,20 @@ export default {
 
 .step-actions .action-right {
   flex: 0 0 auto;
+}
+
+.step-actions .el-button {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 12px;
+  min-width: 120px;
+  transition: all 0.3s ease;
+}
+
+.step-actions .el-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* 天气预报样式 */

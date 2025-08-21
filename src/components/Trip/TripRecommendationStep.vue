@@ -61,11 +61,11 @@
         <div class="selection-summary">
           <div class="summary-stats">
             <div class="stat-item">
-              <el-icon class="stat-icon" color="#91A8D0"><Location /></el-icon>
+              <el-icon class="stat-icon" color="#91a8d0"><Location /></el-icon>
               <span>{{ selectedAttractions.length }} 个景点</span>
             </div>
             <div class="stat-item">
-              <el-icon class="stat-icon" color="#E6A23C"><Food /></el-icon>
+              <el-icon class="stat-icon" color="#f7cac9"><Food /></el-icon>
               <span>{{ selectedRestaurants.length }} 家餐厅</span>
             </div>
           </div>
@@ -133,7 +133,7 @@ import {
   ArrowLeft, ArrowRight, MagicStick, Close
 } from '@element-plus/icons-vue';
 import RecommendationSection from './RecommendationSection.vue';
-import { recommendationApi } from '@/api/recommendation.js';
+import { getRecommendedAttractions, getRecommendedRestaurants, searchPlaces } from '@/api/amap.js';
 
 export default {
   name: 'TripRecommendationStep',
@@ -195,6 +195,41 @@ export default {
       selectedAttractions.value.length + selectedRestaurants.value.length
     );
 
+    // 从POI数据中提取标签
+    const extractTags = (poi) => {
+      const tags = [];
+      
+      // 从type字段提取
+      if (poi.type && typeof poi.type === 'string') {
+        const typeSegments = poi.type.split(';').filter(Boolean);
+        tags.push(...typeSegments);
+      }
+      
+      // 从tag字段提取
+      if (poi.tag && typeof poi.tag === 'string') {
+        const tagSegments = poi.tag.split(';').filter(Boolean);
+        tags.push(...tagSegments);
+      }
+      
+      // 从business_area提取
+      if (poi.business_area && typeof poi.business_area === 'string') {
+        tags.push(poi.business_area);
+      }
+      
+      // 去重并过滤空值，确保tag是字符串
+      return [...new Set(tags)].filter(tag => tag && typeof tag === 'string' && tag.trim().length > 0);
+    };
+
+    // 提取景点标签
+    const extractAttractionTags = (attraction) => {
+      return attraction.tags || [];
+    };
+
+    // 提取餐厅招牌菜
+    const extractSignatureDishes = (restaurant) => {
+      return restaurant.tags || [];
+    };
+
     // 加载推荐数据
     const loadRecommendations = async () => {
       if (!props.cityInfo?.destinationName) {
@@ -209,18 +244,43 @@ export default {
 
         // 并行加载景点和餐厅推荐
         const [attractionsResponse, restaurantsResponse] = await Promise.all([
-          recommendationApi.getAttractions(props.cityInfo.destinationName, {
-            preferences: props.preferenceForm,
-            limit: 12
-          }),
-          recommendationApi.getRestaurants(props.cityInfo.destinationName, {
-            preferences: props.preferenceForm,
-            limit: 12
-          })
+          getRecommendedAttractions(props.cityInfo.destinationName, 1, 12),
+          getRecommendedRestaurants(props.cityInfo.destinationName, 1, 12)
         ]);
 
-        recommendedAttractions.value = attractionsResponse.data || [];
-        recommendedRestaurants.value = restaurantsResponse.data || [];
+        // 格式化景点数据
+        if (attractionsResponse.pois && attractionsResponse.pois.length > 0) {
+          recommendedAttractions.value = attractionsResponse.pois.map((poi) => ({
+            id: poi.id,
+            name: poi.name,
+            address: poi.address,
+            rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
+            photos: poi.photos || [],
+            type: poi.type ? poi.type.split(";")[0] : "景点",
+            distance: poi.distance || null,
+            tags: extractTags(poi),
+            tag: poi.tag,
+          }));
+        } else {
+          recommendedAttractions.value = [];
+        }
+
+        // 格式化餐厅数据
+        if (restaurantsResponse.pois && restaurantsResponse.pois.length > 0) {
+          recommendedRestaurants.value = restaurantsResponse.pois.map((poi) => ({
+            id: poi.id,
+            name: poi.name,
+            address: poi.address,
+            rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
+            photos: poi.photos || [],
+            type: poi.type ? poi.type.split(";")[0] : "餐厅",
+            price: (poi.biz_ext && poi.biz_ext.cost) || "¥¥",
+            tags: extractTags(poi),
+            tag: poi.tag,
+          }));
+        } else {
+          recommendedRestaurants.value = [];
+        }
 
         console.log('✅ 推荐数据加载完成', {
           attractions: recommendedAttractions.value.length,
@@ -270,24 +330,115 @@ export default {
 
     // 加载更多
     const handleLoadMoreAttractions = async () => {
-      // 实现加载更多景点的逻辑
-      console.log('加载更多景点');
+      try {
+        loadingAttractions.value = true;
+        
+        const response = await getRecommendedAttractions(
+          props.cityInfo.destinationName, 
+          Math.floor(recommendedAttractions.value.length / 12) + 1, 
+          12
+        );
+        
+        if (response.pois && response.pois.length > 0) {
+          const newAttractions = response.pois.map((poi) => ({
+            id: poi.id,
+            name: poi.name,
+            address: poi.address,
+            rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
+            photos: poi.photos || [],
+            type: poi.type ? poi.type.split(";")[0] : "景点",
+            distance: poi.distance || null,
+            tags: extractTags(poi),
+            tag: poi.tag,
+          }));
+          
+          recommendedAttractions.value = [...recommendedAttractions.value, ...newAttractions];
+          ElMessage.success(`已加载${newAttractions.length}个新推荐景点`);
+        } else {
+          ElMessage.info('没有更多推荐景点了');
+        }
+      } catch (error) {
+        console.error('加载更多景点失败:', error);
+        ElMessage.error('加载更多景点失败');
+      } finally {
+        loadingAttractions.value = false;
+      }
     };
 
     const handleLoadMoreRestaurants = async () => {
-      // 实现加载更多餐厅的逻辑
-      console.log('加载更多餐厅');
+      try {
+        loadingRestaurants.value = true;
+        
+        const response = await getRecommendedRestaurants(
+          props.cityInfo.destinationName, 
+          Math.floor(recommendedRestaurants.value.length / 12) + 1, 
+          12
+        );
+        
+        if (response.pois && response.pois.length > 0) {
+          const newRestaurants = response.pois.map((poi) => ({
+            id: poi.id,
+            name: poi.name,
+            address: poi.address,
+            rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
+            photos: poi.photos || [],
+            type: poi.type ? poi.type.split(";")[0] : "餐厅",
+            price: (poi.biz_ext && poi.biz_ext.cost) || "¥¥",
+            tags: extractTags(poi),
+            tag: poi.tag,
+          }));
+          
+          recommendedRestaurants.value = [...recommendedRestaurants.value, ...newRestaurants];
+          ElMessage.success(`已加载${newRestaurants.length}家新推荐餐厅`);
+        } else {
+          ElMessage.info('没有更多推荐餐厅了');
+        }
+      } catch (error) {
+        console.error('加载更多餐厅失败:', error);
+        ElMessage.error('加载更多餐厅失败');
+      } finally {
+        loadingRestaurants.value = false;
+      }
     };
 
     // 搜索功能
     const handleSearch = async (searchParams) => {
       try {
         searching.value = true;
-        const response = await recommendationApi.search(
-          props.cityInfo.destinationName,
-          searchParams
-        );
-        searchResults.value = response.data || [];
+        
+        // 转换搜索参数格式以适配高德API
+        const amapSearchParams = {
+          keywords: searchParams.keyword,
+          city: props.cityInfo.destinationName,
+          types: searchParams.type === 'attractions' ? '110000' : '050000', // 风景名胜或餐饮服务
+          offset: 10,
+          page: 1
+        };
+        
+        const response = await searchPlaces(amapSearchParams);
+        
+        // 格式化搜索结果数据
+        if (response.pois && response.pois.length > 0) {
+          searchResults.value = response.pois.map((poi) => {
+            const isAttraction = poi.type && poi.type.includes("风景名胜");
+            return {
+              id: poi.id,
+              name: poi.name,
+              address: poi.address,
+              rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
+              photos: poi.photos || [],
+              type: poi.type ? poi.type.split(";")[0] : (isAttraction ? "景点" : "餐厅"),
+              price: (poi.biz_ext && poi.biz_ext.cost) || "¥¥",
+              distance: poi.distance || null,
+              tags: extractTags(poi),
+              tag: poi.tag,
+              isAttraction: isAttraction,
+            };
+          });
+        } else {
+          searchResults.value = [];
+        }
+        
         isSearchMode.value = true;
       } catch (error) {
         console.error('搜索失败:', error);
@@ -332,23 +483,7 @@ export default {
       });
     };
 
-    // 提取景点标签
-    const extractAttractionTags = (attraction) => {
-      // 简单的标签提取逻辑
-      const tags = [];
-      if (attraction.type) tags.push(attraction.type);
-      if (attraction.features) tags.push(...attraction.features);
-      return tags.slice(0, 3);
-    };
 
-    // 提取餐厅招牌菜
-    const extractSignatureDishes = (restaurant) => {
-      // 简单的招牌菜提取逻辑
-      const dishes = [];
-      if (restaurant.specialties) dishes.push(...restaurant.specialties);
-      if (restaurant.signature) dishes.push(restaurant.signature);
-      return dishes.slice(0, 3);
-    };
 
     // 获取AI提示文本
     const getAiTipText = () => {
@@ -411,7 +546,7 @@ export default {
 
 /* 步骤头部 */
 .step-header {
-  background: linear-gradient(135deg, #91A8D0 0%, #A3B7DB 100%);
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
   border-radius: 20px;
   padding: 40px;
   margin-bottom: 32px;
@@ -558,11 +693,17 @@ export default {
 }
 
 .action-buttons .el-button {
-  padding: 16px 32px;
+  padding: 12px 24px;
   font-size: 16px;
   font-weight: 600;
   border-radius: 12px;
-  min-width: 140px;
+  min-width: 120px;
+  transition: all 0.3s ease;
+}
+
+.action-buttons .el-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* AI助手提示卡片 */
@@ -571,7 +712,7 @@ export default {
   bottom: 20px;
   right: 20px;
   width: 320px;
-  background: linear-gradient(135deg, #F7CAC9 0%, #91A8D0 100%);
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   z-index: 1000;
@@ -612,7 +753,7 @@ export default {
 
 .ai-icon {
   font-size: 20px;
-  color: #F7CAC9;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .ai-tip-text {
