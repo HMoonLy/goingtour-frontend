@@ -1,7 +1,7 @@
 /**
  * 推荐相关API
  */
-import request from '@/utils/request.js';
+import request from '@/api/request.js';
 
 export const recommendationApi = {
     /**

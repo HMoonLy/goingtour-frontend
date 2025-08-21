@@ -335,21 +335,33 @@
       </div>
     </div>
 
-    <!-- 保存/继续按钮 -->
+    <!-- 操作按钮区域 -->
     <div class="action-section">
       <el-button
-        type="primary"
-        size="large"
-        :loading="saving"
-        class="save-button"
-        @click="savePreferences"
+        class="draft-button"
+        @click="saveDraft"
       >
-        <el-icon><Check /></el-icon>
-        保存并继续
+        <el-icon><Document /></el-icon>
+        保存草稿
       </el-button>
-      <p class="save-tip">
-        保存后将进入推荐选择，您可以挑选感兴趣的景点和餐厅
-      </p>
+      
+      <div class="navigation-buttons">
+        <el-button
+          class="prev-button"
+          @click="goToPreviousStep"
+        >
+          上一步
+        </el-button>
+        
+        <el-button
+          type="primary"
+          :loading="saving"
+          class="next-button"
+          @click="savePreferences"
+        >
+          下一步 <el-icon><ArrowRight /></el-icon>
+        </el-button>
+      </div>
     </div>
   </div>
 </template>
@@ -359,9 +371,9 @@ import { ref, reactive, computed, onMounted, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { 
   Suitcase, Flag, Star, Timer, UserFilled, Camera, Warning,
-  MagicStick, Check, InfoFilled
+  MagicStick, Check, InfoFilled, Document, ArrowRight
 } from '@element-plus/icons-vue';
-import { TRIP_PREFERENCES_OPTIONS } from '@/utils/data/travelDataSystem.js';
+import { TRIP_PREFERENCES_OPTIONS, PERSONAL_PROFILE_OPTIONS } from '@/utils/data/travelDataSystem.js';
 import { 
   TripPreferencesInterpreter, 
   SmartPrefillEngine, 
@@ -512,7 +524,7 @@ export default {
     };
 
     const getBudgetDisplayName = (level) => {
-      const option = TRIP_PREFERENCES_OPTIONS.budgetLevel?.options[level];
+      const option = PERSONAL_PROFILE_OPTIONS.budgetLevel?.options[level];
       return option ? option.name : level;
     };
 
@@ -601,6 +613,25 @@ export default {
       }
     };
 
+    // 保存草稿
+    const saveDraft = async () => {
+      try {
+        // 这里可以调用API保存草稿
+        // await api.saveDraft(tripPreferences);
+        
+        ElMessage.success('草稿已保存！');
+        emit('draft-saved', { ...tripPreferences });
+      } catch (error) {
+        console.error('保存草稿失败:', error);
+        ElMessage.error('保存草稿失败：' + (error.message || '请重试'));
+      }
+    };
+
+    // 返回上一步
+    const goToPreviousStep = () => {
+      emit('go-to-previous-step');
+    };
+
     // 加载个人档案
     const loadPersonalProfile = async () => {
       try {
@@ -663,7 +694,9 @@ export default {
       getPhotoDisplayName,
       generateAIPreview,
       generateDetailedAI,
-      savePreferences
+      savePreferences,
+      saveDraft,
+      goToPreviousStep
     };
   }
 };
@@ -671,8 +704,6 @@ export default {
 
 <style scoped>
 .trip-preferences-container {
-  max-width: 1000px;
-  margin: 0 auto;
   padding: 24px;
   background: #fafafa;
   min-height: 100vh;
@@ -680,7 +711,7 @@ export default {
 
 /* 页面头部 */
 .page-header {
-  background: linear-gradient(135deg, #91A8D0 0%, #A3B7DB 100%);
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
   border-radius: 20px;
   padding: 40px;
   margin-bottom: 32px;
@@ -813,7 +844,7 @@ export default {
 .section-icon {
   width: 56px;
   height: 56px;
-  background: linear-gradient(135deg, #91A8D0 0%, #A3B7DB 100%);
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -1270,7 +1301,7 @@ export default {
 
 /* AI预览 */
 .ai-preview {
-  background: linear-gradient(135deg, #91A8D0 0%, #A3B7DB 100%);
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
   border-radius: 20px;
   padding: 32px;
   margin: 32px 0;
@@ -1323,30 +1354,89 @@ export default {
 
 /* 操作区域 */
 .action-section {
-  text-align: center;
-  padding: 40px 0;
+  margin-top: 40px;
+  padding: 32px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
 }
 
-.save-button {
-  padding: 16px 48px;
-  font-size: 18px;
+/* 草稿按钮 */
+.draft-button {
+  padding: 12px 24px;
+  font-size: 16px;
+  border: 1px solid #d9d9d9;
+  border-radius: 12px;
+  background: white;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.draft-button:hover {
+  border-color: #91a8d0;
+  color: #91a8d0;
+  background: #f8f9fb;
+}
+
+/* 导航按钮容器 */
+.navigation-buttons {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+/* 上一步按钮 */
+.prev-button {
+  padding: 12px 24px;
+  font-size: 16px;
+  border: 1px solid #d9d9d9;
+  border-radius: 12px;
+  background: white;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.prev-button:hover {
+  border-color: #91a8d0;
+  color: #91a8d0;
+  background: #f8f9fb;
+}
+
+/* 下一步按钮 */
+.next-button {
+  padding: 12px 32px;
+  font-size: 16px;
   font-weight: 600;
-  border-radius: 16px;
-  min-width: 240px;
-  margin-bottom: 16px;
+  border-radius: 12px;
+  min-width: 120px;
+  box-shadow: 0 4px 16px rgba(64, 158, 255, 0.3);
+  transition: all 0.3s ease;
 }
 
-.save-tip {
-  margin: 0;
-  font-size: 14px;
-  color: #909399;
-  font-style: italic;
+.next-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(64, 158, 255, 0.4);
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
   .trip-preferences-container {
     padding: 16px;
+  }
+  
+  .action-section {
+    padding: 20px 16px;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .navigation-buttons {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .page-header {
@@ -1396,6 +1486,18 @@ export default {
   .photo-levels {
     grid-template-columns: 1fr;
     gap: 12px;
+  }
+  
+  .draft-button,
+  .prev-button,
+  .next-button {
+    padding: 12px 20px;
+    font-size: 14px;
+    flex: 1;
+  }
+  
+  .next-button {
+    min-width: auto;
   }
 }
 </style>
