@@ -1,23 +1,22 @@
 <template>
   <div class="ai-trip-display">
     <!-- 行程标题卡片 -->
-    <el-card class="trip-header-card"
-shadow="never">
+    <el-card class="trip-header-card" shadow="never">
       <div class="trip-header-content">
         <div class="trip-title-section">
           <div class="title-with-icon">
-            <el-icon class="ai-icon"
-color="#409eff">
+            <el-icon class="ai-icon" color="#409eff">
               <Cpu />
             </el-icon>
             <h1 class="trip-main-title">
               {{ (tripData?.destinationInfo?.name || "") + "智能行程推荐" }}
             </h1>
           </div>
-          <p v-if="tripData?.destinationInfo"
-class="trip-subtitle">
+          <p v-if="tripData?.destinationInfo" class="trip-subtitle">
             {{
-              `为您推荐${tripData?.tripBasicInfo?.days || 3}天${tripData?.destinationInfo?.name || "目的地"}的精彩行程`
+              `为您推荐${tripData?.tripBasicInfo?.days || 3}天${
+                tripData?.destinationInfo?.name || "目的地"
+              }的精彩行程`
             }}
           </p>
         </div>
@@ -81,33 +80,26 @@ class="trip-subtitle">
     </el-card>
 
     <!-- 完整的行程内容 -->
-    <el-card class="content-card"
-shadow="hover">
-      <div class="markdown-content"
-data-safe="true" v-html="renderedContent" />
+    <el-card class="content-card" shadow="hover">
+      <div class="markdown-content" data-safe="true" v-html="renderedContent" />
     </el-card>
 
     <!-- 操作按钮区域 -->
-    <el-card class="actions-card"
-shadow="never">
+    <el-card class="actions-card" shadow="never">
       <div class="action-buttons">
-        <el-button :loading="copying"
-@click="copyToClipboard">
+        <el-button :loading="copying" @click="copyToClipboard">
           <el-icon><DocumentCopy /></el-icon>
           复制内容
         </el-button>
-        <el-button type="primary"
-:loading="saving" @click="saveTrip">
+        <el-button type="primary" :loading="saving" @click="saveTrip">
           <el-icon><Folder /></el-icon>
           保存行程
         </el-button>
-        <el-button type="success"
-:loading="sharing" @click="shareTrip">
+        <el-button type="success" :loading="sharing" @click="shareTrip">
           <el-icon><Share /></el-icon>
           分享
         </el-button>
-        <el-button type="warning"
-@click="regenerateTrip">
+        <el-button type="warning" @click="regenerateTrip">
           <el-icon><Refresh /></el-icon>
           重新生成
         </el-button>
@@ -115,8 +107,7 @@ shadow="never">
     </el-card>
 
     <!-- 用户反馈区域 -->
-    <el-card class="feedback-card"
-shadow="hover">
+    <el-card class="feedback-card" shadow="hover">
       <template #header>
         <div class="card-title">
           <el-icon color="#67c23a">
@@ -156,8 +147,7 @@ shadow="hover">
           >
             提交反馈
           </el-button>
-          <el-button
-size="small" link @click="clearFeedback"> 重置 </el-button>
+          <el-button size="small" link @click="clearFeedback"> 重置 </el-button>
         </div>
       </div>
     </el-card>
@@ -253,32 +243,26 @@ const renderedContent = computed(() => {
       .replace(
         new RegExp(
           `<p[^>]*class="trip-highlight[^"]*"[^>]*>\\d{1,2}:\\d{2}</p>\\s*(${keyword}[:：])`,
-          "g",
+          "g"
         ),
-        "$1",
+        "$1"
       )
       // 处理 <strong>时间</strong> 餐饮
       .replace(
-        new RegExp(
-          `<strong[^>]*>\\d{1,2}:\\d{2}</strong>\\s*(${keyword}[:：])`,
-          "g",
-        ),
-        "$1",
+        new RegExp(`<strong[^>]*>\\d{1,2}:\\d{2}</strong>\\s*(${keyword}[:：])`, "g"),
+        "$1"
       )
       // 处理 <span>时间</span> 餐饮
       .replace(
-        new RegExp(
-          `<span[^>]*>\\d{1,2}:\\d{2}</span>\\s*(${keyword}[:：])`,
-          "g",
-        ),
-        "$1",
+        new RegExp(`<span[^>]*>\\d{1,2}:\\d{2}</span>\\s*(${keyword}[:：])`, "g"),
+        "$1"
       )
       // 处理纯文本 时间 餐饮
       .replace(new RegExp(`\\b\\d{1,2}:\\d{2}\\s+(${keyword}[:：])`, "g"), "$1")
       // 处理任何标签包装的时间
       .replace(
         new RegExp(`<[^>]+>\\d{1,2}:\\d{2}</[^>]+>\\s*(${keyword}[:：])`, "g"),
-        "$1",
+        "$1"
       );
   });
 
@@ -291,7 +275,7 @@ const renderedContent = computed(() => {
 // 工具函数：格式化处理时间
 const formatProcessingTime = (time) => {
   if (!time) return "0s";
-  return time < 1000 ? `${time}ms` : `${Math.round(time / 1000)}s`;
+  return time < 1000?`${time}ms` : `${Math.round(time / 1000)}s`;
 };
 
 // 工具函数：从行程内容中提取预算信息
@@ -338,7 +322,9 @@ const saveTrip = async () => {
     // 构建保存请求数据
     const saveRequest = {
       userId: userStore.userId || 1, // 如果没有用户ID则使用默认值1
-      title: `${props.tripData?.destinationInfo?.name || "未知目的地"}${props.tripData?.tripBasicInfo?.days || 3}天${props.tripData?.tripBasicInfo?.travelers || 1}人行程`,
+      title: `${props.tripData?.destinationInfo?.name || "未知目的地"}${
+        props.tripData?.tripBasicInfo?.days || 3
+      }天${props.tripData?.tripBasicInfo?.travelers || 1}人行程`,
       city: props.tripData?.destinationInfo?.name || "未知目的地",
       days: props.tripData?.tripBasicInfo?.days || 3,
       travelers: props.tripData?.tripBasicInfo?.travelers || 1,
@@ -354,7 +340,7 @@ const saveTrip = async () => {
         responseLength: props.tripData?.responseLength || null,
         generatedAt: props.tripData?.generatedAt || new Date().toISOString(),
       }),
-      feedbackRating: userRating.value > 0 ? userRating.value : null,
+      feedbackRating: userRating.value > 0?userRating.value : null,
       feedbackContent: userFeedback.value.trim() || null,
     };
 
@@ -563,8 +549,7 @@ const clearFeedback = () => {
   line-height: 1.7;
   color: #4a5568;
   font-size: 15px;
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .markdown-content :deep(h1),

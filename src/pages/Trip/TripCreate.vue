@@ -119,8 +119,8 @@
           @go-to-previous-step="prevStep"
         />
 
-        <!-- 第三步：推荐选择 -->
-        <TripRecommendationStep
+        <!-- 第三步：推荐选择 (增强版) -->
+        <EnhancedRecommendationStep
           v-show="currentStep === 2"
           :city-info="{ destinationName: baseForm.destinationName, destination: baseForm.destination }"
           :base-form="baseForm"
@@ -389,7 +389,8 @@ import TripGeneration from "@/components/Trip/TripGeneration.vue";
 import TripPreview from "@/components/Trip/TripPreview.vue";
 import AiTripDisplay from "@/components/Trip/AiTripDisplay.vue";
 import TripPreferencesNew from "@/components/Trip/TripPreferencesNew.vue";
-import TripRecommendationStep from "@/components/Trip/TripRecommendationStep.vue"; 
+import TripRecommendationStep from "@/components/Trip/TripRecommendationStep.vue";
+import EnhancedRecommendationStep from "@/components/Trip/EnhancedRecommendationStep.vue"; 
 
 export default {
   name: "TripCreate",
@@ -398,6 +399,7 @@ export default {
     TripPreferences,
     TripPreferencesNew,
     TripRecommendationStep,
+    EnhancedRecommendationStep,
     TripGeneration,
     TripPreview,
     AiTripDisplay,
@@ -538,10 +540,48 @@ export default {
     };
 
     // 处理偏好保存事件
-    const handlePreferencesSaved = (preferences) => {
+    const handlePreferencesSaved = async (preferences) => {
       console.log("✅ 偏好已保存:", preferences);
       ElMessage.success("偏好设置已保存");
-      // 可以自动进入下一步
+      
+      // 触发AI推荐预加载
+      try {
+        console.log("🤖 开始预加载AI推荐...");
+        
+        // 动态导入AI推荐组合函数
+        const { useAiRecommendations } = await import('@/composables/useAiRecommendations');
+        const { preloadRecommendationsAsync } = useAiRecommendations();
+        
+        // 异步预加载推荐（不阻塞页面跳转）
+        preloadRecommendationsAsync(baseForm, preferences)
+          .then((success) => {
+            if (success) {
+              console.log("✅ AI推荐预加载完成");
+              ElMessage({
+                message: "智能推荐已准备就绪",
+                type: "success",
+                duration: 2000
+              });
+            } else {
+              console.warn("⚠️ AI推荐预加载失败，将在第三步重试");
+            }
+          })
+          .catch((error) => {
+            console.warn("⚠️ AI推荐预加载失败:", error);
+          });
+        
+        // 立即显示准备中的提示
+        ElMessage({
+          message: "正在为您准备智能推荐...",
+          type: "info",
+          duration: 2000
+        });
+        
+      } catch (error) {
+        console.warn("AI推荐服务加载失败:", error);
+      }
+      
+      // 进入下一步
       nextStep();
     };
 

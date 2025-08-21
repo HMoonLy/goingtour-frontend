@@ -19,7 +19,7 @@
             size="small"
             @click="toggleSummaryDetail"
           >
-            {{ showSummaryDetail ? '收起' : '查看详情' }}
+            {{ showSummaryDetail?'收起' : '查看详情' }}
           </el-button>
         </div>
         
@@ -123,7 +123,7 @@
             v-model="searchKeyword"
             :fetch-suggestions="getSearchSuggestions"
             :placeholder="
-              activeTab === 'attractions' ? '搜索景点名称或输入关键词' : '搜索餐厅名称或输入关键词'
+              activeTab === 'attractions'?'搜索景点名称或输入关键词' : '搜索餐厅名称或输入关键词'
             "
             clearable
             class="search-autocomplete"
@@ -257,7 +257,7 @@
         <div v-else class="recommendation-list">
           <div
             v-for="attraction in isSearchMode
-              ? searchResults.filter((item) => item.isAttraction)
+             ?searchResults.filter((item) => item.isAttraction)
               : sortedAttractions"
             :key="attraction.id"
             class="recommendation-item vertical-layout"
@@ -458,7 +458,7 @@
         <div v-else class="recommendation-list">
           <div
             v-for="restaurant in isSearchMode
-              ? searchResults.filter((item) => !item.isAttraction)
+             ?searchResults.filter((item) => !item.isAttraction)
               : sortedRestaurants"
             :key="restaurant.id"
             class="recommendation-item vertical-layout"
@@ -814,11 +814,11 @@ export default {
     // 获取搜索建议
     const getSearchSuggestions = (queryString, cb) => {
       const suggestions = activeTab.value === 'attractions' 
-        ? attractionSuggestions 
+       ?attractionSuggestions 
         : restaurantSuggestions;
       
       const results = queryString
-        ? suggestions.filter(item => 
+       ?suggestions.filter(item => 
             item.value.toLowerCase().includes(queryString.toLowerCase())
           )
         : suggestions.slice(0, 6); // 默认显示前6个
