@@ -77,17 +77,6 @@ const routes = [
                     requiresAuth: true,
                 },
             },
-            // {
-            //     path: "user/preferences",
-            //     name: "UserPreferences",
-            //     component: () =>
-            //         import ("../pages/User/Settings/Preferences.vue"),
-            //     meta: {
-            //         titleKey: "route.preferences",
-            //         requiresAuth: true,
-            //     },
-            // },
-
             // 新的用户档案页面
             {
                 path: "user/profile",

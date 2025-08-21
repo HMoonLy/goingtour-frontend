@@ -36,7 +36,7 @@
           <AccountSettings :embedded="true" />
         </div>
 
-        <!-- 旅行偏好 -->
+        <!-- 设置档案 -->
         <div v-else-if="activeSection === 'preferences'" class="settings-section">
           <!-- <Preferences :embedded="true" /> -->
           <PersonalProfile :embedded="true"></PersonalProfile>
@@ -103,7 +103,7 @@ export default {
     // 设置导航
     const sections = [
       { key: "profile", title: "基本信息", icon: "User" },
-      { key: "preferences", title: "旅行偏好", icon: "Star" },
+      { key: "preferences", title: "设置档案", icon: "Star" },
       { key: "notifications", title: "通知设置", icon: "Bell" },
       { key: "privacy", title: "隐私系统", icon: "Setting" },
       { key: "security", title: "账户安全", icon: "Lock" },

@@ -70,7 +70,7 @@
               </div>
               <p class="purpose-desc">{{ purpose.description }}</p>
               <div class="purpose-ai-strategy">
-                <el-icon><Robot /></el-icon>
+                🤖
                 <span>{{ purpose.aiStrategy }}</span>
               </div>
             </div>
@@ -318,7 +318,7 @@
     <!-- AI理解预览 -->
     <div v-if="hasValidPreferences" class="ai-preview">
       <div class="preview-header">
-        <el-icon><Robot /></el-icon>
+  
         <h4>🤖 AI将如何为您规划行程</h4>
       </div>
       <div class="preview-content">
@@ -359,7 +359,7 @@ import { ref, reactive, computed, onMounted, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { 
   Suitcase, Flag, Star, Timer, UserFilled, Camera, Warning,
-  MagicStick, Robot, Check, InfoFilled
+  MagicStick, Check, InfoFilled
 } from '@element-plus/icons-vue';
 import { TRIP_PREFERENCES_OPTIONS } from '@/utils/data/travelDataSystem.js';
 import { 
@@ -373,7 +373,7 @@ export default {
   name: 'TripPreferencesNew',
   components: {
     Suitcase, Flag, Star, Timer, UserFilled, Camera, Warning,
-    MagicStick, Robot, Check, InfoFilled
+    MagicStick,  Check, InfoFilled
   },
   props: {
     tripContext: {
@@ -680,7 +680,7 @@ export default {
 
 /* 页面头部 */
 .page-header {
-  background: linear-gradient(135deg, #ff9a56 0%, #ffad56 100%);
+  background: linear-gradient(135deg, #91A8D0 0%, #A3B7DB 100%);
   border-radius: 20px;
   padding: 40px;
   margin-bottom: 32px;
@@ -750,7 +750,7 @@ export default {
 
 .notice-icon {
   font-size: 32px;
-  color: #ffd700;
+  color: #F7CAC9;
   flex-shrink: 0;
 }
 
@@ -813,14 +813,14 @@ export default {
 .section-icon {
   width: 56px;
   height: 56px;
-  background: linear-gradient(135deg, #ff9a56 0%, #ffad56 100%);
+  background: linear-gradient(135deg, #91A8D0 0%, #A3B7DB 100%);
   border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-size: 24px;
-  box-shadow: 0 4px 12px rgba(255, 154, 86, 0.2);
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.2);
   flex-shrink: 0;
 }
 
@@ -843,8 +843,8 @@ export default {
 }
 
 .smart-tip {
-  background: #fff7e6;
-  color: #ff9a56;
+  background: rgba(145, 168, 208, 0.1);
+  color: #91A8D0;
   padding: 4px 12px;
   border-radius: 12px;
   font-size: 13px;
@@ -871,14 +871,14 @@ export default {
 }
 
 .purpose-card:hover {
-  border-color: #ff9a56;
-  box-shadow: 0 4px 12px rgba(255, 154, 86, 0.15);
+  border-color: #91A8D0;
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15);
   transform: translateY(-2px);
 }
 
 .purpose-card.selected {
-  border-color: #ff9a56;
-  background: linear-gradient(135deg, #fff7e6 0%, #ffffff 100%);
+  border-color: #91A8D0;
+  background: linear-gradient(135deg, rgba(145, 168, 208, 0.1) 0%, #ffffff 100%);
 }
 
 .purpose-header {
@@ -932,19 +932,19 @@ export default {
 }
 
 .focus-item:hover {
-  border-color: #ff9a56;
-  box-shadow: 0 4px 12px rgba(255, 154, 86, 0.15);
+  border-color: #91A8D0;
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15);
   transform: translateY(-2px);
 }
 
 .focus-item.selected {
-  border-color: #ff9a56;
-  background: linear-gradient(135deg, #fff7e6 0%, #ffffff 100%);
+  border-color: #91A8D0;
+  background: linear-gradient(135deg, rgba(145, 168, 208, 0.1) 0%, #ffffff 100%);
 }
 
 .focus-item.recommended {
-  border-color: #ffd700;
-  background: linear-gradient(135deg, #fffdf0 0%, #ffffff 100%);
+  border-color: #F7CAC9;
+  background: linear-gradient(135deg, rgba(247, 202, 201, 0.1) 0%, #ffffff 100%);
 }
 
 .focus-item.disabled {
@@ -978,8 +978,8 @@ export default {
   position: absolute;
   top: 8px;
   right: 8px;
-  background: #ffd700;
-  color: white;
+  background: #F7CAC9;
+  color: #2c3e50;
   padding: 4px 8px;
   border-radius: 8px;
   font-size: 10px;
@@ -1030,19 +1030,19 @@ export default {
 }
 
 .pace-card:hover {
-  border-color: #ff9a56;
-  box-shadow: 0 4px 12px rgba(255, 154, 86, 0.15);
+  border-color: #91A8D0;
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15);
   transform: translateY(-2px);
 }
 
 .pace-card.selected {
-  border-color: #ff9a56;
-  background: linear-gradient(135deg, #fff7e6 0%, #ffffff 100%);
+  border-color: #91A8D0;
+  background: linear-gradient(135deg, rgba(145, 168, 208, 0.1) 0%, #ffffff 100%);
 }
 
 .pace-card.recommended {
-  border-color: #ffd700;
-  background: linear-gradient(135deg, #fffdf0 0%, #ffffff 100%);
+  border-color: #F7CAC9;
+  background: linear-gradient(135deg, rgba(247, 202, 201, 0.1) 0%, #ffffff 100%);
 }
 
 .pace-visual {
@@ -1081,8 +1081,8 @@ export default {
   position: absolute;
   top: 8px;
   right: 8px;
-  background: #ffd700;
-  color: white;
+  background: #F7CAC9;
+  color: #2c3e50;
   padding: 4px 8px;
   border-radius: 8px;
   font-size: 10px;
@@ -1108,19 +1108,19 @@ export default {
 }
 
 .social-option:hover {
-  border-color: #ff9a56;
-  box-shadow: 0 4px 12px rgba(255, 154, 86, 0.15);
+  border-color: #91A8D0;
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15);
   transform: translateY(-2px);
 }
 
 .social-option.selected {
-  border-color: #ff9a56;
-  background: linear-gradient(135deg, #fff7e6 0%, #ffffff 100%);
+  border-color: #91A8D0;
+  background: linear-gradient(135deg, rgba(145, 168, 208, 0.1) 0%, #ffffff 100%);
 }
 
 .social-option.recommended {
-  border-color: #ffd700;
-  background: linear-gradient(135deg, #fffdf0 0%, #ffffff 100%);
+  border-color: #F7CAC9;
+  background: linear-gradient(135deg, rgba(247, 202, 201, 0.1) 0%, #ffffff 100%);
 }
 
 .social-header {
@@ -1171,19 +1171,19 @@ export default {
 }
 
 .photo-level:hover {
-  border-color: #ff9a56;
-  box-shadow: 0 4px 12px rgba(255, 154, 86, 0.15);
+  border-color: #91A8D0;
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15);
   transform: translateY(-2px);
 }
 
 .photo-level.selected {
-  border-color: #ff9a56;
-  background: linear-gradient(135deg, #fff7e6 0%, #ffffff 100%);
+  border-color: #91A8D0;
+  background: linear-gradient(135deg, rgba(145, 168, 208, 0.1) 0%, #ffffff 100%);
 }
 
 .photo-level.recommended {
-  border-color: #ffd700;
-  background: linear-gradient(135deg, #fffdf0 0%, #ffffff 100%);
+  border-color: #F7CAC9;
+  background: linear-gradient(135deg, rgba(247, 202, 201, 0.1) 0%, #ffffff 100%);
 }
 
 .photo-icon {
@@ -1225,14 +1225,14 @@ export default {
 }
 
 .need-item:hover {
-  border-color: #f56c6c;
-  box-shadow: 0 4px 12px rgba(245, 108, 108, 0.15);
+  border-color: #E53935;
+  box-shadow: 0 4px 12px rgba(229, 57, 53, 0.15);
   transform: translateY(-2px);
 }
 
 .need-item.selected {
-  border-color: #f56c6c;
-  background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+  border-color: #E53935;
+  background: linear-gradient(135deg, rgba(229, 57, 53, 0.05) 0%, #ffffff 100%);
 }
 
 .need-header {
@@ -1270,7 +1270,7 @@ export default {
 
 /* AI预览 */
 .ai-preview {
-  background: linear-gradient(135deg, #ff9a56 0%, #ffad56 100%);
+  background: linear-gradient(135deg, #91A8D0 0%, #A3B7DB 100%);
   border-radius: 20px;
   padding: 32px;
   margin: 32px 0;

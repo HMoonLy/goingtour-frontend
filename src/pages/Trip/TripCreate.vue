@@ -104,20 +104,17 @@
         />
 
         <!-- 第二步：个性化偏好 -->
-        <TripPreferences
+        <TripPreferencesNew
           v-show="currentStep === 1"
-          v-model:preference-form="preferenceForm"
-          :base-form="baseForm"
-          :user-preferences="userStore.userPreferences"
-          :selected-attractions="selectedAttractions"
-          :selected-restaurants="selectedRestaurants"
-          :is-from-draft="isFromDraft"
-          :saving-draft="savingDraft"
-          @update:selected-attractions="selectedAttractions = $event"
-          @update:selected-restaurants="selectedRestaurants = $event"
-          @next-step="nextStep"
-          @prev-step="prevStep"
-          @save-draft="handleQuickSaveDraft"
+          :trip-context="{ 
+            destination: baseForm.destinationName,
+            days: baseForm.days,
+            dateRange: baseForm.dateRange,
+            travelers: baseForm.travelers,
+            budget: baseForm.budget
+          }"
+          @preferences-updated="handlePreferencesUpdate"
+          @preferences-saved="handlePreferencesSaved"
         />
 
         <!-- 第三步：智能生成 -->
@@ -376,12 +373,14 @@ import TripPreferences from "@/components/Trip/TripPreferences.vue";
 import TripGeneration from "@/components/Trip/TripGeneration.vue";
 import TripPreview from "@/components/Trip/TripPreview.vue";
 import AiTripDisplay from "@/components/Trip/AiTripDisplay.vue";
+import TripPreferencesNew from "@/components/Trip/TripPreferencesNew.vue" 
 
 export default {
   name: "TripCreate",
   components: {
     TripBaseInfo,
     TripPreferences,
+    TripPreferencesNew,
     TripGeneration,
     TripPreview,
     AiTripDisplay,
@@ -512,6 +511,21 @@ export default {
     const handleTripShare = (tripData) => {
       // 分享行程功能
       ElMessage.success("Share WIP");
+    };
+
+    // 处理偏好更新事件
+    const handlePreferencesUpdate = (preferences) => {
+      console.log("🎯 偏好已更新:", preferences);
+      // 这里可以将偏好保存到本地状态或store中
+      markDataChanged();
+    };
+
+    // 处理偏好保存事件
+    const handlePreferencesSaved = (preferences) => {
+      console.log("✅ 偏好已保存:", preferences);
+      ElMessage.success("偏好设置已保存");
+      // 可以自动进入下一步
+      nextStep();
     };
 
     // 获取天气信息
@@ -1117,6 +1131,8 @@ export default {
       regenerateTrip,
       handleTripSaved,
       handleTripShare,
+      handlePreferencesUpdate,
+      handlePreferencesSaved,
       fetchWeatherForTrip,
       isRestoringProgress,
       goToDestinations,

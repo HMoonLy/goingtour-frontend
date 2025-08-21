@@ -152,17 +152,17 @@
         </div>
       </section>
 
-      <!-- 我的偏好 -->
+      <!-- 个人旅行档案 -->
       <section class="preferences-section">
         <div class="section-header">
           <h3>
             <el-icon><Star /></el-icon>
-            我的偏好
+            个人旅行档案
           </h3>
           <div class="header-actions">
             <el-button size="small" @click="$router.push('/personal/settings')">
               <el-icon><Setting /></el-icon>
-              编辑偏好
+              编辑档案
             </el-button>
           </div>
         </div>
@@ -172,78 +172,20 @@
         </div>
 
         <div v-else-if="!hasPreferencesData" class="empty-preferences">
-          <el-empty description="还没有设置偏好信息" :image-size="100">
+          <el-empty description="还没有设置档案信息" :image-size="100">
             <template #image>
               <el-icon size="60" color="#d3d3d3">
                 <Star />
               </el-icon>
             </template>
             <el-button type="primary" @click="$router.push('/personal/settings')">
-              设置偏好
+              设置档案
             </el-button>
           </el-empty>
         </div>
 
         <div v-else class="preferences-display">
-          <!-- 旅行偏好标签 -->
-          <div v-if="userPreferences.selectedTags && userPreferences.selectedTags.length > 0" class="preference-group">
-            <h4><el-icon><MapLocation /></el-icon>旅行偏好</h4>
-            <div class="tags-container">
-              <el-tag
-                v-for="tag in userPreferences.selectedTags"
-                :key="tag"
-                type="primary"
-                size="small"
-                class="preference-tag"
-              >
-                {{ translateTag(tag) }}
-              </el-tag>
-            </div>
-          </div>
-
-          <!-- 预算偏好 -->
-          <div v-if="userPreferences.budget" class="preference-group">
-            <h4><el-icon><Money /></el-icon>预算偏好</h4>
-            <div class="budget-display">
-              <el-tag type="success" size="small">
-                ¥{{ userPreferences.budget }} / 天
-              </el-tag>
-            </div>
-          </div>
-
-          <!-- 口味偏好 -->
-          <div v-if="userPreferences.foodTastes && userPreferences.foodTastes.length > 0" class="preference-group">
-            <h4><el-icon><Coffee /></el-icon>口味偏好</h4>
-            <div class="tags-container">
-              <el-tag
-                v-for="taste in userPreferences.foodTastes"
-                :key="taste"
-                type="warning"
-                size="small"
-                class="preference-tag"
-              >
-                {{ translateTag(taste) }}
-              </el-tag>
-            </div>
-          </div>
-
-          <!-- 饮食限制 -->
-          <div v-if="userPreferences.dietaryRestrictions && userPreferences.dietaryRestrictions.length > 0" class="preference-group">
-            <h4><el-icon><Warning /></el-icon>饮食限制</h4>
-            <div class="tags-container">
-              <el-tag
-                v-for="restriction in userPreferences.dietaryRestrictions"
-                :key="restriction"
-                type="danger"
-                size="small"
-                class="preference-tag"
-              >
-                {{ translateTag(restriction, 'dietary') }}
-              </el-tag>
-            </div>
-          </div>
-
-          <!-- MBTI类型 -->
+          <!-- MBTI性格类型 -->
           <div v-if="userPreferences.mbtiType" class="preference-group">
             <h4><el-icon><User /></el-icon>性格类型</h4>
             <div class="mbti-display">
@@ -259,21 +201,59 @@
                   <el-tag type="info" size="small" class="mbti-tag">
                     {{ userPreferences.mbtiType }}
                   </el-tag>
-                  <span class="mbti-name">{{ getMbtiName(userPreferences.mbtiType) }}</span>
+                  <span class="mbti-name">{{ getMbtiTypeDisplayName(userPreferences.mbtiType) }}</span>
+                  <p class="mbti-description">{{ getMbtiTypeDescription(userPreferences.mbtiType) }}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- 旅行节奏 -->
-          <div v-if="userPreferences.travelPace" class="preference-group">
-            <h4><el-icon><Timer /></el-icon>旅行节奏</h4>
-            <div class="pace-display">
-              <el-tag type="primary" size="small">
-                {{ translateTag(userPreferences.travelPace) }}
+          <!-- 核心兴趣爱好 -->
+          <div v-if="userPreferences.coreInterests && userPreferences.coreInterests.length > 0" class="preference-group">
+            <h4><el-icon><Star /></el-icon>核心兴趣爱好</h4>
+            <div class="tags-container">
+              <el-tag
+                v-for="interest in userPreferences.coreInterests"
+                :key="interest"
+                type="primary"
+                size="small"
+                class="preference-tag"
+              >
+                {{ getCoreInterestDisplayName(interest) }}
               </el-tag>
             </div>
           </div>
+
+          <!-- 预算水平 -->
+          <div v-if="userPreferences.budgetLevel" class="preference-group">
+            <h4><el-icon><Money /></el-icon>预算水平</h4>
+            <div class="budget-display">
+              <el-tag type="success" size="small" class="budget-level-tag">
+                {{ getBudgetLevelDisplayName(userPreferences.budgetLevel) }}
+              </el-tag>
+              <span class="budget-range">{{ getBudgetLevelRange(userPreferences.budgetLevel) }}</span>
+            </div>
+          </div>
+
+
+
+          <!-- 出行方式偏好 -->
+          <div v-if="userPreferences.transportPreferences && userPreferences.transportPreferences.length > 0" class="preference-group">
+            <h4><el-icon><MapLocation /></el-icon>出行方式偏好</h4>
+            <div class="tags-container">
+              <el-tag
+                v-for="transport in userPreferences.transportPreferences"
+                :key="transport"
+                type="warning"
+                size="small"
+                class="preference-tag"
+              >
+                {{ getTransportPreferenceDisplayName(transport) }}
+              </el-tag>
+            </div>
+          </div>
+
+
         </div>
       </section>
 
@@ -315,7 +295,7 @@
             <el-icon><Setting /></el-icon>
             <div class="action-info">
               <h4>账户设置</h4>
-              <p>偏好设置和账户管理</p>
+              <p>档案设置和账户管理</p>
             </div>
           </div>
         </div>
@@ -355,6 +335,11 @@ import { draftManager } from "@/utils/storage/draftManager.js";
 import { convertBackendTripToFrontend } from "@/utils/data/tripDataConverter.js";
 import { handleApiError } from "@/utils/api/errorHandler.js";
 import { translateTag, getMbtiName } from "@/utils/data/tagMapping.js";
+import { 
+  PERSONAL_PROFILE_OPTIONS, 
+  getOptionDisplayName, 
+  getOptionDescription 
+} from "@/utils/data/travelDataSystem.js";
 import AvatarUploader from "@/components/Common/UI/AvatarUploader.vue";
 
 export default {
@@ -464,51 +449,53 @@ export default {
       }
       
       // 降级到userStore.userPreferences
-      if (userStore.userPreferences && Object.keys(userStore.userPreferences).length > 1) {
+      if (userStore.userPreferences && Object.keys(userStore.userPreferences).length > 0) {
         return userStore.userPreferences;
       }
 
-      // 如果是小黄4821用户，提供预设数据用于演示
-      if (userStore.currentUser?.nickname === "小黄4821") {
-        return {
-          budget: 300,
-          mbtiType: "ESTJ",
-          foodTastes: ["spicy"],
-          travelPace: 3,
-          selectedTags: ["nature", "culture", "food", "relaxation"],
-          preferredTimes: ["afternoon"],
-          dietaryRestrictions: ["vegetarian"],
-          accommodationType: "comfort",
-          selectedTransports: ["public"],
-          customDietaryNotes: "",
-          isCompleted: true,
-          otherPreferences: {
-            avoidCrowds: true,
-            includeFood: true,
-            popularFirst: true,
-            includeShopping: true,
-            needAccessibility: true,
-            includeKidsActivities: true,
-            preferPublicTransport: true
-          }
-        };
-      }
-
+      // 返回空对象，让界面显示"暂无数据"状态
       return {};
     });
 
-    // 检查是否有偏好数据
+    // 检查是否有偏好数据（只检查四个重要字段）
     const hasPreferencesData = computed(() => {
       const prefs = userPreferences.value;
       return !!(
-        (prefs.selectedTags && prefs.selectedTags.length > 0) ||
-        prefs.budget ||
-        (prefs.foodTastes && prefs.foodTastes.length > 0) ||
-        (prefs.dietaryRestrictions && prefs.dietaryRestrictions.length > 0) ||
         prefs.mbtiType ||
-        prefs.travelPace
+        (prefs.coreInterests && prefs.coreInterests.length > 0) ||
+        prefs.budgetLevel ||
+        (prefs.transportPreferences && prefs.transportPreferences.length > 0)
       );
     });
+
+    // 数据解析方法 - 基于 travelDataSystem.js 的数据定义
+    const getMbtiTypeDisplayName = (mbtiType) => {
+      return PERSONAL_PROFILE_OPTIONS.mbtiTypes.options[mbtiType]?.name || mbtiType;
+    };
+
+    const getMbtiTypeDescription = (mbtiType) => {
+      return PERSONAL_PROFILE_OPTIONS.mbtiTypes.options[mbtiType]?.description || '';
+    };
+
+    const getCoreInterestDisplayName = (interest) => {
+      return PERSONAL_PROFILE_OPTIONS.coreInterests.options[interest]?.name || interest;
+    };
+
+    const getBudgetLevelDisplayName = (budgetLevel) => {
+      return PERSONAL_PROFILE_OPTIONS.budgetLevel.options[budgetLevel]?.name || budgetLevel;
+    };
+
+    const getBudgetLevelRange = (budgetLevel) => {
+      return PERSONAL_PROFILE_OPTIONS.budgetLevel.options[budgetLevel]?.range || '';
+    };
+
+    const getDietaryRestrictionDisplayName = (restriction) => {
+      return PERSONAL_PROFILE_OPTIONS.dietaryRestrictions.options[restriction]?.name || restriction;
+    };
+
+    const getTransportPreferenceDisplayName = (transport) => {
+      return PERSONAL_PROFILE_OPTIONS.transportPreferences.options[transport]?.name || transport;
+    };
 
     // 方法
     const loadTrips = async () => {
@@ -768,6 +755,14 @@ export default {
       handleImageError,
       translateTag,
       getMbtiName,
+      // 新增的偏好数据解析方法
+      getMbtiTypeDisplayName,
+      getMbtiTypeDescription,
+      getCoreInterestDisplayName,
+      getBudgetLevelDisplayName,
+      getBudgetLevelRange,
+      getDietaryRestrictionDisplayName,
+      getTransportPreferenceDisplayName,
     };
   },
 };
@@ -894,7 +889,7 @@ export default {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
 }
 
-/* 偏好展示区域 */
+/* 个人旅行档案区域 */
 .preferences-section {
   background: white;
   border-radius: 12px;
@@ -904,25 +899,31 @@ export default {
 
 .preferences-display {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  /* 确保所有偏好项目都能显示 */
+  overflow: visible;
 }
 
 .preference-group {
-  padding: 16px;
+  padding: 14px;
   border: 1px solid #f0f0f0;
   border-radius: 8px;
   background: #fafafa;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
 }
 
 .preference-group h4 {
-  margin: 0 0 12px 0;
-  font-size: 14px;
+  margin: 0 0 10px 0;
+  font-size: 13px;
   font-weight: 600;
   color: #303133;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 .preference-group h4 .el-icon {
@@ -935,7 +936,16 @@ export default {
 .pace-display {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
+  flex: 1;
+}
+
+.tags-container .el-tag,
+.budget-display .el-tag,
+.pace-display .el-tag {
+  font-size: 11px;
+  height: 22px;
+  line-height: 20px;
 }
 
 .mbti-display {
@@ -945,47 +955,78 @@ export default {
 
 .mbti-content {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  align-items: flex-start;
+  gap: 8px;
+  height: 100%;
 }
 
 .mbti-image {
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
   overflow: hidden;
   background: #f5f7fa;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .mbti-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 6px;
+  border-radius: 4px;
 }
 
 .mbti-info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
 }
 
 .mbti-tag {
   margin: 0;
   font-weight: 600;
+  font-size: 11px;
 }
 
 .mbti-name {
-  font-size: 13px;
+  font-size: 12px;
   color: #606266;
   font-weight: 500;
+  line-height: 1.2;
+}
+
+.mbti-description {
+  margin: 0;
+  font-size: 11px;
+  color: #909399;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .preference-tag {
   margin: 0;
+}
+
+.budget-level-tag {
+  margin-right: 6px;
+  font-size: 11px;
+}
+
+.budget-range {
+  font-size: 11px;
+  color: #909399;
+  font-weight: 500;
+  line-height: 1.3;
 }
 
 .empty-preferences {
@@ -1124,6 +1165,14 @@ export default {
   text-align: center;
 }
 
+/* 平板设备响应式 */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .preferences-display {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .personal-header {
@@ -1142,9 +1191,23 @@ export default {
   }
 
   .trips-grid,
-  .actions-grid,
+  .actions-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .preferences-display {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    /* 在移动端调整为2列显示 */
+  }
+}
+
+/* 小屏手机响应式 */
+@media (max-width: 480px) {
   .preferences-display {
     grid-template-columns: 1fr;
+    gap: 12px;
+    /* 在小屏手机调整为1列显示 */
   }
 
   .section-header {
