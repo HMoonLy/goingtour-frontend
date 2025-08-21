@@ -1,336 +1,297 @@
 <!--
-🎯 个人旅行档案设置页面 - 一次设置，终身受益
-这个页面的设计重点：
-1. 清晰说明这是"终身档案"，设置一次就会影响所有未来的行程推荐
-2. 展示每个设置对推荐的具体影响
-3. 实时预览AI如何理解用户的选择
-4. 提供丰富的视觉反馈和说明
+个人旅行偏好设置页面
+简洁但保留完整的指导性信息
 -->
 
 <template>
-  <div class="personal-profile-page" :class="{ 'embedded-mode': embedded }">
-    <!-- 页面头部 - 清晰说明页面用途 -->
-    <div class="page-header">
-      <div class="header-content">
-        <div class="header-icon">
-          <el-icon><UserFilled /></el-icon>
-        </div>
-        <div class="header-text">
-          <h1 class="page-title">🎯 建立您的个人旅行档案</h1>
-          <p class="page-subtitle">一次设置，终身受益 - 我们将基于这些信息为您的每次旅行提供个性化推荐</p>
-        </div>
-      </div>
-      
-      <!-- 设置收益说明 -->
-      <div class="benefits-showcase">
-        <div class="benefit-item">
-          <el-icon class="benefit-icon"><Star /></el-icon>
-          <div class="benefit-text">
-            <span class="benefit-title">个性化推荐</span>
-            <span class="benefit-desc">基于您的性格和兴趣推荐最适合的景点</span>
+  <div class="personal-page simple" :class="{ embedded: embedded }">
+    <!-- 页面头部 - 保留关键说明 -->
+    <div class="page-intro" v-if="!embedded">
+      <h2 class="title">旅行偏好设置</h2>
+      <div class="intro-content">
+        <p class="intro-text">完善您的旅行偏好，我们将为您提供更精准的个性化推荐</p>
+        <div class="intro-benefits">
+          <div class="benefit-item">
+            <el-icon><Star /></el-icon>
+            <span>个性化景点推荐</span>
           </div>
-        </div>
-        <div class="benefit-item">
-          <el-icon class="benefit-icon"><Lightning /></el-icon>
-          <div class="benefit-text">
-            <span class="benefit-title">智能预填</span>
-            <span class="benefit-desc">创建行程时自动预填合适的偏好选项</span>
+          <div class="benefit-item">
+            <el-icon><Lightning /></el-icon>
+            <span>智能行程规划</span>
           </div>
-        </div>
-        <div class="benefit-item">
-          <el-icon class="benefit-icon"><Check /></el-icon>
-          <div class="benefit-text">
-            <span class="benefit-title">避免重复</span>
-            <span class="benefit-desc">无需每次重复填写相同的限制和偏好</span>
+          <div class="benefit-item">
+            <el-icon><Check /></el-icon>
+            <span>避免重复设置</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 档案设置区域 -->
-    <div class="profile-content">
+    <!-- 1. 性格特征 -->
+    <el-card class="section" shadow="never">
+      <template #header>
+        <div class="section-header">
+          <el-icon><User /></el-icon>
+          <div>
+            <div class="section-title">性格特征</div>
+            <div class="section-desc">帮助AI理解您的旅行风格和节奏偏好</div>
+          </div>
+        </div>
+      </template>
       
-      <!-- 1. 性格特征 -->
-      <div class="profile-section personality-section">
-        <div class="section-header">
-          <div class="section-icon">
-            <el-icon><User /></el-icon>
-          </div>
-          <div class="section-info">
-            <h3 class="section-title">🧠 性格特征</h3>
-            <p class="section-desc">
-              帮助AI理解您的旅行风格和节奏偏好
-              <span class="optional-tag">可选</span>
-            </p>
-          </div>
+      <div class="form-item">
+        <div class="item-label">
+          <span>MBTI人格类型</span>
+          <span class="optional-tag">可选</span>
         </div>
+        <div class="item-help">选择您的MBTI类型，我们会据此推荐符合您性格的旅行方式</div>
         
-        <div class="personality-content">
-          <el-select
-            v-model="profileData.mbtiType"
-            placeholder="选择您的MBTI类型（不确定可跳过）"
-            size="large"
-            clearable
-            class="mbti-selector"
-            @change="onMbtiChange"
+        <el-select
+          v-model="profileData.mbtiType"
+          placeholder="选择您的MBTI类型"
+          size="large"
+          clearable
+          style="width: 100%"
+          @change="onMbtiChange"
+        >
+          <el-option-group 
+            v-for="group in mbtiGroups" 
+            :key="group.label" 
+            :label="group.label"
           >
-            <el-option-group 
-              v-for="group in mbtiGroups" 
-              :key="group.label" 
-              :label="group.label"
-            >
-              <el-option
-                v-for="option in group.options"
-                :key="option.value"
-                :label="option.label"
-                :value="option.value"
+            <el-option
+              v-for="option in group.options"
+              :key="option.value"
+              :label="option.label"
+              :value="option.value"
+            />
+          </el-option-group>
+        </el-select>
+        
+        <!-- MBTI影响预览 -->
+        <div v-if="profileData.mbtiType" class="mbti-preview">
+          <div class="mbti-content">
+            <div class="mbti-image-section">
+              <img 
+                :src="`/images/mbti/${profileData.mbtiType}.png`" 
+                :alt="getMbtiDisplayName(profileData.mbtiType)"
+                class="mbti-character-image"
+                @error="handleImageError"
               />
-            </el-option-group>
-          </el-select>
-          
-          <!-- MBTI影响预览 -->
-          <div v-if="profileData.mbtiType" class="mbti-impact-preview">
-            <div class="impact-header">
-              <el-icon><MagicStick /></el-icon>
-              <span>AI将如何理解您的性格：</span>
             </div>
-            <div class="impact-content">
-              <div class="mbti-personality-display">
-                <div class="mbti-image-container">
-                  <img 
-                    :src="`/images/mbti/${profileData.mbtiType}.png`" 
-                    :alt="getMbtiDisplayName(profileData.mbtiType)"
-                    class="mbti-personality-image"
-                    @error="handleImageError"
-                  />
-                </div>
-                <div class="mbti-info">
-                  <h4>{{ getMbtiDisplayName(profileData.mbtiType) }}</h4>
-                  <p>{{ getMbtiTravelStyle(profileData.mbtiType) }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 2. 核心兴趣爱好 -->
-      <div class="profile-section interests-section">
-        <div class="section-header">
-          <div class="section-icon">
-            <el-icon><Collection /></el-icon>
-          </div>
-          <div class="section-info">
-            <h3 class="section-title">🎨 核心兴趣爱好</h3>
-            <p class="section-desc">
-              选择您平时最感兴趣的领域（最多5个），我们会在每次行程中优先推荐相关体验
-            </p>
-          </div>
-        </div>
-        
-        <div class="interests-content">
-          <div class="interests-grid">
-            <div
-              v-for="interest in coreInterestOptions"
-              :key="interest.value"
-              class="interest-card"
-              :class="{
-                selected: profileData.coreInterests.includes(interest.value),
-                disabled: !profileData.coreInterests.includes(interest.value) && profileData.coreInterests.length >= 5
-              }"
-              @click="toggleInterest(interest.value)"
-            >
-              <div class="interest-icon">{{ interest.icon }}</div>
-              <div class="interest-info">
-                <span class="interest-name">{{ interest.name }}</span>
-                <span class="interest-desc">{{ interest.description }}</span>
-              </div>
-              <div v-if="profileData.coreInterests.includes(interest.value)" class="selected-mark">
-                <el-icon><Check /></el-icon>
-              </div>
-            </div>
-          </div>
-          
-          <!-- 选择计数和影响说明 -->
-          <div class="selection-summary">
-            <div class="selection-count">
-              已选择 {{ profileData.coreInterests.length }}/5 个兴趣
-            </div>
-            <div v-if="profileData.coreInterests.length > 0" class="ai-impact-tip">
-              💡 这些兴趣会影响景点类型、活动推荐和行程安排
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3. 预算水平 -->
-      <div class="profile-section budget-section">
-        <div class="section-header">
-          <div class="section-icon">
-            <el-icon><Money /></el-icon>
-          </div>
-          <div class="section-info">
-            <h3 class="section-title">💰 旅行预算水平</h3>
-            <p class="section-desc">
-              设置您通常的旅行预算范围，影响住宿、餐饮、景点推荐档次
-            </p>
-          </div>
-        </div>
-        
-        <div class="budget-content">
-          <!-- 预算等级卡片 -->
-          <div class="budget-cards">
-            <div
-              v-for="budget in budgetLevelOptions"
-              :key="budget.value"
-              class="budget-card"
-              :class="{ 
-                selected: profileData.budgetLevel === budget.value,
-                'recommended': budget.value === 'moderate'
-              }"
-              @click="profileData.budgetLevel = budget.value"
-            >
-              <!-- 推荐标签 -->
-              <div v-if="budget.value === 'moderate'" class="recommend-badge">
-                🔥 性价比推荐
-              </div>
-              
-              <div class="budget-header">
-                <div class="budget-icon" :class="budget.value">
-                  <span v-if="budget.value === 'budget'">💰</span>
-                  <span v-else-if="budget.value === 'moderate'">⭐</span>
-                  <span v-else-if="budget.value === 'comfort'">🏨</span>
-                  <span v-else-if="budget.value === 'luxury'">💎</span>
-                </div>
-                <div class="budget-info">
-                  <span class="budget-name">{{ budget.name }}</span>
-                  <span class="budget-range">{{ budget.range }}</span>
-                </div>
-              </div>
-              
-              <p class="budget-desc">{{ budget.description }}</p>
-              
-              <!-- 特色功能标签 -->
-              <div class="budget-features">
-                <div v-if="budget.value === 'budget'" class="feature-tag-group">
-                  <span class="feature-tag">公共交通</span>
-                  <span class="feature-tag">平价美食</span>
-                  <span class="feature-tag">免费景点</span>
-                </div>
-                <div v-else-if="budget.value === 'moderate'" class="feature-tag-group">
-                  <span class="feature-tag">舒适住宿</span>
-                  <span class="feature-tag">特色体验</span>
-                  <span class="feature-tag">热门景点</span>
-                </div>
-                <div v-else-if="budget.value === 'comfort'" class="feature-tag-group">
-                  <span class="feature-tag">品质酒店</span>
-                  <span class="feature-tag">便利交通</span>
-                  <span class="feature-tag">优质餐厅</span>
-                </div>
-                <div v-else-if="budget.value === 'luxury'" class="feature-tag-group">
-                  <span class="feature-tag">豪华体验</span>
-                  <span class="feature-tag">高端服务</span>
-                  <span class="feature-tag">独特项目</span>
-                </div>
-              </div>
-              
-              <div class="budget-strategy">
+            <div class="mbti-info-section">
+              <div class="preview-header">
                 <el-icon><InfoFilled /></el-icon>
-                <span>{{ budget.aiStrategy }}</span>
+                <span>基于您的 {{ getMbtiDisplayName(profileData.mbtiType) }} 特质</span>
               </div>
-              
-              <!-- 适用人群提示 -->
-              <div class="target-users">
-                <span v-if="budget.value === 'budget'">💡 学生党、背包客</span>
-                <span v-else-if="budget.value === 'moderate'">💡 年轻白领、小资族</span>
-                <span v-else-if="budget.value === 'comfort'">💡 注重品质、商务出行</span>
-                <span v-else-if="budget.value === 'luxury'">💡 追求极致、高端体验</span>
-              </div>
+              <p class="preview-desc">{{ getMbtiTravelStyle(profileData.mbtiType) }}</p>
             </div>
           </div>
         </div>
       </div>
+    </el-card>
 
-      <!-- 4. 饮食限制 -->
-      <div class="profile-section dietary-section important-section">
+    <!-- 2. 核心兴趣爱好 -->
+    <el-card class="section" shadow="never">
+      <template #header>
         <div class="section-header">
-          <div class="section-icon warning">
-            <el-icon><Coffee /></el-icon>
+          <el-icon><Collection /></el-icon>
+          <div>
+            <div class="section-title">核心兴趣爱好</div>
+            <div class="section-desc">影响景点推荐、活动安排和路线规划</div>
           </div>
-          <div class="section-info">
-            <h3 class="section-title">🍽️ 饮食限制</h3>
-            <p class="section-desc">
-              选择您的饮食禁忌，所有餐厅推荐都会严格遵守这些限制
-            </p>
+        </div>
+      </template>
+      
+      <div class="form-item">
+        <div class="item-label">
+          <span>选择您最感兴趣的领域</span>
+          <span class="limit-tag">最多5个</span>
+        </div>
+        <div class="item-help">
+          这些兴趣将直接影响我们为您推荐的景点类型。例如：选择"历史文化"会优先推荐博物馆、古迹等
+        </div>
+        
+        <div class="interests-grid">
+          <div
+            v-for="interest in coreInterestOptions"
+            :key="interest.value"
+            class="interest-item"
+            :class="{
+              selected: profileData.coreInterests.includes(interest.value),
+              disabled: !profileData.coreInterests.includes(interest.value) && profileData.coreInterests.length >= 5
+            }"
+            @click="toggleInterest(interest.value)"
+          >
+            <span class="interest-icon">{{ interest.icon }}</span>
+            <div class="interest-info">
+              <span class="interest-name">{{ interest.name }}</span>
+              <span class="interest-desc">{{ interest.description }}</span>
+            </div>
+            <el-icon v-if="profileData.coreInterests.includes(interest.value)" class="check-icon">
+              <Check />
+            </el-icon>
           </div>
         </div>
         
-        <div class="dietary-content">
-          <div class="dietary-grid">
-            <div
-              v-for="restriction in dietaryRestrictionOptions"
-              :key="restriction.value"
-              class="dietary-item"
-              :class="{ selected: profileData.dietaryRestrictions.includes(restriction.value) }"
-              @click="toggleDietaryRestriction(restriction.value)"
-            >
-              <span class="dietary-icon">{{ restriction.icon }}</span>
+        <div class="selection-status">
+          <span class="count">已选择 {{ profileData.coreInterests.length }}/5 个兴趣</span>
+          <span v-if="profileData.coreInterests.length < 3" class="hint">建议至少选择3个以获得更好的推荐效果</span>
+        </div>
+      </div>
+    </el-card>
+
+    <!-- 3. 预算水平 -->
+    <el-card class="section" shadow="never">
+      <template #header>
+        <div class="section-header">
+          <el-icon><Money /></el-icon>
+          <div>
+            <div class="section-title">旅行预算水平</div>
+            <div class="section-desc">影响住宿、餐厅、景点和交通方式的推荐</div>
+          </div>
+        </div>
+      </template>
+      
+      <div class="form-item">
+        <div class="item-label">选择您通常的旅行预算范围</div>
+        <div class="item-help">
+          我们会根据您的预算推荐合适价位的酒店、餐厅和活动。您可以在制定具体行程时再次调整
+        </div>
+        
+        <div class="budget-options">
+          <div
+            v-for="budget in budgetLevelOptions"
+            :key="budget.value"
+            class="budget-option"
+            :class="{ 
+              selected: profileData.budgetLevel === budget.value,
+              recommended: budget.value === 'moderate'
+            }"
+            @click="profileData.budgetLevel = budget.value"
+          >
+            <div class="budget-header">
+              <span class="budget-name">{{ budget.name }}</span>
+              <span v-if="budget.value === 'moderate'" class="recommend-tag">推荐</span>
+            </div>
+            <div class="budget-range">{{ budget.range }}</div>
+            <div class="budget-desc">{{ budget.description }}</div>
+            <div class="budget-examples">
+              <small>例如：{{ budget.examples }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </el-card>
+
+    <!-- 4. 饮食限制 -->
+    <el-card class="section" shadow="never">
+      <template #header>
+        <div class="section-header">
+          <el-icon><Coffee /></el-icon>
+          <div>
+            <div class="section-title">饮食限制</div>
+            <div class="section-desc">确保推荐的餐厅符合您的饮食要求</div>
+          </div>
+        </div>
+      </template>
+      
+      <div class="form-item">
+        <div class="item-label">选择您的饮食禁忌或偏好</div>
+        <div class="item-help">
+          <el-icon><Warning /></el-icon>
+          <span>我们会严格过滤不符合您要求的餐厅，确保饮食安全</span>
+        </div>
+        
+        <div class="dietary-grid">
+          <div
+            v-for="restriction in dietaryRestrictionOptions"
+            :key="restriction.value"
+            class="dietary-item"
+            :class="{ selected: profileData.dietaryRestrictions.includes(restriction.value) }"
+            @click="toggleDietaryRestriction(restriction.value)"
+          >
+            <span class="dietary-icon">{{ restriction.icon }}</span>
+            <div class="dietary-info">
               <span class="dietary-name">{{ restriction.name }}</span>
-              <el-icon v-if="profileData.dietaryRestrictions.includes(restriction.value)" class="check-icon">
-                <Check />
-              </el-icon>
+              <span class="dietary-note">{{ restriction.note }}</span>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 5. 出行方式偏好 -->
-      <div class="profile-section transport-section">
-        <div class="section-header">
-          <div class="section-icon">
-            <el-icon><MapLocation /></el-icon>
-          </div>
-          <div class="section-info">
-            <h3 class="section-title">🚗 出行方式偏好</h3>
-            <p class="section-desc">
-              选择您喜欢的交通方式，影响路线规划和景点安排
-            </p>
+            <el-icon v-if="profileData.dietaryRestrictions.includes(restriction.value)" class="check-icon">
+              <Check />
+            </el-icon>
           </div>
         </div>
         
-        <div class="transport-content">
-          <div class="transport-grid">
-            <div
+        <div v-if="profileData.dietaryRestrictions.length === 0" class="no-restriction-tip">
+          <el-icon><InfoFilled /></el-icon>
+          <span>如无特殊饮食要求，可跳过此项</span>
+        </div>
+      </div>
+    </el-card>
+
+    <!-- 5. 出行方式偏好 -->
+    <el-card class="section" shadow="never">
+      <template #header>
+        <div class="section-header">
+          <el-icon><MapLocation /></el-icon>
+          <div>
+            <div class="section-title">出行方式偏好</div>
+            <div class="section-desc">影响行程安排和路线规划的交通建议</div>
+          </div>
+        </div>
+      </template>
+      
+      <div class="form-item">
+        <div class="item-label">选择您偏好的交通方式</div>
+        <div class="item-help">
+          我们会优先推荐您喜欢的交通方式，并在行程中合理安排换乘和路线
+        </div>
+        
+        <!-- 紧凑标签式 -->
+        <div class="transport-compact-wrapper">
+          <div class="compact-grid">
+            <div 
               v-for="transport in transportPreferenceOptions"
               :key="transport.value"
-              class="transport-card"
+              class="compact-item"
               :class="{ selected: profileData.transportPreferences.includes(transport.value) }"
               @click="toggleTransport(transport.value)"
             >
-              <div class="transport-header">
-                <span class="transport-icon">{{ transport.icon }}</span>
-                <span class="transport-name">{{ transport.name }}</span>
-              </div>
-              <p class="transport-desc">{{ transport.description }}</p>
-              <div class="transport-impact">
-                <el-icon><InfoFilled /></el-icon>
-                <span>{{ transport.aiImpact }}</span>
+              <span class="compact-icon">{{ transport.icon }}</span>
+              <span class="compact-name">{{ transport.name }}</span>
+            </div>
+          </div>
+          
+          <!-- 紧凑模式的详情展示 -->
+          <div v-if="selectedTransportDetails.length > 0" class="compact-details">
+            <div class="compact-details-title">已选择：</div>
+            <div class="compact-details-content">
+              <div 
+                v-for="item in selectedTransportDetails" 
+                :key="item.value"
+                class="compact-detail-item"
+              >
+                <strong>{{ item.icon }} {{ item.name }}</strong>：{{ item.benefit }}
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- AI理解预览 -->
-    <div v-if="hasValidProfile" class="ai-understanding-preview">
-      <div class="preview-header">
-        <!-- <el-icon><Robot /></el-icon> -->
-        <h4>🤖 AI将如何理解您的档案</h4>
       </div>
-      <div class="understanding-content">
-        <div class="understanding-text">
-          {{ generateAIUnderstanding() }}
+    </el-card>
+
+    <!-- 设置完成提示 -->
+    <div class="completion-guide">
+      <div class="guide-content">
+        <el-icon><CircleCheckFilled /></el-icon>
+        <div class="guide-text">
+          <div class="guide-title">设置完成后的效果</div>
+          <ul class="guide-list">
+            <li>创建行程时自动预填您的偏好</li>
+            <li>景点推荐更加精准匹配</li>
+            <li>餐厅筛选严格遵守饮食限制</li>
+            <li>交通建议符合您的出行习惯</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -341,15 +302,12 @@
         type="primary"
         size="large"
         :loading="saving"
-        class="save-button"
         @click="saveProfile"
       >
         <el-icon><Check /></el-icon>
-        保存个人档案
+        保存偏好设置
       </el-button>
-      <p class="save-tip">
-        保存后，您的所有行程规划都会基于这些信息进行个性化推荐
-      </p>
+      <div class="save-tip">设置保存后，您随时可以回来修改</div>
     </div>
   </div>
 </template>
@@ -359,7 +317,8 @@ import { ref, reactive, computed, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { 
   UserFilled, User, Collection, Money, Coffee, MapLocation, 
-  Star, Lightning, Check, MagicStick, InfoFilled,  Warning 
+  Star, Lightning, Check, MagicStick, InfoFilled, Warning,
+  CircleCheckFilled
 } from '@element-plus/icons-vue';
 import { useUserStore } from '@/store/user.js';
 import { PERSONAL_PROFILE_OPTIONS } from '@/utils/data/travelDataSystem.js';
@@ -369,8 +328,8 @@ export default {
   name: 'PersonalProfile',
   components: {
     UserFilled, User, Collection, Money, Coffee, MapLocation,
-    Star, Lightning, Check, MagicStick, InfoFilled,
- Warning
+    Star, Lightning, Check, MagicStick, InfoFilled, Warning,
+    CircleCheckFilled
   },
   props: {
     embedded: {
@@ -391,45 +350,50 @@ export default {
       transportPreferences: []
     });
 
-    // MBTI分组选项
-    const mbtiGroups = [
-      {
-        label: '分析家 (NT)',
-        options: [
-          { label: 'INTJ - 建筑师', value: 'INTJ' },
-          { label: 'INTP - 逻辑学家', value: 'INTP' },
-          { label: 'ENTJ - 指挥官', value: 'ENTJ' },
-          { label: 'ENTP - 辩论家', value: 'ENTP' }
-        ]
-      },
-      {
-        label: '外交家 (NF)', 
-        options: [
-          { label: 'INFJ - 提倡者', value: 'INFJ' },
-          { label: 'INFP - 调停者', value: 'INFP' },
-          { label: 'ENFJ - 主人公', value: 'ENFJ' },
-          { label: 'ENFP - 活动家', value: 'ENFP' }
-        ]
-      },
-      {
-        label: '守护者 (SJ)',
-        options: [
-          { label: 'ISTJ - 物流师', value: 'ISTJ' },
-          { label: 'ISFJ - 守护者', value: 'ISFJ' },
-          { label: 'ESTJ - 总经理', value: 'ESTJ' },
-          { label: 'ESFJ - 执政官', value: 'ESFJ' }
-        ]
-      },
-      {
-        label: '探险家 (SP)',
-        options: [
-          { label: 'ISTP - 鉴赏家', value: 'ISTP' },
-          { label: 'ISFP - 探险家', value: 'ISFP' },
-          { label: 'ESTP - 企业家', value: 'ESTP' },
-          { label: 'ESFP - 娱乐家', value: 'ESFP' }
-        ]
-      }
-    ];
+
+
+    // MBTI分组选项 - 从系统数据生成
+    const mbtiGroups = (() => {
+      const mbtiOptions = PERSONAL_PROFILE_OPTIONS.mbtiTypes.options;
+      return [
+        {
+          label: '分析家 (NT)',
+          options: [
+            { label: `INTJ - ${mbtiOptions.INTJ.name}`, value: 'INTJ' },
+            { label: `INTP - ${mbtiOptions.INTP.name}`, value: 'INTP' },
+            { label: `ENTJ - ${mbtiOptions.ENTJ.name}`, value: 'ENTJ' },
+            { label: `ENTP - ${mbtiOptions.ENTP.name}`, value: 'ENTP' }
+          ]
+        },
+        {
+          label: '外交家 (NF)', 
+          options: [
+            { label: `INFJ - ${mbtiOptions.INFJ.name}`, value: 'INFJ' },
+            { label: `INFP - ${mbtiOptions.INFP.name}`, value: 'INFP' },
+            { label: `ENFJ - ${mbtiOptions.ENFJ.name}`, value: 'ENFJ' },
+            { label: `ENFP - ${mbtiOptions.ENFP.name}`, value: 'ENFP' }
+          ]
+        },
+        {
+          label: '守护者 (SJ)',
+          options: [
+            { label: `ISTJ - ${mbtiOptions.ISTJ.name}`, value: 'ISTJ' },
+            { label: `ISFJ - ${mbtiOptions.ISFJ.name}`, value: 'ISFJ' },
+            { label: `ESTJ - ${mbtiOptions.ESTJ.name}`, value: 'ESTJ' },
+            { label: `ESFJ - ${mbtiOptions.ESFJ.name}`, value: 'ESFJ' }
+          ]
+        },
+        {
+          label: '探索者 (SP)',
+          options: [
+            { label: `ISTP - ${mbtiOptions.ISTP.name}`, value: 'ISTP' },
+            { label: `ISFP - ${mbtiOptions.ISFP.name}`, value: 'ISFP' },
+            { label: `ESTP - ${mbtiOptions.ESTP.name}`, value: 'ESTP' },
+            { label: `ESFP - ${mbtiOptions.ESFP.name}`, value: 'ESFP' }
+          ]
+        }
+      ];
+    })();
 
     // 选项数据（从新的数据系统获取）
     const coreInterestOptions = computed(() => 
@@ -439,26 +403,75 @@ export default {
       }))
     );
 
-    const budgetLevelOptions = computed(() =>
-      Object.entries(PERSONAL_PROFILE_OPTIONS.budgetLevel.options).map(([key, value]) => ({
+    const budgetLevelOptions = computed(() => {
+      const baseOptions = Object.entries(PERSONAL_PROFILE_OPTIONS.budgetLevel.options).map(([key, value]) => ({
         value: key,
         ...value
-      }))
-    );
+      }));
+      
+      // 扩展预算选项，添加更详细的说明
+      return baseOptions.map(option => ({
+        ...option,
+        examples: getBudgetExamples(option.value)
+      }));
+    });
 
-    const dietaryRestrictionOptions = computed(() =>
-      Object.entries(PERSONAL_PROFILE_OPTIONS.dietaryRestrictions.options).map(([key, value]) => ({
+    const dietaryRestrictionOptions = computed(() => {
+      const baseOptions = Object.entries(PERSONAL_PROFILE_OPTIONS.dietaryRestrictions.options).map(([key, value]) => ({
         value: key,
         ...value
-      }))
-    );
+      }));
+      
+      // 扩展饮食限制选项，添加注释说明
+      return baseOptions.map(option => ({
+        ...option,
+        note: getDietaryNote(option.value)
+      }));
+    });
 
-    const transportPreferenceOptions = computed(() =>
-      Object.entries(PERSONAL_PROFILE_OPTIONS.transportPreferences.options).map(([key, value]) => ({
+    const transportPreferenceOptions = computed(() => {
+      return Object.entries(PERSONAL_PROFILE_OPTIONS.transportPreferences.options).map(([key, value]) => ({
         value: key,
         ...value
-      }))
-    );
+      }));
+    });
+
+    // 获取预算示例
+    const getBudgetExamples = (budgetType) => {
+      const examples = {
+        budget: '青旅、快餐、公共交通、免费景点',
+        moderate: '三星酒店、特色餐厅、地铁+出租车',
+        comfort: '四星酒店、精品餐厅、专车接送',
+        luxury: '五星酒店、米其林餐厅、私人定制'
+      };
+      return examples[budgetType] || '';
+    };
+
+    // 获取饮食限制注释
+    const getDietaryNote = (restrictionType) => {
+      const notes = {
+        vegetarian: '不食用肉类',
+        vegan: '不食用任何动物制品',
+        halal: '符合伊斯兰教规',
+        no_spicy: '避免辛辣食物',
+        lactose_free: '避免乳制品',
+        gluten_free: '避免含麸质食物',
+        no_beef:'🚫',
+        no_pork:'🚫',
+        no_seafood:'🚫',
+        dairy_free:'🚫'
+      };
+      return notes[restrictionType] || '';
+    };
+
+
+
+    // 选中的交通方式详情
+    const selectedTransportDetails = computed(() => {
+      return transportPreferenceOptions.value.filter(transport => 
+        profileData.transportPreferences.includes(transport.value)
+      );
+    });
 
     // 档案完整性检查
     const hasValidProfile = computed(() => {
@@ -501,33 +514,34 @@ export default {
       console.log('MBTI类型变更:', value);
     };
 
-    // 图片错误处理
-    const handleImageError = (event) => {
-      console.warn('MBTI图片加载失败:', event.target.src);
-      // 可以设置一个默认图片或隐藏图片
-      event.target.style.display = 'none';
-    };
-
     const getMbtiDisplayName = (type) => {
       if (!type) return '';
-      const allOptions = mbtiGroups.flatMap(group => group.options);
-      const option = allOptions.find(opt => opt.value === type);
-      return option ? option.label : type;
+      const mbtiOptions = PERSONAL_PROFILE_OPTIONS.mbtiTypes.options;
+      const option = mbtiOptions[type];
+      return option ? `${type} - ${option.name}` : type;
     };
 
     const getMbtiTravelStyle = (type) => {
-      const option = PERSONAL_PROFILE_OPTIONS.mbtiTypes.options[type];
+      if (!type) return '';
+      const mbtiOptions = PERSONAL_PROFILE_OPTIONS.mbtiTypes.options;
+      const option = mbtiOptions[type];
       return option ? option.travelStyle : '';
     };
 
-    // 生成AI理解说明
-    const generateAIUnderstanding = () => {
-      const interpreter = new PersonalProfileInterpreter(profileData);
-      const profile = interpreter.generateCompleteProfile();
-      
-      // 简化显示，提取关键信息
-      const lines = profile.split('\n\n').slice(0, 3); // 取前3段
-      return lines.join(' ');
+    // 图片错误处理
+    const handleImageError = (event) => {
+      console.warn('MBTI图片加载失败:', event.target.src);
+      // 设置一个默认的占位符样式
+      event.target.style.display = 'none';
+      const imageSection = event.target.parentElement;
+      if (imageSection && imageSection.classList.contains('mbti-image-section')) {
+        imageSection.style.display = 'flex';
+        imageSection.style.alignItems = 'center';
+        imageSection.style.justifyContent = 'center';
+        imageSection.style.fontSize = '24px';
+        imageSection.style.color = '#1976d2';
+        imageSection.innerHTML = '🧠';
+      }
     };
 
     // 保存档案
@@ -590,15 +604,15 @@ export default {
       budgetLevelOptions,
       dietaryRestrictionOptions,
       transportPreferenceOptions,
+      selectedTransportDetails,
       hasValidProfile,
       toggleInterest,
       toggleDietaryRestriction,
       toggleTransport,
       onMbtiChange,
-      handleImageError,
       getMbtiDisplayName,
       getMbtiTravelStyle,
-      generateAIUnderstanding,
+      handleImageError,
       saveProfile
     };
   }
@@ -606,1127 +620,956 @@ export default {
 </script>
 
 <style scoped>
-.personal-profile-page {
-  max-width: var(--content-max-width);
-  margin: 0 auto;
-  padding: var(--page-padding);
-  background: var(--page-bg);
-  min-height: 100vh;
+/* 使用与其他设置页面相同的样式风格 */
+.personal-page.simple {
+  max-width: 960px;
+  margin: 24px auto;
+  padding: 0 16px;
 }
 
-/* 页面头部 */
-.page-header {
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 40%, var(--secondary-color) 100%);
-  border-radius: 20px;
-  padding: 16px;
-  margin-bottom: 16px;
-  color: white;
-  position: relative;
-  overflow: hidden;
-  box-shadow: var(--shadow-md);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.page-header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%);
-  pointer-events: none;
-}
-
-.header-content {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-  position: relative;
-  z-index: 1;
-}
-
-.header-icon {
-  width: 36px;
-  height: 36px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  backdrop-filter: blur(20px);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  transition: all 0.3s ease;
-  flex-shrink: 0;
-}
-
-.header-icon:hover {
-  transform: scale(1.05);
-  background: rgba(255, 255, 255, 0.25);
-}
-
-.page-title {
-  font-size: 14px;
-  font-weight: 700;
-  margin: 0 0 4px 0;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  line-height: 1.3;
-}
-
-.page-subtitle {
-  font-size: 12px;
+.personal-page.simple.embedded {
+  max-width: 100%;
   margin: 0;
-  opacity: 0.9;
-  line-height: 1.5;
-  font-weight: 400;
+  padding: 0;
 }
 
-.benefits-showcase {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  position: relative;
-  z-index: 1;
+/* 页面介绍区域 */
+.page-intro {
+  margin-bottom: 32px;
+}
+
+.title {
+  margin: 0 0 16px 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.intro-content {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  border-left: 4px solid #91a8d0;
+}
+
+.intro-text {
+  margin: 0 0 16px 0;
+  color: #606266;
+  font-size: 16px;
+}
+
+.intro-benefits {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
 }
 
 .benefit-item {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 18px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 8px;
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.3s ease;
-}
-
-.benefit-item:hover {
-  background: rgba(255, 255, 255, 0.22);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-.benefit-icon {
-  font-size: 12px;
-  color: #fff3cd;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-  flex-shrink: 0;
-}
-
-.benefit-text {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.benefit-title {
-  font-weight: 600;
+  gap: 8px;
+  color: #91a8d0;
   font-size: 14px;
+  font-weight: 500;
 }
 
-.benefit-desc {
-  font-size: 10px;
-  opacity: 0.85;
-  line-height: 1.4;
+.benefit-item .el-icon {
+  font-size: 16px;
 }
 
-/* 档案内容区域 */
-.profile-content {
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
-
-.profile-section {
-  background: var(--card-bg);
-  border-radius: 20px;
-  padding: 32px;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-light);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
+/* 卡片样式 */
+.section {
+  margin-bottom: 24px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
   overflow: hidden;
 }
 
-.profile-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-  opacity: 0;
-  transition: opacity 0.3s ease;
+.section :deep(.el-card__header) {
+  background: linear-gradient(90deg, rgba(145, 168, 208, 0.12), rgba(247, 202, 201, 0.06));
+  padding: 20px;
 }
 
-.profile-section:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-4px);
-  border-color: var(--primary-light-8, rgba(145, 168, 208, 0.2));
-}
-
-.profile-section:hover::before {
-  opacity: 1;
-}
-
-.profile-section.important-section {
-  border-left: 4px solid var(--error-color);
-  background: linear-gradient(135deg, rgba(229, 57, 53, 0.02) 0%, var(--card-bg) 100%);
-}
-
-/* 区块头部 */
 .section-header {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  margin-bottom: 16px;
 }
 
-.section-icon {
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 14px;
-  box-shadow: 0 4px 16px rgba(145, 168, 208, 0.2);
-  flex-shrink: 0;
-  transition: all 0.3s ease;
-}
-
-.section-icon:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(145, 168, 208, 0.35);
-}
-
-.section-icon.warning {
-  background: linear-gradient(135deg, var(--error-color) 0%, #ff6b6b 100%);
-  box-shadow: 0 6px 20px rgba(229, 57, 53, 0.25);
-}
-
-.section-icon.warning:hover {
-  box-shadow: 0 8px 25px rgba(229, 57, 53, 0.35);
-}
-
-.section-info {
-  flex: 1;
+.section-header .el-icon {
+  font-size: 20px;
+  color: #91a8d0;
+  margin-top: 2px;
 }
 
 .section-title {
-  margin: 0 0 8px;
   font-weight: 600;
-  font-size: 14px;
-  color: var(--text-primary);
-  line-height: 1.3;
+  color: #303133;
+  font-size: 18px;
+  margin-bottom: 4px;
 }
 
 .section-desc {
-  margin: 0;
-  font-size: 15px;
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
-
-.optional-tag {
-  background: var(--primary-light-9, rgba(145, 168, 208, 0.1));
-  color: var(--primary-color);
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  margin-left: 12px;
-  border: 1px solid var(--primary-light-8, rgba(145, 168, 208, 0.2));
-}
-.personality-content{
-  background: #ffffff;
-}
-/* MBTI选择器 */
-.mbti-selector {
-  width: 100%;
-  margin-bottom: 24px;
-}
-
-.mbti-impact-preview {
-  background: #ffffff;
-}
-
-.impact-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 14px;
-  font-weight: 600;
-  color: var(--primary-color);
+  color: #909399;
   font-size: 14px;
 }
 
-.mbti-personality-display {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+/* 表单项样式 */
+.form-item {
+  padding: 20px;
 }
 
-.mbti-image-container {
+.item-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.optional-tag, .limit-tag {
+  background: #e1f3d8;
+  color: #67c23a;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.limit-tag {
+  background: #fdf6ec;
+  color: #e6a23c;
+}
+
+.item-help {
+  color: #909399;
+  font-size: 14px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.item-help .el-icon {
+  color: #e6a23c;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+/* MBTI预览 */
+.mbti-preview {
+  margin-top: 20px;
+  padding: 20px;
+  background: #fafafa;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.mbti-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.mbti-image-section {
   flex-shrink: 0;
   width: 80px;
   height: 80px;
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
-  /* background: #ffffff; */
-  /* border: 2px solid var(--primary-light-7, rgba(145, 168, 208, 0.3)); */
-  /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); */
+  background: white;
+  border: 1px solid #e0e0e0;
+  transition: transform 0.3s ease;
 }
 
-.mbti-personality-image {
+.mbti-image-section:hover {
+  transform: scale(1.02);
+}
+
+.mbti-character-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 0.3s ease;
 }
 
-.mbti-personality-image:hover {
+.mbti-character-image:hover {
   transform: scale(1.05);
 }
 
-.mbti-info {
+.mbti-info-section {
   flex: 1;
-}
-
-.mbti-info h4 {
-  margin: 0 0 8px;
-  font-size: 16px;
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-.mbti-info p {
-  margin: 0;
-  font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
-
-/* 兴趣网格 */
-.interests-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.interest-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 20px;
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  background: var(--card-bg);
-}
-
-.interest-card:hover {
-  border-color: var(--primary-color);
-  box-shadow: 0 6px 20px rgba(145, 168, 208, 0.15);
-  transform: translateY(-3px);
-}
-
-.interest-card.selected {
-  border-color: var(--primary-color);
-  background: linear-gradient(135deg, var(--primary-light-9, rgba(145, 168, 208, 0.1)) 0%, var(--card-bg) 100%);
-  box-shadow: 0 4px 16px rgba(145, 168, 208, 0.2);
-}
-
-.interest-card.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  filter: grayscale(0.3);
-}
-
-.interest-icon {
-  font-size: 12px;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-secondary);
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  border: 2px solid var(--border-light);
-  flex-shrink: 0;
-}
-
-.interest-card:hover .interest-icon {
-  background: var(--primary-light-9, rgba(145, 168, 208, 0.1));
-  border-color: var(--primary-light-8, rgba(145, 168, 208, 0.2));
-  transform: scale(1.05);
-}
-
-.interest-card.selected .interest-icon {
-  background: var(--primary-color);
-  color: white;
-  border-color: var(--primary-color);
-}
-
-.interest-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.interest-name {
-  font-weight: 600;
-  font-size: 12px;
-  color: var(--text-primary);
-  line-height: 1.3;
-}
-
-.interest-desc {
-  font-size: 13px;
-  color: var(--text-muted);
-  line-height: 1.4;
-}
-
-.selected-mark {
-  color: var(--success-color);
-  font-size: 14px;
-  filter: drop-shadow(0 2px 4px rgba(124, 179, 66, 0.3));
-}
-
-.selection-summary {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 20px;
-  background: var(--bg-secondary);
-  border-radius: 8px;
-  font-size: 14px;
-  border: 1px solid var(--border-light);
-}
-
-.selection-count {
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.ai-impact-tip {
-  color: var(--primary-color);
-  font-style: italic;
-  font-weight: 500;
-}
-
-/* 预算卡片 */
-.budget-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-}
-
-.budget-card {
-  padding: 24px;
-  border: 2px solid var(--border-color);
-  border-radius: 16px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: var(--card-bg);
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-.budget-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.budget-card:hover {
-  border-color: var(--primary-color);
-  box-shadow: 0 8px 24px rgba(145, 168, 208, 0.15);
-  transform: translateY(-4px);
-}
-
-.budget-card:hover::before {
-  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-  opacity: 1;
-}
-
-.budget-card:hover .budget-icon {
-  transform: scale(1.1);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-}
-
-.budget-card.selected {
-  border-color: var(--primary-color);
-  background: linear-gradient(135deg, var(--primary-light-9, rgba(145, 168, 208, 0.1)) 0%, var(--card-bg) 100%);
-  box-shadow: 0 8px 24px rgba(145, 168, 208, 0.2);
-}
-
-.budget-card.selected::before {
-  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-  opacity: 1;
-}
-
-.budget-card.selected .budget-icon {
-  transform: scale(1.1);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-}
-
-.budget-card.recommended {
-  border-color: var(--success-color);
-  box-shadow: 0 4px 16px rgba(124, 179, 66, 0.15);
-}
-
-.budget-card.recommended::before {
-  background: linear-gradient(90deg, var(--success-color), #73d13d);
-  opacity: 1;
-}
-
-.recommend-badge {
-  position: absolute;
-  top: -1px;
-  right: -1px;
-  background: linear-gradient(45deg, var(--success-color), #73d13d);
-  color: white;
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  border-radius: 0 16px 0 16px;
-  box-shadow: 0 2px 8px rgba(124, 179, 66, 0.3);
-  z-index: 2;
-}
-
-.budget-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.budget-icon {
-  font-size: 24px;
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  flex-shrink: 0;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.budget-icon.budget {
-  background: linear-gradient(135deg, #52c41a, #73d13d);
-  color: white;
-}
-
-.budget-icon.moderate {
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  color: white;
-}
-
-.budget-icon.comfort {
-  background: linear-gradient(135deg, #fa8c16, #ffa940);
-  color: white;
-}
-
-.budget-icon.luxury {
-  background: linear-gradient(135deg, #eb2f96, #f759ab);
-  color: white;
-}
-
-.budget-info {
-  flex: 1;
-  text-align: left;
-}
-
-.budget-name {
-  display: block;
-  font-weight: 600;
-  font-size: 12px;
-  color: var(--text-primary);
-  margin-bottom: 6px;
-  line-height: 1.3;
-}
-
-.budget-range {
-  font-size: 12px;
-  color: var(--primary-color);
-  font-weight: 600;
-}
-
-.budget-desc {
-  margin: 0 0 16px;
-  font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
-
-.budget-features {
-  margin-bottom: 16px;
-}
-
-.feature-tag-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
-}
-
-.feature-tag {
-  background: var(--primary-light-9, rgba(145, 168, 208, 0.1));
-  color: var(--primary-color);
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-  border: 1px solid var(--primary-light-8, rgba(145, 168, 208, 0.2));
-  transition: all 0.3s ease;
-}
-
-.budget-card:hover .feature-tag {
-  background: var(--primary-light-8, rgba(145, 168, 208, 0.2));
-  transform: scale(1.05);
-}
-
-.budget-strategy {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--text-muted);
-  font-style: italic;
-  padding: 12px;
-  background: var(--bg-secondary);
-  border-radius: 8px;
-  margin-bottom: 12px;
-  border: 1px solid var(--border-light);
-}
-
-.target-users {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--text-muted);
-  font-weight: 500;
-}
-
-/* 饮食限制网格 */
-.dietary-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 14px;
-}
-
-.dietary-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: var(--card-bg);
-}
-
-.dietary-item:hover {
-  border-color: var(--error-color);
-  box-shadow: 0 4px 16px rgba(229, 57, 53, 0.15);
-  transform: translateY(-2px);
-}
-
-.dietary-item.selected {
-  border-color: var(--error-color);
-  background: linear-gradient(135deg, rgba(229, 57, 53, 0.05) 0%, var(--card-bg) 100%);
-  box-shadow: 0 4px 12px rgba(229, 57, 53, 0.2);
-}
-
-.dietary-icon {
-  font-size: 12px;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-secondary);
-  border-radius: 10px;
-  transition: all 0.3s ease;
-  flex-shrink: 0;
-}
-
-.dietary-item:hover .dietary-icon {
-  background: rgba(229, 57, 53, 0.1);
-}
-
-.dietary-item.selected .dietary-icon {
-  background: var(--error-color);
-  color: white;
-}
-
-.dietary-name {
-  flex: 1;
-  font-weight: 600;
-  color: var(--text-primary);
-  font-size: 15px;
-  line-height: 1.3;
-}
-
-.check-icon {
-  color: var(--success-color);
-  font-size: 12px;
-  filter: drop-shadow(0 2px 4px rgba(124, 179, 66, 0.3));
-  flex-shrink: 0;
-}
-
-/* 交通方式网格 */
-.transport-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-}
-
-.transport-card {
-  padding: 24px;
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: var(--card-bg);
-  position: relative;
-  overflow: hidden;
-}
-
-.transport-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.transport-card:hover {
-  border-color: var(--primary-color);
-  box-shadow: 0 6px 20px rgba(145, 168, 208, 0.15);
-  transform: translateY(-4px);
-}
-
-.transport-card:hover::before {
-  opacity: 1;
-}
-
-.transport-card.selected {
-  border-color: var(--primary-color);
-  background: linear-gradient(135deg, var(--primary-light-9, rgba(145, 168, 208, 0.1)) 0%, var(--card-bg) 100%);
-  box-shadow: 0 4px 16px rgba(145, 168, 208, 0.2);
-}
-
-.transport-card.selected::before {
-  opacity: 1;
-}
-
-.transport-header {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 14px;
-}
-
-.transport-icon {
-  font-size: 24px;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-secondary);
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  border: 2px solid var(--border-light);
-  flex-shrink: 0;
-}
-
-.transport-card:hover .transport-icon {
-  background: var(--primary-light-9, rgba(145, 168, 208, 0.1));
-  border-color: var(--primary-light-8, rgba(145, 168, 208, 0.2));
-  transform: scale(1.05);
-}
-
-.transport-card.selected .transport-icon {
-  background: var(--primary-color);
-  color: white;
-  border-color: var(--primary-color);
-}
-
-.transport-name {
-  font-weight: 600;
-  font-size: 12px;
-  color: var(--text-primary);
-  line-height: 1.3;
-}
-
-.transport-desc {
-  margin: 0 0 16px;
-  font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
-
-.transport-impact {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--text-muted);
-  font-style: italic;
-  padding: 10px;
-  background: var(--bg-secondary);
-  border-radius: 10px;
-  border: 1px solid var(--border-light);
-}
-
-/* AI理解预览 */
-.ai-understanding-preview {
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 40%, var(--secondary-color) 100%);
-  border-radius: 20px;
-  padding: 32px;
-  margin: 32px 0;
-  color: white;
-  position: relative;
-  overflow: hidden;
-  box-shadow: var(--shadow-md);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.ai-understanding-preview::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at 70% 30%, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%);
-  pointer-events: none;
 }
 
 .preview-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-  position: relative;
-  z-index: 1;
+  gap: 8px;
+  color: #666;
+  font-weight: 500;
+  margin-bottom: 12px;
+  font-size: 14px;
 }
 
-.preview-header h4 {
+.preview-desc {
   margin: 0;
-  font-size: 12px;
-  font-weight: 600;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: #666;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
-.understanding-content {
-  background: rgba(255, 255, 255, 0.15);
+/* 兴趣选择 */
+.interests-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.interest-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #ebeef5;
   border-radius: 8px;
-  padding: 20px;
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  position: relative;
-  z-index: 1;
+  cursor: pointer;
+  transition: all 0.3s;
 }
 
-.understanding-text {
-  font-size: 15px;
-  line-height: 1.6;
-  opacity: 0.95;
-  font-weight: 400;
+.interest-item:hover {
+  border-color: #91a8d0;
+  background: #f5f7fa;
+}
+
+.interest-item.selected {
+  border-color: #91a8d0;
+  background: rgba(145, 168, 208, 0.1);
+}
+
+.interest-item.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.interest-icon {
+  font-size: 20px;
+  width: 32px;
+  text-align: center;
+}
+
+.interest-info {
+  flex: 1;
+}
+
+.interest-name {
+  display: block;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 4px;
+}
+
+.interest-desc {
+  color: #909399;
+  font-size: 13px;
+}
+
+.check-icon {
+  color: #67c23a;
+  font-size: 16px;
+}
+
+.selection-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f5f7fa;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.count {
+  color: #606266;
+  font-weight: 500;
+}
+
+.hint {
+  color: #e6a23c;
+}
+
+/* 预算选项 */
+.budget-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.budget-option {
+  padding: 20px;
+  border: 1px solid #ebeef5;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+}
+
+.budget-option:hover {
+  border-color: #91a8d0;
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15);
+}
+
+.budget-option.selected {
+  border-color: #91a8d0;
+  background: rgba(145, 168, 208, 0.1);
+}
+
+.budget-option.recommended {
+  border-color: #67c23a;
+}
+
+.budget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.budget-name {
+  font-weight: 600;
+  color: #303133;
+  font-size: 16px;
+}
+
+.recommend-tag {
+  background: #67c23a;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.budget-range {
+  color: #91a8d0;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.budget-desc {
+  color: #606266;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.budget-examples {
+  color: #909399;
+  font-size: 12px;
+}
+
+/* 饮食限制网格 */
+.dietary-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.dietary-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #ebeef5;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-sizing: border-box;
+  flex: 0 0 calc((100% - 24px) / 3);
+  min-width: 0;
+  max-width: calc((100% - 24px) / 3);
+}
+
+.dietary-item:hover {
+  border-color: #91a8d0;
+  background: #f5f7fa;
+}
+
+.dietary-item.selected {
+  border-color: #91a8d0;
+  background: rgba(145, 168, 208, 0.1);
+}
+
+.dietary-icon {
+  font-size: 20px;
+  width: 24px;
+  min-width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.dietary-info {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.dietary-name {
+  display: block;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dietary-note {
+  color: #909399;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.no-restriction-tip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #f0f9ff;
+  border-radius: 8px;
+  color: #1976d2;
+  font-size: 14px;
+}
+
+/* 交通方式选择器 */
+.transport-selector-wrapper {
+  margin-top: 12px;
+}
+
+.transport-option-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.option-icon {
+  font-size: 20px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.option-content {
+  flex: 1;
+}
+
+.option-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c3e50;
+  line-height: 1.2;
+}
+
+.option-desc {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.3;
+  margin-top: 2px;
+}
+
+
+
+/* 已选择项详情 */
+.selected-transport-details {
+  margin-top: 16px;
+  padding: 16px;
+  background: linear-gradient(145deg, #f8faff 0%, #f0f4ff 100%);
+  border: 1px solid #e3f2fd;
+  border-radius: 8px;
+}
+
+.details-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1976d2;
+  margin-bottom: 12px;
+}
+
+.selected-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.selected-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: white;
+  border: 1px solid #e8f0fe;
+  border-radius: 6px;
+}
+
+.item-icon {
+  font-size: 18px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.item-info {
+  flex: 1;
+}
+
+
+
+/* 优雅列表布局 */
+.transport-elegant-list {
+  margin-top: 12px;
+}
+
+.elegant-list-item {
+  margin-bottom: 12px;
+  padding: 20px;
+  border: 2px solid #e8f0fe;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: linear-gradient(145deg, #ffffff 0%, #f8faff 100%);
+  position: relative;
+}
+
+.elegant-list-item:hover {
+  border-color: #91a8d0;
+  box-shadow: 0 4px 16px rgba(145, 168, 208, 0.12);
+  transform: translateX(4px);
+}
+
+.elegant-list-item.selected {
+  border-color: #1976d2;
+  background: linear-gradient(145deg, #e3f2fd 0%, #bbdefb 20%, #ffffff 100%);
+  box-shadow: 0 4px 16px rgba(25, 118, 210, 0.15);
+}
+
+.list-item-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.list-item-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex: 1;
+}
+
+.list-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.list-icon {
+  font-size: 24px;
+}
+
+.list-text {
+  flex: 1;
+}
+
+.list-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.list-desc {
+  font-size: 14px;
+  color: #606266;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.list-benefit {
+  font-size: 13px;
+  color: #1976d2;
+  font-style: italic;
+}
+
+.list-item-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.check-icon-large {
+  font-size: 28px;
+  color: #4caf50;
+  background: rgba(76, 175, 80, 0.1);
+  border-radius: 50%;
+  padding: 8px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.select-hint {
+  font-size: 12px;
+  color: #909399;
+  text-align: center;
+  padding: 4px 8px;
+  background: rgba(144, 147, 153, 0.1);
+  border-radius: 4px;
+}
+
+/* 紧凑布局 */
+.transport-compact-wrapper {
+  margin-top: 12px;
+}
+
+.compact-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.compact-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border: 2px solid #e8f0fe;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+  position: relative;
+  min-width: 140px;
+}
+
+.compact-item:hover {
+  border-color: #91a8d0;
+  box-shadow: 0 2px 8px rgba(145, 168, 208, 0.15);
+}
+
+.compact-item.selected {
+  border-color: #1976d2;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  color: #1976d2;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.25);
+  transform: translateY(-1px);
+  position: relative;
+}
+
+.compact-item.selected::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  bottom: -2px;
+  left: -2px;
+  background: linear-gradient(45deg, #1976d2, #42a5f5);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0.6;
+}
+
+.compact-item.selected .compact-icon {
+  text-shadow: 0 1px 3px rgba(25, 118, 210, 0.3);
+  transform: scale(1.1);
+}
+
+.compact-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.compact-name {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.compact-check {
+  font-size: 16px;
+  color: #4caf50;
+  margin-left: auto;
+}
+
+.compact-details {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f8faff;
+  border: 1px solid #e3f2fd;
+  border-radius: 8px;
+}
+
+.compact-details-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1976d2;
+  margin-bottom: 12px;
+}
+
+.compact-details-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.compact-detail-item {
+  font-size: 13px;
+  color: #606266;
+  line-height: 1.4;
+}
+
+.item-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c3e50;
+  line-height: 1.2;
+}
+
+.item-benefit {
+  font-size: 12px;
+  color: #1976d2;
+  line-height: 1.3;
+  margin-top: 2px;
+}
+
+
+
+/* 完成指南 */
+.completion-guide {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e8f5e8 100%);
+  border-radius: 12px;
+  padding: 24px;
+  margin: 32px 0;
+  border: 1px solid #e1f5fe;
+}
+
+.guide-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.guide-content .el-icon {
+  font-size: 24px;
+  color: #67c23a;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.guide-title {
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.guide-list {
+  margin: 0;
+  padding-left: 16px;
+  color: #606266;
+}
+
+.guide-list li {
+  margin-bottom: 6px;
+  line-height: 1.5;
 }
 
 /* 保存区域 */
 .save-section {
   text-align: center;
   padding: 40px 0;
-  position: relative;
 }
 
-.save-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100px;
-  height: 4px;
-  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-  border-radius: 2px;
-}
-
-.save-button {
-  padding: 8px 24px;
-  font-size: 12px;
-  font-weight: 600;
-  border-radius: 8px;
-  min-width: 120px;
-  margin-bottom: 12px;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-  border: none;
-  box-shadow: 0 4px 16px rgba(145, 168, 208, 0.25);
-  transition: all 0.3s ease;
-}
-
-.save-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(145, 168, 208, 0.35);
-  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
-}
-
-.save-button:active {
-  transform: translateY(0);
+.save-section .el-button {
+  padding: 12px 32px;
+  font-size: 16px;
 }
 
 .save-tip {
-  margin: 0;
+  margin-top: 12px;
+  color: #909399;
   font-size: 14px;
-  color: var(--text-muted);
-  font-style: italic;
-  max-width: 320px;
-  margin: 0 auto;
-  line-height: 1.5;
 }
 
-/* 中等屏幕响应式设计 */
-@media (max-width: 768px) and (min-width: 481px) {
-  .benefits-showcase {
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+/* 响应式设计 */
+/* 中等屏幕优化 */
+@media (max-width: 1024px) {
+  .selected-items {
+    gap: 6px;
+  }
+}
+
+/* 移动端样式 */
+@media (max-width: 768px) {
+  .personal-page.simple {
+    padding: 0 12px;
+  }
+  
+  .intro-benefits {
+    flex-direction: column;
     gap: 12px;
   }
-}
-
-/* 小屏幕响应式设计 */
-@media (max-width: 480px) {
-  .personal-profile-page {
+  
+  .interests-grid,
+  .budget-options,
+  .dietary-grid {
+    flex-direction: column;
+  }
+  
+  .dietary-item {
+    flex: none;
+    width: 100%;
+    min-width: auto;
+    margin: 0 0 16px 0;
+  }
+  
+  .selected-transport-details {
+    padding: 12px;
+  }
+  
+  .selected-item {
+    padding: 6px 10px;
+  }
+  
+  /* 交通方式布局响应式 */
+  .layout-mode-selector {
+    margin-bottom: 16px;
+  }
+  
+  .mode-selector {
+    transform: scale(0.9);
+  }
+  
+  .transport-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .transport-card {
     padding: 16px;
   }
-
-  .page-header {
-    padding: 24px 20px;
-    margin-bottom: 24px;
+  
+  .card-icon {
+    font-size: 28px;
+    width: 42px;
+    height: 42px;
   }
-
-  .header-content {
-    flex-direction: column;
-    text-align: center;
-    gap: 20px;
-    margin-bottom: 20px;
-  }
-
-  .header-icon {
-    width: 32px;
-    height: 32px;
-    font-size: 12px;
-  }
-
-  .page-title {
+  
+  .card-title {
     font-size: 16px;
   }
-
-  .page-subtitle {
-    font-size: 11px;
+  
+  .card-description {
+    font-size: 13px;
   }
-
-  .benefits-showcase {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .benefit-item {
+  
+  .elegant-list-item {
     padding: 16px;
-    gap: 12px;
-  }
-
-  .mbti-personality-display {
-    flex-direction: column;
-    text-align: center;
-    gap: 12px;
-  }
-
-  .mbti-image-container {
-    width: 60px;
-    height: 60px;
-  }
-
-  .mbti-info h4 {
-    font-size: 14px;
-  }
-
-  .mbti-info p {
-    font-size: 12px;
-  }
-
-  .profile-content {
-    gap: 24px;
-  }
-
-  .profile-section {
-    padding: 24px 16px;
-    border-radius: 8px;
-  }
-
-  .section-header {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 16px;
-    margin-bottom: 20px;
-  }
-
-  .section-icon {
-    width: 28px;
-    height: 28px;
-    font-size: 12px;
-  }
-
-  .section-title {
-    font-size: 12px;
-  }
-
-  .interests-grid,
-  .budget-cards {
-    grid-template-columns: 1fr;
-    gap: 16px;
   }
   
-  .budget-card {
-    padding: 20px 16px;
-  }
-  
-  .feature-tag-group {
-    display: none; /* 移动端隐藏特性标签节省空间 */
-  }
-  
-  .budget-header {
+  .list-item-left {
     gap: 12px;
   }
   
-  .budget-icon {
-    width: 40px;
-    height: 40px;
+  .list-icon-wrapper {
+    width: 42px;
+    height: 42px;
+  }
+  
+  .list-icon {
     font-size: 20px;
   }
   
-  .recommend-badge {
-    padding: 4px 8px;
-    font-size: 11px;
+  .list-name {
+    font-size: 16px;
   }
   
-  .transport-grid {
-    grid-template-columns: 1fr;
-    gap: 14px;
+  .list-desc {
+    font-size: 13px;
   }
-
-  .dietary-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 10px;
+  
+  .compact-grid {
+    gap: 8px;
   }
-
-  .ai-understanding-preview {
-    padding: 24px 16px;
-    margin: 24px 0;
+  
+  .compact-item {
+    padding: 10px 12px;
+    min-width: 120px;
   }
-
-  .save-section {
-    padding: 32px 0;
+  
+  .compact-icon {
+    font-size: 18px;
   }
-
-  .save-button {
-    padding: 8px 16px;
+  
+  .compact-name {
+    font-size: 13px;
+  }
+  
+  .guide-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  /* 移动端MBTI预览样式 */
+  .mbti-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+  }
+  
+  .mbti-image-section {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto;
+    border-radius: 8px;
+  }
+  
+  .mbti-info-section {
+    text-align: center;
+  }
+  
+  .preview-header {
+    justify-content: center;
     font-size: 12px;
-    min-width: 100px;
-  }
-}
-
-/* 嵌入模式样式 */
-.personal-profile-page.embedded-mode {
-  background: transparent;
-  padding: 0;
-  min-height: auto;
-}
-
-.personal-profile-page.embedded-mode .page-header {
-  margin-bottom: 32px;
-  padding: 36px;
-  border-radius: 20px;
-}
-
-.personal-profile-page.embedded-mode .profile-content {
-  gap: 32px;
-}
-
-.personal-profile-page.embedded-mode .profile-section {
-  margin-bottom: 0;
-  padding: 32px;
-  border-radius: 20px;
-}
-
-.personal-profile-page.embedded-mode .ai-understanding-preview {
-  margin: 32px 0;
-  padding: 32px;
-  border-radius: 20px;
-}
-
-.personal-profile-page.embedded-mode .save-section {
-  padding: 40px 0;
-}
-
-@media (max-width: 768px) {
-  .personal-profile-page.embedded-mode {
-    padding: 0;
   }
   
-  .personal-profile-page.embedded-mode .page-header {
-    padding: 28px 20px;
-    margin-bottom: 24px;
-    border-radius: 8px;
-  }
-  
-  .personal-profile-page.embedded-mode .profile-section {
-    padding: 24px 20px;
-    border-radius: 8px;
-  }
-
-  .personal-profile-page.embedded-mode .ai-understanding-preview {
-    padding: 24px 20px;
-    margin: 24px 0;
-    border-radius: 8px;
-  }
-
-  .personal-profile-page.embedded-mode .save-section {
-    padding: 32px 0;
+  .preview-desc {
+    font-size: 12px;
   }
 }
 </style>

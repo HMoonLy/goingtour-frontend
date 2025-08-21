@@ -30,32 +30,82 @@ export const PERSONAL_PROFILE_OPTIONS = {
             INTJ: {
                 name: "建筑师",
                 description: "理性规划，深度体验",
-                travelStyle: "偏好精心规划的深度游，避开拥挤景点"
-            },
-            ENFP: {
-                name: "活动家",
-                description: "活力四射，多样体验",
-                travelStyle: "喜欢丰富多彩的行程，乐于社交互动"
-            },
-            ISFP: {
-                name: "探险家",
-                description: "温和体验，艺术美学",
-                travelStyle: "偏好宁静优美环境，注重情感体验"
-            },
-            ESTP: {
-                name: "企业家",
-                description: "冒险刺激，灵活自由",
-                travelStyle: "喜欢刺激活动，适应性强，行程灵活"
+                travelStyle: "偏好精心规划的深度游，避开拥挤景点，喜欢探索有历史底蕴和设计感的地点"
             },
             INTP: {
                 name: "逻辑学家",
                 description: "独立思考，探索新知",
-                travelStyle: "喜欢独立探索，对新事物和文化交流感兴趣"
+                travelStyle: "思维敏捷，喜欢独立思考和探索新事物，对文化交流和艺术展览感兴趣"
             },
             ENTJ: {
                 name: "指挥官",
                 description: "领导决断，挑战竞争",
-                travelStyle: "喜欢挑战和冒险，偏爱热门景点和极限运动"
+                travelStyle: "具有领导力和决断力，喜欢挑战和竞争，偏爱极限运动和热门景点"
+            },
+            ENTP: {
+                name: "辩论家",
+                description: "充满好奇，喜欢交流",
+                travelStyle: "充满好奇心，喜欢交流，对文化体验、美食探索和新奇事物感兴趣"
+            },
+            INFJ: {
+                name: "提倡者",
+                description: "富有同情心，深刻洞察",
+                travelStyle: "富有同情心和洞察力，偏爱文化交流、艺术体验和自然风光"
+            },
+            INFP: {
+                name: "调停者",
+                description: "敏感创造，温和体验",
+                travelStyle: "敏感且富有创造力，偏爱文艺体验、特色民宿和宁静的自然环境"
+            },
+            ENFJ: {
+                name: "主人公",
+                description: "富有爱心，责任感强",
+                travelStyle: "富有爱心和责任感，喜欢社交，偏爱亲子活动和文化交流"
+            },
+            ENFP: {
+                name: "竞选者",
+                description: "活力四射，多样体验",
+                travelStyle: "热爱新奇体验和社交互动，喜欢丰富多彩的行程和当地文化体验"
+            },
+            ISTJ: {
+                name: "物流师",
+                description: "注重细节，有序规划",
+                travelStyle: "注重细节和秩序，偏爱历史古迹、自然风光和文化景点"
+            },
+            ISFJ: {
+                name: "守卫者",
+                description: "富有同情心，关怀他人",
+                travelStyle: "富有同情心，偏爱住宿便利、美食推荐和温馨体验"
+            },
+            ESTJ: {
+                name: "总经理",
+                description: "领导力强，务实高效",
+                travelStyle: "具有领导力，偏爱商务旅行、极限运动和热门景点"
+            },
+            ESFJ: {
+                name: "执政官",
+                description: "富有爱心，善于社交",
+                travelStyle: "富有爱心，喜欢社交，偏爱住宿便利、美食推荐和温馨体验"
+            },
+            ISTP: {
+                name: "鉴赏家",
+                description: "灵活独立，喜欢行动",
+                travelStyle: "喜欢独立行动，偏爱极限运动、自驾游和新奇体验"
+            },
+            ISFP: {
+                name: "探险家",
+                description: "温和体验，艺术美学",
+                travelStyle: "注重个人感受和美学体验，偏好宁静优美的环境，对艺术和自然风光感兴趣"
+            },
+            ESTP: {
+                name: "企业家",
+                description: "冒险刺激，灵活自由",
+                travelStyle: "喜欢刺激和新鲜的体验，行动力强，偏好户外活动和挑战性项目"
+            },
+            ESFP: {
+                name: "娱乐家",
+                description: "活泼开朗，善于交流",
+                travelStyle: "活泼开朗，喜欢与人交流，偏爱热闹的活动和美食体验"
             }
         }
     },
@@ -112,27 +162,31 @@ export const PERSONAL_PROFILE_OPTIONS = {
         options: {
             budget: {
                 name: "经济实惠",
-                range: "300-500元/天",
-                description: "注重性价比，优先免费和低价体验",
-                aiStrategy: "推荐公共交通、平价美食、免费景点"
+                range: "150-300元/天",
+                description: "精打细算，青旅民宿、公共交通、街头美食",
+                aiStrategy: "推荐青年旅社、公共交通、小吃摊档、免费景点",
+                examples: "青旅床位、地铁公交、路边摊、免费公园"
             },
             moderate: {
                 name: "适中舒适",
-                range: "500-800元/天",
-                description: "平衡价格和体验，主流选择",
-                aiStrategy: "平衡推荐，兼顾舒适度和特色体验"
+                range: "300-500元/天",
+                description: "性价比之选，快捷酒店、当地交通、特色餐厅",
+                aiStrategy: "推荐性价比住宿、便民交通、当地特色美食",
+                examples: "快捷酒店、滴滴打车、连锁餐厅、热门景点"
             },
             comfort: {
                 name: "舒适便利",
-                range: "800-1200元/天",
-                description: "更注重舒适度和便利性",
-                aiStrategy: "推荐舒适住宿、便利交通、优质餐厅"
+                range: "500-800元/天",
+                description: "注重体验，星级酒店、便利出行、品质餐饮",
+                aiStrategy: "推荐三四星酒店、舒适交通、精品餐厅",
+                examples: "星级酒店、高铁动车、精品餐厅、特色体验"
             },
             luxury: {
                 name: "豪华奢华",
-                range: "1200元以上/天",
-                description: "追求高端体验和独特服务",
-                aiStrategy: "推荐奢华体验、高端服务、独特项目"
+                range: "800元以上/天",
+                description: "尽享奢华，高端酒店、专车服务、米其林餐厅",
+                aiStrategy: "推荐豪华酒店、专车接送、高端餐饮、私人订制",
+                examples: "五星酒店、专车司机、米其林餐厅、VIP体验"
             }
         }
     },
@@ -145,10 +199,10 @@ export const PERSONAL_PROFILE_OPTIONS = {
             halal: { name: "清真饮食", icon: "☪️" },
             vegetarian: { name: "素食主义", icon: "🥬" },
             vegan: { name: "纯素食", icon: "🌱" },
-            no_pork: { name: "不吃猪肉", icon: "🚫🐷" },
-            no_beef: { name: "不吃牛肉", icon: "🚫🐄" },
-            no_seafood: { name: "不吃海鲜", icon: "🚫🦐" },
-            no_spicy: { name: "不吃辣", icon: "🚫🌶️" },
+            no_pork: { name: "不吃猪肉", icon: "🐷" },
+            no_beef: { name: "不吃牛肉", icon: "🐄" },
+            no_seafood: { name: "不吃海鲜", icon: "🦐" },
+            no_spicy: { name: "不吃辣", icon: "🌶️" },
             gluten_free: { name: "无麸质", icon: "🌾" },
             dairy_free: { name: "无乳制品", icon: "🥛" }
         }
@@ -159,35 +213,40 @@ export const PERSONAL_PROFILE_OPTIONS = {
         title: "您偏好的出行方式",
         description: "选择您喜欢的交通方式，影响路线规划和景点安排",
         options: {
-            public: {
+            public_transport: {
                 name: "公共交通",
                 icon: "🚇",
                 description: "地铁、公交等公共交通",
-                aiImpact: "优先安排地铁/公交可达的景点"
+                aiImpact: "优先安排地铁/公交可达的景点",
+                benefit: "经济环保，体验当地生活"
             },
             walking: {
                 name: "步行探索",
                 icon: "🚶",
                 description: "步行游览，深度体验",
-                aiImpact: "控制景点间距离，设计步行友好路线"
+                aiImpact: "控制景点间距离，设计步行友好路线",
+                benefit: "发现隐藏景点，锻炼身体"
             },
-            bicycle: {
+            cycling: {
                 name: "骑行游览",
                 icon: "🚲",
                 description: "自行车或共享单车",
-                aiImpact: "推荐骑行路线和自行车友好景点"
+                aiImpact: "推荐骑行路线和自行车友好景点",
+                benefit: "灵活便捷，绿色出行"
             },
-            taxi: {
+            taxi_rideshare: {
                 name: "打车出行",
                 icon: "🚕",
                 description: "出租车或网约车",
-                aiImpact: "相对自由的路线安排，考虑打车成本"
+                aiImpact: "相对自由的路线安排，考虑打车成本",
+                benefit: "舒适便捷，节省时间"
             },
-            driving: {
+            rental_car: {
                 name: "自驾游览",
                 icon: "🚗",
                 description: "自己开车或租车",
-                aiImpact: "安排停车方便的景点，考虑郊外景点"
+                aiImpact: "安排停车方便的景点，考虑郊外景点",
+                benefit: "行程自由，适合远途"
             }
         }
     }
