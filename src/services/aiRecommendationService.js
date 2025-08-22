@@ -5,7 +5,6 @@
 
 import { ElMessage } from 'element-plus'
 import { aiRecommendationApi, aiRecommendationUtils } from '@/api/aiRecommendation.js'
-import { searchService } from './searchService.js'
 
 class AiRecommendationService {
     constructor() {
@@ -146,33 +145,69 @@ class AiRecommendationService {
     }
 
     /**
-     * 降级到基础搜索
+     * 降级到高德API基础搜索
      */
     async fallbackToBasicSearch(destinationName) {
         try {
-            console.log('🔄 AI推荐失败，降级到基础搜索:', destinationName)
+            console.log('🔄 AI推荐失败，降级到高德API搜索:', destinationName)
+
+            // 导入高德API
+            const { getRecommendedAttractions, getRecommendedRestaurants } = await
+            import ('@/api/amap.js')
 
             const [attractionsResult, restaurantsResult] = await Promise.all([
-                searchService.searchAttractions(destinationName, { limit: 12 }),
-                searchService.searchRestaurants(destinationName, { limit: 8 })
+                getRecommendedAttractions(destinationName, 1, 12).catch(err => {
+                    console.warn('高德景点API调用失败:', err)
+                    return { pois: [] }
+                }),
+                getRecommendedRestaurants(destinationName, 1, 8).catch(err => {
+                    console.warn('高德餐厅API调用失败:', err)
+                    return { pois: [] }
+                })
             ])
 
+            // 转换高德API数据格式
+            const attractions = (attractionsResult.pois || []).map(poi => ({
+                id: poi.id || poi.name,
+                name: poi.name,
+                description: poi.address || poi.type || '',
+                rating: parseFloat(poi.rating) || 4.0,
+                price: parseInt(poi.cost) || 0,
+                tags: poi.type?[poi.type, '高德推荐'] : ['高德推荐'],
+                image: '/api/placeholder/300/200',
+                location: poi.address || '',
+                coordinates: poi.location?poi.location.split(',').map(Number) : null,
+                isAiRecommended: false,
+                isFallback: true,
+                confidence: 0.6,
+                reasoning: '基于高德地图数据的推荐'
+            }))
+
+            const restaurants = (restaurantsResult.pois || []).map(poi => ({
+                id: poi.id || poi.name,
+                name: poi.name,
+                description: poi.address || poi.type || '',
+                rating: parseFloat(poi.rating) || 4.0,
+                price: parseInt(poi.cost) || 0,
+                cuisineType: poi.type || '综合',
+                tags: poi.type?[poi.type, '高德推荐'] : ['高德推荐'],
+                image: '/api/placeholder/300/200',
+                location: poi.address || '',
+                coordinates: poi.location?poi.location.split(',').map(Number) : null,
+                isAiRecommended: false,
+                isFallback: true,
+                confidence: 0.6,
+                reasoning: '基于高德地图数据的推荐'
+            }))
+
             return {
-                attractions: (attractionsResult.items || []).map(item => ({
-                    ...item,
-                    isAiRecommended: false,
-                    isFallback: true
-                })),
-                restaurants: (restaurantsResult.items || []).map(item => ({
-                    ...item,
-                    isAiRecommended: false,
-                    isFallback: true
-                })),
-                reasoning: '由于AI推荐服务暂时不可用，为您展示基础搜索结果。我们正在努力恢复服务，请稍后重试。',
+                attractions,
+                restaurants,
+                reasoning: '由于AI推荐服务暂时不可用，为您展示基于高德地图的基础推荐。我们正在努力恢复AI服务，请稍后重试获取个性化推荐。',
                 stats: {
-                    total: (attractionsResult.items?.length || 0) + (restaurantsResult.items?.length || 0),
-                    attractions: attractionsResult.items?.length || 0,
-                    restaurants: restaurantsResult.items?.length || 0,
+                    total: attractions.length + restaurants.length,
+                    attractions: attractions.length,
+                    restaurants: restaurants.length,
                     ai: 0,
                     confidence: 0.6
                 },
@@ -180,7 +215,7 @@ class AiRecommendationService {
                 timestamp: Date.now()
             }
         } catch (fallbackError) {
-            console.error('❌ 基础搜索也失败了:', fallbackError)
+            console.error('❌ 高德API搜索也失败了:', fallbackError)
             console.log('🎭 启用本地模拟数据作为最终降级方案')
             return this.generateLocalMockData(destinationName)
         }

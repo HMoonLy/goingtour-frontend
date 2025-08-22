@@ -724,28 +724,37 @@ const getRecommendedDuration = () => {
 
 // 生命周期
 onMounted(async () => {
-  // 尝试获取推荐（可能已经预加载了）
+  // 首先尝试从缓存获取已预加载的推荐
   try {
-    await fetchRecommendations(props.baseForm, props.preferenceForm)
+    const { aiRecommendationService } = await import('@/services/aiRecommendationService.js')
+    const cached = aiRecommendationService.getCachedRecommendations(props.baseForm, props.preferenceForm)
+    
+    if (cached) {
+      console.log('✅ 使用预加载的推荐数据')
+      recommendations.value = cached
+      return
+    }
   } catch (err) {
-    console.error('初始加载推荐失败:', err)
+    console.error('检查缓存失败:', err)
+    ElMessage.error('加载推荐失败，请稍后重试')
   }
 })
 
-// 监听属性变化
-watch(
-  [() => props.baseForm, () => props.preferenceForm],
-  async ([newBaseForm, newPreferenceForm]) => {
-    if (newBaseForm?.destinationName) {
-      try {
-        await fetchRecommendations(newBaseForm, newPreferenceForm)
-      } catch (err) {
-        console.error('重新加载推荐失败:', err)
-      }
-    }
-  },
-  { deep: true }
-)
+// 移除自动推荐获取监听器
+// 用户不需要自动获取AI推荐
+// watch(
+//   [() => props.baseForm, () => props.preferenceForm],
+//   async ([newBaseForm, newPreferenceForm]) => {
+//     if (newBaseForm?.destinationName) {
+//       try {
+//         await fetchRecommendations(newBaseForm, newPreferenceForm)
+//       } catch (err) {
+//         console.error('重新加载推荐失败:', err)
+//       }
+//     }
+//   },
+//   { deep: true }
+// )
 </script>
 
 <style scoped>

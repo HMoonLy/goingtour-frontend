@@ -116,12 +116,29 @@
           }"
           @preferences-updated="handlePreferencesUpdate"
           @preferences-saved="handlePreferencesSaved"
+          @ai-recommendations-generated="handleAiRecommendationsGenerated"
+          @use-enhanced-recommendation="handleUseEnhancedRecommendation"
+          @use-basic-recommendation="handleUseBasicRecommendation"
           @go-to-previous-step="prevStep"
         />
 
-        <!-- 第三步：推荐选择 (增强版) -->
+        <!-- 第三步：推荐选择 - 根据用户选择动态显示组件 -->
+        <!-- AI智能推荐组件 -->
         <EnhancedRecommendationStep
-          v-show="currentStep === 2"
+          v-if="currentStep === 2 && recommendationType === 'enhanced'"
+          :city-info="{ destinationName: baseForm.destinationName, destination: baseForm.destination }"
+          :base-form="baseForm"
+          :preference-form="preferenceForm"
+          :generating="generating"
+          @prev-step="prevStep"
+          @next-step="nextStep"
+          @selections-updated="handleSelectionsUpdated"
+          @save-draft="handleQuickSaveDraft"
+        />
+        
+        <!-- 基础推荐组件（高德地图） -->
+        <TripRecommendationStep
+          v-if="currentStep === 2 && recommendationType === 'basic'"
           :city-info="{ destinationName: baseForm.destinationName, destination: baseForm.destination }"
           :base-form="baseForm"
           :preference-form="preferenceForm"
@@ -467,6 +484,9 @@ export default {
     // 草稿状态标识
     const isFromDraft = ref(false);
 
+    // 推荐方式选择 - 默认为enhanced（AI推荐）
+    const recommendationType = ref('enhanced');
+
     // 草稿相关状态
     const saveDraftDialog = ref(false);
     const showDraftList = ref(false);
@@ -544,42 +564,8 @@ export default {
       console.log("✅ 偏好已保存:", preferences);
       ElMessage.success("偏好设置已保存");
       
-      // 触发AI推荐预加载
-      try {
-        console.log("🤖 开始预加载AI推荐...");
-        
-        // 动态导入AI推荐组合函数
-        const { useAiRecommendations } = await import('@/composables/useAiRecommendations');
-        const { preloadRecommendationsAsync } = useAiRecommendations();
-        
-        // 异步预加载推荐（不阻塞页面跳转）
-        preloadRecommendationsAsync(baseForm, preferences)
-          .then((success) => {
-            if (success) {
-              console.log("✅ AI推荐预加载完成");
-              ElMessage({
-                message: "智能推荐已准备就绪",
-                type: "success",
-                duration: 2000
-              });
-            } else {
-              console.warn("⚠️ AI推荐预加载失败，将在第三步重试");
-            }
-          })
-          .catch((error) => {
-            console.warn("⚠️ AI推荐预加载失败:", error);
-          });
-        
-        // 立即显示准备中的提示
-        ElMessage({
-          message: "正在为您准备智能推荐...",
-          type: "info",
-          duration: 2000
-        });
-        
-      } catch (error) {
-        console.warn("AI推荐服务加载失败:", error);
-      }
+      // 移除AI推荐预加载逻辑
+      // 用户不需要在这里预加载AI推荐
       
       // 进入下一步
       nextStep();
@@ -591,6 +577,44 @@ export default {
       selectedAttractions.value = selections.selectedAttractions || [];
       selectedRestaurants.value = selections.selectedRestaurants || [];
       markDataChanged();
+    };
+
+    // 处理AI推荐生成事件
+    const handleAiRecommendationsGenerated = (recommendations) => {
+      console.log("🤖 接收到AI推荐结果:", recommendations);
+      
+      if (recommendations) {
+        // 将AI推荐结果存储到合适的位置，供第三步使用
+        // 可以存储到响应式状态中
+        if (recommendations.attractions) {
+          console.log(`📍 接收到 ${recommendations.attractions.length} 个景点推荐`);
+        }
+        if (recommendations.restaurants) {
+          console.log(`🍽️ 接收到 ${recommendations.restaurants.length} 个餐厅推荐`);
+        }
+        if (recommendations.hotels) {
+          console.log(`🏨 接收到 ${recommendations.hotels.length} 个酒店推荐`);
+        }
+        
+        // 这里可以将推荐结果保存到全局状态或传递给EnhancedRecommendationStep组件
+        // 暂时先在控制台显示，后续可以根据需要传递给第三步组件
+        
+        markDataChanged();
+      }
+    };
+
+    // 处理用户选择使用AI智能推荐
+    const handleUseEnhancedRecommendation = () => {
+      console.log("🚀 用户选择使用AI智能推荐");
+      recommendationType.value = 'enhanced';
+      ElMessage.success("已切换到AI智能推荐模式");
+    };
+
+    // 处理用户选择使用基础推荐（高德地图）
+    const handleUseBasicRecommendation = () => {
+      console.log("🗺️ 用户选择使用基础推荐（高德地图）");
+      recommendationType.value = 'basic';
+      ElMessage.success("已切换到基础推荐模式");
     };
 
     // 获取天气信息
@@ -820,6 +844,7 @@ export default {
           selectedRestaurants: selectedRestaurants.value,
           extraRequirements: extraRequirements.value,
           weatherSuggestion: weatherSuggestion.value,
+          recommendationType: recommendationType.value,
         };
 
         const draftId = await draftStore.saveDraft(formData, defaultName);
@@ -847,6 +872,7 @@ export default {
           selectedRestaurants: selectedRestaurants.value,
           extraRequirements: extraRequirements.value,
           weatherSuggestion: weatherSuggestion.value,
+          recommendationType: recommendationType.value,
         };
 
         const draftId = await draftStore.saveDraft(formData, draftName.value);
@@ -1152,6 +1178,7 @@ export default {
         selectedRestaurants.value = draft.selectedRestaurants || [];
         extraRequirements.value = draft.extraRequirements || "";
         weatherSuggestion.value = draft.weatherSuggestion || null;
+        recommendationType.value = draft.recommendationType || 'enhanced';
 
         // 设置标识
         isFromDraft.value = true;
@@ -1190,6 +1217,7 @@ export default {
       loadingWeather,
       weatherError,
       userStore,
+      recommendationType,
       nextStep,
       prevStep,
       handleGenerationComplete,
@@ -1199,6 +1227,9 @@ export default {
       handlePreferencesUpdate,
       handlePreferencesSaved,
       handleSelectionsUpdated,
+      handleAiRecommendationsGenerated,
+      handleUseEnhancedRecommendation,
+      handleUseBasicRecommendation,
       fetchWeatherForTrip,
       isRestoringProgress,
       goToDestinations,

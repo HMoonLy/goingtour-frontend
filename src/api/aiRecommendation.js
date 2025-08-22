@@ -13,21 +13,38 @@ export const aiRecommendationApi = {
      * @param {Object} params.userProfile - 用户画像（可选）
      */
     getPersonalizedRecommendations(params) {
+        // 解析预算字符串为数字（兼容后端期望的Integer类型）
+        const parseBudget = (budgetStr) => {
+            if (!budgetStr) return null;
+            // 提取数字，例如 "3000-5000元" -> 4000 (取中间值)
+            const numbers = budgetStr.match(/\d+/g);
+            if (!numbers || numbers.length === 0) return null;
+            if (numbers.length === 1) return parseInt(numbers[0]);
+            // 如果是范围，取中间值
+            const min = parseInt(numbers[0]);
+            const max = parseInt(numbers[1]);
+            return Math.round((min + max) / 2);
+        };
+
         return http.post('/ai/recommendations/personalized', {
-            // 基础行程信息
-            destination: params.baseInfo?.destinationName,
-            destinationCode: params.baseInfo?.destination,
+            // 基础行程信息 - 对齐后端期望的字段名和类型
+            destination: params.baseInfo?.destination || params.baseInfo?.destinationName, // 后端期望destination为目的地代码
+            destinationName: params.baseInfo?.destinationName, // 目的地名称
+            destinationCode: params.baseInfo?.destination, // 目的地代码
             days: params.baseInfo?.days,
             travelers: params.baseInfo?.travelers,
-            budget: params.baseInfo?.budget,
+            budget: parseBudget(params.baseInfo?.budget), // 转换为Integer类型
+            budgetString: params.baseInfo?.budget, // 保留原始字符串格式
             startDate: params.baseInfo?.dateRange?.[0],
             endDate: params.baseInfo?.dateRange?.[1],
 
-            // 用户偏好
-            travelPurpose: params.preferences?.travelPurpose,
+            // 用户偏好 - 对齐后端期望的字段名
+            travelStyle: params.preferences?.travelPurpose, // 后端期望travelStyle而不是travelPurpose
+            travelPurpose: params.preferences?.travelPurpose, // 保留原字段用于兼容
             interests: params.preferences?.interests || [],
             budgetPreference: params.preferences?.budgetPreference,
-            accommodationLevel: params.preferences?.accommodationLevel,
+            accommodationType: params.preferences?.accommodationLevel, // 住宿类型
+            accommodationLevel: params.preferences?.accommodationLevel, // 保留原字段
             transportationMode: params.preferences?.transportationMode,
             pacePreference: params.preferences?.pacePreference,
             socialPreference: params.preferences?.socialPreference,
@@ -45,6 +62,8 @@ export const aiRecommendationApi = {
             maxRestaurants: params.maxRestaurants || 10,
             includeReasonings: true,
             includeConfidenceScores: true
+        }, {
+            timeout: 300000 // AI推荐需要更长的超时时间：5分钟
         });
     },
 
