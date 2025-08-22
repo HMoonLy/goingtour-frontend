@@ -1473,7 +1473,7 @@ export default {
   box-sizing: border-box;
   position: relative;
   height: 100%;
-  /* overflow: hidden; */
+  overflow: hidden;
 }
 
 .page-title {

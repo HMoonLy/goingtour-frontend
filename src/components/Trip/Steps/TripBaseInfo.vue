@@ -1074,8 +1074,8 @@ export default {
 <style scoped>
 /* 整体布局 */
 .step-content {
-  width: 100%;
-  background: #f8f9fa;
+  padding: 24px;
+  background: #fafafa;
   min-height: 100vh;
 }
 
