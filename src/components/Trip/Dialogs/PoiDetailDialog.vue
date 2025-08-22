@@ -9,11 +9,12 @@ POI详情对话框组件
     :title="''"
     width="80%"
     :max-width="800"
-    destroy-on-close
     center
     :show-close="false"
     :close-on-click-modal="true"
     :close-on-press-escape="true"
+    :append-to-body="true"
+    :lock-scroll="true"
     class="poi-detail-dialog"
   >
     <div v-if="poi && poi.name" class="poi-detail-content">
@@ -52,14 +53,17 @@ POI详情对话框组件
         <div class="images-grid">
           <el-image
             v-for="(image, index) in getImages().slice(0, 6)"
-            :key="index"
+            :key="`poi-image-${index}`"
             :src="image.url"
             :alt="image.alt || poi.name"
             fit="cover"
             class="poi-image"
-            :preview-src-list="getImages().map(img => img.url)"
+            :preview-src-list="allImageUrls"
             :initial-index="index"
+            :preview-teleported="true"
+            :z-index="3000"
             lazy
+            @click="handleImageClick(index)"
           >
             <template #error>
               <div class="image-error">
@@ -262,6 +266,11 @@ const visible = computed({
   }
 })
 
+// 计算所有图片URL列表，用于预览
+const allImageUrls = computed(() => {
+  return getImages().map(img => img.url)
+})
+
 // Methods
 const getPoiCategory = () => {
   if (props.poi.poi?.category) {
@@ -356,12 +365,26 @@ const handleSelect = () => {
 const handleUnselect = () => {
   emit('unselect', props.poi)
 }
+
+const handleImageClick = (index) => {
+  // 防止事件冒泡导致对话框关闭
+  console.log(`点击了第 ${index + 1} 张图片`)
+}
 </script>
 
 <style scoped>
 .poi-detail-dialog {
   --el-dialog-border-radius: 20px;
   --el-dialog-box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* 确保图片预览组件的层级高于对话框 */
+.poi-detail-dialog :deep(.el-image-viewer__wrapper) {
+  z-index: 3000 !important;
+}
+
+.poi-detail-dialog :deep(.el-image-viewer__mask) {
+  z-index: 3000 !important;
 }
 
 .poi-detail-dialog :deep(.el-dialog) {
@@ -430,10 +453,8 @@ const handleUnselect = () => {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-
   padding: 16px;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .close-button {
