@@ -57,10 +57,12 @@
         </div>
         <div class="header-text">
           <h1 class="page-title">✈️ 本次行程偏好设置</h1>
-          <p class="page-subtitle">为这次旅行量身定制，随时可以调整的偏好设置</p>
+          <p class="page-subtitle">
+            为这次旅行量身定制，随时可以调整的偏好设置
+          </p>
         </div>
       </div>
-      
+
       <!-- 个人档案智能提示 -->
       <div v-if="hasPersonalProfile" class="smart-prefill-notice">
         <div class="notice-icon">
@@ -68,11 +70,21 @@
         </div>
         <div class="notice-content">
           <h4>🎯 智能预填已启用</h4>
-          <p>根据您的个人旅行档案，我们已为您预选了合适的选项。您可以根据这次旅行的具体情况随时调整。</p>
+          <p>
+            根据您的个人旅行档案，我们已为您预选了合适的选项。您可以根据这次旅行的具体情况随时调整。
+          </p>
           <div class="profile-summary">
-            <span v-if="personalProfile.mbtiType">性格：{{ getMbtiDisplayName(personalProfile.mbtiType) }}</span>
-            <span v-if="personalProfile.coreInterests?.length">兴趣：{{ personalProfile.coreInterests.length }}项</span>
-            <span v-if="personalProfile.budgetLevel">预算：{{ getBudgetDisplayName(personalProfile.budgetLevel) }}</span>
+            <span v-if="personalProfile.mbtiType"
+              >性格：{{ getMbtiDisplayName(personalProfile.mbtiType) }}</span
+            >
+            <span v-if="personalProfile.coreInterests?.length"
+              >兴趣：{{ personalProfile.coreInterests.length }}项</span
+            >
+            <span v-if="personalProfile.budgetLevel"
+              >预算：{{
+                getBudgetDisplayName(personalProfile.budgetLevel)
+              }}</span
+            >
           </div>
         </div>
       </div>
@@ -80,7 +92,6 @@
 
     <!-- 行程偏好设置区域 -->
     <div class="preferences-content">
-
       <!-- 1. 旅行目的 -->
       <div class="preference-section purpose-section">
         <div class="section-header">
@@ -94,14 +105,16 @@
             </p>
           </div>
         </div>
-        
+
         <div class="purpose-content">
           <div class="purpose-cards">
             <div
               v-for="purpose in tripPurposeOptions"
               :key="purpose.value"
               class="purpose-card"
-              :class="{ selected: tripPreferences.tripPurpose === purpose.value }"
+              :class="{
+                selected: tripPreferences.tripPurpose === purpose.value,
+              }"
               @click="selectTripPurpose(purpose.value)"
             >
               <div class="purpose-header">
@@ -135,7 +148,7 @@
             </p>
           </div>
         </div>
-        
+
         <div class="focus-content">
           <div class="focus-grid">
             <div
@@ -145,7 +158,9 @@
               :class="{
                 selected: tripPreferences.focusAreas.includes(focus.value),
                 recommended: recommendedFocusAreas.includes(focus.value),
-                disabled: !tripPreferences.focusAreas.includes(focus.value) && tripPreferences.focusAreas.length >= 3
+                disabled:
+                  !tripPreferences.focusAreas.includes(focus.value) &&
+                  tripPreferences.focusAreas.length >= 3,
               }"
               @click="toggleFocusArea(focus.value)"
             >
@@ -154,25 +169,33 @@
                 <span class="focus-name">{{ focus.name }}</span>
               </div>
               <p class="focus-desc">{{ focus.description }}</p>
-              
+
               <!-- 推荐标记 -->
-              <div v-if="recommendedFocusAreas.includes(focus.value)" class="recommended-badge">
+              <div
+                v-if="recommendedFocusAreas.includes(focus.value)"
+                class="recommended-badge"
+              >
                 <el-icon><Star /></el-icon>
                 <span>推荐</span>
               </div>
-              
+
               <!-- 选中标记 -->
-              <div v-if="tripPreferences.focusAreas.includes(focus.value)" class="selected-badge">
+              <div
+                v-if="tripPreferences.focusAreas.includes(focus.value)"
+                class="selected-badge"
+              >
                 <el-icon><Check /></el-icon>
               </div>
             </div>
           </div>
-          
+
           <div class="selection-info">
-            <span class="selection-count">已选择 {{ tripPreferences.focusAreas.length }}/3</span>
-            <el-button 
-              v-if="tripPreferences.focusAreas.length > 0" 
-              type="text" 
+            <span class="selection-count"
+              >已选择 {{ tripPreferences.focusAreas.length }}/3</span
+            >
+            <el-button
+              v-if="tripPreferences.focusAreas.length > 0"
+              type="text"
               size="small"
               @click="clearFocusAreas"
             >
@@ -199,7 +222,7 @@
             </p>
           </div>
         </div>
-        
+
         <div class="pace-content">
           <div class="pace-cards">
             <div
@@ -208,7 +231,7 @@
               class="pace-card"
               :class="{
                 selected: tripPreferences.pacePreference === pace.value,
-                recommended: recommendedPace === pace.value
+                recommended: recommendedPace === pace.value,
               }"
               @click="selectPacePreference(pace.value)"
             >
@@ -221,9 +244,12 @@
                 <el-icon><InfoFilled /></el-icon>
                 <span>{{ pace.aiStrategy }}</span>
               </div>
-              
+
               <!-- 推荐标记 -->
-              <div v-if="recommendedPace === pace.value" class="pace-recommended">
+              <div
+                v-if="recommendedPace === pace.value"
+                class="pace-recommended"
+              >
                 <el-icon><Star /></el-icon>
                 <span>推荐</span>
               </div>
@@ -244,12 +270,14 @@
               选择您希望的旅行氛围和环境类型
               <span v-if="recommendedSocial" class="smart-tip">
                 <el-icon><MagicStick /></el-icon>
-                基于您的性格，推荐：{{ getSocialDisplayName(recommendedSocial) }}
+                基于您的性格，推荐：{{
+                  getSocialDisplayName(recommendedSocial)
+                }}
               </span>
             </p>
           </div>
         </div>
-        
+
         <div class="social-content">
           <div class="social-options">
             <div
@@ -258,7 +286,7 @@
               class="social-option"
               :class="{
                 selected: tripPreferences.socialPreference === social.value,
-                recommended: recommendedSocial === social.value
+                recommended: recommendedSocial === social.value,
               }"
               @click="selectSocialPreference(social.value)"
             >
@@ -292,7 +320,7 @@
             </p>
           </div>
         </div>
-        
+
         <div class="photo-content">
           <div class="photo-slider-container">
             <div class="photo-levels">
@@ -302,7 +330,7 @@
                 class="photo-level"
                 :class="{
                   selected: tripPreferences.photoPreference === photo.value,
-                  recommended: recommendedPhoto === photo.value
+                  recommended: recommendedPhoto === photo.value,
                 }"
                 @click="selectPhotoPreference(photo.value)"
               >
@@ -325,19 +353,19 @@
           </div>
           <div class="section-info">
             <h3 class="section-title">⚠️ 这次旅行的特殊情况</h3>
-            <p class="section-desc">
-              选择这次旅行需要特别考虑的因素（可多选）
-            </p>
+            <p class="section-desc">选择这次旅行需要特别考虑的因素（可多选）</p>
           </div>
         </div>
-        
+
         <div class="needs-content">
           <div class="needs-grid">
             <div
               v-for="need in temporaryNeedsOptions"
               :key="need.value"
               class="need-item"
-              :class="{ selected: tripPreferences.temporaryNeeds.includes(need.value) }"
+              :class="{
+                selected: tripPreferences.temporaryNeeds.includes(need.value),
+              }"
               @click="toggleTemporaryNeed(need.value)"
             >
               <div class="need-header">
@@ -358,7 +386,6 @@
     <!-- AI理解预览 -->
     <div v-if="hasValidPreferences" class="ai-preview">
       <div class="preview-header">
-  
         <h4>🤖 AI将如何为您规划行程</h4>
       </div>
       <div class="preview-content">
@@ -366,9 +393,9 @@
           {{ generateAIPreview() }}
         </div>
         <el-button type="text" @click="showDetailedAI = !showDetailedAI">
-          {{ showDetailedAI ? '收起' : '查看详细' }}AI解读
+          {{ showDetailedAI ? "收起" : "查看详细" }}AI解读
         </el-button>
-        
+
         <div v-if="showDetailedAI" class="detailed-ai-preview">
           <pre>{{ generateDetailedAI() }}</pre>
         </div>
@@ -389,28 +416,23 @@
           保存草稿
         </el-button>
       </div>
-      
+
       <div class="action-right">
         <div class="navigation-buttons">
-          <el-button
-            size="large"
-            @click="goToPreviousStep"
-          >
+          <el-button size="large" @click="goToPreviousStep">
             <el-icon><ArrowLeft /></el-icon>
             上一步
           </el-button>
-          
+
           <el-button
             type="primary"
             :loading="saving"
             size="large"
             @click="savePreferences"
           >
-            <template v-if="saving">
-              AI推荐生成中...
-            </template>
+            <template v-if="saving"> AI推荐生成中... </template>
             <template v-else>
-              下一步 
+              下一步
               <el-icon><ArrowRight /></el-icon>
             </template>
           </el-button>
@@ -421,7 +443,7 @@
     <!-- AI推荐确认对话框 -->
     <el-dialog
       v-model="showAiRecommendationDialog"
-      title="选择推荐方式"
+      title=""
       width="500px"
       :append-to-body="true"
       :close-on-click-modal="false"
@@ -434,14 +456,17 @@
           <div class="header-icon">
             <el-icon><MagicStick /></el-icon>
           </div>
-          <h3>🤖 是否使用AI智能推荐？</h3>
+          <div >
+            <h3>选择推荐方式</h3>
+            <h3>🤖 是否使用AI智能推荐？</h3>
+          </div>
         </div>
-        
+
         <div class="dialog-body">
           <p class="dialog-description">
             我们提供两种推荐方式，请选择您偏好的方式：
           </p>
-          
+
           <div class="option-cards">
             <div class="option-card ai-option">
               <div class="card-header">
@@ -450,14 +475,14 @@
               </div>
               <div class="card-content">
                 <ul>
-                  <li>🎯 基于您的偏好进行个性化推荐</li>
+                  <li>🎯 基于设置进行个性化推荐</li>
                   <li>🤖 AI分析生成专属行程建议</li>
                   <li>⭐ 更精准的景点和餐厅匹配</li>
                   <li>⏰ 生成时间约1-3分钟</li>
                 </ul>
               </div>
             </div>
-            
+
             <div class="option-card basic-option">
               <div class="card-header">
                 <el-icon class="card-icon"><MapLocation /></el-icon>
@@ -474,7 +499,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="dialog-actions">
           <el-button
             size="large"
@@ -484,7 +509,7 @@
             <el-icon><MapLocation /></el-icon>
             使用基础推荐
           </el-button>
-          
+
           <el-button
             size="large"
             type="primary"
@@ -500,119 +525,169 @@
 </template>
 
 <script>
-import { ref, reactive, computed, onMounted, watch } from 'vue';
-import { ElMessage } from 'element-plus';
-import { 
-  Suitcase, Flag, Star, Timer, UserFilled, Camera, Warning,
-  MagicStick, Check, InfoFilled, Document, ArrowRight, ArrowLeft, Loading, MapLocation
-} from '@element-plus/icons-vue';
-import { TRIP_PREFERENCES_OPTIONS, PERSONAL_PROFILE_OPTIONS } from '@/utils/data/travelDataSystem.js';
-import { 
-  TripPreferencesInterpreter, 
-  SmartPrefillEngine, 
-  CompletePromptGenerator 
-} from '@/utils/data/aiPromptEngine.js';
-import { useUserStore } from '@/store/user.js';
+import { ref, reactive, computed, onMounted, watch } from "vue";
+import { ElMessage } from "element-plus";
+import {
+  Suitcase,
+  Flag,
+  Star,
+  Timer,
+  UserFilled,
+  Camera,
+  Warning,
+  MagicStick,
+  Check,
+  InfoFilled,
+  Document,
+  ArrowRight,
+  ArrowLeft,
+  Loading,
+  MapLocation,
+} from "@element-plus/icons-vue";
+import {
+  TRIP_PREFERENCES_OPTIONS,
+  PERSONAL_PROFILE_OPTIONS,
+} from "@/utils/data/travelDataSystem.js";
+import {
+  TripPreferencesInterpreter,
+  SmartPrefillEngine,
+  CompletePromptGenerator,
+} from "@/utils/data/aiPromptEngine.js";
+import { useUserStore } from "@/store/user.js";
 
 export default {
-  name: 'TripPreferencesNew',
+  name: "TripPreferencesNew",
   components: {
-    Suitcase, Flag, Star, Timer, UserFilled, Camera, Warning,
-    MagicStick,  Check, InfoFilled, Document, ArrowRight, ArrowLeft, Loading, MapLocation
+    Suitcase,
+    Flag,
+    Star,
+    Timer,
+    UserFilled,
+    Camera,
+    Warning,
+    MagicStick,
+    Check,
+    InfoFilled,
+    Document,
+    ArrowRight,
+    ArrowLeft,
+    Loading,
+    MapLocation,
   },
   props: {
     tripContext: {
       type: Object,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
-  emits: ['preferences-updated', 'preferences-saved', 'go-to-previous-step', 'ai-recommendations-generated', 'use-enhanced-recommendation', 'use-basic-recommendation'],
+  emits: [
+    "preferences-updated",
+    "preferences-saved",
+    "go-to-previous-step",
+    "ai-recommendations-generated",
+    "use-enhanced-recommendation",
+    "use-basic-recommendation",
+  ],
   setup(props, { emit }) {
     const userStore = useUserStore();
     const saving = ref(false);
     const showDetailedAI = ref(false);
     const showAiRecommendationDialog = ref(false);
-    
+
     // 请求控制器，用于取消AI推荐请求
     const requestAbortController = ref(null);
 
     // 个人档案数据
     const personalProfile = ref({});
-    const hasPersonalProfile = computed(() => 
-      Object.keys(personalProfile.value).length > 0
+    const hasPersonalProfile = computed(
+      () => Object.keys(personalProfile.value).length > 0
     );
 
     // 行程偏好数据
     const tripPreferences = reactive({
-      tripPurpose: '',
+      tripPurpose: "",
       focusAreas: [],
-      pacePreference: 'balanced',
-      socialPreference: 'mixed',
-      photoPreference: 'casual',
-      temporaryNeeds: []
+      pacePreference: "balanced",
+      socialPreference: "mixed",
+      photoPreference: "casual",
+      temporaryNeeds: [],
     });
 
     // 选项数据（从新的数据系统获取）
     const tripPurposeOptions = computed(() =>
-      Object.entries(TRIP_PREFERENCES_OPTIONS.tripPurpose.options).map(([key, value]) => ({
-        value: key,
-        ...value
-      }))
+      Object.entries(TRIP_PREFERENCES_OPTIONS.tripPurpose.options).map(
+        ([key, value]) => ({
+          value: key,
+          ...value,
+        })
+      )
     );
 
     const focusAreaOptions = computed(() =>
-      Object.entries(TRIP_PREFERENCES_OPTIONS.focusAreas.options).map(([key, value]) => ({
-        value: key,
-        ...value
-      }))
+      Object.entries(TRIP_PREFERENCES_OPTIONS.focusAreas.options).map(
+        ([key, value]) => ({
+          value: key,
+          ...value,
+        })
+      )
     );
 
     const pacePreferenceOptions = computed(() =>
-      Object.entries(TRIP_PREFERENCES_OPTIONS.pacePreference.options).map(([key, value]) => ({
-        value: key,
-        ...value
-      }))
+      Object.entries(TRIP_PREFERENCES_OPTIONS.pacePreference.options).map(
+        ([key, value]) => ({
+          value: key,
+          ...value,
+        })
+      )
     );
 
     const socialPreferenceOptions = computed(() =>
-      Object.entries(TRIP_PREFERENCES_OPTIONS.socialPreference.options).map(([key, value]) => ({
-        value: key,
-        ...value
-      }))
+      Object.entries(TRIP_PREFERENCES_OPTIONS.socialPreference.options).map(
+        ([key, value]) => ({
+          value: key,
+          ...value,
+        })
+      )
     );
 
     const photoPreferenceOptions = computed(() =>
-      Object.entries(TRIP_PREFERENCES_OPTIONS.photoPreference.options).map(([key, value]) => ({
-        value: key,
-        ...value
-      }))
+      Object.entries(TRIP_PREFERENCES_OPTIONS.photoPreference.options).map(
+        ([key, value]) => ({
+          value: key,
+          ...value,
+        })
+      )
     );
 
     const temporaryNeedsOptions = computed(() =>
-      Object.entries(TRIP_PREFERENCES_OPTIONS.temporaryNeeds.options).map(([key, value]) => ({
-        value: key,
-        ...value
-      }))
+      Object.entries(TRIP_PREFERENCES_OPTIONS.temporaryNeeds.options).map(
+        ([key, value]) => ({
+          value: key,
+          ...value,
+        })
+      )
     );
 
     // 智能推荐数据
     const smartPrefill = ref(null);
     const recommendedFocusAreas = ref([]);
-    const recommendedPace = ref('');
-    const recommendedSocial = ref('');
-    const recommendedPhoto = ref('');
+    const recommendedPace = ref("");
+    const recommendedSocial = ref("");
+    const recommendedPhoto = ref("");
 
     // 偏好完整性检查
     const hasValidPreferences = computed(() => {
-      return tripPreferences.tripPurpose || 
-             tripPreferences.focusAreas.length > 0 || 
-             tripPreferences.temporaryNeeds.length > 0;
+      return (
+        tripPreferences.tripPurpose ||
+        tripPreferences.focusAreas.length > 0 ||
+        tripPreferences.temporaryNeeds.length > 0
+      );
     });
 
     // 选择函数
     const selectTripPurpose = (purpose) => {
       tripPreferences.tripPurpose = purpose;
-      emit('preferences-updated', { ...tripPreferences });
+      emit("preferences-updated", { ...tripPreferences });
     };
 
     const toggleFocusArea = (area) => {
@@ -622,27 +697,27 @@ export default {
       } else if (tripPreferences.focusAreas.length < 3) {
         tripPreferences.focusAreas.push(area);
       }
-      emit('preferences-updated', { ...tripPreferences });
+      emit("preferences-updated", { ...tripPreferences });
     };
 
     const clearFocusAreas = () => {
       tripPreferences.focusAreas = [];
-      emit('preferences-updated', { ...tripPreferences });
+      emit("preferences-updated", { ...tripPreferences });
     };
 
     const selectPacePreference = (pace) => {
       tripPreferences.pacePreference = pace;
-      emit('preferences-updated', { ...tripPreferences });
+      emit("preferences-updated", { ...tripPreferences });
     };
 
     const selectSocialPreference = (social) => {
       tripPreferences.socialPreference = social;
-      emit('preferences-updated', { ...tripPreferences });
+      emit("preferences-updated", { ...tripPreferences });
     };
 
     const selectPhotoPreference = (photo) => {
       tripPreferences.photoPreference = photo;
-      emit('preferences-updated', { ...tripPreferences });
+      emit("preferences-updated", { ...tripPreferences });
     };
 
     const toggleTemporaryNeed = (need) => {
@@ -652,7 +727,7 @@ export default {
       } else {
         tripPreferences.temporaryNeeds.push(need);
       }
-      emit('preferences-updated', { ...tripPreferences });
+      emit("preferences-updated", { ...tripPreferences });
     };
 
     // 显示名称函数
@@ -666,17 +741,23 @@ export default {
     };
 
     const getPaceDisplayName = (pace) => {
-      const option = pacePreferenceOptions.value.find(opt => opt.value === pace);
+      const option = pacePreferenceOptions.value.find(
+        (opt) => opt.value === pace
+      );
       return option ? option.name : pace;
     };
 
     const getSocialDisplayName = (social) => {
-      const option = socialPreferenceOptions.value.find(opt => opt.value === social);
+      const option = socialPreferenceOptions.value.find(
+        (opt) => opt.value === social
+      );
       return option ? option.name : social;
     };
 
     const getPhotoDisplayName = (photo) => {
-      const option = photoPreferenceOptions.value.find(opt => opt.value === photo);
+      const option = photoPreferenceOptions.value.find(
+        (opt) => opt.value === photo
+      );
       return option ? option.name : photo;
     };
 
@@ -684,18 +765,19 @@ export default {
     const generateAIPreview = () => {
       const interpreter = new TripPreferencesInterpreter(tripPreferences);
       const preview = interpreter.generateCompletePreferences();
-      
+
       // 简化显示前2行
-      const lines = preview.split('\n\n').slice(0, 2);
-      return lines.join(' ');
+      const lines = preview.split("\n\n").slice(0, 2);
+      return lines.join(" ");
     };
 
     const generateDetailedAI = () => {
-      if (!hasPersonalProfile.value) return '需要设置个人档案才能生成详细AI解读';
-      
+      if (!hasPersonalProfile.value)
+        return "需要设置个人档案才能生成详细AI解读";
+
       const generator = new CompletePromptGenerator(
-        personalProfile.value, 
-        tripPreferences, 
+        personalProfile.value,
+        tripPreferences,
         props.tripContext
       );
       return generator.generateCompletePrompt();
@@ -707,24 +789,36 @@ export default {
 
       smartPrefill.value = new SmartPrefillEngine(personalProfile.value);
       const defaults = smartPrefill.value.getSmartDefaults();
-      
+
       // 设置推荐项
       recommendedFocusAreas.value = defaults.focusAreas || [];
-      recommendedPace.value = defaults.pacePreference || '';
-      recommendedSocial.value = defaults.socialPreference || '';
-      recommendedPhoto.value = defaults.photoPreference || '';
-      
+      recommendedPace.value = defaults.pacePreference || "";
+      recommendedSocial.value = defaults.socialPreference || "";
+      recommendedPhoto.value = defaults.photoPreference || "";
+
       // 应用默认值（如果用户还没有设置）
-      if (!tripPreferences.pacePreference || tripPreferences.pacePreference === 'balanced') {
+      if (
+        !tripPreferences.pacePreference ||
+        tripPreferences.pacePreference === "balanced"
+      ) {
         tripPreferences.pacePreference = defaults.pacePreference;
       }
-      if (!tripPreferences.socialPreference || tripPreferences.socialPreference === 'mixed') {
+      if (
+        !tripPreferences.socialPreference ||
+        tripPreferences.socialPreference === "mixed"
+      ) {
         tripPreferences.socialPreference = defaults.socialPreference;
       }
-      if (!tripPreferences.photoPreference || tripPreferences.photoPreference === 'casual') {
+      if (
+        !tripPreferences.photoPreference ||
+        tripPreferences.photoPreference === "casual"
+      ) {
         tripPreferences.photoPreference = defaults.photoPreference;
       }
-      if (tripPreferences.focusAreas.length === 0 && defaults.focusAreas.length > 0) {
+      if (
+        tripPreferences.focusAreas.length === 0 &&
+        defaults.focusAreas.length > 0
+      ) {
         tripPreferences.focusAreas = [...defaults.focusAreas.slice(0, 3)];
       }
     };
@@ -732,17 +826,16 @@ export default {
     // 保存偏好
     const savePreferences = async () => {
       if (saving.value) {
-        console.warn('正在保存中，请勿重复点击');
+        console.warn("正在保存中，请勿重复点击");
         return;
       }
 
       try {
         // 显示AI推荐确认对话框
         showAiRecommendationDialog.value = true;
-        
       } catch (error) {
-        console.error('保存偏好失败:', error);
-        ElMessage.error('保存失败：' + (error.message || '请重试'));
+        console.error("保存偏好失败:", error);
+        ElMessage.error("保存失败：" + (error.message || "请重试"));
       }
     };
 
@@ -750,119 +843,126 @@ export default {
     const confirmUseAiRecommendation = async () => {
       showAiRecommendationDialog.value = false;
       saving.value = true;
-      console.log('🚀 开始保存偏好和生成AI推荐');
+      console.log("🚀 开始保存偏好和生成AI推荐");
 
       // 显示AI推荐加载提示
-      ElMessage.info('正在为您生成个性化AI推荐，请稍候...');
+      ElMessage.info("正在为您生成个性化AI推荐，请稍候...");
 
       // 调用AI推荐API，携带完整数据
       let apiResponse = null;
       requestAbortController.value = new AbortController(); // 创建新的控制器
-      
+
       try {
         // 动态导入AI推荐API
-        const { aiRecommendationApi } = await import('@/api/aiRecommendation.js');
-        
+        const { aiRecommendationApi } = await import(
+          "@/api/aiRecommendation.js"
+        );
+
         // 构建完整的请求参数，包含前两个步骤的所有信息
         const requestParams = {
           // 第一步：基础信息（从TripBaseInfo获取）
           baseInfo: {
-            destinationName: props.tripContext?.destination || '',
-            destination: props.tripContext?.destination || '',
+            destinationName: props.tripContext?.destination || "",
+            destination: props.tripContext?.destination || "",
             days: props.tripContext?.days || 3,
-            budget: props.tripContext?.budget || 'moderate',
+            budget: props.tripContext?.budget || "moderate",
             travelers: props.tripContext?.travelers || 1,
-            dateRange: props.tripContext?.dateRange || null
+            dateRange: props.tripContext?.dateRange || null,
           },
           // 第二步：行程偏好（当前组件的数据）
           preferences: {
             // 旅行目的
-            travelPurpose: tripPreferences.tripPurpose || '',
-            
+            travelPurpose: tripPreferences.tripPurpose || "",
+
             // 关注领域/兴趣点
             focusAreas: tripPreferences.focusAreas || [],
             interests: tripPreferences.focusAreas || [], // 兼容字段
-            
+
             // 节奏偏好
-            pacePreference: tripPreferences.pacePreference || '',
-            
-            // 社交偏好  
-            socialPreference: tripPreferences.socialPreference || '',
-            
+            pacePreference: tripPreferences.pacePreference || "",
+
+            // 社交偏好
+            socialPreference: tripPreferences.socialPreference || "",
+
             // 拍照偏好
-            photoPreference: tripPreferences.photoPreference || '',
-            
+            photoPreference: tripPreferences.photoPreference || "",
+
             // 特殊需求和临时需要
-            specialRequirements: tripPreferences.specialRequirements || '',
+            specialRequirements: tripPreferences.specialRequirements || "",
             temporaryNeeds: tripPreferences.temporaryNeeds || [],
-            
+
             // 饮食相关（从个人档案和当前设置合并）
             dietaryRestrictions: [
               ...(personalProfile.value?.dietaryRestrictions || []),
-              ...(tripPreferences.dietaryRestrictions || [])
+              ...(tripPreferences.dietaryRestrictions || []),
             ],
-            customDietaryNotes: tripPreferences.customDietaryNotes || '',
-            
+            customDietaryNotes: tripPreferences.customDietaryNotes || "",
+
             // 预算和住宿偏好
-            budgetPreference: props.tripContext?.budget || 'moderate',
-            accommodationLevel: tripPreferences.accommodationLevel || 'moderate',
-            
+            budgetPreference: props.tripContext?.budget || "moderate",
+            accommodationLevel:
+              tripPreferences.accommodationLevel || "moderate",
+
             // 交通偏好（从个人档案获取）
-            transportationMode: personalProfile.value?.transportPreferences || []
+            transportationMode:
+              personalProfile.value?.transportPreferences || [],
           },
           // 用户个人档案信息
           userProfile: {
             // MBTI性格类型
-            mbtiType: personalProfile.value?.mbtiType || '',
-            
+            mbtiType: personalProfile.value?.mbtiType || "",
+
             // 核心兴趣爱好
             coreInterests: personalProfile.value?.coreInterests || [],
-            
+
             // 预算档位
-            budgetLevel: personalProfile.value?.budgetLevel || 'moderate',
-            
+            budgetLevel: personalProfile.value?.budgetLevel || "moderate",
+
             // 饮食限制
-            dietaryRestrictions: personalProfile.value?.dietaryRestrictions || [],
-            
+            dietaryRestrictions:
+              personalProfile.value?.dietaryRestrictions || [],
+
             // 交通偏好
-            transportPreferences: personalProfile.value?.transportPreferences || []
+            transportPreferences:
+              personalProfile.value?.transportPreferences || [],
           },
           // API请求参数
           maxAttractions: 15,
           maxRestaurants: 10,
           maxHotels: 8, // 新增酒店推荐数量
-          
+
           // 其他上下文信息
           context: {
             timestamp: new Date().toISOString(),
-            source: 'trip-preferences-step',
-            version: '2.0'
-          }
+            source: "trip-preferences-step",
+            version: "2.0",
+          },
         };
 
-        console.log('🤖 发起AI推荐请求，携带完整的前两步信息:', {
+        console.log("🤖 发起AI推荐请求，携带完整的前两步信息:", {
           baseInfo: requestParams.baseInfo,
           preferences: requestParams.preferences,
           userProfile: requestParams.userProfile,
-          context: requestParams.context
+          context: requestParams.context,
         });
-        
+
         // 设置超时控制 - 2分钟超时（与后端日志中的情况匹配）
         const timeoutPromise = new Promise((_, reject) => {
           setTimeout(() => {
             requestAbortController.value?.abort(); // 取消请求
-            reject(new Error('AI推荐请求超时'));
+            reject(new Error("AI推荐请求超时"));
           }, 120000); // 2分钟
         });
-        
+
         // 发起AI推荐请求，带超时控制
-        const requestPromise = aiRecommendationApi.getPersonalizedRecommendations(requestParams);
-        
+        const requestPromise =
+          aiRecommendationApi.getPersonalizedRecommendations(requestParams);
+
         // 添加进度提示
         const progressInterval = setInterval(() => {
-          console.log('⏳ AI推荐生成中，请耐心等待...');
+          console.log("⏳ AI推荐生成中，请耐心等待...");
         }, 15000); // 每15秒提示一次
-        
+
         try {
           apiResponse = await Promise.race([requestPromise, timeoutPromise]);
           clearInterval(progressInterval);
@@ -870,42 +970,45 @@ export default {
           clearInterval(progressInterval);
           throw error;
         }
-        
+
         if (apiResponse && apiResponse.success) {
-          console.log('✅ AI推荐请求成功:', apiResponse.data);
-          ElMessage.success(`AI推荐生成完成！为您推荐了 ${apiResponse.data?.attractions?.length || 0} 个景点、${apiResponse.data?.restaurants?.length || 0} 个餐厅、${apiResponse.data?.hotels?.length || 0} 个酒店`);
-          
+          console.log("✅ AI推荐请求成功:", apiResponse.data);
+          ElMessage.success(
+            `AI推荐生成完成！为您推荐了 ${apiResponse.data?.attractions?.length || 0} 个景点、${apiResponse.data?.restaurants?.length || 0} 个餐厅、${apiResponse.data?.hotels?.length || 0} 个酒店`
+          );
+
           // 可以将推荐结果存储到store或通过事件传递给父组件
-          emit('ai-recommendations-generated', apiResponse.data);
-          emit('use-enhanced-recommendation');
+          emit("ai-recommendations-generated", apiResponse.data);
+          emit("use-enhanced-recommendation");
         } else {
-          throw new Error(apiResponse?.message || 'AI推荐服务返回异常');
+          throw new Error(apiResponse?.message || "AI推荐服务返回异常");
         }
-        
       } catch (apiError) {
-        console.error('❌ AI推荐API调用失败:', apiError);
-        
-        if (apiError.message && apiError.message.includes('超时')) {
-          ElMessage.warning('AI推荐生成超时，正在为您获取高德地图推荐数据...');
+        console.error("❌ AI推荐API调用失败:", apiError);
+
+        if (apiError.message && apiError.message.includes("超时")) {
+          ElMessage.warning("AI推荐生成超时，正在为您获取高德地图推荐数据...");
         } else {
-          ElMessage.warning('AI推荐生成失败，正在为您获取高德地图推荐数据...');
+          ElMessage.warning("AI推荐生成失败，正在为您获取高德地图推荐数据...");
         }
-        
+
         // AI失败时，自动降级到高德API
         try {
           const fallbackData = await getFallbackRecommendations();
-          emit('ai-recommendations-generated', fallbackData);
-          emit('use-enhanced-recommendation');
-          ElMessage.success(`已为您获取基于高德地图的推荐数据：${fallbackData.attractions.length} 个景点，${fallbackData.restaurants.length} 个餐厅`);
+          emit("ai-recommendations-generated", fallbackData);
+          emit("use-enhanced-recommendation");
+          ElMessage.success(
+            `已为您获取基于高德地图的推荐数据：${fallbackData.attractions.length} 个景点，${fallbackData.restaurants.length} 个餐厅`
+          );
         } catch (fallbackError) {
-          console.error('❌ 高德API降级也失败了:', fallbackError);
-          ElMessage.error('推荐数据获取失败，您可以在推荐页面手动搜索');
+          console.error("❌ 高德API降级也失败了:", fallbackError);
+          ElMessage.error("推荐数据获取失败，您可以在推荐页面手动搜索");
         }
       }
 
       // 无论AI推荐成功与否，都要保存偏好并进入下一步
-      console.log('💾 保存偏好数据:', tripPreferences);
-      emit('preferences-saved', { ...tripPreferences });
+      console.log("💾 保存偏好数据:", tripPreferences);
+      emit("preferences-saved", { ...tripPreferences });
       saving.value = false;
     };
 
@@ -913,90 +1016,93 @@ export default {
     const confirmUseBasicRecommendation = async () => {
       showAiRecommendationDialog.value = false;
       saving.value = true;
-      console.log('🗺️ 用户选择使用基础推荐（高德地图）');
+      console.log("🗺️ 用户选择使用基础推荐（高德地图）");
 
       try {
         // 使用高德API获取推荐数据
         const fallbackData = await getFallbackRecommendations();
-        emit('ai-recommendations-generated', fallbackData);
-        emit('use-basic-recommendation');
-        ElMessage.success(`已为您获取基于高德地图的推荐数据：${fallbackData.attractions.length} 个景点，${fallbackData.restaurants.length} 个餐厅`);
+        emit("ai-recommendations-generated", fallbackData);
+        emit("use-basic-recommendation");
+        ElMessage.success(
+          `已为您获取基于高德地图的推荐数据：${fallbackData.attractions.length} 个景点，${fallbackData.restaurants.length} 个餐厅`
+        );
       } catch (fallbackError) {
-        console.error('❌ 高德API获取失败:', fallbackError);
-        ElMessage.error('推荐数据获取失败，您可以在推荐页面手动搜索');
+        console.error("❌ 高德API获取失败:", fallbackError);
+        ElMessage.error("推荐数据获取失败，您可以在推荐页面手动搜索");
       }
 
       // 保存偏好并进入下一步
-      console.log('💾 保存偏好数据:', tripPreferences);
-      emit('preferences-saved', { ...tripPreferences });
+      console.log("💾 保存偏好数据:", tripPreferences);
+      emit("preferences-saved", { ...tripPreferences });
       saving.value = false;
     };
 
     // 获取高德API推荐数据的通用方法
     const getFallbackRecommendations = async () => {
-      const { getRecommendedAttractions, getRecommendedRestaurants } = await import('@/api/amap.js');
-      
-      const cityName = props.tripContext?.destination || '';
+      const { getRecommendedAttractions, getRecommendedRestaurants } =
+        await import("@/api/amap.js");
+
+      const cityName = props.tripContext?.destination || "";
       if (!cityName) {
-        throw new Error('缺少目的地信息，无法获取推荐数据');
+        throw new Error("缺少目的地信息，无法获取推荐数据");
       }
-      
+
       console.log(`🗺️ 使用高德API获取 ${cityName} 的推荐数据`);
-      
+
       // 并行请求景点和餐厅数据
       const [attractionsResult, restaurantsResult] = await Promise.all([
-        getRecommendedAttractions(cityName, 1, 12).catch(err => {
-          console.warn('高德景点API调用失败:', err);
+        getRecommendedAttractions(cityName, 1, 12).catch((err) => {
+          console.warn("高德景点API调用失败:", err);
           return { pois: [] };
         }),
-        getRecommendedRestaurants(cityName, 1, 8).catch(err => {
-          console.warn('高德餐厅API调用失败:', err);
+        getRecommendedRestaurants(cityName, 1, 8).catch((err) => {
+          console.warn("高德餐厅API调用失败:", err);
           return { pois: [] };
-        })
+        }),
       ]);
-      
+
       // 转换高德API数据格式为推荐格式
       const attractions = (attractionsResult.pois || []).map((poi, index) => ({
         id: poi.id || `attraction_${index}`,
-        name: poi.name || '未知景点',
-        description: poi.address || poi.type || '暂无描述',
+        name: poi.name || "未知景点",
+        description: poi.address || poi.type || "暂无描述",
         rating: parseFloat(poi.rating) || 4.0,
         price: parseInt(poi.cost) || Math.floor(Math.random() * 100 + 50),
-        tags: poi.type ? [poi.type, '高德推荐'] : ['高德推荐'],
-        image: '/api/placeholder/300/200',
-        location: poi.address || '位置信息待完善',
-        coordinates: poi.location ? poi.location.split(',').map(Number) : null,
+        tags: poi.type ? [poi.type, "高德推荐"] : ["高德推荐"],
+        image: "/api/placeholder/300/200",
+        location: poi.address || "位置信息待完善",
+        coordinates: poi.location ? poi.location.split(",").map(Number) : null,
         isAiRecommended: false,
         isFallback: true,
         confidence: 0.6,
-        reasoning: '基于高德地图数据的热门推荐',
+        reasoning: "基于高德地图数据的热门推荐",
         recommendationScore: Math.random() * 0.4 + 0.6,
-        estimatedDuration: '2-3小时',
-        bestTimeToVisit: '全天',
-        tel: poi.tel || ''
+        estimatedDuration: "2-3小时",
+        bestTimeToVisit: "全天",
+        tel: poi.tel || "",
       }));
-      
+
       const restaurants = (restaurantsResult.pois || []).map((poi, index) => ({
         id: poi.id || `restaurant_${index}`,
-        name: poi.name || '未知餐厅',
-        description: poi.address || poi.type || '暂无描述',
+        name: poi.name || "未知餐厅",
+        description: poi.address || poi.type || "暂无描述",
         rating: parseFloat(poi.rating) || 4.0,
         price: parseInt(poi.cost) || Math.floor(Math.random() * 150 + 50),
-        cuisineType: poi.type || '综合',
-        tags: poi.type ? [poi.type, '高德推荐'] : ['高德推荐'],
-        image: '/api/placeholder/300/200',
-        location: poi.address || '位置信息待完善',
-        coordinates: poi.location ? poi.location.split(',').map(Number) : null,
+        cuisineType: poi.type || "综合",
+        tags: poi.type ? [poi.type, "高德推荐"] : ["高德推荐"],
+        image: "/api/placeholder/300/200",
+        location: poi.address || "位置信息待完善",
+        coordinates: poi.location ? poi.location.split(",").map(Number) : null,
         isAiRecommended: false,
         isFallback: true,
         confidence: 0.6,
-        reasoning: '基于高德地图数据的人气餐厅',
+        reasoning: "基于高德地图数据的人气餐厅",
         recommendationScore: Math.random() * 0.4 + 0.6,
-        priceRange: poi.cost || '中等消费',
+        priceRange: poi.cost || "中等消费",
         signature_dishes: [],
-        tel: poi.tel || ''
+        tel: poi.tel || "",
       }));
-      
+
       // 构建推荐结果对象
       return {
         attractions,
@@ -1012,65 +1118,73 @@ export default {
           confidence: 0.75,
           averageRating: 4.1,
           averageConfidence: 0.6,
-          processingTime: 500
+          processingTime: 500,
         },
         isFallback: true,
         isAmapData: true,
         sessionId: `amap_${Date.now()}`,
         generatedAt: new Date().toISOString(),
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
     };
 
     // 取消AI推荐请求
     const cancelAiRequest = async () => {
-      console.log('🚫 用户取消AI推荐请求，使用高德API获取数据');
-      
+      console.log("🚫 用户取消AI推荐请求，使用高德API获取数据");
+
       try {
         // 取消正在进行的AI推荐请求
         if (requestAbortController.value) {
           requestAbortController.value.abort();
           requestAbortController.value = null;
         }
-        
+
         // 显示正在使用高德API获取数据的提示
-        ElMessage.info('正在为您获取基础推荐数据...');
-        
+        ElMessage.info("正在为您获取基础推荐数据...");
+
         // 使用通用方法获取高德推荐数据
         const fallbackRecommendations = await getFallbackRecommendations();
-        
-        console.log('✅ 高德API推荐数据获取成功:', fallbackRecommendations);
-        
+
+        console.log("✅ 高德API推荐数据获取成功:", fallbackRecommendations);
+
         // 显示成功消息
-        ElMessage.success(`基于高德地图为您推荐了 ${fallbackRecommendations.attractions.length} 个景点和 ${fallbackRecommendations.restaurants.length} 个餐厅`);
-        
+        ElMessage.success(
+          `基于高德地图为您推荐了 ${fallbackRecommendations.attractions.length} 个景点和 ${fallbackRecommendations.restaurants.length} 个餐厅`
+        );
+
         // 发送推荐数据给父组件
-        emit('ai-recommendations-generated', fallbackRecommendations);
-        
+        emit("ai-recommendations-generated", fallbackRecommendations);
       } catch (error) {
-        console.error('❌ 获取高德推荐数据失败:', error);
-        ElMessage.warning('获取推荐数据失败，将进入空白推荐页面');
-        
+        console.error("❌ 获取高德推荐数据失败:", error);
+        ElMessage.warning("获取推荐数据失败，将进入空白推荐页面");
+
         // 即使失败也要发送一个空的推荐结果
         const emptyRecommendations = {
           attractions: [],
           restaurants: [],
           hotels: [],
-          reasoning: '推荐数据获取失败，您可以在推荐页面手动搜索或重试',
-          stats: { total: 0, attractions: 0, restaurants: 0, hotels: 0, ai: 0, confidence: 0 },
+          reasoning: "推荐数据获取失败，您可以在推荐页面手动搜索或重试",
+          stats: {
+            total: 0,
+            attractions: 0,
+            restaurants: 0,
+            hotels: 0,
+            ai: 0,
+            confidence: 0,
+          },
           isFallback: true,
           isError: true,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         };
-        
-        emit('ai-recommendations-generated', emptyRecommendations);
+
+        emit("ai-recommendations-generated", emptyRecommendations);
       } finally {
         // 重置状态并进入下一步
         saving.value = false;
-        
+
         // 保存偏好并进入下一步
-        console.log('💾 保存偏好数据并进入下一步');
-        emit('preferences-saved', { ...tripPreferences });
+        console.log("💾 保存偏好数据并进入下一步");
+        emit("preferences-saved", { ...tripPreferences });
       }
     };
 
@@ -1079,18 +1193,18 @@ export default {
       try {
         // 这里可以调用API保存草稿
         // await api.saveDraft(tripPreferences);
-        
-        ElMessage.success('草稿已保存！');
-        emit('draft-saved', { ...tripPreferences });
+
+        ElMessage.success("草稿已保存！");
+        emit("draft-saved", { ...tripPreferences });
       } catch (error) {
-        console.error('保存草稿失败:', error);
-        ElMessage.error('保存草稿失败：' + (error.message || '请重试'));
+        console.error("保存草稿失败:", error);
+        ElMessage.error("保存草稿失败：" + (error.message || "请重试"));
       }
     };
 
     // 返回上一步
     const goToPreviousStep = () => {
-      emit('go-to-previous-step');
+      emit("go-to-previous-step");
     };
 
     // 加载个人档案
@@ -1098,16 +1212,17 @@ export default {
       try {
         await userStore.fetchUserPreferences();
         const userPrefs = userStore.currentUser?.preferences;
-        
+
         if (userPrefs) {
-          const parsed = typeof userPrefs === 'string' ? JSON.parse(userPrefs) : userPrefs;
+          const parsed =
+            typeof userPrefs === "string" ? JSON.parse(userPrefs) : userPrefs;
           personalProfile.value = parsed;
-          
+
           // 初始化智能预填
           initializeSmartPrefill();
         }
       } catch (error) {
-        console.warn('加载个人档案失败:', error);
+        console.warn("加载个人档案失败:", error);
       }
     };
 
@@ -1116,13 +1231,18 @@ export default {
     });
 
     // 监听个人档案变化
-    watch(() => userStore.currentUser?.preferences, (newPrefs) => {
-      if (newPrefs) {
-        const parsed = typeof newPrefs === 'string' ? JSON.parse(newPrefs) : newPrefs;
-        personalProfile.value = parsed;
-        initializeSmartPrefill();
-      }
-    }, { deep: true });
+    watch(
+      () => userStore.currentUser?.preferences,
+      (newPrefs) => {
+        if (newPrefs) {
+          const parsed =
+            typeof newPrefs === "string" ? JSON.parse(newPrefs) : newPrefs;
+          personalProfile.value = parsed;
+          initializeSmartPrefill();
+        }
+      },
+      { deep: true }
+    );
 
     return {
       tripPreferences,
@@ -1161,9 +1281,9 @@ export default {
       confirmUseBasicRecommendation,
       cancelAiRequest,
       saveDraft,
-      goToPreviousStep
+      goToPreviousStep,
     };
-  }
+  },
 };
 </script>
 
@@ -1186,7 +1306,7 @@ export default {
 }
 
 .page-header::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -1246,7 +1366,7 @@ export default {
 
 .notice-icon {
   font-size: 32px;
-  color: #F7CAC9;
+  color: #f7cac9;
   flex-shrink: 0;
 }
 
@@ -1340,7 +1460,7 @@ export default {
 
 .smart-tip {
   background: rgba(145, 168, 208, 0.1);
-  color: #91A8D0;
+  color: #91a8d0;
   padding: 4px 12px;
   border-radius: 12px;
   font-size: 13px;
@@ -1367,14 +1487,18 @@ export default {
 }
 
 .purpose-card:hover {
-  border-color: #91A8D0;
+  border-color: #91a8d0;
   box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15);
   transform: translateY(-2px);
 }
 
 .purpose-card.selected {
-  border-color: #91A8D0;
-  background: linear-gradient(135deg, rgba(145, 168, 208, 0.1) 0%, #ffffff 100%);
+  border-color: #91a8d0;
+  background: linear-gradient(
+    135deg,
+    rgba(145, 168, 208, 0.1) 0%,
+    #ffffff 100%
+  );
 }
 
 .purpose-header {
@@ -1428,19 +1552,27 @@ export default {
 }
 
 .focus-item:hover {
-  border-color: #91A8D0;
+  border-color: #91a8d0;
   box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15);
   transform: translateY(-2px);
 }
 
 .focus-item.selected {
-  border-color: #91A8D0;
-  background: linear-gradient(135deg, rgba(145, 168, 208, 0.1) 0%, #ffffff 100%);
+  border-color: #91a8d0;
+  background: linear-gradient(
+    135deg,
+    rgba(145, 168, 208, 0.1) 0%,
+    #ffffff 100%
+  );
 }
 
 .focus-item.recommended {
-  border-color: #F7CAC9;
-  background: linear-gradient(135deg, rgba(247, 202, 201, 0.1) 0%, #ffffff 100%);
+  border-color: #f7cac9;
+  background: linear-gradient(
+    135deg,
+    rgba(247, 202, 201, 0.1) 0%,
+    #ffffff 100%
+  );
 }
 
 .focus-item.disabled {
@@ -1474,7 +1606,7 @@ export default {
   position: absolute;
   top: 8px;
   right: 8px;
-  background: #F7CAC9;
+  background: #f7cac9;
   color: #2c3e50;
   padding: 4px 8px;
   border-radius: 8px;
@@ -1526,19 +1658,27 @@ export default {
 }
 
 .pace-card:hover {
-  border-color: #91A8D0;
+  border-color: #91a8d0;
   box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15);
   transform: translateY(-2px);
 }
 
 .pace-card.selected {
-  border-color: #91A8D0;
-  background: linear-gradient(135deg, rgba(145, 168, 208, 0.1) 0%, #ffffff 100%);
+  border-color: #91a8d0;
+  background: linear-gradient(
+    135deg,
+    rgba(145, 168, 208, 0.1) 0%,
+    #ffffff 100%
+  );
 }
 
 .pace-card.recommended {
-  border-color: #F7CAC9;
-  background: linear-gradient(135deg, rgba(247, 202, 201, 0.1) 0%, #ffffff 100%);
+  border-color: #f7cac9;
+  background: linear-gradient(
+    135deg,
+    rgba(247, 202, 201, 0.1) 0%,
+    #ffffff 100%
+  );
 }
 
 .pace-visual {
@@ -1577,7 +1717,7 @@ export default {
   position: absolute;
   top: 8px;
   right: 8px;
-  background: #F7CAC9;
+  background: #f7cac9;
   color: #2c3e50;
   padding: 4px 8px;
   border-radius: 8px;
@@ -1604,19 +1744,27 @@ export default {
 }
 
 .social-option:hover {
-  border-color: #91A8D0;
+  border-color: #91a8d0;
   box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15);
   transform: translateY(-2px);
 }
 
 .social-option.selected {
-  border-color: #91A8D0;
-  background: linear-gradient(135deg, rgba(145, 168, 208, 0.1) 0%, #ffffff 100%);
+  border-color: #91a8d0;
+  background: linear-gradient(
+    135deg,
+    rgba(145, 168, 208, 0.1) 0%,
+    #ffffff 100%
+  );
 }
 
 .social-option.recommended {
-  border-color: #F7CAC9;
-  background: linear-gradient(135deg, rgba(247, 202, 201, 0.1) 0%, #ffffff 100%);
+  border-color: #f7cac9;
+  background: linear-gradient(
+    135deg,
+    rgba(247, 202, 201, 0.1) 0%,
+    #ffffff 100%
+  );
 }
 
 .social-header {
@@ -1667,19 +1815,27 @@ export default {
 }
 
 .photo-level:hover {
-  border-color: #91A8D0;
+  border-color: #91a8d0;
   box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15);
   transform: translateY(-2px);
 }
 
 .photo-level.selected {
-  border-color: #91A8D0;
-  background: linear-gradient(135deg, rgba(145, 168, 208, 0.1) 0%, #ffffff 100%);
+  border-color: #91a8d0;
+  background: linear-gradient(
+    135deg,
+    rgba(145, 168, 208, 0.1) 0%,
+    #ffffff 100%
+  );
 }
 
 .photo-level.recommended {
-  border-color: #F7CAC9;
-  background: linear-gradient(135deg, rgba(247, 202, 201, 0.1) 0%, #ffffff 100%);
+  border-color: #f7cac9;
+  background: linear-gradient(
+    135deg,
+    rgba(247, 202, 201, 0.1) 0%,
+    #ffffff 100%
+  );
 }
 
 .photo-icon {
@@ -1721,13 +1877,13 @@ export default {
 }
 
 .need-item:hover {
-  border-color: #E53935;
+  border-color: #e53935;
   box-shadow: 0 4px 12px rgba(229, 57, 53, 0.15);
   transform: translateY(-2px);
 }
 
 .need-item.selected {
-  border-color: #E53935;
+  border-color: #e53935;
   background: linear-gradient(135deg, rgba(229, 57, 53, 0.05) 0%, #ffffff 100%);
 }
 
@@ -1899,7 +2055,7 @@ export default {
 }
 
 .loading-content::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
@@ -1995,7 +2151,8 @@ export default {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     box-shadow: 0 0 0 0 rgba(145, 168, 208, 0.4);
   }
@@ -2068,13 +2225,13 @@ export default {
   .trip-preferences-container {
     padding: 16px;
   }
-  
+
   .step-actions {
     padding: 20px 16px;
     flex-direction: column;
     gap: 16px;
   }
-  
+
   .navigation-buttons {
     width: 100%;
     justify-content: space-between;
@@ -2128,7 +2285,7 @@ export default {
     grid-template-columns: 1fr;
     gap: 12px;
   }
-  
+
   .navigation-buttons .el-button {
     flex: 1;
     min-width: auto;
@@ -2192,16 +2349,19 @@ export default {
 }
 
 .dialog-header {
+  display: flex;
   background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
   color: white;
   padding: 24px;
   text-align: center;
   border-radius: 8px 8px 0 0;
+  align-items: center;
 }
 
 .dialog-header .header-icon {
   font-size: 32px;
   margin-bottom: 12px;
+  margin-right: 25px;
 }
 
 .dialog-header h3 {
@@ -2225,7 +2385,7 @@ export default {
 .option-cards {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 10px;
   margin-bottom: 24px;
 }
 
@@ -2244,11 +2404,19 @@ export default {
 }
 
 .ai-option {
-  background: linear-gradient(135deg, rgba(145, 168, 208, 0.05) 0%, rgba(255, 255, 255, 1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(145, 168, 208, 0.05) 0%,
+    rgba(255, 255, 255, 1) 100%
+  );
 }
 
 .basic-option {
-  background: linear-gradient(135deg, rgba(247, 202, 201, 0.05) 0%, rgba(255, 255, 255, 1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(247, 202, 201, 0.05) 0%,
+    rgba(255, 255, 255, 1) 100%
+  );
 }
 
 .card-header {
@@ -2282,7 +2450,7 @@ export default {
 
 .card-content li {
   padding: 6px 0;
-  font-size: 14px;
+  font-size: 12px;
   color: #606266;
   line-height: 1.4;
 }
