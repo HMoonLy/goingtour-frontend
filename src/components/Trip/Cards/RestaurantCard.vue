@@ -105,7 +105,7 @@
               disabled
               show-score
               text-color="#ff9900"
-              score-template="{value}"
+              :score-template="`${restaurant.rating.toFixed(1)}`"
               :max="5"
             />
           </div>
@@ -227,12 +227,12 @@ const handleShowDetails = () => {
 }
 
 .restaurant-card.selected {
-  border-color: #67c23a;
-  box-shadow: 0 0 0 2px rgba(103, 194, 58, 0.2);
+  /* border-color: #f7cac9;
+  box-shadow: 0 0 0 2px rgba(247, 202, 201, 0.3); */
 }
 
 .restaurant-card.ai-recommended {
-  border-color: #e6a23c;
+  /* border-color: #f7cac9; */
 }
 
 .restaurant-card.ai-recommended::before {
@@ -242,7 +242,7 @@ const handleShowDetails = () => {
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #e6a23c, #f56c6c);
+  background: linear-gradient(90deg, #f7cac9, #f5b7b1);
   z-index: 1;
 }
 
@@ -251,7 +251,7 @@ const handleShowDetails = () => {
   position: absolute;
   top: 8px;
   right: 8px;
-  background: linear-gradient(135deg, #e6a23c, #f56c6c);
+  background: linear-gradient(135deg, #f7cac9, #f5b7b1);
   color: white;
   padding: 4px 8px;
   border-radius: 12px;
@@ -372,7 +372,7 @@ const handleShowDetails = () => {
   align-items: center;
   gap: 4px;
   font-size: 14px;
-  color: #e6a23c;
+  color: #d7756a;
   font-weight: 600;
 }
 
@@ -380,10 +380,11 @@ const handleShowDetails = () => {
   display: flex;
   align-items: flex-start;
   gap: 6px;
-  background: #fff7e6;
-  padding: 8px;
-  border-radius: 6px;
-  border-left: 3px solid #e6a23c;
+  background: rgba(247, 202, 201, 0.15);
+  padding: 10px;
+  border-radius: 8px;
+  border-left: 3px solid #f7cac9;
+  margin-top: 4px;
 }
 
 .reasoning-text {

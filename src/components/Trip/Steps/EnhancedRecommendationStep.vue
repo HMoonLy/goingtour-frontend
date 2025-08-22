@@ -427,12 +427,11 @@ watch(
 
 /* 页面头部 */
 .step-header {
-  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
   color: white;
   padding: 32px 24px;
   border-radius: 16px;
   margin-bottom: 24px;
-  box-shadow: 0 8px 32px rgba(24, 144, 255, 0.3);
 }
 
 .header-content {

@@ -97,7 +97,7 @@
             disabled
             show-score
             text-color="#ff9900"
-            score-template="{value}"
+            :score-template="`${attraction.rating.toFixed(1)}`"
             :max="5"
           />
         </div>
@@ -212,12 +212,12 @@ const handleShowDetails = () => {
 }
 
 .attraction-card.selected {
-  border-color: #409eff;
-  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+  /* border-color: #91a8d0;
+  box-shadow: 0 0 0 2px rgba(145, 168, 208, 0.2); */
 }
 
 .attraction-card.ai-recommended {
-  border-color: #f56c6c;
+  /* border-color: #91a8d0; */
 }
 
 .attraction-card.ai-recommended::before {
@@ -227,7 +227,7 @@ const handleShowDetails = () => {
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #f56c6c, #e6a23c);
+  background: linear-gradient(90deg, #91a8d0, #a8bbdb);
   z-index: 1;
 }
 
@@ -236,7 +236,7 @@ const handleShowDetails = () => {
   position: absolute;
   top: 8px;
   right: 8px;
-  background: linear-gradient(135deg, #f56c6c, #e6a23c);
+  background: linear-gradient(135deg, #91a8d0, #a8bbdb);
   color: white;
   padding: 4px 8px;
   border-radius: 12px;
@@ -344,10 +344,11 @@ const handleShowDetails = () => {
   display: flex;
   align-items: flex-start;
   gap: 6px;
-  background: #f0f9ff;
-  padding: 8px;
-  border-radius: 6px;
-  border-left: 3px solid #409eff;
+  background: rgba(145, 168, 208, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  border-left: 3px solid #91a8d0;
+  margin-top: 4px;
 }
 
 .reasoning-text {
