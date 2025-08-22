@@ -184,9 +184,8 @@
 
     <!-- POI详情对话框 -->
     <PoiDetailDialog
-      v-if="selectedItemDetails"
       v-model="showDetailsDialog"
-      :poi="selectedItemDetails"
+      :poi="selectedItemDetails || {}"
       :type="getItemType(selectedItemDetails)"
       @openMap="handleOpenMap"
     />
@@ -446,6 +445,15 @@ const handleShowDetails = (item) => {
   selectedItemDetails.value = item
   showDetailsDialog.value = true
 }
+
+// 监听对话框关闭，清空选中的详情
+watch(showDetailsDialog, (newValue, oldValue) => {
+  console.log('showDetailsDialog changed:', oldValue, '->', newValue)
+  if (!newValue) {
+    console.log('Clearing selectedItemDetails')
+    selectedItemDetails.value = null
+  }
+})
 
 // 获取项目类型
 const getItemType = (item) => {

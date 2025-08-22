@@ -6,14 +6,16 @@ POI详情对话框组件
 <template>
   <el-dialog
     v-model="visible"
-    :title="poi.name || '地点详情'"
     width="80%"
     :max-width="800"
     destroy-on-close
     center
+    :show-close="false"
+    :close-on-click-modal="true"
+    :close-on-press-escape="true"
     class="poi-detail-dialog"
   >
-    <div v-if="poi" class="poi-detail-content">
+    <div v-if="poi && poi.name" class="poi-detail-content">
       <!-- 头部信息 -->
       <div class="poi-header">
         <div class="poi-basic-info">
@@ -27,18 +29,17 @@ POI详情对话框组件
           </div>
         </div>
         
-        <!-- 评分和基本统计 -->
-        <div class="poi-stats">
-          <div v-if="getRating()" class="rating-section">
-            <el-rate
-              :model-value="getRating()"
-              disabled
-              show-score
-              text-color="#ff9900"
-              :score-template="`${getRating().toFixed(1)}分`"
-              :max="5"
-            />
-          </div>
+        <!-- 关闭按钮 -->
+        <div class="poi-close">
+          <el-button 
+            type="info" 
+            circle 
+            size="large"
+            @click="visible = false"
+            class="close-button"
+          >
+            <el-icon><Close /></el-icon>
+          </el-button>
         </div>
       </div>
 
@@ -226,7 +227,8 @@ import {
   StarFilled,
   CollectionTag,
   PriceTag,
-  Plus
+  Plus,
+  Close
 } from '@element-plus/icons-vue'
 
 // Props
@@ -248,16 +250,16 @@ const props = defineProps({
 // Emits
 const emit = defineEmits(['update:modelValue', 'select', 'unselect'])
 
-// Data
-const visible = ref(props.modelValue)
-
-// Watch
-watch(() => props.modelValue, (newVal) => {
-  visible.value = newVal
-})
-
-watch(visible, (newVal) => {
-  emit('update:modelValue', newVal)
+// Computed
+const visible = computed({
+  get() {
+    console.log('POI Dialog get visible:', props.modelValue)
+    return props.modelValue
+  },
+  set(value) {
+    console.log('POI Dialog set visible:', value, 'emitting update:modelValue')
+    emit('update:modelValue', value)
+  }
 })
 
 // Methods
@@ -402,6 +404,25 @@ const handleUnselect = () => {
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.poi-close {
+  display: flex;
+  align-items: center;
+}
+
+.close-button {
+  background-color: #f5f7fa !important;
+  border-color: #e4e7ed !important;
+  color: #909399 !important;
+  transition: all 0.3s ease;
+}
+
+.close-button:hover {
+  background-color: #f56c6c !important;
+  border-color: #f56c6c !important;
+  color: white !important;
+  transform: scale(1.1);
 }
 
 .poi-basic-info {
