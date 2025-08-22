@@ -34,6 +34,10 @@
           <span class="stat-number">{{ restaurantsCount }}</span>
           <span class="stat-label">餐厅推荐</span>
         </div>
+        <div class="stat-item">
+          <span class="stat-number">{{ hotelsCount }}</span>
+          <span class="stat-label">酒店推荐</span>
+        </div>
       </div>
       
       <div class="stats-actions">
@@ -66,7 +70,7 @@
         
         <div v-if="isLoading" class="loading-grid">
           <el-skeleton
-            v-for="i in 6"
+            v-for="i in 8"
             :key="`attraction-skeleton-${i}`"
             animated
           >
@@ -115,7 +119,7 @@
         
         <div v-if="isLoading" class="loading-grid">
           <el-skeleton
-            v-for="i in 4"
+            v-for="i in 8"
             :key="`restaurant-skeleton-${i}`"
             animated
           >
@@ -149,6 +153,55 @@
           <el-empty description="暂无餐厅推荐" />
         </div>
       </div>
+
+      <!-- 酒店推荐 -->
+      <div class="recommendation-section">
+        <div class="section-header">
+          <h3 class="section-title">
+            <el-icon><User /></el-icon>
+            酒店推荐
+            <el-tag v-if="filteredHotels.length" size="small" type="info">
+              {{ filteredHotels.length }}个
+            </el-tag>
+          </h3>
+        </div>
+        
+        <div v-if="isLoading" class="loading-grid">
+          <el-skeleton
+            v-for="i in 6"
+            :key="`hotel-skeleton-${i}`"
+            animated
+          >
+            <template #template>
+              <div class="skeleton-card">
+                <el-skeleton-item variant="image" style="height: 160px;" />
+                <div style="padding: 16px;">
+                  <el-skeleton-item variant="h3" style="width: 60%;" />
+                  <el-skeleton-item variant="text" style="width: 80%;" />
+                  <el-skeleton-item variant="text" style="width: 40%;" />
+                </div>
+              </div>
+            </template>
+          </el-skeleton>
+        </div>
+        
+        <div v-else-if="filteredHotels.length" class="recommendations-grid">
+          <HotelCard
+            v-for="hotel in filteredHotels"
+            :key="hotel.id || hotel.name"
+            :hotel="hotel"
+            view-mode="grid"
+            :is-selected="isHotelSelected(hotel)"
+            @select="handleSelectHotel"
+            @unselect="handleUnselectHotel"
+            @show-details="handleShowDetails"
+          />
+        </div>
+        
+        <div v-else class="empty-state">
+          <el-empty description="暂无酒店推荐" />
+        </div>
+      </div>
     </div>
 
     <!-- 选择摘要 -->
@@ -161,6 +214,7 @@
             <div class="selected-breakdown">
               <span v-if="selectedAttractions.length">{{ selectedAttractions.length }}个景点</span>
               <span v-if="selectedRestaurants.length">{{ selectedRestaurants.length }}个餐厅</span>
+              <span v-if="selectedHotels.length">{{ selectedHotels.length }}个酒店</span>
             </div>
           </div>
         </div>
@@ -215,6 +269,7 @@ import {
 // 新的卡片组件
 import AttractionCard from '../Cards/AttractionCard.vue'
 import RestaurantCard from '../Cards/RestaurantCard.vue'
+import HotelCard from '../Cards/HotelCard.vue'
 import PoiDetailDialog from '../Dialogs/PoiDetailDialog.vue'
 
 // 高德API增强服务
@@ -258,6 +313,7 @@ const emit = defineEmits([
 // 本地状态
 const selectedAttractions = ref([])
 const selectedRestaurants = ref([])
+const selectedHotels = ref([])
 const showReasoningDialog = ref(false)
 const showDetailsDialog = ref(false)
 const selectedItemDetails = ref(null)
@@ -266,6 +322,7 @@ const isLoading = ref(false)
 // 增强后的推荐数据
 const enhancedAttractions = ref([])
 const enhancedRestaurants = ref([])
+const enhancedHotels = ref([])
 const isEnhancing = ref(false)
 
 // 计算属性 - 基于真实API数据
@@ -273,11 +330,12 @@ const hasValidData = computed(() => {
   return props.apiData && 
          !props.apiData.isError && 
          !props.apiData.isFallback &&
-         (props.apiData.attractions?.length > 0 || props.apiData.restaurants?.length > 0)
+         (props.apiData.attractions?.length > 0 || props.apiData.restaurants?.length > 0 || props.apiData.hotels?.length > 0)
 })
 
 const attractionsCount = computed(() => props.apiData?.attractions?.length || 0)
 const restaurantsCount = computed(() => props.apiData?.restaurants?.length || 0)
+const hotelsCount = computed(() => props.apiData?.hotels?.length || 0)
 
 
 
@@ -288,23 +346,29 @@ const displayReasoning = computed(() => {
 // 推荐列表（优先使用增强后的数据）
 const filteredAttractions = computed(() => {
   return enhancedAttractions.value.length > 0 
-    ? enhancedAttractions.value 
+   ?enhancedAttractions.value 
     : props.apiData?.attractions || []
 })
 
 const filteredRestaurants = computed(() => {
   return enhancedRestaurants.value.length > 0 
-    ? enhancedRestaurants.value 
+   ?enhancedRestaurants.value 
     : props.apiData?.restaurants || []
 })
 
+const filteredHotels = computed(() => {
+  return enhancedHotels.value.length > 0 
+   ?enhancedHotels.value 
+    : props.apiData?.hotels || []
+})
+
 const totalSelected = computed(() => 
-  selectedAttractions.value.length + selectedRestaurants.value.length
+  selectedAttractions.value.length + selectedRestaurants.value.length + selectedHotels.value.length
 )
 
 // 方法
 const enhanceRecommendationsWithAmap = async () => {
-  if (!props.apiData || (!props.apiData.attractions?.length && !props.apiData.restaurants?.length)) {
+  if (!props.apiData || (!props.apiData.attractions?.length && !props.apiData.restaurants?.length && !props.apiData.hotels?.length)) {
     return
   }
 
@@ -319,13 +383,16 @@ const enhanceRecommendationsWithAmap = async () => {
   try {
     console.log(`🚀 开始增强推荐数据 - 城市: ${city}`)
     
-    // 并行增强景点和餐厅数据
-    const [enhancedAttractionsResult, enhancedRestaurantsResult] = await Promise.allSettled([
+    // 并行增强景点、餐厅和酒店数据
+    const [enhancedAttractionsResult, enhancedRestaurantsResult, enhancedHotelsResult] = await Promise.allSettled([
       props.apiData.attractions?.length > 0 
-        ? enhanceAiRecommendations(props.apiData.attractions, city)
+       ?enhanceAiRecommendations(props.apiData.attractions, city)
         : Promise.resolve([]),
       props.apiData.restaurants?.length > 0 
-        ? enhanceAiRecommendations(props.apiData.restaurants, city)
+       ?enhanceAiRecommendations(props.apiData.restaurants, city)
+        : Promise.resolve([]),
+      props.apiData.hotels?.length > 0 
+       ?enhanceAiRecommendations(props.apiData.hotels, city)
         : Promise.resolve([])
     ])
 
@@ -347,10 +414,20 @@ const enhanceRecommendationsWithAmap = async () => {
       enhancedRestaurants.value = props.apiData.restaurants || []
     }
 
+    // 处理酒店增强结果
+    if (enhancedHotelsResult.status === 'fulfilled') {
+      enhancedHotels.value = enhancedHotelsResult.value
+      console.log(`✅ 酒店数据增强完成: ${enhancedHotelsResult.value.length} 个`)
+    } else {
+      console.error('❌ 酒店数据增强失败:', enhancedHotelsResult.reason)
+      enhancedHotels.value = props.apiData.hotels || []
+    }
+
     // 统计增强成功的数量
     const enhancedCount = [
       ...enhancedAttractions.value.filter(item => item.isEnhanced),
-      ...enhancedRestaurants.value.filter(item => item.isEnhanced)
+      ...enhancedRestaurants.value.filter(item => item.isEnhanced),
+      ...enhancedHotels.value.filter(item => item.isEnhanced)
     ].length
 
     if (enhancedCount > 0) {
@@ -364,6 +441,7 @@ const enhanceRecommendationsWithAmap = async () => {
     // 失败时使用原始数据
     enhancedAttractions.value = props.apiData.attractions || []
     enhancedRestaurants.value = props.apiData.restaurants || []
+    enhancedHotels.value = props.apiData.hotels || []
     ElMessage.warning('地点详细信息获取失败，使用基础推荐数据')
   } finally {
     isEnhancing.value = false
@@ -441,6 +519,29 @@ const handleUnselectRestaurant = (restaurant) => {
   }
 }
 
+const isHotelSelected = (hotel) => {
+  return selectedHotels.value.some(item => 
+    item.id === hotel.id || item.name === hotel.name
+  )
+}
+
+const handleSelectHotel = (hotel) => {
+  if (!isHotelSelected(hotel)) {
+    selectedHotels.value.push(hotel)
+    emitSelectionsUpdate()
+  }
+}
+
+const handleUnselectHotel = (hotel) => {
+  const index = selectedHotels.value.findIndex(item => 
+    item.id === hotel.id || item.name === hotel.name
+  )
+  if (index > -1) {
+    selectedHotels.value.splice(index, 1)
+    emitSelectionsUpdate()
+  }
+}
+
 const handleShowDetails = (item) => {
   selectedItemDetails.value = item
   showDetailsDialog.value = true
@@ -460,14 +561,23 @@ const getItemType = (item) => {
   if (!item) return 'attraction'
   
   // 根据数据结构判断类型
+  if (item.type === 'hotel' || (item.type && item.type.includes('酒店'))) {
+    return 'hotel'
+  }
   if (item.type && item.type.includes('餐')) {
     return 'restaurant'
   }
   if (item.category && (item.category.includes('餐') || item.category.includes('食'))) {
     return 'restaurant'
   }
+  if (item.category && (item.category.includes('酒店') || item.category.includes('住宿'))) {
+    return 'hotel'
+  }
   if (item.tags && item.tags.some(tag => tag.includes('餐') || tag.includes('食'))) {
     return 'restaurant'
+  }
+  if (item.tags && item.tags.some(tag => tag.includes('酒店') || tag.includes('住宿'))) {
+    return 'hotel'
   }
   
   return 'attraction'
@@ -494,7 +604,8 @@ const handleNextStep = () => {
 const emitSelectionsUpdate = () => {
   emit('selections-updated', {
     attractions: selectedAttractions.value,
-    restaurants: selectedRestaurants.value
+    restaurants: selectedRestaurants.value,
+    hotels: selectedHotels.value
   })
 }
 
@@ -504,7 +615,14 @@ const emitSelectionsUpdate = () => {
 onMounted(() => {
   // 如果有API数据，显示欢迎消息
   if (hasValidData.value) {
-    ElMessage.success(`成功加载 ${attractionsCount.value} 个景点和 ${restaurantsCount.value} 个餐厅推荐`)
+    const parts = []
+    if (attractionsCount.value > 0) parts.push(`${attractionsCount.value} 个景点`)
+    if (restaurantsCount.value > 0) parts.push(`${restaurantsCount.value} 个餐厅`)
+    if (hotelsCount.value > 0) parts.push(`${hotelsCount.value} 个酒店`)
+    
+    if (parts.length > 0) {
+      ElMessage.success(`成功加载 ${parts.join('、')} 推荐`)
+    }
   }
 })
 
@@ -530,8 +648,8 @@ watch(
 
 <style scoped>
 .enhanced-recommendation-step {
-  padding: 0 16px;
-  max-width: 1200px;
+  padding: 0 24px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -673,45 +791,53 @@ watch(
 .recommendation-content {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 40px;
+  margin-bottom: 40px;
 }
-
-
 
 .recommendation-section {
   background: white;
-  border: 1px solid #ebeef5;
-  border-radius: 12px;
-  padding: 24px;
+  border: 1px solid #f0f0f0;
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.recommendation-section:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
 .section-header {
-  margin-bottom: 20px;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f5f5f5;
 }
 
 .section-title {
   margin: 0;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
-  color: #303133;
+  color: #2c3e50;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 /* 推荐网格和列表 */
 .recommendations-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
 }
-
-
 
 .loading-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
 }
 
 .skeleton-card {
@@ -780,7 +906,29 @@ watch(
 
 
 
-/* 响应式设计 */
+/* 大屏设备优化 */
+@media (min-width: 1400px) {
+  .recommendations-grid,
+  .loading-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 28px;
+  }
+}
+
+/* 平板设备响应式布局 */
+@media (max-width: 1200px) and (min-width: 769px) {
+  .recommendations-grid,
+  .loading-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .recommendation-section {
+    padding: 24px;
+  }
+}
+
+/* 移动设备响应式设计 */
 @media (max-width: 768px) {
   .enhanced-recommendation-step {
     padding: 0 8px;
@@ -831,7 +979,12 @@ watch(
   }
 
   .recommendation-section {
-    padding: 16px;
+    padding: 20px;
+    border-radius: 16px;
+  }
+  
+  .recommendation-content {
+    gap: 24px;
   }
 
   .selection-summary {

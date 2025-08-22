@@ -49,6 +49,12 @@ export const searchAndEnhancePoi = async(placeName, city, type = 'attraction') =
         console.warn(`⚠️ 未找到匹配的地点: ${placeName} (${city})`);
         return null;
     } catch (error) {
+        // 检查是否是API配额超限错误
+        if (error.message && error.message.includes('CUQPS_HAS_EXCEEDED_THE_LIMIT')) {
+            console.warn(`⚠️ 高德地图API配额已用完，跳过地点详细信息获取: ${placeName}`);
+            return null;
+        }
+
         console.error(`❌ 搜索地点失败: ${placeName} (${city})`, error);
         return null;
     }
@@ -95,17 +101,23 @@ export const enhanceAiRecommendations = async(aiRecommendations, city) => {
                         ...item,
                         poi: null,
                         imageUrl: getDefaultImageByType(type),
-                        address: '地址信息待完善',
+                        address: item.address || '暂无详细地址信息',
                         isEnhanced: false
                     };
                 }
             } catch (error) {
-                console.warn(`增强地点失败: ${item.name}`, error);
+                // 检查是否是API配额超限错误，给出更友好的提示
+                if (error.message && error.message.includes('CUQPS_HAS_EXCEEDED_THE_LIMIT')) {
+                    console.warn(`⚠️ API配额已用完，无法获取 ${item.name} 的详细信息`);
+                } else {
+                    console.warn(`增强地点失败: ${item.name}`, error);
+                }
+
                 return {
                     ...item,
                     poi: null,
                     imageUrl: getDefaultImageByType(determinePoiType(item)),
-                    address: '地址信息待完善',
+                    address: item.address || '暂无详细地址信息',
                     isEnhanced: false
                 };
             }
@@ -118,7 +130,15 @@ export const enhanceAiRecommendations = async(aiRecommendations, city) => {
         .map(result => result.value);
 
     const successCount = results.filter(item => item.isEnhanced).length;
-    console.log(`✅ 地点增强完成: ${successCount}/${results.length} 个地点获取到详细信息`);
+    const failedCount = results.length - successCount;
+
+    if (successCount > 0) {
+        console.log(`✅ 地点增强完成: ${successCount}/${results.length} 个地点获取到详细信息`);
+    }
+
+    if (failedCount > 0) {
+        console.log(`⚠️ ${failedCount} 个地点暂无详细信息（可能是API配额限制）`);
+    }
 
     return results;
 };
@@ -197,6 +217,9 @@ const determinePoiType = (item) => {
     // 根据类型字段判断
     if (item.type) {
         const type = item.type.toLowerCase();
+        if (type === 'hotel' || type.includes('酒店') || type.includes('住宿')) {
+            return 'hotel';
+        }
         if (type.includes('restaurant') || type.includes('food') || type.includes('餐') || type.includes('美食')) {
             return 'restaurant';
         }
@@ -205,6 +228,9 @@ const determinePoiType = (item) => {
     // 根据类别字段判断
     if (item.category) {
         const category = item.category.toLowerCase();
+        if (category.includes('酒店') || category.includes('住宿') || category.includes('宾馆')) {
+            return 'hotel';
+        }
         if (category.includes('restaurant') || category.includes('food') || category.includes('餐') || category.includes('美食')) {
             return 'restaurant';
         }
@@ -213,8 +239,12 @@ const determinePoiType = (item) => {
     // 根据名称判断
     if (item.name) {
         const name = item.name.toLowerCase();
-        if (name.includes('餐厅') || name.includes('酒店') || name.includes('美食') ||
-            name.includes('小吃') || name.includes('菜馆') || name.includes('饭店')) {
+        if (name.includes('酒店') || name.includes('宾馆') || name.includes('饭店') ||
+            name.includes('度假村') || name.includes('民宿') || name.includes('客栈')) {
+            return 'hotel';
+        }
+        if (name.includes('餐厅') || name.includes('美食') ||
+            name.includes('小吃') || name.includes('菜馆')) {
             return 'restaurant';
         }
     }
@@ -232,6 +262,8 @@ const getDefaultImageByType = (type) => {
     switch (type) {
         case 'restaurant':
             return '/images/default-restaurant.jpg';
+        case 'hotel':
+            return '/images/default-hotel.jpg';
         case 'attraction':
             return '/images/default-attraction.jpg';
         default:
