@@ -1132,13 +1132,16 @@ export default {
       const attractions = (attractionsResult.pois || []).map((poi, index) => ({
         id: poi.id || `attraction_${index}`,
         name: poi.name || "未知景点",
-        description: poi.address || poi.type || "暂无描述",
+        description: poi.description || poi.address || poi.type || "暂无描述",
         rating: parseFloat(poi.rating) || 4.0,
         price: parseInt(poi.cost) || Math.floor(Math.random() * 100 + 50),
-        tags: poi.type ? [poi.type, "高德推荐"] : ["高德推荐"],
-        image: "/api/placeholder/300/200",
+        tags: poi.tags || (poi.type ? [poi.type, "高德推荐"] : ["高德推荐"]),
+        image: poi.imageUrl || "/api/placeholder/300/200",
+        imageUrl: poi.imageUrl,
+        images: poi.images || [],
         location: poi.address || "位置信息待完善",
-        coordinates: poi.location ? poi.location.split(",").map(Number) : null,
+        address: poi.address,
+        coordinates: poi.coordinates || (poi.location ? poi.location.split(",").map(Number) : null),
         isAiRecommended: false,
         isFallback: true,
         confidence: 0.6,
@@ -1147,19 +1150,28 @@ export default {
         estimatedDuration: "2-3小时",
         bestTimeToVisit: "全天",
         tel: poi.tel || "",
+        // 新增字段
+        category: poi.category,
+        businessArea: poi.businessArea,
+        openTime: poi.openTime,
+        website: poi.website,
+        rawData: poi.rawData
       }));
 
       const restaurants = (restaurantsResult.pois || []).map((poi, index) => ({
         id: poi.id || `restaurant_${index}`,
         name: poi.name || "未知餐厅",
-        description: poi.address || poi.type || "暂无描述",
+        description: poi.description || poi.address || poi.type || "暂无描述",
         rating: parseFloat(poi.rating) || 4.0,
         price: parseInt(poi.cost) || Math.floor(Math.random() * 150 + 50),
         cuisineType: poi.type || "综合",
-        tags: poi.type ? [poi.type, "高德推荐"] : ["高德推荐"],
-        image: "/api/placeholder/300/200",
+        tags: poi.tags || (poi.type ? [poi.type, "高德推荐"] : ["高德推荐"]),
+        image: poi.imageUrl || "/api/placeholder/300/200",
+        imageUrl: poi.imageUrl,
+        images: poi.images || [],
         location: poi.address || "位置信息待完善",
-        coordinates: poi.location ? poi.location.split(",").map(Number) : null,
+        address: poi.address,
+        coordinates: poi.coordinates || (poi.location ? poi.location.split(",").map(Number) : null),
         isAiRecommended: false,
         isFallback: true,
         confidence: 0.6,
@@ -1168,6 +1180,12 @@ export default {
         priceRange: poi.cost || "中等消费",
         signature_dishes: [],
         tel: poi.tel || "",
+        // 新增字段
+        category: poi.category,
+        businessArea: poi.businessArea,
+        openTime: poi.openTime,
+        website: poi.website,
+        rawData: poi.rawData
       }));
 
       // 构建推荐结果对象

@@ -20,9 +20,9 @@
     </div>
 
     <!-- 餐厅图片 -->
-    <div class="card-image">
+    <div class="card-image" @click="handleShowDetails">
       <el-image
-        :src="restaurant.imageUrl || '/images/default-restaurant.jpg'"
+        :src="getImageUrl()"
         :alt="restaurant.name"
         fit="cover"
         class="image"
@@ -82,7 +82,19 @@
         <!-- 位置信息 -->
         <div class="location">
           <el-icon><MapLocation /></el-icon>
-          <span>{{ restaurant.location || restaurant.address || '位置信息待补充' }}</span>
+          <span>{{ getLocationText() }}</span>
+        </div>
+
+        <!-- 联系信息 -->
+        <div v-if="restaurant.tel || restaurant.poi?.tel" class="contact-info">
+          <el-icon><Phone /></el-icon>
+          <span>{{ restaurant.tel || restaurant.poi?.tel }}</span>
+        </div>
+
+        <!-- 营业时间 -->
+        <div v-if="restaurant.openTime || restaurant.poi?.openTime" class="open-time">
+          <el-icon><Clock /></el-icon>
+          <span>{{ restaurant.openTime || restaurant.poi?.openTime }}</span>
         </div>
 
         <!-- 菜系类型 -->
@@ -102,13 +114,13 @@
 
         <!-- 评分和价格 -->
         <div class="rating-price">
-          <div v-if="restaurant.rating" class="rating">
+          <div v-if="getRating()" class="rating">
             <el-rate
-              v-model="restaurant.rating"
+              :model-value="getRating()"
               disabled
               show-score
               text-color="#ff9900"
-              :score-template="`${restaurant.rating.toFixed(1)}`"
+              :score-template="`${getRating().toFixed(1)}`"
               :max="5"
             />
           </div>
@@ -117,6 +129,16 @@
             <el-icon><Money /></el-icon>
             <span>{{ restaurant.price }}元</span>
           </div>
+        </div>
+
+        <!-- 增强状态指示 -->
+        <div v-if="restaurant.isEnhanced" class="enhancement-status">
+          <el-icon class="enhanced-icon"><Check /></el-icon>
+          <span class="enhanced-text">已获取详细信息</span>
+        </div>
+        <div v-else-if="restaurant.isEnhanced === false" class="enhancement-status">
+          <el-icon class="loading-icon"><Loading /></el-icon>
+          <span class="loading-text">正在获取详细信息...</span>
         </div>
 
         <!-- 推荐理由 -->
@@ -172,7 +194,10 @@ import {
   Check, 
   MapLocation, 
   InfoFilled,
-  Money
+  Money,
+  Phone,
+  Clock,
+  Loading
 } from '@element-plus/icons-vue'
 
 // Props
@@ -194,6 +219,73 @@ const props = defineProps({
 
 // Emits
 const emit = defineEmits(['select', 'unselect', 'show-details'])
+
+// 获取图片URL
+const getImageUrl = () => {
+  // 优先使用增强后的imageUrl
+  if (props.restaurant.imageUrl) {
+    return props.restaurant.imageUrl
+  }
+  
+  // 使用POI数据中的图片
+  if (props.restaurant.poi?.imageUrl) {
+    return props.restaurant.poi.imageUrl
+  }
+  
+  // 使用POI的images数组
+  if (props.restaurant.poi?.images && props.restaurant.poi.images.length > 0) {
+    return props.restaurant.poi.images[0].url
+  }
+  
+  // 兼容旧格式的photos数组
+  if (props.restaurant.photos && props.restaurant.photos.length > 0) {
+    const photo = props.restaurant.photos[0]
+    return photo.url || photo
+  }
+  
+  // 如果有images数组（新增强格式）
+  if (props.restaurant.images && props.restaurant.images.length > 0) {
+    return props.restaurant.images[0].url
+  }
+  
+  // 默认图片
+  return '/images/default-restaurant.jpg'
+}
+
+// 获取位置信息
+const getLocationText = () => {
+  // 优先使用POI的详细地址
+  if (props.restaurant.poi?.address) {
+    return props.restaurant.poi.address
+  }
+  
+  // 使用基本地址信息
+  if (props.restaurant.address) {
+    return props.restaurant.address
+  }
+  
+  // 使用location字段
+  if (props.restaurant.location) {
+    return props.restaurant.location
+  }
+  
+  return '位置信息待补充'
+}
+
+// 获取评分
+const getRating = () => {
+  // 优先使用POI的评分
+  if (props.restaurant.poi?.rating && props.restaurant.poi.rating > 0) {
+    return Number(props.restaurant.poi.rating)
+  }
+  
+  // 使用原始评分
+  if (props.restaurant.rating && props.restaurant.rating > 0) {
+    return Number(props.restaurant.rating)
+  }
+  
+  return null
+}
 
 // 计算属性
 const getConfidenceType = (confidence) => {
@@ -377,6 +469,49 @@ const handleShowDetails = () => {
 
 .location .el-icon {
   color: #f7cac9;
+}
+
+.contact-info,
+.open-time {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #909399;
+  padding: 4px 0;
+}
+
+.contact-info .el-icon,
+.open-time .el-icon {
+  color: #f7cac9;
+}
+
+.enhancement-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: #f0f9ff;
+  color: #1890ff;
+}
+
+.enhanced-icon {
+  color: #52c41a;
+}
+
+.loading-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .rating-price {

@@ -20,9 +20,9 @@
     </div>
 
     <!-- 景点图片 -->
-    <div class="card-image">
+    <div class="card-image" @click="handleShowDetails">
       <el-image
-        :src="attraction.imageUrl || '/images/default-attraction.jpg'"
+        :src="getImageUrl()"
         :alt="attraction.name"
         fit="cover"
         class="image"
@@ -82,7 +82,19 @@
         <!-- 位置信息 -->
         <div class="location">
           <el-icon><MapLocation /></el-icon>
-          <span>{{ attraction.location || attraction.address || '位置信息待补充' }}</span>
+          <span>{{ getLocationText() }}</span>
+        </div>
+
+        <!-- 联系信息 -->
+        <div v-if="attraction.tel || attraction.poi?.tel" class="contact-info">
+          <el-icon><Phone /></el-icon>
+          <span>{{ attraction.tel || attraction.poi?.tel }}</span>
+        </div>
+
+        <!-- 营业时间 -->
+        <div v-if="attraction.openTime || attraction.poi?.openTime" class="open-time">
+          <el-icon><Clock /></el-icon>
+          <span>{{ attraction.openTime || attraction.poi?.openTime }}</span>
         </div>
 
         <!-- 描述 -->
@@ -94,15 +106,25 @@
         </div>
 
         <!-- 评分 -->
-        <div v-if="attraction.rating" class="rating">
+        <div v-if="getRating()" class="rating">
           <el-rate
-            v-model="attraction.rating"
+            :model-value="getRating()"
             disabled
             show-score
             text-color="#ff9900"
-            :score-template="`${attraction.rating.toFixed(1)}`"
+            :score-template="`${getRating().toFixed(1)}`"
             :max="5"
           />
+        </div>
+
+        <!-- 增强状态指示 -->
+        <div v-if="attraction.isEnhanced" class="enhancement-status">
+          <el-icon class="enhanced-icon"><Check /></el-icon>
+          <span class="enhanced-text">已获取详细信息</span>
+        </div>
+        <div v-else-if="attraction.isEnhanced === false" class="enhancement-status">
+          <el-icon class="loading-icon"><Loading /></el-icon>
+          <span class="loading-text">正在获取详细信息...</span>
         </div>
 
         <!-- 推荐理由 -->
@@ -157,7 +179,10 @@ import {
   Plus, 
   Check, 
   MapLocation, 
-  InfoFilled 
+  InfoFilled,
+  Phone,
+  Clock,
+  Loading
 } from '@element-plus/icons-vue'
 
 // Props
@@ -185,6 +210,73 @@ const getConfidenceType = (confidence) => {
   if (confidence >= 0.8) return 'success'
   if (confidence >= 0.6) return 'warning'
   return 'info'
+}
+
+// 获取图片URL
+const getImageUrl = () => {
+  // 优先使用增强后的imageUrl
+  if (props.attraction.imageUrl) {
+    return props.attraction.imageUrl
+  }
+  
+  // 使用POI数据中的图片
+  if (props.attraction.poi?.imageUrl) {
+    return props.attraction.poi.imageUrl
+  }
+  
+  // 使用POI的images数组
+  if (props.attraction.poi?.images && props.attraction.poi.images.length > 0) {
+    return props.attraction.poi.images[0].url
+  }
+  
+  // 兼容旧格式的photos数组
+  if (props.attraction.photos && props.attraction.photos.length > 0) {
+    const photo = props.attraction.photos[0]
+    return photo.url || photo
+  }
+  
+  // 如果有images数组（新增强格式）
+  if (props.attraction.images && props.attraction.images.length > 0) {
+    return props.attraction.images[0].url
+  }
+  
+  // 默认图片
+  return '/images/default-attraction.jpg'
+}
+
+// 获取位置信息
+const getLocationText = () => {
+  // 优先使用POI的详细地址
+  if (props.attraction.poi?.address) {
+    return props.attraction.poi.address
+  }
+  
+  // 使用基本地址信息
+  if (props.attraction.address) {
+    return props.attraction.address
+  }
+  
+  // 使用location字段
+  if (props.attraction.location) {
+    return props.attraction.location
+  }
+  
+  return '位置信息待补充'
+}
+
+// 获取评分
+const getRating = () => {
+  // 优先使用POI的评分
+  if (props.attraction.poi?.rating && props.attraction.poi.rating > 0) {
+    return Number(props.attraction.poi.rating)
+  }
+  
+  // 使用原始评分
+  if (props.attraction.rating && props.attraction.rating > 0) {
+    return Number(props.attraction.rating)
+  }
+  
+  return null
 }
 
 // 方法
@@ -358,6 +450,49 @@ const handleShowDetails = () => {
 
 .location .el-icon {
   color: #91a8d0;
+}
+
+.contact-info,
+.open-time {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #909399;
+  padding: 4px 0;
+}
+
+.contact-info .el-icon,
+.open-time .el-icon {
+  color: #91a8d0;
+}
+
+.enhancement-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: #f0f9ff;
+  color: #1890ff;
+}
+
+.enhanced-icon {
+  color: #52c41a;
+}
+
+.loading-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .rating {

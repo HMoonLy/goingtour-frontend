@@ -182,18 +182,14 @@
       </div>
     </div>
 
-    <!-- 详情弹窗 -->
-    <el-dialog
+    <!-- POI详情对话框 -->
+    <PoiDetailDialog
+      v-if="selectedItemDetails"
       v-model="showDetailsDialog"
-      :title="selectedItemDetails?.name"
-      width="700px"
-      :append-to-body="true"
-    >
-      <div v-if="selectedItemDetails" class="details-content">
-        <!-- 详情内容将在这里展示 -->
-        <p>详情功能开发中...</p>
-      </div>
-    </el-dialog>
+      :poi="selectedItemDetails"
+      :type="getItemType(selectedItemDetails)"
+      @openMap="handleOpenMap"
+    />
   </div>
 </template>
 
@@ -220,6 +216,10 @@ import {
 // 新的卡片组件
 import AttractionCard from '../Cards/AttractionCard.vue'
 import RestaurantCard from '../Cards/RestaurantCard.vue'
+import PoiDetailDialog from '../Dialogs/PoiDetailDialog.vue'
+
+// 高德API增强服务
+import { enhanceAiRecommendations } from '@/services/poiEnhancementService.js'
 
 // Props
 const props = defineProps({
@@ -264,6 +264,11 @@ const showDetailsDialog = ref(false)
 const selectedItemDetails = ref(null)
 const isLoading = ref(false)
 
+// 增强后的推荐数据
+const enhancedAttractions = ref([])
+const enhancedRestaurants = ref([])
+const isEnhancing = ref(false)
+
 // 计算属性 - 基于真实API数据
 const hasValidData = computed(() => {
   return props.apiData && 
@@ -281,13 +286,17 @@ const displayReasoning = computed(() => {
   return props.apiData?.reasoning || "根据STJ性格偏好，推荐了商务氛围厚重的景点和优雅经典的建筑"
 })
 
-// 推荐列表（无过滤）
+// 推荐列表（优先使用增强后的数据）
 const filteredAttractions = computed(() => {
-  return props.apiData?.attractions || []
+  return enhancedAttractions.value.length > 0 
+    ? enhancedAttractions.value 
+    : props.apiData?.attractions || []
 })
 
 const filteredRestaurants = computed(() => {
-  return props.apiData?.restaurants || []
+  return enhancedRestaurants.value.length > 0 
+    ? enhancedRestaurants.value 
+    : props.apiData?.restaurants || []
 })
 
 const totalSelected = computed(() => 
@@ -295,6 +304,73 @@ const totalSelected = computed(() =>
 )
 
 // 方法
+const enhanceRecommendationsWithAmap = async () => {
+  if (!props.apiData || (!props.apiData.attractions?.length && !props.apiData.restaurants?.length)) {
+    return
+  }
+
+  const city = props.cityInfo?.destinationName
+  if (!city) {
+    console.warn('无法获取城市信息，跳过高德API增强')
+    return
+  }
+
+  isEnhancing.value = true
+  
+  try {
+    console.log(`🚀 开始增强推荐数据 - 城市: ${city}`)
+    
+    // 并行增强景点和餐厅数据
+    const [enhancedAttractionsResult, enhancedRestaurantsResult] = await Promise.allSettled([
+      props.apiData.attractions?.length > 0 
+        ? enhanceAiRecommendations(props.apiData.attractions, city)
+        : Promise.resolve([]),
+      props.apiData.restaurants?.length > 0 
+        ? enhanceAiRecommendations(props.apiData.restaurants, city)
+        : Promise.resolve([])
+    ])
+
+    // 处理景点增强结果
+    if (enhancedAttractionsResult.status === 'fulfilled') {
+      enhancedAttractions.value = enhancedAttractionsResult.value
+      console.log(`✅ 景点数据增强完成: ${enhancedAttractionsResult.value.length} 个`)
+    } else {
+      console.error('❌ 景点数据增强失败:', enhancedAttractionsResult.reason)
+      enhancedAttractions.value = props.apiData.attractions || []
+    }
+
+    // 处理餐厅增强结果
+    if (enhancedRestaurantsResult.status === 'fulfilled') {
+      enhancedRestaurants.value = enhancedRestaurantsResult.value
+      console.log(`✅ 餐厅数据增强完成: ${enhancedRestaurantsResult.value.length} 个`)
+    } else {
+      console.error('❌ 餐厅数据增强失败:', enhancedRestaurantsResult.reason)
+      enhancedRestaurants.value = props.apiData.restaurants || []
+    }
+
+    // 统计增强成功的数量
+    const enhancedCount = [
+      ...enhancedAttractions.value.filter(item => item.isEnhanced),
+      ...enhancedRestaurants.value.filter(item => item.isEnhanced)
+    ].length
+
+    if (enhancedCount > 0) {
+      ElMessage.success(`已为 ${enhancedCount} 个地点获取详细信息`)
+    } else {
+      ElMessage.info('推荐数据已加载，部分地点详细信息正在补充中')
+    }
+
+  } catch (error) {
+    console.error('❌ 增强推荐数据失败:', error)
+    // 失败时使用原始数据
+    enhancedAttractions.value = props.apiData.attractions || []
+    enhancedRestaurants.value = props.apiData.restaurants || []
+    ElMessage.warning('地点详细信息获取失败，使用基础推荐数据')
+  } finally {
+    isEnhancing.value = false
+  }
+}
+
 const handleRefreshRecommendations = async () => {
   isLoading.value = true
   try {
@@ -371,6 +447,30 @@ const handleShowDetails = (item) => {
   showDetailsDialog.value = true
 }
 
+// 获取项目类型
+const getItemType = (item) => {
+  if (!item) return 'attraction'
+  
+  // 根据数据结构判断类型
+  if (item.type && item.type.includes('餐')) {
+    return 'restaurant'
+  }
+  if (item.category && (item.category.includes('餐') || item.category.includes('食'))) {
+    return 'restaurant'
+  }
+  if (item.tags && item.tags.some(tag => tag.includes('餐') || tag.includes('食'))) {
+    return 'restaurant'
+  }
+  
+  return 'attraction'
+}
+
+// 在地图中打开
+const handleOpenMap = (poi) => {
+  console.log('在地图中打开POI:', poi.name)
+  // 这里可以添加地图功能或导航功能
+}
+
 const handlePrevStep = () => {
   emit('prev-step')
 }
@@ -403,7 +503,7 @@ onMounted(() => {
 // 监听apiData变化
 watch(
   () => props.apiData,
-  (newData) => {
+  async (newData) => {
     if (newData) {
       if (newData.isError) {
         ElMessage.error(newData.reasoning || '推荐加载失败')
@@ -411,6 +511,8 @@ watch(
         ElMessage.warning(newData.reasoning || '使用备用推荐')
       } else if (hasValidData.value) {
         ElMessage.success('推荐数据已更新')
+        // 自动增强推荐数据
+        await enhanceRecommendationsWithAmap()
       }
     }
   },
