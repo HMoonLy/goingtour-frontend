@@ -453,7 +453,7 @@ import {
   getRecommendedRestaurants,
   searchPlaces,
 } from "@/api/amap.js";
-import RecommendationSection from "./RecommendationSection.vue";
+import RecommendationSection from "../Cards/RecommendationSection.vue";
 import { translateTag } from "@/utils/data/tagMapping.js";
 import { dataCache } from "@/utils/api/dataCache.js";
 import { usePreferenceStore } from "@/store/preference.js";

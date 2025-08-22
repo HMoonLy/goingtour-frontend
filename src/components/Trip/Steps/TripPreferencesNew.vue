@@ -599,8 +599,7 @@ export default {
     const showDetailedAI = ref(false);
     const showAiRecommendationDialog = ref(false);
 
-    // 请求控制器，用于取消AI推荐请求
-    const requestAbortController = ref(null);
+    // 注：不再需要请求控制器，依赖后端超时设置
 
     // 个人档案数据
     const personalProfile = ref({});
@@ -846,6 +845,12 @@ export default {
 
     // 确认使用AI推荐
     const confirmUseAiRecommendation = async () => {
+      // 防止重复调用
+      if (saving.value) {
+        console.warn("AI推荐正在生成中，请勿重复点击");
+        return;
+      }
+      
       showAiRecommendationDialog.value = false;
       saving.value = true;
       console.log("🚀 开始保存偏好和生成AI推荐");
@@ -855,7 +860,6 @@ export default {
 
       // 调用AI推荐API，携带完整数据
       let apiResponse = null;
-      requestAbortController.value = new AbortController(); // 创建新的控制器
 
       try {
         // 动态导入AI推荐API
@@ -976,10 +980,12 @@ export default {
             transportPreferencesDetails: convertListToDetailedData('transportPreferences', personalProfile.value?.transportPreferences || []),
           },
           
-          // API请求参数
-          maxAttractions: 15,
-          maxRestaurants: 10,
-          maxHotels: 8,
+          // API请求参数 - 减少生成数量以避免超时
+          maxAttractions: 8,
+          maxRestaurants: 6,
+          maxHotels: 4,
+          includeReasonings: false, // 减少生成内容，避免超时
+          includeConfidenceScores: false, // 减少生成内容，避免超时
 
           // 其他上下文信息
           context: {
@@ -1014,17 +1020,8 @@ export default {
         console.log("- photoPreferenceDetail:", requestParams.preferences.photoPreferenceDetail);
         console.log("- temporaryNeedsDetails:", requestParams.preferences.temporaryNeedsDetails);
 
-        // 设置超时控制 - 2分钟超时（与后端日志中的情况匹配）
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => {
-            requestAbortController.value?.abort(); // 取消请求
-            reject(new Error("AI推荐请求超时"));
-          }, 120000); // 2分钟
-        });
-
-        // 发起AI推荐请求，带超时控制
-        const requestPromise =
-          aiRecommendationApi.getPersonalizedRecommendations(requestParams);
+        // 发起AI推荐请求，依赖后端超时设置（4分钟）
+        console.log("🚀 开始AI推荐请求，预计耗时2-4分钟...");
 
         // 添加进度提示
         const progressInterval = setInterval(() => {
@@ -1032,10 +1029,12 @@ export default {
         }, 15000); // 每15秒提示一次
 
         try {
-          apiResponse = await Promise.race([requestPromise, timeoutPromise]);
+          apiResponse = await aiRecommendationApi.getPersonalizedRecommendations(requestParams);
           clearInterval(progressInterval);
+          console.log("✅ AI推荐请求完成");
         } catch (error) {
           clearInterval(progressInterval);
+          console.log("❌ AI推荐请求失败:", error.message);
           throw error;
         }
 
@@ -1201,11 +1200,7 @@ export default {
       console.log("🚫 用户取消AI推荐请求，使用高德API获取数据");
 
       try {
-        // 取消正在进行的AI推荐请求
-        if (requestAbortController.value) {
-          requestAbortController.value.abort();
-          requestAbortController.value = null;
-        }
+        // 注：不再需要手动取消请求，依赖后端超时
 
         // 显示正在使用高德API获取数据的提示
         ElMessage.info("正在为您获取基础推荐数据...");

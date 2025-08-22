@@ -132,7 +132,7 @@ import {
   Star, InfoFilled, Location, Food, Check, Warning,
   ArrowLeft, ArrowRight, MagicStick, Close
 } from '@element-plus/icons-vue';
-import RecommendationSection from './RecommendationSection.vue';
+import RecommendationSection from '../Cards/RecommendationSection.vue';
 import { getRecommendedAttractions, getRecommendedRestaurants, searchPlaces } from '@/api/amap.js';
 
 export default {
