@@ -6,6 +6,7 @@ POI详情对话框组件
 <template>
   <el-dialog
     v-model="visible"
+    :title="''"
     width="80%"
     :max-width="800"
     destroy-on-close
@@ -30,16 +31,15 @@ POI详情对话框组件
         </div>
         
         <!-- 关闭按钮 -->
-        <div class="poi-close">
-          <el-button 
-            type="info" 
-            circle 
+        <div class="poi-close-btn">
+          <el-button
+            type="info"
+            :icon="Close"
+            circle
             size="large"
             @click="visible = false"
             class="close-button"
-          >
-            <el-icon><Close /></el-icon>
-          </el-button>
+          />
         </div>
       </div>
 
@@ -406,25 +406,6 @@ const handleUnselect = () => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.poi-close {
-  display: flex;
-  align-items: center;
-}
-
-.close-button {
-  background-color: #f5f7fa !important;
-  border-color: #e4e7ed !important;
-  color: #909399 !important;
-  transition: all 0.3s ease;
-}
-
-.close-button:hover {
-  background-color: #f56c6c !important;
-  border-color: #f56c6c !important;
-  color: white !important;
-  transform: scale(1.1);
-}
-
 .poi-basic-info {
   flex: 1;
 }
@@ -445,16 +426,28 @@ const handleUnselect = () => {
   flex-wrap: wrap;
 }
 
-.poi-stats {
-  text-align: right;
-  background: white;
+.poi-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
   padding: 16px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.rating-section {
-  margin-bottom: 8px;
+.close-button {
+  --el-button-bg-color: #f5f5f5;
+  --el-button-border-color: #dcdfe6;
+  --el-button-text-color: #606266;
+  transition: all 0.3s ease;
+}
+
+.close-button:hover {
+  --el-button-bg-color: #e74c3c;
+  --el-button-border-color: #e74c3c;
+  --el-button-text-color: #ffffff;
+  transform: scale(1.05);
 }
 
 .poi-images {
@@ -676,8 +669,8 @@ const handleUnselect = () => {
     font-size: 24px;
   }
   
-  .poi-stats {
-    text-align: left;
+  .poi-close-btn {
+    justify-content: center;
     margin-top: 16px;
   }
   
