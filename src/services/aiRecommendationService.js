@@ -5,6 +5,12 @@
 
 import { ElMessage } from 'element-plus'
 import { aiRecommendationApi, aiRecommendationUtils } from '@/api/aiRecommendation.js'
+import {
+    PERSONAL_PROFILE_OPTIONS,
+    TRIP_PREFERENCES_OPTIONS,
+    getOptionDisplayName,
+    getOptionDescription
+} from '@/utils/data/travelDataSystem.js'
 
 class AiRecommendationService {
     constructor() {
@@ -12,6 +18,155 @@ class AiRecommendationService {
         this.loadingPromises = new Map()
         this.cacheTimeout = 10 * 60 * 1000 // 10分钟缓存
         this.fallbackEnabled = true // 启用降级方案
+    }
+
+    /**
+     * 将前端标签转换为AI能理解的详细描述
+     */
+    convertTagsToDescriptions(preferenceForm) {
+        const converted = {}
+
+        // 转换旅行目的
+        if (preferenceForm && preferenceForm.travelPurpose) {
+            const option = TRIP_PREFERENCES_OPTIONS.tripPurpose && TRIP_PREFERENCES_OPTIONS.tripPurpose.options[preferenceForm.travelPurpose]
+            converted.travelPurposeDetail = {
+                name: (option && option.name) || preferenceForm.travelPurpose,
+                description: (option && option.description) || '',
+                strategy: (option && option.aiStrategy) || ''
+            }
+        }
+
+        // 转换关注领域
+        if (preferenceForm && preferenceForm.focusAreas && Array.isArray(preferenceForm.focusAreas)) {
+            converted.focusAreasDetails = preferenceForm.focusAreas.map(area => {
+                const option = TRIP_PREFERENCES_OPTIONS.focusAreas && TRIP_PREFERENCES_OPTIONS.focusAreas.options[area]
+                return {
+                    key: area,
+                    name: (option && option.name) || area,
+                    description: (option && option.description) || '',
+                    icon: (option && option.icon) || ''
+                }
+            })
+        }
+
+        // 转换节奏偏好
+        if (preferenceForm && preferenceForm.pacePreference) {
+            const option = TRIP_PREFERENCES_OPTIONS.pacePreference && TRIP_PREFERENCES_OPTIONS.pacePreference.options[preferenceForm.pacePreference]
+            converted.pacePreferenceDetail = {
+                name: (option && option.name) || preferenceForm.pacePreference,
+                description: (option && option.description) || '',
+                strategy: (option && option.aiStrategy) || ''
+            }
+        }
+
+        // 转换社交偏好
+        if (preferenceForm && preferenceForm.socialPreference) {
+            const option = TRIP_PREFERENCES_OPTIONS.socialPreference && TRIP_PREFERENCES_OPTIONS.socialPreference.options[preferenceForm.socialPreference]
+            converted.socialPreferenceDetail = {
+                name: (option && option.name) || preferenceForm.socialPreference,
+                description: (option && option.description) || '',
+                strategy: (option && option.aiStrategy) || ''
+            }
+        }
+
+        // 转换拍照偏好
+        if (preferenceForm && preferenceForm.photoPreference) {
+            const option = TRIP_PREFERENCES_OPTIONS.photoPreference && TRIP_PREFERENCES_OPTIONS.photoPreference.options[preferenceForm.photoPreference]
+            converted.photoPreferenceDetail = {
+                name: (option && option.name) || preferenceForm.photoPreference,
+                description: (option && option.description) || '',
+                strategy: (option && option.aiStrategy) || ''
+            }
+        }
+
+        // 转换饮食限制
+        if (preferenceForm && preferenceForm.dietaryRestrictions && Array.isArray(preferenceForm.dietaryRestrictions)) {
+            converted.dietaryRestrictionsDetails = preferenceForm.dietaryRestrictions.map(restriction => {
+                const option = PERSONAL_PROFILE_OPTIONS.dietaryRestrictions && PERSONAL_PROFILE_OPTIONS.dietaryRestrictions.options[restriction]
+                return {
+                    key: restriction,
+                    name: (option && option.name) || restriction,
+                    icon: (option && option.icon) || ''
+                }
+            })
+        }
+
+        // 转换交通偏好
+        if (preferenceForm && preferenceForm.transportationMode && Array.isArray(preferenceForm.transportationMode)) {
+            converted.transportationModeDetails = preferenceForm.transportationMode.map(mode => {
+                const option = PERSONAL_PROFILE_OPTIONS.transportPreferences && PERSONAL_PROFILE_OPTIONS.transportPreferences.options[mode]
+                return {
+                    key: mode,
+                    name: (option && option.name) || mode,
+                    description: (option && option.description) || '',
+                    aiImpact: (option && option.aiImpact) || '',
+                    benefit: (option && option.benefit) || ''
+                }
+            })
+        }
+
+        // 转换特殊需求
+        if (preferenceForm && preferenceForm.specialRequirements && Array.isArray(preferenceForm.specialRequirements)) {
+            converted.specialRequirementsDetails = preferenceForm.specialRequirements.map(need => {
+                const option = TRIP_PREFERENCES_OPTIONS.temporaryNeeds && TRIP_PREFERENCES_OPTIONS.temporaryNeeds.options[need]
+                return {
+                    key: need,
+                    name: (option && option.name) || need,
+                    description: (option && option.description) || '',
+                    strategy: (option && option.aiStrategy) || ''
+                }
+            })
+        }
+
+        return converted
+    }
+
+    /**
+     * 转换用户档案信息
+     */
+    convertUserProfile(userProfile) {
+        if (!userProfile) return {}
+
+        const converted = {}
+
+        // 转换MBTI类型
+        if (userProfile.mbtiType) {
+            const option = PERSONAL_PROFILE_OPTIONS.mbtiTypes && PERSONAL_PROFILE_OPTIONS.mbtiTypes.options[userProfile.mbtiType]
+            converted.mbtiDetail = {
+                type: userProfile.mbtiType,
+                name: (option && option.name) || userProfile.mbtiType,
+                description: (option && option.description) || '',
+                travelStyle: (option && option.travelStyle) || ''
+            }
+        }
+
+        // 转换核心兴趣
+        if (userProfile.coreInterests && Array.isArray(userProfile.coreInterests)) {
+            converted.coreInterestsDetails = userProfile.coreInterests.map(interest => {
+                const option = PERSONAL_PROFILE_OPTIONS.coreInterests && PERSONAL_PROFILE_OPTIONS.coreInterests.options[interest]
+                return {
+                    key: interest,
+                    name: (option && option.name) || interest,
+                    description: (option && option.description) || '',
+                    aiImpact: (option && option.aiImpact) || ''
+                }
+            })
+        }
+
+        // 转换预算等级
+        if (userProfile.budgetLevel) {
+            const option = PERSONAL_PROFILE_OPTIONS.budgetLevel && PERSONAL_PROFILE_OPTIONS.budgetLevel.options[userProfile.budgetLevel]
+            converted.budgetLevelDetail = {
+                level: userProfile.budgetLevel,
+                name: (option && option.name) || userProfile.budgetLevel,
+                range: (option && option.range) || '',
+                description: (option && option.description) || '',
+                strategy: (option && option.aiStrategy) || '',
+                examples: (option && option.examples) || ''
+            }
+        }
+
+        return converted
     }
 
     /**
@@ -23,9 +178,9 @@ class AiRecommendationService {
             days: baseForm.days,
             budget: baseForm.budget,
             travelers: baseForm.travelers,
-            interests: preferenceForm?.interests || [],
-            travelStyle: preferenceForm?.travelStyle || '',
-            dietaryRestrictions: preferenceForm?.dietaryRestrictions || []
+            interests: (preferenceForm && preferenceForm.interests) || [],
+            travelStyle: (preferenceForm && preferenceForm.travelStyle) || '',
+            dietaryRestrictions: (preferenceForm && preferenceForm.dietaryRestrictions) || []
         }
         return JSON.stringify(key)
     }
@@ -69,6 +224,13 @@ class AiRecommendationService {
         try {
             console.log('🤖 开始获取AI个性化推荐...', { baseForm, preferenceForm })
 
+            // 转换标签为详细描述
+            const convertedPreferences = this.convertTagsToDescriptions(preferenceForm)
+            const convertedUserProfile = this.convertUserProfile(preferenceForm && preferenceForm.userProfile)
+
+            console.log('📋 转换后的偏好信息:', convertedPreferences)
+            console.log('👤 转换后的用户档案:', convertedUserProfile)
+
             // 构建AI推荐请求参数
             const requestParams = {
                 baseInfo: {
@@ -80,18 +242,29 @@ class AiRecommendationService {
                     dateRange: baseForm.dateRange
                 },
                 preferences: {
-                    travelPurpose: preferenceForm?.travelPurpose,
-                    interests: preferenceForm?.interests || [],
-                    budgetPreference: preferenceForm?.budgetPreference,
-                    accommodationLevel: preferenceForm?.accommodationLevel,
-                    transportationMode: preferenceForm?.transportationMode,
-                    pacePreference: preferenceForm?.pacePreference,
-                    socialPreference: preferenceForm?.socialPreference,
-                    photoPreference: preferenceForm?.photoPreference,
-                    focusAreas: preferenceForm?.focusAreas || [],
-                    specialRequirements: preferenceForm?.specialRequirements,
-                    dietaryRestrictions: preferenceForm?.dietaryRestrictions || [],
-                    customDietaryNotes: preferenceForm?.customDietaryNotes
+                    // 原始标签（保持兼容性）
+                    travelPurpose: preferenceForm && preferenceForm.travelPurpose,
+                    interests: (preferenceForm && preferenceForm.interests) || [],
+                    budgetPreference: preferenceForm && preferenceForm.budgetPreference,
+                    accommodationLevel: preferenceForm && preferenceForm.accommodationLevel,
+                    transportationMode: preferenceForm && preferenceForm.transportationMode,
+                    pacePreference: preferenceForm && preferenceForm.pacePreference,
+                    socialPreference: preferenceForm && preferenceForm.socialPreference,
+                    photoPreference: preferenceForm && preferenceForm.photoPreference,
+                    focusAreas: (preferenceForm && preferenceForm.focusAreas) || [],
+                    specialRequirements: preferenceForm && preferenceForm.specialRequirements,
+                    dietaryRestrictions: (preferenceForm && preferenceForm.dietaryRestrictions) || [],
+                    customDietaryNotes: preferenceForm && preferenceForm.customDietaryNotes,
+
+                    // 转换后的详细描述（供AI使用）
+                    ...convertedPreferences
+                },
+                userProfile: {
+                    // 原始用户档案
+                    ...((preferenceForm && preferenceForm.userProfile) || {}),
+
+                    // 转换后的详细描述
+                    ...convertedUserProfile
                 },
                 maxAttractions: 15,
                 maxRestaurants: 10
@@ -173,10 +346,10 @@ class AiRecommendationService {
                 description: poi.address || poi.type || '',
                 rating: parseFloat(poi.rating) || 4.0,
                 price: parseInt(poi.cost) || 0,
-                tags: poi.type?[poi.type, '高德推荐'] : ['高德推荐'],
+                tags: poi.type ? [poi.type, '高德推荐'] : ['高德推荐'],
                 image: '/api/placeholder/300/200',
                 location: poi.address || '',
-                coordinates: poi.location?poi.location.split(',').map(Number) : null,
+                coordinates: poi.location ? poi.location.split(',').map(Number) : null,
                 isAiRecommended: false,
                 isFallback: true,
                 confidence: 0.6,
@@ -190,10 +363,10 @@ class AiRecommendationService {
                 rating: parseFloat(poi.rating) || 4.0,
                 price: parseInt(poi.cost) || 0,
                 cuisineType: poi.type || '综合',
-                tags: poi.type?[poi.type, '高德推荐'] : ['高德推荐'],
+                tags: poi.type ? [poi.type, '高德推荐'] : ['高德推荐'],
                 image: '/api/placeholder/300/200',
                 location: poi.address || '',
-                coordinates: poi.location?poi.location.split(',').map(Number) : null,
+                coordinates: poi.location ? poi.location.split(',').map(Number) : null,
                 isAiRecommended: false,
                 isFallback: true,
                 confidence: 0.6,
@@ -449,7 +622,7 @@ class AiRecommendationService {
 
             // 类型筛选
             if (filters.attractionTypes && filters.attractionTypes.length > 0) {
-                const hasMatchingType = attraction.tags?.some(tag =>
+                const hasMatchingType = attraction.tags && attraction.tags.some(tag =>
                     filters.attractionTypes.includes(tag)
                 )
                 if (!hasMatchingType) return false

@@ -60,6 +60,11 @@
           <p class="page-subtitle">
             为这次旅行量身定制，随时可以调整的偏好设置
           </p>
+          
+          <!-- 填写提示 -->
+          <div class="fill-hint">
+            💡 <strong>提示</strong>：为了获得更精准的AI推荐，建议您完整填写所有偏好设置，特别是"旅行目的"选项。
+          </div>
         </div>
       </div>
 
@@ -446,9 +451,9 @@
       title=""
       width="500px"
       :append-to-body="true"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-      :show-close="false"
+      :close-on-click-modal="true"
+      :close-on-press-escape="true"
+      :show-close="true"
       class="ai-recommendation-dialog"
     >
       <div class="dialog-content">
@@ -858,84 +863,129 @@ export default {
           "@/api/aiRecommendation.js"
         );
 
-        // 构建完整的请求参数，包含前两个步骤的所有信息
+        // 使用travelDataSystem.js转换详细信息
+        const convertToDetailedData = (category, value) => {
+          if (!value) return null;
+          
+          const options = TRIP_PREFERENCES_OPTIONS[category]?.options || PERSONAL_PROFILE_OPTIONS[category]?.options;
+          if (!options || !options[value]) return null;
+          
+          return {
+            key: value,
+            ...options[value]
+          };
+        };
+
+        const convertListToDetailedData = (category, values) => {
+          if (!Array.isArray(values) || values.length === 0) return [];
+          
+          const options = TRIP_PREFERENCES_OPTIONS[category]?.options || PERSONAL_PROFILE_OPTIONS[category]?.options;
+          if (!options) return [];
+          
+          return values.map(value => {
+            if (options[value]) {
+              return {
+                key: value,
+                ...options[value]
+              };
+            }
+            return { key: value, name: value };
+          }).filter(item => item !== null);
+        };
+
+        // 构建完整的请求参数，包含前两个步骤的所有信息和详细转换
         const requestParams = {
           // 第一步：基础信息（从TripBaseInfo获取）
           baseInfo: {
-            destinationName: props.tripContext?.destination || "",
-            destination: props.tripContext?.destination || "",
+            destinationName: props.tripContext?.destinationName || props.tripContext?.destination || "",
+            destination: props.tripContext?.destination || props.tripContext?.destinationName || "",
             days: props.tripContext?.days || 3,
             budget: props.tripContext?.budget || "moderate",
             travelers: props.tripContext?.travelers || 1,
             dateRange: props.tripContext?.dateRange || null,
           },
-          // 第二步：行程偏好（当前组件的数据）
+          
+          // 第二步：行程偏好（当前组件的数据）- 包含原始值和详细转换
           preferences: {
-            // 旅行目的
+            // 旅行目的 - 原始值和详细信息
             travelPurpose: tripPreferences.tripPurpose || "",
+            travelPurposeDetail: convertToDetailedData('tripPurpose', tripPreferences.tripPurpose),
 
-            // 关注领域/兴趣点
+            // 关注领域/兴趣点 - 原始值和详细信息
             focusAreas: tripPreferences.focusAreas || [],
+            focusAreasDetails: convertListToDetailedData('focusAreas', tripPreferences.focusAreas),
             interests: tripPreferences.focusAreas || [], // 兼容字段
 
-            // 节奏偏好
+            // 节奏偏好 - 原始值和详细信息
             pacePreference: tripPreferences.pacePreference || "",
+            pacePreferenceDetail: convertToDetailedData('pacePreference', tripPreferences.pacePreference),
 
-            // 社交偏好
+            // 社交偏好 - 原始值和详细信息
             socialPreference: tripPreferences.socialPreference || "",
+            socialPreferenceDetail: convertToDetailedData('socialPreference', tripPreferences.socialPreference),
 
-            // 拍照偏好
+            // 拍照偏好 - 原始值和详细信息
             photoPreference: tripPreferences.photoPreference || "",
+            photoPreferenceDetail: convertToDetailedData('photoPreference', tripPreferences.photoPreference),
 
-            // 特殊需求和临时需要
+            // 特殊需求和临时需要 - 原始值和详细信息
             specialRequirements: tripPreferences.specialRequirements || "",
             temporaryNeeds: tripPreferences.temporaryNeeds || [],
+            temporaryNeedsDetails: convertListToDetailedData('temporaryNeeds', tripPreferences.temporaryNeeds),
 
             // 饮食相关（从个人档案和当前设置合并）
             dietaryRestrictions: [
               ...(personalProfile.value?.dietaryRestrictions || []),
               ...(tripPreferences.dietaryRestrictions || []),
             ],
+            dietaryRestrictionsDetails: convertListToDetailedData('dietaryRestrictions', [
+              ...(personalProfile.value?.dietaryRestrictions || []),
+              ...(tripPreferences.dietaryRestrictions || []),
+            ]),
             customDietaryNotes: tripPreferences.customDietaryNotes || "",
 
             // 预算和住宿偏好
             budgetPreference: props.tripContext?.budget || "moderate",
-            accommodationLevel:
-              tripPreferences.accommodationLevel || "moderate",
+            accommodationLevel: tripPreferences.accommodationLevel || "moderate",
 
             // 交通偏好（从个人档案获取）
-            transportationMode:
-              personalProfile.value?.transportPreferences || [],
+            transportationMode: personalProfile.value?.transportPreferences || [],
+            transportationModeDetails: convertListToDetailedData('transportPreferences', personalProfile.value?.transportPreferences || []),
           },
-          // 用户个人档案信息
+          
+          // 用户个人档案信息 - 包含原始值和详细转换
           userProfile: {
-            // MBTI性格类型
+            // MBTI性格类型 - 原始值和详细信息
             mbtiType: personalProfile.value?.mbtiType || "",
+            mbtiDetail: convertToDetailedData('mbtiTypes', personalProfile.value?.mbtiType),
 
-            // 核心兴趣爱好
+            // 核心兴趣爱好 - 原始值和详细信息
             coreInterests: personalProfile.value?.coreInterests || [],
+            coreInterestsDetails: convertListToDetailedData('coreInterests', personalProfile.value?.coreInterests || []),
 
-            // 预算档位
+            // 预算档位 - 原始值和详细信息
             budgetLevel: personalProfile.value?.budgetLevel || "moderate",
+            budgetLevelDetail: convertToDetailedData('budgetLevel', personalProfile.value?.budgetLevel),
 
-            // 饮食限制
-            dietaryRestrictions:
-              personalProfile.value?.dietaryRestrictions || [],
+            // 饮食限制 - 原始值和详细信息
+            dietaryRestrictions: personalProfile.value?.dietaryRestrictions || [],
+            dietaryRestrictionsDetails: convertListToDetailedData('dietaryRestrictions', personalProfile.value?.dietaryRestrictions || []),
 
-            // 交通偏好
-            transportPreferences:
-              personalProfile.value?.transportPreferences || [],
+            // 交通偏好 - 原始值和详细信息
+            transportPreferences: personalProfile.value?.transportPreferences || [],
+            transportPreferencesDetails: convertListToDetailedData('transportPreferences', personalProfile.value?.transportPreferences || []),
           },
+          
           // API请求参数
           maxAttractions: 15,
           maxRestaurants: 10,
-          maxHotels: 8, // 新增酒店推荐数量
+          maxHotels: 8,
 
           // 其他上下文信息
           context: {
             timestamp: new Date().toISOString(),
             source: "trip-preferences-step",
-            version: "2.0",
+            version: "3.0", // 版本升级，表示包含详细转换数据
           },
         };
 
@@ -945,6 +995,24 @@ export default {
           userProfile: requestParams.userProfile,
           context: requestParams.context,
         });
+        
+        // 详细调试当前的偏好设置状态
+        console.log("📋 当前偏好设置状态检查:");
+        console.log("- 旅行目的 (tripPurpose):", tripPreferences.tripPurpose || "未设置");
+        console.log("- 关注领域 (focusAreas):", tripPreferences.focusAreas.length > 0 ? tripPreferences.focusAreas : "未设置");
+        console.log("- 节奏偏好 (pacePreference):", tripPreferences.pacePreference);
+        console.log("- 社交偏好 (socialPreference):", tripPreferences.socialPreference);
+        console.log("- 拍照偏好 (photoPreference):", tripPreferences.photoPreference);
+        console.log("- 特殊需求 (temporaryNeeds):", tripPreferences.temporaryNeeds.length > 0 ? tripPreferences.temporaryNeeds : "未设置");
+        
+        // 检查详细转换数据
+        console.log("🔍 详细转换数据检查:");
+        console.log("- travelPurposeDetail:", requestParams.preferences.travelPurposeDetail);
+        console.log("- focusAreasDetails:", requestParams.preferences.focusAreasDetails);
+        console.log("- pacePreferenceDetail:", requestParams.preferences.pacePreferenceDetail);
+        console.log("- socialPreferenceDetail:", requestParams.preferences.socialPreferenceDetail);
+        console.log("- photoPreferenceDetail:", requestParams.preferences.photoPreferenceDetail);
+        console.log("- temporaryNeedsDetails:", requestParams.preferences.temporaryNeedsDetails);
 
         // 设置超时控制 - 2分钟超时（与后端日志中的情况匹配）
         const timeoutPromise = new Promise((_, reject) => {
@@ -1395,6 +1463,21 @@ export default {
   border-radius: 12px;
   font-size: 12px;
   font-weight: 500;
+}
+
+/* 填写提示样式 */
+.fill-hint {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  margin-top: 16px;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.fill-hint strong {
+  color: #f7cac9;
 }
 
 /* 偏好内容区域 */
@@ -2335,9 +2418,21 @@ export default {
   border-radius: 16px;
 }
 
+/* 使用最高优先级的选择器来覆盖Element Plus样式 */
+.el-overlay .el-dialog.ai-recommendation-dialog .el-dialog__header,
+.ai-recommendation-dialog.el-dialog .el-dialog__header,
 .ai-recommendation-dialog .el-dialog__header {
-  padding: 0;
-  border-bottom: none;
+  padding: 0 !important;
+  border-bottom: none !important;
+  background-color: transparent !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+/* 确保对话框头部完全没有背景和边框 */
+.el-dialog.ai-recommendation-dialog .el-dialog__header::before,
+.el-dialog.ai-recommendation-dialog .el-dialog__header::after {
+  display: none !important;
 }
 
 .ai-recommendation-dialog .el-dialog__body {

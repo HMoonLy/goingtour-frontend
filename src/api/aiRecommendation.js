@@ -26,42 +26,24 @@ export const aiRecommendationApi = {
             return Math.round((min + max) / 2);
         };
 
+        console.log("🚀 AI推荐API - 发送请求参数:", params);
+
+        // 直接传递嵌套结构，保持与后端期望的数据结构一致
         return http.post('/ai/recommendations/personalized', {
-            // 基础行程信息 - 对齐后端期望的字段名和类型
-            destination: params.baseInfo?.destination || params.baseInfo?.destinationName, // 后端期望destination为目的地代码
-            destinationName: params.baseInfo?.destinationName, // 目的地名称
-            destinationCode: params.baseInfo?.destination, // 目的地代码
-            days: params.baseInfo?.days,
-            travelers: params.baseInfo?.travelers,
-            budget: parseBudget(params.baseInfo?.budget), // 转换为Integer类型
-            budgetString: params.baseInfo?.budget, // 保留原始字符串格式
-            startDate: params.baseInfo?.dateRange?.[0],
-            endDate: params.baseInfo?.dateRange?.[1],
-
-            // 用户偏好 - 对齐后端期望的字段名
-            travelStyle: params.preferences?.travelPurpose, // 后端期望travelStyle而不是travelPurpose
-            travelPurpose: params.preferences?.travelPurpose, // 保留原字段用于兼容
-            interests: params.preferences?.interests || [],
-            budgetPreference: params.preferences?.budgetPreference,
-            accommodationType: params.preferences?.accommodationLevel, // 住宿类型
-            accommodationLevel: params.preferences?.accommodationLevel, // 保留原字段
-            transportationMode: params.preferences?.transportationMode,
-            pacePreference: params.preferences?.pacePreference,
-            socialPreference: params.preferences?.socialPreference,
-            photoPreference: params.preferences?.photoPreference,
-            focusAreas: params.preferences?.focusAreas || [],
-            specialRequirements: params.preferences?.specialRequirements,
-            dietaryRestrictions: params.preferences?.dietaryRestrictions || [],
-            customDietaryNotes: params.preferences?.customDietaryNotes,
-
-            // 用户画像（历史行为数据）
+            // 保持原始的嵌套数据结构
+            baseInfo: params.baseInfo || {},
+            preferences: params.preferences || {},
             userProfile: params.userProfile || {},
 
-            // 请求配置
+            // 请求配置参数（放在顶层）
             maxAttractions: params.maxAttractions || 15,
             maxRestaurants: params.maxRestaurants || 10,
-            includeReasonings: true,
-            includeConfidenceScores: true
+            maxHotels: params.maxHotels || 8,
+            includeReasonings: params.includeReasonings?? true,
+            includeConfidenceScores: params.includeConfidenceScores?? true,
+
+            // 上下文信息
+            context: params.context || {},
         }, {
             timeout: 300000 // AI推荐需要更长的超时时间：5分钟
         });
