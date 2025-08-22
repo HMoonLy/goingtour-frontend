@@ -79,22 +79,25 @@
       </div>
 
       <div class="restaurant-info">
+        <!-- 位置信息 -->
+        <div class="location">
+          <el-icon><MapLocation /></el-icon>
+          <span>{{ restaurant.location || restaurant.address || '位置信息待补充' }}</span>
+        </div>
+
         <!-- 菜系类型 -->
-        <div v-if="restaurant.cuisineType" class="cuisine-type">
+        <div class="cuisine-type">
           <el-tag type="warning" size="small" effect="plain">
-            {{ restaurant.cuisineType }}
+            {{ restaurant.cuisineType || '特色料理' }}
           </el-tag>
         </div>
 
         <!-- 描述 -->
-        <p v-if="restaurant.description" class="description">
-          {{ restaurant.description }}
-        </p>
-
-        <!-- 位置信息 -->
-        <div v-if="restaurant.location" class="location">
-          <el-icon><MapLocation /></el-icon>
-          <span>{{ restaurant.location }}</span>
+        <div class="description-section">
+          <div class="description-label">餐厅介绍：</div>
+          <p class="description">
+            {{ restaurant.description || '暂无详细介绍' }}
+          </p>
         </div>
 
         <!-- 评分和价格 -->
@@ -117,9 +120,12 @@
         </div>
 
         <!-- 推荐理由 -->
-        <div v-if="restaurant.reasoning" class="reasoning">
-          <el-icon><InfoFilled /></el-icon>
-          <span class="reasoning-text">{{ restaurant.reasoning }}</span>
+        <div class="reasoning">
+          <div class="reasoning-header">
+            <el-icon><InfoFilled /></el-icon>
+            <span class="reasoning-label">推荐理由：</span>
+          </div>
+          <span class="reasoning-text">{{ restaurant.reasoning || restaurant.reason || '基于您的口味偏好推荐' }}</span>
         </div>
 
         <!-- 匹配偏好 -->
@@ -332,6 +338,17 @@ const handleShowDetails = () => {
 }
 
 .cuisine-type {
+  margin-bottom: 8px;
+}
+
+.description-section {
+  margin-bottom: 4px;
+}
+
+.description-label {
+  font-size: 12px;
+  color: #909399;
+  font-weight: 500;
   margin-bottom: 4px;
 }
 
@@ -341,7 +358,8 @@ const handleShowDetails = () => {
   color: #606266;
   line-height: 1.5;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -349,9 +367,16 @@ const handleShowDetails = () => {
 .location {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   font-size: 13px;
   color: #909399;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 8px;
+}
+
+.location .el-icon {
+  color: #f7cac9;
 }
 
 .rating-price {
@@ -377,14 +402,24 @@ const handleShowDetails = () => {
 }
 
 .reasoning {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
   background: rgba(247, 202, 201, 0.15);
   padding: 10px;
   border-radius: 8px;
   border-left: 3px solid #f7cac9;
   margin-top: 4px;
+}
+
+.reasoning-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.reasoning-label {
+  font-size: 12px;
+  color: #f7cac9;
+  font-weight: 600;
 }
 
 .reasoning-text {
@@ -452,6 +487,7 @@ const handleShowDetails = () => {
 
 .restaurant-card.list-view .description {
   -webkit-line-clamp: 1;
+  line-clamp: 1;
 }
 
 .restaurant-card.list-view .rating-price {

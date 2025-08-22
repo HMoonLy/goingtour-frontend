@@ -79,15 +79,18 @@
       </div>
 
       <div class="attraction-info">
-        <!-- 描述 -->
-        <p v-if="attraction.description" class="description">
-          {{ attraction.description }}
-        </p>
-
         <!-- 位置信息 -->
-        <div v-if="attraction.location" class="location">
+        <div class="location">
           <el-icon><MapLocation /></el-icon>
-          <span>{{ attraction.location }}</span>
+          <span>{{ attraction.location || attraction.address || '位置信息待补充' }}</span>
+        </div>
+
+        <!-- 描述 -->
+        <div class="description-section">
+          <div class="description-label">景点介绍：</div>
+          <p class="description">
+            {{ attraction.description || '暂无详细介绍' }}
+          </p>
         </div>
 
         <!-- 评分 -->
@@ -103,9 +106,12 @@
         </div>
 
         <!-- 推荐理由 -->
-        <div v-if="attraction.reasoning" class="reasoning">
-          <el-icon><InfoFilled /></el-icon>
-          <span class="reasoning-text">{{ attraction.reasoning }}</span>
+        <div class="reasoning">
+          <div class="reasoning-header">
+            <el-icon><InfoFilled /></el-icon>
+            <span class="reasoning-label">推荐理由：</span>
+          </div>
+          <span class="reasoning-text">{{ attraction.reasoning || attraction.reason || '基于您的偏好推荐' }}</span>
         </div>
 
         <!-- 匹配偏好 -->
@@ -316,13 +322,25 @@ const handleShowDetails = () => {
   gap: 8px;
 }
 
+.description-section {
+  margin-bottom: 4px;
+}
+
+.description-label {
+  font-size: 12px;
+  color: #909399;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
 .description {
   margin: 0;
   font-size: 14px;
   color: #606266;
   line-height: 1.5;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -330,9 +348,16 @@ const handleShowDetails = () => {
 .location {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   font-size: 13px;
   color: #909399;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 8px;
+}
+
+.location .el-icon {
+  color: #91a8d0;
 }
 
 .rating {
@@ -341,14 +366,24 @@ const handleShowDetails = () => {
 }
 
 .reasoning {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
   background: rgba(145, 168, 208, 0.1);
   padding: 10px;
   border-radius: 8px;
   border-left: 3px solid #91a8d0;
   margin-top: 4px;
+}
+
+.reasoning-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.reasoning-label {
+  font-size: 12px;
+  color: #91a8d0;
+  font-weight: 600;
 }
 
 .reasoning-text {
@@ -416,6 +451,7 @@ const handleShowDetails = () => {
 
 .attraction-card.list-view .description {
   -webkit-line-clamp: 1;
+  line-clamp: 1;
 }
 
 /* 响应式设计 */
