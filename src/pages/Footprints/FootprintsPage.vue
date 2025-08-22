@@ -1857,7 +1857,7 @@ export default {
   background: linear-gradient(135deg, #ffffff 0%, #fefefe 100%);
   border-radius: 20px;
   padding: 32px;
-  border: 1px solid rgba(145, 168, 208, 0.08);
+  border: 1px solid rgba(76, 94, 124, 0.08);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(145, 168, 208, 0.06);
 }
 
