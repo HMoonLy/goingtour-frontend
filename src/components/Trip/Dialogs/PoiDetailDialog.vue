@@ -249,7 +249,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'select', 'unselect'])
 
 // Data
-const visible = ref(false)
+const visible = ref(props.modelValue)
 
 // Watch
 watch(() => props.modelValue, (newVal) => {
