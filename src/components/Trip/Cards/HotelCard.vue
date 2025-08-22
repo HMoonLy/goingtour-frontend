@@ -55,7 +55,7 @@
             v-model="ratingValue"
             disabled
             show-score
-            :score-template="hotel.rating + '分'"
+            :score-template="parseFloat(hotel.rating).toFixed(1) + '分'"
             size="small"
           />
         </div>

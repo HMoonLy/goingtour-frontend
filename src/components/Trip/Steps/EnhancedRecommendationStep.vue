@@ -910,7 +910,7 @@ watch(
 @media (min-width: 1400px) {
   .recommendations-grid,
   .loading-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 28px;
   }
 }

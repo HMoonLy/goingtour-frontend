@@ -120,7 +120,7 @@
               disabled
               show-score
               text-color="#ff9900"
-              :score-template="`${getRating().toFixed(1)}`"
+              :score-template="`${getRating().toFixed(1)}分`"
               :max="5"
             />
           </div>
