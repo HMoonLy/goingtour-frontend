@@ -1,155 +1,134 @@
 <!--
-酒店推荐卡片组件
-展示酒店的详细信息，支持网格和列表视图
+酒店推荐卡片组件 - 重点突出推荐理由的信息驱动设计
 -->
 
 <template>
-  <div 
-    class="hotel-card" 
-    :class="{ 
-      'grid-view': viewMode === 'grid', 
-      'list-view': viewMode === 'list',
-      'selected': isSelected,
-      'ai-recommended': hotel.isAiRecommended 
-    }"
-  >
-    <!-- AI推荐标识 -->
-    <div v-if="hotel.isAiRecommended" class="ai-badge">
-      <el-icon><StarFilled /></el-icon>
-      AI推荐
-    </div>
-
-    <!-- 酒店图片 -->
-    <div class="card-image" @click="handleShowDetails">
-      <el-image
-        :src="getImageUrl()"
-        :alt="hotel.name"
-        fit="cover"
-        class="image"
-        lazy
-      >
-        <template #error>
-          <div class="image-error">
-            <el-icon><Picture /></el-icon>
-            <span>暂无图片</span>
+  <div class="hotel-card" :class="{ selected: isSelected }">
+    <!-- 卡片头部：紧凑的信息区 -->
+    <div class="card-header">
+      <!-- 左侧：小图片 + 基本信息 -->
+      <div class="header-left">
+        <div class="mini-image" @click="handleShowDetails">
+          <img :src="getImageUrl()" :alt="hotel.name" />
+          <div class="image-overlay">
+            <el-icon><ZoomIn /></el-icon>
           </div>
-        </template>
-      </el-image>
+        </div>
+        
+        <div class="basic-info">
+          <h3 class="name">{{ hotel.name }}</h3>
+          <div class="location">
+            <el-icon><MapLocation /></el-icon>
+            <span>{{ getLocationText() }}</span>
+          </div>
+          <div v-if="getRating()" class="rating">
+            <el-rate 
+              :model-value="getRating()" 
+              disabled 
+              size="small"
+              show-score
+              :score-template="`${getRating().toFixed(1)}分`"
+            />
+          </div>
+        </div>
+      </div>
       
-      <!-- 置信度标识 -->
-      <div v-if="hotel.confidence" class="confidence-badge">
-        <el-tag size="small" :type="getConfidenceType(hotel.confidence)">
-          {{ Math.round(hotel.confidence * 100) }}%匹配
+      <!-- 右侧：类型标签 -->
+      <div class="type-section">
+        <el-tag type="success" size="small">酒店</el-tag>
+        <el-tag v-if="hotel.type" type="info" size="small">
+          {{ hotel.type }}
         </el-tag>
       </div>
     </div>
 
-    <!-- 酒店信息 -->
-    <div class="card-content">
-      <div class="card-header">
-        <h3 class="hotel-name">{{ hotel.name }}</h3>
-        
-        <!-- 评分 -->
-        <div v-if="hotel.rating" class="rating">
-          <el-rate
-            v-model="ratingValue"
-            disabled
-            show-score
-            :score-template="parseFloat(hotel.rating).toFixed(1) + '分'"
-            size="small"
-          />
-        </div>
+    <!-- 推荐理由区域 - 重点突出 -->
+    <div class="recommendation-reason">
+      <div class="reason-header">
+        <el-icon class="ai-icon"><StarFilled /></el-icon>
+        <span class="reason-label">AI推荐理由</span>
       </div>
+      <p class="reason-text">
+        {{ hotel.reasoning || hotel.reason || '基于您的住宿偏好和行程安排为您推荐此酒店' }}
+      </p>
+    </div>
 
-      <!-- 地址 -->
-      <div v-if="hotel.address" class="address">
-        <el-icon><MapLocation /></el-icon>
-        <span>{{ hotel.address }}</span>
+    <!-- 酒店特色信息 -->
+    <div v-if="hotel.price || hotel.facilities" class="hotel-features">
+      <div v-if="hotel.price" class="feature-item">
+        <el-icon><Money /></el-icon>
+        <span>{{ hotel.price }}</span>
       </div>
-
-      <!-- 推荐理由 -->
-      <div v-if="hotel.reason" class="reason">
-        <el-icon><ChatLineRound /></el-icon>
-        <span>{{ hotel.reason }}</span>
+      <div v-if="hotel.facilities" class="feature-item">
+        <el-icon><House /></el-icon>
+        <span>{{ hotel.facilities }}</span>
       </div>
+    </div>
 
-      <!-- 描述 -->
-      <div v-if="hotel.description" class="description">
-        <p>{{ hotel.description }}</p>
-      </div>
-
-      <!-- 详细信息 -->
-      <div class="details-info">
-        <!-- 酒店类型 -->
-        <div v-if="hotel.type && hotel.type !== 'hotel'" class="detail-item">
-          <el-tag size="small" type="info">{{ hotel.type }}</el-tag>
-        </div>
-        
-        <!-- 价位（如果有的话）-->
-        <div v-if="hotel.price" class="detail-item">
-          <el-icon><Wallet /></el-icon>
-          <span>{{ hotel.price }}</span>
-        </div>
-
-        <!-- 数据来源 -->
-        <div class="detail-item">
-          <el-icon v-if="hotel.isAiRecommended"><MagicStick /></el-icon>
-          <el-icon v-else><User /></el-icon>
-          <span class="source-text">
-            {{ hotel.isAiRecommended ? 'AI智能推荐' : '基础推荐' }}
-          </span>
-        </div>
-      </div>
-
-      <!-- 操作按钮 -->
-      <div class="card-actions">
-        <el-button
-          v-if="!isSelected"
-          type="primary"
+    <!-- 匹配标签 -->
+    <div v-if="hotel.matchedPreferences?.length" class="matched-tags">
+      <span class="tags-label">匹配您的偏好：</span>
+      <div class="tags-container">
+        <el-tag
+          v-for="preference in hotel.matchedPreferences.slice(0, 3)"
+          :key="preference"
           size="small"
-          @click="handleSelect"
-          :icon="Plus"
-        >
-          选择
-        </el-button>
-        
-        <el-button
-          v-else
           type="success"
-          size="small"
-          @click="handleUnselect"
-          :icon="Check"
+          effect="light"
         >
-          已选择
-        </el-button>
-        
-        <el-button
-          size="small"
-          type="info"
-          text
-          @click="handleShowDetails"
-          :icon="InfoFilled"
-        >
-          详情
-        </el-button>
+          {{ preference }}
+        </el-tag>
+        <span v-if="hotel.matchedPreferences.length > 3" class="more-tags">
+          +{{ hotel.matchedPreferences.length - 3 }}
+        </span>
       </div>
+    </div>
+
+    <!-- 其他标签 -->
+    <div v-if="hotel.tags?.length" class="other-tags">
+      <el-tag
+        v-for="tag in hotel.tags.slice(0, 4)"
+        :key="tag"
+        size="small"
+        effect="plain"
+        type="info"
+      >
+        {{ tag }}
+      </el-tag>
+    </div>
+
+    <!-- 操作区域 -->
+    <div class="card-actions">
+      <el-button size="small" type="primary" text @click="handleShowDetails">
+        <el-icon><InfoFilled /></el-icon>
+        查看详情
+      </el-button>
+      
+      <el-button 
+        size="small"
+        :type="isSelected ? 'success' : 'primary'"
+        @click="isSelected ? handleUnselect() : handleSelect()"
+      >
+        <el-icon>
+          <component :is="isSelected ? 'Check' : 'Plus'" />
+        </el-icon>
+        {{ isSelected ? '已选择' : '选择此店' }}
+      </el-button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { 
   StarFilled, 
-  Picture, 
   MapLocation, 
-  ChatLineRound, 
-  Wallet, 
-  MagicStick, 
-  User, 
-  Plus, 
-  Check, 
-  InfoFilled 
+  InfoFilled,
+  Check,
+  Plus,
+  ZoomIn,
+  Money,
+  House
 } from '@element-plus/icons-vue'
 
 // Props
@@ -172,29 +151,42 @@ const props = defineProps({
 // Emits
 const emit = defineEmits(['select', 'unselect', 'show-details'])
 
-// 评分值（Element Plus Rate组件需要）
-const ratingValue = computed(() => {
-  if (!props.hotel.rating) return 0
-  const rating = parseFloat(props.hotel.rating)
-  return isNaN(rating) ? 0 : rating
-})
-
-// 获取图片URL
+// 获取简化的图片URL - 使用实际可用的占位符图片
 const getImageUrl = () => {
-  // 如果酒店有图片数据
+  // 使用酒店的实际图片或占位符
   if (props.hotel.photos && props.hotel.photos.length > 0) {
-    return props.hotel.photos[0].url
+    return props.hotel.photos[0].url || props.hotel.photos[0]
   }
-  
-  // 默认酒店图片
-  return '/images/default-hotel.jpg'
+  if (props.hotel.poi?.photos && props.hotel.poi.photos.length > 0) {
+    return props.hotel.poi.photos[0].url || props.hotel.poi.photos[0]
+  }
+  // 使用在线占位符图片
+  return 'https://via.placeholder.com/160x160/27AE60/FFFFFF?text=酒店'
 }
 
-// 获取置信度类型
-const getConfidenceType = (confidence) => {
-  if (confidence >= 0.8) return 'success'
-  if (confidence >= 0.6) return 'warning'
-  return 'info'
+// 获取位置信息
+const getLocationText = () => {
+  if (props.hotel.poi?.address) {
+    return props.hotel.poi.address
+  }
+  if (props.hotel.address) {
+    return props.hotel.address
+  }
+  if (props.hotel.location) {
+    return props.hotel.location
+  }
+  return '位置信息待补充'
+}
+
+// 获取评分
+const getRating = () => {
+  if (props.hotel.poi?.rating && props.hotel.poi.rating > 0) {
+    return Number(props.hotel.poi.rating)
+  }
+  if (props.hotel.rating && props.hotel.rating > 0) {
+    return Number(props.hotel.rating)
+  }
+  return null
 }
 
 // 事件处理
@@ -213,228 +205,325 @@ const handleShowDetails = () => {
 
 <style scoped>
 .hotel-card {
-  position: relative;
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #ebeef5;
   border-radius: 12px;
-  overflow: hidden;
+  padding: 14px;
   transition: all 0.3s ease;
-  cursor: pointer;
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .hotel-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  border-color: #3b82f6;
 }
 
 .hotel-card.selected {
-  border-color: #10b981;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  border-color: #67c23a;
+  background: linear-gradient(to bottom, #f8fff8, #ffffff);
+  box-shadow: 0 0 0 2px rgba(103, 194, 58, 0.2);
 }
 
-.hotel-card.ai-recommended {
-  background: linear-gradient(135deg, #fff 0%, #f0f9ff 100%);
-}
-
-/* AI推荐标识 */
-.ai-badge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 600;
+/* 头部区域 */
+.card-header {
   display: flex;
-  align-items: center;
-  gap: 4px;
-  z-index: 10;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
 }
 
-/* 图片区域 */
-.card-image {
-  position: relative;
-  height: 180px;
+.header-left {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* 小图片区域 */
+.mini-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
   overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  border: 2px solid #f0f2f5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
 }
 
-.image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.hotel-card:hover .image {
+.mini-image:hover {
+  border-color: #67c23a;
+  box-shadow: 0 4px 12px rgba(103, 194, 58, 0.3);
   transform: scale(1.05);
 }
 
-.image-error {
+.mini-image img {
   width: 100%;
   height: 100%;
+  object-fit: cover;
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #f3f4f6;
-  color: #9ca3af;
-  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  color: white;
+  font-size: 18px;
 }
 
-.image-error .el-icon {
-  font-size: 32px;
+.mini-image:hover .image-overlay {
+  opacity: 1;
 }
 
-.image-error span {
-  font-size: 14px;
+/* 基本信息区域 */
+.basic-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-/* 置信度标识 */
-.confidence-badge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 5;
-}
-
-/* 内容区域 */
-.card-content {
-  padding: 16px;
-}
-
-.card-header {
-  margin-bottom: 12px;
-}
-
-.hotel-name {
-  font-size: 16px;
+.name {
+  margin: 0;
+  font-size: 18px;
   font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 8px 0;
+  color: #303133;
   line-height: 1.3;
-  overflow: hidden;
-  text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.rating {
-  margin-bottom: 8px;
-}
-
-.address, .reason {
+.location {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 6px;
-  margin-bottom: 8px;
-  font-size: 13px;
-  color: #6b7280;
-  line-height: 1.4;
+  font-size: 14px;
+  color: #606266;
 }
 
-.address .el-icon, .reason .el-icon {
-  color: #9ca3af;
-  font-size: 14px;
-  margin-top: 2px;
+.location .el-icon {
+  color: #67c23a;
   flex-shrink: 0;
 }
 
-.description {
-  margin-bottom: 12px;
-}
-
-.description p {
-  font-size: 13px;
-  color: #6b7280;
-  line-height: 1.5;
-  margin: 0;
+.location span {
   overflow: hidden;
   text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  white-space: nowrap;
+  flex: 1;
 }
 
-/* 详细信息 */
-.details-info {
+.rating {
+  display: flex;
+  align-items: center;
+}
+
+/* 类型标签区域 */
+.type-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+/* 推荐理由区域 - 重点突出 */
+.recommendation-reason {
+  background: linear-gradient(135deg, #f8fff8 0%, #eaf7ea 100%);
+  border: 1px solid #c3e6cb;
+  border-radius: 8px;
+  padding: 12px;
+  border-left: 4px solid #67c23a;
+}
+
+.reason-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.ai-icon {
+  color: #67c23a;
+  font-size: 16px;
+}
+
+.reason-label {
+  font-weight: 600;
+  color: #67c23a;
+  font-size: 14px;
+}
+
+.reason-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #606266;
+}
+
+/* 酒店特色信息 */
+.hotel-features {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #606266;
+  background: #f8f9fa;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.feature-item .el-icon {
+  color: #67c23a;
+  font-size: 14px;
+}
+
+/* 匹配标签区域 */
+.matched-tags {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
-  margin-bottom: 16px;
-  align-items: center;
 }
 
-.detail-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.tags-label {
   font-size: 12px;
-  color: #6b7280;
-}
-
-.detail-item .el-icon {
-  font-size: 13px;
-  color: #9ca3af;
-}
-
-.source-text {
+  color: #909399;
+  white-space: nowrap;
   font-weight: 500;
 }
 
-/* 操作按钮 */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  flex: 1;
+}
+
+.more-tags {
+  font-size: 12px;
+  color: #909399;
+  background: #f5f7fa;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* 其他标签区域 */
+.other-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* 操作区域 */
 .card-actions {
   display: flex;
-  gap: 8px;
-  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
 }
 
 .card-actions .el-button {
   flex: 1;
 }
 
-/* 网格视图特定样式 */
-.hotel-card.grid-view {
-  /* 网格视图的特定样式 */
+.card-actions .el-button .el-icon {
+  margin-right: 4px;
 }
 
-/* 列表视图特定样式 */
-.hotel-card.list-view {
-  display: flex;
-  border-radius: 8px;
-}
-
-.hotel-card.list-view .card-image {
-  width: 200px;
-  height: 120px;
-  flex-shrink: 0;
-}
-
-.hotel-card.list-view .card-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.hotel-card.list-view .card-actions {
-  margin-top: auto;
-  padding-top: 12px;
-}
-
-/* 响应式设计 */
+/* 响应式适配 */
 @media (max-width: 768px) {
-  .hotel-card.list-view {
+  .card-header {
     flex-direction: column;
+    align-items: stretch;
   }
   
-  .hotel-card.list-view .card-image {
-    width: 100%;
-    height: 150px;
+  .type-section {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  
+  .mini-image {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .name {
+    font-size: 16px;
+  }
+  
+  .matched-tags {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  
+  .tags-label {
+    margin-bottom: 2px;
+  }
+  
+  .hotel-features {
+    gap: 8px;
+  }
+}
+
+/* 列表视图适配 */
+@media (max-width: 480px) {
+  .hotel-card {
+    padding: 12px;
+    gap: 12px;
+    min-height: auto;
+  }
+  
+  .header-left {
+    gap: 8px;
+  }
+  
+  .mini-image {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .name {
+    font-size: 15px;
+  }
+  
+  .recommendation-reason {
+    padding: 10px;
+  }
+  
+  .card-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .hotel-features {
+    flex-direction: column;
+    gap: 6px;
   }
 }
 </style>
