@@ -1074,7 +1074,7 @@ export default {
       }
 
       // 无论AI推荐成功与否，都要保存偏好并进入下一步
-      console.log("💾 保存偏好数据:", tripPreferences);
+      // console.log("💾 保存偏好数据:", tripPreferences);
       emit("preferences-saved", { ...tripPreferences });
       saving.value = false;
     };
@@ -1083,7 +1083,7 @@ export default {
     const confirmUseBasicRecommendation = async () => {
       showAiRecommendationDialog.value = false;
       saving.value = true;
-      console.log("🗺️ 用户选择使用基础推荐（高德地图）");
+      // console.log("🗺️ 用户选择使用基础推荐（高德地图）");
 
       try {
         // 使用高德API获取推荐数据
@@ -1099,7 +1099,7 @@ export default {
       }
 
       // 保存偏好并进入下一步
-      console.log("💾 保存偏好数据:", tripPreferences);
+      // console.log("💾 保存偏好数据:", tripPreferences);
       emit("preferences-saved", { ...tripPreferences });
       saving.value = false;
     };
@@ -1114,7 +1114,7 @@ export default {
         throw new Error("缺少目的地信息，无法获取推荐数据");
       }
 
-      console.log(`🗺️ 使用高德API获取 ${cityName} 的推荐数据`);
+      // console.log(`🗺️ 使用高德API获取 ${cityName} 的推荐数据`);
 
       // 并行请求景点和餐厅数据
       const [attractionsResult, restaurantsResult] = await Promise.all([
@@ -1264,7 +1264,7 @@ export default {
         saving.value = false;
 
         // 保存偏好并进入下一步
-        console.log("💾 保存偏好数据并进入下一步");
+        // console.log("💾 保存偏好数据并进入下一步");
         emit("preferences-saved", { ...tripPreferences });
       }
     };

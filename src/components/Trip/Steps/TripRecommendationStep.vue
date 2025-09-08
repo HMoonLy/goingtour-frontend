@@ -337,10 +337,10 @@ export default {
           recommendedRestaurants.value = [];
         }
 
-        console.log('✅ 推荐数据加载完成', {
-          attractions: recommendedAttractions.value.length,
-          restaurants: recommendedRestaurants.value.length
-        });
+        // console.log('✅ 推荐数据加载完成', {
+        //   attractions: recommendedAttractions.value.length,
+        //   restaurants: recommendedRestaurants.value.length
+        // });
 
       } catch (error) {
         console.error('❌ 加载推荐数据失败:', error);
@@ -553,7 +553,7 @@ export default {
 
     // 组件挂载时加载推荐数据
     onMounted(() => {
-      console.log('🚀 推荐选择步骤组件挂载');
+      // console.log('🚀 推荐选择步骤组件挂载');
       loadRecommendations();
     });
 

@@ -583,49 +583,49 @@ export default {
         if (recommendations.restaurants) {
         }
         if (recommendations.hotels) {
-          console.log(`🏨 接收到 ${recommendations.hotels.length} 个酒店推荐`);
+          // console.log(`🏨 接收到 ${recommendations.hotels.length} 个酒店推荐`);
         }
         
         // 立即检查数据是否正确设置
-        console.log("✅ aiRecommendationsData已设置:", {
-          hasData: !!aiRecommendationsData.value,
-          attractionsCount: aiRecommendationsData.value?.attractions?.length || 0,
-          restaurantsCount: aiRecommendationsData.value?.restaurants?.length || 0,
-          isError: aiRecommendationsData.value?.isError,
-          isFallback: aiRecommendationsData.value?.isFallback,
-          timestamp: new Date().toLocaleTimeString()
-        });
+        // console.log("✅ aiRecommendationsData已设置:", {
+        //   hasData: !!aiRecommendationsData.value,
+        //   attractionsCount: aiRecommendationsData.value?.attractions?.length || 0,
+        //   restaurantsCount: aiRecommendationsData.value?.restaurants?.length || 0,
+        //   isError: aiRecommendationsData.value?.isError,
+        //   isFallback: aiRecommendationsData.value?.isFallback,
+        //   timestamp: new Date().toLocaleTimeString()
+        // });
         
         markDataChanged();
         
         // 如果选择了增强推荐模式，确保跳转到推荐选择步骤
         if (recommendationType.value === 'enhanced') {
-          console.log("🎯 AI推荐数据已就绪，当前步骤:", currentStep.value);
-          console.log("🎯 准备跳转到推荐选择步骤 (step 2)");
+          // console.log("🎯 AI推荐数据已就绪，当前步骤:", currentStep.value);
+          // console.log("🎯 准备跳转到推荐选择步骤 (step 2)");
           
           // 使用 nextTick 确保 Vue 响应式系统更新完成
           nextTick(() => {
-            console.log("🔄 nextTick: aiRecommendationsData.value 状态:", !!aiRecommendationsData.value);
-            console.log("🔄 nextTick: 数据详情:", {
-              attractions: aiRecommendationsData.value?.attractions?.length || 0,
-              restaurants: aiRecommendationsData.value?.restaurants?.length || 0
-            });
+            // console.log("🔄 nextTick: aiRecommendationsData.value 状态:", !!aiRecommendationsData.value);
+            // console.log("🔄 nextTick: 数据详情:", {
+            //   attractions: aiRecommendationsData.value?.attractions?.length || 0,
+            //   restaurants: aiRecommendationsData.value?.restaurants?.length || 0
+            // });
             
             setTimeout(() => {
               // 确保跳转到第三步（推荐选择）
               if (currentStep.value !== 2) {
-                console.log(`📍 从第${currentStep.value}步跳转到第2步（推荐选择）`);
-                console.log(`📍 跳转前最终确认 aiRecommendationsData:`, !!aiRecommendationsData.value);
+                // console.log(`📍 从第${currentStep.value}步跳转到第2步（推荐选择）`);
+                // console.log(`📍 跳转前最终确认 aiRecommendationsData:`, !!aiRecommendationsData.value);
                 currentStep.value = 2;
                 window.scrollTo({ top: 0, behavior: "smooth" });
               } else {
-                console.log("✅ 已在推荐选择步骤，无需跳转");
+                // console.log("✅ 已在推荐选择步骤，无需跳转");
               }
               
               // 额外验证数据状态
               setTimeout(() => {
-                console.log("🔍 跳转后验证 aiRecommendationsData.value:", !!aiRecommendationsData.value);
-                console.log("🔍 跳转后验证 数据详情:", aiRecommendationsData.value);
+                // console.log("🔍 跳转后验证 aiRecommendationsData.value:", !!aiRecommendationsData.value);
+                // console.log("🔍 跳转后验证 数据详情:", aiRecommendationsData.value);
               }, 100);
             }, 200); // 减少延迟时间
           });
@@ -643,12 +643,12 @@ export default {
       
       // 不要立即跳转，等待AI推荐数据生成完成
       // nextStep() 将在 handleAiRecommendationsGenerated 中调用
-      console.log("⏳ 等待AI推荐数据生成完成...");
+      // console.log("⏳ 等待AI推荐数据生成完成...");
     };
 
     // 处理用户选择使用基础推荐（高德地图）
     const handleUseBasicRecommendation = () => {
-      console.log("🗺️ 用户选择使用基础推荐（高德地图）");
+      // console.log("🗺️ 用户选择使用基础推荐（高德地图）");
       recommendationType.value = 'basic';
       ElMessage.success("已切换到基础推荐模式");
     };
@@ -814,13 +814,13 @@ export default {
     watch(
       () => aiRecommendationsData.value,
       (newData, oldData) => {
-        console.log("🔄 aiRecommendationsData变化:", {
-          from: oldData ? "有数据" : "无数据",
-          to: newData ? "有数据" : "无数据",
-          newData: newData,
-          attractionsCount: newData?.attractions?.length || 0,
-          restaurantsCount: newData?.restaurants?.length || 0
-        });
+        // console.log("🔄 aiRecommendationsData变化:", {
+        //   from: oldData ? "有数据" : "无数据",
+        //   to: newData ? "有数据" : "无数据",
+        //   newData: newData,
+        //   attractionsCount: newData?.attractions?.length || 0,
+        //   restaurantsCount: newData?.restaurants?.length || 0
+        // });
       },
       { deep: true }
     );

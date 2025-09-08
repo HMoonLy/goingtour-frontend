@@ -595,8 +595,8 @@ export default {
 
     // 处理日期变化
     const handleDateChange = (newDateRange) => {
-      console.log("🗓️ 日期范围变化:", newDateRange);
-      console.log("🗓️ 当前目的地:", tripForm.value.destinationName);
+      // console.log("🗓️ 日期范围变化:", newDateRange);
+      // console.log("🗓️ 当前目的地:", tripForm.value.destinationName);
 
       if (!newDateRange || newDateRange.length !== 2) {
         return;

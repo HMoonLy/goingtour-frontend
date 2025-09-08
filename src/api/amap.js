@@ -311,7 +311,7 @@ const generatePoiDescription = (poi) => {
  * @returns {Promise<any>}
  */
 export const getRecommendedAttractions = async(city, page = 1, pageSize = 6) => {
-    console.log(`🏛️ 获取城市[${city}]的推荐景点, 页码:${page}, 每页:${pageSize}`);
+    // console.log(`🏛️ 获取城市[${city}]的推荐景点, 页码:${page}, 每页:${pageSize}`);
 
     try {
         const response = await searchPlaces({

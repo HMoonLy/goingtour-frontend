@@ -156,19 +156,6 @@
           </el-button>
         </div>
         
-        <!-- 热门搜索标签 -->
-        <div class="popular-searches" v-if="!searchKeyword">
-          <span class="search-label">热门搜索：</span>
-          <el-tag
-            v-for="keyword in getPopularSearches()"
-            :key="keyword.text"
-            class="popular-tag"
-            @click="quickSearch(keyword.text)"
-          >
-            <el-icon><component :is="keyword.icon" /></el-icon>
-            {{ keyword.text }}
-          </el-tag>
-        </div>
         
         <div class="search-filters">
           <el-select
@@ -832,34 +819,6 @@ export default {
       handleSearch();
     };
 
-    // 快速搜索
-    const quickSearch = (keyword) => {
-      searchKeyword.value = keyword;
-      handleSearch();
-    };
-
-    // 获取热门搜索
-    const getPopularSearches = () => {
-      if (activeTab.value === 'attractions') {
-        return [
-          { text: "故宫", icon: "Location" },
-          { text: "长城", icon: "Location" },
-          { text: "颐和园", icon: "Location" },
-          { text: "天坛", icon: "Location" },
-          { text: "南锣鼓巷", icon: "Location" },
-          { text: "798", icon: "Location" },
-        ];
-      } else {
-        return [
-          { text: "烤鸭", icon: "Food" },
-          { text: "火锅", icon: "Food" },
-          { text: "炸酱面", icon: "Food" },
-          { text: "小吃", icon: "Food" },
-          { text: "豆汁", icon: "Food" },
-          { text: "糖葫芦", icon: "Food" },
-        ];
-      }
-    };
 
     return {
       activeTab,
@@ -876,8 +835,6 @@ export default {
       clearAllSelections,
       getSearchSuggestions,
       handleSuggestionSelect,
-      quickSearch,
-      getPopularSearches,
     };
   },
 };
@@ -1134,46 +1091,6 @@ export default {
   font-size: 14px;
 }
 
-/* 热门搜索样式 */
-.popular-searches {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-}
-
-.search-label {
-  font-size: 13px;
-  color: #606266;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.popular-tag {
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  padding: 4px 8px;
-  border: 1px solid #dcdfe6;
-  background: #fff;
-  color: #606266;
-}
-
-.popular-tag:hover {
-  background: #91a8d0;
-  color: white;
-  border-color: #91a8d0;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(145, 168, 208, 0.3);
-}
-
-.popular-tag .el-icon {
-  font-size: 12px;
-}
 
 .search-mode-tip {
   margin-bottom: 16px;
