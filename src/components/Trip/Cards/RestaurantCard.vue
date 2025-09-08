@@ -151,7 +151,7 @@ const props = defineProps({
 // Emits
 const emit = defineEmits(['select', 'unselect', 'show-details'])
 
-// 获取简化的图片URL - 使用实际可用的占位符图片
+// 获取简化的图片URL - 使用本地默认图片
 const getImageUrl = () => {
   // 使用餐厅的实际图片或占位符
   if (props.restaurant.photos && props.restaurant.photos.length > 0) {
@@ -160,8 +160,21 @@ const getImageUrl = () => {
   if (props.restaurant.poi?.photos && props.restaurant.poi.photos.length > 0) {
     return props.restaurant.poi.photos[0].url || props.restaurant.poi.photos[0]
   }
-  // 使用在线占位符图片
-  return 'https://via.placeholder.com/160x160/E67E22/FFFFFF?text=餐厅'
+  
+  // 尝试根据餐厅名称或类型匹配本地图片
+  const name = props.restaurant.name?.toLowerCase() || ''
+  const cuisine = props.restaurant.cuisine?.toLowerCase() || ''
+  
+  // 优先使用特定场景的美食图片
+  if (name.includes('长沙') || name.includes('湘菜') || cuisine.includes('湘菜')) {
+    return '/images/scenarios/changsha_food.jpg'
+  }
+  if (name.includes('上海') || name.includes('本帮') || cuisine.includes('本帮')) {
+    return '/images/scenarios/shanghai_food.jpg'
+  }
+  
+  // 使用默认餐厅图片，最终回退到SVG
+  return '/images/defaults/restaurant.svg'
 }
 
 // 获取位置信息
@@ -306,6 +319,7 @@ const handleShowDetails = () => {
   line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

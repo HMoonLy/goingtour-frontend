@@ -648,9 +648,11 @@ watch(
 
 <style scoped>
 .enhanced-recommendation-step {
-  padding: 0 24px;
-  max-width: 1400px;
+  padding: 0 16px;
+  max-width: 1200px;
   margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* 页面头部 */
@@ -791,17 +793,19 @@ watch(
 .recommendation-content {
   display: flex;
   flex-direction: column;
-  gap: 40px;
-  margin-bottom: 40px;
+  gap: 32px;
+  margin-bottom: 32px;
+  width: 100%;
 }
 
 .recommendation-section {
   background: white;
   border: 1px solid #f0f0f0;
   border-radius: 20px;
-  padding: 32px;
+  padding: 24px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
+  overflow: hidden;
 }
 
 .recommendation-section:hover {
@@ -810,8 +814,8 @@ watch(
 }
 
 .section-header {
-  margin-bottom: 28px;
-  padding-bottom: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
   border-bottom: 2px solid #f5f5f5;
 }
 
@@ -828,16 +832,18 @@ watch(
 /* 推荐网格和列表 */
 .recommendations-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
   margin-bottom: 32px;
+  width: 100%;
 }
 
 .loading-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
   margin-bottom: 32px;
+  width: 100%;
 }
 
 .skeleton-card {
@@ -907,24 +913,29 @@ watch(
 
 
 /* 大屏设备优化 */
-@media (min-width: 1400px) {
+@media (min-width: 1200px) {
   .recommendations-grid,
   .loading-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 28px;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 24px;
   }
 }
 
 /* 平板设备响应式布局 */
-@media (max-width: 1200px) and (min-width: 769px) {
+@media (max-width: 1199px) and (min-width: 769px) {
+  .enhanced-recommendation-step {
+    max-width: 100%;
+    padding: 0 12px;
+  }
+  
   .recommendations-grid,
   .loading-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
   }
   
   .recommendation-section {
-    padding: 24px;
+    padding: 20px;
   }
 }
 
@@ -932,10 +943,11 @@ watch(
 @media (max-width: 768px) {
   .enhanced-recommendation-step {
     padding: 0 8px;
+    max-width: 100%;
   }
 
   .step-header {
-    padding: 24px 16px;
+    padding: 20px 16px;
     margin-bottom: 16px;
   }
 
@@ -953,7 +965,7 @@ watch(
   }
 
   .step-title {
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .step-subtitle {
@@ -969,22 +981,23 @@ watch(
   .stats-content {
     width: 100%;
     justify-content: flex-start;
-    gap: 32px;
+    gap: 24px;
   }
 
   .recommendations-grid,
   .loading-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 12px;
   }
 
   .recommendation-section {
-    padding: 20px;
+    padding: 16px;
     border-radius: 16px;
   }
   
   .recommendation-content {
-    gap: 24px;
+    gap: 20px;
+    margin-bottom: 20px;
   }
 
   .selection-summary {

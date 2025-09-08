@@ -137,7 +137,7 @@ const props = defineProps({
 // Emits
 const emit = defineEmits(['select', 'unselect', 'show-details'])
 
-// 获取简化的图片URL - 使用实际可用的占位符图片
+// 获取简化的图片URL - 使用本地默认图片
 const getImageUrl = () => {
   // 使用景点的实际图片或占位符
   if (props.attraction.photos && props.attraction.photos.length > 0) {
@@ -146,8 +146,48 @@ const getImageUrl = () => {
   if (props.attraction.poi?.photos && props.attraction.poi.photos.length > 0) {
     return props.attraction.poi.photos[0].url || props.attraction.poi.photos[0]
   }
-  // 使用在线占位符图片
-  return 'https://via.placeholder.com/160x160/4A90E2/FFFFFF?text=景点'
+  
+  // 尝试根据景点名称匹配本地图片
+  const name = props.attraction.name?.toLowerCase() || ''
+  const cityImages = {
+    '故宫': '/images/destinations/beijing.jpg',
+    '天坛': '/images/destinations/beijing.jpg', 
+    '长城': '/images/destinations/beijing.jpg',
+    '颐和园': '/images/destinations/beijing.jpg',
+    '天安门': '/images/destinations/beijing.jpg',
+    '西湖': '/images/destinations/hangzhou.jpg',
+    '雷峰塔': '/images/destinations/hangzhou.jpg',
+    '断桥': '/images/destinations/hangzhou.jpg',
+    '外滩': '/images/destinations/shanghai.jpg',
+    '东方明珠': '/images/destinations/shanghai.jpg',
+    '豫园': '/images/destinations/shanghai.jpg',
+    '南京路': '/images/destinations/shanghai.jpg',
+    '黄山': '/images/destinations/huangshan.jpg',
+    '九寨沟': '/images/destinations/jiuzhaigou.jpg',
+    '张家界': '/images/destinations/zhangjiajie.jpg',
+    '桂林': '/images/destinations/guilin.jpg',
+    '丽江': '/images/destinations/lijiang.jpg',
+    '大理': '/images/destinations/dali.jpg',
+    '西安': '/images/destinations/xian.jpg',
+    '兵马俑': '/images/destinations/xian.jpg',
+    '大雁塔': '/images/destinations/xian.jpg',
+    '厦门': '/images/destinations/xiamen.jpg',
+    '鼓浪屿': '/images/destinations/xiamen.jpg',
+    '青岛': '/images/destinations/qingdao.jpg',
+    '苏州': '/images/destinations/suzhou.jpg',
+    '拙政园': '/images/destinations/suzhou.jpg',
+    '南京': '/images/destinations/nanjing.jpg'
+  }
+  
+  // 查找匹配的城市图片
+  for (const [keyword, imagePath] of Object.entries(cityImages)) {
+    if (name.includes(keyword.toLowerCase()) || name.includes(keyword)) {
+      return imagePath
+    }
+  }
+  
+  // 使用默认景点图片，最终回退到SVG
+  return '/images/defaults/attraction.svg'
 }
 
 // 获取位置信息
@@ -209,7 +249,7 @@ const handleShowDetails = () => {
 }
 
 .attraction-card.selected {
-  border-color: #409eff;
+  border-color: #57799a;
   background: linear-gradient(to bottom, #f0f8ff, #ffffff);
   box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
 }
@@ -292,6 +332,7 @@ const handleShowDetails = () => {
   line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
