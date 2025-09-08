@@ -325,7 +325,6 @@ const handleShowDetails = () => {
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #91a8d0, #a8bbdb);
   z-index: 1;
 }
 
