@@ -53,16 +53,6 @@
               <el-icon><Folder /></el-icon>
               我的草稿 ({{ drafts.length }})
             </el-button>
-            <!-- 临时调试按钮 -->
-            <el-button
-              v-if="isDev"
-              size="small"
-              type="warning"
-              plain
-              @click="debugCurrentState"
-            >
-              🐛 调试当前状态
-            </el-button>
           </div>
           <div class="draft-actions-right">
             <el-button
@@ -439,8 +429,6 @@ export default {
     const preferenceStore = usePreferenceStore();
     const draftStore = useDraftStore();
 
-    // 开发环境标志
-    const isDev = ref(import.meta.env.DEV);
 
     // 当前步骤
     const currentStep = ref(0);
@@ -1158,36 +1146,6 @@ export default {
       return `${Math.floor(diff / 86400000)}天前`;
     };
 
-    // 临时调试函数
-    const debugCurrentState = () => {
-      console.log("🐛 ===== 当前状态调试信息 =====");
-      console.log("📍 当前baseForm:", JSON.parse(JSON.stringify(baseForm)));
-      console.log(
-        "📋 当前preferenceForm:",
-        JSON.parse(JSON.stringify(preferenceStore.tripPreferenceForm))
-      );
-      console.log("📊 当前状态:", {
-        currentStep: currentStep.value,
-        isFromDraft: isFromDraft.value,
-        isRestoringProgress: isRestoringProgress.value,
-        hasDestinationName: !!baseForm.destinationName,
-        destinationName: baseForm.destinationName,
-        destination: baseForm.destination,
-        selectedAttractions: selectedAttractions.value.length,
-        selectedRestaurants: selectedRestaurants.value.length,
-        // 模板条件检查
-        templateConditions: {
-          noDestinationNoticeVisible:
-            !baseForm.destinationName && !isRestoringProgress.value && !isFromDraft.value,
-          mainContentVisible:
-            baseForm.destinationName || isRestoringProgress.value || isFromDraft.value,
-        },
-      });
-      console.log("🐛 ===== 调试信息结束 =====");
-
-      // 同时显示给用户
-      ElMessage.info("调试信息已输出到控制台，请查看开发者工具");
-    };
 
     // 简单直接的草稿恢复函数
     const restoreDraftData = () => {
@@ -1230,7 +1188,6 @@ export default {
     // 在主要的onMounted中已经处理了草稿加载逻辑，删除重复的挂载钩子
 
     return {
-      isDev,
       currentStep,
       baseForm,
       preferenceForm,
@@ -1289,7 +1246,6 @@ export default {
       getStepName,
       getDraftTimeAgo,
       isFromDraft,
-      debugCurrentState, // 临时调试函数
     };
   },
 };
