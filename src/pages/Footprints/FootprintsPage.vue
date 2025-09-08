@@ -271,7 +271,7 @@
                 <Search />
               </el-icon>
               <p>没有符合条件的城市</p>
-              <el-button size="small" type="text" @click="clearFilters">
+              <el-button size="small" link @click="clearFilters">
                 清除筛选条件
               </el-button>
             </div>

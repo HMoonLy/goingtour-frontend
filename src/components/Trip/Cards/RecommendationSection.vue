@@ -492,12 +492,7 @@
               </div>
               <div class="recommendation-tags">
                 <el-tag size="small" type="danger" class="price-tag">
-                  <span v-if="typeof restaurant.price === 'number'">
-                    人均￥{{ restaurant.price }}
-                  </span>
-                  <span v-else>
-                    {{ restaurant.priceRange || restaurant.price || '价格面议' }}
-                  </span>
+                  人均￥{{ restaurant.price }}
                 </el-tag>
                 <el-tag size="small" type="warning" class="category-tag">
                   餐饮服务
@@ -739,8 +734,8 @@ export default {
       switch (sortType) {
         case "rating":
           return sorted.sort((a, b) => {
-            const ratingA = typeof a.rating === 'number' ? a.rating : parseFloat(a.rating) || 0;
-            const ratingB = typeof b.rating === 'number' ? b.rating : parseFloat(b.rating) || 0;
+            const ratingA = parseFloat(a.rating) || 0;
+            const ratingB = parseFloat(b.rating) || 0;
             return ratingB - ratingA;
           });
         case "distance":

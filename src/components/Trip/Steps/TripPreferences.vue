@@ -917,21 +917,36 @@ export default {
     const extractTags = (poi) => {
       const tags = [];
 
+      // 处理type字段 - 过滤掉通用的服务分类
       if (poi.type && typeof poi.type === "string") {
-        const typeTokens = poi.type.split(";");
+        const typeTokens = poi.type.split(";").filter(token => {
+          const trimmed = token.trim();
+          // 过滤掉通用的餐饮服务分类
+          const excludeTypes = [
+            "餐饮服务", "中餐厅", "外国餐厅", "快餐厅", "咖啡厅", 
+            "茶艺馆", "酒吧", "食品", "商务服务", "生活服务"
+          ];
+          return !excludeTypes.some(exclude => trimmed.includes(exclude));
+        });
         tags.push(...typeTokens);
       }
 
+      // 处理tag字段 - 只提取推荐菜品相关内容
       if (poi.tag && typeof poi.tag === "string") {
-        const tagTokens = poi.tag.split(",");
-        tags.push(...tagTokens);
+        const dishTags = extractSignatureDishes(poi);
+        tags.push(...dishTags);
       }
 
       if (poi.biz_type && typeof poi.biz_type === "string") {
-        tags.push(poi.biz_type);
+        // 只有当biz_type不是通用分类时才添加
+        const trimmed = poi.biz_type.trim();
+        const excludeBizTypes = ["餐饮服务", "商务服务", "生活服务"];
+        if (!excludeBizTypes.some(exclude => trimmed.includes(exclude))) {
+          tags.push(poi.biz_type);
+        }
       }
 
-      return [...new Set(tags)];
+      return [...new Set(tags)].filter(tag => tag && tag.trim().length > 0);
     };
 
     // 计算景点匹配分数
@@ -1033,31 +1048,56 @@ export default {
         }
       }
 
+      // 扩展菜品关键词，更准确识别推荐菜品
       const dishKeywords = [
-        "招牌", "特色", "推荐", "必点", "名菜", "人气", "菜", "饭", "面",
-        "粉", "汤", "锅", "煲", "炒", "烤", "蒸", "炖", "煮", "焖", "烧",
-        "卤", "鱼", "虾", "蟹", "牛", "羊", "猪", "鸡", "鸭", "鹅",
+        "招牌", "特色", "推荐", "必点", "名菜", "人气", "热门", "经典",
+        "菜", "饭", "面", "粉", "汤", "锅", "煲", "炒", "烤", "蒸", 
+        "炖", "煮", "焖", "烧", "卤", "炸", "煎", "拌", "凉",
+        "鱼", "虾", "蟹", "贝", "牛", "羊", "猪", "鸡", "鸭", "鹅",
+        "豆腐", "青菜", "萝卜", "土豆", "茄子", "冬瓜", "南瓜",
+        "米饭", "粥", "包子", "饺子", "馄饨", "面条", "拉面",
+        "火锅", "麻辣", "清汤", "红烧", "糖醋", "宫保", "麻婆"
+      ];
+
+      // 扩展非菜品关键词，排除更多服务类标签
+      const notDishKeywords = [
+        "餐饮", "服务", "环境", "价格", "停车", "位置", "交通", "商圈", 
+        "商场", "广场", "中餐厅", "外国餐厅", "快餐厅", "咖啡厅", 
+        "茶艺馆", "酒吧", "食品", "商务", "生活", "设施", "装修",
+        "氛围", "音乐", "包间", "大厅", "二楼", "三楼", "地下",
+        "营业", "时间", "电话", "地址", "路线", "公交", "地铁",
+        "优惠", "折扣", "活动", "会员", "积分", "支付", "现金",
+        "刷卡", "微信", "支付宝", "团购", "外卖", "配送"
       ];
 
       tagTokens.forEach((token) => {
         const trimmedToken = token.trim();
-        if (trimmedToken.length > 1) {
+        if (trimmedToken.length > 1 && trimmedToken.length <= 15) { // 限制长度，避免过长的描述
           const isDish = dishKeywords.some((keyword) =>
             trimmedToken.includes(keyword)
           );
 
-          const notDish = [
-            "餐饮", "服务", "环境", "价格", "停车", "位置", "交通",
-            "商圈", "商场", "广场",
-          ].some((keyword) => trimmedToken.includes(keyword));
+          const notDish = notDishKeywords.some((keyword) =>
+            trimmedToken.includes(keyword)
+          );
 
+          // 只有明确是菜品且不是服务类描述才添加
           if (isDish && !notDish) {
             dishes.push(trimmedToken);
+          } else if (!notDish && trimmedToken.length <= 8) {
+            // 对于短标签，如果不在排除列表中，也可能是菜品名
+            const isLikelyDish = /^[一-龟\w\s]+$/.test(trimmedToken) && // 只包含中文、字母、数字、空格
+                                !trimmedToken.includes('店') && 
+                                !trimmedToken.includes('厅') &&
+                                !trimmedToken.includes('馆');
+            if (isLikelyDish) {
+              dishes.push(trimmedToken);
+            }
           }
         }
       });
 
-      return dishes;
+      return [...new Set(dishes)]; // 去重
     };
 
     // 加载更多景点数据

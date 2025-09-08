@@ -168,18 +168,18 @@
               </span>
               <span v-else-if="isForecastOutdated()">
                 行程天数（{{ tripForm.days }}天）超出预报范围（{{
-                  weatherSuggestion.forecast.length
+                  weatherSuggestion?.forecast?.length || 0
                 }}天）
               </span>
             </div>
 
             <!-- 天气预报网格 -->
             <div
-              v-if="weatherSuggestion.forecast && weatherSuggestion.forecast.length > 0"
+              v-if="weatherSuggestion?.forecast && weatherSuggestion.forecast.length > 0"
               class="weather-forecast-grid"
             >
               <div
-                v-for="(forecast, index) in weatherSuggestion.forecast"
+                v-for="(forecast, index) in weatherSuggestion?.forecast || []"
                 :key="index"
                 class="forecast-card"
                 :class="{ today: index === 0 }"
@@ -218,11 +218,11 @@
           <div class="weather-summary">
             <div class="summary-item">
               <span class="summary-label">温度范围</span>
-              <span class="summary-value">{{ weatherSuggestion.tempRange }}</span>
+              <span class="summary-value">{{ weatherSuggestion?.tempRange || '暂无数据' }}</span>
             </div>
             <div class="summary-item">
               <span class="summary-label">预报天数</span>
-              <span class="summary-value">{{ weatherSuggestion.forecast.length }}天</span>
+              <span class="summary-value">{{ weatherSuggestion?.forecast?.length || 0 }}天</span>
             </div>
             <div class="summary-item">
               <span class="summary-label">数据来源</span>
@@ -761,13 +761,8 @@ export default {
 
     // 组件加载时初始化
     onMounted(async () => {
-      console.log("🚀 TripBaseInfo组件挂载", props.baseForm);
       // 处理从父组件传递的目的地信息
       if (props.baseForm.destination && props.baseForm.destinationName) {
-        console.log(
-          `接收到父组件的目的地信息: ${props.baseForm.destinationName}(${props.baseForm.destination})`
-        );
-
         // 确保本地表单数据同步
         tripForm.value.destination = props.baseForm.destination;
         tripForm.value.destinationName = props.baseForm.destinationName;
@@ -869,7 +864,6 @@ export default {
         !tripForm.value.dateRange ||
         !tripForm.value.dateRange.length
       ) {
-        console.log("⚠️ 天气日期检查：缺少必要数据");
         return false;
       }
 
@@ -881,17 +875,10 @@ export default {
       const forecastStartDate = new Date(Math.min(...forecastDates));
       const forecastEndDate = new Date(Math.max(...forecastDates));
 
-      console.log("🔍 天气日期检查：", {
-        userStartDate: userStartDate.toDateString(),
-        userEndDate: userEndDate.toDateString(),
-        forecastStartDate: forecastStartDate.toDateString(),
-        forecastEndDate: forecastEndDate.toDateString(),
-      });
 
       // 检查用户选择的日期是否与天气预报日期有重叠
       const hasOverlap =
         userStartDate <= forecastEndDate && userEndDate >= forecastStartDate;
-      console.log("📊 天气日期重叠结果：", hasOverlap);
 
       return hasOverlap;
     };
@@ -1075,7 +1062,7 @@ export default {
 /* 整体布局 */
 .step-content {
   padding: 24px;
-  background: #fafafa;
+  background: #fff;
   min-height: 100vh;
 }
 

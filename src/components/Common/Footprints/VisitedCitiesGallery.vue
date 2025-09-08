@@ -15,7 +15,7 @@
       <!-- 展开/收起按钮 -->
       <div v-if="needsToggle" class="toggle-section">
         <el-button
-          type="text"
+          link
           size="small"
           class="toggle-btn"
           @click="toggleExpanded"
@@ -635,7 +635,6 @@ const handleDeletePhoto = async (city) => {
 const handleToggleWantAgain = async (city) => {
   try {
     const newStatus = !city.want_to_visit_again;
-    console.log("🎯 切换想再去状态:", { city, newStatus });
     
     // 传递完整的城市数据而不是ID，让store判断如何处理
     const success = await wishlistStore.markWantToVisitAgain(

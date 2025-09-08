@@ -110,7 +110,7 @@
           <el-icon class="ai-icon"><MagicStick /></el-icon>
           <h4>🤖 AI助手建议</h4>
           <el-button 
-            type="text" 
+            link 
             size="small" 
             @click="showAiTip = false"
           >
@@ -199,16 +199,24 @@ export default {
     const extractTags = (poi) => {
       const tags = [];
       
-      // 从type字段提取
+      // 处理type字段 - 过滤掉通用的服务分类
       if (poi.type && typeof poi.type === 'string') {
-        const typeSegments = poi.type.split(';').filter(Boolean);
+        const typeSegments = poi.type.split(';').filter(Boolean).filter(token => {
+          const trimmed = token.trim();
+          // 过滤掉通用的餐饮服务分类
+          const excludeTypes = [
+            "餐饮服务", "中餐厅", "外国餐厅", "快餐厅", "咖啡厅", 
+            "茶艺馆", "酒吧", "食品", "商务服务", "生活服务"
+          ];
+          return !excludeTypes.some(exclude => trimmed.includes(exclude));
+        });
         tags.push(...typeSegments);
       }
       
-      // 从tag字段提取
+      // 处理tag字段 - 只提取推荐菜品相关内容
       if (poi.tag && typeof poi.tag === 'string') {
-        const tagSegments = poi.tag.split(';').filter(Boolean);
-        tags.push(...tagSegments);
+        const dishTags = extractSignatureDishes(poi);
+        tags.push(...dishTags);
       }
       
       // 从business_area提取
@@ -227,7 +235,54 @@ export default {
 
     // 提取餐厅招牌菜
     const extractSignatureDishes = (restaurant) => {
-      return restaurant.tags || [];
+      if (
+        !restaurant ||
+        !restaurant.tag ||
+        typeof restaurant.tag !== "string"
+      ) {
+        return restaurant.tags || [];
+      }
+
+      const dishes = [];
+      const tagContent = restaurant.tag;
+      
+      // 支持多种分隔符
+      const separators = [",", "，", "、", ";", "；", "|"];
+      let tagTokens = [tagContent];
+      
+      // 找到合适的分隔符并分割
+      for (const separator of separators) {
+        if (tagContent.includes(separator)) {
+          tagTokens = tagContent.split(separator);
+          break;
+        }
+      }
+
+      // 过滤掉明显的非菜品标签
+      const excludeKeywords = [
+        "餐饮服务", "中餐厅", "外国餐厅", "快餐厅", "咖啡厅", 
+        "茶艺馆", "酒吧", "商务服务", "生活服务", "环境", "价格", 
+        "停车", "位置", "交通", "商圈", "商场", "广场", "设施", 
+        "装修", "氛围", "音乐", "包间", "营业时间", "电话", "地址"
+      ];
+
+      tagTokens.forEach((token) => {
+        const trimmedToken = token.trim();
+        
+        // 基本过滤：长度合理，不为空
+        if (trimmedToken.length > 0 && trimmedToken.length <= 20) {
+          // 检查是否包含排除关键词
+          const shouldExclude = excludeKeywords.some(keyword => 
+            trimmedToken.includes(keyword)
+          );
+          
+          if (!shouldExclude) {
+            dishes.push(trimmedToken);
+          }
+        }
+      });
+
+      return [...new Set(dishes)]; // 去重
     };
 
     // 加载推荐数据
@@ -250,94 +305,34 @@ export default {
 
         // 格式化景点数据
         if (attractionsResponse.pois && attractionsResponse.pois.length > 0) {
-          recommendedAttractions.value = attractionsResponse.pois.map((poi) => {
-            // 处理图片数据
-            const photos = [];
-            if (poi.images && Array.isArray(poi.images) && poi.images.length > 0) {
-              photos.push(...poi.images.map(img => ({
-                url: typeof img === 'string' ? img : img.url || img,
-                title: poi.name
-              })));
-            }
-            if (poi.image && !photos.some(p => p.url === poi.image)) {
-              photos.unshift({ url: poi.image, title: poi.name });
-            }
-            if (poi.imageUrl && !photos.some(p => p.url === poi.imageUrl)) {
-              photos.unshift({ url: poi.imageUrl, title: poi.name });
-            }
-
-            return {
-              id: poi.id,
-              name: poi.name,
-              address: poi.address || poi.location || '',
-              rating: poi.rating || (poi.biz_ext && poi.biz_ext.rating) || 4.5,
-              photos: photos,
-              type: poi.category ? poi.category.split(";")[0] : (poi.type ? poi.type.split(";")[0] : "景点"),
-              distance: poi.distance || null,
-              tags: poi.tags || extractTags(poi),
-              tag: poi.tag,
-              // 新增字段
-              description: poi.description || '',
-              reasoning: poi.reasoning || '',
-              businessArea: poi.businessArea || poi.business_area || '',
-              openTime: poi.openTime || '',
-              price: poi.price || null,
-              estimatedDuration: poi.estimatedDuration || '',
-              confidence: poi.confidence || 0,
-              bestTimeToVisit: poi.bestTimeToVisit || '',
-              coordinates: poi.coordinates || [],
-              isAiRecommended: poi.isAiRecommended || false,
-              recommendationScore: poi.recommendationScore || 0,
-            };
-          });
+          recommendedAttractions.value = attractionsResponse.pois.map((poi) => ({
+            id: poi.id,
+            name: poi.name,
+            address: poi.address,
+            rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
+            photos: poi.photos || [],
+            type: poi.type ? poi.type.split(";")[0] : "景点",
+            distance: poi.distance || null,
+            tags: extractTags(poi),
+            tag: poi.tag,
+          }));
         } else {
           recommendedAttractions.value = [];
         }
 
         // 格式化餐厅数据
         if (restaurantsResponse.pois && restaurantsResponse.pois.length > 0) {
-          recommendedRestaurants.value = restaurantsResponse.pois.map((poi) => {
-            // 处理图片数据
-            const photos = [];
-            if (poi.images && Array.isArray(poi.images) && poi.images.length > 0) {
-              photos.push(...poi.images.map(img => ({
-                url: typeof img === 'string' ? img : img.url || img,
-                title: poi.name
-              })));
-            }
-            if (poi.image && !photos.some(p => p.url === poi.image)) {
-              photos.unshift({ url: poi.image, title: poi.name });
-            }
-            if (poi.imageUrl && !photos.some(p => p.url === poi.imageUrl)) {
-              photos.unshift({ url: poi.imageUrl, title: poi.name });
-            }
-
-            return {
-              id: poi.id,
-              name: poi.name,
-              address: poi.address || poi.location || '',
-              rating: poi.rating || (poi.biz_ext && poi.biz_ext.rating) || 4.5,
-              photos: photos,
-              type: poi.category ? poi.category.split(";")[0] : (poi.type ? poi.type.split(";")[0] : "餐厅"),
-              price: poi.price || (poi.biz_ext && poi.biz_ext.cost) || null,
-              priceRange: poi.priceRange || "¥¥",
-              tags: poi.tags || extractTags(poi),
-              tag: poi.tag,
-              // 新增字段
-              description: poi.description || '',
-              reasoning: poi.reasoning || '',
-              businessArea: poi.businessArea || poi.business_area || '',
-              openTime: poi.openTime || '',
-              cuisineType: poi.cuisineType || '',
-              signatureDishes: poi.signature_dishes || [],
-              tel: poi.tel && Array.isArray(poi.tel) ? poi.tel.join(', ') : (poi.tel || ''),
-              website: poi.website && Array.isArray(poi.website) ? poi.website[0] : (poi.website || ''),
-              confidence: poi.confidence || 0,
-              coordinates: poi.coordinates || [],
-              isAiRecommended: poi.isAiRecommended || false,
-              recommendationScore: poi.recommendationScore || 0,
-            };
-          });
+          recommendedRestaurants.value = restaurantsResponse.pois.map((poi) => ({
+            id: poi.id,
+            name: poi.name,
+            address: poi.address,
+            rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
+            photos: poi.photos || [],
+            type: poi.type ? poi.type.split(";")[0] : "餐厅",
+            price: (poi.biz_ext && poi.biz_ext.cost) || "¥¥",
+            tags: extractTags(poi),
+            tag: poi.tag,
+          }));
         } else {
           recommendedRestaurants.value = [];
         }
@@ -400,45 +395,17 @@ export default {
         );
         
         if (response.pois && response.pois.length > 0) {
-          const newAttractions = response.pois.map((poi) => {
-            // 处理图片数据
-            const photos = [];
-            if (poi.images && Array.isArray(poi.images) && poi.images.length > 0) {
-              photos.push(...poi.images.map(img => ({
-                url: typeof img === 'string' ? img : img.url || img,
-                title: poi.name
-              })));
-            }
-            if (poi.image && !photos.some(p => p.url === poi.image)) {
-              photos.unshift({ url: poi.image, title: poi.name });
-            }
-            if (poi.imageUrl && !photos.some(p => p.url === poi.imageUrl)) {
-              photos.unshift({ url: poi.imageUrl, title: poi.name });
-            }
-
-            return {
-              id: poi.id,
-              name: poi.name,
-              address: poi.address || poi.location || '',
-              rating: poi.rating || (poi.biz_ext && poi.biz_ext.rating) || 4.5,
-              photos: photos,
-              type: poi.category ? poi.category.split(";")[0] : (poi.type ? poi.type.split(";")[0] : "景点"),
-              distance: poi.distance || null,
-              tags: poi.tags || extractTags(poi),
-              tag: poi.tag,
-              description: poi.description || '',
-              reasoning: poi.reasoning || '',
-              businessArea: poi.businessArea || poi.business_area || '',
-              openTime: poi.openTime || '',
-              price: poi.price || null,
-              estimatedDuration: poi.estimatedDuration || '',
-              confidence: poi.confidence || 0,
-              bestTimeToVisit: poi.bestTimeToVisit || '',
-              coordinates: poi.coordinates || [],
-              isAiRecommended: poi.isAiRecommended || false,
-              recommendationScore: poi.recommendationScore || 0,
-            };
-          });
+          const newAttractions = response.pois.map((poi) => ({
+            id: poi.id,
+            name: poi.name,
+            address: poi.address,
+            rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
+            photos: poi.photos || [],
+            type: poi.type ? poi.type.split(";")[0] : "景点",
+            distance: poi.distance || null,
+            tags: extractTags(poi),
+            tag: poi.tag,
+          }));
           
           recommendedAttractions.value = [...recommendedAttractions.value, ...newAttractions];
           ElMessage.success(`已加载${newAttractions.length}个新推荐景点`);
@@ -464,47 +431,17 @@ export default {
         );
         
         if (response.pois && response.pois.length > 0) {
-          const newRestaurants = response.pois.map((poi) => {
-            // 处理图片数据
-            const photos = [];
-            if (poi.images && Array.isArray(poi.images) && poi.images.length > 0) {
-              photos.push(...poi.images.map(img => ({
-                url: typeof img === 'string' ? img : img.url || img,
-                title: poi.name
-              })));
-            }
-            if (poi.image && !photos.some(p => p.url === poi.image)) {
-              photos.unshift({ url: poi.image, title: poi.name });
-            }
-            if (poi.imageUrl && !photos.some(p => p.url === poi.imageUrl)) {
-              photos.unshift({ url: poi.imageUrl, title: poi.name });
-            }
-
-            return {
-              id: poi.id,
-              name: poi.name,
-              address: poi.address || poi.location || '',
-              rating: poi.rating || (poi.biz_ext && poi.biz_ext.rating) || 4.5,
-              photos: photos,
-              type: poi.category ? poi.category.split(";")[0] : (poi.type ? poi.type.split(";")[0] : "餐厅"),
-              price: poi.price || (poi.biz_ext && poi.biz_ext.cost) || null,
-              priceRange: poi.priceRange || "¥¥",
-              tags: poi.tags || extractTags(poi),
-              tag: poi.tag,
-              description: poi.description || '',
-              reasoning: poi.reasoning || '',
-              businessArea: poi.businessArea || poi.business_area || '',
-              openTime: poi.openTime || '',
-              cuisineType: poi.cuisineType || '',
-              signatureDishes: poi.signature_dishes || [],
-              tel: poi.tel && Array.isArray(poi.tel) ? poi.tel.join(', ') : (poi.tel || ''),
-              website: poi.website && Array.isArray(poi.website) ? poi.website[0] : (poi.website || ''),
-              confidence: poi.confidence || 0,
-              coordinates: poi.coordinates || [],
-              isAiRecommended: poi.isAiRecommended || false,
-              recommendationScore: poi.recommendationScore || 0,
-            };
-          });
+          const newRestaurants = response.pois.map((poi) => ({
+            id: poi.id,
+            name: poi.name,
+            address: poi.address,
+            rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
+            photos: poi.photos || [],
+            type: poi.type ? poi.type.split(";")[0] : "餐厅",
+            price: (poi.biz_ext && poi.biz_ext.cost) || "¥¥",
+            tags: extractTags(poi),
+            tag: poi.tag,
+          }));
           
           recommendedRestaurants.value = [...recommendedRestaurants.value, ...newRestaurants];
           ElMessage.success(`已加载${newRestaurants.length}家新推荐餐厅`);
@@ -539,41 +476,18 @@ export default {
         if (response.pois && response.pois.length > 0) {
           searchResults.value = response.pois.map((poi) => {
             const isAttraction = poi.type && poi.type.includes("风景名胜");
-            
-            // 处理图片数据
-            const photos = [];
-            if (poi.images && Array.isArray(poi.images) && poi.images.length > 0) {
-              photos.push(...poi.images.map(img => ({
-                url: typeof img === 'string' ? img : img.url || img,
-                title: poi.name
-              })));
-            }
-            if (poi.image && !photos.some(p => p.url === poi.image)) {
-              photos.unshift({ url: poi.image, title: poi.name });
-            }
-            if (poi.imageUrl && !photos.some(p => p.url === poi.imageUrl)) {
-              photos.unshift({ url: poi.imageUrl, title: poi.name });
-            }
-            
             return {
               id: poi.id,
               name: poi.name,
-              address: poi.address || poi.location || '',
-              rating: poi.rating || (poi.biz_ext && poi.biz_ext.rating) || 4.5,
-              photos: photos,
-              type: poi.category ? poi.category.split(";")[0] : (poi.type ? poi.type.split(";")[0] : (isAttraction ? "景点" : "餐厅")),
-              price: poi.price || (poi.biz_ext && poi.biz_ext.cost) || null,
-              priceRange: poi.priceRange || "¥¥",
+              address: poi.address,
+              rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
+              photos: poi.photos || [],
+              type: poi.type ? poi.type.split(";")[0] : (isAttraction ? "景点" : "餐厅"),
+              price: (poi.biz_ext && poi.biz_ext.cost) || "¥¥",
               distance: poi.distance || null,
-              tags: poi.tags || extractTags(poi),
+              tags: extractTags(poi),
               tag: poi.tag,
               isAttraction: isAttraction,
-              description: poi.description || '',
-              reasoning: poi.reasoning || '',
-              businessArea: poi.businessArea || poi.business_area || '',
-              openTime: poi.openTime || '',
-              tel: poi.tel && Array.isArray(poi.tel) ? poi.tel.join(', ') : (poi.tel || ''),
-              website: poi.website && Array.isArray(poi.website) ? poi.website[0] : (poi.website || ''),
             };
           });
         } else {

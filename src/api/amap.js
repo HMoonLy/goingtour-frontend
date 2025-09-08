@@ -182,7 +182,7 @@ export const enhancePoiData = async(pois) => {
         return [];
     }
 
-    console.log(`🔧 正在增强 ${pois.length} 个POI的数据...`);
+    // console.log(`🔧 正在增强 ${pois.length} 个POI的数据...`);
 
     const enhancedPois = await Promise.all(
         pois.map(async(poi) => {
@@ -245,7 +245,7 @@ export const enhancePoiData = async(pois) => {
         })
     );
 
-    console.log(`✅ POI数据增强完成，处理了 ${enhancedPois.length} 个POI`);
+    // console.log(`✅ POI数据增强完成，处理了 ${enhancedPois.length} 个POI`);
     return enhancedPois;
 };
 
@@ -287,6 +287,7 @@ const generatePoiDescription = (poi) => {
 
     if (poi.business_area) {
         description += `位于${poi.business_area}商圈。`;
+        W
     }
 
     if (poi.tel) {
@@ -321,15 +322,7 @@ export const getRecommendedAttractions = async(city, page = 1, pageSize = 6) => 
             page: page,
         });
 
-        // 增强POI数据
-        if (response && response.pois && response.pois.length > 0) {
-            const enhancedPois = await enhancePoiData(response.pois);
-            return {
-                ...response,
-                pois: enhancedPois
-            };
-        }
-
+        // 直接返回原始数据，不进行数据增强
         return response;
     } catch (error) {
         console.error(`获取推荐景点失败: ${city}`, error);
@@ -345,7 +338,7 @@ export const getRecommendedAttractions = async(city, page = 1, pageSize = 6) => 
  * @returns {Promise<any>}
  */
 export const getRecommendedRestaurants = async(city, page = 1, pageSize = 6) => {
-    console.log(`🍲 获取城市[${city}]的推荐餐厅, 页码:${page}, 每页:${pageSize}`);
+    // console.log(`🍲 获取城市[${city}]的推荐餐厅, 页码:${page}, 每页:${pageSize}`);
 
     try {
         const response = await searchPlaces({
@@ -356,15 +349,7 @@ export const getRecommendedRestaurants = async(city, page = 1, pageSize = 6) => 
             page: page,
         });
 
-        // 增强POI数据
-        if (response && response.pois && response.pois.length > 0) {
-            const enhancedPois = await enhancePoiData(response.pois);
-            return {
-                ...response,
-                pois: enhancedPois
-            };
-        }
-
+        // 直接返回原始数据，不进行数据增强
         return response;
     } catch (error) {
         console.error(`获取推荐餐厅失败: ${city}`, error);

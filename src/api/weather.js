@@ -98,16 +98,11 @@ export const weatherApi = {
                 });
 
                 this.cityCodesLoaded = true;
-                console.log(
-                    `✅ 城市编码数据加载完成，共处理 ${processedCount}/${data.length} 条有效记录`,
-                );
                 return true;
             } else {
-                console.warn("⚠️ 城市编码数据格式不正确");
                 return false;
             }
         } catch (error) {
-            console.error("❌ 加载城市编码数据失败:", error);
             return false;
         }
     },
@@ -156,9 +151,6 @@ export const weatherApi = {
         for (const name of namesToTry) {
             const lowerName = name.toLowerCase();
             if (this.cityCodeMap[lowerName]) {
-                console.log(
-                    `🗺️ 从缓存获取城市编码: ${name} -> ${this.cityCodeMap[lowerName]}`,
-                );
                 return this.cityCodeMap[lowerName];
             }
         }
@@ -170,9 +162,6 @@ export const weatherApi = {
         for (const name of namesToTry) {
             const lowerName = name.toLowerCase();
             if (this.cityCodeMap[lowerName]) {
-                console.log(
-                    `🗺️ 从本地数据获取城市编码: ${name} -> ${this.cityCodeMap[lowerName]}`,
-                );
                 return this.cityCodeMap[lowerName];
             }
         }
@@ -238,7 +227,6 @@ export const weatherApi = {
             // 先获取城市编码
             const adcode = await this.getCityCode(city);
 
-            console.log(`正在获取${city}(${adcode})的实时天气数据`);
 
             // 准备参数，与示例代码保持一致
             const params = {
@@ -253,7 +241,6 @@ export const weatherApi = {
             );
 
             // 输出响应以供调试
-            console.log("天气API响应:", response.config.url);
 
             return response;
         } catch (error) {
@@ -277,7 +264,6 @@ export const weatherApi = {
             // 先获取城市编码
             const adcode = await this.getCityCode(city);
 
-            console.log(`正在获取${city}(${adcode})的天气预报数据`);
 
             // 准备参数
             const params = {
@@ -292,7 +278,6 @@ export const weatherApi = {
             );
 
             // 输出响应以供调试
-            console.log("天气预报API响应状态:", response.status);
 
             return response;
         } catch (error) {
@@ -314,15 +299,12 @@ export const weatherApi = {
         const timeDiff = startDate.getTime() - today.getTime();
         const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
-        console.log(`出行日期距今 ${daysDiff} 天，开始获取天气建议...`);
 
         // 如果是超过7天的未来日期，使用历史天气数据和季节分析
         if (daysDiff > 7) {
-            console.log("出行日期超过天气预报范围，使用历史天气分析...");
             return this.generateHistoricalWeatherSuggestions(city, startDate, days);
         }
         try {
-            console.log(`正在获取${city}的天气建议...`);
 
             if (!city) {
                 throw new Error("城市名称为空，无法获取天气");
@@ -339,18 +321,7 @@ export const weatherApi = {
                 const forecastResponse = await this.getForecastWeather(city);
 
                 // 详细输出响应数据以便调试
-                if (forecastResponse) {
-                    console.log("天气预报API响应状态码:", forecastResponse.status);
-                    if (forecastResponse.data) {
-                        console.log(
-                            "天气预报API响应数据结构:",
-                            JSON.stringify(forecastResponse.data).substring(0, 200) + "...",
-                        );
-                    } else {
-                        console.log("天气预报API响应数据结构: 无数据");
-                    }
-                } else {
-                    console.log("天气预报API响应: 无响应");
+                if (forecastResponse) {} else {
                     throw new Error("获取天气预报时发生错误，请检查网络连接");
                 }
 
@@ -382,7 +353,6 @@ export const weatherApi = {
 
                 // 获取天气预报数据
                 const forecastData = forecastResponse.data.forecasts[0];
-                console.log("✅ 成功获取天气预报数据:", forecastData);
 
                 // 方法2：获取实时天气数据（备用方案）
                 // 如果需要更详细的实时天气，可以单独请求
@@ -409,7 +379,6 @@ export const weatherApi = {
                             windpower: today.daypower,
                         };
 
-                        console.log("✅ 从预报数据构建实时天气:", currentWeather);
                     }
 
                     // 如果有需要，可以尝试单独获取实时天气数据
@@ -462,7 +431,6 @@ export const weatherApi = {
                 winddirection: today.daywind,
                 windpower: today.daypower,
             };
-            console.log("在建议生成中使用预报的第一天作为实时天气数据");
         }
 
         // 如果仍然没有天气数据，返回null
@@ -649,7 +617,6 @@ export const weatherApi = {
         ) {
             // 显示所有可用的天气预报数据，不受行程天数限制
             const maxDays = forecastWeather.casts.length;
-            console.log(`✅ 构建天气预报数据，共${maxDays}天预报数据`);
             for (let i = 0; i < maxDays; i++) {
                 const forecast = forecastWeather.casts[i];
                 if (forecast) {
@@ -690,15 +657,10 @@ export const weatherApi = {
                     };
 
                     forecastList.push(forecastItem);
-                    console.log(`✅ 添加第${i + 1}天预报数据:`, forecastItem);
                 }
             }
         }
 
-        console.log(
-            `✅ 最终构造的天气预报数据共${forecastList.length}条:`,
-            forecastList,
-        );
 
         return {
             ...cityInfo,

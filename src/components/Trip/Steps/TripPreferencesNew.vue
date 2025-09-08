@@ -200,7 +200,7 @@
             >
             <el-button
               v-if="tripPreferences.focusAreas.length > 0"
-              type="text"
+              link
               size="small"
               @click="clearFocusAreas"
             >
@@ -397,7 +397,7 @@
         <div class="preview-text">
           {{ generateAIPreview() }}
         </div>
-        <el-button type="text" @click="showDetailedAI = !showDetailedAI">
+        <el-button link @click="showDetailedAI = !showDetailedAI">
           {{ showDetailedAI ? "收起" : "查看详细" }}AI解读
         </el-button>
 

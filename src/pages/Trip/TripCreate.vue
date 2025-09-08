@@ -55,7 +55,7 @@
             </el-button>
             <!-- 临时调试按钮 -->
             <el-button
-              v-if="process.env.NODE_ENV === 'development'"
+              v-if="isDev"
               size="small"
               type="warning"
               plain
@@ -439,6 +439,9 @@ export default {
     const preferenceStore = usePreferenceStore();
     const draftStore = useDraftStore();
 
+    // 开发环境标志
+    const isDev = ref(import.meta.env.DEV);
+
     // 当前步骤
     const currentStep = ref(0);
 
@@ -558,14 +561,12 @@ export default {
 
     // 处理偏好更新事件
     const handlePreferencesUpdate = (preferences) => {
-      console.log("🎯 偏好已更新:", preferences);
       // 这里可以将偏好保存到本地状态或store中
       markDataChanged();
     };
 
     // 处理偏好保存事件
     const handlePreferencesSaved = async (preferences) => {
-      console.log("✅ 偏好已保存:", preferences);
       ElMessage.success("偏好设置已保存");
       
       // 移除AI推荐预加载逻辑
@@ -577,7 +578,6 @@ export default {
 
     // 处理推荐选择更新事件
     const handleSelectionsUpdated = (selections) => {
-      console.log("🎯 推荐选择已更新:", selections);
       selectedAttractions.value = selections.selectedAttractions || [];
       selectedRestaurants.value = selections.selectedRestaurants || [];
       markDataChanged();
@@ -585,20 +585,14 @@ export default {
 
     // 处理AI推荐生成事件
     const handleAiRecommendationsGenerated = (recommendations) => {
-      console.log("🤖 接收到AI推荐结果:", recommendations);
-      console.log("🤖 当前 aiRecommendationsData.value 状态:", aiRecommendationsData.value);
-      console.log("🤖 当前步骤:", currentStep.value);
-      console.log("🤖 推荐类型:", recommendationType.value);
       
       if (recommendations) {
         // 将AI推荐结果存储到响应式状态中，供第三步使用
         aiRecommendationsData.value = recommendations;
         
         if (recommendations.attractions) {
-          console.log(`📍 接收到 ${recommendations.attractions.length} 个景点推荐`);
         }
         if (recommendations.restaurants) {
-          console.log(`🍽️ 接收到 ${recommendations.restaurants.length} 个餐厅推荐`);
         }
         if (recommendations.hotels) {
           console.log(`🏨 接收到 ${recommendations.hotels.length} 个酒店推荐`);
@@ -694,7 +688,6 @@ export default {
             console.log("✅ 天气信息获取成功", weatherData);
           }
         } else {
-          console.log(`🌤️ 开始获取${city}的基础天气数据（不依赖日期选择）`);
           // 获取基础天气数据，不依赖用户的具体日期选择
           const weatherData = await weatherApi.getWeatherSuggestions(city, new Date(), 3); // 默认3天
           if (weatherData) {
@@ -726,14 +719,12 @@ export default {
     watch(
       () => baseForm.destinationName,
       (city) => {
-        console.log(`🔍 监听到城市变化：${city}`);
 
         if (city) {
           // 清空之前的天气数据
           weatherSuggestion.value = null;
           weatherError.value = null;
 
-          console.log(`🌤️ 城市确定，立即获取天气数据：${city}`);
           // 立即获取天气数据，不依赖用户的日期选择
           fetchWeatherForTrip(city, null, null);
         }
@@ -745,20 +736,10 @@ export default {
     const markDataChanged = () => {
       // 这里可以添加简单的本地状态管理逻辑
       // 现在主要用于调试输出
-      console.log("📝 数据已标记为更改，当前进度:", {
-        step: currentStep.value,
-        hasDestination: !!baseForm.destinationName,
-        hasPreferences: Object.keys(preferenceForm.value || {}).length > 0,
-      });
     };
 
     // 组件挂载后检查草稿数据和用户偏好
     onMounted(async () => {
-      console.log("🚀 TripCreate组件挂载");
-      console.log("📊 当前aiRecommendationsData状态:", {
-        hasData: !!aiRecommendationsData.value,
-        data: aiRecommendationsData.value
-      });
 
       // 首先检查是否有草稿需要恢复
       restoreDraftData();
@@ -769,9 +750,7 @@ export default {
       // 确保用户偏好数据已加载
       if (userStore.isLoggedIn && userStore.currentUser?.id) {
         try {
-          console.log("🔄 加载用户偏好数据...");
           await userStore.fetchUserPreferences();
-          console.log("✅ 用户偏好数据加载完成");
         } catch (error) {
           console.warn("⚠️ 加载用户偏好失败:", error);
         }
@@ -815,9 +794,6 @@ export default {
       if (route.query.city && route.query.cityName) {
         baseForm.destination = route.query.city;
         baseForm.destinationName = decodeURIComponent(route.query.cityName); // 解码中文名称
-        console.log(
-          `从URL获取到目的地城市：${baseForm.destinationName}(${baseForm.destination})`
-        );
         ElMessage.success(`目的地: ${baseForm.destinationName}`);
 
         // 注意：天气获取将由watch监听器自动触发，不需要在这里手动调用
@@ -826,7 +802,6 @@ export default {
       // 尝试恢复进度（简化版：只从URL查询参数恢复）
       if (!route.query.city && !route.query.fromPreferences) {
         // 这里可以添加其他自动恢复逻辑，暂时留空
-        console.log("🔍 暂无需要恢复的进度");
       }
     });
 
@@ -1208,8 +1183,6 @@ export default {
             baseForm.destinationName || isRestoringProgress.value || isFromDraft.value,
         },
       });
-      console.log("📦 草稿列表:", drafts.value);
-      console.log("🔧 用户偏好:", userStore.userPreferences);
       console.log("🐛 ===== 调试信息结束 =====");
 
       // 同时显示给用户
@@ -1218,32 +1191,20 @@ export default {
 
     // 简单直接的草稿恢复函数
     const restoreDraftData = () => {
-      console.log("🔍 检查是否有草稿需要恢复...");
-      console.log("🔍 draftStore.currentDraft:", draftStore.currentDraft);
-      console.log("🔍 draftStore.isLoadingFromDraft:", draftStore.isLoadingFromDraft);
-
       if (draftStore.hasDraftToRestore()) {
-        console.log("🔄 检测到草稿数据，开始恢复:", draftStore.currentDraft);
-
         const draft = draftStore.currentDraft;
 
         // 恢复步骤
         currentStep.value = draft.currentStep || 0;
-        console.log("✅ 步骤已恢复:", currentStep.value);
 
         // 恢复基础表单数据
         if (draft.baseForm && Object.keys(draft.baseForm).length > 0) {
-          console.log("📋 恢复前的baseForm:", JSON.stringify(baseForm));
-          console.log("📋 草稿中的baseForm:", JSON.stringify(draft.baseForm));
-
           Object.assign(baseForm, draft.baseForm);
-          console.log("✅ 基础表单数据已恢复:", JSON.stringify(baseForm));
         }
 
         // 恢复偏好数据
         if (draft.preferenceForm && Object.keys(draft.preferenceForm).length > 0) {
           preferenceStore.loadDraftPreferences(draft.preferenceForm);
-          console.log("✅ 偏好数据已恢复");
         }
 
         // 恢复其他数据
@@ -1256,25 +1217,20 @@ export default {
         // 设置标识
         isFromDraft.value = true;
 
-        console.log("✅ 草稿数据恢复完成，当前步骤:", currentStep.value);
-        console.log("✅ 最终baseForm状态:", JSON.stringify(baseForm));
 
         // 恢复完成后清除store中的数据
         draftStore.clearDraft();
 
         ElMessage.success(`草稿"${draft.name}"已恢复`);
       } else {
-        console.log("❌ 没有检测到草稿数据需要恢复");
-        console.log("❌ 当前store状态:", {
-          currentDraft: draftStore.currentDraft,
-          isLoadingFromDraft: draftStore.isLoadingFromDraft,
-        });
+        // 没有检测到草稿数据需要恢复
       }
     };
 
     // 在主要的onMounted中已经处理了草稿加载逻辑，删除重复的挂载钩子
 
     return {
+      isDev,
       currentStep,
       baseForm,
       preferenceForm,
