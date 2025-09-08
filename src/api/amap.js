@@ -287,7 +287,6 @@ const generatePoiDescription = (poi) => {
 
     if (poi.business_area) {
         description += `位于${poi.business_area}商圈。`;
-        W
     }
 
     if (poi.tel) {

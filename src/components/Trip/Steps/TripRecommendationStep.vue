@@ -297,10 +297,22 @@ export default {
         loadingRestaurants.value = true;
         apiError.value = null;
 
-        // 并行加载景点和餐厅推荐
+        // 并行加载景点和餐厅推荐（减少数量以节约API配额）
         const [attractionsResponse, restaurantsResponse] = await Promise.all([
-          getRecommendedAttractions(props.cityInfo.destinationName, 1, 12),
-          getRecommendedRestaurants(props.cityInfo.destinationName, 1, 12)
+          getRecommendedAttractions(props.cityInfo.destinationName, 1, 8).catch(err => {
+            console.warn('景点推荐API调用失败:', err);
+            if (err.message && err.message.includes('CUQPS_HAS_EXCEEDED_THE_LIMIT')) {
+              throw new Error('API调用次数已达上限，请稍后再试');
+            }
+            return { pois: [] };
+          }),
+          getRecommendedRestaurants(props.cityInfo.destinationName, 1, 6).catch(err => {
+            console.warn('餐厅推荐API调用失败:', err);
+            if (err.message && err.message.includes('CUQPS_HAS_EXCEEDED_THE_LIMIT')) {
+              throw new Error('API调用次数已达上限，请稍后再试');
+            }
+            return { pois: [] };
+          })
         ]);
 
         // 格式化景点数据
@@ -390,9 +402,16 @@ export default {
         
         const response = await getRecommendedAttractions(
           props.cityInfo.destinationName, 
-          Math.floor(recommendedAttractions.value.length / 12) + 1, 
-          12
-        );
+          Math.floor(recommendedAttractions.value.length / 8) + 1, 
+          8
+        ).catch(err => {
+          console.warn('加载更多景点API调用失败:', err);
+          if (err.message && err.message.includes('CUQPS_HAS_EXCEEDED_THE_LIMIT')) {
+            ElMessage.warning('API调用次数已达上限，无法加载更多');
+            throw err;
+          }
+          throw err;
+        });
         
         if (response.pois && response.pois.length > 0) {
           const newAttractions = response.pois.map((poi) => ({
@@ -426,9 +445,16 @@ export default {
         
         const response = await getRecommendedRestaurants(
           props.cityInfo.destinationName, 
-          Math.floor(recommendedRestaurants.value.length / 12) + 1, 
-          12
-        );
+          Math.floor(recommendedRestaurants.value.length / 6) + 1, 
+          6
+        ).catch(err => {
+          console.warn('加载更多餐厅API调用失败:', err);
+          if (err.message && err.message.includes('CUQPS_HAS_EXCEEDED_THE_LIMIT')) {
+            ElMessage.warning('API调用次数已达上限，无法加载更多');
+            throw err;
+          }
+          throw err;
+        });
         
         if (response.pois && response.pois.length > 0) {
           const newRestaurants = response.pois.map((poi) => ({
@@ -470,7 +496,14 @@ export default {
           page: 1
         };
         
-        const response = await searchPlaces(amapSearchParams);
+        const response = await searchPlaces(amapSearchParams).catch(err => {
+          console.warn('搜索API调用失败:', err);
+          if (err.message && err.message.includes('CUQPS_HAS_EXCEEDED_THE_LIMIT')) {
+            ElMessage.warning('API调用次数已达上限，无法执行搜索');
+            throw err;
+          }
+          throw err;
+        });
         
         // 格式化搜索结果数据
         if (response.pois && response.pois.length > 0) {

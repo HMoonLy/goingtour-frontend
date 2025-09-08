@@ -17,7 +17,7 @@ export const enhancePoiWithCoordinates = async(aiRecommendation, city, type = 'a
 
         // 方案1：如果有精确坐标，优先使用坐标周边搜索
         if (aiRecommendation.coordinates || (aiRecommendation.latitude && aiRecommendation.longitude)) {
-            const enhancedPoi = await searchPoiByCoordinates(aiRecommendation, type);
+            const enhancedPoi = await searchPoiByCoordinates(aiRecommendation, type, city);
             if (enhancedPoi) {
                 console.log(`✅ 通过坐标找到地点: ${enhancedPoi.name}`);
                 return enhancedPoi;
@@ -124,7 +124,20 @@ export const enhanceAiRecommendations = async(aiRecommendations, city) => {
         return [];
     }
 
-    console.log(`🚀 开始增强 ${aiRecommendations.length} 个AI推荐地点`);
+    // 添加安全保护：禁用批量增强，避免API配额超限
+    console.warn(`⚠️ 批量增强功能已禁用，避免API配额超限。请使用按需增强功能。`)
+    console.log(`📋 返回 ${aiRecommendations.length} 个原始推荐地点（未增强）`)
+
+    // 返回原始数据，不进行API增强
+    return aiRecommendations.map(item => ({
+        ...item,
+        poi: null,
+        isEnhanced: false,
+        address: item.address || '暂无详细地址信息'
+    }))
+
+    // 原批量增强逻辑已注释，避免意外调用
+    // console.log(`🚀 开始增强 ${aiRecommendations.length} 个AI推荐地点`);
 
     const enhancedRecommendations = await Promise.allSettled(
         aiRecommendations.map(async(item) => {
@@ -339,9 +352,10 @@ export const enhanceSingleRecommendation = async(aiRecommendation, city) => {
  * 根据坐标搜索POI
  * @param {Object} aiRecommendation - AI推荐数据
  * @param {string} type - 地点类型
+ * @param {string} city - 城市名称（用于坐标搜索的城市限定）
  * @returns {Promise<Object|null>} - POI信息
  */
-const searchPoiByCoordinates = async(aiRecommendation, type) => {
+const searchPoiByCoordinates = async(aiRecommendation, type, city) => {
     try {
         // 提取坐标
         let latitude, longitude;
@@ -366,6 +380,7 @@ const searchPoiByCoordinates = async(aiRecommendation, type) => {
             location: `${longitude},${latitude}`,
             radius: 100, // 100米范围内搜索
             keywords: aiRecommendation.officialName || aiRecommendation.name,
+            city: city, // 添加城市参数
             offset: 3,
             page: 1
         };

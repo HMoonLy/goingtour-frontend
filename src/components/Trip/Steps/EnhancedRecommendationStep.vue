@@ -240,8 +240,9 @@
     <PoiDetailDialog
       v-model="showDetailsDialog"
       :poi="selectedItemDetails || {}"
-      :type="getItemType(selectedItemDetails)"
-      @openMap="handleOpenMap"
+      :is-selected="isItemSelected(selectedItemDetails)"
+      @select="handleSelectFromDialog"
+      @unselect="handleUnselectFromDialog"
     />
   </div>
 </template>
@@ -345,21 +346,18 @@ const displayReasoning = computed(() => {
 
 // 推荐列表（优先使用增强后的数据）
 const filteredAttractions = computed(() => {
-  return enhancedAttractions.value.length > 0 
-   ?enhancedAttractions.value 
-    : props.apiData?.attractions || []
+  // 直接使用原始API数据，不进行批量增强
+  return props.apiData?.attractions || []
 })
 
 const filteredRestaurants = computed(() => {
-  return enhancedRestaurants.value.length > 0 
-   ?enhancedRestaurants.value 
-    : props.apiData?.restaurants || []
+  // 直接使用原始API数据，不进行批量增强
+  return props.apiData?.restaurants || []
 })
 
 const filteredHotels = computed(() => {
-  return enhancedHotels.value.length > 0 
-   ?enhancedHotels.value 
-    : props.apiData?.hotels || []
+  // 直接使用原始API数据，不进行批量增强
+  return props.apiData?.hotels || []
 })
 
 const totalSelected = computed(() => 
@@ -445,6 +443,132 @@ const enhanceRecommendationsWithAmap = async () => {
     ElMessage.warning('地点详细信息获取失败，使用基础推荐数据')
   } finally {
     isEnhancing.value = false
+  }
+}
+
+// 确定地点类型
+const getItemType = (item) => {
+  if (!item) return 'attraction'
+  // 根据卡片组件类型或数据属性判断
+  if (item.cuisine || item.averagePrice) return 'restaurant'
+  if (item.price || item.facilities) return 'hotel'
+  return 'attraction'
+}
+
+// 检查项目是否已选择
+const isItemSelected = (item) => {
+  if (!item) return false
+  const type = getItemType(item)
+  switch (type) {
+    case 'attraction':
+      return isAttractionSelected(item)
+    case 'restaurant':
+      return isRestaurantSelected(item)
+    case 'hotel':
+      return isHotelSelected(item)
+    default:
+      return false
+  }
+}
+
+// 从对话框选择项目
+const handleSelectFromDialog = (item) => {
+  const type = getItemType(item)
+  switch (type) {
+    case 'attraction':
+      handleSelectAttraction(item)
+      break
+    case 'restaurant':
+      handleSelectRestaurant(item)
+      break
+    case 'hotel':
+      handleSelectHotel(item)
+      break
+  }
+}
+
+// 从对话框取消选择项目
+const handleUnselectFromDialog = (item) => {
+  const type = getItemType(item)
+  switch (type) {
+    case 'attraction':
+      handleUnselectAttraction(item)
+      break
+    case 'restaurant':
+      handleUnselectRestaurant(item)
+      break
+    case 'hotel':
+      handleUnselectHotel(item)
+      break
+  }
+}
+
+// 按需获取单个地点的详细信息
+const fetchPoiDetails = async (item, type) => {
+  const city = props.cityInfo?.destinationName
+  if (!city) {
+    console.warn('无法获取城市信息，跳过详细信息获取')
+    ElMessage.warning('无法获取城市信息')
+    return null
+  }
+
+  try {
+    console.log(`🔍 获取地点详细信息: ${item.name}`)
+    
+    // 显示加载消息
+    const loadingMessage = ElMessage({
+      message: '正在获取详细信息...',
+      type: 'info',
+      duration: 0, // 不自动关闭
+      showClose: false
+    })
+    
+    // 动态导入以避免初始加载时的API调用
+    const { enhancePoiWithCoordinates } = await import('@/services/poiEnhancementService.js')
+    
+    const enhancedPoi = await enhancePoiWithCoordinates(item, city, type)
+    
+    if (enhancedPoi) {
+      loadingMessage.close()
+      console.log(`✅ 成功获取详细信息:`, enhancedPoi)
+      ElMessage.success('详细信息获取成功')
+      
+      // 将高德API数据合并到原始项目中
+      const mergedItem = {
+        ...item,
+        // 保留原始数据
+        name: item.name,
+        reasoning: item.reasoning,
+        matchedPreferences: item.matchedPreferences,
+        
+        // 添加高德API数据（直接使用API格式）
+        ...enhancedPoi,
+        
+        // 标记为已增强
+        isEnhanced: true,
+        biz_ext: enhancedPoi.biz_ext || {}
+      }
+      
+      console.log('🎯 合并后的POI数据:', mergedItem)
+      return mergedItem
+    } else {
+      loadingMessage.close()
+      console.warn(`⚠️ 未找到详细信息: ${item.name}`)
+      ElMessage.info('未找到该地点的详细信息')
+      return null
+    }
+  } catch (error) {
+    loadingMessage.close()
+    if (error.message && error.message.includes('CUQPS_HAS_EXCEEDED_THE_LIMIT')) {
+      console.warn(`⚠️ 高德地图API配额已用完，无法获取详细信息: ${item.name}`)
+      ElMessage.warning('API调用次数已达上限，无法获取详细信息')
+    } else {
+      console.error(`❌ 获取详细信息失败: ${item.name}`, error)
+      ElMessage.error('获取详细信息失败')
+    }
+    return null
+  } finally {
+    ElMessage.closeAll()
   }
 }
 
@@ -542,8 +666,28 @@ const handleUnselectHotel = (hotel) => {
   }
 }
 
-const handleShowDetails = (item) => {
-  selectedItemDetails.value = item
+const handleShowDetails = async (item) => {
+  console.log('🔍 用户点击查看详情:', item)
+  
+  const itemType = getItemType(item)
+  
+  // 如果已经有详细信息，直接显示
+  if (item.isEnhanced && (item.address || item.location)) {
+    console.log('✅ 使用已有的详细信息')
+    selectedItemDetails.value = item
+    showDetailsDialog.value = true
+    return
+  }
+  
+  // 按需获取详细信息
+  console.log(`📡 正在获取 ${item.name} 的详细信息...`)
+  const enhancedItem = await fetchPoiDetails(item, itemType)
+  
+  // 显示详情对话框，使用增强后的数据或原始数据
+  const finalItem = enhancedItem || item
+  console.log('🎯 最终传递给对话框的数据:', finalItem)
+  
+  selectedItemDetails.value = finalItem
   showDetailsDialog.value = true
 }
 
@@ -556,32 +700,7 @@ watch(showDetailsDialog, (newValue, oldValue) => {
   }
 })
 
-// 获取项目类型
-const getItemType = (item) => {
-  if (!item) return 'attraction'
-  
-  // 根据数据结构判断类型
-  if (item.type === 'hotel' || (item.type && item.type.includes('酒店'))) {
-    return 'hotel'
-  }
-  if (item.type && item.type.includes('餐')) {
-    return 'restaurant'
-  }
-  if (item.category && (item.category.includes('餐') || item.category.includes('食'))) {
-    return 'restaurant'
-  }
-  if (item.category && (item.category.includes('酒店') || item.category.includes('住宿'))) {
-    return 'hotel'
-  }
-  if (item.tags && item.tags.some(tag => tag.includes('餐') || tag.includes('食'))) {
-    return 'restaurant'
-  }
-  if (item.tags && item.tags.some(tag => tag.includes('酒店') || tag.includes('住宿'))) {
-    return 'hotel'
-  }
-  
-  return 'attraction'
-}
+// getItemType 函数已移至 handleShowDetails 内部
 
 // 在地图中打开
 const handleOpenMap = (poi) => {
@@ -637,8 +756,8 @@ watch(
         ElMessage.warning(newData.reasoning || '使用备用推荐')
       } else if (hasValidData.value) {
         ElMessage.success('推荐数据已更新')
-        // 自动增强推荐数据
-        await enhanceRecommendationsWithAmap()
+        // 注释掉自动增强功能，避免批量API调用
+        // await enhanceRecommendationsWithAmap()
       }
     }
   },

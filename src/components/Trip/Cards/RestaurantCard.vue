@@ -212,7 +212,9 @@ const handleUnselect = () => {
 }
 
 const handleShowDetails = () => {
+  console.log('🔍 RestaurantCard: 点击查看详情按钮', props.restaurant.name)
   emit('show-details', props.restaurant)
+  console.log('📤 RestaurantCard: 已发出 show-details 事件')
 }
 </script>
 

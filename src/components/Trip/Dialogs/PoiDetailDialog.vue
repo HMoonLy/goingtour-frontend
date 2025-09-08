@@ -23,11 +23,25 @@ POI详情对话框组件
         <div class="poi-basic-info">
           <h2 class="poi-name">{{ poi.name }}</h2>
           <div class="poi-category">
-            <el-tag type="info" size="large">{{ getPoiCategory() }}</el-tag>
-            <el-tag v-if="poi.isEnhanced" type="success" size="small">
+            <el-tag v-if="poi.isEnhanced || poi.biz_ext" type="success" size="small">
               <el-icon><Check /></el-icon>
               高德数据
             </el-tag>
+            <!-- 评分和价格信息 -->
+            <div v-if="getRating() || getCost()" class="rating-cost-info">
+              <el-rate
+                v-if="getRating()"
+                :model-value="getRating()"
+                disabled
+                show-score
+                text-color="#ff9900"
+                score-template="{value}分"
+                size="small"
+              />
+              <el-tag v-if="getCost()" type="warning" size="small">
+                人均 ¥{{ getCost() }}
+              </el-tag>
+            </div>
           </div>
         </div>
         
@@ -91,33 +105,37 @@ POI详情对话框组件
                 <span class="label">地址:</span>
                 <span class="value">{{ getAddress() }}</span>
               </div>
-              <div v-if="poi.tel || poi.poi?.tel" class="detail-item">
+              <div v-if="getTelephone()" class="detail-item">
                 <span class="label">电话:</span>
-                <span class="value">{{ poi.tel || poi.poi?.tel }}</span>
+                <span class="value">{{ getTelephone() }}</span>
               </div>
-              <div v-if="poi.openTime || poi.poi?.openTime" class="detail-item">
+              <div v-if="getOpenTime()" class="detail-item">
                 <span class="label">营业时间:</span>
-                <span class="value">{{ poi.openTime || poi.poi?.openTime }}</span>
+                <span class="value">{{ getOpenTime() }}</span>
               </div>
-              <div v-if="poi.poi?.businessArea" class="detail-item">
+              <div v-if="getBusinessArea()" class="detail-item">
                 <span class="label">商圈:</span>
-                <span class="value">{{ poi.poi.businessArea }}</span>
+                <span class="value">{{ getBusinessArea() }}</span>
               </div>
-              <div v-if="poi.poi?.district" class="detail-item">
+              <div v-if="getDistrict()" class="detail-item">
                 <span class="label">所在区域:</span>
-                <span class="value">{{ poi.poi.district }}</span>
+                <span class="value">{{ getDistrict() }}</span>
               </div>
-              <div v-if="poi.poi?.website" class="detail-item">
+              <div v-if="getWebsite()" class="detail-item">
                 <span class="label">官网:</span>
-                <a :href="poi.poi.website" target="_blank" class="value link">
-                  {{ poi.poi.website }}
+                <a :href="getWebsite()" target="_blank" class="value link">
+                  {{ getWebsite() }}
                 </a>
+              </div>
+              <div v-if="poi.adcode" class="detail-item">
+                <span class="label">行政代码:</span>
+                <span class="value">{{ poi.adcode }}</span>
               </div>
             </div>
           </div>
 
           <!-- 位置信息 -->
-          <div v-if="poi.coordinates || poi.poi?.coordinates" class="detail-section">
+          <div v-if="getCoordinates()" class="detail-section">
             <h3 class="section-title">
               <el-icon><MapLocation /></el-icon>
               位置信息
@@ -126,8 +144,12 @@ POI详情对话框组件
               <div class="detail-item">
                 <span class="label">坐标:</span>
                 <span class="value">
-                  {{ formatCoordinates(poi.coordinates || poi.poi?.coordinates) }}
+                  {{ formatCoordinates(getCoordinates()) }}
                 </span>
+              </div>
+              <div v-if="poi.cityname" class="detail-item">
+                <span class="label">城市:</span>
+                <span class="value">{{ poi.cityname }}</span>
               </div>
               <div class="map-actions">
                 <el-button
@@ -185,14 +207,14 @@ POI详情对话框组件
         </div>
 
         <!-- 标签 -->
-        <div v-if="poi.tags?.length" class="tags-section">
+        <div v-if="getTags().length > 0" class="tags-section">
           <h3 class="section-title">
             <el-icon><PriceTag /></el-icon>
             相关标签
           </h3>
           <div class="tags-container">
             <el-tag
-              v-for="tag in poi.tags"
+              v-for="tag in getTags()"
               :key="tag"
               size="default"
               effect="plain"
@@ -286,6 +308,11 @@ const getPoiCategory = () => {
 }
 
 const getRating = () => {
+  // 高德API数据格式
+  if (props.poi.biz_ext?.rating && props.poi.biz_ext.rating > 0) {
+    return Number(props.poi.biz_ext.rating)
+  }
+  // 原有格式
   if (props.poi.poi?.rating && props.poi.poi.rating > 0) {
     return Number(props.poi.poi.rating)
   }
@@ -295,7 +322,27 @@ const getRating = () => {
   return null
 }
 
+const getCost = () => {
+  // 高德API数据格式
+  if (props.poi.biz_ext?.cost && props.poi.biz_ext.cost !== '0.00') {
+    return props.poi.biz_ext.cost
+  }
+  // 原有格式
+  if (props.poi.cost) {
+    return props.poi.cost
+  }
+  return null
+}
+
 const getImages = () => {
+  // 高德API数据格式 - photos字段
+  if (props.poi.photos && Array.isArray(props.poi.photos)) {
+    return props.poi.photos.map(photo => ({
+      url: photo.url || photo,
+      alt: photo.title || props.poi.name
+    }))
+  }
+  
   // 优先使用POI的images
   if (props.poi.poi?.images && Array.isArray(props.poi.poi.images)) {
     return props.poi.poi.images
@@ -306,27 +353,123 @@ const getImages = () => {
     return props.poi.images
   }
   
-  // 兼容旧格式
-  if (props.poi.photos && Array.isArray(props.poi.photos)) {
-    return props.poi.photos.map(photo => ({
-      url: photo.url || photo,
-      alt: props.poi.name
-    }))
-  }
-  
   return []
 }
 
 const getAddress = () => {
-  if (props.poi.poi?.address) {
-    return props.poi.poi.address
-  }
+  // 高德API数据格式
   if (props.poi.address) {
     return props.poi.address
+  }
+  // 原有格式
+  if (props.poi.poi?.address) {
+    return props.poi.poi.address
   }
   if (props.poi.location) {
     return props.poi.location
   }
+  return null
+}
+
+const getTelephone = () => {
+  // 高德API数据格式
+  if (props.poi.tel) {
+    return props.poi.tel
+  }
+  // 原有格式
+  if (props.poi.poi?.tel) {
+    return props.poi.poi.tel
+  }
+  return null
+}
+
+const getBusinessArea = () => {
+  // 高德API数据格式
+  if (props.poi.business_area) {
+    return props.poi.business_area
+  }
+  // 原有格式
+  if (props.poi.poi?.businessArea) {
+    return props.poi.poi.businessArea
+  }
+  return null
+}
+
+const getDistrict = () => {
+  // 高德API数据格式
+  if (props.poi.adname) {
+    return props.poi.adname
+  }
+  // 原有格式
+  if (props.poi.poi?.district) {
+    return props.poi.poi.district
+  }
+  return null
+}
+
+const getWebsite = () => {
+  // 高德API数据格式
+  if (props.poi.website && Array.isArray(props.poi.website) && props.poi.website.length > 0) {
+    return props.poi.website[0]
+  }
+  if (props.poi.website && typeof props.poi.website === 'string') {
+    return props.poi.website
+  }
+  // 原有格式
+  if (props.poi.poi?.website) {
+    return props.poi.poi.website
+  }
+  return null
+}
+
+const getTags = () => {
+  const tags = []
+  
+  // 高德API数据格式 - tag字段（逗号分隔）
+  if (props.poi.tag && typeof props.poi.tag === 'string') {
+    tags.push(...props.poi.tag.split(',').filter(tag => tag.trim()))
+  }
+  
+  // 原有格式
+  if (props.poi.tags && Array.isArray(props.poi.tags)) {
+    tags.push(...props.poi.tags)
+  }
+  
+  return tags
+}
+
+const getOpenTime = () => {
+  // 高德API数据格式
+  if (props.poi.opentime) {
+    return props.poi.opentime
+  }
+  // 原有格式
+  if (props.poi.openTime) {
+    return props.poi.openTime
+  }
+  if (props.poi.poi?.openTime) {
+    return props.poi.poi.openTime
+  }
+  return null
+}
+
+const getCoordinates = () => {
+  // 高德API数据格式 - location字段（经度,纬度）
+  if (props.poi.location && typeof props.poi.location === 'string') {
+    const coords = props.poi.location.split(',')
+    if (coords.length >= 2) {
+      return [parseFloat(coords[0]), parseFloat(coords[1])]
+    }
+  }
+  
+  // 原有格式
+  if (props.poi.coordinates && Array.isArray(props.poi.coordinates)) {
+    return props.poi.coordinates
+  }
+  if (props.poi.poi?.coordinates && Array.isArray(props.poi.poi.coordinates)) {
+    return props.poi.poi.coordinates
+  }
+  
   return null
 }
 
@@ -349,7 +492,7 @@ const formatCoordinates = (coordinates) => {
 }
 
 const openInMap = () => {
-  const coordinates = props.poi.coordinates || props.poi.poi?.coordinates
+  const coordinates = getCoordinates()
   if (coordinates && Array.isArray(coordinates) && coordinates.length >= 2) {
     const [lng, lat] = coordinates
     // 打开高德地图
@@ -447,6 +590,27 @@ const handleImageClick = (index) => {
   gap: 12px;
   align-items: center;
   flex-wrap: wrap;
+}
+
+.rating-cost-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  backdrop-filter: blur(4px);
+}
+
+.rating-cost-info .el-rate {
+  --el-rate-icon-size: 16px;
+}
+
+.rating-cost-info .el-rate__text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ff9900;
 }
 
 .poi-close-btn {

@@ -1104,8 +1104,11 @@ export default {
       saving.value = false;
     };
 
-    // 获取高德API推荐数据的通用方法
+    // 获取高德API推荐数据的通用方法（仅作为AI推荐失败时的备用方案）
     const getFallbackRecommendations = async () => {
+      console.warn('⚠️ AI推荐服务不可用，正在使用高德API作为备用方案...')
+      console.warn('⚠️ 请注意API调用限制，避免配额超限')
+      
       const { getRecommendedAttractions, getRecommendedRestaurants } =
         await import("@/api/amap.js");
 
@@ -1114,16 +1117,22 @@ export default {
         throw new Error("缺少目的地信息，无法获取推荐数据");
       }
 
-      // console.log(`🗺️ 使用高德API获取 ${cityName} 的推荐数据`);
+      console.log(`🗺️ 使用高德API获取 ${cityName} 的推荐数据（备用方案）`);
 
-      // 并行请求景点和餐厅数据
+      // 减少请求数量以节约API配额
       const [attractionsResult, restaurantsResult] = await Promise.all([
-        getRecommendedAttractions(cityName, 1, 12).catch((err) => {
+        getRecommendedAttractions(cityName, 1, 8).catch((err) => {
           console.warn("高德景点API调用失败:", err);
+          if (err.message && err.message.includes('CUQPS_HAS_EXCEEDED_THE_LIMIT')) {
+            throw new Error('API调用次数已达上限，请稍后再试');
+          }
           return { pois: [] };
         }),
-        getRecommendedRestaurants(cityName, 1, 8).catch((err) => {
+        getRecommendedRestaurants(cityName, 1, 6).catch((err) => {
           console.warn("高德餐厅API调用失败:", err);
+          if (err.message && err.message.includes('CUQPS_HAS_EXCEEDED_THE_LIMIT')) {
+            throw new Error('API调用次数已达上限，请稍后再试');
+          }
           return { pois: [] };
         }),
       ]);

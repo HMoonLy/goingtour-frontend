@@ -225,7 +225,9 @@ const handleUnselect = () => {
 }
 
 const handleShowDetails = () => {
+  console.log('🔍 AttractionCard: 点击查看详情按钮', props.attraction.name)
   emit('show-details', props.attraction)
+  console.log('📤 AttractionCard: 已发出 show-details 事件')
 }
 </script>
 
