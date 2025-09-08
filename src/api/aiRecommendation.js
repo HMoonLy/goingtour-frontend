@@ -122,38 +122,48 @@ export const aiRecommendationUtils = {
             attractions: attractions.map(item => ({
                 id: item.id || item.name,
                 name: item.name,
+                officialName: item.officialName || item.name, // 新增：官方名称
                 description: item.description || '',
                 rating: item.rating || 0,
                 price: item.price || 0,
                 tags: item.tags || [],
                 image: item.image || '/api/placeholder/300/200',
                 location: item.location || '',
+                address: item.address || '', // 增强：详细地址
+                website: item.website || '', // 新增：官方网站
                 confidence: item.confidence || 0.8,
-                reasoning: item.reasoning || '',
+                reasoning: item.reason || item.reasoning || '', // 支持新字段名
                 isAiRecommended: true,
                 recommendationScore: item.recommendationScore || 0,
                 matchedPreferences: item.matchedPreferences || [],
                 estimatedDuration: item.estimatedDuration || '2-3小时',
                 bestTimeToVisit: item.bestTimeToVisit || '全天',
-                coordinates: item.coordinates || null
+                coordinates: item.coordinates || null,
+                latitude: item.latitude || null, // 新增：支持扁平化坐标
+                longitude: item.longitude || null // 新增：支持扁平化坐标
             })),
             restaurants: restaurants.map(item => ({
                 id: item.id || item.name,
                 name: item.name,
+                officialName: item.officialName || item.name, // 新增：官方名称
                 description: item.description || '',
                 rating: item.rating || 0,
                 price: item.price || 0,
                 cuisineType: item.cuisineType || '综合',
                 image: item.image || '/api/placeholder/300/200',
                 location: item.location || '',
+                address: item.address || '', // 增强：详细地址
+                website: item.website || '', // 新增：官方网站
                 confidence: item.confidence || 0.8,
-                reasoning: item.reasoning || '',
+                reasoning: item.reason || item.reasoning || '', // 支持新字段名
                 isAiRecommended: true,
                 recommendationScore: item.recommendationScore || 0,
                 matchedPreferences: item.matchedPreferences || [],
                 signature_dishes: item.signature_dishes || [],
                 priceRange: item.priceRange || '中等消费',
-                coordinates: item.coordinates || null
+                coordinates: item.coordinates || null,
+                latitude: item.latitude || null, // 新增：支持扁平化坐标
+                longitude: item.longitude || null // 新增：支持扁平化坐标
             })),
             reasoning: reasoning || '基于您的偏好和行程安排，AI为您精选了这些推荐',
             stats: {

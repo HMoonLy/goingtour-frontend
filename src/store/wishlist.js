@@ -97,7 +97,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
         const { useUserStore } = await
         import ("@/store/user.js");
         const userStore = useUserStore();
-        const userId = userStore.currentUser ? .id || userStore.userId;
+        const userId = userStore.currentUser?.id || userStore.userId;
 
 
 
@@ -199,7 +199,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
         const { useUserStore } = await
         import ("@/store/user.js");
         const userStore = useUserStore();
-        const userId = userStore.currentUser ? .id || userStore.userId;
+        const userId = userStore.currentUser?.id || userStore.userId;
 
         if (!userId) {
             ElMessage.warning("请先登录");
@@ -340,8 +340,8 @@ export const useWishlistStore = defineStore("wishlist", () => {
                 cityName: enhancedCityData.cityName,
                 reason: enhancedCityData.reason || "",
                 tags: enhancedCityData.tags || [],
-                ever_visited: enhancedCityData.ever_visited ? ? false,
-                want_to_visit_again: enhancedCityData.want_to_visit_again ? ? true,
+                ever_visited: enhancedCityData.ever_visited?? false,
+                want_to_visit_again: enhancedCityData.want_to_visit_again?? true,
             };
 
             const response = await wishlistApi.addToWishlist(wishData);
@@ -371,7 +371,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
         const { useUserStore } = await
         import ("@/store/user.js");
         const userStore = useUserStore();
-        const userId = userStore.currentUser ? .id || userStore.userId;
+        const userId = userStore.currentUser?.id || userStore.userId;
 
         if (!userId) return false;
 
@@ -445,7 +445,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
         const { useUserStore } = await
         import ("@/store/user.js");
         const userStore = useUserStore();
-        const userId = userStore.currentUser ? .id || userStore.userId;
+        const userId = userStore.currentUser?.id || userStore.userId;
 
         if (!userId) {
             ElMessage.error("用户未登录，请先登录");
@@ -492,7 +492,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
         const { useUserStore } = await
         import ("@/store/user.js");
         const userStore = useUserStore();
-        const userId = userStore.currentUser ? .id || userStore.userId;
+        const userId = userStore.currentUser?.id || userStore.userId;
 
         if (!userId) {
             ElMessage.error("用户未登录，请先登录");
@@ -574,7 +574,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
                         updatedAt: new Date().toISOString(),
                     };
 
-                    const actionText = wantToVisit ? "想再去" : "取消想再去";
+                    const actionText = wantToVisit?"想再去" : "取消想再去";
                     ElMessage.success(`已将 ${cityName} 标记为${actionText}`);
                 }
                 return true;
@@ -593,7 +593,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
         const { useUserStore } = await
         import ("@/store/user.js");
         const userStore = useUserStore();
-        const userId = userStore.currentUser ? .id || userStore.userId;
+        const userId = userStore.currentUser?.id || userStore.userId;
 
         if (!userId) return false;
 
@@ -640,7 +640,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
         const { useUserStore } = await
         import ("@/store/user.js");
         const userStore = useUserStore();
-        const userId = userStore.currentUser ? .id || userStore.userId;
+        const userId = userStore.currentUser?.id || userStore.userId;
 
         if (!userId) return false;
 
@@ -818,25 +818,25 @@ export const useWishlistStore = defineStore("wishlist", () => {
 
 
             // 返回数组格式以保持兼容性
-            return cityData ? [cityData] : [];
+            return cityData?[cityData] : [];
         } catch (error) {
             console.error("❌ 获取城市照片失败:", {
                 cityCode,
-                error: error.response ? .data ? .message || error.message,
-                status: error.response ? .status,
-                statusText: error.response ? .statusText
+                error: error.response?.data?.message || error.message,
+                status: error.response?.status,
+                statusText: error.response?.statusText
             });
 
             // 详细错误处理 - 针对400错误特殊处理
-            if (error.response ? .status === 400) {
+            if (error.response?.status === 400) {
                 console.warn("⚠️ 400错误，可能是参数问题或数据暂未同步");
                 // 对于400错误，返回空数组但不抛出异常
                 return [];
-            } else if (error.response ? .status === 401) {
+            } else if (error.response?.status === 401) {
                 console.error("❌ 认证失败，需要重新登录");
                 ElMessage.error("认证失败，请重新登录");
                 return [];
-            } else if (error.response ? .status >= 500) {
+            } else if (error.response?.status >= 500) {
                 console.error("❌ 服务器内部错误");
                 // 服务器错误时可以重试
                 throw error;
@@ -1197,7 +1197,7 @@ export const useWishlistStore = defineStore("wishlist", () => {
         const { useUserStore } = await
         import ("@/store/user.js");
         const userStore = useUserStore();
-        const userId = userStore.currentUser ? .id || userStore.userId;
+        const userId = userStore.currentUser?.id || userStore.userId;
 
         if (!userId) {
             ElMessage.error("用户未登录");

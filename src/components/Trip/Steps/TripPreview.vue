@@ -1,9 +1,7 @@
 <template>
   <div class="step-content">
-    <el-card class="info-card"
-shadow="hover">
-      <div v-if="tripData"
-class="trip-preview">
+    <el-card class="info-card" shadow="hover">
+      <div v-if="tripData" class="trip-preview">
         <!-- 行程概述 -->
         <div class="trip-summary">
           <div class="summary-header">
@@ -12,15 +10,11 @@ class="trip-preview">
               <div class="summary-stats">
                 <div class="stat-item">
                   <el-icon><MapLocation /></el-icon>
-                  <span>{{
-                    `${tripData?.attractions?.length || 0}个景点`
-                  }}</span>
+                  <span>{{ `${tripData?.attractions?.length || 0}个景点` }}</span>
                 </div>
                 <div class="stat-item">
                   <el-icon><Shop /></el-icon>
-                  <span>{{
-                    `${tripData?.restaurants?.length || 0}家餐厅`
-                  }}</span>
+                  <span>{{ `${tripData?.restaurants?.length || 0}家餐厅` }}</span>
                 </div>
                 <div class="stat-item">
                   <el-icon><Money /></el-icon>
@@ -29,8 +23,7 @@ class="trip-preview">
               </div>
             </div>
             <div class="summary-actions">
-              <el-button type="primary"
-size="large" @click="shareTrip">
+              <el-button type="primary" size="large" @click="shareTrip">
                 <el-icon><Share /></el-icon>
                 {{ "分享" }}
               </el-button>
@@ -39,11 +32,7 @@ size="large" @click="shareTrip">
 
           <!-- 日程安排 -->
           <div class="daily-schedule">
-            <div
-              v-for="(day, index) in tripData.dailyPlan"
-              :key="index"
-              class="day-plan"
-            >
+            <div v-for="(day, index) in tripData.dailyPlan" :key="index" class="day-plan">
               <div class="day-header">
                 <h4>{{ `第${index + 1}天` }}</h4>
                 <span class="day-date">{{ formatDayDate(index) }}</span>
@@ -85,8 +74,7 @@ size="large" @click="shareTrip">
                         @confirm="removeActivity(index, activityIndex)"
                       >
                         <template #reference>
-                          <el-button size="small"
-circle type="danger">
+                          <el-button size="small" circle type="danger">
                             <el-icon><Delete /></el-icon>
                           </el-button>
                         </template>
@@ -101,18 +89,14 @@ circle type="danger">
       </div>
 
       <!-- 加载中状态 -->
-      <div v-else-if="isLoading"
-class="no-trip-data">
-        <el-skeleton :rows="10"
-animated />
+      <div v-else-if="isLoading" class="no-trip-data">
+        <el-skeleton :rows="10" animated />
       </div>
 
       <!-- 无数据状态 -->
-      <div v-else
-class="no-trip-data">
+      <div v-else class="no-trip-data">
         <el-empty :description="'暂无行程数据'">
-          <el-button type="primary"
-@click="$emit('prev-step')">
+          <el-button type="primary" @click="$emit('prev-step')">
             {{ "生成行程" }}
           </el-button>
         </el-empty>
@@ -121,18 +105,12 @@ class="no-trip-data">
 
     <!-- 步骤操作按钮 -->
     <div class="step-actions">
-      <el-button size="large"
-@click="$emit('prev-step')">
+      <el-button size="large" @click="$emit('prev-step')">
         <el-icon><ArrowLeft /></el-icon>
         {{ "上一步" }}
       </el-button>
 
-      <el-button
-        type="primary"
-        size="large"
-        :disabled="!tripData"
-        @click="saveTrip"
-      >
+      <el-button type="primary" size="large" :disabled="!tripData" @click="saveTrip">
         {{ "保存行程" }}
       </el-button>
     </div>
@@ -274,8 +252,7 @@ export default {
         luxury: 1500,
       };
       const dailyBudget = budgetMap[props.baseForm.budget] || 750;
-      const totalCost =
-        dailyBudget * props.baseForm.days * props.baseForm.travelers;
+      const totalCost = dailyBudget * props.baseForm.days * props.baseForm.travelers;
       return `约 ¥${totalCost.toLocaleString()}`;
     };
 

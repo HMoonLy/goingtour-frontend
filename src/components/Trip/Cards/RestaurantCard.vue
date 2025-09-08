@@ -125,9 +125,14 @@
             />
           </div>
           
-          <div v-if="restaurant.price" class="price">
+          <div v-if="restaurant.price || restaurant.priceRange" class="price">
             <el-icon><Money /></el-icon>
-            <span>{{ restaurant.price }}元</span>
+            <span v-if="typeof restaurant.price === 'number'">
+              人均{{ restaurant.price }}元
+            </span>
+            <span v-else>
+              {{ restaurant.priceRange || restaurant.price || '价格面议' }}
+            </span>
           </div>
         </div>
 

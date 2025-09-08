@@ -5,7 +5,60 @@ import { searchPlaces, enhancePoiData } from '@/api/amap.js';
  */
 
 /**
- * 根据AI推荐的地点名称和城市搜索高德地图POI信息
+ * 根据AI推荐数据获取高德地图POI详细信息（优化版本，支持坐标定位）
+ * @param {Object} aiRecommendation - AI推荐数据
+ * @param {string} city - 城市名称
+ * @param {string} type - 地点类型 ('attraction' | 'restaurant')
+ * @returns {Promise<Object|null>} - 增强后的POI信息
+ */
+export const enhancePoiWithCoordinates = async(aiRecommendation, city, type = 'attraction') => {
+    try {
+        console.log(`🔍 正在增强地点: ${aiRecommendation.name || aiRecommendation.officialName} (${city})`);
+
+        // 方案1：如果有精确坐标，优先使用坐标周边搜索
+        if (aiRecommendation.coordinates || (aiRecommendation.latitude && aiRecommendation.longitude)) {
+            const enhancedPoi = await searchPoiByCoordinates(aiRecommendation, type);
+            if (enhancedPoi) {
+                console.log(`✅ 通过坐标找到地点: ${enhancedPoi.name}`);
+                return enhancedPoi;
+            }
+        }
+
+        // 方案2：使用官方名称精确搜索
+        if (aiRecommendation.officialName) {
+            const enhancedPoi = await searchPoiByName(aiRecommendation.officialName, city, type);
+            if (enhancedPoi) {
+                console.log(`✅ 通过官方名称找到地点: ${enhancedPoi.name}`);
+                return enhancedPoi;
+            }
+        }
+
+        // 方案3：降级到普通名称搜索
+        if (aiRecommendation.name) {
+            const enhancedPoi = await searchPoiByName(aiRecommendation.name, city, type);
+            if (enhancedPoi) {
+                console.log(`✅ 通过名称找到地点: ${enhancedPoi.name}`);
+                return enhancedPoi;
+            }
+        }
+
+        console.warn(`⚠️ 未找到匹配的地点: ${aiRecommendation.name} (${city})`);
+        return null;
+
+    } catch (error) {
+        // 检查是否是API配额超限错误
+        if (error.message && error.message.includes('CUQPS_HAS_EXCEEDED_THE_LIMIT')) {
+            console.warn(`⚠️ 高德地图API配额已用完，跳过地点详细信息获取: ${aiRecommendation.name}`);
+            return null;
+        }
+
+        console.error(`❌ 增强地点失败: ${aiRecommendation.name} (${city})`, error);
+        return null;
+    }
+};
+
+/**
+ * 根据AI推荐的地点名称和城市搜索高德地图POI信息（向后兼容）
  * @param {string} placeName - 地点名称
  * @param {string} city - 城市名称
  * @param {string} type - 地点类型 ('attraction' | 'restaurant')
@@ -79,8 +132,8 @@ export const enhanceAiRecommendations = async(aiRecommendations, city) => {
                 // 确定地点类型
                 const type = determinePoiType(item);
 
-                // 搜索高德POI信息
-                const enhancedPoi = await searchAndEnhancePoi(item.name, city, type);
+                // 优先使用新的坐标增强方法
+                const enhancedPoi = await enhancePoiWithCoordinates(item, city, type);
 
                 if (enhancedPoi) {
                     // 合并AI推荐信息和高德POI信息
@@ -282,8 +335,103 @@ export const enhanceSingleRecommendation = async(aiRecommendation, city) => {
     return enhancedList[0] || aiRecommendation;
 };
 
+/**
+ * 根据坐标搜索POI
+ * @param {Object} aiRecommendation - AI推荐数据
+ * @param {string} type - 地点类型
+ * @returns {Promise<Object|null>} - POI信息
+ */
+const searchPoiByCoordinates = async(aiRecommendation, type) => {
+    try {
+        // 提取坐标
+        let latitude, longitude;
+
+        if (aiRecommendation.coordinates) {
+            latitude = aiRecommendation.coordinates.latitude;
+            longitude = aiRecommendation.coordinates.longitude;
+        } else {
+            latitude = aiRecommendation.latitude;
+            longitude = aiRecommendation.longitude;
+        }
+
+        if (!latitude || !longitude) {
+            console.warn('坐标信息不完整，跳过坐标搜索');
+            return null;
+        }
+
+        console.log(`📍 使用坐标搜索: ${longitude}, ${latitude}`);
+
+        // 使用周边搜索API（需要你的高德API支持）
+        const searchParams = {
+            location: `${longitude},${latitude}`,
+            radius: 100, // 100米范围内搜索
+            keywords: aiRecommendation.officialName || aiRecommendation.name,
+            offset: 3,
+            page: 1
+        };
+
+        // 根据类型添加分类过滤
+        if (type === 'attraction') {
+            searchParams.types = '110000'; // 风景名胜
+        } else if (type === 'restaurant') {
+            searchParams.types = '050000'; // 餐饮服务
+        }
+
+        const response = await searchPlaces(searchParams);
+
+        if (response && response.pois && response.pois.length > 0) {
+            const bestMatch = findBestMatch(aiRecommendation.officialName || aiRecommendation.name, response.pois);
+            if (bestMatch) {
+                const enhancedPois = await enhancePoiData([bestMatch]);
+                return enhancedPois[0];
+            }
+        }
+
+        return null;
+    } catch (error) {
+        console.warn('坐标搜索失败:', error);
+        return null;
+    }
+};
+
+/**
+ * 根据名称搜索POI
+ * @param {string} placeName - 地点名称
+ * @param {string} city - 城市名称
+ * @param {string} type - 地点类型
+ * @returns {Promise<Object|null>} - POI信息
+ */
+const searchPoiByName = async(placeName, city, type) => {
+    const searchParams = {
+        keywords: placeName,
+        city: city,
+        offset: 5,
+        page: 1
+    };
+
+    // 根据类型添加分类过滤
+    if (type === 'attraction') {
+        searchParams.types = '110000'; // 风景名胜
+    } else if (type === 'restaurant') {
+        searchParams.types = '050000'; // 餐饮服务
+    }
+
+    const response = await searchPlaces(searchParams);
+
+    if (response && response.pois && response.pois.length > 0) {
+        const bestMatch = findBestMatch(placeName, response.pois);
+        if (bestMatch) {
+            const enhancedPois = await enhancePoiData([bestMatch]);
+            return enhancedPois[0];
+        }
+    }
+
+    return null;
+};
+
 export default {
     searchAndEnhancePoi,
+    enhancePoiWithCoordinates,
     enhanceAiRecommendations,
     enhanceSingleRecommendation
 };

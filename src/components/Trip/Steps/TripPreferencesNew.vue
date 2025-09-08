@@ -1371,7 +1371,7 @@ export default {
 <style scoped>
 .trip-preferences-container {
   padding: 24px;
-  background: #fafafa;
+  background: #fff;
   min-height: 100vh;
 }
 
