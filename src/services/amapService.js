@@ -126,7 +126,7 @@ export const enhancePoiData = async(pois) => {
                     website: poi.website || '',
                     openTime: poi.business_time || '',
                     // 坐标信息
-                    coordinates: poi.location ? poi.location.split(',').map(Number) : null,
+                    coordinates: poi.location?poi.location.split(',').map(Number) : null,
                     // 原始数据保留
                     rawData: poi
                 };

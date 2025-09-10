@@ -32,7 +32,7 @@ export function useWishlist() {
      */
     const loadWishlist = async(retryCount = 0, maxRetries = 3) => {
         const userStore = useUserStore()
-        const userId = userStore.currentUser ? .id || userStore.userId
+        const userId = userStore.currentUser?.id || userStore.userId
 
         if (!userId) {
             console.warn("⚠️ 用户未登录，无法加载愿望清单")
@@ -77,7 +77,7 @@ export function useWishlist() {
      */
     const addToWishlist = async(cityData) => {
         const userStore = useUserStore()
-        const userId = userStore.currentUser ? .id || userStore.userId
+        const userId = userStore.currentUser?.id || userStore.userId
 
         if (!userId) {
             return false
@@ -107,7 +107,7 @@ export function useWishlist() {
      */
     const removeFromWishlist = async(wishlistId) => {
         const userStore = useUserStore()
-        const userId = userStore.currentUser ? .id || userStore.userId
+        const userId = userStore.currentUser?.id || userStore.userId
 
         if (!userId) return false
 
@@ -131,7 +131,7 @@ export function useWishlist() {
      */
     const markAsVisited = async(wishlistId) => {
         const userStore = useUserStore()
-        const userId = userStore.currentUser ? .id || userStore.userId
+        const userId = userStore.currentUser?.id || userStore.userId
 
         if (!userId) return false
 
@@ -157,7 +157,7 @@ export function useWishlist() {
      */
     const markWantToVisitAgain = async(cityIdOrData, wantToVisit = true) => {
         const userStore = useUserStore()
-        const userId = userStore.currentUser ? .id || userStore.userId
+        const userId = userStore.currentUser?.id || userStore.userId
 
         if (!userId) return false
 
@@ -214,7 +214,7 @@ export function useWishlist() {
      */
     const batchMarkAsVisited = async(cityIds) => {
         const userStore = useUserStore()
-        const userId = userStore.currentUser ? .id || userStore.userId
+        const userId = userStore.currentUser?.id || userStore.userId
 
         if (!userId) return false
 
@@ -246,7 +246,7 @@ export function useWishlist() {
      */
     const updateWishlistItem = async(wishlistId, updateData) => {
         const userStore = useUserStore()
-        const userId = userStore.currentUser ? .id || userStore.userId
+        const userId = userStore.currentUser?.id || userStore.userId
 
         if (!userId) return false
 

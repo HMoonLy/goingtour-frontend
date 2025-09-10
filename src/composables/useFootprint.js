@@ -24,7 +24,7 @@ export function useFootprint() {
      */
     const loadVisitedCities = async(retryCount = 0, maxRetries = 3) => {
         const userStore = useUserStore()
-        const userId = userStore.currentUser ? .id || userStore.userId
+        const userId = userStore.currentUser?.id || userStore.userId
 
         if (!userId) {
             console.warn("⚠️ 用户未登录，无法加载足迹城市")
@@ -88,7 +88,7 @@ export function useFootprint() {
      */
     const deleteVisitedCity = async(cityId) => {
         const userStore = useUserStore()
-        const userId = userStore.currentUser ? .id || userStore.userId
+        const userId = userStore.currentUser?.id || userStore.userId
 
         if (!userId) return false
 

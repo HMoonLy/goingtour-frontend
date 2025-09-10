@@ -137,13 +137,13 @@ class PhotoService {
             const cityData = response.data || null
 
             // 返回数组格式以保持兼容性
-            return cityData ? [cityData] : []
+            return cityData?[cityData] : []
         } catch (error) {
             console.error("❌ 获取城市照片失败:", {
                 cityCode,
-                error: error.response ? .data ? .message || error.message,
-                status: error.response ? .status,
-                statusText: error.response ? .statusText
+                error: error.response?.data?.message || error.message,
+                status: error.response?.status,
+                statusText: error.response?.statusText
             })
 
             return this._handlePhotoError(error)
@@ -367,14 +367,14 @@ class PhotoService {
      */
     _handlePhotoError(error) {
         // 详细错误处理 - 针对400错误特殊处理
-        if (error.response ? .status === 400) {
+        if (error.response?.status === 400) {
             console.warn("⚠️ 400错误，可能是参数问题或数据暂未同步")
             return []
-        } else if (error.response ? .status === 401) {
+        } else if (error.response?.status === 401) {
             console.error("❌ 认证失败，需要重新登录")
             ElMessage.error("认证失败，请重新登录")
             return []
-        } else if (error.response ? .status >= 500) {
+        } else if (error.response?.status >= 500) {
             console.error("❌ 服务器内部错误")
             throw error
         } else if (error.request) {
