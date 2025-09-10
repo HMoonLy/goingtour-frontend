@@ -179,8 +179,9 @@ export default {
 
     // 加载状态
     const loadingAttractions = ref(false);
-    const loadingRestaurants = ref(false);
-    const apiError = ref(null);
+      const loadingRestaurants = ref(false);
+      const apiError = ref(null);
+      const hasLoaded = ref(false); // 防止重复加载
 
     // 搜索相关
     const searchResults = ref([]);
@@ -285,12 +286,18 @@ export default {
       return [...new Set(dishes)]; // 去重
     };
 
-    // 加载推荐数据
-    const loadRecommendations = async () => {
-      if (!props.cityInfo?.destinationName) {
-        console.warn('缺少城市信息，无法加载推荐');
-        return;
-      }
+      // 加载推荐数据
+      const loadRecommendations = async () => {
+        // 防止重复加载
+        if (hasLoaded.value) {
+          console.log('🛑 数据已加载，跳过重复请求');
+          return;
+        }
+        
+        if (!props.cityInfo?.destinationName) {
+          console.warn('缺少城市信息，无法加载推荐');
+          return;
+        }
 
       try {
         loadingAttractions.value = true;
@@ -314,6 +321,9 @@ export default {
             return { pois: [] };
           })
         ]);
+        // console.log(attractionsResponse);
+        // console.log(restaurantsResponse);
+        
 
         // 格式化景点数据
         if (attractionsResponse.pois && attractionsResponse.pois.length > 0) {
@@ -353,6 +363,9 @@ export default {
         //   attractions: recommendedAttractions.value.length,
         //   restaurants: recommendedRestaurants.value.length
         // });
+        
+        // 标记已加载，防止重复请求
+        hasLoaded.value = true;
 
       } catch (error) {
         console.error('❌ 加载推荐数据失败:', error);
