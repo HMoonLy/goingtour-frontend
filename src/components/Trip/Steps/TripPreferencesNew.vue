@@ -1002,24 +1002,6 @@ export default {
           context: requestParams.context,
         });
         
-        // 详细调试当前的偏好设置状态
-        console.log("📋 当前偏好设置状态检查:");
-        console.log("- 旅行目的 (tripPurpose):", tripPreferences.tripPurpose || "未设置");
-        console.log("- 关注领域 (focusAreas):", tripPreferences.focusAreas.length > 0 ? tripPreferences.focusAreas : "未设置");
-        console.log("- 节奏偏好 (pacePreference):", tripPreferences.pacePreference);
-        console.log("- 社交偏好 (socialPreference):", tripPreferences.socialPreference);
-        console.log("- 拍照偏好 (photoPreference):", tripPreferences.photoPreference);
-        console.log("- 特殊需求 (temporaryNeeds):", tripPreferences.temporaryNeeds.length > 0 ? tripPreferences.temporaryNeeds : "未设置");
-        
-        // 检查详细转换数据
-        console.log("🔍 详细转换数据检查:");
-        console.log("- travelPurposeDetail:", requestParams.preferences.travelPurposeDetail);
-        console.log("- focusAreasDetails:", requestParams.preferences.focusAreasDetails);
-        console.log("- pacePreferenceDetail:", requestParams.preferences.pacePreferenceDetail);
-        console.log("- socialPreferenceDetail:", requestParams.preferences.socialPreferenceDetail);
-        console.log("- photoPreferenceDetail:", requestParams.preferences.photoPreferenceDetail);
-        console.log("- temporaryNeedsDetails:", requestParams.preferences.temporaryNeedsDetails);
-
         // 发起AI推荐请求，依赖后端超时设置（4分钟）
         console.log("🚀 开始AI推荐请求，预计耗时2-4分钟...");
 
@@ -1082,26 +1064,120 @@ export default {
     // 确认使用基础推荐
     const confirmUseBasicRecommendation = async () => {
       showAiRecommendationDialog.value = false;
-      saving.value = true;
-      // console.log("🗺️ 用户选择使用基础推荐（高德地图）");
+      // 注意：不设置 saving.value = true，避免显示AI推荐加载提示框
+      console.log("🗺️ 用户选择使用基础推荐（高德地图）");
 
       try {
-        // 使用高德API获取推荐数据
-        const fallbackData = await getFallbackRecommendations();
-        emit("ai-recommendations-generated", fallbackData);
+        // 显示简单的加载提示
+        ElMessage.info("正在获取高德地图推荐数据...");
+        
+        // 使用专门的基础推荐获取方法
+        const basicData = await getBasicRecommendations();
+        emit("ai-recommendations-generated", basicData);
         emit("use-basic-recommendation");
         ElMessage.success(
-          `已为您获取基于高德地图的推荐数据：${fallbackData.attractions.length} 个景点，${fallbackData.restaurants.length} 个餐厅`
+          `已为您获取基于高德地图的推荐数据：${basicData.attractions.length} 个景点，${basicData.restaurants.length} 个餐厅`
         );
-      } catch (fallbackError) {
-        console.error("❌ 高德API获取失败:", fallbackError);
+      } catch (error) {
+        console.error("❌ 高德API获取失败:", error);
         ElMessage.error("推荐数据获取失败，您可以在推荐页面手动搜索");
       }
 
       // 保存偏好并进入下一步
-      // console.log("💾 保存偏好数据:", tripPreferences);
+      console.log("💾 保存偏好数据:", tripPreferences);
       emit("preferences-saved", { ...tripPreferences });
-      saving.value = false;
+    };
+
+    // 获取基础推荐数据（用户主动选择）
+    const getBasicRecommendations = async () => {
+      console.log('🗺️ 用户选择使用高德地图基础推荐，开始获取数据...')
+      
+      const { getRecommendedAttractions, getRecommendedRestaurants } =
+        await import("@/api/amap.js");
+
+      const cityName = props.tripContext?.destination || "";
+      if (!cityName) {
+        throw new Error("缺少目的地信息，无法获取推荐数据");
+      }
+
+      console.log(`📍 正在获取 ${cityName} 的高德地图推荐数据...`);
+
+      // 减少请求数量以节约API配额
+      const [attractionsResult, restaurantsResult] = await Promise.all([
+        getRecommendedAttractions(cityName, 1, 8).catch((err) => {
+          console.warn("高德景点API调用失败:", err);
+          if (err.message && err.message.includes('CUQPS_HAS_EXCEEDED_THE_LIMIT')) {
+            throw new Error('API调用次数已达上限，请稍后再试');
+          }
+          return { pois: [] };
+        }),
+        getRecommendedRestaurants(cityName, 1, 6).catch((err) => {
+          console.warn("高德餐厅API调用失败:", err);
+          if (err.message && err.message.includes('CUQPS_HAS_EXCEEDED_THE_LIMIT')) {
+            throw new Error('API调用次数已达上限，请稍后再试');
+          }
+          return { pois: [] };
+        }),
+      ]);
+
+      // 转换高德API数据格式为推荐格式
+      const attractions = (attractionsResult.pois || []).map((poi, index) => ({
+        id: poi.id || `attraction_${index}`,
+        name: poi.name,
+        description: poi.address || poi.type || '暂无描述',
+        rating: parseFloat((poi.biz_ext && poi.biz_ext.rating) || 4.5),
+        tags: poi.type ? [poi.type.split(';')[0], '高德推荐'] : ['高德推荐'],
+        image: (poi.photos && poi.photos.length > 0) ? poi.photos[0].url : '/api/placeholder/300/200',
+        location: poi.address || '暂无地址',
+        coordinates: poi.location ? poi.location.split(',').map(Number) : null,
+        isAiRecommended: false,
+        isBasicRecommended: true,
+        confidence: 0.7,
+        reasoning: '基于高德地图热门推荐',
+        rawData: poi
+      }));
+
+      const restaurants = (restaurantsResult.pois || []).map((poi, index) => ({
+        id: poi.id || `restaurant_${index}`,
+        name: poi.name,
+        description: poi.address || poi.type || '暂无描述',
+        rating: parseFloat((poi.biz_ext && poi.biz_ext.rating) || 4.5),
+        price: parseInt((poi.biz_ext && poi.biz_ext.cost) || 50),
+        cuisineType: poi.type ? poi.type.split(';')[0] : '综合',
+        tags: poi.type ? [poi.type.split(';')[0], '高德推荐'] : ['高德推荐'],
+        image: (poi.photos && poi.photos.length > 0) ? poi.photos[0].url : '/api/placeholder/300/200',
+        location: poi.address || '暂无地址',
+        coordinates: poi.location ? poi.location.split(',').map(Number) : null,
+        isAiRecommended: false,
+        isBasicRecommended: true,
+        confidence: 0.7,
+        reasoning: '基于高德地图热门推荐',
+        rawData: poi
+      }));
+
+      // 构建推荐结果对象
+      return {
+        attractions,
+        restaurants,
+        hotels: [],
+        reasoning: `为您展示 ${cityName} 的热门推荐。基于高德地图数据的优质选择，值得一游！`,
+        stats: {
+          total: attractions.length + restaurants.length,
+          attractions: attractions.length,
+          restaurants: restaurants.length,
+          hotels: 0,
+          ai: 0,
+          confidence: 0.75,
+          averageRating: 4.1,
+          averageConfidence: 0.7,
+          processingTime: 500,
+        },
+        isBasic: true,
+        isAmapData: true,
+        sessionId: `basic_${Date.now()}`,
+        generatedAt: new Date().toISOString(),
+        timestamp: Date.now(),
+      };
     };
 
     // 获取高德API推荐数据的通用方法（仅作为AI推荐失败时的备用方案）
@@ -1232,18 +1308,18 @@ export default {
         // 显示正在使用高德API获取数据的提示
         ElMessage.info("正在为您获取基础推荐数据...");
 
-        // 使用通用方法获取高德推荐数据
-        const fallbackRecommendations = await getFallbackRecommendations();
+        // 使用基础推荐方法获取高德推荐数据
+        const basicRecommendations = await getBasicRecommendations();
 
-        console.log("✅ 高德API推荐数据获取成功:", fallbackRecommendations);
+        console.log("✅ 高德API推荐数据获取成功:", basicRecommendations);
 
         // 显示成功消息
         ElMessage.success(
-          `基于高德地图为您推荐了 ${fallbackRecommendations.attractions.length} 个景点和 ${fallbackRecommendations.restaurants.length} 个餐厅`
+          `基于高德地图为您推荐了 ${basicRecommendations.attractions.length} 个景点和 ${basicRecommendations.restaurants.length} 个餐厅`
         );
 
         // 发送推荐数据给父组件
-        emit("ai-recommendations-generated", fallbackRecommendations);
+        emit("ai-recommendations-generated", basicRecommendations);
       } catch (error) {
         console.error("❌ 获取高德推荐数据失败:", error);
         ElMessage.warning("获取推荐数据失败，将进入空白推荐页面");

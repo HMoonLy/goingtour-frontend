@@ -12,8 +12,8 @@
           <el-icon><Star /></el-icon>
         </div>
         <div class="header-text">
-          <h2 class="step-title">🎯 {{ cityInfo?.destinationName || '目的地' }}推荐选择</h2>
-          <p class="step-subtitle">从智能推荐中选择您感兴趣的景点和餐厅，AI将据此制定个性化行程</p>
+          <h2 class="step-title">🗺️ {{ cityInfo?.destinationName || '目的地' }}热门推荐</h2>
+          <p class="step-subtitle">基于高德地图数据为您推荐热门景点和餐厅，选择您感兴趣的进行旅行规划</p>
         </div>
       </div>
       
@@ -21,7 +21,7 @@
       <div class="progress-hint">
         <div class="hint-content">
           <el-icon><InfoFilled /></el-icon>
-          <span>💡 基于您的偏好，我们为您推荐了最适合的景点和餐厅</span>
+          <span>💡 基于高德地图数据，为您推荐该地区的热门景点和餐厅</span>
         </div>
       </div>
     </div>
@@ -103,12 +103,12 @@
       </div>
     </div>
 
-    <!-- AI助手提示 -->
+    <!-- 推荐助手提示 -->
     <div v-if="showAiTip" class="ai-tip-card">
       <div class="ai-tip-content">
         <div class="ai-tip-header">
           <el-icon class="ai-icon"><MagicStick /></el-icon>
-          <h4>🤖 AI助手建议</h4>
+          <h4>💡 推荐建议</h4>
           <el-button 
             link 
             size="small" 
@@ -573,14 +573,14 @@ export default {
 
 
 
-    // 获取AI提示文本
+    // 获取提示文本
     const getAiTipText = () => {
       if (totalSelected.value === 0) {
-        return '💡 建议选择一些感兴趣的景点和餐厅，这样AI能为您制定更精准的行程安排。您也可以跳过此步骤，让AI为您自动推荐。';
+        return '💡 建议选择一些感兴趣的景点和餐厅，这样系统能为您制定更精准的行程安排。您也可以跳过此步骤直接生成行程。';
       } else if (totalSelected.value < 3) {
         return `✨ 很好！您已选择了 ${totalSelected.value} 项。可以继续添加更多选择，或直接进入下一步生成行程。`;
       } else {
-        return `🎉 太棒了！您已选择了 ${totalSelected.value} 项丰富的内容，AI将为您制定完美的行程安排！`;
+        return `🎉 太棒了！您已选择了 ${totalSelected.value} 项丰富的内容，系统将为您制定完美的行程安排！`;
       }
     };
 
@@ -795,7 +795,7 @@ export default {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* AI助手提示卡片 */
+/* 推荐助手提示卡片 */
 .ai-tip-card {
   position: fixed;
   bottom: 20px;

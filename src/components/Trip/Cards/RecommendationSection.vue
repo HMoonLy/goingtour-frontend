@@ -251,17 +251,14 @@
           >
             <div class="recommendation-image">
               <img
-                v-if="attraction.photos && attraction.photos.length > 0"
+                v-if="attraction.photos && attraction.photos.length > 0 && !attraction.imageError"
                 :src="attraction.photos[0].url"
                 :alt="attraction.name"
-                @error="
-                  (e) =>
-                    (e.target.src =
-                      'https://via.placeholder.com/300x200?text=Attraction')
-                "
+                @error="handleImageError(attraction)"
               />
               <div v-else class="no-image">
                 <el-icon><Picture /></el-icon>
+                <span>暂无图片</span>
               </div>
             </div>
             <div class="recommendation-content">
@@ -452,17 +449,14 @@
           >
             <div class="recommendation-image">
               <img
-                v-if="restaurant.photos && restaurant.photos.length > 0"
+                v-if="restaurant.photos && restaurant.photos.length > 0 && !restaurant.imageError"
                 :src="restaurant.photos[0].url"
                 :alt="restaurant.name"
-                @error="
-                  (e) =>
-                    (e.target.src =
-                      'https://via.placeholder.com/300x200?text=Food')
-                "
+                @error="handleImageError(restaurant)"
               />
               <div v-else class="no-image">
                 <el-icon><Food /></el-icon>
+                <span>暂无图片</span>
               </div>
             </div>
             <div class="recommendation-content">
@@ -819,6 +813,11 @@ export default {
       handleSearch();
     };
 
+    // 处理图片加载失败
+    const handleImageError = (item) => {
+      // 标记该项目的图片加载失败
+      item.imageError = true;
+    };
 
     return {
       activeTab,
@@ -835,6 +834,7 @@ export default {
       clearAllSelections,
       getSearchSuggestions,
       handleSuggestionSelect,
+      handleImageError,
     };
   },
 };
@@ -1189,10 +1189,18 @@ export default {
   width: 100%;
   height: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   color: #909399;
   font-size: 24px;
+  gap: 8px;
+}
+
+.no-image span {
+  font-size: 12px;
+  color: #c0c4cc;
+  margin-top: 4px;
 }
 
 .recommendation-content {

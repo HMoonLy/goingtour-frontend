@@ -1,5 +1,6 @@
 /**
- * AI推荐相关API接口
+ * AI推荐相关API接口 - 纯HTTP请求层
+ * 职责：只负责API调用，不包含业务逻辑
  */
 
 import { http } from "./request.js";
@@ -39,8 +40,8 @@ export const aiRecommendationApi = {
             maxAttractions: params.maxAttractions || 15,
             maxRestaurants: params.maxRestaurants || 10,
             maxHotels: params.maxHotels || 8,
-            includeReasonings: params.includeReasonings?? true,
-            includeConfidenceScores: params.includeConfidenceScores?? true,
+            includeReasonings: params.includeReasonings ? ? true,
+            includeConfidenceScores: params.includeConfidenceScores ? ? true,
 
             // 上下文信息
             context: params.context || {},
@@ -184,7 +185,7 @@ export const aiRecommendationUtils = {
      */
     isValidRecommendations(recommendations) {
         return recommendations &&
-            (recommendations.attractions?.length > 0 || recommendations.restaurants?.length > 0);
+            (recommendations.attractions ? .length > 0 || recommendations.restaurants ? .length > 0);
     },
 
     /**
