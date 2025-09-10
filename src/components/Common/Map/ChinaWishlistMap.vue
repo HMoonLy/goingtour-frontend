@@ -25,7 +25,7 @@ class="map-loading">
 <script>
 import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
 import * as echarts from "echarts";
-import { getCityCoordinate, getBatchCityCoordinates } from "@/api/amap.js";
+import { useAmap } from "@/composables/useAmap.js";
 import { debounce } from "@/utils/api/apiOptimizer.js";
 
 export default {
@@ -59,6 +59,16 @@ export default {
     const loading = ref(true);
     const loadingMessage = ref("初始化地图组件...");
     let resizeHandler = null;
+
+    // 使用地图服务composable
+    const {
+      getCityCoordinate,
+      getBatchCityCoordinates,
+      coordinates,
+      batchCoordinates,
+      isLoadingCoordinates,
+      isBatchLoading
+    } = useAmap();
 
     // 省份名称映射（用于ECharts地图）
     const provinceMapping = {
@@ -181,12 +191,12 @@ export default {
       };
     };
 
-    // 城市坐标获取（使用高德地图API）
+    // 城市坐标获取（使用useAmap composable）
     const getCityCoordinates = async (cityName) => {
       try {
-        // 使用高德地图API获取精确坐标
-        const coordinates = await getCityCoordinate(cityName);
-        return coordinates;
+        // 使用useAmap composable获取精确坐标
+        const result = await getCityCoordinate(cityName);
+        return result;
       } catch (error) {
         console.warn(`获取城市坐标失败 [${cityName}]:`, error);
 
@@ -239,7 +249,7 @@ export default {
           const cityNames = [
             ...new Set(props.wishlistItems.map((item) => item.cityName)),
           ]; // 去重
-          cityCoordinatesMap = await getBatchCityCoordinates(cityNames, 100); // 增加间隔避免限流
+          cityCoordinatesMap = await getBatchCityCoordinates(cityNames, 100); // 使用useAmap composable批量获取坐标
         }
 
         loadingMessage.value = "渲染城市标记...";

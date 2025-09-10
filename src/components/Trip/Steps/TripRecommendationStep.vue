@@ -133,7 +133,8 @@ import {
   ArrowLeft, ArrowRight, MagicStick, Close
 } from '@element-plus/icons-vue';
 import RecommendationSection from '../Cards/RecommendationSection.vue';
-import { getRecommendedAttractions, getRecommendedRestaurants, searchPlaces } from '@/api/amap.js';
+import { getRecommendedAttractions, getRecommendedRestaurants } from '@/api/amap.js';
+import { useAmap } from '@/composables/useAmap.js';
 
 export default {
   name: 'TripRecommendationStep',
@@ -171,6 +172,9 @@ export default {
     'save-draft'
   ],
   setup(props, { emit }) {
+    // 使用地图服务composable
+    const { searchPlaces } = useAmap();
+
     // 推荐数据
     const recommendedAttractions = ref([]);
     const recommendedRestaurants = ref([]);
@@ -515,16 +519,14 @@ export default {
       try {
         searching.value = true;
         
-        // 转换搜索参数格式以适配高德API
-        const amapSearchParams = {
+        // 使用useAmap搜索
+        const response = await searchPlaces({
           keywords: searchParams.keyword,
           city: props.cityInfo.destinationName,
           types: searchParams.type === 'attractions' ? '110000' : '050000', // 风景名胜或餐饮服务
-          offset: 10,
+          pageSize: 10,
           page: 1
-        };
-        
-        const response = await searchPlaces(amapSearchParams).catch(err => {
+        }).catch(err => {
           console.warn('搜索API调用失败:', err);
           if (err.message && err.message.includes('CUQPS_HAS_EXCEEDED_THE_LIMIT')) {
             ElMessage.warning('API调用次数已达上限，无法执行搜索');

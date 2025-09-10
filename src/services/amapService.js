@@ -419,3 +419,4 @@ export const {
     getBatchCityCoordinates,
     findBestMatchPoi,
     getBatchRecommendations
+} = amapService;
