@@ -126,7 +126,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import {
   Star, InfoFilled, Location, Food, Check, Warning,
@@ -182,6 +182,7 @@ export default {
       const loadingRestaurants = ref(false);
       const apiError = ref(null);
       const hasLoaded = ref(false); // 防止重复加载
+      const currentCityName = ref(''); // 记录当前已加载的城市
 
     // 搜索相关
     const searchResults = ref([]);
@@ -288,16 +289,29 @@ export default {
 
       // 加载推荐数据
       const loadRecommendations = async () => {
-        // 防止重复加载
-        if (hasLoaded.value) {
-          console.log('🛑 数据已加载，跳过重复请求');
-          return;
-        }
+        const cityName = props.cityInfo?.destinationName;
         
-        if (!props.cityInfo?.destinationName) {
+        if (!cityName) {
           console.warn('缺少城市信息，无法加载推荐');
           return;
         }
+        
+        // 防止重复加载 - 检查是否已为当前城市加载过数据
+        if (hasLoaded.value && currentCityName.value === cityName) {
+          console.log('🛑 该城市数据已加载，跳过重复请求，当前城市:', cityName);
+          return;
+        }
+        
+        // 如果城市发生变化，重置加载状态
+        if (currentCityName.value !== cityName) {
+          console.log('🔄 城市变更，重置加载状态', { from: currentCityName.value, to: cityName });
+          hasLoaded.value = false;
+          currentCityName.value = '';
+          recommendedAttractions.value = [];
+          recommendedRestaurants.value = [];
+        }
+        
+        console.log('🚀 开始为城市加载推荐数据:', cityName);
 
       try {
         loadingAttractions.value = true;
@@ -366,6 +380,7 @@ export default {
         
         // 标记已加载，防止重复请求
         hasLoaded.value = true;
+        currentCityName.value = cityName;
 
       } catch (error) {
         console.error('❌ 加载推荐数据失败:', error);
@@ -597,10 +612,25 @@ export default {
       }
     };
 
-    // 组件挂载时加载推荐数据
+    // 监听城市信息变化
+    watch(
+      () => props.cityInfo?.destinationName,
+      (newCityName, oldCityName) => {
+        console.log('🔄 城市信息变化:', { oldCityName, newCityName });
+        if (newCityName && newCityName !== oldCityName) {
+          loadRecommendations();
+        }
+      },
+      { immediate: true } // 立即执行一次
+    );
+
+    // 组件挂载时的调试信息
     onMounted(() => {
-      // console.log('🚀 推荐选择步骤组件挂载');
-      loadRecommendations();
+      console.log('🚀 推荐选择步骤组件挂载', {
+        hasLoaded: hasLoaded.value,
+        currentCity: currentCityName.value,
+        propCity: props.cityInfo?.destinationName
+      });
     });
 
     return {

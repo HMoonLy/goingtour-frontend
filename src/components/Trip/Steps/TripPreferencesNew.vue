@@ -1062,28 +1062,13 @@ export default {
     };
 
     // 确认使用基础推荐
-    const confirmUseBasicRecommendation = async () => {
+    const confirmUseBasicRecommendation = () => {
       showAiRecommendationDialog.value = false;
-      // 注意：不设置 saving.value = true，避免显示AI推荐加载提示框
       console.log("🗺️ 用户选择使用基础推荐（高德地图）");
 
-      try {
-        // 显示简单的加载提示
-        ElMessage.info("正在获取高德地图推荐数据...");
-        
-        // 使用专门的基础推荐获取方法
-        const basicData = await getBasicRecommendations();
-        emit("ai-recommendations-generated", basicData);
-        emit("use-basic-recommendation");
-        ElMessage.success(
-          `已为您获取基于高德地图的推荐数据：${basicData.attractions.length} 个景点，${basicData.restaurants.length} 个餐厅`
-        );
-      } catch (error) {
-        console.error("❌ 高德API获取失败:", error);
-        ElMessage.error("推荐数据获取失败，您可以在推荐页面手动搜索");
-      }
-
-      // 保存偏好并进入下一步
+      // 直接保存偏好并进入下一步，不在这里发起API请求
+      // API请求将在 TripRecommendationStep 组件中进行
+      emit("use-basic-recommendation");
       console.log("💾 保存偏好数据:", tripPreferences);
       emit("preferences-saved", { ...tripPreferences });
     };
