@@ -391,8 +391,8 @@ import { usePreferenceStore } from "@/store/preference.js";
 import { useDraftStore } from "@/store/draft.js";
 import { weatherApi } from "@/api/weather.js";
 import { draftApi } from "@/api/draft.js";
+import { useWeather } from "@/composables/useWeather.js";
 import TripBaseInfo from "@/components/Trip/Steps/TripBaseInfo.vue";
-import TripPreferences from "@/components/Trip/Steps/TripPreferences.vue";
 import TripGeneration from "@/components/Trip/Steps/TripGeneration.vue";
 import TripPreview from "@/components/Trip/Steps/TripPreview.vue";
 import AiTripDisplay from "@/components/Trip/Steps/AiTripDisplay.vue";
@@ -404,7 +404,6 @@ export default {
   name: "TripCreate",
   components: {
     TripBaseInfo,
-    TripPreferences,
     TripPreferencesNew,
     TripRecommendationStep,
     EnhancedRecommendationStep,
@@ -465,10 +464,26 @@ export default {
     const generationProgress = ref("");
     const progressPercent = ref(0);
 
-    // 天气相关状态
-    const weatherSuggestion = ref(null);
-    const loadingWeather = ref(false);
-    const weatherError = ref(null);
+    // 天气相关功能
+    const { 
+      fetchForecastWeather, 
+      forecastWeather, 
+      isLoadingForecast, 
+      error: weatherError
+    } = useWeather();
+
+    // 天气建议数据（兼容现有代码）
+    const weatherSuggestion = computed(() => {
+      if (!forecastWeather.value) return null;
+      
+      return {
+        ...forecastWeather.value,
+        forecast: forecastWeather.value.forecast || forecastWeather.value.casts || []
+      };
+    });
+
+    // 加载状态（兼容现有代码）
+    const loadingWeather = computed(() => isLoadingForecast.value);
 
     // 进度恢复状态
     const isRestoringProgress = ref(false);
@@ -661,38 +676,18 @@ export default {
       }
 
       try {
-        loadingWeather.value = true;
-        weatherError.value = null;
-
-        if (startDate && days) {
-          // 获取天气信息
-          const weatherData = await weatherApi.getWeatherSuggestions(
-            city,
-            new Date(startDate),
-            days
-          );
-          if (weatherData) {
-            weatherSuggestion.value = weatherData;
-            console.log("✅ 天气信息获取成功", weatherData);
-          }
+        console.log("🌤️ 开始获取天气信息:", { city, startDate, days });
+        
+        // 使用重构后的天气服务
+        await fetchForecastWeather(city);
+        
+        if (forecastWeather.value) {
+          console.log("✅ 天气信息获取成功", forecastWeather.value);
         } else {
-          // 获取基础天气数据，不依赖用户的具体日期选择
-          const weatherData = await weatherApi.getWeatherSuggestions(city, new Date(), 3); // 默认3天
-          if (weatherData) {
-            weatherSuggestion.value = weatherData;
-            console.log("✅ 基础天气信息获取成功", weatherData);
-          }
-        }
-
-        if (!weatherSuggestion.value) {
-          weatherError.value = "更新失败";
           console.log("❌ 天气信息获取失败");
         }
       } catch (error) {
         console.error("❌ 获取天气信息时出错:", error);
-        weatherError.value = error.message || "更新失败";
-      } finally {
-        loadingWeather.value = false;
       }
     };
 
@@ -709,10 +704,6 @@ export default {
       (city) => {
 
         if (city) {
-          // 清空之前的天气数据
-          weatherSuggestion.value = null;
-          weatherError.value = null;
-
           // 立即获取天气数据，不依赖用户的日期选择
           fetchWeatherForTrip(city, null, null);
         }
@@ -879,7 +870,7 @@ export default {
           selectedAttractions: selectedAttractions.value,
           selectedRestaurants: selectedRestaurants.value,
           extraRequirements: extraRequirements.value,
-          weatherSuggestion: weatherSuggestion.value,
+          weatherSuggestion: forecastWeather.value,
           recommendationType: recommendationType.value,
         };
 
@@ -907,7 +898,7 @@ export default {
           selectedAttractions: selectedAttractions.value,
           selectedRestaurants: selectedRestaurants.value,
           extraRequirements: extraRequirements.value,
-          weatherSuggestion: weatherSuggestion.value,
+          weatherSuggestion: forecastWeather.value,
           recommendationType: recommendationType.value,
         };
 
@@ -1169,7 +1160,10 @@ export default {
         selectedAttractions.value = draft.selectedAttractions || [];
         selectedRestaurants.value = draft.selectedRestaurants || [];
         extraRequirements.value = draft.extraRequirements || "";
-        weatherSuggestion.value = draft.weatherSuggestion || null;
+        // weatherSuggestion 现在是computed属性，从forecastWeather恢复
+        if (draft.weatherSuggestion) {
+          forecastWeather.value = draft.weatherSuggestion;
+        }
         recommendationType.value = draft.recommendationType || 'enhanced';
 
         // 设置标识

@@ -122,11 +122,51 @@ type="warning" size="small">
 
     <!-- 天气速览 -->
     <section class="auxiliary-section">
-      <WeatherSummary
-        :weather="weather"
-        :loading="loadingWeather"
-        @refresh-weather="refreshWeatherFromWishlist"
-      />
+      <div class="weather-section">
+        <div class="weather-header">
+          <div class="header-left">
+            <h3 class="section-title">
+              <el-icon><Sunny /></el-icon>
+              天气速览
+            </h3>
+            <el-tag
+              v-if="currentWeatherCity"
+              size="small"
+              type="primary"
+              class="city-tag"
+            >
+              {{ currentWeatherCity.cityName }}
+            </el-tag>
+          </div>
+          <div class="weather-controls">
+            <el-button
+              size="small"
+              type="primary"
+              plain
+              :class="{ 'auto-refresh-active': autoRefreshEnabled }"
+              @click="toggleAutoRefresh"
+            >
+              <el-icon><Timer /></el-icon>
+              {{ autoRefreshEnabled ? '停止轮播' : '自动轮播' }}
+            </el-button>
+            <el-button
+              size="small"
+              type="primary"
+              plain
+              :loading="isLoadingForecast"
+              @click="refreshWeatherFromWishlist"
+            >
+              <el-icon><Refresh /></el-icon>
+              刷新
+            </el-button>
+          </div>
+        </div>
+        <WeatherSummary
+          :weather="forecastWeather"
+          :loading="isLoadingForecast"
+          @refresh-weather="refreshWeatherFromWishlist"
+        />
+      </div>
     </section>
   </div>
 </template>
@@ -148,6 +188,7 @@ import {
   Refresh,
   Timer,
   ArrowRight,
+  Sunny,
 } from "@element-plus/icons-vue";
 import { useUserStore } from "@/store/user.js";
 import { useWishlistStore } from "@/store/wishlist.js";
@@ -156,7 +197,7 @@ import { useDraftStore } from "@/store/draft.js";
 import { convertBackendTripToFrontend } from "@/utils/data/tripDataConverter.js";
 import { handleApiError, handleSuccess } from "@/utils/api/errorHandler.js";
 import { aiScenarios } from "@/data/aiScenarios.js";
-import { weatherApi } from "@/api/weather.js";
+import { useWeather } from "@/composables/useWeather.js";
 import WeatherSummary from "@/components/Common/Weather/WeatherSummary.vue";
 
 export default {
@@ -171,6 +212,7 @@ export default {
     Refresh,
     Timer,
     ArrowRight,
+    Sunny,
     WeatherSummary,
   },
   setup() {
@@ -178,15 +220,22 @@ export default {
     const userStore = useUserStore();
     const wishlistStore = useWishlistStore();
 
+    // 使用天气组合函数
+    const {
+      forecastWeather,
+      isLoadingForecast,
+      fetchForecastWeather,
+      forecastSummary
+    } = useWeather();
+
     const savedTrips = ref([]);
     const hasProgress = ref(false);
     const progressSummary = ref({});
     const scenarios = ref(aiScenarios);
-    const weather = ref(null);
     const isWishlistWeather = ref(false);
-    const loadingWeather = ref(false);
     const autoRefreshEnabled = ref(false);
     const autoRefreshTimer = ref(null);
+    const currentWeatherCity = ref(null);
 
     const refreshProgress = async () => {
       // 检查是否有自动草稿（新的进度检查方式）
@@ -451,20 +500,13 @@ export default {
     ) => {
       if (!cityName) return;
 
-      loadingWeather.value = true;
       isWishlistWeather.value = fromWishlist;
 
       try {
-        const ws = await weatherApi.getWeatherSuggestions(
-          adcode || cityName,
-          new Date(),
-          3,
-        );
-        weather.value = ws;
+        // 使用组合函数获取天气预报
+        await fetchForecastWeather(adcode || cityName);
       } catch (e) {
         console.warn(`获取${cityName}天气失败:`, e);
-      } finally {
-        loadingWeather.value = false;
       }
     };
 
@@ -483,7 +525,8 @@ export default {
           await loadWeatherForCity(cityName, null, false);
         } else {
           // 没有指定城市且没有愿望清单，显示空状态
-          weather.value = null;
+          forecastWeather.value = null;
+          currentWeatherCity.value = null;
         }
         return;
       }
@@ -495,6 +538,7 @@ export default {
           randomCity.adcode,
           true,
         );
+        currentWeatherCity.value = randomCity;
         wishlistStore.setCurrentWeatherCity(randomCity);
         ElMessage.success(`已切换到 ${randomCity.cityName} 的天气`);
       }
@@ -503,6 +547,7 @@ export default {
     // 处理愿望清单天气城市变更
     const handleWeatherCityChange = async (city) => {
       await loadWeatherForCity(city.cityName, city.adcode, true);
+      currentWeatherCity.value = city;
     };
 
     // 切换自动刷新
@@ -554,11 +599,13 @@ export default {
             randomCity.adcode,
             true,
           );
+          currentWeatherCity.value = randomCity;
           wishlistStore.setCurrentWeatherCity(randomCity);
         }
       } else {
         // 没有愿望城市时，将weather设为null，让WeatherSummary显示空状态
-        weather.value = null;
+        forecastWeather.value = null;
+        currentWeatherCity.value = null;
       }
     });
 
@@ -604,7 +651,11 @@ export default {
       deleteTrip,
       displayTrips,
       recentTripsPreview,
-      weather,
+      // 天气相关 
+      forecastWeather,
+      isLoadingForecast,
+      forecastSummary,
+      currentWeatherCity,
       scenarios,
       applyScenario,
       // 草稿相关
@@ -618,7 +669,7 @@ export default {
       // 愿望清单和天气相关
       wishlistStore,
       isWishlistWeather,
-      loadingWeather,
+      loadingWeather: isLoadingForecast,
       autoRefreshEnabled,
       refreshWeatherFromWishlist,
       handleWeatherCityChange,

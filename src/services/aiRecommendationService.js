@@ -4,7 +4,7 @@
  */
 
 import { ElMessage } from 'element-plus'
-import { aiRecommendationApi, aiRecommendationUtils } from '@/api/aiRecommendation.js'
+import { aiRecommendationApi } from '@/api/aiRecommendation.js'
 import {
     PERSONAL_PROFILE_OPTIONS,
     TRIP_PREFERENCES_OPTIONS,
@@ -18,6 +18,185 @@ class AiRecommendationService {
         this.loadingPromises = new Map()
         this.cacheTimeout = 10 * 60 * 1000 // 10分钟缓存
         this.fallbackEnabled = true // 启用降级方案
+    }
+
+    /**
+     * 数据处理工具方法
+     */
+
+    /**
+     * 解析预算字符串为数字（兼容后端期望的Integer类型）
+     */
+    parseBudget(budgetStr) {
+        if (!budgetStr) return null;
+        // 提取数字，例如 "3000-5000元" -> 4000 (取中间值)
+        const numbers = budgetStr.match(/\d+/g);
+        if (!numbers || numbers.length === 0) return null;
+        if (numbers.length === 1) return parseInt(numbers[0]);
+        // 如果是范围，取中间值
+        const min = parseInt(numbers[0]);
+        const max = parseInt(numbers[1]);
+        return Math.round((min + max) / 2);
+    }
+
+    /**
+     * 预处理API请求参数
+     */
+    preprocessApiParams(params) {
+        return {
+            // 保持原始的嵌套数据结构
+            baseInfo: params.baseInfo || {},
+            preferences: params.preferences || {},
+            userProfile: params.userProfile || {},
+
+            // 请求配置参数（放在顶层）
+            maxAttractions: params.maxAttractions || 15,
+            maxRestaurants: params.maxRestaurants || 10,
+            maxHotels: params.maxHotels || 8,
+            includeReasonings: params.includeReasonings ? ? true,
+            includeConfidenceScores: params.includeConfidenceScores ? ? true,
+
+            // 上下文信息
+            context: params.context || {},
+        };
+    }
+
+    /**
+     * 格式化推荐数据
+     */
+    formatRecommendations(rawData) {
+        if (!rawData || !rawData.data) {
+            return {
+                attractions: [],
+                restaurants: [],
+                reasoning: '暂无推荐数据',
+                stats: { total: 0, ai: 0, confidence: 0 }
+            };
+        }
+
+        const { attractions = [], restaurants = [], reasoning = '', stats = {} } = rawData.data;
+
+        return {
+            attractions: attractions.map(item => ({
+                id: item.id || item.name,
+                name: item.name,
+                officialName: item.officialName || item.name,
+                description: item.description || '',
+                rating: item.rating || 0,
+                price: item.price || 0,
+                tags: item.tags || [],
+                image: item.image || '/api/placeholder/300/200',
+                location: item.location || '',
+                address: item.address || '',
+                website: item.website || '',
+                confidence: item.confidence || 0.8,
+                reasoning: item.reason || item.reasoning || '',
+                isAiRecommended: true,
+                recommendationScore: item.recommendationScore || 0,
+                matchedPreferences: item.matchedPreferences || [],
+                estimatedDuration: item.estimatedDuration || '2-3小时',
+                bestTimeToVisit: item.bestTimeToVisit || '全天',
+                coordinates: item.coordinates || null,
+                latitude: item.latitude || null,
+                longitude: item.longitude || null
+            })),
+            restaurants: restaurants.map(item => ({
+                id: item.id || item.name,
+                name: item.name,
+                officialName: item.officialName || item.name,
+                description: item.description || '',
+                rating: item.rating || 0,
+                price: item.price || 0,
+                cuisineType: item.cuisineType || '综合',
+                image: item.image || '/api/placeholder/300/200',
+                location: item.location || '',
+                address: item.address || '',
+                website: item.website || '',
+                confidence: item.confidence || 0.8,
+                reasoning: item.reason || item.reasoning || '',
+                isAiRecommended: true,
+                recommendationScore: item.recommendationScore || 0,
+                matchedPreferences: item.matchedPreferences || [],
+                signature_dishes: item.signature_dishes || [],
+                priceRange: item.priceRange || '中等消费',
+                coordinates: item.coordinates || null,
+                latitude: item.latitude || null,
+                longitude: item.longitude || null
+            })),
+            reasoning: reasoning || '基于您的偏好和行程安排，AI为您精选了这些推荐',
+            stats: {
+                total: (attractions.length || 0) + (restaurants.length || 0),
+                attractions: attractions.length || 0,
+                restaurants: restaurants.length || 0,
+                ai: stats.aiRecommendedCount || 0,
+                confidence: stats.averageConfidence || 0.8
+            },
+            sessionId: rawData.sessionId,
+            generatedAt: rawData.generatedAt || new Date().toISOString()
+        };
+    }
+
+    /**
+     * 检查推荐数据是否有效
+     */
+    isValidRecommendations(recommendations) {
+        return recommendations &&
+            (recommendations.attractions ? .length > 0 || recommendations.restaurants ? .length > 0);
+    }
+
+    /**
+     * 合并多个推荐源的数据
+     */
+    mergeRecommendationSources(sources) {
+        const merged = {
+            attractions: [],
+            restaurants: [],
+            reasoning: '',
+            stats: { total: 0, ai: 0, confidence: 0 }
+        };
+
+        sources.forEach(source => {
+            if (source.attractions) {
+                merged.attractions.push(...source.attractions);
+            }
+            if (source.restaurants) {
+                merged.restaurants.push(...source.restaurants);
+            }
+        });
+
+        // 去重（基于名称）
+        merged.attractions = this.deduplicateByName(merged.attractions);
+        merged.restaurants = this.deduplicateByName(merged.restaurants);
+
+        // 更新统计
+        merged.stats.total = merged.attractions.length + merged.restaurants.length;
+        merged.stats.attractions = merged.attractions.length;
+        merged.stats.restaurants = merged.restaurants.length;
+        merged.stats.ai = merged.attractions.filter(a => a.isAiRecommended).length +
+            merged.restaurants.filter(r => r.isAiRecommended).length;
+
+        return merged;
+    }
+
+    /**
+     * 根据名称去重
+     */
+    deduplicateByName(items) {
+        const seen = new Set();
+        return items.filter(item => {
+            if (seen.has(item.name)) {
+                return false;
+            }
+            seen.add(item.name);
+            return true;
+        });
+    }
+
+    /**
+     * 按推荐分数排序
+     */
+    sortByRecommendationScore(items) {
+        return [...items].sort((a, b) => (b.recommendationScore || 0) - (a.recommendationScore || 0));
     }
 
     /**
@@ -270,12 +449,13 @@ class AiRecommendationService {
                 maxRestaurants: 10
             }
 
-            // 调用AI推荐API
-            const response = await aiRecommendationApi.getPersonalizedRecommendations(requestParams)
+            // 预处理API参数并调用AI推荐API
+            const processedParams = this.preprocessApiParams(requestParams)
+            const response = await aiRecommendationApi.getPersonalizedRecommendations(processedParams)
 
             if (response.success && response.data) {
                 console.log('✅ AI推荐获取成功:', response.data)
-                return aiRecommendationUtils.formatRecommendations(response)
+                return this.formatRecommendations(response)
             } else {
                 throw new Error(response.message || 'AI推荐服务返回错误')
             }
@@ -346,10 +526,10 @@ class AiRecommendationService {
                 description: poi.address || poi.type || '',
                 rating: parseFloat(poi.rating) || 4.0,
                 price: parseInt(poi.cost) || 0,
-                tags: poi.type?[poi.type, '高德推荐'] : ['高德推荐'],
+                tags: poi.type ? [poi.type, '高德推荐'] : ['高德推荐'],
                 image: '/api/placeholder/300/200',
                 location: poi.address || '',
-                coordinates: poi.location?poi.location.split(',').map(Number) : null,
+                coordinates: poi.location ? poi.location.split(',').map(Number) : null,
                 isAiRecommended: false,
                 isFallback: true,
                 confidence: 0.6,
@@ -363,10 +543,10 @@ class AiRecommendationService {
                 rating: parseFloat(poi.rating) || 4.0,
                 price: parseInt(poi.cost) || 0,
                 cuisineType: poi.type || '综合',
-                tags: poi.type?[poi.type, '高德推荐'] : ['高德推荐'],
+                tags: poi.type ? [poi.type, '高德推荐'] : ['高德推荐'],
                 image: '/api/placeholder/300/200',
                 location: poi.address || '',
-                coordinates: poi.location?poi.location.split(',').map(Number) : null,
+                coordinates: poi.location ? poi.location.split(',').map(Number) : null,
                 isAiRecommended: false,
                 isFallback: true,
                 confidence: 0.6,
@@ -508,7 +688,7 @@ class AiRecommendationService {
             const response = await aiRecommendationApi.refreshRecommendations(requestParams, excludeIds)
 
             if (response.success && response.data) {
-                const formattedData = aiRecommendationUtils.formatRecommendations(response)
+                const formattedData = this.formatRecommendations(response)
 
                 // 更新缓存
                 const cacheKey = this.generateCacheKey(baseForm, preferenceForm)
