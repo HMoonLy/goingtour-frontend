@@ -119,33 +119,20 @@
       <!-- 搜索功能 -->
       <div class="search-section">
         <div class="search-input-group">
-          <el-autocomplete
+          <el-input
             v-model="searchKeyword"
-            :fetch-suggestions="getSearchSuggestions"
             :placeholder="
               activeTab === 'attractions'?'搜索景点名称或输入关键词' : '搜索餐厅名称或输入关键词'
             "
             clearable
-            class="search-autocomplete"
-            @select="handleSuggestionSelect"
+            class="search-input"
             @keyup.enter="handleSearch"
             @clear="handleClearSearch"
           >
             <template #prefix>
               <el-icon><Search /></el-icon>
             </template>
-            <template #default="{ item }">
-              <div class="suggestion-item">
-                <el-icon class="suggestion-icon">
-                  <component :is="item.icon" />
-                </el-icon>
-                <span class="suggestion-text">{{ item.value }}</span>
-                <el-tag v-if="item.type" size="small" :type="item.tagType">
-                  {{ item.type }}
-                </el-tag>
-              </div>
-            </template>
-          </el-autocomplete>
+          </el-input>
           <el-button
             type="primary"
             :loading="searching"
@@ -167,6 +154,29 @@
             <el-option label="默认排序" value="default" />
             <el-option label="评分优先" value="rating" />
             <el-option label="距离优先" value="distance" />
+          </el-select>
+          
+          <!-- 地标选择器 - 仅在距离优先时显示 -->
+          <el-select
+            v-if="sortBy === 'distance'"
+            v-model="selectedLandmark"
+            placeholder="选择参考地标"
+            size="small"
+            style="width: 160px; margin-left: 8px"
+            filterable
+            @change="onLandmarkChange"
+          >
+            <el-option
+              v-for="landmark in availableLandmarks"
+              :key="landmark.id"
+              :label="landmark.name"
+              :value="landmark.id"
+            >
+              <div class="landmark-option">
+                <span class="landmark-name">{{ landmark.name }}</span>
+                <span class="landmark-type">{{ landmark.type }}</span>
+              </div>
+            </el-option>
           </el-select>
         </div>
       </div>
@@ -652,7 +662,7 @@
 </template>
 
 <script>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, nextTick } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
   Location,
@@ -796,6 +806,11 @@ export default {
     // 排序方式
     const sortBy = ref("default");
     
+    // 地标选择相关
+    const selectedLandmark = ref("");
+    const availableLandmarks = ref([]);
+    const landmarkCoordinates = ref({});
+    
     // 选择摘要详情展开状态
     const showSummaryDetail = ref(false);
 
@@ -809,32 +824,39 @@ export default {
       });
     }, { immediate: true, deep: true });
 
-    // 搜索建议数据
-    const attractionSuggestions = [
-      { value: "故宫博物院", icon: "Location", type: "历史文化", tagType: "primary" },
-      { value: "天安门广场", icon: "Location", type: "地标建筑", tagType: "primary" },
-      { value: "颐和园", icon: "Location", type: "园林景观", tagType: "success" },
-      { value: "天坛公园", icon: "Location", type: "历史文化", tagType: "primary" },
-      { value: "长城", icon: "Location", type: "世界遗产", tagType: "warning" },
-      { value: "鸟巢", icon: "Location", type: "现代建筑", tagType: "info" },
-      { value: "水立方", icon: "Location", type: "现代建筑", tagType: "info" },
-      { value: "恭王府", icon: "Location", type: "历史建筑", tagType: "primary" },
-      { value: "南锣鼓巷", icon: "Location", type: "文化街区", tagType: "success" },
-      { value: "798艺术区", icon: "Location", type: "艺术文化", tagType: "success" },
-    ];
 
-    const restaurantSuggestions = [
-      { value: "全聚德烤鸭", icon: "Food", type: "北京菜", tagType: "warning" },
-      { value: "东来顺火锅", icon: "Food", type: "火锅", tagType: "danger" },
-      { value: "便宜坊", icon: "Food", type: "北京菜", tagType: "warning" },
-      { value: "护国寺小吃", icon: "Food", type: "小吃", tagType: "success" },
-      { value: "老北京炸酱面", icon: "Food", type: "面食", tagType: "info" },
-      { value: "豆汁", icon: "Food", type: "传统小吃", tagType: "success" },
-      { value: "糖葫芦", icon: "Food", type: "传统小吃", tagType: "success" },
-      { value: "驴打滚", icon: "Food", type: "传统小吃", tagType: "success" },
-      { value: "艾窝窝", icon: "Food", type: "传统小吃", tagType: "success" },
-      { value: "羊蝎子", icon: "Food", type: "北京菜", tagType: "warning" },
-    ];
+    // 距离计算函数 (Haversine公式)
+    const calculateDistance = (lat1, lon1, lat2, lon2) => {
+      const R = 6371; // 地球半径（公里）
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = 
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c; // 返回距离（公里）
+    };
+
+    // 为POI计算距离
+    const calculatePOIDistance = (poi, landmarkCoord) => {
+      if (!poi.location || !landmarkCoord) return Infinity;
+      
+      try {
+        const [poiLon, poiLat] = poi.location.split(',').map(parseFloat);
+        if (isNaN(poiLat) || isNaN(poiLon)) return Infinity;
+        
+        return calculateDistance(
+          landmarkCoord.lat, 
+          landmarkCoord.lon, 
+          poiLat, 
+          poiLon
+        );
+      } catch (error) {
+        console.warn('距离计算失败:', error);
+        return Infinity;
+      }
+    };
 
     // 排序函数
     const sortItems = (items, sortType) => {
@@ -848,9 +870,15 @@ export default {
             return ratingB - ratingA;
           });
         case "distance":
+          // 基于地标的距离排序
+          if (!selectedLandmark.value || !landmarkCoordinates.value[selectedLandmark.value]) {
+            return sorted; // 没有选择地标时保持原序
+          }
+          
+          const landmarkCoord = landmarkCoordinates.value[selectedLandmark.value];
           return sorted.sort((a, b) => {
-            const distA = parseFloat(a.distance) || Infinity;
-            const distB = parseFloat(b.distance) || Infinity;
+            const distA = calculatePOIDistance(a, landmarkCoord);
+            const distB = calculatePOIDistance(b, landmarkCoord);
             return distA - distB;
           });
         default:
@@ -920,26 +948,66 @@ export default {
       }
     };
 
-    // 获取搜索建议
-    const getSearchSuggestions = (queryString, cb) => {
-      const suggestions = activeTab.value === 'attractions' 
-       ?attractionSuggestions 
-        : restaurantSuggestions;
-      
-      const results = queryString
-       ?suggestions.filter(item => 
-            item.value.toLowerCase().includes(queryString.toLowerCase())
-          )
-        : suggestions.slice(0, 6); // 默认显示前6个
-      
-      cb(results);
+    // 地标选择变化处理
+    const onLandmarkChange = () => {
+      // 地标变化时，触发重新排序
+      console.log('地标选择变更:', selectedLandmark.value);
     };
 
-    // 处理建议选择
-    const handleSuggestionSelect = (item) => {
-      searchKeyword.value = item.value;
-      handleSearch();
+    // 初始化可用地标列表
+    const initializeLandmarks = () => {
+      const landmarks = [];
+      const coordinates = {};
+      
+      // 从推荐景点中选择知名度高的作为地标
+      if (props.recommendedAttractions && props.recommendedAttractions.length > 0) {
+        props.recommendedAttractions.forEach((attraction, index) => {
+          // 选择前10个景点作为潜在地标，且必须有坐标信息
+          if (index < 10 && attraction.location) {
+            try {
+              const [lon, lat] = attraction.location.split(',').map(parseFloat);
+              if (!isNaN(lat) && !isNaN(lon)) {
+                landmarks.push({
+                  id: attraction.id,
+                  name: attraction.name,
+                  type: attraction.type || '景点'
+                });
+                coordinates[attraction.id] = { lat, lon };
+              }
+            } catch (error) {
+              console.warn('地标坐标解析失败:', attraction.name, error);
+            }
+          }
+        });
+      }
+      
+      // 如果景点数量不足，从餐厅中补充
+      if (landmarks.length < 5 && props.recommendedRestaurants && props.recommendedRestaurants.length > 0) {
+        props.recommendedRestaurants.forEach((restaurant, index) => {
+          if (landmarks.length < 8 && restaurant.location) {
+            try {
+              const [lon, lat] = restaurant.location.split(',').map(parseFloat);
+              if (!isNaN(lat) && !isNaN(lon)) {
+                landmarks.push({
+                  id: restaurant.id,
+                  name: restaurant.name,
+                  type: restaurant.type || '餐厅'
+                });
+                coordinates[restaurant.id] = { lat, lon };
+              }
+            } catch (error) {
+              console.warn('地标坐标解析失败:', restaurant.name, error);
+            }
+          }
+        });
+      }
+      
+      availableLandmarks.value = landmarks;
+      landmarkCoordinates.value = coordinates;
+      
+      console.log(`初始化地标完成，共${landmarks.length}个地标可选`);
     };
+
 
     // 处理图片加载失败
     const handleImageError = (item) => {
@@ -947,10 +1015,31 @@ export default {
       item.imageError = true;
     };
 
+    // 监听推荐数据变化，初始化地标列表
+    watch(
+      [() => props.recommendedAttractions, () => props.recommendedRestaurants],
+      () => {
+        // 延迟初始化，确保数据已加载
+        nextTick(() => {
+          initializeLandmarks();
+        });
+      },
+      { immediate: true, deep: true }
+    );
+
+    // 监听排序方式变化，重置地标选择
+    watch(sortBy, (newValue) => {
+      if (newValue !== 'distance') {
+        selectedLandmark.value = '';
+      }
+    });
+
     return {
       activeTab,
       searchKeyword,
       sortBy,
+      selectedLandmark,
+      availableLandmarks,
       showSummaryDetail,
       sortedAttractions,
       sortedRestaurants,
@@ -960,8 +1049,7 @@ export default {
       handleClearSearch,
       toggleSummaryDetail,
       clearAllSelections,
-      getSearchSuggestions,
-      handleSuggestionSelect,
+      onLandmarkChange,
       handleImageError,
     };
   },
@@ -1187,11 +1275,11 @@ export default {
 }
 
 .search-input-group .el-input,
-.search-input-group .search-autocomplete {
+.search-input-group .search-input {
   flex: 1;
 }
 
-.search-autocomplete {
+.search-input {
   font-size: 16px; /* 防止iOS缩放 */
 }
 
@@ -1201,22 +1289,25 @@ export default {
   align-items: center;
 }
 
-/* 搜索建议样式 */
-.suggestion-item {
+/* 地标选择器样式 */
+.landmark-option {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 8px;
-  padding: 4px 0;
+  width: 100%;
 }
 
-.suggestion-icon {
-  color: #91a8d0;
-  font-size: 14px;
+.landmark-name {
+  font-weight: 500;
+  color: #303133;
 }
 
-.suggestion-text {
-  flex: 1;
-  font-size: 14px;
+.landmark-type {
+  font-size: 12px;
+  color: #909399;
+  background: #f4f4f5;
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 
