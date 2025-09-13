@@ -339,10 +339,6 @@ export default {
             return { pois: [] };
           })
         ]);
-        // console.log(attractionsResponse);
-        // console.log(restaurantsResponse);
-        
-
         // 格式化景点数据
         if (attractionsResponse.pois && attractionsResponse.pois.length > 0) {
           recommendedAttractions.value = attractionsResponse.pois.map((poi) => ({
@@ -376,12 +372,6 @@ export default {
         } else {
           recommendedRestaurants.value = [];
         }
-
-        // console.log('✅ 推荐数据加载完成', {
-        //   attractions: recommendedAttractions.value.length,
-        //   restaurants: recommendedRestaurants.value.length
-        // });
-        
         // 标记已加载，防止重复请求
         hasLoaded.value = true;
         currentCityName.value = cityName;
@@ -535,29 +525,30 @@ export default {
           throw err;
         });
         
-        // 格式化搜索结果数据
-        if (response.pois && response.pois.length > 0) {
-          searchResults.value = response.pois.map((poi) => {
-            const isAttraction = poi.type && poi.type.includes("风景名胜");
-            return {
-              id: poi.id,
-              name: poi.name,
-              address: poi.address,
-              rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
-              photos: poi.photos || [],
-              type: poi.type ? poi.type.split(";")[0] : (isAttraction ? "景点" : "餐厅"),
-              price: (poi.biz_ext && poi.biz_ext.cost) || "¥¥",
-              distance: poi.distance || null,
-              tags: extractTags(poi),
-              tag: poi.tag,
-              isAttraction: isAttraction,
-            };
-          });
-        } else {
-          searchResults.value = [];
-        }
+        // 直接使用增强后的POI数据
+        // useAmap.searchPlaces 现在返回的是pois数组
+        searchResults.value = response || [];
+        
+        console.log('搜索结果:', searchResults.value.length, '个POI');
+        console.log('景点数量:', searchResults.value.filter(poi => poi.isAttraction).length);
+        searchResults.value.forEach(poi => {
+          console.log(`${poi.name}: isAttraction = ${poi.isAttraction}, type = "${poi.type}"`);
+        });
         
         isSearchMode.value = true;
+        
+        // 添加更多调试信息
+        console.log('🔍 搜索完成状态更新:', {
+          isSearchMode: isSearchMode.value,
+          searchResults长度: searchResults.value.length,
+          景点数: searchResults.value.filter(item => item.isAttraction).length,
+          餐厅数: searchResults.value.filter(item => !item.isAttraction).length,
+          前2个结果: searchResults.value.slice(0, 2).map(item => ({
+            name: item.name,
+            isAttraction: item.isAttraction,
+            type: item.type
+          }))
+        });
       } catch (error) {
         console.error('搜索失败:', error);
         ElMessage.error('搜索失败');

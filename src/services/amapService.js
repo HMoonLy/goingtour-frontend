@@ -19,6 +19,26 @@ export const POI_TYPES = {
 };
 
 /**
+ * 判断POI类型是否为景点
+ * @param {string} poiType - POI类型字符串
+ * @returns {boolean} - 是否为景点
+ */
+export const isAttractionType = (poiType) => {
+    if (!poiType) return false;
+
+    // 风景名胜相关类型
+    const attractionKeywords = [
+        '风景名胜', '公园', '景区', '景点', '名胜古迹',
+        '博物馆', '纪念馆', '寺庙', '教堂', '古迹',
+        '山峰', '湖泊', '海滩', '森林', '自然保护区',
+        '旅游景点', '游乐场', '度假区', '主题公园',
+        '文化场所', '历史遗迹', '观光点', '娱乐场所'
+    ];
+
+    return attractionKeywords.some(keyword => poiType.includes(keyword));
+};
+
+/**
  * 搜索关键词映射
  */
 export const SEARCH_KEYWORDS = {
@@ -95,6 +115,125 @@ export const generatePoiDescription = (poi) => {
 };
 
 /**
+ * 生成推荐理由
+ * @param {Object} enhancedPoi - 增强后的POI数据
+ * @param {Object} originalPoi - 原始POI数据
+ * @returns {string} - 生成的推荐理由
+ */
+export const generateRecommendationReason = (enhancedPoi, originalPoi) => {
+    const { name, rating, type, address } = enhancedPoi;
+    const reasons = [];
+
+    // 基于评分的推荐理由
+    if (rating >= 4.5) {
+        reasons.push('高评分口碑推荐');
+    } else if (rating >= 4.0) {
+        reasons.push('评价良好');
+    }
+
+    // 基于类型的推荐理由
+    if (type) {
+        if (type.includes('风景名胜')) {
+            reasons.push('自然风光优美，值得游览');
+        } else if (type.includes('文物古迹')) {
+            reasons.push('历史文化底蕴深厚');
+        } else if (type.includes('公园')) {
+            reasons.push('环境优美，适合休闲漫步');
+        } else if (type.includes('餐饮') || type.includes('美食')) {
+            reasons.push('当地特色美食');
+        } else if (type.includes('购物')) {
+            reasons.push('购物休闲好去处');
+        } else if (type.includes('住宿') || type.includes('酒店')) {
+            reasons.push('住宿环境舒适');
+        }
+    }
+
+    // 基于位置的推荐理由
+    if (address) {
+        if (address.includes('市中心') || address.includes('中心区')) {
+            reasons.push('地理位置优越');
+        } else if (address.includes('古城') || address.includes('老城')) {
+            reasons.push('古韵浓厚');
+        }
+    }
+
+    // 基于标签的推荐理由
+    if (enhancedPoi.tags && enhancedPoi.tags.length > 0) {
+        const tag = enhancedPoi.tags[0];
+        if (tag && tag !== type) {
+            reasons.push(`特色${tag}`);
+        }
+    }
+
+    // 组合推荐理由
+    if (reasons.length === 0) {
+        // 默认推荐理由
+        if (type && type.includes('风景名胜')) {
+            return '这是一处值得游览的风景名胜，具有独特的观光价值';
+        } else if (type && type.includes('餐饮')) {
+            return '这是一家口碑不错的餐厅，值得品尝当地美食';
+        } else {
+            return `${name}在当地具有一定知名度，值得探访体验`;
+        }
+    }
+
+    return reasons.slice(0, 2).join('，') + '，推荐游览';
+};
+
+/**
+ * 生成匹配偏好标签
+ * @param {Object} enhancedPoi - 增强后的POI数据
+ * @param {Object} originalPoi - 原始POI数据
+ * @returns {Array} - 匹配的偏好标签数组
+ */
+export const generateMatchedPreferences = (enhancedPoi, originalPoi) => {
+    const preferences = [];
+    const { type, rating, tags } = enhancedPoi;
+
+    // 基于评分的偏好匹配
+    if (rating >= 4.5) {
+        preferences.push('高品质体验');
+    } else if (rating >= 4.0) {
+        preferences.push('口碑推荐');
+    }
+
+    // 基于类型的偏好匹配
+    if (type) {
+        if (type.includes('风景名胜')) {
+            preferences.push('自然风光', '拍照打卡');
+        } else if (type.includes('文物古迹')) {
+            preferences.push('历史文化', '文化深度');
+        } else if (type.includes('公园')) {
+            preferences.push('休闲放松', '户外活动');
+        } else if (type.includes('餐饮') || type.includes('美食')) {
+            preferences.push('美食体验', '当地特色');
+        } else if (type.includes('购物')) {
+            preferences.push('购物休闲');
+        } else if (type.includes('博物馆')) {
+            preferences.push('文化学习', '知识探索');
+        } else if (type.includes('娱乐')) {
+            preferences.push('娱乐休闲');
+        }
+    }
+
+    // 基于标签的偏好匹配
+    if (tags && tags.length > 0) {
+        tags.forEach(tag => {
+            if (tag.includes('网红') || tag.includes('热门')) {
+                preferences.push('网红打卡');
+            } else if (tag.includes('传统') || tag.includes('老字号')) {
+                preferences.push('传统文化');
+            } else if (tag.includes('特色') || tag.includes('招牌')) {
+                preferences.push('特色体验');
+            }
+        });
+    }
+
+    // 去重并限制数量
+    return [...new Set(preferences)].slice(0, 3);
+};
+
+/**
  * 处理并增强POI数据，添加图片和详细信息
  * @param {Array} pois - 原始POI数组
  * @returns {Promise<Array>} - 增强后的POI数组
@@ -113,35 +252,55 @@ export const enhancePoiData = async(pois) => {
                 const enhancedPoi = {
                     id: poi.id,
                     name: poi.name,
-                    address: poi.address || poi.pname + poi.cityname + poi.adname,
+                    address: poi.address || (poi.pname + poi.cityname + poi.adname),
                     location: poi.location,
-                    tel: poi.tel || '',
-                    rating: poi.rating || 0,
+                    tel: Array.isArray(poi.tel) ? (poi.tel[0] || '') : (poi.tel || ''),
+                    rating: (poi.biz_ext && poi.biz_ext.rating) ? parseFloat(poi.biz_ext.rating) : 0,
+                    // 餐厅特有信息
+                    cost: (poi.biz_ext && poi.biz_ext.cost) ? parseFloat(poi.biz_ext.cost) : null,
+                    price: (poi.biz_ext && poi.biz_ext.cost) ? parseFloat(poi.biz_ext.cost) : null,
+                    // 标签信息（餐厅的招牌菜等）
+                    tag: Array.isArray(poi.tag) ? (poi.tag.length > 0 ? poi.tag.join(',') : '') : (poi.tag || ''),
+                    tags: Array.isArray(poi.tag) ? poi.tag.filter(t => t) : (poi.tag ? poi.tag.split(',').map(t => t.trim()).filter(t => t) : []),
                     // 提取图片信息
                     images: [],
                     // 详细信息
-                    businessArea: poi.business_area || '',
+                    businessArea: Array.isArray(poi.business_area) ? (poi.business_area[0] || '') : (poi.business_area || ''),
                     district: poi.adname || '',
                     category: poi.type || '',
-                    website: poi.website || '',
+                    type: poi.type || '',
+                    website: Array.isArray(poi.website) ? (poi.website[0] || '') : (poi.website || ''),
                     openTime: poi.business_time || '',
                     // 坐标信息
-                    coordinates: poi.location?poi.location.split(',').map(Number) : null,
+                    coordinates: poi.location ? poi.location.split(',').map(Number) : null,
                     // 原始数据保留
                     rawData: poi
                 };
 
                 // 处理图片信息
                 if (poi.photos && Array.isArray(poi.photos)) {
-                    enhancedPoi.images = poi.photos.map(photo => ({
-                        url: photo.url,
-                        title: photo.title || poi.name,
-                        alt: photo.title || poi.name
-                    }));
+                    enhancedPoi.images = poi.photos
+                        .filter(photo => photo && photo.url) // 确保有有效的URL
+                        .map(photo => ({
+                            url: photo.url,
+                            title: Array.isArray(photo.title) ? (photo.title[0] || poi.name) : (photo.title || poi.name),
+                            alt: Array.isArray(photo.title) ? (photo.title[0] || poi.name) : (photo.title || poi.name),
+                            provider: Array.isArray(photo.provider) ? photo.provider[0] : photo.provider
+                        }));
+                    // 保持原始photos格式供组件使用，但确保数据结构正确
+                    enhancedPoi.photos = poi.photos
+                        .filter(photo => photo && photo.url)
+                        .map(photo => ({
+                            url: photo.url,
+                            title: Array.isArray(photo.title) ? (photo.title[0] || poi.name) : (photo.title || poi.name),
+                            provider: Array.isArray(photo.provider) ? photo.provider[0] : photo.provider
+                        }));
+                } else {
+                    enhancedPoi.photos = [];
                 }
 
                 // 如果有主图片，设置为卡片显示的图片
-                if (enhancedPoi.images.length > 0) {
+                if (enhancedPoi.images && enhancedPoi.images.length > 0) {
                     enhancedPoi.imageUrl = enhancedPoi.images[0].url;
                 } else {
                     // 如果没有图片，根据POI类型设置默认图片
@@ -150,6 +309,21 @@ export const enhancePoiData = async(pois) => {
 
                 // 生成描述信息
                 enhancedPoi.description = generatePoiDescription(poi);
+
+                // 生成推荐理由（如果没有的话）
+                if (!enhancedPoi.reasoning && !enhancedPoi.reason) {
+                    enhancedPoi.reasoning = generateRecommendationReason(enhancedPoi, poi);
+                }
+
+                // 生成默认的匹配偏好标签
+                if (!enhancedPoi.matchedPreferences) {
+                    enhancedPoi.matchedPreferences = generateMatchedPreferences(enhancedPoi, poi);
+                }
+
+                // 判断是否为景点类型
+                const attractionResult = isAttractionType(poi.type);
+                console.log(`POI: ${poi.name}, type: "${poi.type}", isAttraction: ${attractionResult}`);
+                enhancedPoi.isAttraction = attractionResult;
 
                 return enhancedPoi;
             } catch (error) {
@@ -161,6 +335,7 @@ export const enhancePoiData = async(pois) => {
                     address: poi.address || '地址信息待完善',
                     imageUrl: getDefaultImageByType(poi.type),
                     description: poi.name + '的详细信息正在完善中...',
+                    isAttraction: isAttractionType(poi.type),
                     rawData: poi
                 };
             }

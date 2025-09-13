@@ -197,6 +197,20 @@
           </div>
         </div>
 
+        <!-- 搜索结果已在下方的通用列表中处理 -->
+
+        <!-- 搜索无结果 -->
+        <div
+          v-else-if="isSearchMode && searchResults.filter(item => item.isAttraction).length === 0 && !searching"
+          class="no-search-results"
+        >
+          <el-empty description="没有找到相关景点">
+            <el-button type="primary" @click="handleClearSearch">
+              返回推荐列表
+            </el-button>
+          </el-empty>
+        </div>
+
         <div v-if="loadingAttractions" class="loading-state">
           <div class="skeleton-grid">
             <div 
@@ -274,6 +288,14 @@
                 <span class="rating-value">{{ attraction.rating }}</span>
               </div>
               <div class="recommendation-tags">
+                <el-tag 
+                  v-if="attraction.price || attraction.cost" 
+                  size="small" 
+                  type="danger" 
+                  class="price-tag"
+                >
+                  门票￥{{ attraction.price || attraction.cost }}
+                </el-tag>
                 <el-tag size="small" type="success" class="category-tag">
                   风景名胜
                 </el-tag>
@@ -392,6 +414,20 @@
           </div>
         </div>
 
+        <!-- 餐厅搜索结果已在下方的通用列表中处理 -->
+
+        <!-- 搜索无结果 -->
+        <div
+          v-else-if="isSearchMode && searchResults.filter(item => !item.isAttraction).length === 0 && !searching"
+          class="no-search-results"
+        >
+          <el-empty description="没有找到相关餐厅">
+            <el-button type="primary" @click="handleClearSearch">
+              返回推荐列表
+            </el-button>
+          </el-empty>
+        </div>
+
         <div v-if="loadingRestaurants" class="loading-state">
           <div class="skeleton-grid">
             <div 
@@ -472,8 +508,13 @@
                 <span class="rating-value">{{ restaurant.rating }}</span>
               </div>
               <div class="recommendation-tags">
-                <el-tag size="small" type="danger" class="price-tag">
-                  人均￥{{ restaurant.price }}
+                <el-tag 
+                  v-if="restaurant.price || restaurant.cost" 
+                  size="small" 
+                  type="danger" 
+                  class="price-tag"
+                >
+                  人均￥{{ restaurant.price || restaurant.cost }}
                 </el-tag>
                 <el-tag size="small" type="warning" class="category-tag">
                   餐饮服务
@@ -571,7 +612,7 @@
 </template>
 
 <script>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
   Location,
@@ -680,6 +721,16 @@ export default {
     
     // 选择摘要详情展开状态
     const showSummaryDetail = ref(false);
+
+    // 调试搜索状态
+    watch(() => [props.isSearchMode, props.searchResults], ([searchMode, results]) => {
+      console.log('👀 RecommendationSection 收到搜索状态更新:', {
+        isSearchMode: searchMode,
+        searchResults长度: results ? results.length : 0,
+        景点数: results ? results.filter(item => item.isAttraction).length : 0,
+        餐厅数: results ? results.filter(item => !item.isAttraction).length : 0
+      });
+    }, { immediate: true, deep: true });
 
     // 搜索建议数据
     const attractionSuggestions = [

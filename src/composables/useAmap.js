@@ -150,14 +150,17 @@ export function useAmap() {
                 enhance
             })
 
-            if (response && response.length > 0) {
-                searchResults.value = response
+            // amapService.searchPlaces 返回的是 {pois: [...]} 格式
+            const pois = response && response.pois ? response.pois : []
+
+            if (pois && pois.length > 0) {
+                searchResults.value = pois
                 lastSearchParams.value = params
 
                 // 缓存结果
                 if (useCache) {
                     cache.set(cacheKey, {
-                        data: response,
+                        data: pois,
                         timestamp: Date.now()
                     })
                 }
@@ -165,8 +168,8 @@ export function useAmap() {
                 // 添加到搜索历史
                 addToSearchHistory({ keywords, city, types, timestamp: Date.now() })
 
-                console.log(`✅ 搜索成功，找到 ${response.length} 个结果`)
-                return response
+                console.log(`✅ 搜索成功，找到 ${pois.length} 个结果`)
+                return pois
             } else {
                 searchResults.value = []
                 ElMessage.info(`在${city}未找到"${keywords}"相关的地点`)
