@@ -350,7 +350,6 @@
               <div class="add-to-plan">
                 <el-button
                   v-if="!isAttractionSelected(attraction)"
-                  type="success"
                   size="small"
                   plain
                   @click="$emit('add-attraction', attraction)"
@@ -360,31 +359,52 @@
                 </el-button>
                 <el-button
                   v-else
-                  type="success"
+                  type="danger"
                   size="small"
                   @click="$emit('remove-attraction', attraction)"
                 >
-                  <el-icon><Check /></el-icon>
-                  已添加
+                <el-icon><Close /></el-icon>
+                  取消添加
                 </el-button>
               </div>
             </div>
           </div>
         </div>
 
+        <!-- 景点加载更多按钮 -->
         <div
-          v-if="sortedAttractions.length > 0 && !isSearchMode"
-          class="view-more-container"
+          v-if="sortedAttractions.length > 0 && !isSearchMode && !attractionLoadComplete"
+          class="load-more-container"
         >
           <el-button
             type="primary"
-            plain
-            size="small"
+            size="large"
+            :loading="loadingMoreAttractions"
+            :disabled="attractionLoadComplete"
             @click="$emit('load-more-attractions')"
+            class="load-more-btn"
           >
-            <el-icon><More /></el-icon>
-            查看更多景点
+            <template v-if="!loadingMoreAttractions">
+              <el-icon><ArrowDown /></el-icon>
+              加载更多景点
+            </template>
+            <template v-else>
+              加载中...
+            </template>
           </el-button>
+        </div>
+
+        <!-- 景点加载完成提示 -->
+        <div
+          v-if="sortedAttractions.length > 0 && !isSearchMode && attractionLoadComplete"
+          class="load-complete-tip"
+        >
+          <el-divider>
+            <span class="complete-text">
+              <el-icon><Check /></el-icon>
+              已显示全部 {{ sortedAttractions.length }} 个景点
+            </span>
+          </el-divider>
         </div>
       </div>
 
@@ -570,7 +590,6 @@
               <div class="add-to-plan">
                 <el-button
                   v-if="!isRestaurantSelected(restaurant)"
-                  type="danger"
                   size="small"
                   plain
                   @click="$emit('add-restaurant', restaurant)"
@@ -584,27 +603,48 @@
                   size="small"
                   @click="$emit('remove-restaurant', restaurant)"
                 >
-                  <el-icon><Check /></el-icon>
-                  已添加
+                  <el-icon><Close /></el-icon>
+                  取消添加
                 </el-button>
               </div>
             </div>
           </div>
         </div>
 
+        <!-- 餐厅加载更多按钮 -->
         <div
-          v-if="sortedRestaurants.length > 0 && !isSearchMode"
-          class="view-more-container"
+          v-if="sortedRestaurants.length > 0 && !isSearchMode && !restaurantLoadComplete"
+          class="load-more-container"
         >
           <el-button
             type="primary"
-            plain
-            size="small"
+            size="large"
+            :loading="loadingMoreRestaurants"
+            :disabled="restaurantLoadComplete"
             @click="$emit('load-more-restaurants')"
+            class="load-more-btn"
           >
-            <el-icon><More /></el-icon>
-            查看更多餐厅
+            <template v-if="!loadingMoreRestaurants">
+              <el-icon><ArrowDown /></el-icon>
+              加载更多餐厅
+            </template>
+            <template v-else>
+              加载中...
+            </template>
           </el-button>
+        </div>
+
+        <!-- 餐厅加载完成提示 -->
+        <div
+          v-if="sortedRestaurants.length > 0 && !isSearchMode && restaurantLoadComplete"
+          class="load-complete-tip"
+        >
+          <el-divider>
+            <span class="complete-text">
+              <el-icon><Check /></el-icon>
+              已显示全部 {{ sortedRestaurants.length }} 家餐厅
+            </span>
+          </el-divider>
         </div>
       </div>
     </div>
@@ -623,6 +663,7 @@ import {
   Plus,
   Search,
   Picture,
+  ArrowDown,
 } from "@element-plus/icons-vue";
 
 export default {
@@ -636,6 +677,7 @@ export default {
     Plus,
     Search,
     Picture,
+    ArrowDown,
   },
   props: {
     // 城市信息
@@ -670,6 +712,24 @@ export default {
       type: Boolean,
       default: false,
     },
+    // 加载更多状态
+    loadingMoreAttractions: {
+      type: Boolean,
+      default: false,
+    },
+    loadingMoreRestaurants: {
+      type: Boolean,
+      default: false,
+    },
+    // 加载完成状态
+    attractionLoadComplete: {
+      type: Boolean,
+      default: false,
+    },
+    restaurantLoadComplete: {
+      type: Boolean,
+      default: false,
+    },
     // API错误
     apiError: {
       type: String,
@@ -687,6 +747,23 @@ export default {
     searching: {
       type: Boolean,
       default: false,
+    },
+    // 分页信息
+    attractionPagination: {
+      type: Object,
+      default: () => ({
+        currentPage: 1,
+        pageSize: 8,
+        total: 0
+      }),
+    },
+    restaurantPagination: {
+      type: Object,
+      default: () => ({
+        currentPage: 1,
+        pageSize: 6,
+        total: 0
+      }),
     },
     // 工具函数
     extractAttractionTags: {
@@ -1381,6 +1458,8 @@ export default {
 .add-to-plan .el-button {
   padding: 6px 12px;
   font-size: 12px;
+  background:#91A8D0;
+  color: white;
 }
 
 /* 响应式设计 */
@@ -1581,6 +1660,272 @@ export default {
 
   .summary-detail {
     padding: 12px 16px;
+  }
+}
+
+/* 分页组件样式 */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 16px 0;
+  padding: 16px;
+  background: rgb(255, 255, 255);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  border: 1px solid rgba(145, 168, 208, 0.15);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.pagination-container .el-pagination {
+  --el-pagination-bg-color: transparent;
+  --el-pagination-text-color: #4a5568;
+  --el-pagination-border-radius: 6px;
+  --el-pagination-font-size: 14px;
+}
+
+.pagination-container .el-pagination .el-pager .number {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(145, 168, 208, 0.2);
+  border-radius: 6px;
+  margin: 0 3px;
+  min-width: 32px;
+  height: 32px;
+  line-height: 30px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #4a5568;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.pagination-container .el-pagination .el-pager .number:hover {
+  background: rgba(145, 168, 208, 0.1);
+  border-color: #91a8d0;
+  color: #91a8d0;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(145, 168, 208, 0.2);
+}
+
+.pagination-container .el-pagination .el-pager .number.is-active {
+  background: linear-gradient(135deg, #91a8d0 0%, #a8bdd8 100%);
+  border-color: #91a8d0;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(145, 168, 208, 0.3);
+}
+
+.pagination-container .el-pagination .btn-prev,
+.pagination-container .el-pagination .btn-next {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(145, 168, 208, 0.2);
+  border-radius: 6px;
+  margin: 0 6px;
+  min-width: 32px;
+  height: 32px;
+  font-size: 14px;
+  color: #4a5568;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.pagination-container .el-pagination .btn-prev:hover,
+.pagination-container .el-pagination .btn-next:hover {
+  background: rgba(145, 168, 208, 0.1);
+  border-color: #91a8d0;
+  color: #91a8d0;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(145, 168, 208, 0.2);
+}
+
+.pagination-container .el-pagination .btn-prev:disabled,
+.pagination-container .el-pagination .btn-next:disabled {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(145, 168, 208, 0.1);
+  color: #cbd5e0;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.pagination-container .el-pagination .el-pagination__total {
+  color: #718096;
+  font-size: 13px;
+  font-weight: 500;
+  margin-right: 12px;
+}
+
+.pagination-container .el-pagination .el-pagination__jump {
+  color: #718096;
+  font-size: 13px;
+  margin-left: 12px;
+}
+
+.pagination-container .el-pagination .el-pagination__jump .el-input__inner {
+  border-radius: 6px;
+  border-color: rgba(145, 168, 208, 0.2);
+  font-size: 13px;
+  height: 28px;
+  width: 50px;
+}
+
+/* 响应式分页 */
+@media (max-width: 768px) {
+  .pagination-container {
+    margin: 16px 0;
+    padding: 16px 12px;
+    border-radius: 12px;
+  }
+  
+  .pagination-container .el-pagination {
+    font-size: 14px;
+  }
+  
+  .pagination-container .el-pagination .el-pager .number,
+  .pagination-container .el-pagination .btn-prev,
+  .pagination-container .el-pagination .btn-next {
+    margin: 0 2px;
+    min-width: 32px;
+    height: 32px;
+    line-height: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pagination-container {
+    margin: 12px 0;
+    padding: 12px 8px;
+  }
+  
+  .pagination-container .el-pagination {
+    font-size: 12px;
+  }
+  
+  .pagination-container .el-pagination .el-pager .number,
+  .pagination-container .el-pagination .btn-prev,
+  .pagination-container .el-pagination .btn-next {
+    min-width: 28px;
+    height: 28px;
+    line-height: 28px;
+    font-size: 12px;
+  }
+}
+
+/* 加载更多样式 */
+.load-more-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin: 5px 0;
+  padding: 5px;
+  transition: all 0.3s ease;
+}
+
+.load-more-container:hover {
+  transform: translateY(-1px);
+}
+
+.data-count {
+  font-size: 14px;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+.total-hint {
+  color: #718096;
+  font-weight: 400;
+}
+
+.load-more-btn {
+  padding: 12px 32px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  min-width: 160px;
+}
+
+.load-more-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(79, 130, 202, 0.2);
+}
+
+.load-more-btn .el-icon {
+  margin-right: 6px;
+  transition: transform 0.3s ease;
+}
+
+.load-more-btn:hover .el-icon {
+  transform: translateY(2px);
+}
+
+/* 加载完成提示样式 */
+.load-complete-tip {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.load-complete-tip .el-divider {
+  margin: 16px 0;
+}
+
+.complete-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #10b981;
+  font-weight: 500;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  border: 1px solid #bbf7d0;
+  border-radius: 20px;
+}
+
+.complete-text .el-icon {
+  font-size: 16px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .load-more-container {
+    margin: 16px 0;
+    padding: 16px;
+    gap: 12px;
+  }
+  
+  .load-more-btn {
+    padding: 10px 24px;
+    font-size: 13px;
+    min-width: 140px;
+  }
+  
+  .data-count {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .load-more-container {
+    margin: 12px 0;
+    padding: 12px;
+    gap: 10px;
+  }
+  
+  .load-more-btn {
+    padding: 8px 20px;
+    font-size: 12px;
+    min-width: 120px;
+  }
+  
+  .data-count {
+    font-size: 12px;
+  }
+  
+  .complete-text {
+    font-size: 13px;
+    padding: 6px 12px;
   }
 }
 </style>
