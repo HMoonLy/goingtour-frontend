@@ -39,10 +39,10 @@
         <div class="header-user">
           <el-dropdown @command="handleUserCommand">
             <div class="user-info">
-              <el-avatar :src="userStore.avatar" :size="32">
+              <el-avatar :src="avatar" :size="32">
                 <img src="../assets/images/default-avatar.jpg" alt="avatar" />
               </el-avatar>
-              <span class="username">{{ userStore.nickname }}</span>
+              <span class="username">{{ nickname }}</span>
               <el-icon class="dropdown-icon">
                 <ArrowDown />
               </el-icon>
@@ -83,7 +83,7 @@
 <script>
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { useUserStore } from "@/store/user.js";
+import { useUserInfo, useUser } from "@/composables/useUser.js";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
   MapLocation,
@@ -107,7 +107,12 @@ export default {
   setup() {
     const route = useRoute();
     const router = useRouter();
-    const userStore = useUserStore();
+    
+    // 使用用户信息组合函数
+    const { nickname, avatar } = useUserInfo();
+    
+    // 需要logout功能，单独导入
+    const { logout } = useUser();
 
     // 当前激活的菜单项
     const activeMenu = computed(() => {
@@ -145,23 +150,8 @@ export default {
     // 处理用户命令
     const handleUserCommand = async (command) => {
       if (command === "logout") {
-        try {
-          await ElMessageBox.confirm("确定要退出登录吗？", "警告", {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning",
-          });
-
-          // 执行退出登录
-          userStore.logout();
-          ElMessage.success("退出成功");
-
-          // 跳转到登录页
-          router.push("/login");
-        } catch (error) {
-          // 用户取消退出
-          console.log("用户取消退出登录");
-        }
+        // 使用新的logout方法，内部已处理确认和跳转
+        await logout();
       } else if (command === "personal") {
         router.push("/personal");
       }
@@ -170,7 +160,8 @@ export default {
     return {
       activeMenu,
       showFooter,
-      userStore,
+      nickname,
+      avatar,
       handleUserCommand,
       isTripDetailPage,
       isFullWidthPage,

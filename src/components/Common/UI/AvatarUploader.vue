@@ -201,7 +201,7 @@ class="preview-placeholder">
 import { ref, computed, watch } from "vue";
 import { ElMessage } from "element-plus";
 import { Plus, Upload, CircleCheck } from "@element-plus/icons-vue";
-import { useUserStore } from "@/store/user.js";
+import { useUserInfo } from "@/composables/useUser.js";
 import { userApi } from "@/api/user.js";
 import { getAvatarUrl } from "@/utils/ui/avatarUtils.js";
 
@@ -240,12 +240,14 @@ const selectedGeneratedStyle = ref(null);
 const currentAvatar = ref("");
 const loadingAvatar = ref(false);
 
+// 使用用户信息组合函数
+const { currentUser } = useUserInfo();
+
 // 监听头像prop变化，直接设置头像URL
 watch(
   () => props.avatar,
   (newAvatar) => {
-    const userStore = useUserStore();
-    const userId = userStore.currentUser?.id;
+    const userId = currentUser.value?.id;
     currentAvatar.value = getAvatarUrl(newAvatar, userId);
   },
   { immediate: true },
@@ -492,8 +494,7 @@ const saveAvatar = async () => {
         });
 
         // 调后端统一上传接口（使用私有存储）
-        const userStore = useUserStore();
-        const userId = userStore.currentUser?.id;
+        const userId = currentUser.value?.id;
         if (!userId) {
           throw new Error("用户未登录");
         }

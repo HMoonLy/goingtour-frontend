@@ -211,7 +211,7 @@ type="primary" :underline="false"> 隐私政策 </el-link>
 <script>
 import { ref, reactive, computed, onMounted, onUnmounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { useUserStore } from "@/store/user";
+import { useUser } from "@/composables/useUser.js";
 import { ElMessage } from "element-plus";
 import {
   MapLocation,
@@ -224,7 +224,6 @@ import {
   ChatDotRound,
 } from "@element-plus/icons-vue";
 import { formRules } from "@/utils/security/validation.js";
-import { handleApiError, handleSuccess } from "@/utils/api/errorHandler.js";
 
 export default {
   name: "Login",
@@ -241,7 +240,18 @@ export default {
   setup() {
     const router = useRouter();
     const route = useRoute();
-    const userStore = useUserStore();
+    
+    // 使用新的用户管理组合函数
+    const {
+      isLoggedIn,
+      loading,
+      verifyCodeLoading,
+      countdown,
+      sendVerificationCode,
+      login,
+      isValidEmail,
+      cleanup
+    } = useUser();
 
     // 表单引用
     const loginFormRef = ref();
@@ -252,12 +262,6 @@ export default {
       code: "",
     });
 
-    // 状态管理
-    const sendingCode = ref(false);
-    const loggingIn = ref(false);
-    const countdown = ref(0);
-    let countdownTimer = null;
-
     // 表单验证规则 - 使用统一的验证工具
     const loginRules = {
       email: formRules.email,
@@ -266,8 +270,7 @@ export default {
 
     // 计算属性
     const canSendCode = computed(() => {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return emailRegex.test(loginForm.email);
+      return isValidEmail(loginForm.email);
     });
 
     // 输入处理
@@ -279,39 +282,9 @@ export default {
       loginForm.code = value.replace(/\D/g, "");
     };
 
-    // 发送验证码
-    const sendVerificationCode = async () => {
-      if (!canSendCode.value) {
-        ElMessage.warning("请输入正确的邮箱地址");
-        return;
-      }
-
-      try {
-        sendingCode.value = true;
-
-        await userStore.sendVerificationCode(loginForm.email, "login");
-
-        ElMessage.success("验证码已发送");
-
-        // 开始倒计时
-        startCountdown(60);
-      } catch (error) {
-        ElMessage.error(error.message || "操作失败");
-      } finally {
-        sendingCode.value = false;
-      }
-    };
-
-    // 倒计时功能
-    const startCountdown = (seconds) => {
-      countdown.value = seconds;
-      countdownTimer = setInterval(() => {
-        countdown.value--;
-        if (countdown.value <= 0) {
-          clearInterval(countdownTimer);
-          countdownTimer = null;
-        }
-      }, 1000);
+    // 发送验证码处理
+    const handleSendCode = async () => {
+      await sendVerificationCode(loginForm.email, "login");
     };
 
     // 登录处理
@@ -320,25 +293,12 @@ export default {
 
       try {
         await loginFormRef.value.validate();
-
-        loggingIn.value = true;
-
-        const user = await userStore.login(loginForm.email, loginForm.code);
-
-        handleSuccess(`欢迎回来，${user.nickname || "用户"}！`, {
-          showNotification: true,
-        });
-
-        const redirectPath =
-          userStore.getAndClearRedirectPath() ||
-          route.query.redirect ||
-          "/home";
-
-        await router.push(redirectPath);
+        
+        // 使用新的login方法，内部已处理跳转和提示
+        await login(loginForm.email, loginForm.code);
       } catch (error) {
-        handleApiError(error, "操作失败");
-      } finally {
-        loggingIn.value = false;
+        // 验证失败，不需要额外处理，login方法内部已处理错误
+        console.error("表单验证失败:", error);
       }
     };
 
@@ -359,29 +319,27 @@ export default {
 
     // 组件挂载
     onMounted(() => {
-      if (userStore.isLoggedIn) {
+      if (isLoggedIn.value) {
         router.push("/home");
       }
     });
 
     // 组件卸载
     onUnmounted(() => {
-      if (countdownTimer) {
-        clearInterval(countdownTimer);
-      }
+      cleanup();
     });
 
     return {
       loginFormRef,
       loginForm,
       loginRules,
-      sendingCode,
-      loggingIn,
+      sendingCode: verifyCodeLoading,
+      loggingIn: loading,
       countdown,
       canSendCode,
       handleEmailInput,
       handleCodeInput,
-      sendVerificationCode,
+      sendVerificationCode: handleSendCode,
       handleLogin,
       handleWechatLogin,
       handleQQLogin,

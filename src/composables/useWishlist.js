@@ -4,9 +4,12 @@
  */
 import { ref, computed } from 'vue'
 import { wishlistService } from '@/services/wishlistService.js'
-import { useUserStore } from '@/store/user.js'
+import { useUserAuth } from '@/composables/useUser.js'
 
 export function useWishlist() {
+    // 使用用户认证组合函数
+    const { requireUserReady, userId, waitForUserReady } = useUserAuth()
+
     // 状态
     const wishlistItems = ref([])
     const loading = ref(false)
@@ -31,22 +34,19 @@ export function useWishlist() {
      * 加载愿望清单
      */
     const loadWishlist = async(retryCount = 0, maxRetries = 3) => {
-        const userStore = useUserStore()
-        const userId = userStore.currentUser?.id || userStore.userId
-
-        if (!userId) {
+        // 使用新的用户验证逻辑
+        if (!requireUserReady({ showMessage: false })) {
             console.warn("⚠️ 用户未登录，无法加载愿望清单")
 
-            if (retryCount < maxRetries && userStore.isLoggedIn) {
-                setTimeout(() => {
-                    loadWishlist(retryCount + 1, maxRetries)
-                }, 500)
-                return
+            // 如果有重试次数，等待用户状态就绪
+            if (retryCount < maxRetries) {
+                const userReady = await waitForUserReady(1000)
+                if (userReady) {
+                    return loadWishlist(retryCount + 1, maxRetries)
+                }
             }
 
-            if (!userStore.isLoggedIn) {
-                wishlistItems.value = []
-            }
+            wishlistItems.value = []
             return
         }
 
@@ -54,7 +54,7 @@ export function useWishlist() {
 
         loading.value = true
         try {
-            const data = await wishlistService.loadUserWishlist(userId)
+            const data = await wishlistService.loadUserWishlist(userId.value)
             wishlistItems.value = data
         } catch (error) {
             if (retryCount < maxRetries && (error.code === 'NETWORK_ERROR' || error.status >= 500)) {
@@ -76,10 +76,7 @@ export function useWishlist() {
      * 添加城市到愿望清单
      */
     const addToWishlist = async(cityData) => {
-        const userStore = useUserStore()
-        const userId = userStore.currentUser?.id || userStore.userId
-
-        if (!userId) {
+        if (!requireUserReady()) {
             return false
         }
 
@@ -94,7 +91,7 @@ export function useWishlist() {
         }
 
         try {
-            const newItem = await wishlistService.addCityToWishlist(userId, cityData)
+            const newItem = await wishlistService.addCityToWishlist(userId.value, cityData)
             wishlistItems.value.push(newItem)
             return true
         } catch (error) {
@@ -106,13 +103,12 @@ export function useWishlist() {
      * 从愿望清单删除城市
      */
     const removeFromWishlist = async(wishlistId) => {
-        const userStore = useUserStore()
-        const userId = userStore.currentUser?.id || userStore.userId
-
-        if (!userId) return false
+        if (!requireUserReady()) {
+            return false
+        }
 
         try {
-            await wishlistService.removeCityFromWishlist(wishlistId, userId)
+            await wishlistService.removeCityFromWishlist(wishlistId, userId.value)
 
             const index = wishlistItems.value.findIndex(item => item.id === wishlistId)
             if (index !== -1) {
@@ -131,7 +127,7 @@ export function useWishlist() {
      */
     const markAsVisited = async(wishlistId) => {
         const userStore = useUserStore()
-        const userId = userStore.currentUser?.id || userStore.userId
+        const userId = userStore.currentUser ? .id || userStore.userId
 
         if (!userId) return false
 
@@ -157,7 +153,7 @@ export function useWishlist() {
      */
     const markWantToVisitAgain = async(cityIdOrData, wantToVisit = true) => {
         const userStore = useUserStore()
-        const userId = userStore.currentUser?.id || userStore.userId
+        const userId = userStore.currentUser ? .id || userStore.userId
 
         if (!userId) return false
 
@@ -214,7 +210,7 @@ export function useWishlist() {
      */
     const batchMarkAsVisited = async(cityIds) => {
         const userStore = useUserStore()
-        const userId = userStore.currentUser?.id || userStore.userId
+        const userId = userStore.currentUser ? .id || userStore.userId
 
         if (!userId) return false
 
@@ -246,7 +242,7 @@ export function useWishlist() {
      */
     const updateWishlistItem = async(wishlistId, updateData) => {
         const userStore = useUserStore()
-        const userId = userStore.currentUser?.id || userStore.userId
+        const userId = userStore.currentUser ? .id || userStore.userId
 
         if (!userId) return false
 

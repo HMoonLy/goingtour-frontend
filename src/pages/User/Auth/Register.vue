@@ -245,7 +245,7 @@ class="form-item agreement-item">
 <script>
 import { ref, reactive, computed, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
-import { useUserStore } from "@/store/user";
+import { useUser } from "@/composables/useUser.js";
 import { ElMessage, ElNotification, ElMessageBox } from "element-plus";
 import {
   MapLocation,
@@ -272,7 +272,17 @@ export default {
   },
   setup() {
     const router = useRouter();
-    const userStore = useUserStore();
+    
+    // 使用新的用户管理组合函数
+    const {
+      loading,
+      verifyCodeLoading,
+      countdown,
+      sendVerificationCode,
+      register,
+      isValidEmail,
+      cleanup
+    } = useUser();
 
     // 表单引用
     const registerFormRef = ref();
@@ -284,12 +294,6 @@ export default {
       nickname: "",
       agreement: false,
     });
-
-    // 状态管理
-    const sendingCode = ref(false);
-    const registering = ref(false);
-    const countdown = ref(0);
-    let countdownTimer = null;
 
     // 表单验证规则
     const registerRules = {
@@ -333,8 +337,7 @@ export default {
 
     // 计算属性
     const canSendCode = computed(() => {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return emailRegex.test(registerForm.email);
+      return isValidEmail(registerForm.email);
     });
 
     // 输入处理
@@ -346,39 +349,9 @@ export default {
       registerForm.code = value.replace(/\D/g, "");
     };
 
-    // 发送验证码
-    const sendVerificationCode = async () => {
-      if (!canSendCode.value) {
-        ElMessage.warning("请输入正确的邮箱地址");
-        return;
-      }
-
-      try {
-        sendingCode.value = true;
-
-        await userStore.sendVerificationCode(registerForm.email, "register");
-
-        ElMessage.success("验证码已发送");
-
-        // 开始倒计时
-        startCountdown(60);
-      } catch (error) {
-        ElMessage.error(error.message || "操作失败");
-      } finally {
-        sendingCode.value = false;
-      }
-    };
-
-    // 倒计时功能
-    const startCountdown = (seconds) => {
-      countdown.value = seconds;
-      countdownTimer = setInterval(() => {
-        countdown.value--;
-        if (countdown.value <= 0) {
-          clearInterval(countdownTimer);
-          countdownTimer = null;
-        }
-      }, 1000);
+    // 发送验证码处理
+    const handleSendCode = async () => {
+      await sendVerificationCode(registerForm.email, "register");
     };
 
     // 注册处理
@@ -387,32 +360,16 @@ export default {
 
       try {
         await registerFormRef.value.validate();
-
-        registering.value = true;
-
-        const user = await userStore.register(
+        
+        // 使用新的register方法，内部已处理跳转和提示
+        await register(
           registerForm.email,
           registerForm.code,
-          registerForm.nickname || undefined,
+          registerForm.nickname || undefined
         );
-
-        ElNotification({
-          title: "注册成功",
-          message: `欢迎加入，${user.nickname}！`,
-          type: "success",
-          duration: 3000,
-        });
-        ElMessage.success("注册成功");
-
-        // 注册成功后自动登录并跳转
-        setTimeout(() => {
-          router.push("/home");
-        }, 1500);
       } catch (error) {
-        console.error("注册失败:", error);
-        ElMessage.error(error.message || "注册失败，请检查信息后重试");
-      } finally {
-        registering.value = false;
+        // 验证失败，不需要额外处理，register方法内部已处理错误
+        console.error("表单验证失败:", error);
       }
     };
 
@@ -475,29 +432,25 @@ export default {
 
     // 组件挂载
     onMounted(() => {
-      if (userStore.isLoggedIn) {
-        router.push("/home");
-      }
+      // 注册页面不需要检查登录状态
     });
 
-    // 组件卸载
+    // 组件卸载时清理资源
     onUnmounted(() => {
-      if (countdownTimer) {
-        clearInterval(countdownTimer);
-      }
+      cleanup();
     });
 
     return {
       registerFormRef,
       registerForm,
       registerRules,
-      sendingCode,
-      registering,
+      sendingCode: verifyCodeLoading,
+      registering: loading,
       countdown,
       canSendCode,
       handleEmailInput,
       handleCodeInput,
-      sendVerificationCode,
+      sendVerificationCode: handleSendCode,
       handleRegister,
       showUserAgreement,
       showPrivacyPolicy,
