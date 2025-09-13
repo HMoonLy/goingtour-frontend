@@ -47,14 +47,14 @@ export function useUser() {
      * 用户ID（多种获取方式兼容）
      */
     const userId = computed(() => {
-        return userStore.currentUser ? .id || userStore.userId || null
+        return userStore.currentUser?.id || userStore.userId || null
     })
 
     /**
      * 用户昵称
      */
     const nickname = computed(() => {
-        return userStore.currentUser ? .nickname || userStore.nickname || '用户'
+        return userStore.currentUser?.nickname || userStore.nickname || '用户'
     })
 
     /**
@@ -68,7 +68,7 @@ export function useUser() {
      * 用户邮箱
      */
     const email = computed(() => {
-        return userStore.currentUser ? .email || userStore.email || ''
+        return userStore.currentUser?.email || userStore.email || ''
     })
 
     /**

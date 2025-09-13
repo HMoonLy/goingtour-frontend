@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 import { tripApi } from '@/api/trip.js'
+// 注意：新代码建议使用 tripService 和 useTrip composable
+// 本store保持向后兼容，但建议逐步迁移到新的架构
 
 export const useTripStore = defineStore('trip', {
     state: () => ({
@@ -95,18 +97,40 @@ export const useTripStore = defineStore('trip', {
 
         /**
          * 生成个性化行程
+         * @deprecated 建议使用 useTrip composable 中的 generateAiTrip 方法
          */
         async generateTrip(userId, params) {
             this.loading.generating = true
 
             try {
-                const response = await tripApi.generateTrip({
-                    userId,
-                    ...params
+                // 注意：此方法依赖于后端AI接口，非tripApi的generateTrip方法
+                // 如果后端没有此接口，可能需要调整实现
+                console.warn('generateTrip方法已废弃，建议使用useTrip中的generateAiTrip')
+
+                // 临时实现，实际应该调用AI接口
+                const response = await fetch('/api/ai/trip/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId,
+                        ...params
+                    })
                 })
 
-                this.currentTrip = response.data
-                return { success: true, trip: response.data }
+                if (!response.ok) {
+                    throw new Error('生成失败')
+                }
+
+                const result = await response.json()
+
+                if (result.code === 200) {
+                    this.currentTrip = result.data
+                    return { success: true, trip: result.data }
+                } else {
+                    throw new Error(result.msg || '生成失败')
+                }
             } catch (error) {
                 return { success: false, message: error.message || '行程生成失败' }
             } finally {
@@ -136,11 +160,11 @@ export const useTripStore = defineStore('trip', {
         /**
          * 获取行程详情
          */
-        async fetchTripDetail(tripId) {
+        async fetchTripDetail(tripId, userId) {
             this.loading.fetching = true
 
             try {
-                const response = await tripApi.getTripDetail(tripId)
+                const response = await tripApi.getTripDetail(tripId, userId)
                 this.tripDetails = response.data
                 return { success: true, trip: response.data }
             } catch (error) {
@@ -153,11 +177,11 @@ export const useTripStore = defineStore('trip', {
         /**
          * 更新行程信息
          */
-        async updateTrip(tripId, updateData) {
+        async updateTrip(tripId, userId, updateData) {
             this.loading.updating = true
 
             try {
-                const response = await tripApi.updateTrip(tripId, updateData)
+                const response = await tripApi.updateTrip(tripId, userId, updateData)
 
                 // 更新本地状态
                 if (this.currentTrip ? .id === tripId) {
@@ -181,9 +205,9 @@ export const useTripStore = defineStore('trip', {
         /**
          * 删除行程
          */
-        async deleteTrip(tripId) {
+        async deleteTrip(tripId, userId) {
             try {
-                await tripApi.deleteTrip(tripId)
+                await tripApi.deleteTrip(tripId, userId)
 
                 // 从列表中移除
                 this.tripList = this.tripList.filter(trip => trip.id !== tripId)
@@ -253,9 +277,9 @@ export const useTripStore = defineStore('trip', {
         /**
          * 生成分享码
          */
-        async generateShareCode(tripId) {
+        async generateShareCode(tripId, userId) {
             try {
-                const response = await tripApi.generateShareCode(tripId)
+                const response = await tripApi.generateShareCode(tripId, userId)
                 return { success: true, shareCode: response.data.shareCode }
             } catch (error) {
                 return { success: false, message: error.message || '生成分享码失败' }
