@@ -370,7 +370,7 @@ export function translateTag(tag, type = "general") {
             mapping = specialExperienceMapping;
             break;
         default:
-            mapping = isEn?tagMappingEn : tagMappingZh;
+            mapping = isEn ? tagMappingEn : tagMappingZh;
     }
 
     return mapping[tag] || tag;
@@ -749,10 +749,10 @@ function generateTravelerProfile(preferences) {
     }
 
     // 核心兴趣解读
-    if (preferences.selectedTags?.length > 0) {
+    if (preferences.selectedTags ? .length > 0) {
         const interestDescriptions = preferences.selectedTags.map(interest => {
             const interestPrompt = aiPromptMapping.interestPrompts[interest];
-            return interestPrompt?.aiPrompt || `对${translateTag(interest)}有兴趣`;
+            return interestPrompt ? .aiPrompt || `对${translateTag(interest)}有兴趣`;
         });
         profile.push(`核心兴趣: ${interestDescriptions.join('；')}`);
     }
@@ -781,15 +781,23 @@ function generateCoreRequirements(preferences, tripContext) {
     }
 
     // 时间和地点约束
-    requirements.push(`目的地: ${tripContext.destination}`);
-    requirements.push(`旅行时长: ${tripContext.duration}天`);
-    requirements.push(`出行时间: ${tripContext.startDate}`);
+    requirements.push(`目的地: ${tripContext.destination || tripContext.destinationName}`);
+    requirements.push(`旅行时长: ${tripContext.days || tripContext.duration}天`);
+
+    // 处理日期范围
+    let dateInfo = '待定';
+    if (tripContext.dateRange && Array.isArray(tripContext.dateRange) && tripContext.dateRange.length === 2) {
+        dateInfo = `${tripContext.dateRange[0]} 至 ${tripContext.dateRange[1]}`;
+    } else if (tripContext.startDate) {
+        dateInfo = tripContext.startDate;
+    }
+    requirements.push(`出行时间: ${dateInfo}`);
 
     // 同行人员约束
-    if (tripContext.constraints?.length > 0) {
+    if (tripContext.constraints ? .length > 0) {
         const companionConstraints = tripContext.constraints.map(constraint => {
             const constraintPrompt = aiPromptMapping.constraintPrompts[constraint];
-            return constraintPrompt?.aiPrompt || constraint;
+            return constraintPrompt ? .aiPrompt || constraint;
         }).join('；');
         requirements.push(`特殊需求: ${companionConstraints}`);
     }
@@ -810,25 +818,25 @@ function generateDetailedGuidance(preferences) {
     };
 
     // 根据兴趣生成景点选择指导
-    if (preferences.selectedTags?.includes('nature')) {
+    if (preferences.selectedTags ? .includes('nature')) {
         guidance.景点选择.push("至少30%的行程安排在自然环境中，优先选择视野开阔的户外空间");
         guidance.时间分配.push("自然景点建议安排在光线条件最佳的时段");
     }
 
-    if (preferences.selectedTags?.includes('photography')) {
+    if (preferences.selectedTags ? .includes('photography')) {
         guidance.景点选择.push("重视视觉效果和拍照环境，优先选择有设计感或独特视角的场所");
         guidance.时间分配.push("每个景点预留额外15-30分钟拍摄时间");
     }
 
-    if (preferences.selectedTags?.includes('food')) {
+    if (preferences.selectedTags ? .includes('food')) {
         guidance.餐饮安排.push("每餐都安排当地特色，包括街头小吃、传统餐厅和创意料理");
         guidance.体验重点.push("通过美食体验了解当地文化");
     }
 
     // 根据交通偏好生成交通指导
-    if (preferences.selectedTransports?.includes('public')) {
+    if (preferences.selectedTransports ? .includes('public')) {
         guidance.交通方式.push("优先使用公共交通，安排景点时考虑地铁/公交可达性");
-    } else if (preferences.selectedTransports?.includes('walk')) {
+    } else if (preferences.selectedTransports ? .includes('walk')) {
         guidance.交通方式.push("步行友好的路线设计，景点间距离控制在合理范围");
     }
 
@@ -845,12 +853,12 @@ function generateSpecialConsiderations(preferences, tripContext) {
     const considerations = [];
 
     // 饮食禁忌
-    if (preferences.dietaryRestrictions?.length > 0) {
+    if (preferences.dietaryRestrictions ? .length > 0) {
         considerations.push(`饮食禁忌: ${preferences.dietaryRestrictions.map(r => translateTag(r, 'dietary')).join('、')}`);
     }
 
     // 临时饮食限制
-    if (tripContext.temporaryDietaryRestrictions?.length > 0) {
+    if (tripContext.temporaryDietaryRestrictions ? .length > 0) {
         considerations.push(`本次旅行临时饮食限制: ${tripContext.temporaryDietaryRestrictions.join('、')}`);
     }
 
@@ -923,7 +931,7 @@ ${promptStructure.specialConsiderations || '无特殊限制'}
 ${promptStructure.recommendationStrategy}
 
 ## 任务要求
-请基于以上信息，为这位旅行者规划一份详细的${tripContext.duration}天${tripContext.destination}行程，包括：
+请基于以上信息，为这位旅行者规划一份详细的${tripContext.days || tripContext.duration}天${tripContext.destination || tripContext.destinationName}行程，包括：
 
 1. **景点安排**: 根据兴趣偏好和时间分配建议选择景点
 2. **餐饮推荐**: 每餐提供符合预算和口味的具体餐厅推荐
@@ -998,7 +1006,7 @@ export function mapUserPreferencesToTripDefaults(userPreferences) {
     }
 
     // 根据兴趣标签映射体验重点
-    if (userPreferences.selectedTags?.length > 0) {
+    if (userPreferences.selectedTags ? .length > 0) {
         const tagToFocusMapping = {
             'nature': 'natural_scenery',
             'culture': 'historical_culture',

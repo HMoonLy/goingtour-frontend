@@ -18,6 +18,32 @@ type="primary" @click="saveChanges">
             保存修改
           </el-button>
         </div>
+        
+        <!-- 导出按钮 -->
+        <el-dropdown @command="handleExport" trigger="click">
+          <el-button>
+            <el-icon><Download /></el-icon>
+            导出行程
+            <el-icon class="el-icon--right"><ArrowDown /></el-icon>
+          </el-button>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item command="pdf">
+                <el-icon><Document /></el-icon>
+                导出PDF（推荐）
+              </el-dropdown-item>
+              <el-dropdown-item command="word">
+                <el-icon><Edit /></el-icon>
+                导出Word文档
+              </el-dropdown-item>
+              <el-dropdown-item command="image">
+                <el-icon><Picture /></el-icon>
+                导出图片
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+        
         <el-button
           :type="isReadOnly ? 'primary' : 'default'"
           @click="toggleReadOnly"
@@ -307,12 +333,18 @@ import {
   User,
   Trophy,
   Timer,
+  Download,
+  ArrowDown,
+  Document,
+  Picture,
 } from "@element-plus/icons-vue";
 import { http } from "@/api/request";
 import { useUserStore } from "@/store/user";
 import MarkdownIt from "markdown-it";
 import { sanitizeMarkdownHtml } from "@/utils/security/xssFilter.js";
 import { handleApiError, handleSuccess } from "@/utils/api/errorHandler.js";
+import { TripExporter } from '@/utils/export/tripExporter';
+import { ElMessage } from 'element-plus';
 
 // Add missing t function
 const t = (key) => {
@@ -606,6 +638,41 @@ const hasUnsavedChanges = () => {
     editedTrip.value.aiContent !== tripData.value.aiContent
   );
 };
+
+// 导出功能
+const handleExport = async (format) => {
+  const loadingMessage = ElMessage({
+    message: '正在生成文件，请稍候...',
+    type: 'info',
+    duration: 0
+  })
+
+  try {
+    // 使用当前编辑的数据
+    const exportData = isReadOnly.value ? tripData.value : editedTrip.value
+    const exporter = new TripExporter(exportData)
+    
+    switch (format) {
+      case 'pdf':
+        await exporter.exportToPDF()
+        ElMessage.success('PDF导出成功！')
+        break
+      case 'word':
+        await exporter.exportToWord()
+        ElMessage.success('Word文档导出成功！')
+        break
+      case 'image':
+        await exporter.exportToImage()
+        ElMessage.success('图片导出成功！')
+        break
+    }
+  } catch (error) {
+    console.error('导出失败:', error)
+    ElMessage.error('导出失败，请重试')
+  } finally {
+    loadingMessage.close()
+  }
+}
 
 // 工具函数
 const formatProcessingTime = (time) => {

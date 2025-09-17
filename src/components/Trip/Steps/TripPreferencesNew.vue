@@ -704,11 +704,7 @@ export default {
         customDietaryNotes: localPreferences.customDietaryNotes,
       };
       
-      console.log("🔄 TripPreferencesNew 同步数据到 store:", storeData);
       preferenceStore.updateTripPreferences(storeData);
-      
-      // 验证同步结果
-      console.log("✅ Store 中的数据:", preferenceStore.tripPreferenceForm);
       
       // 同时触发父组件更新事件
       emit("preferences-updated", storeData);
@@ -729,12 +725,15 @@ export default {
       }
     };
 
-    // 偏好完整性检查
+    // 偏好完整性检查 - 基于本地数据
     const hasValidPreferences = computed(() => {
       return (
         localPreferences.tripPurpose ||
         localPreferences.focusAreas.length > 0 ||
-        localPreferences.temporaryNeeds.length > 0
+        localPreferences.temporaryNeeds.length > 0 ||
+        localPreferences.pacePreference !== "balanced" ||
+        localPreferences.socialPreference !== "mixed" ||
+        localPreferences.photoPreference !== "casual"
       );
     });
 
@@ -817,7 +816,20 @@ export default {
 
     // AI预览生成
     const generateAIPreview = () => {
-      const interpreter = new TripPreferencesInterpreter(tripPreferences);
+      // 构建基于 localPreferences 的数据结构
+      const currentPreferences = {
+        tripGoals: localPreferences.tripPurpose ? [localPreferences.tripPurpose] : [],
+        focusAreas: [...localPreferences.focusAreas],
+        pacePreference: localPreferences.pacePreference,
+        socialPreference: localPreferences.socialPreference,
+        photoPreference: localPreferences.photoPreference,
+        specialRequirements: localPreferences.specialRequirements,
+        dietaryRestrictions: [...localPreferences.dietaryRestrictions],
+        customDietaryNotes: localPreferences.customDietaryNotes,
+        temporaryNeeds: [...localPreferences.temporaryNeeds],
+      };
+
+      const interpreter = new TripPreferencesInterpreter(currentPreferences);
       const preview = interpreter.generateCompletePreferences();
 
       // 简化显示前2行
@@ -829,9 +841,22 @@ export default {
       if (!hasPersonalProfile.value)
         return "需要设置个人档案才能生成详细AI解读";
 
+      // 构建基于 localPreferences 的数据结构
+      const currentPreferences = {
+        tripGoals: localPreferences.tripPurpose ? [localPreferences.tripPurpose] : [],
+        focusAreas: [...localPreferences.focusAreas],
+        pacePreference: localPreferences.pacePreference,
+        socialPreference: localPreferences.socialPreference,
+        photoPreference: localPreferences.photoPreference,
+        specialRequirements: localPreferences.specialRequirements,
+        dietaryRestrictions: [...localPreferences.dietaryRestrictions],
+        customDietaryNotes: localPreferences.customDietaryNotes,
+        temporaryNeeds: [...localPreferences.temporaryNeeds],
+      };
+
       const generator = new CompletePromptGenerator(
         personalProfile.value,
-        tripPreferences,
+        currentPreferences,
         props.tripContext
       );
       return generator.generateCompletePrompt();

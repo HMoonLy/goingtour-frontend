@@ -57,10 +57,29 @@ class="trip-title">
             <el-icon><Share /></el-icon>
             分享
           </el-button>
-          <el-button @click="exportTrip">
-            <el-icon><Download /></el-icon>
-            导出
-          </el-button>
+          <el-dropdown @command="handleExport" trigger="click">
+            <el-button type="primary">
+              <el-icon><Download /></el-icon>
+              导出行程
+              <el-icon class="el-icon--right"><ArrowDown /></el-icon>
+            </el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="pdf">
+                  <el-icon><Document /></el-icon>
+                  导出PDF（推荐）
+                </el-dropdown-item>
+                <el-dropdown-item command="word">
+                  <el-icon><Edit /></el-icon>
+                  导出Word文档
+                </el-dropdown-item>
+                <el-dropdown-item command="image">
+                  <el-icon><Picture /></el-icon>
+                  导出图片
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
           <el-dropdown @command="handleMoreAction">
             <el-button>
               更多<el-icon class="el-icon--right">
@@ -347,12 +366,15 @@ import {
   Refresh,
   Delete,
   Setting,
+  Document,
+  Picture,
 } from "@element-plus/icons-vue";
 import { useUserStore } from "@/store/user.js";
 import {
   convertBackendTripToFrontend,
   convertFrontendTripToBackend,
 } from "@/utils/data/tripDataConverter.js";
+import { TripExporter } from '@/utils/export/tripExporter';
 
 export default {
   name: "TripDetail",
@@ -373,6 +395,8 @@ export default {
     Refresh,
     Delete,
     Setting,
+    Document,
+    Picture,
   },
   setup() {
     const router = useRouter();
@@ -741,25 +765,35 @@ export default {
     };
 
     // 导出行程
-    const exportTrip = () => {
+    const handleExport = async (format) => {
+      const loadingMessage = ElMessage({
+        message: '正在生成文件，请稍候...',
+        type: 'info',
+        duration: 0
+      })
+
       try {
-        // 创建并下载JSON文件
-        const dataStr = JSON.stringify(tripData.value, null, 2);
-        const dataBlob = new Blob([dataStr], { type: "application/json" });
-        const url = URL.createObjectURL(dataBlob);
-
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `${tripData.value.title}-${new Date().toLocaleDateString()}.json`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-
-        ElMessage.success("行程已导出到下载文件夹！");
+        const exporter = new TripExporter(tripData.value)
+        
+        switch (format) {
+          case 'pdf':
+            await exporter.exportToPDF()
+            ElMessage.success('PDF导出成功！文件已保存到下载文件夹')
+            break
+          case 'word':
+            await exporter.exportToWord()
+            ElMessage.success('Word文档导出成功！文件已保存到下载文件夹')
+            break
+          case 'image':
+            await exporter.exportToImage()
+            ElMessage.success('图片导出成功！文件已保存到下载文件夹')
+            break
+        }
       } catch (error) {
-        console.error("导出失败:", error);
-        ElMessage.error("导出失败，请重试");
+        console.error('导出失败:', error)
+        ElMessage.error('导出失败，请重试')
+      } finally {
+        loadingMessage.close()
       }
     };
 
@@ -1509,7 +1543,7 @@ export default {
       getExperienceText,
       getTransportText,
       shareTrip,
-      exportTrip,
+      handleExport,
       handleMoreAction,
       deleteTrip,
       duplicateTrip,
