@@ -153,31 +153,8 @@
           >
             <el-option label="默认排序" value="default" />
             <el-option label="评分优先" value="rating" />
-            <el-option label="距离优先" value="distance" />
           </el-select>
           
-          <!-- 地标选择器 - 仅在距离优先时显示 -->
-          <el-select
-            v-if="sortBy === 'distance'"
-            v-model="selectedLandmark"
-            placeholder="选择参考地标"
-            size="small"
-            style="width: 160px; margin-left: 8px"
-            filterable
-            @change="onLandmarkChange"
-          >
-            <el-option
-              v-for="landmark in availableLandmarks"
-              :key="landmark.id"
-              :label="landmark.name"
-              :value="landmark.id"
-            >
-              <div class="landmark-option">
-                <span class="landmark-name">{{ landmark.name }}</span>
-                <span class="landmark-type">{{ landmark.type }}</span>
-              </div>
-            </el-option>
-          </el-select>
         </div>
       </div>
 
@@ -806,13 +783,11 @@ export default {
     // 排序方式
     const sortBy = ref("default");
     
-    // 地标选择相关
-    const selectedLandmark = ref("");
-    const availableLandmarks = ref([]);
-    const landmarkCoordinates = ref({});
     
     // 选择摘要详情展开状态
     const showSummaryDetail = ref(false);
+
+
 
     // 调试搜索状态
     watch(() => [props.isSearchMode, props.searchResults], ([searchMode, results]) => {
@@ -825,38 +800,7 @@ export default {
     }, { immediate: true, deep: true });
 
 
-    // 距离计算函数 (Haversine公式)
-    const calculateDistance = (lat1, lon1, lat2, lon2) => {
-      const R = 6371; // 地球半径（公里）
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = 
-        Math.sin(dLat/2) * Math.sin(dLat/2) +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-        Math.sin(dLon/2) * Math.sin(dLon/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      return R * c; // 返回距离（公里）
-    };
 
-    // 为POI计算距离
-    const calculatePOIDistance = (poi, landmarkCoord) => {
-      if (!poi.location || !landmarkCoord) return Infinity;
-      
-      try {
-        const [poiLon, poiLat] = poi.location.split(',').map(parseFloat);
-        if (isNaN(poiLat) || isNaN(poiLon)) return Infinity;
-        
-        return calculateDistance(
-          landmarkCoord.lat, 
-          landmarkCoord.lon, 
-          poiLat, 
-          poiLon
-        );
-      } catch (error) {
-        console.warn('距离计算失败:', error);
-        return Infinity;
-      }
-    };
 
     // 排序函数
     const sortItems = (items, sortType) => {
@@ -868,18 +812,6 @@ export default {
             const ratingA = parseFloat(a.rating) || 0;
             const ratingB = parseFloat(b.rating) || 0;
             return ratingB - ratingA;
-          });
-        case "distance":
-          // 基于地标的距离排序
-          if (!selectedLandmark.value || !landmarkCoordinates.value[selectedLandmark.value]) {
-            return sorted; // 没有选择地标时保持原序
-          }
-          
-          const landmarkCoord = landmarkCoordinates.value[selectedLandmark.value];
-          return sorted.sort((a, b) => {
-            const distA = calculatePOIDistance(a, landmarkCoord);
-            const distB = calculatePOIDistance(b, landmarkCoord);
-            return distA - distB;
           });
         default:
           return sorted;
@@ -948,65 +880,7 @@ export default {
       }
     };
 
-    // 地标选择变化处理
-    const onLandmarkChange = () => {
-      // 地标变化时，触发重新排序
-      console.log('地标选择变更:', selectedLandmark.value);
-    };
 
-    // 初始化可用地标列表
-    const initializeLandmarks = () => {
-      const landmarks = [];
-      const coordinates = {};
-      
-      // 从推荐景点中选择知名度高的作为地标
-      if (props.recommendedAttractions && props.recommendedAttractions.length > 0) {
-        props.recommendedAttractions.forEach((attraction, index) => {
-          // 选择前10个景点作为潜在地标，且必须有坐标信息
-          if (index < 10 && attraction.location) {
-            try {
-              const [lon, lat] = attraction.location.split(',').map(parseFloat);
-              if (!isNaN(lat) && !isNaN(lon)) {
-                landmarks.push({
-                  id: attraction.id,
-                  name: attraction.name,
-                  type: attraction.type || '景点'
-                });
-                coordinates[attraction.id] = { lat, lon };
-              }
-            } catch (error) {
-              console.warn('地标坐标解析失败:', attraction.name, error);
-            }
-          }
-        });
-      }
-      
-      // 如果景点数量不足，从餐厅中补充
-      if (landmarks.length < 5 && props.recommendedRestaurants && props.recommendedRestaurants.length > 0) {
-        props.recommendedRestaurants.forEach((restaurant, index) => {
-          if (landmarks.length < 8 && restaurant.location) {
-            try {
-              const [lon, lat] = restaurant.location.split(',').map(parseFloat);
-              if (!isNaN(lat) && !isNaN(lon)) {
-                landmarks.push({
-                  id: restaurant.id,
-                  name: restaurant.name,
-                  type: restaurant.type || '餐厅'
-                });
-                coordinates[restaurant.id] = { lat, lon };
-              }
-            } catch (error) {
-              console.warn('地标坐标解析失败:', restaurant.name, error);
-            }
-          }
-        });
-      }
-      
-      availableLandmarks.value = landmarks;
-      landmarkCoordinates.value = coordinates;
-      
-      console.log(`初始化地标完成，共${landmarks.length}个地标可选`);
-    };
 
 
     // 处理图片加载失败
@@ -1015,31 +889,12 @@ export default {
       item.imageError = true;
     };
 
-    // 监听推荐数据变化，初始化地标列表
-    watch(
-      [() => props.recommendedAttractions, () => props.recommendedRestaurants],
-      () => {
-        // 延迟初始化，确保数据已加载
-        nextTick(() => {
-          initializeLandmarks();
-        });
-      },
-      { immediate: true, deep: true }
-    );
 
-    // 监听排序方式变化，重置地标选择
-    watch(sortBy, (newValue) => {
-      if (newValue !== 'distance') {
-        selectedLandmark.value = '';
-      }
-    });
 
     return {
       activeTab,
       searchKeyword,
       sortBy,
-      selectedLandmark,
-      availableLandmarks,
       showSummaryDetail,
       sortedAttractions,
       sortedRestaurants,
@@ -1049,7 +904,6 @@ export default {
       handleClearSearch,
       toggleSummaryDetail,
       clearAllSelections,
-      onLandmarkChange,
       handleImageError,
     };
   },
@@ -1289,26 +1143,6 @@ export default {
   align-items: center;
 }
 
-/* 地标选择器样式 */
-.landmark-option {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
-
-.landmark-name {
-  font-weight: 500;
-  color: #303133;
-}
-
-.landmark-type {
-  font-size: 12px;
-  color: #909399;
-  background: #f4f4f5;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
 
 
 .search-mode-tip {

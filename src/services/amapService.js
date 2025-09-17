@@ -16,6 +16,12 @@ export const POI_TYPES = {
     SHOPPING: '060000', // 购物服务
     ENTERTAINMENT: '080000', // 休闲娱乐
     TRANSPORT: '150000', // 交通设施
+    // 地标相关类型
+    LANDMARK: '110000|120000|130000', // 风景名胜|文物古迹|政府机构及社会团体
+    FAMOUS_BUILDING: '120000', // 文物古迹
+    GOVERNMENT: '130000', // 政府机构
+    CULTURAL_VENUE: '140000', // 科教文化服务
+    SPORTS_VENUE: '080000', // 体育休闲服务
 };
 
 /**
@@ -47,6 +53,72 @@ export const SEARCH_KEYWORDS = {
     HOTEL: '酒店',
     SHOPPING: '购物',
     ENTERTAINMENT: '娱乐',
+};
+
+/**
+ * 地标搜索关键词
+ */
+export const LANDMARK_KEYWORDS = [
+    '地标', '标志性建筑', '著名建筑', '纪念碑',
+    '塔', '广场', '政府大楼', '火车站', '机场',
+    '体育场', '博物馆', '文化中心', '会展中心',
+    '大剧院', '音乐厅', '图书馆', '科技馆'
+];
+
+/**
+ * 预设地标数据 - 为热门城市预设知名地标
+ */
+export const PRESET_LANDMARKS = {
+    '北京': [
+        { name: '天安门广场', type: '地标建筑', coordinates: { lat: 39.9042, lon: 116.4074 } },
+        { name: '北京站', type: '交通枢纽', coordinates: { lat: 39.9021, lon: 116.4272 } },
+        { name: '北京南站', type: '交通枢纽', coordinates: { lat: 39.8654, lon: 116.3786 } },
+        { name: '首都机场', type: '交通枢纽', coordinates: { lat: 40.0799, lon: 116.6031 } },
+        { name: '国家体育场', type: '体育场馆', coordinates: { lat: 39.9928, lon: 116.3970 } }
+    ],
+    '上海': [
+        { name: '外滩', type: '风景名胜', coordinates: { lat: 31.2304, lon: 121.4737 } },
+        { name: '上海站', type: '交通枢纽', coordinates: { lat: 31.2494, lon: 121.4658 } },
+        { name: '虹桥机场', type: '交通枢纽', coordinates: { lat: 31.1979, lon: 121.3364 } },
+        { name: '浦东机场', type: '交通枢纽', coordinates: { lat: 31.1443, lon: 121.8083 } },
+        { name: '东方明珠', type: '地标建筑', coordinates: { lat: 31.2397, lon: 121.4999 } }
+    ],
+    '广州': [
+        { name: '广州塔', type: '地标建筑', coordinates: { lat: 23.1051, lon: 113.3240 } },
+        { name: '广州站', type: '交通枢纽', coordinates: { lat: 23.1496, lon: 113.2578 } },
+        { name: '白云机场', type: '交通枢纽', coordinates: { lat: 23.3924, lon: 113.2988 } },
+        { name: '珠江新城', type: '商业中心', coordinates: { lat: 23.1200, lon: 113.3240 } }
+    ],
+    '深圳': [
+        { name: '深圳站', type: '交通枢纽', coordinates: { lat: 22.5329, lon: 114.1151 } },
+        { name: '深圳北站', type: '交通枢纽', coordinates: { lat: 22.6097, lon: 114.0298 } },
+        { name: '宝安机场', type: '交通枢纽', coordinates: { lat: 22.6390, lon: 113.8106 } },
+        { name: '平安金融中心', type: '地标建筑', coordinates: { lat: 22.5431, lon: 114.1094 } }
+    ],
+    '杭州': [
+        { name: '西湖', type: '风景名胜', coordinates: { lat: 30.2594, lon: 120.1628 } },
+        { name: '杭州站', type: '交通枢纽', coordinates: { lat: 30.2422, lon: 120.1814 } },
+        { name: '杭州东站', type: '交通枢纽', coordinates: { lat: 30.2906, lon: 120.2122 } },
+        { name: '萧山机场', type: '交通枢纽', coordinates: { lat: 30.2295, lon: 120.4347 } }
+    ],
+    '南京': [
+        { name: '夫子庙', type: '文化场馆', coordinates: { lat: 32.0192, lon: 118.7942 } },
+        { name: '南京站', type: '交通枢纽', coordinates: { lat: 32.0861, lon: 118.7644 } },
+        { name: '南京南站', type: '交通枢纽', coordinates: { lat: 31.9561, lon: 118.7178 } },
+        { name: '禄口机场', type: '交通枢纽', coordinates: { lat: 31.7420, lon: 118.8620 } }
+    ],
+    '成都': [
+        { name: '天府广场', type: '地标建筑', coordinates: { lat: 30.6598, lon: 104.0657 } },
+        { name: '成都站', type: '交通枢纽', coordinates: { lat: 30.6970, lon: 104.0420 } },
+        { name: '成都东站', type: '交通枢纽', coordinates: { lat: 30.6138, lon: 104.1414 } },
+        { name: '双流机场', type: '交通枢纽', coordinates: { lat: 30.5728, lon: 103.9477 } }
+    ],
+    '重庆': [
+        { name: '解放碑', type: '地标建筑', coordinates: { lat: 29.5583, lon: 106.5770 } },
+        { name: '重庆站', type: '交通枢纽', coordinates: { lat: 29.5583, lon: 106.5770 } },
+        { name: '重庆北站', type: '交通枢纽', coordinates: { lat: 29.6128, lon: 106.5347 } },
+        { name: '江北机场', type: '交通枢纽', coordinates: { lat: 29.7192, lon: 106.6417 } }
+    ]
 };
 
 /**
@@ -231,6 +303,45 @@ export const generateMatchedPreferences = (enhancedPoi, originalPoi) => {
 
     // 去重并限制数量
     return [...new Set(preferences)].slice(0, 3);
+};
+
+/**
+ * 简化地标类型显示
+ * @param {string} type - 原始POI类型
+ * @returns {string} - 简化后的类型名称
+ */
+export const getSimplifiedLandmarkType = (type) => {
+    if (!type) return '地标建筑';
+
+    if (type.includes('火车站') || type.includes('机场') || type.includes('地铁') || type.includes('汽车站')) {
+        return '交通枢纽';
+    }
+    if (type.includes('政府') || type.includes('市政') || type.includes('行政')) {
+        return '政府机构';
+    }
+    if (type.includes('博物馆') || type.includes('纪念') || type.includes('文化') || type.includes('图书馆')) {
+        return '文化场馆';
+    }
+    if (type.includes('体育') || type.includes('场馆') || type.includes('体育场') || type.includes('体育中心')) {
+        return '体育场馆';
+    }
+    if (type.includes('风景') || type.includes('公园') || type.includes('广场')) {
+        return '风景名胜';
+    }
+    if (type.includes('商场') || type.includes('购物') || type.includes('商业') || type.includes('中心')) {
+        return '商业中心';
+    }
+    if (type.includes('医院') || type.includes('医疗')) {
+        return '医疗机构';
+    }
+    if (type.includes('学校') || type.includes('大学') || type.includes('教育')) {
+        return '教育机构';
+    }
+    if (type.includes('酒店') || type.includes('宾馆')) {
+        return '住宿场所';
+    }
+
+    return '地标建筑';
 };
 
 /**
@@ -579,6 +690,169 @@ export class AmapService {
             return null;
         }
     }
+
+    /**
+     * 获取城市地标
+     * @param {string} city - 城市名
+     * @param {Object} options - 选项
+     * @param {boolean} [options.includePreset=true] - 是否包含预设地标
+     * @param {number} [options.maxResults=20] - 最大结果数量
+     * @returns {Promise<Array>} - 地标数组
+     */
+    async getCityLandmarks(city, { includePreset = true, maxResults = 20 } = {}) {
+        const landmarks = [];
+
+        // 1. 添加预设地标（如果有的话）
+        if (includePreset && PRESET_LANDMARKS[city]) {
+            landmarks.push(...PRESET_LANDMARKS[city]);
+            console.log(`✅ 添加了 ${PRESET_LANDMARKS[city].length} 个预设地标`);
+        }
+
+        // 2. 通过API搜索地标
+        const searchTypes = [
+            { keywords: '地标 标志性建筑', types: POI_TYPES.FAMOUS_BUILDING },
+            { keywords: '火车站 高铁站', types: POI_TYPES.TRANSPORT },
+            { keywords: '机场', types: POI_TYPES.TRANSPORT },
+            { keywords: '政府大楼 市政府 行政中心', types: POI_TYPES.GOVERNMENT },
+            { keywords: '博物馆 纪念馆 文化中心', types: POI_TYPES.CULTURAL_VENUE },
+            { keywords: '体育场 体育中心 体育馆', types: POI_TYPES.SPORTS_VENUE },
+            { keywords: '广场 中心广场', types: POI_TYPES.ATTRACTION },
+            { keywords: '大剧院 音乐厅 会展中心', types: POI_TYPES.CULTURAL_VENUE }
+        ];
+
+        for (const searchType of searchTypes) {
+            try {
+                console.log(`🔍 搜索地标类型: ${searchType.keywords}`);
+
+                const response = await this.searchPlaces({
+                    keywords: searchType.keywords,
+                    city: city,
+                    types: searchType.types,
+                    pageSize: 3,
+                    page: 1,
+                    enhance: false // 地标不需要完整的增强处理
+                });
+
+                if (response.pois && response.pois.length > 0) {
+                    const newLandmarks = response.pois
+                        .filter(poi => poi.location && poi.name) // 确保有坐标和名称
+                        .map(poi => {
+                            const [lon, lat] = poi.location.split(',').map(parseFloat);
+                            return {
+                                id: poi.id,
+                                name: poi.name,
+                                type: getSimplifiedLandmarkType(poi.type),
+                                coordinates: { lat, lon },
+                                address: poi.address,
+                                rating: (poi.biz_ext && poi.biz_ext.rating) ? parseFloat(poi.biz_ext.rating) : 0,
+                                category: poi.type || '',
+                                source: 'api'
+                            };
+                        });
+
+                    landmarks.push(...newLandmarks);
+                    console.log(`✅ 找到 ${newLandmarks.length} 个 ${searchType.keywords} 地标`);
+                }
+
+                // 添加小延迟避免请求过快
+                await new Promise(resolve => setTimeout(resolve, 50));
+
+            } catch (error) {
+                console.warn(`搜索${searchType.keywords}失败:`, error);
+            }
+        }
+
+        // 3. 去重并排序
+        const uniqueLandmarks = landmarks
+            .filter((landmark, index, self) => {
+                // 根据名称去重，保留第一个（预设地标优先）
+                return index === self.findIndex(l => l.name === landmark.name);
+            })
+            .sort((a, b) => {
+                // 预设地标排在前面
+                if (a.source !== b.source) {
+                    return a.source === 'preset' ? -1 : 1;
+                }
+                // 按评分排序
+                return (b.rating || 0) - (a.rating || 0);
+            })
+            .slice(0, maxResults);
+
+        console.log(`🎯 ${city} 最终获取到 ${uniqueLandmarks.length} 个地标`);
+        return uniqueLandmarks;
+    }
+
+    /**
+     * 获取地标缓存键
+     * @param {string} city - 城市名
+     * @returns {string} - 缓存键
+     */
+    _getLandmarkCacheKey(city) {
+        return `landmarks_${city}`;
+    }
+
+    /**
+     * 缓存地标数据（简单内存缓存）
+     */
+    _landmarkCache = new Map();
+
+    /**
+     * 获取缓存的地标数据
+     * @param {string} city - 城市名
+     * @param {number} [maxAge=300000] - 缓存最大年龄（毫秒，默认5分钟）
+     * @returns {Array|null} - 缓存的地标数据或null
+     */
+    getCachedLandmarks(city, maxAge = 300000) {
+        const cacheKey = this._getLandmarkCacheKey(city);
+        const cached = this._landmarkCache.get(cacheKey);
+
+        if (cached && (Date.now() - cached.timestamp) < maxAge) {
+            console.log(`📦 使用缓存的地标数据: ${city}`);
+            return cached.data;
+        }
+
+        return null;
+    }
+
+    /**
+     * 缓存地标数据
+     * @param {string} city - 城市名
+     * @param {Array} landmarks - 地标数据
+     */
+    setCachedLandmarks(city, landmarks) {
+        const cacheKey = this._getLandmarkCacheKey(city);
+        this._landmarkCache.set(cacheKey, {
+            data: landmarks,
+            timestamp: Date.now()
+        });
+        console.log(`💾 缓存地标数据: ${city}, ${landmarks.length} 个地标`);
+    }
+
+    /**
+     * 获取城市地标（带缓存）
+     * @param {string} city - 城市名
+     * @param {Object} options - 选项
+     * @returns {Promise<Array>} - 地标数组
+     */
+    async getCityLandmarksWithCache(city, options = {}) {
+        // 先尝试从缓存获取
+        const cached = this.getCachedLandmarks(city);
+        if (cached) {
+            return cached;
+        }
+
+        // 缓存未命中，从API获取
+        try {
+            const landmarks = await this.getCityLandmarks(city, options);
+            // 缓存结果
+            this.setCachedLandmarks(city, landmarks);
+            return landmarks;
+        } catch (error) {
+            console.error('获取城市地标失败:', error);
+            // 如果API失败，至少返回预设地标
+            return PRESET_LANDMARKS[city] || [];
+        }
+    }
 }
 
 // 创建默认实例
@@ -593,5 +867,7 @@ export const {
     getCityCoordinate,
     getBatchCityCoordinates,
     findBestMatchPoi,
-    getBatchRecommendations
+    getBatchRecommendations,
+    getCityLandmarks,
+    getCityLandmarksWithCache
 } = amapService;
