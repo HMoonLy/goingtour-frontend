@@ -905,6 +905,16 @@ export default {
     // 获取用户store
     const userStore = useUserStore();
 
+    // 调试：在组件挂载时打印接收到的数据
+    console.log("🔍 TripGeneration 接收到的数据:", {
+      baseForm: props.baseForm,
+      preferenceForm: props.preferenceForm,
+      userPreferences: props.userPreferences,
+      selectedAttractions: props.selectedAttractions,
+      selectedRestaurants: props.selectedRestaurants,
+      weatherSuggestion: props.weatherSuggestion
+    });
+
     // 生成风格选择
     const selectedGenerationStyle = ref("table"); // 默认表格式
 

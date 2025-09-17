@@ -118,7 +118,7 @@
               :key="purpose.value"
               class="purpose-card"
               :class="{
-                selected: tripPreferences.tripPurpose === purpose.value,
+                selected: localPreferences.tripPurpose === purpose.value,
               }"
               @click="selectTripPurpose(purpose.value)"
             >
@@ -161,11 +161,11 @@
               :key="focus.value"
               class="focus-item"
               :class="{
-                selected: tripPreferences.focusAreas.includes(focus.value),
+                selected: localPreferences.focusAreas.includes(focus.value),
                 recommended: recommendedFocusAreas.includes(focus.value),
                 disabled:
-                  !tripPreferences.focusAreas.includes(focus.value) &&
-                  tripPreferences.focusAreas.length >= 3,
+                  !localPreferences.focusAreas.includes(focus.value) &&
+                  localPreferences.focusAreas.length >= 3,
               }"
               @click="toggleFocusArea(focus.value)"
             >
@@ -186,7 +186,7 @@
 
               <!-- 选中标记 -->
               <div
-                v-if="tripPreferences.focusAreas.includes(focus.value)"
+                v-if="localPreferences.focusAreas.includes(focus.value)"
                 class="selected-badge"
               >
                 <el-icon><Check /></el-icon>
@@ -196,10 +196,10 @@
 
           <div class="selection-info">
             <span class="selection-count"
-              >已选择 {{ tripPreferences.focusAreas.length }}/3</span
+              >已选择 {{ localPreferences.focusAreas.length }}/3</span
             >
             <el-button
-              v-if="tripPreferences.focusAreas.length > 0"
+              v-if="localPreferences.focusAreas.length > 0"
               link
               size="small"
               @click="clearFocusAreas"
@@ -235,7 +235,7 @@
               :key="pace.value"
               class="pace-card"
               :class="{
-                selected: tripPreferences.pacePreference === pace.value,
+                selected: localPreferences.pacePreference === pace.value,
                 recommended: recommendedPace === pace.value,
               }"
               @click="selectPacePreference(pace.value)"
@@ -290,7 +290,7 @@
               :key="social.value"
               class="social-option"
               :class="{
-                selected: tripPreferences.socialPreference === social.value,
+                selected: localPreferences.socialPreference === social.value,
                 recommended: recommendedSocial === social.value,
               }"
               @click="selectSocialPreference(social.value)"
@@ -333,7 +333,7 @@
               :key="photo.value"
               class="photo-level"
               :class="{
-                selected: tripPreferences.photoPreference === photo.value,
+                selected: localPreferences.photoPreference === photo.value,
                 recommended: recommendedPhoto === photo.value,
               }"
               @click="selectPhotoPreference(photo.value)"
@@ -370,7 +370,7 @@
               :key="need.value"
               class="need-item"
               :class="{
-                selected: tripPreferences.temporaryNeeds.includes(need.value),
+                selected: localPreferences.temporaryNeeds.includes(need.value),
               }"
               @click="toggleTemporaryNeed(need.value)"
             >
@@ -560,6 +560,7 @@ import {
   CompletePromptGenerator,
 } from "@/utils/data/aiPromptEngine.js";
 import { useUserStore } from "@/store/user.js";
+import { usePreferenceStore } from "@/store/preference.js";
 
 export default {
   name: "TripPreferencesNew",
@@ -596,6 +597,7 @@ export default {
   ],
   setup(props, { emit }) {
     const userStore = useUserStore();
+    const preferenceStore = usePreferenceStore();
     const saving = ref(false);
     const showDetailedAI = ref(false);
     const showAiRecommendationDialog = ref(false);
@@ -608,14 +610,23 @@ export default {
       () => Object.keys(personalProfile.value).length > 0
     );
 
-    // 行程偏好数据
-    const tripPreferences = reactive({
-      tripPurpose: "",
+    // 行程偏好数据 - 直接使用 preferenceStore 的数据
+    const tripPreferences = computed({
+      get: () => preferenceStore.tripPreferenceForm,
+      set: (value) => preferenceStore.updateTripPreferences(value),
+    });
+
+    // 本地临时状态（用于兼容现有UI逻辑）
+    const localPreferences = reactive({
+      tripPurpose: "", // 映射到 tripGoals
       focusAreas: [],
       pacePreference: "balanced",
-      socialPreference: "mixed",
+      socialPreference: "mixed", 
       photoPreference: "casual",
       temporaryNeeds: [],
+      specialRequirements: "",
+      dietaryRestrictions: [],
+      customDietaryNotes: "",
     });
 
     // 选项数据（从新的数据系统获取）
@@ -680,59 +691,97 @@ export default {
     const recommendedSocial = ref("");
     const recommendedPhoto = ref("");
 
+    // 数据同步函数：将本地数据同步到store
+    const syncToStore = () => {
+      const storeData = {
+        tripGoals: localPreferences.tripPurpose ? [localPreferences.tripPurpose] : [],
+        focusAreas: [...localPreferences.focusAreas],
+        pacePreference: localPreferences.pacePreference,
+        socialPreference: localPreferences.socialPreference,
+        photoPreference: localPreferences.photoPreference,
+        specialRequirements: localPreferences.specialRequirements,
+        dietaryRestrictions: [...localPreferences.dietaryRestrictions],
+        customDietaryNotes: localPreferences.customDietaryNotes,
+      };
+      
+      console.log("🔄 TripPreferencesNew 同步数据到 store:", storeData);
+      preferenceStore.updateTripPreferences(storeData);
+      
+      // 验证同步结果
+      console.log("✅ Store 中的数据:", preferenceStore.tripPreferenceForm);
+      
+      // 同时触发父组件更新事件
+      emit("preferences-updated", storeData);
+    };
+
+    // 从store初始化本地数据
+    const initFromStore = () => {
+      const storeData = preferenceStore.tripPreferenceForm;
+      if (storeData) {
+        localPreferences.tripPurpose = storeData.tripGoals?.[0] || "";
+        localPreferences.focusAreas = [...(storeData.focusAreas || [])];
+        localPreferences.pacePreference = storeData.pacePreference || "balanced";
+        localPreferences.socialPreference = storeData.socialPreference || "mixed";
+        localPreferences.photoPreference = storeData.photoPreference || "casual";
+        localPreferences.specialRequirements = storeData.specialRequirements || "";
+        localPreferences.dietaryRestrictions = [...(storeData.dietaryRestrictions || [])];
+        localPreferences.customDietaryNotes = storeData.customDietaryNotes || "";
+      }
+    };
+
     // 偏好完整性检查
     const hasValidPreferences = computed(() => {
       return (
-        tripPreferences.tripPurpose ||
-        tripPreferences.focusAreas.length > 0 ||
-        tripPreferences.temporaryNeeds.length > 0
+        localPreferences.tripPurpose ||
+        localPreferences.focusAreas.length > 0 ||
+        localPreferences.temporaryNeeds.length > 0
       );
     });
 
-    // 选择函数
+    // 选择函数 - 更新本地数据并同步到store
     const selectTripPurpose = (purpose) => {
-      tripPreferences.tripPurpose = purpose;
-      emit("preferences-updated", { ...tripPreferences });
+      localPreferences.tripPurpose = purpose;
+      syncToStore();
     };
 
     const toggleFocusArea = (area) => {
-      const index = tripPreferences.focusAreas.indexOf(area);
+      const index = localPreferences.focusAreas.indexOf(area);
       if (index > -1) {
-        tripPreferences.focusAreas.splice(index, 1);
-      } else if (tripPreferences.focusAreas.length < 3) {
-        tripPreferences.focusAreas.push(area);
+        localPreferences.focusAreas.splice(index, 1);
+      } else if (localPreferences.focusAreas.length < 3) {
+        localPreferences.focusAreas.push(area);
       }
-      emit("preferences-updated", { ...tripPreferences });
+      syncToStore();
     };
 
     const clearFocusAreas = () => {
-      tripPreferences.focusAreas = [];
-      emit("preferences-updated", { ...tripPreferences });
+      localPreferences.focusAreas = [];
+      syncToStore();
     };
 
     const selectPacePreference = (pace) => {
-      tripPreferences.pacePreference = pace;
-      emit("preferences-updated", { ...tripPreferences });
+      localPreferences.pacePreference = pace;
+      syncToStore();
     };
 
     const selectSocialPreference = (social) => {
-      tripPreferences.socialPreference = social;
-      emit("preferences-updated", { ...tripPreferences });
+      localPreferences.socialPreference = social;
+      syncToStore();
     };
 
     const selectPhotoPreference = (photo) => {
-      tripPreferences.photoPreference = photo;
-      emit("preferences-updated", { ...tripPreferences });
+      localPreferences.photoPreference = photo;
+      syncToStore();
     };
 
     const toggleTemporaryNeed = (need) => {
-      const index = tripPreferences.temporaryNeeds.indexOf(need);
+      const index = localPreferences.temporaryNeeds.indexOf(need);
       if (index > -1) {
-        tripPreferences.temporaryNeeds.splice(index, 1);
+        localPreferences.temporaryNeeds.splice(index, 1);
       } else {
-        tripPreferences.temporaryNeeds.push(need);
+        localPreferences.temporaryNeeds.push(need);
       }
-      emit("preferences-updated", { ...tripPreferences });
+      syncToStore();
     };
 
     // 显示名称函数
@@ -803,28 +852,28 @@ export default {
 
       // 应用默认值（如果用户还没有设置）
       if (
-        !tripPreferences.pacePreference ||
-        tripPreferences.pacePreference === "balanced"
+        !localPreferences.pacePreference ||
+        localPreferences.pacePreference === "balanced"
       ) {
-        tripPreferences.pacePreference = defaults.pacePreference;
+        localPreferences.pacePreference = defaults.pacePreference;
       }
       if (
-        !tripPreferences.socialPreference ||
-        tripPreferences.socialPreference === "mixed"
+        !localPreferences.socialPreference ||
+        localPreferences.socialPreference === "mixed"
       ) {
-        tripPreferences.socialPreference = defaults.socialPreference;
+        localPreferences.socialPreference = defaults.socialPreference;
       }
       if (
-        !tripPreferences.photoPreference ||
-        tripPreferences.photoPreference === "casual"
+        !localPreferences.photoPreference ||
+        localPreferences.photoPreference === "casual"
       ) {
-        tripPreferences.photoPreference = defaults.photoPreference;
+        localPreferences.photoPreference = defaults.photoPreference;
       }
       if (
-        tripPreferences.focusAreas.length === 0 &&
+        localPreferences.focusAreas.length === 0 &&
         defaults.focusAreas.length > 0
       ) {
-        tripPreferences.focusAreas = [...defaults.focusAreas.slice(0, 3)];
+        localPreferences.focusAreas = [...defaults.focusAreas.slice(0, 3)];
       }
     };
 
@@ -913,45 +962,45 @@ export default {
           // 第二步：行程偏好（当前组件的数据）- 包含原始值和详细转换
           preferences: {
             // 旅行目的 - 原始值和详细信息
-            travelPurpose: tripPreferences.tripPurpose || "",
-            travelPurposeDetail: convertToDetailedData('tripPurpose', tripPreferences.tripPurpose),
+            travelPurpose: localPreferences.tripPurpose || "",
+            travelPurposeDetail: convertToDetailedData('tripPurpose', localPreferences.tripPurpose),
 
             // 关注领域/兴趣点 - 原始值和详细信息
-            focusAreas: tripPreferences.focusAreas || [],
-            focusAreasDetails: convertListToDetailedData('focusAreas', tripPreferences.focusAreas),
-            interests: tripPreferences.focusAreas || [], // 兼容字段
+            focusAreas: localPreferences.focusAreas || [],
+            focusAreasDetails: convertListToDetailedData('focusAreas', localPreferences.focusAreas),
+            interests: localPreferences.focusAreas || [], // 兼容字段
 
             // 节奏偏好 - 原始值和详细信息
-            pacePreference: tripPreferences.pacePreference || "",
-            pacePreferenceDetail: convertToDetailedData('pacePreference', tripPreferences.pacePreference),
+            pacePreference: localPreferences.pacePreference || "",
+            pacePreferenceDetail: convertToDetailedData('pacePreference', localPreferences.pacePreference),
 
             // 社交偏好 - 原始值和详细信息
-            socialPreference: tripPreferences.socialPreference || "",
-            socialPreferenceDetail: convertToDetailedData('socialPreference', tripPreferences.socialPreference),
+            socialPreference: localPreferences.socialPreference || "",
+            socialPreferenceDetail: convertToDetailedData('socialPreference', localPreferences.socialPreference),
 
             // 拍照偏好 - 原始值和详细信息
-            photoPreference: tripPreferences.photoPreference || "",
-            photoPreferenceDetail: convertToDetailedData('photoPreference', tripPreferences.photoPreference),
+            photoPreference: localPreferences.photoPreference || "",
+            photoPreferenceDetail: convertToDetailedData('photoPreference', localPreferences.photoPreference),
 
             // 特殊需求和临时需要 - 原始值和详细信息
-            specialRequirements: tripPreferences.specialRequirements || "",
-            temporaryNeeds: tripPreferences.temporaryNeeds || [],
-            temporaryNeedsDetails: convertListToDetailedData('temporaryNeeds', tripPreferences.temporaryNeeds),
+            specialRequirements: localPreferences.specialRequirements || "",
+            temporaryNeeds: localPreferences.temporaryNeeds || [],
+            temporaryNeedsDetails: convertListToDetailedData('temporaryNeeds', localPreferences.temporaryNeeds),
 
             // 饮食相关（从个人档案和当前设置合并）
             dietaryRestrictions: [
               ...(personalProfile.value?.dietaryRestrictions || []),
-              ...(tripPreferences.dietaryRestrictions || []),
+              ...(localPreferences.dietaryRestrictions || []),
             ],
             dietaryRestrictionsDetails: convertListToDetailedData('dietaryRestrictions', [
               ...(personalProfile.value?.dietaryRestrictions || []),
-              ...(tripPreferences.dietaryRestrictions || []),
+              ...(localPreferences.dietaryRestrictions || []),
             ]),
-            customDietaryNotes: tripPreferences.customDietaryNotes || "",
+            customDietaryNotes: localPreferences.customDietaryNotes || "",
 
             // 预算和住宿偏好
             budgetPreference: props.tripContext?.budget || "moderate",
-            accommodationLevel: tripPreferences.accommodationLevel || "moderate",
+            accommodationLevel: localPreferences.accommodationLevel || "moderate",
 
             // 交通偏好（从个人档案获取）
             transportationMode: personalProfile.value?.transportPreferences || [],
@@ -1335,8 +1384,11 @@ export default {
         saving.value = false;
 
         // 保存偏好并进入下一步
+        // 确保数据同步到store
+        syncToStore();
+        
         // console.log("💾 保存偏好数据并进入下一步");
-        emit("preferences-saved", { ...tripPreferences });
+        emit("preferences-saved", preferenceStore.tripPreferenceForm);
       }
     };
 
@@ -1396,8 +1448,14 @@ export default {
       { deep: true }
     );
 
+    // 在 onMounted 中初始化数据
+    onMounted(() => {
+      initFromStore();
+    });
+
     return {
       tripPreferences,
+      localPreferences,
       personalProfile,
       hasPersonalProfile,
       saving,
@@ -1434,6 +1492,9 @@ export default {
       cancelAiRequest,
       saveDraft,
       goToPreviousStep,
+      // 数据同步函数
+      syncToStore,
+      initFromStore,
     };
   },
 };

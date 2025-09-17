@@ -564,16 +564,20 @@ export default {
 
     // 处理偏好更新事件
     const handlePreferencesUpdate = (preferences) => {
-      // 这里可以将偏好保存到本地状态或store中
+      // 偏好数据已经在 TripPreferencesNew 组件中同步到 store
+      // 这里只需要标记数据已更改
       markDataChanged();
     };
 
     // 处理偏好保存事件
     const handlePreferencesSaved = async (preferences) => {
-      ElMessage.success("偏好设置已保存");
+      // 偏好数据已经通过 preferenceStore 管理，这里确保数据完整性
+      if (preferences && Object.keys(preferences).length > 0) {
+        // 数据已经在 preferenceStore 中，无需额外处理
+        console.log("✅ 偏好数据已保存到 store:", preferences);
+      }
       
-      // 移除AI推荐预加载逻辑
-      // 用户不需要在这里预加载AI推荐
+      ElMessage.success("偏好设置已保存");
       
       // 进入下一步
       nextStep();
