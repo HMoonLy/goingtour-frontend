@@ -36,9 +36,6 @@
       <!-- 右侧：类型标签 -->
       <div class="type-section">
         <el-tag type="primary" size="small">景点</el-tag>
-        <el-tag v-if="attraction.type" type="info" size="small">
-          {{ attraction.type }}
-        </el-tag>
       </div>
     </div>
 
@@ -328,24 +325,13 @@ const handleShowDetails = () => {
 
 /* 推荐理由区域 - 重点突出 */
 .recommendation-reason {
-  background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
-  border: 1px solid #c6e2ff;
+  /* background: linear-gradient(135deg, #f9fbfc 0%, #f3f7fa 100%);
+  border: 1px solid #c6e2ff; */
   border-radius: 8px;
   padding: 12px;
-  border-left: 4px solid #409eff;
-  position: relative;
   overflow: hidden;
 }
 
-.recommendation-reason::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, #409eff, #79bbff);
-}
 
 .reason-header {
   display: flex;
@@ -355,13 +341,13 @@ const handleShowDetails = () => {
 }
 
 .ai-icon {
-  color: #409eff;
+  color: #f7ba2a;
   font-size: 16px;
 }
 
 .reason-label {
   font-weight: 600;
-  color: #409eff;
+   color: #000000;
   font-size: 14px;
 }
 
