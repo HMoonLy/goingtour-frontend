@@ -137,57 +137,10 @@ const props = defineProps({
 // Emits
 const emit = defineEmits(['select', 'unselect', 'show-details'])
 
-// 获取简化的图片URL - 使用本地默认图片
+// 获取图片URL - 直接使用默认景点图片
 const getImageUrl = () => {
-  // 使用景点的实际图片或占位符
-  if (props.attraction.photos && props.attraction.photos.length > 0) {
-    return props.attraction.photos[0].url || props.attraction.photos[0]
-  }
-  if (props.attraction.poi?.photos && props.attraction.poi.photos.length > 0) {
-    return props.attraction.poi.photos[0].url || props.attraction.poi.photos[0]
-  }
-  
-  // 尝试根据景点名称匹配本地图片
-  const name = props.attraction.name?.toLowerCase() || ''
-  const cityImages = {
-    '故宫': '/images/destinations/beijing.jpg',
-    '天坛': '/images/destinations/beijing.jpg', 
-    '长城': '/images/destinations/beijing.jpg',
-    '颐和园': '/images/destinations/beijing.jpg',
-    '天安门': '/images/destinations/beijing.jpg',
-    '西湖': '/images/destinations/hangzhou.jpg',
-    '雷峰塔': '/images/destinations/hangzhou.jpg',
-    '断桥': '/images/destinations/hangzhou.jpg',
-    '外滩': '/images/destinations/shanghai.jpg',
-    '东方明珠': '/images/destinations/shanghai.jpg',
-    '豫园': '/images/destinations/shanghai.jpg',
-    '南京路': '/images/destinations/shanghai.jpg',
-    '黄山': '/images/destinations/huangshan.jpg',
-    '九寨沟': '/images/destinations/jiuzhaigou.jpg',
-    '张家界': '/images/destinations/zhangjiajie.jpg',
-    '桂林': '/images/destinations/guilin.jpg',
-    '丽江': '/images/destinations/lijiang.jpg',
-    '大理': '/images/destinations/dali.jpg',
-    '西安': '/images/destinations/xian.jpg',
-    '兵马俑': '/images/destinations/xian.jpg',
-    '大雁塔': '/images/destinations/xian.jpg',
-    '厦门': '/images/destinations/xiamen.jpg',
-    '鼓浪屿': '/images/destinations/xiamen.jpg',
-    '青岛': '/images/destinations/qingdao.jpg',
-    '苏州': '/images/destinations/suzhou.jpg',
-    '拙政园': '/images/destinations/suzhou.jpg',
-    '南京': '/images/destinations/nanjing.jpg'
-  }
-  
-  // 查找匹配的城市图片
-  for (const [keyword, imagePath] of Object.entries(cityImages)) {
-    if (name.includes(keyword.toLowerCase()) || name.includes(keyword)) {
-      return imagePath
-    }
-  }
-  
-  // 使用默认景点图片，最终回退到SVG
-  return '/images/defaults/attraction.svg'
+  // 直接使用默认景点图片
+  return '/images/defaults/attraction.png'
 }
 
 // 获取位置信息

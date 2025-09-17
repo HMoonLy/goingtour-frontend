@@ -151,45 +151,10 @@ const props = defineProps({
 // Emits
 const emit = defineEmits(['select', 'unselect', 'show-details'])
 
-// 获取简化的图片URL - 使用本地默认图片
+// 获取图片URL - 直接使用默认酒店图片
 const getImageUrl = () => {
-  // 使用酒店的实际图片或占位符
-  if (props.hotel.photos && props.hotel.photos.length > 0) {
-    return props.hotel.photos[0].url || props.hotel.photos[0]
-  }
-  if (props.hotel.poi?.photos && props.hotel.poi.photos.length > 0) {
-    return props.hotel.poi.photos[0].url || props.hotel.poi.photos[0]
-  }
-  
-  // 尝试根据酒店名称或位置匹配本地图片
-  const name = props.hotel.name?.toLowerCase() || ''
-  
-  // 优先使用特定城市的景点图片作为酒店背景
-  const cityImages = {
-    '北京': '/images/destinations/beijing.jpg',
-    '上海': '/images/destinations/shanghai.jpg',
-    '杭州': '/images/destinations/hangzhou.jpg',
-    '西安': '/images/destinations/xian.jpg',
-    '成都': '/images/destinations/chengdu.jpg',
-    '广州': '/images/destinations/guangzhou.jpg',
-    '深圳': '/images/destinations/shenzhen.jpg',
-    '厦门': '/images/destinations/xiamen.jpg',
-    '青岛': '/images/destinations/qingdao.jpg',
-    '苏州': '/images/destinations/suzhou.jpg',
-    '南京': '/images/destinations/nanjing.jpg',
-    '桂林': '/images/destinations/guilin.jpg',
-    '三亚': '/images/destinations/sanya.jpg'
-  }
-  
-  // 查找匹配的城市图片
-  for (const [keyword, imagePath] of Object.entries(cityImages)) {
-    if (name.includes(keyword.toLowerCase()) || name.includes(keyword)) {
-      return imagePath
-    }
-  }
-  
-  // 使用默认酒店图片，最终回退到SVG
-  return '/images/defaults/hotel.svg'
+  // 直接使用默认酒店图片
+  return '/images/defaults/hotel.png'
 }
 
 // 获取位置信息
