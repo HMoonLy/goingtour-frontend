@@ -56,7 +56,7 @@
           <el-icon><Suitcase /></el-icon>
         </div>
         <div class="header-text">
-          <h1 class="page-title">✈️ 本次行程偏好设置</h1>
+          <h1 class="page-title">✈️本次行程偏好设置</h1>
           <p class="page-subtitle">
             为这次旅行量身定制，随时可以调整的偏好设置
           </p>
@@ -74,7 +74,7 @@
           <el-icon><MagicStick /></el-icon>
         </div>
         <div class="notice-content">
-          <h4>🎯 智能预填已启用</h4>
+          <h4>🎯智能预填已启用</h4>
           <p>
             根据您的个人旅行档案，我们已为您预选了合适的选项。您可以根据这次旅行的具体情况随时调整。
           </p>
@@ -327,23 +327,24 @@
         </div>
 
         <div class="photo-content">
-          <div class="photo-slider-container">
-            <div class="photo-levels">
-              <div
-                v-for="(photo, index) in photoPreferenceOptions"
-                :key="photo.value"
-                class="photo-level"
-                :class="{
-                  selected: tripPreferences.photoPreference === photo.value,
-                  recommended: recommendedPhoto === photo.value,
-                }"
-                @click="selectPhotoPreference(photo.value)"
-              >
-                <div class="photo-icon">{{ photo.icon }}</div>
-                <div class="photo-info">
-                  <span class="photo-name">{{ photo.name }}</span>
-                  <span class="photo-desc">{{ photo.description }}</span>
-                </div>
+          <div class="photo-levels">
+            <div
+              v-for="(photo, index) in photoPreferenceOptions"
+              :key="photo.value"
+              class="photo-level"
+              :class="{
+                selected: tripPreferences.photoPreference === photo.value,
+                recommended: recommendedPhoto === photo.value,
+              }"
+              @click="selectPhotoPreference(photo.value)"
+            >
+              <div class="photo-header">
+                <span class="photo-icon">{{ photo.icon }}</span>
+                <span class="photo-name">{{ photo.name }}</span>
+              </div>
+              <p class="photo-desc">{{ photo.description }}</p>
+              <div class="photo-strategy">
+                <span>{{ photo.aiStrategy }}</span>
               </div>
             </div>
           </div>
@@ -1965,15 +1966,12 @@ export default {
 /* 拍照需求 */
 .photo-levels {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
 }
 
 .photo-level {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 20px;
+  padding: 24px;
   border: 2px solid #e4e7ed;
   border-radius: 16px;
   cursor: pointer;
@@ -2004,27 +2002,33 @@ export default {
   );
 }
 
-.photo-icon {
-  font-size: 24px;
-  width: 40px;
-  text-align: center;
+.photo-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
-.photo-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.photo-icon {
+  font-size: 24px;
 }
 
 .photo-name {
   font-weight: 600;
+  font-size: 16px;
   color: #303133;
 }
 
 .photo-desc {
-  font-size: 13px;
+  margin: 0 0 12px;
+  font-size: 14px;
   color: #606266;
+}
+
+.photo-strategy {
+  font-size: 13px;
+  color: #909399;
+  font-style: italic;
 }
 
 /* 特殊需求网格 */
