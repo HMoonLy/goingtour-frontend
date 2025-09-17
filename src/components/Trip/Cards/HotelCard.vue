@@ -4,43 +4,46 @@
 
 <template>
   <div class="hotel-card" :class="{ selected: isSelected }">
-    <!-- 卡片头部：紧凑的信息区 -->
-    <div class="card-header">
-      <!-- 左侧：小图片 + 基本信息 -->
-      <div class="header-left">
-        <div class="mini-image" @click="handleShowDetails">
-          <img :src="getImageUrl()" :alt="hotel.name" />
-          <div class="image-overlay">
-            <el-icon><ZoomIn /></el-icon>
+    <!-- 卡片主要内容区 -->
+    <div class="card-content">
+      <!-- 卡片头部：图片和主要信息 -->
+      <div class="card-header">
+        <!-- 左侧：图片展示区 -->
+        <div class="image-section">
+          <div class="main-image" @click="handleShowDetails">
+            <img :src="getImageUrl()" :alt="hotel.name" />
+            <div class="image-overlay">
+              <el-icon><ZoomIn /></el-icon>
+            </div>
           </div>
         </div>
         
-        <div class="basic-info">
-          <h3 class="name">{{ hotel.name }}</h3>
-          <div class="location">
-            <el-icon><MapLocation /></el-icon>
-            <span>{{ getLocationText() }}</span>
+        <!-- 右侧：基本信息 -->
+        <div class="info-section">
+          <div class="name-area">
+            <h2 class="hotel-name">{{ hotel.name }}</h2>
+            <el-tag type="success" size="small" class="type-tag">酒店</el-tag>
           </div>
-          <div v-if="getRating()" class="rating">
-            <el-rate 
-              :model-value="getRating()" 
-              disabled 
-              size="small"
-              show-score
-              :score-template="`${getRating().toFixed(1)}分`"
-            />
+          
+          <div class="meta-info">
+            <div class="location-info">
+              <el-icon class="location-icon"><MapLocation /></el-icon>
+              <span class="location-text">{{ getLocationText() }}</span>
+            </div>
+            
+            <div v-if="getRating()" class="rating-info">
+              <el-rate 
+                :model-value="getRating()" 
+                disabled 
+                size="small"
+                show-score
+                :score-template="`${getRating().toFixed(1)}分`"
+                class="rating-stars"
+              />
+            </div>
           </div>
         </div>
       </div>
-      
-      <!-- 右侧：类型标签 -->
-      <div class="type-section">
-        <el-tag type="success" size="small">酒店</el-tag>
-        <el-tag v-if="hotel.type" type="info" size="small">
-          {{ hotel.type }}
-        </el-tag>
-      </div>
-    </div>
 
     <!-- 推荐理由区域 - 重点突出 -->
     <div class="recommendation-reason">
@@ -97,23 +100,30 @@
       </el-tag>
     </div>
 
-    <!-- 操作区域 -->
-    <div class="card-actions">
-      <el-button size="small" type="primary" text @click="handleShowDetails">
-        <el-icon><InfoFilled /></el-icon>
-        查看详情
-      </el-button>
-      
-      <el-button 
-        size="small"
-        :type="isSelected ? 'success' : 'primary'"
-        @click="isSelected ? handleUnselect() : handleSelect()"
-      >
-        <el-icon>
-          <component :is="isSelected ? 'Check' : 'Plus'" />
-        </el-icon>
-        {{ isSelected ? '已选择' : '选择此店' }}
-      </el-button>
+      <!-- 操作区域 -->
+      <div class="card-actions">
+        <el-button 
+          size="medium" 
+          class="details-btn"
+          @click="handleShowDetails"
+        >
+          <el-icon class="btn-icon"><InfoFilled /></el-icon>
+          <span>查看详情</span>
+          <el-icon class="arrow-icon"><ArrowRight /></el-icon>
+        </el-button>
+        
+        <el-button 
+          size="medium"
+          :type="isSelected ? 'success' : 'primary'"
+          :class="['select-btn', { 'selected': isSelected }]"
+          @click="isSelected ? handleUnselect() : handleSelect()"
+        >
+          <el-icon class="btn-icon">
+            <component :is="isSelected ? 'Check' : 'Plus'" />
+          </el-icon>
+          <span>{{ isSelected ? '已选择' : '选择此地' }}</span>
+        </el-button>
+      </div>
     </div>
   </div>
 </template>
@@ -127,6 +137,7 @@ import {
   Check,
   Plus,
   ZoomIn,
+  ArrowRight,
   Money,
   House
 } from '@element-plus/icons-vue'
@@ -198,65 +209,71 @@ const handleShowDetails = () => {
 
 <style scoped>
 .hotel-card {
-  background: white;
-  border: 1px solid #ebeef5;
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #e4e7ed;
   border-radius: 12px;
-  padding: 14px;
+  padding: 0;
   transition: all 0.3s ease;
   min-height: 260px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .hotel-card:hover {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.08);
+  transform: translateY(-2px);
+  border-color: #000000;
+}
+
+
+.hotel-card.selected:hover {
   transform: translateY(-2px);
 }
 
-.hotel-card.selected {
-  border-color: #67c23a;
-  background: linear-gradient(to bottom, #f8fff8, #ffffff);
-  box-shadow: 0 0 0 2px rgba(103, 194, 58, 0.2);
+/* 移除装饰性背景，保持简洁 */
+
+/* 卡片内容区域 */
+.card-content {
+  position: relative;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
 }
 
 /* 头部区域 */
 .card-header {
   display: flex;
-  justify-content: space-between;
+  gap: 12px;
   align-items: flex-start;
-  gap: 12px;
 }
 
-.header-left {
-  display: flex;
-  gap: 12px;
-  flex: 1;
-  min-width: 0;
+/* 图片展示区域 */
+.image-section {
+  flex-shrink: 0;
 }
 
-/* 小图片区域 */
-.mini-image {
+.main-image {
   width: 80px;
   height: 80px;
-  border-radius: 10px;
+  border-radius: 8px;
   overflow: hidden;
   position: relative;
   cursor: pointer;
-  flex-shrink: 0;
-  border: 2px solid #f0f2f5;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e4e7ed;
   transition: all 0.3s ease;
 }
 
-.mini-image:hover {
-  border-color: #67c23a;
-  box-shadow: 0 4px 12px rgba(103, 194, 58, 0.3);
+.main-image:hover {
+  border-color: #409eff;
   transform: scale(1.05);
 }
 
-.mini-image img {
+.main-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -268,30 +285,38 @@ const handleShowDetails = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(64, 158, 255, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: opacity 0.3s ease;
   color: white;
-  font-size: 18px;
+  font-size: 16px;
 }
 
-.mini-image:hover .image-overlay {
+.main-image:hover .image-overlay {
   opacity: 1;
 }
 
-/* 基本信息区域 */
-.basic-info {
+/* 信息区域 */
+.info-section {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
-.name {
+.name-area {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.hotel-name {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
@@ -302,9 +327,20 @@ const handleShowDetails = () => {
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  flex: 1;
 }
 
-.location {
+.type-tag {
+  flex-shrink: 0;
+}
+
+.meta-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.location-info {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -312,63 +348,54 @@ const handleShowDetails = () => {
   color: #606266;
 }
 
-.location .el-icon {
-  color: #67c23a;
+.location-icon {
+  color: #409eff;
   flex-shrink: 0;
+  font-size: 14px;
 }
 
-.location span {
+.location-text {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   flex: 1;
 }
 
-.rating {
+.rating-info {
   display: flex;
   align-items: center;
 }
 
-/* 类型标签区域 */
-.type-section {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: flex-end;
-  flex-shrink: 0;
-}
-
-/* 推荐理由区域 - 重点突出 */
+/* 推荐理由区域 - 简洁版 */
 .recommendation-reason {
-  background: linear-gradient(135deg, #f8fff8 0%, #eaf7ea 100%);
-  border: 1px solid #c3e6cb;
-  border-radius: 8px;
+  background: #f5f7fa;
+  border-radius: 6px;
   padding: 12px;
-  border-left: 4px solid #67c23a;
+  margin: 6px 0;
 }
 
 .reason-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 6px;
+  margin-bottom: 6px;
 }
 
 .ai-icon {
-  color: #67c23a;
-  font-size: 16px;
+  color: #91c3f5;
+  font-size: 14px;
 }
 
 .reason-label {
   font-weight: 600;
-  color: #67c23a;
-  font-size: 14px;
+  color: #303133;
+  font-size: 13px;
 }
 
 .reason-text {
   margin: 0;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 13px;
+  line-height: 1.4;
   color: #606266;
 }
 
@@ -400,12 +427,13 @@ const handleShowDetails = () => {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  margin: 4px 0;
 }
 
 .tags-label {
   font-size: 12px;
-  color: #909399;
+  color: #409eff;
   white-space: nowrap;
   font-weight: 500;
 }
@@ -413,14 +441,14 @@ const handleShowDetails = () => {
 .tags-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 4px;
   align-items: center;
   flex: 1;
 }
 
 .more-tags {
-  font-size: 12px;
-  color: #909399;
+  font-size: 11px;
+  color: #409eff;
   background: #f5f7fa;
   padding: 2px 6px;
   border-radius: 4px;
@@ -430,22 +458,65 @@ const handleShowDetails = () => {
 .other-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 4px;
+  margin: 4px 0;
 }
 
 /* 操作区域 */
 .card-actions {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   margin-top: auto;
+  padding-top: 6px;
 }
 
-.card-actions .el-button {
+/* 查看详情按钮 */
+.details-btn {
   flex: 1;
+  background: #ffffff;
+  border: 1px solid #dcdfe6;
+  color: #606266;
+  border-radius: 6px;
+  height: 36px;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
-.card-actions .el-button .el-icon {
-  margin-right: 4px;
+.details-btn:hover {
+  background: #409eff;
+  border-color: #409eff;
+  color: white;
+}
+
+/* 选择按钮 */
+.select-btn {
+  flex: 1;
+  border-radius: 6px;
+  height: 36px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.select-btn:not(.selected) {
+  background: #409eff;
+  border-color: #409eff;
+  color: white;
+}
+
+.select-btn:not(.selected):hover {
+  background: #337ecc;
+  border-color: #337ecc;
+}
+
+.select-btn.selected {
+  background: #409eff;
+  border-color: #409eff;
+  color: white;
+}
+
+.select-btn.selected:hover {
+  background: #337ecc;
+  border-color: #337ecc;
 }
 
 /* 响应式适配 */
