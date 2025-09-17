@@ -28,10 +28,6 @@ type="primary" @click="saveChanges">
           </el-button>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item command="pdf">
-                <el-icon><Document /></el-icon>
-                导出PDF（推荐）
-              </el-dropdown-item>
               <el-dropdown-item command="word">
                 <el-icon><Edit /></el-icon>
                 导出Word文档
@@ -653,10 +649,6 @@ const handleExport = async (format) => {
     const exporter = new TripExporter(exportData)
     
     switch (format) {
-      case 'pdf':
-        await exporter.exportToPDF()
-        ElMessage.success('PDF导出成功！')
-        break
       case 'word':
         await exporter.exportToWord()
         ElMessage.success('Word文档导出成功！')

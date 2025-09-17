@@ -1,6 +1,5 @@
-import html2pdf from 'html2pdf.js'
 import html2canvas from 'html2canvas'
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from 'docx'
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, BorderStyle } from 'docx'
 import { saveAs } from 'file-saver'
 import MarkdownIt from 'markdown-it'
 
@@ -9,87 +8,6 @@ export class TripExporter {
         this.tripData = tripData
     }
 
-    // 导出为PDF - 最推荐的格式
-    async exportToPDF() {
-        // 创建临时的打印友好的HTML内容
-        const printContent = this.createPrintHTML()
-
-        // 创建临时容器
-        const tempDiv = document.createElement('div')
-        tempDiv.innerHTML = printContent
-        tempDiv.style.cssText = `
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 794px;
-      min-height: 1123px;
-      background: white;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-size: 14px;
-      line-height: 1.6;
-      color: #333;
-      padding: 40px;
-      box-sizing: border-box;
-      visibility: hidden;
-      z-index: -1000;
-    `
-        document.body.appendChild(tempDiv)
-
-        try {
-            // 强制重排和重绘
-            tempDiv.offsetHeight
-
-            // 等待内容完全渲染
-            await new Promise(resolve => setTimeout(resolve, 1000))
-
-            // 确保内容可见
-            tempDiv.style.visibility = 'visible'
-            await new Promise(resolve => setTimeout(resolve, 100))
-
-            const options = {
-                margin: 0.5,
-                filename: `${this.tripData.title}-行程单.pdf`,
-                image: {
-                    type: 'jpeg',
-                    quality: 0.98
-                },
-                html2canvas: {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: '#ffffff',
-                    logging: true,
-                    allowTaint: false,
-                    foreignObjectRendering: true,
-                    width: 794,
-                    height: tempDiv.scrollHeight || 1123,
-                    windowWidth: 794,
-                    windowHeight: tempDiv.scrollHeight || 1123
-                },
-                jsPDF: {
-                    unit: 'in',
-                    format: 'a4',
-                    orientation: 'portrait',
-                    hotfixes: ["px_scaling"]
-                }
-            }
-
-            // 使用新的API方式
-            const element = tempDiv
-            await html2pdf()
-                .set(options)
-                .from(element)
-                .save()
-
-            return true
-        } catch (error) {
-            console.error('PDF导出失败:', error)
-            throw new Error('PDF导出失败，请重试')
-        } finally {
-            if (document.body.contains(tempDiv)) {
-                document.body.removeChild(tempDiv)
-            }
-        }
-    }
 
     // 导出为Word文档
     async exportToWord() {
@@ -99,8 +17,12 @@ export class TripExporter {
         console.log('Word导出 - 原始内容:', content)
         console.log('Word导出 - 内容长度:', content.length)
 
-        // 使用MarkdownIt解析内容
-        const md = new MarkdownIt()
+        // 使用MarkdownIt解析内容（启用表格支持）
+        const md = new MarkdownIt({
+            html: true,
+            linkify: true,
+            typographer: true
+        })
         const tokens = md.parse(content, {})
 
         console.log('Word导出 - 解析后的tokens:', tokens)
@@ -260,6 +182,10 @@ export class TripExporter {
                     i = this.parseOrderedList(tokens, i, children)
                     break
 
+                case 'table_open':
+                    i = this.parseTable(tokens, i, children)
+                    break
+
                 default:
                     i++
             }
@@ -388,6 +314,99 @@ export class TripExporter {
         }
 
         return i + 1 // 跳过ordered_list_close
+    }
+
+    // 解析表格
+    parseTable(tokens, startIndex, children) {
+        let i = startIndex + 1 // 跳过table_open
+        const tableRows = []
+        let isFirstRow = true // 标记是否为表头行
+
+        while (i < tokens.length && tokens[i].type !== 'table_close') {
+            if (tokens[i].type === 'tr_open') {
+                const tableCells = []
+                i++ // 进入tr内容
+
+                // 解析表格行中的所有单元格
+                while (i < tokens.length && tokens[i].type !== 'tr_close') {
+                    if (tokens[i].type === 'th_open' || tokens[i].type === 'td_open') {
+                        const cellToken = tokens[i + 1] // 获取单元格内容
+                        let cellText = ''
+
+                        if (cellToken && cellToken.type === 'inline') {
+                            cellText = this.extractTextFromInline(cellToken)
+                        }
+
+                        // 创建表格单元格
+                        tableCells.push(
+                            new TableCell({
+                                children: [
+                                    new Paragraph({
+                                        children: [
+                                            new TextRun({
+                                                text: cellText,
+                                                bold: isFirstRow, // 表头加粗
+                                                size: isFirstRow ? 20 : 18
+                                            })
+                                        ]
+                                    })
+                                ],
+                                width: {
+                                    size: 2000, // 固定宽度，让表格自动调整
+                                    type: WidthType.DXA
+                                }
+                            })
+                        )
+
+                        // 跳过th_close/td_close
+                        i += 2
+                    } else {
+                        i++
+                    }
+                }
+
+                // 创建表格行
+                if (tableCells.length > 0) {
+                    tableRows.push(new TableRow({
+                        children: tableCells
+                    }))
+                }
+
+                isFirstRow = false // 第一行处理完后设为false
+            }
+            i++
+        }
+
+        // 创建完整表格
+        if (tableRows.length > 0) {
+            children.push(
+                new Table({
+                    rows: tableRows,
+                    width: {
+                        size: 100,
+                        type: WidthType.PERCENTAGE
+                    },
+                    borders: {
+                        top: { style: BorderStyle.SINGLE, size: 1 },
+                        bottom: { style: BorderStyle.SINGLE, size: 1 },
+                        left: { style: BorderStyle.SINGLE, size: 1 },
+                        right: { style: BorderStyle.SINGLE, size: 1 },
+                        insideHorizontal: { style: BorderStyle.SINGLE, size: 1 },
+                        insideVertical: { style: BorderStyle.SINGLE, size: 1 }
+                    }
+                })
+            )
+
+            // 添加表格后的间距
+            children.push(
+                new Paragraph({
+                    children: [new TextRun({ text: '' })],
+                    spacing: { after: 200 }
+                })
+            )
+        }
+
+        return i + 1 // 跳过table_close
     }
 
     // 简单内容解析（回退方案）
@@ -559,8 +578,8 @@ export class TripExporter {
             const content = this.tripData.aiContent || ''
 
             // 调试信息
-            console.log('PDF导出 - 原始内容:', content)
-            console.log('PDF导出 - 内容长度:', content.length)
+            console.log('打印导出 - 原始内容:', content)
+            console.log('打印导出 - 内容长度:', content.length)
 
             // 使用MarkdownIt正确渲染Markdown
             const md = new MarkdownIt({
@@ -570,7 +589,7 @@ export class TripExporter {
             })
 
             let htmlContent = md.render(content)
-            console.log('PDF导出 - 渲染后HTML:', htmlContent)
+            console.log('打印导出 - 渲染后HTML:', htmlContent)
 
             // 添加内联样式到生成的HTML
             htmlContent = htmlContent
@@ -621,7 +640,7 @@ export class TripExporter {
       </div>
     `
             
-            console.log('PDF导出 - 最终HTML:', finalHTML)
+            console.log('打印导出 - 最终HTML:', finalHTML)
             return finalHTML
     }
 }
