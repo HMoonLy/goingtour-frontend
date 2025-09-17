@@ -1,37 +1,51 @@
 <template>
-  <div class="step-content">
+  <div class="trip-generation-container">
+    <!-- 页面头部 -->
+    <div class="page-header">
+      <div class="header-content">
+        <div class="header-icon">
+          <el-icon><MagicStick /></el-icon>
+        </div>
+        <div class="header-text">
+          <h1 class="page-title">🚀 AI行程生成</h1>
+          <p class="page-subtitle">
+            基于您的偏好设置，为您生成专属的个性化旅行行程
+          </p>
+        </div>
+      </div>
+    </div>
+
     <!-- AI提示词预览面板 -->
-    <el-card class="ai-prompt-card"
-shadow="hover">
-      <template #header>
-        <div class="ai-prompt-header">
-          <div class="header-left">
-            <el-icon size="18">
+    <div class="ai-prompt-card">
+      <div class="card-header">
+        <div class="header-left">
+          <div class="header-icon-small">
+            <el-icon size="20">
               <MagicStick />
             </el-icon>
-            <span>AI提示词预览</span>
-            <el-tag size="small"
-:type="getPromptCompletionClass()">
-              {{ getPromptCompletionText() }}
-            </el-tag>
           </div>
-          <div class="header-right">
-            <el-tooltip content="查看完整提示词"
-placement="top">
-              <el-button type="info"
-link @click="showFullPrompt">
-                <el-icon><ViewIcon /></el-icon>
-              </el-button>
-            </el-tooltip>
+          <div class="header-info">
+            <h3 class="card-title">🤖 AI提示词预览</h3>
+            <p class="card-subtitle">查看AI将如何理解您的需求</p>
           </div>
         </div>
-      </template>
+        <div class="header-right">
+          <el-tag size="large" :type="getPromptCompletionClass()">
+            {{ getPromptCompletionText() }}
+          </el-tag>
+          <el-tooltip content="查看完整提示词" placement="top">
+            <el-button type="primary" link @click="showFullPrompt">
+              <el-icon><ViewIcon /></el-icon>
+              查看详情
+            </el-button>
+          </el-tooltip>
+        </div>
+      </div>
 
       <div class="ai-prompt-content">
         <div v-if="!generating && !generatedTrip">
           <div class="generation-intro">
-            <el-icon size="48"
-color="#91A8D0">
+            <el-icon size="48" color="#91A8D0">
               <MagicStick />
             </el-icon>
             <h3>准备生成您的个性化行程</h3>
@@ -44,10 +58,7 @@ color="#91A8D0">
                 <el-icon><MapLocation /></el-icon>
                 <h4>基本信息</h4>
               </div>
-              <div
-                v-if="baseForm.destination && baseForm.days"
-                class="prompt-text"
-              >
+              <div v-if="baseForm.destination && baseForm.days" class="prompt-text">
                 为我规划一次前往
                 <span class="highlight">{{ getSelectedCityName() }}</span>
                 的 <span class="highlight">{{ baseForm.days }}天</span>行程， 共
@@ -55,13 +66,10 @@ color="#91A8D0">
                 出行， 预算约
                 <span class="highlight">{{ getBudgetText() }}</span>
                 。出行日期为
-                <span class="highlight">{{
-                  formatDateRange(baseForm.dateRange)
-                }}</span
+                <span class="highlight">{{ formatDateRange(baseForm.dateRange) }}</span
                 >。
               </div>
-              <div v-else
-class="prompt-placeholder">
+              <div v-else class="prompt-placeholder">
                 {{ "请填写基本信息" }}
               </div>
             </div>
@@ -71,8 +79,7 @@ class="prompt-placeholder">
                 <el-icon><User /></el-icon>
                 <h4>个人偏好</h4>
               </div>
-              <div v-if="hasUserPreferences"
-class="prompt-text">
+              <div v-if="hasUserPreferences" class="prompt-text">
                 我的旅行偏好是<span class="highlight">{{
                   selectedPreferenceTags.join("、")
                 }}</span
@@ -105,8 +112,7 @@ class="prompt-text">
                   >。
                 </template>
               </div>
-              <div v-else
-class="prompt-placeholder">
+              <div v-else class="prompt-placeholder">
                 {{ "请在设置中配置您的偏好" }}
               </div>
             </div>
@@ -118,22 +124,17 @@ class="prompt-placeholder">
               </div>
               <div
                 v-if="
-                  (preferenceForm.tripGoals &&
-                    preferenceForm.tripGoals.length > 0) ||
+                  (preferenceForm.tripGoals && preferenceForm.tripGoals.length > 0) ||
                   preferenceForm.pacePreference ||
                   preferenceForm.socialPreference ||
                   preferenceForm.photoPreference ||
-                  (preferenceForm.focusAreas &&
-                    preferenceForm.focusAreas.length > 0) ||
+                  (preferenceForm.focusAreas && preferenceForm.focusAreas.length > 0) ||
                   preferenceForm.specialRequirements
                 "
                 class="prompt-text"
               >
                 <template
-                  v-if="
-                    preferenceForm.tripGoals &&
-                    preferenceForm.tripGoals.length > 0
-                  "
+                  v-if="preferenceForm.tripGoals && preferenceForm.tripGoals.length > 0"
                 >
                   本次行程目标是<span class="highlight">{{
                     getTripGoalsText(preferenceForm.tripGoals)
@@ -159,10 +160,7 @@ class="prompt-placeholder">
                   >。
                 </template>
                 <template
-                  v-if="
-                    preferenceForm.focusAreas &&
-                    preferenceForm.focusAreas.length > 0
-                  "
+                  v-if="preferenceForm.focusAreas && preferenceForm.focusAreas.length > 0"
                 >
                   重点体验<span class="highlight">{{
                     getFocusAreasText(preferenceForm.focusAreas)
@@ -175,8 +173,7 @@ class="prompt-placeholder">
                   }}</span>
                 </template>
               </div>
-              <div v-else
-class="prompt-placeholder">
+              <div v-else class="prompt-placeholder">
                 {{ "请在上一步设置您的偏好" }}
               </div>
             </div>
@@ -202,9 +199,7 @@ class="prompt-placeholder">
                   "
                   class="highlight"
                   >{{
-                    getDietaryRestrictionsText(
-                      preferenceForm.dietaryRestrictions,
-                    )
+                    getDietaryRestrictionsText(preferenceForm.dietaryRestrictions)
                   }}</span
                 >
                 <template v-if="preferenceForm.customDietaryNotes">
@@ -216,16 +211,13 @@ class="prompt-placeholder">
                   >
                     ，
                   </template>
-                  <span class="highlight">{{
-                    preferenceForm.customDietaryNotes
-                  }}</span>
+                  <span class="highlight">{{ preferenceForm.customDietaryNotes }}</span>
                 </template>
               </div>
             </div>
 
             <!-- 天气建议部分 -->
-            <div v-if="weatherSuggestion"
-class="prompt-section">
+            <div v-if="weatherSuggestion" class="prompt-section">
               <div class="section-header">
                 <el-icon><Sunny /></el-icon>
                 <h4>{{ "天气建议" }}</h4>
@@ -237,8 +229,7 @@ class="prompt-section">
                 >
                   {{ weatherSuggestion.dataSource }}
                 </el-tag>
-                <el-tag v-else
-size="small" type="success" effect="plain">
+                <el-tag v-else size="small" type="success" effect="plain">
                   {{ "高德天气API" }}
                 </el-tag>
               </div>
@@ -247,9 +238,9 @@ size="small" type="success" effect="plain">
                 <template v-if="isDateWithinForecastRange()">
                   <p>
                     <template v-if="weatherSuggestion.isHistorical">
-                      基于历史气候数据，出行期间天气预计<span
-                        class="highlight"
-                        >{{ weatherSuggestion.weatherDesc }}</span
+                      基于历史气候数据，出行期间天气预计<span class="highlight">{{
+                        weatherSuggestion.weatherDesc
+                      }}</span
                       >， 气温<span class="highlight">{{
                         weatherSuggestion.tempRange
                       }}</span
@@ -261,30 +252,25 @@ size="small" type="success" effect="plain">
                         >。
                       </template>
                       <template v-if="weatherSuggestion.season">
-                        <span class="highlight">{{
-                          weatherSuggestion.season
-                        }}</span
+                        <span class="highlight">{{ weatherSuggestion.season }}</span
                         >时节特点明显。
                       </template>
                     </template>
                     <template v-else>
-                      根据高德天气API实时数据，出行期间天气预计<span
-                        class="highlight"
-                        >{{ weatherSuggestion.weatherDesc }}</span
+                      根据高德天气API实时数据，出行期间天气预计<span class="highlight">{{
+                        weatherSuggestion.weatherDesc
+                      }}</span
                       >， 气温<span class="highlight">{{
                         weatherSuggestion.tempRange
                       }}</span
                       >。
                       <template v-if="weatherSuggestion.humidity">
-                        湿度<span class="highlight">{{
-                          weatherSuggestion.humidity
-                        }}</span
+                        湿度<span class="highlight">{{ weatherSuggestion.humidity }}</span
                         >。
                       </template>
                       <template
                         v-if="
-                          weatherSuggestion.windDirection &&
-                          weatherSuggestion.windPower
+                          weatherSuggestion.windDirection && weatherSuggestion.windPower
                         "
                       >
                         风向<span class="highlight"
@@ -303,8 +289,7 @@ size="small" type="success" effect="plain">
                       v-if="
                         baseForm &&
                         baseForm.days &&
-                        baseForm.days >
-                          (weatherSuggestion.forecast?.length || 0)
+                        baseForm.days > (weatherSuggestion.forecast?.length || 0)
                       "
                     >
                       <p class="notice-title">🌤️ {{ "天气预报说明" }}</p>
@@ -396,8 +381,7 @@ size="small" type="success" effect="plain">
                 <!-- 天气预报详情展示 -->
                 <template
                   v-if="
-                    weatherSuggestion.forecast &&
-                    weatherSuggestion.forecast.length > 0
+                    weatherSuggestion.forecast && weatherSuggestion.forecast.length > 0
                   "
                 >
                   <div class="weather-forecast">
@@ -427,8 +411,7 @@ size="small" type="success" effect="plain">
                       >
                         {{ "历史气候模拟" }}
                       </el-tag>
-                      <el-tag v-else
-size="small" type="success">
+                      <el-tag v-else size="small" type="success">
                         {{ "高德API实时预报" }}
                       </el-tag>
                       <el-tag
@@ -454,10 +437,7 @@ size="small" type="success">
                         <div class="forecast-weather">
                           <span class="day-weather">{{ day.dayWeather }}</span>
                           <span
-                            v-if="
-                              day.nightWeather &&
-                              day.nightWeather !== day.dayWeather
-                            "
+                            v-if="day.nightWeather && day.nightWeather !== day.dayWeather"
                             class="night-weather"
                           >
                             / {{ day.nightWeather }}
@@ -466,18 +446,11 @@ size="small" type="success">
                         <div class="forecast-temp">
                           {{ day.dayTemp }}℃/{{ day.nightTemp }}℃
                         </div>
-                        <div
-                          v-if="day.dayWind || day.nightWind"
-                          class="forecast-wind"
-                        >
+                        <div v-if="day.dayWind || day.nightWind" class="forecast-wind">
                           <template v-if="day.dayWind">
                             {{ day.dayWind }}{{ day.dayPower }}级
                           </template>
-                          <template
-                            v-if="
-                              day.nightWind && day.nightWind !== day.dayWind
-                            "
-                          >
+                          <template v-if="day.nightWind && day.nightWind !== day.dayWind">
                             / {{ day.nightWind }}{{ day.nightPower }}级
                           </template>
                         </div>
@@ -496,7 +469,9 @@ size="small" type="success">
                       <div class="forecast-limitation-notice">
                         <el-icon><Warning /></el-icon>
                         <span>{{
-                          `第${weatherSuggestion.forecast.length + 1}天及之后需要特别关注天气变化`
+                          `第${
+                            weatherSuggestion.forecast.length + 1
+                          }天及之后需要特别关注天气变化`
                         }}</span>
                       </div>
                     </template>
@@ -506,8 +481,7 @@ size="small" type="success">
             </div>
 
             <!-- 天气加载状态 -->
-            <div v-else-if="loadingWeather"
-class="prompt-section">
+            <div v-else-if="loadingWeather" class="prompt-section">
               <div class="section-header">
                 <el-icon><Loading /></el-icon>
                 <h4>{{ "天气建议" }}</h4>
@@ -518,8 +492,7 @@ class="prompt-section">
             </div>
 
             <!-- 天气错误状态 -->
-            <div v-else-if="weatherError"
-class="prompt-section">
+            <div v-else-if="weatherError" class="prompt-section">
               <div class="section-header">
                 <el-icon><Warning /></el-icon>
                 <h4>{{ "天气建议" }}</h4>
@@ -534,14 +507,12 @@ class="prompt-section">
                 <el-icon><Location /></el-icon>
                 <h4>{{ "必去景点" }}</h4>
               </div>
-              <div v-if="selectedAttractions.length > 0"
-class="prompt-text">
+              <div v-if="selectedAttractions.length > 0" class="prompt-text">
                 {{ "必去景点" }}：<span class="highlight">{{
                   selectedAttractions.map((a) => a.name).join("、")
                 }}</span>
               </div>
-              <div v-else
-class="prompt-placeholder">
+              <div v-else class="prompt-placeholder">
                 {{ "请选择您必须去的景点" }}
               </div>
             </div>
@@ -551,14 +522,12 @@ class="prompt-placeholder">
                 <el-icon><Shop /></el-icon>
                 <h4>{{ "必吃美食" }}</h4>
               </div>
-              <div v-if="selectedRestaurants.length > 0"
-class="prompt-text">
+              <div v-if="selectedRestaurants.length > 0" class="prompt-text">
                 {{ "必吃美食" }}：<span class="highlight">{{
                   selectedRestaurants.map((r) => r.name).join("、")
                 }}</span>
               </div>
-              <div v-else
-class="prompt-placeholder">
+              <div v-else class="prompt-placeholder">
                 {{ "请选择您必须尝试的美食" }}
               </div>
             </div>
@@ -593,50 +562,16 @@ class="prompt-placeholder">
             </div>
           </div>
 
-          <div class="prompt-actions">
-            <el-button type="success"
-size="large" @click="showFullPrompt">
-              <el-icon><ViewIcon /></el-icon>
-              {{ "查看完整提示词" }}
-            </el-button>
-            <el-button
-              v-if="!generating"
-              type="primary"
-              size="large"
-              :disabled="!canGenerateTrip"
-              @click="generateTrip"
-            >
-              <el-icon><MagicStick /></el-icon>
-              {{ "生成行程" }}
-            </el-button>
-
-            <!-- 生成中的状态 -->
-            <template v-else>
-              <el-button type="primary"
-size="large" loading disabled>
-                {{ "正在生成..." }}
-              </el-button>
-              <el-button type="danger"
-size="large" @click="cancelGeneration">
-                <el-icon><Close /></el-icon>
-                {{ "取消" }}
-              </el-button>
-            </template>
-          </div>
+          
         </div>
 
         <!-- 数据验证提示 -->
-        <div
-          v-if="!canGenerateTrip && baseForm.destination"
-          class="validation-hints"
-        >
+        <div v-if="!canGenerateTrip && baseForm.destination" class="validation-hints">
           <el-alert
             v-for="(error, index) in validateTripData().errors"
             :key="`error-${index}`"
             :title="typeof error === 'string' ? error : error.message"
-            :description="
-              typeof error === 'object' ? error.suggestion : undefined
-            "
+            :description="typeof error === 'object' ? error.suggestion : undefined"
             type="error"
             :closable="false"
             show-icon
@@ -646,9 +581,7 @@ size="large" @click="cancelGeneration">
             v-for="(warning, index) in validateTripData().warnings"
             :key="`warning-${index}`"
             :title="typeof warning === 'string' ? warning : warning.message"
-            :description="
-              typeof warning === 'object' ? warning.suggestion : undefined
-            "
+            :description="typeof warning === 'object' ? warning.suggestion : undefined"
             type="warning"
             :closable="false"
             show-icon
@@ -656,80 +589,138 @@ size="large" @click="cancelGeneration">
           />
         </div>
 
-        <div v-if="generating"
-class="generating">
-          <div class="generating-animation">
-            <el-icon size="80"
-color="#91A8D0" class="rotating">
-              <Loading />
-            </el-icon>
-            <div class="generating-content">
-              <h3>✨ {{ "AI正在为您工作..." }}</h3>
-              <p class="progress-text">
-                {{ generationProgress }}
-              </p>
-              <el-progress
-                :percentage="progressPercent"
-                :stroke-width="12"
-                :show-text="false"
-              />
-              <div class="progress-info">
-                <span class="progress-percentage">{{ progressPercent }}%</span>
-                <span class="progress-desc">
-                  {{
-                    `预计剩余时间：${Math.max(0, Math.ceil((100 - progressPercent) * 1.2))}秒`
-                  }}
-                </span>
+        <!-- 生成中状态 -->
+        <div v-if="generating" class="generation-status generating">
+          <div class="status-content">
+            <div class="status-icon">
+              <el-icon size="64" color="#91A8D0" class="rotating">
+                <Loading />
+              </el-icon>
+            </div>
+            <div class="status-info">
+              <h3 class="status-title">✨ AI正在为您工作...</h3>
+              <p class="status-description">{{ generationProgress }}</p>
+              
+              <div class="progress-section">
+                <el-progress
+                  :percentage="progressPercent"
+                  :stroke-width="8"
+                  :show-text="false"
+                  color="#91A8D0"
+                />
+                <div class="progress-details">
+                  <span class="progress-percentage">{{ progressPercent }}%</span>
+                  <span class="progress-time">
+                    预计剩余：{{ Math.max(0, Math.ceil((100 - progressPercent) * 1.2)) }}秒
+                  </span>
+                </div>
               </div>
             </div>
           </div>
+          
+          <div class="generation-actions">
+            <el-button type="danger" size="large" @click="cancelGeneration">
+              <el-icon><Close /></el-icon>
+              取消生成
+            </el-button>
+          </div>
         </div>
 
-        <div v-if="generatedTrip && !generating"
-class="generation-complete">
-          <el-icon size="48"
-color="#67C23A">
-            <Check />
-          </el-icon>
-          <h3>{{ "行程生成完成" }}</h3>
-          <p>
-            {{
-              `已为您推荐${generatedTrip?.attractions?.length || 0}个景点和${generatedTrip?.restaurants?.length || 0}家餐厅`
-            }}
-          </p>
-          <el-button type="primary"
-size="large" @click="$emit('next-step')">
-            {{ "查看详情" }}
-            <el-icon><ArrowRight /></el-icon>
-          </el-button>
+        <!-- 生成完成状态 -->
+        <div v-if="generatedTrip && !generating" class="generation-status complete">
+          <div class="status-content">
+            <div class="status-icon success">
+              <el-icon size="64" color="#67C23A">
+                <Check />
+              </el-icon>
+            </div>
+            <div class="status-info">
+              <h3 class="status-title success">🎉 行程生成完成！</h3>
+              <p class="status-description">
+                已为您推荐 {{ generatedTrip?.attractions?.length || 0 }} 个景点和 
+                {{ generatedTrip?.restaurants?.length || 0 }} 家餐厅
+              </p>
+            </div>
+          </div>
+          
+          <div class="generation-actions">
+            <el-button type="primary" size="large" @click="$emit('next-step')">
+              查看详细行程
+              <el-icon><ArrowRight /></el-icon>
+            </el-button>
+          </div>
         </div>
       </div>
-    </el-card>
+    </div>
 
-    <!-- 步骤操作按钮 -->
-    <div v-if="!generating && !generatedTrip"
-class="step-actions">
+    <!-- 操作区域 -->
+    <div class="step-actions">
       <div class="action-left">
-        <el-button size="large"
-@click="$emit('prev-step')">
-          <el-icon><ArrowLeft /></el-icon>
-          上一步
-        </el-button>
-      </div>
-      <div class="action-center">
         <el-button
           size="large"
           type="info"
           plain
-          :loading="savingDraft"
-          @click="$emit('save-draft')"
+          :disabled="generating"
+          @click="saveDraft"
         >
           <el-icon><Document /></el-icon>
           保存草稿
         </el-button>
+
+        <el-button 
+          type="success" 
+          size="large" 
+          :disabled="generating"
+          @click="showFullPrompt"
+        >
+          <el-icon><ViewIcon /></el-icon>
+          查看完整提示词
+        </el-button>
       </div>
       <div class="action-right">
-        <!-- 这里可以放置其他操作按钮 -->
+        <div class="navigation-buttons">
+          <el-button 
+            size="large" 
+            :disabled="generating"
+            @click="goToPreviousStep"
+          >
+            <el-icon><ArrowLeft /></el-icon>
+            上一步
+          </el-button>
+
+          <el-button
+            v-if="!generating && !generatedTrip"
+            type="primary"
+            size="large"
+            :disabled="!canGenerateTrip"
+            @click="generateTrip"
+          >
+            <el-icon><MagicStick /></el-icon>
+            生成行程
+          </el-button>
+
+          <!-- 生成中的状态按钮 -->
+          <el-button
+            v-else-if="generating"
+            type="danger"
+            size="large"
+            @click="cancelGeneration"
+          >
+            <el-icon><Close /></el-icon>
+            取消生成
+          </el-button>
+
+          <!-- 生成完成后的下一步按钮 -->
+          <el-button
+            v-else-if="generatedTrip && !generating"
+            type="primary"
+            size="large"
+            @click="goToNextStep"
+          >
+            查看详细行程
+            <el-icon><ArrowRight /></el-icon>
+          </el-button>
+        </div>
       </div>
     </div>
 
@@ -744,14 +735,10 @@ class="step-actions">
     >
       <div class="full-prompt-content">
         <div class="prompt-stats">
-          <el-tag :type="getPromptCompletionClass()"
-size="large">
-            {{ getPromptCompletionText() }} ({{
-              getPromptCompletionScore()
-            }}/100)
+          <el-tag :type="getPromptCompletionClass()" size="large">
+            {{ getPromptCompletionText() }} ({{ getPromptCompletionScore() }}/100)
           </el-tag>
-          <el-button type="primary"
-@click="copyPromptToClipboard">
+          <el-button type="primary" @click="copyPromptToClipboard">
             <el-icon><DocumentCopy /></el-icon>
             {{ "复制提示词" }}
           </el-button>
@@ -765,8 +752,7 @@ size="large">
           <el-button @click="fullPromptVisible = false">
             {{ "关闭" }}
           </el-button>
-          <el-button type="primary"
-@click="copyPromptAndClose">
+          <el-button type="primary" @click="copyPromptAndClose">
             {{ "复制并关闭" }}
           </el-button>
         </div>
@@ -795,6 +781,7 @@ import {
   View as ViewIcon,
   DocumentCopy,
   Document,
+  Close,
 } from "@element-plus/icons-vue";
 import {
   tagMappingZh,
@@ -829,6 +816,7 @@ export default {
     ViewIcon,
     DocumentCopy,
     Document,
+    Close,
   },
   props: {
     // 基础表单数据
@@ -941,9 +929,7 @@ export default {
 
     // 语言映射对象（用于模板中的直接索引）
     const tagMapping = computed(() => tagMappingZh);
-    const dietaryRestrictionMapping = computed(
-      () => dietaryRestrictionMappingZh,
-    );
+    const dietaryRestrictionMapping = computed(() => dietaryRestrictionMappingZh);
 
     // 计算用户偏好标签的中文显示
     const selectedPreferenceTags = computed(() => {
@@ -967,8 +953,7 @@ export default {
           if (isTripFocusSet && isFocusDomainTag && !tripFocus.includes(tag)) {
             return; // 跳过与本次勾选相冲突的通用/历史标签
           }
-          const chineseTag =
-            tagMapping.value[tag] || focusAreaMapping[tag] || tag;
+          const chineseTag = tagMapping.value[tag] || focusAreaMapping[tag] || tag;
           tags.push(chineseTag);
         });
       }
@@ -1045,10 +1030,7 @@ export default {
     // 获取城市名称
     const getSelectedCityName = () => {
       if (!props || !props.baseForm) return "未设置";
-      return getCityName(
-        props.baseForm?.destination,
-        props.baseForm?.destinationName,
-      );
+      return getCityName(props.baseForm?.destination, props.baseForm?.destinationName);
     };
 
     // 格式化日期范围显示
@@ -1090,9 +1072,7 @@ export default {
 
     const getSpecialExperiencesText = (experiences) => {
       if (!experiences || experiences.length === 0) return "";
-      return experiences
-        .map((exp) => specialExperienceMapping[exp] || exp)
-        .join("、");
+      return experiences.map((exp) => specialExperienceMapping[exp] || exp).join("、");
     };
 
     const getDietaryRestrictionsText = (restrictions) => {
@@ -1159,20 +1139,13 @@ export default {
       // 基本信息 (40分)
       if (props.baseForm.destination) score += 10;
       if (props.baseForm.days) score += 10;
-      if (props.baseForm.dateRange && props.baseForm.dateRange.length === 2)
-        score += 10;
+      if (props.baseForm.dateRange && props.baseForm.dateRange.length === 2) score += 10;
       if (props.baseForm.budget) score += 10;
 
       // 个人偏好 (20分)
-      if (
-        currentUserPreferences.value &&
-        selectedPreferenceTags.value.length > 0
-      )
+      if (currentUserPreferences.value && selectedPreferenceTags.value.length > 0)
         score += 10;
-      if (
-        currentUserPreferences.value &&
-        currentUserPreferences.value.travelPace
-      )
+      if (currentUserPreferences.value && currentUserPreferences.value.travelPace)
         score += 5;
       if (
         currentUserPreferences.value &&
@@ -1182,18 +1155,12 @@ export default {
         score += 5;
 
       // 本次行程偏好 (30分)
-      if (
-        props.preferenceForm.tripGoals &&
-        props.preferenceForm.tripGoals.length > 0
-      )
+      if (props.preferenceForm.tripGoals && props.preferenceForm.tripGoals.length > 0)
         score += 6;
       if (props.preferenceForm.pacePreference) score += 6;
       if (props.preferenceForm.socialPreference) score += 4;
       if (props.preferenceForm.photoPreference) score += 4;
-      if (
-        props.preferenceForm.focusAreas &&
-        props.preferenceForm.focusAreas.length > 0
-      )
+      if (props.preferenceForm.focusAreas && props.preferenceForm.focusAreas.length > 0)
         score += 10;
 
       // 必去景点和餐厅 (10分)
@@ -1240,10 +1207,7 @@ export default {
       }
 
       // 个人偏好
-      if (
-        currentUserPreferences.value &&
-        selectedPreferenceTags.value.length > 0
-      ) {
+      if (currentUserPreferences.value && selectedPreferenceTags.value.length > 0) {
         prompt += `我的旅行偏好是${selectedPreferenceTags.value.join("、")}。`;
         if (currentUserPreferences.value.accommodationType) {
           prompt += `住宿偏好${
@@ -1270,21 +1234,16 @@ export default {
 
       // 本次行程偏好
       const hasAnyPreference =
-        (props.preferenceForm.tripGoals &&
-          props.preferenceForm.tripGoals.length > 0) ||
+        (props.preferenceForm.tripGoals && props.preferenceForm.tripGoals.length > 0) ||
         props.preferenceForm.pacePreference ||
         props.preferenceForm.socialPreference ||
         props.preferenceForm.photoPreference ||
-        (props.preferenceForm.focusAreas &&
-          props.preferenceForm.focusAreas.length > 0) ||
+        (props.preferenceForm.focusAreas && props.preferenceForm.focusAreas.length > 0) ||
         props.preferenceForm.specialRequirements;
 
       if (hasAnyPreference) {
         // 行程目标
-        if (
-          props.preferenceForm.tripGoals &&
-          props.preferenceForm.tripGoals.length > 0
-        ) {
+        if (props.preferenceForm.tripGoals && props.preferenceForm.tripGoals.length > 0) {
           // 优先翻译通用标签（如 food、hiking）
           const goalsText = getTripGoalsText(props.preferenceForm.tripGoals)
             .replace(/food/g, tagMappingZh.food)
@@ -1295,21 +1254,21 @@ export default {
         // 行程节奏偏好
         if (props.preferenceForm.pacePreference) {
           prompt += `行程节奏偏好${getPacePreferenceText(
-            props.preferenceForm.pacePreference,
+            props.preferenceForm.pacePreference
           )}。`;
         }
 
         // 社交环境偏好
         if (props.preferenceForm.socialPreference) {
           prompt += `社交环境偏好${getSocialPreferenceText(
-            props.preferenceForm.socialPreference,
+            props.preferenceForm.socialPreference
           )}。`;
         }
 
         // 拍照打卡需求
         if (props.preferenceForm.photoPreference) {
           prompt += `拍照打卡需求${getPhotoPreferenceText(
-            props.preferenceForm.photoPreference,
+            props.preferenceForm.photoPreference
           )}。`;
         }
 
@@ -1423,8 +1382,7 @@ export default {
             prompt += `具体天气预报：`;
             const forecastSummary = props.weatherSuggestion.forecast
               .map(
-                (day) =>
-                  `${day.date}${day.dayWeather}，${day.dayTemp}℃/${day.nightTemp}℃`,
+                (day) => `${day.date}${day.dayWeather}，${day.dayTemp}℃/${day.nightTemp}℃`
               )
               .join("；");
             prompt += forecastSummary + "。";
@@ -1433,8 +1391,7 @@ export default {
             prompt += `可获取的天气预报（前${forecastDays}天）：`;
             const forecastSummary = props.weatherSuggestion.forecast
               .map(
-                (day) =>
-                  `${day.date}${day.dayWeather}，${day.dayTemp}℃/${day.nightTemp}℃`,
+                (day) => `${day.date}${day.dayWeather}，${day.dayTemp}℃/${day.nightTemp}℃`
               )
               .join("；");
             prompt += forecastSummary + "。";
@@ -1462,9 +1419,7 @@ export default {
           props.preferenceForm.dietaryRestrictions &&
           props.preferenceForm.dietaryRestrictions.length > 0
         ) {
-          prompt += getDietaryRestrictionsText(
-            props.preferenceForm.dietaryRestrictions,
-          );
+          prompt += getDietaryRestrictionsText(props.preferenceForm.dietaryRestrictions);
         }
         if (props.preferenceForm.customDietaryNotes) {
           if (
@@ -1526,16 +1481,12 @@ export default {
       const userEndDate = new Date(props.baseForm.dateRange[1]);
 
       // 获取天气预报的日期范围
-      const forecastDates = props.weatherSuggestion.forecast.map(
-        (f) => new Date(f.date),
-      );
+      const forecastDates = props.weatherSuggestion.forecast.map((f) => new Date(f.date));
       const forecastStartDate = new Date(Math.min(...forecastDates));
       const forecastEndDate = new Date(Math.max(...forecastDates));
 
       // 检查用户选择的日期是否与天气预报日期有重叠
-      return (
-        userStartDate <= forecastEndDate && userEndDate >= forecastStartDate
-      );
+      return userStartDate <= forecastEndDate && userEndDate >= forecastStartDate;
     };
 
     // 显示完整提示词弹窗
@@ -1594,9 +1545,7 @@ export default {
       if (!props || !props.baseForm) return false;
 
       const basicInfoValid =
-        props.baseForm.destination &&
-        props.baseForm.days &&
-        props.baseForm.travelers;
+        props.baseForm.destination && props.baseForm.days && props.baseForm.travelers;
       if (!basicInfoValid) return false;
 
       // 验证数据逻辑一致性
@@ -1719,10 +1668,10 @@ export default {
       // 7. 体验类型冲突检查（更清晰的说明）
       if (prefForm.focusAreas && Array.isArray(prefForm.focusAreas)) {
         const hasNature = prefForm.focusAreas.some((area) =>
-          ["natural_scenery", "outdoor_adventure"].includes(area),
+          ["natural_scenery", "outdoor_adventure"].includes(area)
         );
         const hasUrban = prefForm.focusAreas.some((area) =>
-          ["urban_lifestyle", "shopping", "nightlife"].includes(area),
+          ["urban_lifestyle", "shopping", "nightlife"].includes(area)
         );
 
         if (hasNature && hasUrban && days < 5) {
@@ -1909,9 +1858,7 @@ export default {
         // 检查响应状态
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(
-            `HTTP ${response.status}: ${errorText || response.statusText}`,
-          );
+          throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
         }
 
         // 安全地解析JSON
@@ -1952,7 +1899,9 @@ export default {
           emit("generation-complete", tripData);
 
           ElMessage.success({
-            message: `行程生成成功！质量评分：${result.data.qualityScore}，耗时：${Math.round(result.data.processingTime / 1000)}秒`,
+            message: `行程生成成功！质量评分：${
+              result.data.qualityScore
+            }，耗时：${Math.round(result.data.processingTime / 1000)}秒`,
             duration: 5000,
             showClose: true,
           });
@@ -2023,8 +1972,7 @@ export default {
 
     // 判断用户类型的辅助方法
     const determineUserType = () => {
-      if (!props || !props.baseForm || !props.baseForm.travelers)
-        return "INDIVIDUAL";
+      if (!props || !props.baseForm || !props.baseForm.travelers) return "INDIVIDUAL";
       if (props.baseForm.travelers > 2) return "FAMILY";
       if (props.baseForm.travelers === 2) return "COUPLE";
       return "INDIVIDUAL";
@@ -2083,8 +2031,7 @@ export default {
       // 如果用户已登录但没有偏好数据，尝试从API获取
       if (
         userStore.isLoggedIn &&
-        (!props.userPreferences ||
-          Object.keys(props.userPreferences).length === 0)
+        (!props.userPreferences || Object.keys(props.userPreferences).length === 0)
       ) {
         try {
           // 尝试获取用户偏好数据
@@ -2106,8 +2053,21 @@ export default {
         // 监听到偏好数据变化，可以在这里处理数据更新逻辑
         // 数据自动通过computed响应式更新
       },
-      { deep: true, immediate: true },
+      { deep: true, immediate: true }
     );
+
+    // 添加缺失的方法
+    const saveDraft = () => {
+      emit('save-draft');
+    };
+
+    const goToPreviousStep = () => {
+      emit('prev-step');
+    };
+
+    const goToNextStep = () => {
+      emit('next-step');
+    };
 
     return {
       generatePromptText,
@@ -2144,46 +2104,179 @@ export default {
       selectedGenerationStyle,
       // 取消生成
       cancelGeneration,
+      // 新增的操作方法
+      saveDraft,
+      goToPreviousStep,
+      goToNextStep,
     };
   },
 };
 </script>
 
 <style scoped>
-.ai-prompt-card {
-  border-radius: 8px;
-  margin-bottom: 24px;
+/* 整体容器 */
+.trip-generation-container {
+  padding: 24px;
+  background: #fff;
+  min-height: 100vh;
 }
 
-.ai-prompt-header {
+/* 页面头部 */
+.page-header {
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
+  border-radius: 20px;
+  padding: 40px;
+  margin-bottom: 32px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><radialGradient id="a" cx="50" cy="50" r="50"><stop offset="0" stop-color="white" stop-opacity="0.1"/><stop offset="1" stop-color="white" stop-opacity="0.05"/></radialGradient></defs><rect width="100" height="20" fill="url(%23a)"/></svg>');
+  opacity: 0.3;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.header-icon {
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  backdrop-filter: blur(10px);
+  flex-shrink: 0;
+}
+
+.header-text {
+  flex: 1;
+}
+
+.page-title {
+  font-size: 36px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.page-subtitle {
+  font-size: 16px;
+  margin: 0;
+  opacity: 0.9;
+  line-height: 1.5;
+}
+
+/* AI提示词卡片 */
+.ai-prompt-card {
+  background: white;
+  border-radius: 20px;
+  padding: 32px;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e8eaed;
+  transition: all 0.3s ease;
+}
+
+.ai-prompt-card:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.card-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f5f7fa;
 }
 
 .header-left {
   display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.header-icon-small {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
+  border-radius: 14px;
+  display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.2);
+  flex-shrink: 0;
+}
+
+.header-info {
+  flex: 1;
+}
+
+.card-title {
+  margin: 0 0 8px;
+  font-weight: 600;
+  font-size: 20px;
+  color: #303133;
+}
+
+.card-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #606266;
+  line-height: 1.5;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
 }
 
 .ai-prompt-content {
   padding: 0;
 }
 
+/* 生成介绍区域 */
 .generation-intro {
   text-align: center;
-  margin-bottom: 24px;
-  padding: 24px 0;
+  margin-bottom: 32px;
+  padding: 32px 24px;
+  background: linear-gradient(135deg, #f8faff 0%, #fff8f8 100%);
+  border-radius: 16px;
+  border: 1px solid #e8eaed;
 }
 
 .generation-intro h3 {
-  margin: 16px 0 8px;
+  margin: 16px 0 12px;
   font-weight: 600;
+  font-size: 20px;
+  color: #303133;
 }
 
 .generation-intro p {
   color: #606266;
+  font-size: 16px;
+  margin: 0;
+  line-height: 1.5;
 }
 
 .prompt-sections {
@@ -2238,14 +2331,21 @@ export default {
   color: #909399;
 }
 
-.prompt-actions {
+/* 提示区域样式 */
+.prompt-hint {
   text-align: center;
   margin-top: 32px;
-  padding-top: 24px;
-  border-top: 1px solid #ebeef5;
-  display: flex;
-  gap: 12px;
-  justify-content: center;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 1px solid #b3e5fc;
+  border-radius: 12px;
+}
+
+.prompt-hint p {
+  margin: 0;
+  color: #0277bd;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 /* 数据验证提示样式 */
@@ -2261,72 +2361,107 @@ export default {
   margin-bottom: 10px;
 }
 
-.generating {
+/* 生成状态样式 */
+.generation-status {
   text-align: center;
-  padding: 40px 20px;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  border-radius: 16px;
-  margin: 20px 0;
+  padding: 48px 32px;
+  margin: 32px 0;
+  border-radius: 20px;
+  border: 1px solid #e8eaed;
   position: relative;
   overflow: hidden;
 }
 
-.generating::before {
+.generation-status.generating {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+}
+
+.generation-status.complete {
+  background: linear-gradient(135deg, #f0fff4 0%, #ecfdf5 100%);
+  border-color: #d1fae5;
+}
+
+.generation-status::before {
   content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #91a8d0, transparent);
   animation: shimmer 2s infinite;
 }
 
 @keyframes shimmer {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
-  }
+  0% { left: -100%; }
+  100% { left: 100%; }
 }
 
-.generating-animation {
+.status-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 24px;
+  margin-bottom: 32px;
 }
 
-.generating-content {
+.status-icon {
+  position: relative;
+}
+
+.status-icon.success {
+  animation: bounce 0.8s ease-out;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-10px); }
+  60% { transform: translateY(-5px); }
+}
+
+.rotating {
+  animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.status-info {
+  max-width: 500px;
   width: 100%;
-  max-width: 400px;
 }
 
-.generating h3 {
-  margin: 0 0 15px;
+.status-title {
+  margin: 0 0 12px;
+  font-size: 24px;
+  font-weight: 700;
   color: #1e40af;
-  font-size: 20px;
-  font-weight: 600;
 }
 
-.progress-text {
-  margin: 0 0 20px;
+.status-title.success {
+  color: #059669;
+}
+
+.status-description {
+  margin: 0 0 24px;
   font-size: 16px;
   color: #374151;
-  min-height: 24px;
+  line-height: 1.5;
 }
 
-.progress-info {
+.progress-section {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.progress-details {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 15px;
+  margin-top: 12px;
   font-size: 14px;
 }
 
@@ -2335,67 +2470,46 @@ export default {
   color: #1e40af;
 }
 
-.progress-desc {
+.progress-time {
   color: #6b7280;
 }
 
-.rotating {
-  animation: rotate 2s linear infinite;
+.generation-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
 }
 
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.generation-complete {
-  text-align: center;
-  padding: 40px 20px;
-}
-
-.generation-complete h3 {
-  margin: 16px 0 8px;
-  font-weight: 600;
-  color: #67c23a;
-}
-
-.generation-complete p {
-  color: #606266;
-}
-
-.step-content {
-  width: 100%;
-}
-
+/* 步骤操作区域 */
 .step-actions {
   background: white;
-  border-radius: 16px;
-  padding: 24px;
-  margin-top: 24px;
+  border-radius: 20px;
+  padding: 32px;
+  margin: 32px 0;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   border: 1px solid #e8eaed;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 24px;
 }
 
-.step-actions .action-left {
+.step-actions:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.action-left,
+.action-center,
+.action-right {
   flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
-.step-actions .action-center {
-  flex: 0 0 auto;
-}
-
-.step-actions .action-right {
-  flex: 0 0 auto;
-}
-
-.step-actions .el-button {
+/* 统一按钮样式 */
+.step-actions .el-button,
+.generation-actions .el-button {
   padding: 12px 24px;
   font-size: 16px;
   font-weight: 600;
@@ -2404,7 +2518,8 @@ export default {
   transition: all 0.3s ease;
 }
 
-.step-actions .el-button:hover {
+.step-actions .el-button:hover,
+.generation-actions .el-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
@@ -2544,36 +2659,133 @@ export default {
   flex-shrink: 0;
 }
 
+/* 响应式设计 */
 @media (max-width: 768px) {
-  .prompt-section {
-    padding: 12px;
+  .trip-generation-container {
+    padding: 16px;
   }
 
-  .prompt-text {
+  .page-header {
+    padding: 32px 24px;
+    margin-bottom: 24px;
+  }
+
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+  }
+
+  .page-title {
+    font-size: 28px;
+  }
+
+  .page-subtitle {
+    font-size: 14px;
+  }
+
+  .ai-prompt-card {
+    padding: 24px 20px;
+    margin-bottom: 24px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .header-left {
+    width: 100%;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .generation-intro {
+    padding: 24px 20px;
+    margin-bottom: 24px;
+  }
+
+  .generation-intro h3 {
+    font-size: 18px;
+  }
+
+  .generation-intro p {
+    font-size: 14px;
+  }
+
+  .prompt-section {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .prompt-text,
+  .prompt-placeholder {
     font-size: 13px;
   }
 
-  .generating,
-  .generation-complete {
-    padding: 20px 12px;
+  .generation-status {
+    padding: 32px 20px;
+    margin: 24px 0;
+  }
+
+  .status-title {
+    font-size: 20px;
+  }
+
+  .status-description {
+    font-size: 14px;
+  }
+
+  .step-actions {
+    padding: 24px 20px;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .action-left,
+  .action-center,
+  .action-right {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .step-actions .el-button {
+    width: 100%;
+    max-width: 280px;
+    margin: 0 auto;
   }
 
   .weather-forecast {
-    padding: 8px;
+    padding: 12px;
   }
 
   .forecast-item {
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 4px;
-    font-size: 11px;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    font-size: 12px;
   }
 
   .forecast-date {
-    font-size: 10px;
+    font-size: 11px;
   }
 
   .forecast-wind {
-    display: none; /* 在小屏幕上隐藏风力信息以节省空间 */
+    display: none;
+  }
+
+  /* 移动端对话框优化 */
+  .prompt-text-area {
+    max-height: 300px;
+    padding: 16px;
+  }
+
+  .prompt-text-area pre {
+    font-size: 13px;
   }
 }
 
@@ -2605,8 +2817,7 @@ export default {
   white-space: pre-wrap;
   word-wrap: break-word;
   margin: 0;
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
     Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   font-size: 14px;
   line-height: 1.6;
@@ -2637,13 +2848,13 @@ export default {
   }
 }
 
-/* 生成选项样式 - 融入prompt内容区域 */
+/* 生成选项样式 */
 .generation-options {
-  background: #f8fafc;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 16px;
-  margin: 16px 0 20px 0;
+  background: linear-gradient(135deg, #f8faff 0%, #fff8f8 100%);
+  border: 1px solid #e8eaed;
+  border-radius: 16px;
+  padding: 24px;
+  margin: 24px 0;
 }
 
 .option-group {
