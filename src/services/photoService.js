@@ -139,13 +139,7 @@ class PhotoService {
             // 返回数组格式以保持兼容性
             return cityData?[cityData] : []
         } catch (error) {
-            console.error("❌ 获取城市照片失败:", {
-                cityCode,
-                error: error.response?.data?.message || error.message,
-                status: error.response?.status,
-                statusText: error.response?.statusText
-            })
-
+            // 静默处理照片获取失败，避免不必要的错误提示
             return this._handlePhotoError(error)
         }
     }
@@ -368,6 +362,11 @@ class PhotoService {
     _handlePhotoError(error) {
         // 详细错误处理 - 针对400错误特殊处理
         if (error.response?.status === 400) {
+            const errorMessage = error.response?.data?.message || error.message
+                // 对于"城市记录不存在"的情况，这是正常的业务逻辑
+            if (errorMessage === '城市记录不存在') {
+                return [] // 静默处理，不显示错误
+            }
             console.warn("⚠️ 400错误，可能是参数问题或数据暂未同步")
             return []
         } else if (error.response?.status === 401) {

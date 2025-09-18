@@ -171,8 +171,14 @@ request.interceptors.response.use(
 
             switch (status) {
                 case 400:
-                    errorMessage = data && data.msg ? data.msg : "请求参数错误";
-                    ElMessage.error(errorMessage);
+                    errorMessage = data && data.msg?data.msg : "请求参数错误";
+                    // 对于照片相关API的400错误（通常是正常的业务逻辑，如城市暂无照片），静默处理
+                    if (error.config?.url?.includes('/visited-cities/city/')) {
+                        // 静默处理照片获取的400错误，这通常表示城市暂无照片记录，是正常情况
+                        console.debug('照片获取400响应（正常情况）:', errorMessage);
+                    } else {
+                        ElMessage.error(errorMessage);
+                    }
                     break;
                 case 401:
                     errorMessage = "登录已过期，请重新登录";
@@ -198,7 +204,7 @@ request.interceptors.response.use(
                     ElMessage.error(errorMessage);
                     break;
                 default:
-                    errorMessage = data && data.msg ? data.msg : `请求失败 (${status})`;
+                    errorMessage = data && data.msg?data.msg : `请求失败 (${status})`;
                     ElMessage.error(errorMessage);
             }
         } else if (error.request) {

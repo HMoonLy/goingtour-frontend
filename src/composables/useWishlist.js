@@ -19,7 +19,10 @@ export function useWishlist() {
     const wishlistCount = computed(() => wishlistItems.value.length)
 
     const wishlistCities = computed(() =>
-        wishlistItems.value.filter(item => !item.ever_visited)
+        wishlistItems.value.filter(item =>
+            // 从未去过的城市，或者去过但想再去的城市
+            !item.ever_visited || (item.ever_visited && item.want_to_visit_again)
+        )
     )
 
     const wantToVisitAgainCities = computed(() =>

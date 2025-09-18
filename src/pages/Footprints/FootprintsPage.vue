@@ -1084,9 +1084,35 @@ export default {
       }
     };
 
-    const handleMapCityClick = (cityData) => {
-      // 点击地图城市时，可以显示详情或跳转
-      ElMessage.success(`点击了${cityData.cityName}`);
+    const handleMapCityClick = async (cityData) => {
+      // 点击地图城市时，根据当前状态进行操作
+      if (!cityData || !cityData.id) {
+        ElMessage.warning('城市数据无效');
+        return;
+      }
+
+      try {
+        // 判断当前城市状态
+        if (cityData.ever_visited) {
+          // 已去过的城市，可以切换"想再去"状态
+          if (cityData.want_to_visit_again) {
+            // 取消想再去
+            await handleCancelWantToVisitAgain(cityData);
+          } else {
+            // 标记为想再去
+            const success = await wishlistStore.markWantToVisitAgain(cityData.id, true);
+            if (success) {
+              ElMessage.success(`已将 ${cityData.cityName} 标记为想再去`);
+            }
+          }
+        } else {
+          // 未去过的城市，标记为已去过
+          await handleMarkAsVisited(cityData);
+        }
+      } catch (error) {
+        console.error('处理地图城市点击失败:', error);
+        ElMessage.error('操作失败，请重试');
+      }
     };
 
     const handleMapClick = (mapData) => {
@@ -1098,9 +1124,13 @@ export default {
     };
 
     const handleMapRightClick = (mapData) => {
-      // 右键点击地图，快速添加菜单
+      // 右键点击地图，显示快速操作菜单
       if (mapData.provinceName) {
-        ElMessage.info(`右键点击${mapData.provinceName}，快速添加功能`);
+        // 可以在这里实现右键菜单功能
+        // 暂时显示提示信息
+        ElMessage.info(`右键点击${mapData.provinceName}，可添加该省份城市到愿望清单`);
+        // 触发快速添加对话框
+        showQuickAdd.value = true;
       }
     };
 
