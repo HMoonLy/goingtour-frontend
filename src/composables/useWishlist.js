@@ -5,6 +5,7 @@
 import { ref, computed } from 'vue'
 import { wishlistService } from '@/services/wishlistService.js'
 import { useUserAuth } from '@/composables/useUser.js'
+import { useUserStore } from '@/store/user.js'
 
 export function useWishlist() {
     // 使用用户认证组合函数

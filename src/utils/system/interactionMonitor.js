@@ -24,7 +24,7 @@ export class InteractionMonitor {
 
         if (
             import.meta.env.DEV) {
-            console.log(`🎯 [${this.name}] 开始监控用户交互性能`);
+            // console.log(`🎯 [${this.name}] 开始监控用户交互性能`);
         }
     }
 
@@ -47,7 +47,7 @@ export class InteractionMonitor {
 
         if (
             import.meta.env.DEV) {
-            console.log(`⏹️ [${this.name}] 停止监控`);
+            // console.log(`⏹️ [${this.name}] 停止监控`);
         }
     }
 
@@ -68,16 +68,16 @@ export class InteractionMonitor {
 
                     if (
                         import.meta.env.DEV && entry.duration > 50) {
-                        console.warn(
-                            `⚠️ [${this.name}] 检测到长任务: ${entry.duration.toFixed(2)}ms`,
-                        );
+                        // console.warn(
+                        //     `⚠️ [${this.name}] 检测到长任务: ${entry.duration.toFixed(2)}ms`,
+                        // );
                     }
                 });
             });
 
             this.longTaskObserver.observe({ entryTypes: ["longtask"] });
         } catch (error) {
-            console.warn("Long Task Observer not supported:", error);
+            // console.warn("Long Task Observer not supported:", error);
         }
     }
 
@@ -98,16 +98,6 @@ export class InteractionMonitor {
                             startTime: entry.startTime,
                             timestamp: Date.now(),
                         });
-
-                        // 记录慢交互
-                        if (entry.duration > 100) {
-                            if (
-                                import.meta.env.DEV) {
-                                console.warn(
-                                    `🐌 [${this.name}] 慢交互 ${entry.name}: ${entry.duration.toFixed(2)}ms`,
-                                );
-                            }
-                        }
                     }
                 });
             });
@@ -117,7 +107,7 @@ export class InteractionMonitor {
                 buffered: true,
             });
         } catch (error) {
-            console.warn("Event timing not supported:", error);
+            // console.warn("Event timing not supported:", error);
         }
     }
 
@@ -149,11 +139,6 @@ export class InteractionMonitor {
                     timestamp: Date.now(),
                 });
 
-                // 如果FPS低于40，记录警告
-                if (fps < 40 &&
-                    import.meta.env.DEV) {
-                    console.warn(`🎮 [${this.name}] 低FPS警告: ${fps.toFixed(1)} FPS`);
-                }
             }
 
             lastFrameTime = currentTime;
@@ -187,9 +172,6 @@ export class InteractionMonitor {
             if (
                 import.meta.env.DEV) {
                 const color = duration > 100 ? "🔴" : duration > 50 ? "🟡" : "🟢";
-                console.log(
-                    `${color} [${this.name}] ${interactionName}: ${duration.toFixed(2)}ms`,
-                );
             }
 
             return duration;
@@ -301,27 +283,6 @@ export class InteractionMonitor {
             import.meta.env.DEV) return;
 
         const report = this.getReport();
-
-        console.group(`📊 [${this.name}] 交互性能报告`);
-        console.log(`总交互次数: ${report.totalInteractions}`);
-
-        Object.entries(report.summary).forEach(([type, stats]) => {
-            if (type === "fps") {
-                console.log(`${type}:`, {
-                    平均FPS: stats.average,
-                    最低FPS: stats.minimum,
-                    采样数: stats.samples,
-                });
-            } else {
-                console.log(`${type}:`, {
-                    次数: stats.count,
-                    平均: `${stats.average}ms`,
-                    最快: `${stats.min}ms`,
-                    最慢: `${stats.max}ms`,
-                    P95: `${stats.p95}ms`,
-                });
-            }
-        });
 
         console.groupEnd();
 

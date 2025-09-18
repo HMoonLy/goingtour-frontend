@@ -149,6 +149,8 @@
                 v-for="item in seasonalDisplayCities"
                 :key="item.name"
                 class="dest-card"
+                @click="selectCity({ 中文名: item.name, adcode: item.adcode })"
+
               >
                 <LazyImage
                   :src="item.cover"
@@ -158,7 +160,6 @@
                 />
                 <div
                   class="dest-meta"
-                  @click="selectCity({ 中文名: item.name, adcode: item.adcode })"
                 >
                   <div class="dest-title">
                     {{ item.name }}
@@ -203,6 +204,17 @@
                 <i class="letter-icon">城</i>
                 全国城市
               </h2>
+              
+              <!-- 模式切换滑块 -->
+              <div class="mode-toggle-container">
+                <div class="mode-switch">
+                  <span class="mode-label" :class="{ active: !isWishlistMode }">浏览模式</span>
+                  <div class="toggle-switch" @click="toggleWishlistMode">
+                    <div class="toggle-slider" :class="{ active: isWishlistMode }"></div>
+                  </div>
+                  <span class="mode-label" :class="{ active: isWishlistMode }">收藏模式</span>
+                </div>
+              </div>
             </div>
 
             <!-- 现代卡片网格布局 -->
@@ -210,7 +222,6 @@
               :city-groups="cityGroups"
               :wishlist-items="wishlistStore.wishlistItems"
               @select-city="selectCity"
-              @toggle-wishlist="toggleWishlist"
             />
           </div>
         </template>
@@ -398,6 +409,9 @@ export default {
     // 批量操作相关状态
     const showWishlistQuickView = ref(false);
     const addingRecommendations = ref(false);
+    
+    // 心愿清单模式状态
+    const isWishlistMode = ref(false);
 
     // 字母导航列表 - 单独定义每个字母
     const letterNavs = [
@@ -570,14 +584,20 @@ export default {
     // 选择城市
     const selectCity = (city) => {
       console.log("选择城市:", city);
-      // 跳转到创建行程页面
-      router.push({
-        name: "TripCreate",
-        query: {
-          city: city.adcode,
-          cityName: city.中文名,
-        },
-      });
+      
+      if (isWishlistMode.value) {
+        // 心愿清单模式：添加到心愿清单
+        toggleWishlist(city);
+      } else {
+        // 正常模式：跳转到创建行程页面
+        router.push({
+          name: "TripCreate",
+          query: {
+            city: city.adcode,
+            cityName: city.中文名,
+          },
+        });
+      }
     };
 
     // 滚动到指定字母区域
@@ -845,15 +865,25 @@ export default {
       window.removeEventListener("resize", handleScroll);
     });
 
+    // 切换心愿清单模式
+    const toggleWishlistMode = () => {
+      isWishlistMode.value = !isWishlistMode.value;
+    };
+
     // 愿望清单相关方法 - 优化版
     const toggleWishlist = createDebouncedHandler(async (city) => {
       return interactionMonitor.measureInteraction("wishlist-toggle", async () => {
         try {
-          if (wishlistStore.isCityInWishlist(city.adcode)) {
+          const isInWishlist = wishlistStore.isCityInWishlist(city.adcode);
+          
+          if (isInWishlist) {
             // 从愿望清单移除
             const wishlistItem = wishlistStore.getWishlistItemByCityCode(city.adcode);
             if (wishlistItem) {
               await wishlistStore.removeFromWishlist(wishlistItem.id);
+              if (isWishlistMode.value) {
+                ElMessage.success(`已从心愿清单移除 ${city.中文名}`);
+              }
             }
           } else {
             // 添加到愿望清单
@@ -863,6 +893,9 @@ export default {
               reason: "从目的地界面添加",
               tags: ["目的地浏览"],
             });
+            if (isWishlistMode.value) {
+              ElMessage.success(`已添加 ${city.中文名} 到心愿清单`);
+            }
           }
         } catch (error) {
           console.error("愿望清单操作失败:", error);
@@ -975,6 +1008,8 @@ export default {
       // 愿望清单相关
       wishlistStore,
       toggleWishlist,
+      isWishlistMode,
+      toggleWishlistMode,
       // 批量操作相关
       showWishlistQuickView,
       addingRecommendations,
@@ -1007,6 +1042,9 @@ export default {
   margin: 0 0 12px;
   padding-bottom: 10px;
   border-bottom: 1px solid #ebeef5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .section-header h2 {
@@ -1674,9 +1712,118 @@ export default {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-right: 10px;
-  font-size: 12px;
+}
+
+/* 模式切换滑块样式 - 重新设计 */
+.mode-toggle-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.mode-description {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.mode-hint {
+  font-size: 13px;
+  color: #606266;
+  background: rgba(145, 168, 208, 0.08);
+  padding: 6px 16px;
+  border-radius: 16px;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(145, 168, 208, 0.12);
+  font-weight: 500;
+}
+
+.mode-switch {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(145, 168, 208, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(10px);
+}
+
+.mode-label {
+  font-size: 14px;
+  color: #909399;
+  transition: all 0.3s ease;
+  user-select: none;
+  white-space: nowrap;
+  font-weight: 500;
+  position: relative;
+}
+
+.mode-label.active {
+  color: #91a8d0;
   font-weight: 600;
+}
+
+.mode-label.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 2px;
+  border-radius: 1px;
+  opacity: 0.8;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 52px;
+  height: 28px;
+  background: #f5f7fa;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid rgba(145, 168, 208, 0.1);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-switch:hover {
+  background: #edf2f7;
+  border-color: rgba(145, 168, 208, 0.2);
+  transform: scale(1.02);
+}
+
+.toggle-slider {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+  border-radius: 50%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(145, 168, 208, 0.1);
+}
+
+.toggle-slider.active {
+  transform: translateX(24px);
+  background: linear-gradient(135deg, #91a8d0, #b8c9e0);
+  box-shadow: 0 2px 8px rgba(145, 168, 208, 0.3), 0 1px 3px rgba(145, 168, 208, 0.2);
+  border-color: rgba(145, 168, 208, 0.3);
+}
+
+.toggle-switch:has(.toggle-slider.active) {
+  background: linear-gradient(135deg, rgba(145, 168, 208, 0.15), rgba(247, 202, 201, 0.1));
+  border-color: rgba(145, 168, 208, 0.25);
+}
+
+.toggle-switch:hover:has(.toggle-slider.active) {
+  background: linear-gradient(135deg, rgba(145, 168, 208, 0.2), rgba(247, 202, 201, 0.15));
+  border-color: rgba(145, 168, 208, 0.35);
 }
 
 /* 热门城市网格 */
@@ -1691,6 +1838,7 @@ export default {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 20px;
+  cursor: pointer;
 }
 
 .dest-card {

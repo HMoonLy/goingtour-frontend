@@ -1,6 +1,5 @@
 <template>
-  <div ref="containerRef"
-class="virtual-city-grid-container">
+  <div ref="containerRef" class="virtual-city-grid-container">
     <!-- 虚拟滚动容器 - 移除内部滚动 -->
     <div class="virtual-scroll-wrapper">
       <!-- 可见的城市分组 - 显示全部 -->
@@ -26,7 +25,6 @@ class="virtual-city-grid-container">
           :loading="false"
           class="group-grid"
           @select-city="$emit('selectCity', $event)"
-          @toggle-wishlist="$emit('toggleWishlist', $event)"
         />
       </div>
     </div>
@@ -60,16 +58,9 @@ export default {
       default: () => [],
     },
   },
-  emits: ["selectCity", "toggleWishlist"],
+  emits: ["selectCity"],
   setup(props) {
     const containerRef = ref(null);
-    const groupRefs = shallowRef(new Map());
-
-    // 虚拟滚动参数 - 适配页面滚动
-    const itemHeight = 400; // 每个分组的估算高度（考虑卡片网格布局）
-    const scrollTop = ref(0);
-    const visibleCount = ref(6); // 减少可见项目数量，因为卡片占用更多空间
-    const offsetY = ref(0);
 
     // 计算可见的分组 - 基于页面滚动
     const visibleGroups = computed(() => {
@@ -96,7 +87,7 @@ export default {
       () => props.cityGroups.length,
       () => {
         console.log("城市数据变化:", props.cityGroups.length);
-      },
+      }
     );
 
     return {
@@ -131,7 +122,7 @@ export default {
 
 /* ===== 城市分组样式 ===== */
 .city-group-section.modern {
-  margin-bottom: 40px;
+  margin-bottom: 0px;
   padding: 0 20px;
 
   /* 性能优化 */
@@ -141,26 +132,10 @@ export default {
 
 /* ===== 分组标题样式 - 修复行高问题 ===== */
 .group-header {
-  margin-bottom: 24px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.98) 0%,
-    rgba(248, 250, 252, 0.95) 100%
-  );
-  backdrop-filter: blur(12px);
+  margin-bottom: 30px;
   border-radius: 12px 12px 0 0;
-
-  /* 固定高度和内边距，解决行高问题 */
-  min-height: 90px;
-  padding: 24px 16px;
   display: flex;
   align-items: center;
-  margin: 0 -20px 24px -20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .group-title-container {
@@ -172,29 +147,23 @@ export default {
 }
 
 .group-letter-badge {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  color: #ffffff;
-  display: flex;
+   font-style: normal;
+  width: 35px;
+  height: 35px;
+  border-radius: 6px;
+  background: var(--bg-secondary, #f5f7fa);
+  border: 1px solid var(--border-color, #eaeef2);
+  color: var(--text-secondary, #606266);
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  margin-right: 10px;
   font-size: 18px;
-  font-weight: 700;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  box-shadow:
-    0 4px 14px rgba(99, 102, 241, 0.4),
-    0 2px 6px rgba(0, 0, 0, 0.1);
-  flex-shrink: 0;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 600;
 }
 
 .group-letter-badge:hover {
   transform: scale(1.05) translateY(-1px);
-  box-shadow:
-    0 6px 20px rgba(99, 102, 241, 0.5),
-    0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .group-title {

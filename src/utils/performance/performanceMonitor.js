@@ -12,20 +12,10 @@ export class PerformanceMonitor {
     start(label = "default") {
         this.startTime = performance.now();
         this.label = label;
-
-        if (
-            import.meta.env.DEV) {
-            console.log(`🚀 [${this.name}] 开始测量: ${label}`);
-        }
     }
 
     // 结束性能测量
     end() {
-        if (!this.startTime) {
-            console.warn(`⚠️ [${this.name}] 未调用 start() 方法`);
-            return;
-        }
-
         this.endTime = performance.now();
         const duration = this.endTime - this.startTime;
 
@@ -34,14 +24,6 @@ export class PerformanceMonitor {
             duration,
             timestamp: Date.now(),
         });
-
-        if (
-            import.meta.env.DEV) {
-            console.log(
-                `✅ [${this.name}] ${this.label} 完成: ${duration.toFixed(2)}ms`,
-            );
-        }
-
         this.startTime = null;
         return duration;
     }
@@ -66,13 +48,6 @@ export class PerformanceMonitor {
                     success: true,
                 });
 
-                if (
-                    import.meta.env.DEV) {
-                    console.log(
-                        `🖼️ [${this.name}] 图片加载: ${loadTime.toFixed(2)}ms - ${imageUrl}`,
-                    );
-                }
-
                 cleanup();
                 resolve({ success: true, duration: loadTime });
             };
@@ -85,14 +60,6 @@ export class PerformanceMonitor {
                     timestamp: Date.now(),
                     success: false,
                 });
-
-                if (
-                    import.meta.env.DEV) {
-                    console.warn(
-                        `❌ [${this.name}] 图片加载失败: ${loadTime.toFixed(2)}ms - ${imageUrl}`,
-                    );
-                }
-
                 cleanup();
                 resolve({ success: false, duration: loadTime });
             };
@@ -116,12 +83,6 @@ export class PerformanceMonitor {
                         timestamp: Date.now(),
                     });
 
-                    if (
-                        import.meta.env.DEV) {
-                        console.log(
-                            `🎨 [${this.name}] ${entry.name}: ${entry.startTime.toFixed(2)}ms`,
-                        );
-                    }
                 }
 
                 if (entry.entryType === "largest-contentful-paint") {
@@ -131,12 +92,6 @@ export class PerformanceMonitor {
                         timestamp: Date.now(),
                     });
 
-                    if (
-                        import.meta.env.DEV) {
-                        console.log(
-                            `📊 [${this.name}] LCP: ${entry.startTime.toFixed(2)}ms`,
-                        );
-                    }
                 }
             });
         });
@@ -201,19 +156,6 @@ export class PerformanceMonitor {
             import.meta.env.DEV) return;
 
         const report = this.getReport();
-
-        console.group(`📈 [${this.name}] 性能报告`);
-        console.log(`总测量次数: ${report.totalMeasurements}`);
-
-        Object.entries(report.summary).forEach(([type, stats]) => {
-            console.log(`${type}:`, {
-                次数: stats.count,
-                平均: `${stats.average}ms`,
-                最快: `${stats.min}ms`,
-                最慢: `${stats.max}ms`,
-            });
-        });
-
         console.groupEnd();
 
         return report;
@@ -260,13 +202,6 @@ export async function measureImageBatch(imageUrls) {
     const successCount = results.filter((r) => r.success).length;
     const avgDuration =
         results.reduce((sum, r) => sum + r.duration, 0) / results.length;
-
-    if (
-        import.meta.env.DEV) {
-        console.log(
-            `📸 批量图片加载完成: ${successCount}/${results.length} 成功, 平均耗时: ${avgDuration.toFixed(2)}ms`,
-        );
-    }
 
     return {
         results,

@@ -1,8 +1,7 @@
 <template>
   <div class="city-grid-container">
     <!-- 网格布局的城市卡片 - 性能优化版本 -->
-    <div class="city-grid"
-:class="{ 'has-wishlist': hasWishlistItems }">
+    <div class="city-grid" :class="{ 'has-wishlist': hasWishlistItems }">
       <!-- 使用v-memo优化大列表渲染性能 -->
       <CityCard
         v-for="city in cities"
@@ -11,16 +10,13 @@
         :is-in-wishlist="wishlistSet.has(city.adcode)"
         class="grid-item"
         @select-city="handleSelectCity"
-        @toggle-wishlist="handleToggleWishlist"
       />
     </div>
 
     <!-- 空状态展示 -->
-    <div v-if="cities.length === 0 && !loading"
-class="empty-state">
+    <div v-if="cities.length === 0 && !loading" class="empty-state">
       <div class="empty-icon">
-        <svg width="64"
-height="64" viewBox="0 0 24 24" fill="none">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
           <path
             d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
             fill="#9ca3af"
@@ -32,8 +28,7 @@ height="64" viewBox="0 0 24 24" fill="none">
     </div>
 
     <!-- 加载骨架屏 -->
-    <div v-if="loading"
-class="loading-grid">
+    <div v-if="loading" class="loading-grid">
       <div
         v-for="i in skeletonCount"
         :key="'skeleton-' + i"
@@ -77,7 +72,7 @@ export default defineComponent({
       default: false,
     },
   },
-  emits: ["selectCity", "toggleWishlist"],
+  emits: ["selectCity"],
   setup(props, { emit }) {
     // 使用Set缓存心愿清单城市编码，提升查询性能
     const wishlistSet = computed(() => {
@@ -95,7 +90,6 @@ export default defineComponent({
 
     // 性能优化：防抖处理事件发射
     let selectTimeout = null;
-    let wishlistTimeout = null;
 
     const handleSelectCity = (city) => {
       // 防止快速点击导致的多次触发
@@ -105,18 +99,9 @@ export default defineComponent({
       }, 50);
     };
 
-    const handleToggleWishlist = (city) => {
-      // 防止快速点击导致的多次切换
-      if (wishlistTimeout) clearTimeout(wishlistTimeout);
-      wishlistTimeout = setTimeout(() => {
-        emit("toggleWishlist", city);
-      }, 100);
-    };
-
     // 清理定时器
     onBeforeUnmount(() => {
       if (selectTimeout) clearTimeout(selectTimeout);
-      if (wishlistTimeout) clearTimeout(wishlistTimeout);
     });
 
     return {
@@ -124,7 +109,6 @@ export default defineComponent({
       hasWishlistItems,
       skeletonCount,
       handleSelectCity,
-      handleToggleWishlist,
     };
   },
 });
@@ -137,47 +121,44 @@ export default defineComponent({
   min-height: 200px;
 }
 
-/* ===== 响应式网格布局 ===== */
+/* ===== 紧凑响应式网格布局 ===== */
 .city-grid {
   display: grid;
-  gap: 14px;
+  gap: 10px;
   width: 100%;
-
-  /* 一行放5个左右的紧凑布局 */
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-
-  /* 确保网格项目等高 */
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   align-items: stretch;
-
-  /* 性能优化：启用GPU加速 */
-  will-change: transform;
-  transform: translateZ(0);
-
-  /* 大量数据优化：使用 contain 属性提升渲染性能 */
-  contain: layout style paint;
 }
 
-/* 中等屏幕：一行4-5个 */
-@media (max-width: 1400px) and (min-width: 1024px) {
-  .city-grid {
-    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
-    gap: 14px;
-  }
-}
-
-/* 平板屏幕：一行3-4个 */
-@media (max-width: 1024px) and (min-width: 640px) {
+/* 大屏幕：一行7-8个 */
+@media (min-width: 1200px) {
   .city-grid {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 12px;
   }
 }
 
-/* 手机屏幕：一行2个 */
-@media (max-width: 640px) {
+/* 中等屏幕：一行5-6个 */
+@media (max-width: 1200px) and (min-width: 768px) {
   .city-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     gap: 10px;
+  }
+}
+
+/* 平板：一行4个 */
+@media (max-width: 768px) and (min-width: 480px) {
+  .city-grid {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 8px;
+  }
+}
+
+/* 手机：一行3个 */
+@media (max-width: 480px) {
+  .city-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
   }
 }
 
@@ -185,15 +166,19 @@ export default defineComponent({
 .grid-item {
   width: 100%;
   height: 100%;
-  min-height: 60px; /* 减少高度让卡片更紧凑 */
+  min-height: 50px;
+}
 
-  /* 性能优化：减少重排重绘 */
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+@media (max-width: 768px) {
+  .grid-item {
+    min-height: 45px;
+  }
+}
 
-  /* 使用GPU加速，避免布局抖动 */
-  transform: translateZ(0);
-  contain: layout style paint;
+@media (max-width: 480px) {
+  .grid-item {
+    min-height: 40px;
+  }
 }
 
 /* ===== 空状态样式 ===== */
@@ -226,33 +211,46 @@ export default defineComponent({
   line-height: 1.5;
 }
 
-/* ===== 加载骨架屏样式 ===== */
+/* ===== 紧凑加载骨架屏样式 ===== */
 .loading-grid {
   display: grid;
-  gap: 14px;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
 }
 
-@media (max-width: 1024px) and (min-width: 640px) {
+@media (min-width: 1200px) {
   .loading-grid {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 12px;
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 1200px) and (min-width: 768px) {
   .loading-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  }
+}
+
+@media (max-width: 768px) and (min-width: 480px) {
+  .loading-grid {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .loading-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
   }
 }
 
 .skeleton-card {
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 8px;
-  padding: 8px;
-  min-height: 60px;
+  background: white;
+  border: 1px solid #e4e7ed;
+  border-radius: 6px;
+  padding: 10px;
+  min-height: 50px;
   display: flex;
   flex-direction: column;
   animation: shimmer 1.5s ease-in-out infinite;

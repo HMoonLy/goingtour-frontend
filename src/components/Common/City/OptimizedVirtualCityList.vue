@@ -1,12 +1,9 @@
 <template>
-  <div ref="containerRef"
-class="optimized-virtual-city-list">
+  <div ref="containerRef" class="optimized-virtual-city-list">
     <!-- 虚拟滚动容器 -->
-    <div class="virtual-scroll-container"
-:style="containerStyle">
+    <div class="virtual-scroll-container" :style="containerStyle">
       <!-- 虚拟占位空间 -->
-      <div class="virtual-spacer"
-:style="{ height: offsetY + 'px' }" />
+      <div class="virtual-spacer" :style="{ height: offsetY + 'px' }" />
 
       <!-- 可见项目 -->
       <div
@@ -35,8 +32,7 @@ class="optimized-virtual-city-list">
       </div>
 
       <!-- 虚拟占位空间（底部） -->
-      <div class="virtual-spacer"
-:style="{ height: endSpacerHeight + 'px' }" />
+      <div class="virtual-spacer" :style="{ height: endSpacerHeight + 'px' }" />
     </div>
   </div>
 </template>
@@ -96,11 +92,11 @@ export default {
 
       const startIndex = Math.max(
         0,
-        Math.floor(scrollTop.value / itemHeight) - 1,
+        Math.floor(scrollTop.value / itemHeight) - 1
       );
       const endIndex = Math.min(
         startIndex + visibleCount.value + 2, // 增加缓冲区
-        props.cityGroups.length,
+        props.cityGroups.length
       );
 
       offsetY.value = startIndex * itemHeight;
@@ -192,7 +188,7 @@ export default {
       () => props.cityGroups.length,
       () => {
         nextTick(updateContainerHeight);
-      },
+      }
     );
 
     return {

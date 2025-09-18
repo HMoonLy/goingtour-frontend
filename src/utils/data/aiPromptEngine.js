@@ -325,7 +325,7 @@ export class SmartPrefillEngine {
         }
 
         // 根据核心兴趣映射体验重点
-        if (this.profile.coreInterests ? .length > 0) {
+        if (this.profile.coreInterests?.length > 0) {
             const interestToFocusMapping = {
                 'nature': 'natural_scenery',
                 'culture': 'historical_culture',
@@ -364,10 +364,10 @@ export class SmartPrefillEngine {
             }
         }
 
-        if (this.profile.coreInterests ? .length > 0) {
+        if (this.profile.coreInterests?.length > 0) {
             const interestNames = this.profile.coreInterests.map(interest => {
                 const option = PERSONAL_PROFILE_OPTIONS.coreInterests.options[interest];
-                return option ? option.name : interest;
+                return option?option.name : interest;
             });
             explanations.push(`根据您对${interestNames.join('、')}的兴趣，为您预选了相关体验重点`);
         }
@@ -407,7 +407,7 @@ ${tripPreferences || '暂无特殊偏好'}
 ## 📍 行程基本信息
 - 目的地：${this.tripContext.destination || this.tripContext.destinationName || '待定'}
 - 旅行天数：${this.tripContext.days || this.tripContext.duration || '待定'}天
-- 出发时间：${this.tripContext.dateRange ? (Array.isArray(this.tripContext.dateRange) ? `${this.tripContext.dateRange[0]} 至 ${this.tripContext.dateRange[1]}` : this.tripContext.dateRange) : (this.tripContext.startDate || '待定')}
+- 出发时间：${this.tripContext.dateRange?(Array.isArray(this.tripContext.dateRange)?`${this.tripContext.dateRange[0]} 至 ${this.tripContext.dateRange[1]}` : this.tripContext.dateRange) : (this.tripContext.startDate || '待定')}
 
 ## 🎯 AI规划任务
 请基于以上旅行者画像和偏好信息，为这位旅行者规划一份详细的个性化行程。请注意：

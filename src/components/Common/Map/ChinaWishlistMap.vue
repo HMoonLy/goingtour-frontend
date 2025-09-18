@@ -841,12 +841,21 @@ export default {
     // 监听心愿清单数据变化（添加防抖处理）
     const updateMapDebounced = debounce(() => {
       // 根据当前使用的地图类型更新数据
-      if (chartInstance.value && chartInstance.value.getOption().geo) {
-        // 使用真实地图
-        updateRealMapData();
-      } else {
-        // 使用简化版地图
-        updateMapData();
+      if (chartInstance.value) {
+        try {
+          const option = chartInstance.value.getOption();
+          if (option && option.geo) {
+            // 使用真实地图
+            updateRealMapData();
+          } else {
+            // 使用简化版地图
+            updateMapData();
+          }
+        } catch (error) {
+          console.warn('获取图表配置时出错:', error);
+          // 降级到简化版地图
+          updateMapData();
+        }
       }
     }, 300);
 
@@ -863,9 +872,15 @@ export default {
       () => props.highlightedCity,
       () => {
         if (!chartInstance.value) return;
-        if (chartInstance.value.getOption().geo) {
-          updateRealMapData();
-        } else {
+        try {
+          const option = chartInstance.value.getOption();
+          if (option && option.geo) {
+            updateRealMapData();
+          } else {
+            updateMapData();
+          }
+        } catch (error) {
+          console.warn('获取图表配置时出错:', error);
           updateMapData();
         }
       },
@@ -880,29 +895,36 @@ export default {
         try {
           // 获取城市坐标
           const coordinates = await getCityCoordinate(newCity);
-          if (coordinates && chartInstance.value.getOption().geo) {
-            // 如果是真实地图，聚焦到城市位置
-            chartInstance.value.setOption({
-              geo: {
-                center: coordinates,
-                zoom: 2.5, // 放大显示
-              },
-            });
-
-            // 3秒后恢复默认视图
-            setTimeout(() => {
-              if (chartInstance.value) {
+          if (coordinates) {
+            try {
+              const option = chartInstance.value.getOption();
+              if (option && option.geo) {
+                // 如果是真实地图，聚焦到城市位置
                 chartInstance.value.setOption({
                   geo: {
-                    center: [104, 35],
-                    zoom: 1.1,
+                    center: coordinates,
+                    zoom: 2.5, // 放大显示
                   },
                 });
+
+                // 3秒后恢复默认视图
+                setTimeout(() => {
+                  if (chartInstance.value) {
+                    chartInstance.value.setOption({
+                      geo: {
+                        center: [104, 35],
+                        zoom: 1.1,
+                      },
+                    });
+                  }
+                }, 3000);
               }
-            }, 3000);
+            } catch (optionError) {
+              console.warn('获取图表配置时出错:', optionError);
+            }
           }
         } catch (error) {
-          console.warn(`聚焦城市失败 [${newCity}]:`, error);
+          console.error("聚焦城市失败:", error);
         }
       },
     );
