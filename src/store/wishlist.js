@@ -177,6 +177,38 @@ export const useWishlistStore = defineStore("wishlist", () => {
         return result
     }
 
+    /**
+     * 重写markAsVisited方法，标记城市为已访问后刷新足迹数据
+     */
+    const markAsVisited = async(wishlistId) => {
+        const result = await wishlist.markAsVisited(wishlistId)
+
+        if (result.success) {
+            // 标记成功后，重新加载足迹数据以包含新的已访问城市
+            await footprint.loadVisitedCities()
+            console.log('✅ 城市标记为已访问，足迹数据已刷新')
+        }
+
+        // 保持向后兼容性，返回boolean
+        return result.success
+    }
+
+    /**
+     * 重写batchMarkAsVisited方法，批量标记城市为已访问后刷新足迹数据
+     */
+    const batchMarkAsVisited = async(cityIds) => {
+        const result = await wishlist.batchMarkAsVisited(cityIds)
+
+        if (result.success) {
+            // 批量标记成功后，重新加载足迹数据以包含新的已访问城市
+            await footprint.loadVisitedCities()
+            console.log(`✅ ${result.updatedCount} 个城市标记为已访问，足迹数据已刷新`)
+        }
+
+        // 保持向后兼容性，返回boolean
+        return result.success
+    }
+
     return {
         // 从组合函数导出的状态和方法
         ...wishlist,
@@ -201,6 +233,8 @@ export const useWishlistStore = defineStore("wishlist", () => {
         isCityInWishlist,
         getWishlistItemByCityCode,
         deleteVisitedCity, // 重写的删除方法
+        markAsVisited, // 重写的标记已访问方法
+        batchMarkAsVisited, // 重写的批量标记已访问方法
 
         // 天气轮播方法
         setCurrentWeatherCity,

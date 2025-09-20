@@ -3,22 +3,21 @@
     <!-- 页面头部 -->
     <div class="page-header">
       <div class="header-left">
-        <el-button link
-class="back-btn" @click="goBack">
+        <el-button link class="back-btn" @click="goBack">
           <el-icon><ArrowLeft /></el-icon>
           返回个人中心
         </el-button>
       </div>
       <div class="header-right">
-        <div v-if="!isReadOnly"
-class="header-actions">
-          <el-button :loading="saving"
-type="primary" @click="saveChanges">
-            <el-icon><Edit /></el-icon>
-            保存修改
-          </el-button>
-        </div>
-        
+        <el-button
+          v-if="!isReadOnly"
+          :loading="saving"
+          type="primary"
+          @click="saveChanges"
+        >
+          <el-icon><Edit /></el-icon>
+          保存修改
+        </el-button>
         <!-- 导出按钮 -->
         <el-dropdown @command="handleExport" trigger="click">
           <el-button>
@@ -39,7 +38,7 @@ type="primary" @click="saveChanges">
             </el-dropdown-menu>
           </template>
         </el-dropdown>
-        
+
         <el-button
           :type="isReadOnly ? 'primary' : 'default'"
           @click="toggleReadOnly"
@@ -51,26 +50,21 @@ type="primary" @click="saveChanges">
     </div>
 
     <!-- 加载状态 -->
-    <div v-if="loading"
-class="loading-container">
-      <el-skeleton :rows="8"
-animated />
+    <div v-if="loading" class="loading-container">
+      <el-skeleton :rows="8" animated />
     </div>
 
     <!-- 行程展示内容 -->
-    <div v-else-if="tripData && tripData.id"
-class="ai-trip-display">
+    <div v-else-if="tripData && tripData.id" class="ai-trip-display">
       <!-- 行程标题卡片 - 使用自定义div -->
       <div class="trip-header-card-custom">
         <div class="trip-header-content">
           <div class="trip-title-section">
             <div class="title-with-icon">
-              <el-icon class="ai-icon"
-color="#91A8D0">
+              <el-icon class="ai-icon" color="#91A8D0">
                 <Cpu />
               </el-icon>
-              <h1 v-if="isReadOnly"
-class="trip-main-title">
+              <h1 v-if="isReadOnly" class="trip-main-title">
                 {{ tripData.title }}
               </h1>
               <el-input
@@ -95,8 +89,7 @@ class="trip-main-title">
                 </el-icon>
               </div>
               <div class="stat-content">
-                <div v-if="isReadOnly"
-class="stat-number">
+                <div v-if="isReadOnly" class="stat-number">
                   {{ editedTrip?.days || tripData.days || 0 }}
                 </div>
                 <el-input-number
@@ -117,8 +110,7 @@ class="stat-number">
                 </el-icon>
               </div>
               <div class="stat-content">
-                <div v-if="isReadOnly"
-class="stat-number">
+                <div v-if="isReadOnly" class="stat-number">
                   {{ editedTrip?.mate || tripData.mate || 0 }}
                 </div>
                 <el-input-number
@@ -162,100 +154,11 @@ class="stat-number">
         </div>
       </div>
 
-      <!-- 行程标题卡片 -->
-      <!-- <el-card class="trip-header-card" shadow="never">
-        <div class="trip-header-content">
-          <div class="trip-title-section">
-            <div class="title-with-icon">
-              <el-icon class="ai-icon" color="#409eff"><Cpu /></el-icon>
-              <h1 v-if="isReadOnly" class="trip-main-title">
-                {{ tripData.title }}
-              </h1>
-              <el-input
-                v-else
-                v-model="editedTrip.title"
-                class="trip-title-input"
-                placeholder="请输入行程标题"
-                maxlength="100"
-                show-word-limit
-              />
-            </div>
-            <p class="trip-subtitle">
-              AI为您精心规划的{{ editedTrip?.days || tripData.days || 3 }}天{{
-                tripData?.destinationInfo?.name || tripData.city || "智能"
-              }}行程
-            </p>
-          </div>
-          <div class="trip-stats">
-            <div class="stat-card">
-              <div class="stat-icon">
-                <el-icon color="#409eff"><Calendar /></el-icon>
-              </div>
-              <div class="stat-content">
-                <div class="stat-number" v-if="isReadOnly">
-                  {{ editedTrip?.days || tripData.days || 0 }}
-                </div>
-                <el-input-number
-                  v-else
-                  v-model="editedTrip.days"
-                  :min="1"
-                  :max="30"
-                  controls-position="right"
-                  class="stat-input"
-                />
-                <div class="stat-label">天数</div>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon">
-                <el-icon color="#67c23a"><User /></el-icon>
-              </div>
-              <div class="stat-content">
-                <div class="stat-number" v-if="isReadOnly">
-                  {{ editedTrip?.mate || tripData.mate || 0 }}
-                </div>
-                <el-input-number
-                  v-else
-                  v-model="editedTrip.mate"
-                  :min="1"
-                  :max="20"
-                  controls-position="right"
-                  class="stat-input"
-                />
-                <div class="stat-label">人数</div>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon">
-                <el-icon color="#e6a23c"><Trophy /></el-icon>
-              </div>
-              <div class="stat-content">
-                <div class="stat-number">{{ tripData?.qualityScore || 0 }}</div>
-                <div class="stat-label">质量分</div>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon">
-                <el-icon color="#f56c6c"><Timer /></el-icon>
-              </div>
-              <div class="stat-content">
-                <div class="stat-number">
-                  {{ formatProcessingTime(tripData?.processingTime) }}
-                </div>
-                <div class="stat-label">用时</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </el-card> -->
-
       <!-- 完整的行程内容 - 使用自定义div -->
       <div class="content-card-custom">
         <!-- 编辑模式选择（仅在非只读模式显示） -->
-        <div v-if="!isReadOnly"
-class="editor-tabs">
-          <el-radio-group v-model="editMode"
-class="edit-mode-selector">
+        <div v-if="!isReadOnly" class="editor-tabs">
+          <el-radio-group v-model="editMode" class="edit-mode-selector">
             <el-radio-button value="preview"> 预览模式 </el-radio-button>
             <el-radio-button value="markdown"> Markdown编辑 </el-radio-button>
           </el-radio-group>
@@ -284,8 +187,7 @@ class="edit-mode-selector">
         />
       </div>
 
-      <el-card v-if="!isReadOnly"
-class="budget-card" shadow="never">
+      <el-card v-if="!isReadOnly" class="budget-card" shadow="never">
         <template #header>
           <div class="card-header">
             <el-icon class="header-icon">
@@ -308,8 +210,7 @@ class="budget-card" shadow="never">
       </el-card>
     </div>
 
-    <div v-else
-class="no-data">
+    <div v-else class="no-data">
       <el-empty description="暂无行程数据" />
     </div>
   </div>
@@ -339,8 +240,8 @@ import { useUserStore } from "@/store/user";
 import MarkdownIt from "markdown-it";
 import { sanitizeMarkdownHtml } from "@/utils/security/xssFilter.js";
 import { handleApiError, handleSuccess } from "@/utils/api/errorHandler.js";
-import { TripExporter } from '@/utils/export/tripExporter';
-import { ElMessage } from 'element-plus';
+import { TripExporter } from "@/utils/export/tripExporter";
+import { ElMessage } from "element-plus";
 
 // Add missing t function
 const t = (key) => {
@@ -431,32 +332,32 @@ const renderedContent = computed(() => {
       .replace(
         new RegExp(
           `<p[^>]*class="trip-highlight[^"]*"[^>]*>\\d{1,2}:\\d{2}</p>\\s*(${keyword}[:：])`,
-          "g",
+          "g"
         ),
-        "$1",
+        "$1"
       )
       // 处理 <strong>时间</strong> 餐饮
       .replace(
         new RegExp(
           `<strong[^>]*>\\d{1,2}:\\d{2}</strong>\\s*(${keyword}[:：])`,
-          "g",
+          "g"
         ),
-        "$1",
+        "$1"
       )
       // 处理 <span>时间</span> 餐饮
       .replace(
         new RegExp(
           `<span[^>]*>\\d{1,2}:\\d{2}</span>\\s*(${keyword}[:：])`,
-          "g",
+          "g"
         ),
-        "$1",
+        "$1"
       )
       // 处理纯文本 时间 餐饮
       .replace(new RegExp(`\\b\\d{1,2}:\\d{2}\\s+(${keyword}[:：])`, "g"), "$1")
       // 处理任何标签包装的时间
       .replace(
         new RegExp(`<[^>]+>\\d{1,2}:\\d{2}</[^>]+>\\s*(${keyword}[:：])`, "g"),
-        "$1",
+        "$1"
       );
   });
 
@@ -488,7 +389,7 @@ const loadTripData = async () => {
 
     // 调用后端API获取AI行程数据
     const response = await http.get(
-      `/trips/${tripId.value}?userId=${userStore.userId || 1}`,
+      `/trips/${tripId.value}?userId=${userStore.userId || 1}`
     );
 
     if (response.code === 200 && response.data) {
@@ -604,7 +505,7 @@ const confirmUnsavedChanges = () => {
       confirmButtonText: "离开",
       cancelButtonText: "继续编辑",
       type: "warning",
-    },
+    }
   );
 };
 
@@ -612,13 +513,13 @@ const goBack = () => {
   if (!isReadOnly.value && hasUnsavedChanges()) {
     confirmUnsavedChanges()
       .then(() => {
-        router.push("/home");
+        router.push("/personal");
       })
       .catch(() => {
         // 用户选择继续编辑
       });
   } else {
-    router.push("/home");
+    router.push("/personal");
   }
 };
 
@@ -638,33 +539,33 @@ const hasUnsavedChanges = () => {
 // 导出功能
 const handleExport = async (format) => {
   const loadingMessage = ElMessage({
-    message: '正在生成文件，请稍候...',
-    type: 'info',
-    duration: 0
-  })
+    message: "正在生成文件，请稍候...",
+    type: "info",
+    duration: 0,
+  });
 
   try {
     // 使用当前编辑的数据
-    const exportData = isReadOnly.value ? tripData.value : editedTrip.value
-    const exporter = new TripExporter(exportData)
-    
+    const exportData = isReadOnly.value ? tripData.value : editedTrip.value;
+    const exporter = new TripExporter(exportData);
+
     switch (format) {
-      case 'word':
-        await exporter.exportToWord()
-        ElMessage.success('Word文档导出成功！')
-        break
-      case 'image':
-        await exporter.exportToImage()
-        ElMessage.success('图片导出成功！')
-        break
+      case "word":
+        await exporter.exportToWord();
+        ElMessage.success("Word文档导出成功！");
+        break;
+      case "image":
+        await exporter.exportToImage();
+        ElMessage.success("图片导出成功！");
+        break;
     }
   } catch (error) {
-    console.error('导出失败:', error)
-    ElMessage.error('导出失败，请重试')
+    console.error("导出失败:", error);
+    ElMessage.error("导出失败，请重试");
   } finally {
-    loadingMessage.close()
+    loadingMessage.close();
   }
-}
+};
 
 // 工具函数
 const formatProcessingTime = (time) => {
@@ -717,6 +618,10 @@ const formatProcessingTime = (time) => {
   max-width: 1200px !important;
 }
 
+.page-header .header-right .el-dropdown {
+  margin-right: 10px;
+  margin-left: 10px;
+}
 .back-btn {
   font-size: 14px;
   color: #606266;

@@ -1702,18 +1702,21 @@ const formatVisitDate = (dateString) => {
 :deep(.edit-city-dialog .el-dialog__header) {
   background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
   padding: 20px 24px;
+  border-radius: 16px;
   margin: 0;
 }
 
 :deep(.edit-city-dialog .el-dialog__title) {
-  color: white;
+  color: white !important;
   font-weight: 600;
   font-size: 18px;
 }
 
 :deep(.edit-city-dialog .el-dialog__close) {
   color: white;
-  font-size: 18px;
+  font-size: 20px;
+  margin-top: 25px;
+  margin-right: 20px;
 }
 
 :deep(.edit-city-dialog .el-dialog__body) {
@@ -1729,7 +1732,7 @@ const formatVisitDate = (dateString) => {
 }
 
 .edit-form .el-form-item__label {
-  color: #374151;
+  color: #ffffff;
   font-weight: 600;
   font-size: 14px;
 }

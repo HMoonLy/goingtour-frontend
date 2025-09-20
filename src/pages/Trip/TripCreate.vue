@@ -1479,8 +1479,7 @@ export default {
 
 .draft-actions-left,
 .draft-actions-right {
-  display: flex;
-  gap: 12px;
+padding: 0 5px;
 }
 
 .draft-destination {

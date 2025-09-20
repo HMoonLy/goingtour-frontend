@@ -146,9 +146,9 @@ export function useWishlist() {
                 }
             }
 
-            return true
+            return { success: true, updatedData }
         } catch (error) {
-            return false
+            return { success: false, error }
         }
     }
 
@@ -216,7 +216,7 @@ export function useWishlist() {
         const userStore = useUserStore()
         const userId = userStore.currentUser?.id || userStore.userId
 
-        if (!userId) return false
+        if (!userId) return { success: false, error: 'User not logged in' }
 
         try {
             await wishlistService.batchMarkAsVisited(cityIds, userId)
@@ -235,9 +235,9 @@ export function useWishlist() {
                 }
             })
 
-            return true
+            return { success: true, updatedCount: cityIds.length }
         } catch (error) {
-            return false
+            return { success: false, error }
         }
     }
 
