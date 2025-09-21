@@ -304,7 +304,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, nextTick } from "vue";
+import { ref, computed, onMounted, watch, nextTick, toRef } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
   Camera,
@@ -348,20 +348,8 @@ const emit = defineEmits([
 const wishlist = useWishlist();
 const photos = usePhotos();
 
-// 直接使用props数据，简化数据流
-const visitedCities = computed(() => {
-  const cities = props.visitedCitiesData;
-  
-  console.log("🔍 VisitedCitiesGallery visitedCities:", {
-    citiesLength: cities.length,
-    hasData: cities.length > 0,
-    firstCity: cities[0]?.cityName || 'N/A'
-  });
-  
-  return cities;
-});
-
-// 为了保持向后兼容，保留citiesWithPhotos别名
+// 直接使用props数据，无需额外封装
+const visitedCities = toRef(props, 'visitedCitiesData');
 const citiesWithPhotos = visitedCities;
 
 // 响应式数据
