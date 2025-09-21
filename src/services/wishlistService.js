@@ -1,46 +1,75 @@
 /**
- * 愿望清单业务服务
- * 处理愿望清单相关的业务逻辑和数据转换
+ * 愿望清单业务服务 - 精简版
+ * 专注于业务逻辑，API调用交由wishlistApi处理
  */
 import { wishlistApi } from '@/api/wishlist.js'
 import { cityPhotosApi } from '@/api/cityPhotos.js'
-import { ElMessage } from 'element-plus'
 
 class WishlistService {
     constructor() {
-        this.retryConfig = {
-            maxRetries: 3,
-            retryDelay: 1000
+        this.cache = new Map()
+        this.cacheTimeout = 5 * 60 * 1000 // 5分钟缓存
+    }
+
+    // ==================== 缓存管理 ====================
+    _getCacheKey(userId, action = 'list') {
+        return `wishlist_${action}_${userId}`
+    }
+
+    _getFromCache(key) {
+        const cached = this.cache.get(key)
+        if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
+            return cached.data
+        }
+        this.cache.delete(key)
+        return null
+    }
+
+    _setCache(key, data) {
+        this.cache.set(key, {
+            data,
+            timestamp: Date.now()
+        })
+    }
+
+    clearCache(userId) {
+        if (userId) {
+            this.cache.delete(this._getCacheKey(userId))
+        } else {
+            this.cache.clear()
         }
     }
 
+    // ==================== 核心业务方法 ====================
+
     /**
-     * 加载用户愿望清单数据
+     * 加载用户愿望清单（带缓存）
      */
-    async loadUserWishlist(userId, retryCount = 0) {
+    async loadUserWishlist(userId, useCache = true) {
         if (!userId) {
             throw new Error('用户ID不能为空')
         }
 
+        const cacheKey = this._getCacheKey(userId)
+
+        if (useCache) {
+            const cached = this._getFromCache(cacheKey)
+            if (cached) {
+                return cached
+            }
+        }
+
         try {
             const response = await wishlistApi.getUserWishlist(userId)
+            const data = response?.data || []
 
-            if (response && response.data) {
-                return response.data
-            } else {
-                console.warn("⚠️ 心愿城市API返回的数据格式异常:", response)
-                return []
+            if (useCache) {
+                this._setCache(cacheKey, data)
             }
+
+            return data
         } catch (error) {
-            if (retryCount < this.retryConfig.maxRetries &&
-                (error.code === 'NETWORK_ERROR' || error.status >= 500)) {
-
-                console.log(`🔄 重试加载愿望清单 (${retryCount + 1}/${this.retryConfig.maxRetries})`)
-                await this._delay((retryCount + 1) * this.retryConfig.retryDelay)
-                return this.loadUserWishlist(userId, retryCount + 1)
-            }
-
-            console.error("❌ 加载愿望清单失败:", error)
+            console.error('加载愿望清单失败:', error)
             throw error
         }
     }
@@ -48,64 +77,41 @@ class WishlistService {
     /**
      * 添加城市到愿望清单
      */
-    async addCityToWishlist(userId, cityData) {
-        if (!userId) {
-            throw new Error('用户未登录')
+    async addToWishlist(userId, cityData) {
+        if (!userId || !cityData?.cityCode) {
+            throw new Error('用户ID和城市代码不能为空')
         }
 
-        // 标准化城市数据
-        const normalizedCityData = this._normalizeCityData(cityData)
-
         try {
-            // 增强城市数据
-            const enhancedCityData = await this._enhanceCityData(normalizedCityData)
+            const response = await wishlistApi.addToWishlist(userId, cityData)
 
-            const wishData = {
-                userId,
-                adcode: enhancedCityData.adcode,
-                citycode: enhancedCityData.citycode,
-                cityName: enhancedCityData.cityName,
-                reason: enhancedCityData.reason || "",
-                tags: enhancedCityData.tags || [],
-                ever_visited: enhancedCityData.ever_visited,
-                want_to_visit_again: enhancedCityData.want_to_visit_again,
-            }
+            // 清除缓存
+            this.clearCache(userId)
 
-            const response = await wishlistApi.addToWishlist(wishData)
-
-            if (response.data) {
-                const newItem = {
-                    id: response.data.id,
-                    ...wishData,
-                    createdAt: new Date().toISOString(),
-                }
-
-                ElMessage.success(`已将 ${cityData.cityName} 添加到愿望清单`)
-                return newItem
-            }
-
-            throw new Error('添加失败')
+            return response
         } catch (error) {
-            console.error("❌ 添加到愿望清单失败:", error)
-            ElMessage.error("添加失败，请重试")
+            console.error('添加到愿望清单失败:', error)
             throw error
         }
     }
 
     /**
-     * 从愿望清单删除城市
+     * 从愿望清单移除城市
      */
-    async removeCityFromWishlist(wishlistId, userId) {
-        if (!userId) {
-            throw new Error('用户未登录')
+    async removeFromWishlist(userId, cityCode) {
+        if (!userId || !cityCode) {
+            throw new Error('用户ID和城市代码不能为空')
         }
 
         try {
-            await wishlistApi.removeFromWishlist(wishlistId, userId)
-            return true
+            const response = await wishlistApi.removeFromWishlist(userId, cityCode)
+
+            // 清除缓存
+            this.clearCache(userId)
+
+            return response
         } catch (error) {
-            console.error("❌ 从愿望清单删除失败:", error)
-            ElMessage.error("删除失败，请重试")
+            console.error('从愿望清单移除失败:', error)
             throw error
         }
     }
@@ -113,166 +119,140 @@ class WishlistService {
     /**
      * 更新愿望清单项
      */
-    async updateWishlistItem(wishlistId, userId, updateData) {
-        if (!userId) {
-            throw new Error('用户未登录')
+    async updateWishlistItem(userId, cityCode, updateData) {
+        if (!userId || !cityCode) {
+            throw new Error('用户ID和城市代码不能为空')
         }
 
         try {
-            await wishlistApi.updateWishlistItem(wishlistId, {
-                userId,
-                ...updateData,
+            const response = await wishlistApi.updateWishlistItem(userId, cityCode, updateData)
+
+            // 清除缓存
+            this.clearCache(userId)
+
+            return response
+        } catch (error) {
+            console.error('更新愿望清单项失败:', error)
+            throw error
+        }
+    }
+
+    /**
+     * 获取城市照片（带缓存）
+     */
+    async getCityPhotos(cityCode, useCache = true) {
+        if (!cityCode) {
+            return []
+        }
+
+        const cacheKey = `photos_${cityCode}`
+
+        if (useCache) {
+            const cached = this._getFromCache(cacheKey)
+            if (cached) {
+                return cached
+            }
+        }
+
+        try {
+            const response = await cityPhotosApi.getCityPhotos(cityCode)
+            const photos = response?.data || []
+
+            if (useCache && photos.length > 0) {
+                this._setCache(cacheKey, photos)
+            }
+
+            return photos
+        } catch (error) {
+            // 照片获取失败不抛出异常，返回空数组
+            console.debug('获取城市照片失败:', error)
+            return []
+        }
+    }
+
+    /**
+     * 批量获取城市照片
+     */
+    async batchGetCityPhotos(cityCodes) {
+        if (!Array.isArray(cityCodes) || cityCodes.length === 0) {
+            return {}
+        }
+
+        const results = {}
+
+        // 并发获取所有城市照片
+        await Promise.allSettled(
+            cityCodes.map(async(cityCode) => {
+                try {
+                    const photos = await this.getCityPhotos(cityCode)
+                    results[cityCode] = photos
+                } catch (error) {
+                    results[cityCode] = []
+                }
             })
+        )
 
-            const updatedItem = {
-                ...updateData,
-                updatedAt: new Date().toISOString(),
-            }
-
-            ElMessage.success("愿望清单更新成功")
-            return updatedItem
-        } catch (error) {
-            console.error("❌ 更新愿望清单失败:", error)
-            ElMessage.error("更新失败，请重试")
-            throw error
-        }
+        return results
     }
 
     /**
-     * 标记城市为已去过
+     * 验证愿望清单数据
      */
-    async markCityAsVisited(wishlistId, userId) {
-        const updateData = {
-            ever_visited: true,
-            want_to_visit_again: false,
-            visit_date: new Date().toISOString(),
+    validateWishlistData(cityData) {
+        const errors = []
+
+        if (!cityData.cityCode?.trim()) {
+            errors.push('城市代码不能为空')
         }
 
-        return this.updateWishlistItem(wishlistId, userId, updateData)
-    }
-
-    /**
-     * 批量标记城市为已去过
-     */
-    async batchMarkAsVisited(cityIds, userId) {
-        if (!userId) {
-            throw new Error('用户未登录')
+        if (!cityData.cityName?.trim()) {
+            errors.push('城市名称不能为空')
         }
 
-        try {
-            const updatePromises = cityIds.map((id) =>
-                wishlistApi.updateWishlistItem(id, {
-                    userId,
-                    ever_visited: true,
-                    want_to_visit_again: false,
-                    visit_date: new Date().toISOString()
-                })
-            )
-
-            await Promise.all(updatePromises)
-
-            ElMessage.success(`已批量标记 ${cityIds.length} 个城市为去过`)
-            return true
-        } catch (error) {
-            console.error("❌ 批量标记为去过失败:", error)
-            ElMessage.error("批量操作失败，请重试")
-            throw error
-        }
-    }
-
-    /**
-     * 标记想再去状态
-     */
-    async markWantToVisitAgain(cityIdOrData, userId, wantToVisit = true) {
-        if (!userId) {
-            throw new Error('用户未登录')
+        if (!cityData.provinceName?.trim()) {
+            errors.push('省份名称不能为空')
         }
 
-        try {
-            // 处理从visited city转换的情况
-            if (typeof cityIdOrData === 'object' && cityIdOrData.adcode) {
-                const cityData = cityIdOrData
-
-                if (wantToVisit) {
-                    // 将已去过的城市添加到心愿清单
-                    const response = await wishlistApi.addFromVisitedCity(
-                        userId,
-                        cityData.adcode,
-                        cityData.cityName,
-                        cityData.citycode
-                    )
-
-                    ElMessage.success(`已将 ${cityData.cityName} 标记为想再去`)
-                    return response.data
-                } else {
-                    // 这种情况需要在上层处理，因为需要访问store状态
-                    throw new Error('取消想再去需要在上层处理')
-                }
-            } else {
-                // 传统的wishlist ID更新方式
-                const wishlistId = cityIdOrData
-                const updateData = { want_to_visit_again: wantToVisit }
-
-                return this.updateWishlistItem(wishlistId, userId, updateData)
-            }
-        } catch (error) {
-            console.error("❌ 更新想再去状态失败:", error)
-            ElMessage.error("操作失败，请重试")
-            throw error
-        }
-    }
-
-    /**
-     * 数据工具方法
-     */
-
-    /**
-     * 标准化城市数据
-     */
-    _normalizeCityData(cityData) {
         return {
-            ...cityData,
-            cityCode: cityData.cityCode || cityData.adcode,
-            adcode: cityData.adcode || cityData.cityCode
+            isValid: errors.length === 0,
+            errors
         }
     }
 
     /**
-     * 增强城市数据
+     * 统计愿望清单数据
      */
-    async _enhanceCityData(cityData) {
-        try {
-            const { findCityByName, findCityByAdcode } = await
-            import ('@/utils/cityCodeUtils.js')
-
-            let enhancedCityData = {...cityData }
-
-            // 如果有adcode但缺少citycode，尝试查找完整信息
-            if (cityData.adcode && !cityData.citycode) {
-                const cityInfo = await findCityByAdcode(cityData.adcode)
-                if (cityInfo) {
-                    enhancedCityData = {...enhancedCityData, ...cityInfo }
-                }
-            } else if (cityData.cityName && !cityData.adcode) {
-                const cityInfo = await findCityByName(cityData.cityName)
-                if (cityInfo) {
-                    enhancedCityData = {...enhancedCityData, ...cityInfo }
-                }
+    calculateWishlistStats(wishlistItems) {
+        if (!Array.isArray(wishlistItems)) {
+            return {
+                total: 0,
+                visited: 0,
+                unvisited: 0,
+                wantToRevisit: 0
             }
-
-            return enhancedCityData
-        } catch (error) {
-            console.warn('⚠️ 增强城市数据失败，使用原始数据:', error)
-            return cityData
         }
-    }
 
-    /**
-     * 延迟工具方法
-     */
-    _delay(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms))
+        const stats = {
+            total: wishlistItems.length,
+            visited: 0,
+            unvisited: 0,
+            wantToRevisit: 0
+        }
+
+        wishlistItems.forEach(item => {
+            if (item.ever_visited) {
+                stats.visited++
+                    if (item.want_to_visit_again) {
+                        stats.wantToRevisit++
+                    }
+            } else {
+                stats.unvisited++
+            }
+        })
+
+        return stats
     }
 }
 
+// 创建单例实例
 export const wishlistService = new WishlistService()

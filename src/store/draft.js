@@ -83,21 +83,16 @@ export const useDraftStore = defineStore("draft", () => {
                 name: draft.name,
                 currentStep: draft.currentStep || 0,
                 baseForm: typeof draft.baseForm === "string" ?
-                    JSON.parse(draft.baseForm) :
-                    draft.baseForm || {},
+                    JSON.parse(draft.baseForm) : draft.baseForm || {},
                 preferenceForm: typeof draft.preferenceForm === "string" ?
-                    JSON.parse(draft.preferenceForm) :
-                    draft.preferenceForm || {},
+                    JSON.parse(draft.preferenceForm) : draft.preferenceForm || {},
                 selectedAttractions: typeof draft.selectedAttractions === "string" ?
-                    JSON.parse(draft.selectedAttractions) :
-                    draft.selectedAttractions || [],
+                    JSON.parse(draft.selectedAttractions) : draft.selectedAttractions || [],
                 selectedRestaurants: typeof draft.selectedRestaurants === "string" ?
-                    JSON.parse(draft.selectedRestaurants) :
-                    draft.selectedRestaurants || [],
+                    JSON.parse(draft.selectedRestaurants) : draft.selectedRestaurants || [],
                 extraRequirements: draft.extraRequirements || "",
                 weatherSuggestion: typeof draft.weatherSuggestion === "string" ?
-                    JSON.parse(draft.weatherSuggestion) :
-                    draft.weatherSuggestion,
+                    JSON.parse(draft.weatherSuggestion) : draft.weatherSuggestion,
             };
 
             // 保存到store

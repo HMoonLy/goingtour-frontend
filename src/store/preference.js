@@ -48,13 +48,11 @@ export const usePreferenceStore = defineStore("preference", () => {
         return {
             // 行程目标：优先使用行程偏好，否则从用户标签推导
             tripGoals: tripPrefs.tripGoals.length > 0 ?
-                tripPrefs.tripGoals :
-                mapUserTagsToTripGoals(userPrefs.selectedTags || []),
+                tripPrefs.tripGoals : mapUserTagsToTripGoals(userPrefs.selectedTags || []),
 
             // 重点体验：优先使用行程偏好，否则从用户标签推导
             focusAreas: tripPrefs.focusAreas.length > 0 ?
-                tripPrefs.focusAreas :
-                mapUserTagsToFocusAreas(userPrefs.selectedTags || []),
+                tripPrefs.focusAreas : mapUserTagsToFocusAreas(userPrefs.selectedTags || []),
 
             // 节奏偏好：优先使用行程偏好，否则使用用户偏好或默认值
             pacePreference: tripPrefs.pacePreference || userPrefs.pacePreference || "balanced",

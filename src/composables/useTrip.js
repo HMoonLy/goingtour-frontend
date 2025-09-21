@@ -456,7 +456,6 @@ export function useTrip() {
 
     /**
      * 生成AI行程
-     * @param {Object} generationParams 生成参数
      */
     const generateAiTrip = async(generationParams) => {
         if (!requireUserReady()) {
@@ -470,38 +469,22 @@ export function useTrip() {
         error.value = null
 
         try {
-            console.log('🤖 正在生成AI行程:', generationParams)
-
-            const result = await tripService.generateAiTrip(userId.value, generationParams, {
+            const tripData = await tripService.generateAiTrip(userId.value, generationParams, {
                 onProgress: (progress) => {
                     generationProgress.value = progress.message
                     generationPercent.value = progress.percent
                 }
             })
 
-            if (result.success) {
-                generatedTrip.value = result.data
-                generationProgress.value = '行程生成完成！'
-                generationPercent.value = 100
+            generatedTrip.value = tripData
+            generationProgress.value = '行程生成完成！'
+            generationPercent.value = 100
 
-                ElMessage.success({
-                    message: `AI行程生成成功！质量评分：${result.data.qualityScore}`,
-                    duration: 5000,
-                    showClose: true
-                })
-
-                console.log('✅ AI行程生成成功:', result.data.title)
-
-                return { success: true, data: result.data }
-            } else {
-                error.value = result.message
-                ElMessage.error(result.message || 'AI行程生成失败')
-                return result
-            }
+            ElMessage.success(`AI行程生成成功！质量评分：${tripData.qualityScore}`)
+            return { success: true, data: tripData }
         } catch (err) {
             const errorMessage = err.message || 'AI行程生成失败'
             error.value = errorMessage
-            console.error('❌ AI行程生成失败:', err)
             ElMessage.error(errorMessage)
             return { success: false, message: errorMessage }
         } finally {
