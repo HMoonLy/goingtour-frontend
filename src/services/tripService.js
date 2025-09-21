@@ -1,154 +1,142 @@
 /**
- * 行程业务服务 - 精简版
- * 专注于业务逻辑和数据转换，API调用交由tripApi处理
+ * 行程业务服务 - 优化版
+ * 使用统一的缓存管理和错误处理
  */
 import { tripApi } from '@/api/trip.js'
 import {
     convertBackendTripToFrontend,
     convertFrontendTripToBackend
 } from '@/utils/data/tripDataConverter.js'
+import { BaseService } from './baseService.js'
 
-class TripService {
+class TripService extends BaseService {
     constructor() {
-        this.cache = new Map()
-        this.cacheTimeout = 5 * 60 * 1000 // 5分钟缓存
+        super('TripService')
+
+        // 使用基类方法创建带缓存的API请求函数
+        this.getUserTripsWithCache = this.createCachedMethod(
+            this._getUserTripsFromApi, { cacheKey: 'user_trips', ttl: 5 * 60 * 1000 }
+        )
+
+        this.getTripDetailWithCache = this.createCachedMethod(
+            this._getTripDetailFromApi, { ttl: 5 * 60 * 1000 }
+        )
     }
 
-    // ==================== 缓存管理 ====================
-    _generateCacheKey(type, ...params) {
-        return `${type}_${params.join('_')}`
+    // ==================== 业务专用缓存管理 ====================
+    /**
+     * 清除用户相关的行程缓存
+     * @param {string} userId - 用户ID
+     */
+    clearUserCache(userId) {
+        this.clearCache(`user_trips_${userId}`)
+        this.clearCache(`trip_detail`)
     }
 
-    _isCacheValid(cacheData) {
-        if (!cacheData) return false
-        return Date.now() - cacheData.timestamp < this.cacheTimeout
-    }
-
-    _getFromCache(cacheKey) {
-        const cacheData = this.cache.get(cacheKey)
-        if (this._isCacheValid(cacheData)) {
-            return cacheData.data
-        }
-        this.cache.delete(cacheKey)
-        return null
-    }
-
-    _setCache(cacheKey, data) {
-        this.cache.set(cacheKey, {
-            data,
-            timestamp: Date.now()
-        })
-    }
-
-    clearCache(pattern = null) {
-        if (!pattern) {
-            this.cache.clear()
-            return
-        }
-        for (const key of this.cache.keys()) {
-            if (key.includes(pattern)) {
-                this.cache.delete(key)
-            }
-        }
+    /**
+     * 清除行程详情缓存
+     * @param {string} tripId - 行程ID
+     */
+    clearTripDetailCache(tripId) {
+        this.clearCache(`trip_detail_${tripId}`)
     }
 
     // ==================== 业务逻辑方法 ====================
 
     /**
-     * 获取用户行程列表（带缓存和数据转换）
+     * 获取用户行程列表（使用统一缓存和错误处理）
      */
     async getUserTrips(userId, useCache = true) {
         if (!userId) {
             throw new Error('用户ID不能为空')
         }
 
-        const cacheKey = this._generateCacheKey('user_trips', userId)
-
-        if (useCache) {
-            const cachedData = this._getFromCache(cacheKey)
-            if (cachedData) {
-                return cachedData
-            }
-        }
-
-        try {
-            const response = await tripApi.getUserTrips(userId)
-            if (response && response.data) {
-                // 转换后端数据格式
-                const convertedTrips = response.data
-                    .map(trip => convertBackendTripToFrontend(trip))
-                    .filter(Boolean)
-
+        // 使用基类的错误处理方法
+        return await this.withErrorHandling(
+            async() => {
                 if (useCache) {
-                    this._setCache(cacheKey, convertedTrips)
+                    return await this.getUserTripsWithCache(userId)
+                } else {
+                    return await this._getUserTripsFromApi(userId)
                 }
-
-                return convertedTrips
-            }
-            return []
-        } catch (error) {
-            console.error('获取用户行程失败:', error)
-            throw error
-        }
+            },
+            '获取用户行程失败'
+        )
     }
 
     /**
-     * 获取行程详情（带缓存和数据转换）
+     * 内部方法：从API获取用户行程（不带缓存）
+     */
+    async _getUserTripsFromApi(userId) {
+        const response = await tripApi.getUserTrips(userId)
+        if (response && response.data) {
+            // 转换后端数据格式
+            return response.data
+                .map(trip => convertBackendTripToFrontend(trip))
+                .filter(Boolean)
+        }
+        return []
+    }
+
+    /**
+     * 获取行程详情（使用统一缓存和错误处理）
      */
     async getTripDetail(tripId, userId) {
         if (!tripId || !userId) {
             throw new Error('行程ID和用户ID不能为空')
         }
 
-        const cacheKey = this._generateCacheKey('trip_detail', tripId, userId)
-        const cachedData = this._getFromCache(cacheKey)
-
-        if (cachedData) {
-            return cachedData
-        }
-
-        try {
-            const response = await tripApi.getTripDetail(tripId, userId)
-            if (response && response.data) {
-                const convertedTrip = convertBackendTripToFrontend(response.data)
-                if (convertedTrip) {
-                    this._setCache(cacheKey, convertedTrip)
-                    return convertedTrip
-                }
-            }
-            return null
-        } catch (error) {
-            console.error('获取行程详情失败:', error)
-            throw error
-        }
+        // 使用基类的错误处理方法
+        return await this.withErrorHandling(
+            async() => {
+                return await this.getTripDetailWithCache(tripId, userId)
+            },
+            '获取行程详情失败'
+        )
     }
 
     /**
-     * 创建行程（带数据转换和缓存清理）
+     * 内部方法：从API获取行程详情（不带缓存）
+     */
+    async _getTripDetailFromApi(tripId, userId) {
+        const response = await tripApi.getTripDetail(tripId, userId)
+        if (response && response.data) {
+            const convertedTrip = convertBackendTripToFrontend(response.data)
+            if (convertedTrip) {
+                return convertedTrip
+            }
+        }
+        return null
+    }
+
+    /**
+     * 创建行程（使用统一错误处理和缓存清理）
      */
     async createTrip(userId, tripData) {
         if (!userId || !tripData ? .title || !tripData ? .city) {
             throw new Error('用户ID、行程标题和目的地不能为空')
         }
 
-        try {
-            // 转换前端数据格式为后端格式
-            const backendTripData = convertFrontendTripToBackend(tripData)
-            const response = await tripApi.createTrip(userId, backendTripData)
+        // 使用基类的错误处理方法
+        return await this.withErrorHandling(
+            async() => {
+                // 转换前端数据格式为后端格式
+                const backendTripData = convertFrontendTripToBackend(tripData)
+                const response = await tripApi.createTrip(userId, backendTripData)
 
-            if (response && response.data) {
-                const convertedTrip = convertBackendTripToFrontend(response.data)
+                if (response && response.data) {
+                    const convertedTrip = convertBackendTripToFrontend(response.data)
 
-                // 清除用户行程列表缓存
-                this.clearCache(`user_trips_${userId}`)
+                    // 清除相关缓存
+                    this.clearUserCache(userId)
+                    this.clearTripDetailCache(response.data.id)
 
-                return convertedTrip
-            }
-            return null
-        } catch (error) {
-            console.error('创建行程失败:', error)
-            throw error
-        }
+                    return convertedTrip
+                }
+                return null
+            },
+            '创建行程失败'
+        )
     }
 
     /**

@@ -1,14 +1,14 @@
 /**
- * 愿望清单业务服务 - 精简版
- * 专注于业务逻辑，API调用交由wishlistApi处理
+ * 愿望清单业务服务 - 优化版
+ * 使用统一的缓存管理和错误处理
  */
 import { wishlistApi } from '@/api/wishlist.js'
 import { cityPhotosApi } from '@/api/cityPhotos.js'
+import { BaseService } from './baseService.js'
 
-class WishlistService {
+class WishlistService extends BaseService {
     constructor() {
-        this.cache = new Map()
-        this.cacheTimeout = 5 * 60 * 1000 // 5分钟缓存
+        super('WishlistService')
     }
 
     // ==================== 缓存管理 ====================
@@ -40,6 +40,16 @@ class WishlistService {
         }
     }
 
+    // ==================== 私有API方法 ====================
+
+    /**
+     * 从API获取用户愿望清单
+     */
+    async _getUserWishlistFromApi(userId) {
+        const response = await wishlistApi.getUserWishlist(userId)
+        return response ? .data || []
+    }
+
     // ==================== 核心业务方法 ====================
 
     /**
@@ -50,49 +60,44 @@ class WishlistService {
             throw new Error('用户ID不能为空')
         }
 
-        const cacheKey = this._getCacheKey(userId)
-
-        if (useCache) {
-            const cached = this._getFromCache(cacheKey)
-            if (cached) {
-                return cached
-            }
-        }
-
-        try {
-            const response = await wishlistApi.getUserWishlist(userId)
-            const data = response?.data || []
-
-            if (useCache) {
-                this._setCache(cacheKey, data)
-            }
-
-            return data
-        } catch (error) {
-            console.error('加载愿望清单失败:', error)
-            throw error
-        }
+        return await this.withErrorHandling(
+            async() => {
+                if (useCache) {
+                    // 创建带缓存的方法
+                    const cachedMethod = this.createCachedMethod(
+                        this._getUserWishlistFromApi, {
+                            cacheKey: `wishlist_${userId}`,
+                            ttl: 5 * 60 * 1000
+                        }
+                    )
+                    return await cachedMethod(userId)
+                } else {
+                    return await this._getUserWishlistFromApi(userId)
+                }
+            },
+            '加载愿望清单失败'
+        )
     }
 
     /**
      * 添加城市到愿望清单
      */
     async addToWishlist(userId, cityData) {
-        if (!userId || !cityData?.cityCode) {
+        if (!userId || !cityData ? .cityCode) {
             throw new Error('用户ID和城市代码不能为空')
         }
 
-        try {
-            const response = await wishlistApi.addToWishlist(userId, cityData)
+        return await this.withErrorHandling(
+            async() => {
+                const response = await wishlistApi.addToWishlist(userId, cityData)
 
-            // 清除缓存
-            this.clearCache(userId)
+                // 清除相关缓存
+                this.clearCache(`wishlist_${userId}`)
 
-            return response
-        } catch (error) {
-            console.error('添加到愿望清单失败:', error)
-            throw error
-        }
+                return response
+            },
+            '添加到愿望清单失败'
+        )
     }
 
     /**
@@ -103,17 +108,17 @@ class WishlistService {
             throw new Error('用户ID和城市代码不能为空')
         }
 
-        try {
-            const response = await wishlistApi.removeFromWishlist(userId, cityCode)
+        return await this.withErrorHandling(
+            async() => {
+                const response = await wishlistApi.removeFromWishlist(userId, cityCode)
 
-            // 清除缓存
-            this.clearCache(userId)
+                // 清除相关缓存
+                this.clearCache(`wishlist_${userId}`)
 
-            return response
-        } catch (error) {
-            console.error('从愿望清单移除失败:', error)
-            throw error
-        }
+                return response
+            },
+            '从愿望清单移除失败'
+        )
     }
 
     /**
@@ -156,7 +161,7 @@ class WishlistService {
 
         try {
             const response = await cityPhotosApi.getCityPhotos(cityCode)
-            const photos = response?.data || []
+            const photos = response ? .data || []
 
             if (useCache && photos.length > 0) {
                 this._setCache(cacheKey, photos)
@@ -201,15 +206,15 @@ class WishlistService {
     validateWishlistData(cityData) {
         const errors = []
 
-        if (!cityData.cityCode?.trim()) {
+        if (!cityData.cityCode ? .trim()) {
             errors.push('城市代码不能为空')
         }
 
-        if (!cityData.cityName?.trim()) {
+        if (!cityData.cityName ? .trim()) {
             errors.push('城市名称不能为空')
         }
 
-        if (!cityData.provinceName?.trim()) {
+        if (!cityData.provinceName ? .trim()) {
             errors.push('省份名称不能为空')
         }
 
