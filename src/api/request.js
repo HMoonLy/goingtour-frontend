@@ -1,5 +1,6 @@
 import axios from "axios";
-import { ElMessage, ElMessageBox } from "element-plus";
+import { ElMessage } from "element-plus";
+import { handleApiError, handleBusinessError } from "../utils/api/errorHandler.js";
 
 // 创建独立的axios实例用于刷新令牌，避免循环依赖
 const refreshTokenRequest = axios.create({
@@ -115,7 +116,7 @@ request.interceptors.request.use(
     (error) => {
         // 对请求错误做些什么
         console.error("❌ Request Error:", error);
-        ElMessage.error("请求配置错误");
+        handleApiError(error, "请求配置错误", { logError: false });
         return Promise.reject(error);
     },
 );
@@ -136,20 +137,12 @@ request.interceptors.response.use(
                 const errorMsg = data.msg || "请求失败";
 
                 // 根据错误类型显示不同的提示
-                if (data.code >= 1000 && data.code < 2000) {
-                    // 用户相关错误 (1xxx)
-                    ElMessage.warning(errorMsg);
-                } else if (data.code >= 2000 && data.code < 3000) {
-                    // 行程相关错误 (2xxx)
-                    ElMessage.warning(errorMsg);
-                } else if (data.code >= 3000 && data.code < 4000) {
-                    // 数据相关错误 (3xxx)
-                    ElMessage.warning(errorMsg);
-                } else if (data.code >= 9000) {
-                    // 业务逻辑错误 (9xxx)
-                    ElMessage.error(errorMsg);
+                if (data.code >= 1000 && data.code < 4000) {
+                    // 用户、行程、数据相关错误 (1xxx-3xxx) - 显示警告
+                    handleBusinessError(errorMsg, { type: "warning" });
                 } else {
-                    ElMessage.error(errorMsg);
+                    // 其他业务逻辑错误 - 显示错误
+                    handleBusinessError(errorMsg, { type: "error" });
                 }
 
                 return Promise.reject(new Error(errorMsg));
@@ -163,61 +156,36 @@ request.interceptors.response.use(
         // 对响应错误做点什么
         console.error("❌ API Response Error:", error);
 
-        let errorMessage = "请求失败";
-
-        if (error.response) {
-            // 服务器响应了错误状态码
-            const { status, data } = error.response;
-
-            switch (status) {
-                case 400:
-                    errorMessage = data && data.msg?data.msg : "请求参数错误";
-                    // 对于照片相关API的400错误（通常是正常的业务逻辑，如城市暂无照片），静默处理
-                    if (error.config?.url?.includes('/visited-cities/city/')) {
-                        // 静默处理照片获取的400错误，这通常表示城市暂无照片记录，是正常情况
-                        console.debug('照片获取400响应（正常情况）:', errorMessage);
-                    } else {
-                        ElMessage.error(errorMessage);
-                    }
-                    break;
-                case 401:
-                    errorMessage = "登录已过期，请重新登录";
-                    ElMessage.warning(errorMessage);
-                    // 清除所有token信息并跳转到登录页
-                    localStorage.removeItem("goingtour_token");
-                    localStorage.removeItem("goingtour_refresh_token");
-                    localStorage.removeItem("goingtour_token_expiry");
-                    localStorage.removeItem("goingtour_user");
-                    localStorage.removeItem("goingtour_preferences");
-                    window.location.href = "/login";
-                    break;
-                case 403:
-                    errorMessage = "拒绝访问";
-                    ElMessage.error(errorMessage);
-                    break;
-                case 404:
-                    errorMessage = "请求的资源不存在";
-                    ElMessage.error(errorMessage);
-                    break;
-                case 500:
-                    errorMessage = "服务器内部错误";
-                    ElMessage.error(errorMessage);
-                    break;
-                default:
-                    errorMessage = data && data.msg?data.msg : `请求失败 (${status})`;
-                    ElMessage.error(errorMessage);
-            }
-        } else if (error.request) {
-            // 请求已发出但没有收到响应
-            errorMessage = "网络连接失败，请检查网络";
-            ElMessage.error(errorMessage);
-        } else {
-            // 其他错误
-            errorMessage = error.message || "请求配置错误";
-            ElMessage.error(errorMessage);
+        // 特殊处理：对于照片相关API的400错误（通常是正常的业务逻辑，如城市暂无照片），静默处理
+        if (error.response?.status === 400 && error.config?.url?.includes('/visited-cities/city/')) {
+            const errorMessage = error.response.data?.msg || "请求参数错误";
+            console.debug('照片获取400响应（正常情况）:', errorMessage);
+            return Promise.reject(new Error(errorMessage));
         }
 
-        return Promise.reject(new Error(errorMessage));
+        // 401错误需要特殊处理：清除token并跳转登录页
+        if (error.response?.status === 401) {
+            // 清除所有token信息并跳转到登录页
+            localStorage.removeItem("goingtour_token");
+            localStorage.removeItem("goingtour_refresh_token");
+            localStorage.removeItem("goingtour_token_expiry");
+            localStorage.removeItem("goingtour_user");
+            localStorage.removeItem("goingtour_preferences");
+
+            // 使用统一错误处理，但不自动跳转（我们手动处理）
+            const errorInfo = handleApiError(error, "登录已过期，请重新登录", { logError: false });
+
+            // 延迟跳转，让用户看到提示信息
+            setTimeout(() => {
+                window.location.href = "/login";
+            }, 1000);
+
+            return Promise.reject(new Error(errorInfo.message));
+        }
+
+        // 使用统一的错误处理工具
+        const errorInfo = handleApiError(error, "请求失败", { logError: false });
+        return Promise.reject(new Error(errorInfo.message));
     },
 );
 
