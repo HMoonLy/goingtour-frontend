@@ -232,7 +232,7 @@ export function useSearch() {
             price: (poi.biz_ext && poi.biz_ext.cost) || null,
             photos: poi.photos || [],
             distance: poi.distance || null,
-            location: poi.location ? {
+            location: poi.location?{
                 longitude: parseFloat(poi.location.split(',')[0]),
                 latitude: parseFloat(poi.location.split(',')[1])
             } : null,
@@ -284,8 +284,8 @@ export function useSearch() {
     const sortSearchResults = (results, keywords) => {
         return results.sort((a, b) => {
             // 优先显示名称匹配度高的
-            const aNameMatch = a.name.includes(keywords) ? 1 : 0
-            const bNameMatch = b.name.includes(keywords) ? 1 : 0
+            const aNameMatch = a.name.includes(keywords)?1 : 0
+            const bNameMatch = b.name.includes(keywords)?1 : 0
 
             if (aNameMatch !== bNameMatch) {
                 return bNameMatch - aNameMatch

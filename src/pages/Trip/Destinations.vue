@@ -302,7 +302,7 @@ import {
 } from "@element-plus/icons-vue";
 import pinyin from "pinyin";
 import { createCachedRequest, debounce } from "@/utils/api/apiOptimizer.js";
-import { useOptimizedWishlistStore } from "@/store/optimizedWishlist.js";
+import { useWishlistStore } from "@/store/wishlist.js";
 import { hotRegions, findCity, seasonalByMonth } from "@/data/destinations.js";
 import { hotCategories as hotCategoriesData } from "@/data/hotGroups.js";
 import LazyImage from "@/components/Common/UI/LazyImage.vue";
@@ -337,7 +337,7 @@ export default {
   setup() {
     const router = useRouter();
     const route = useRoute();
-    const wishlistStore = useOptimizedWishlistStore();
+    const wishlistStore = useWishlistStore();
 
     // 响应式数据
     const searchKeyword = ref("");

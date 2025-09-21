@@ -12,12 +12,10 @@
   >
     <!-- 状态图标 -->
     <div class="status-icon">
-      <el-icon v-if="wishlistItem.status === 'visited'"
-class="visited-icon">
+      <el-icon v-if="wishlistItem.status === 'visited'" class="visited-icon">
         <Check />
       </el-icon>
-      <el-icon v-else
-class="wishlist-icon">
+      <el-icon v-else class="wishlist-icon">
         <Star />
       </el-icon>
     </div>
@@ -27,37 +25,29 @@ class="wishlist-icon">
       <span class="city-name">{{ wishlistItem.cityName }}</span>
       <div class="city-meta">
         <!-- 主要标签 -->
-        <span v-if="primaryTag"
-class="primary-tag">{{ primaryTag }}</span>
+        <span v-if="primaryTag" class="primary-tag">{{ primaryTag }}</span>
         <!-- 添加时间 -->
         <span class="added-time">{{ formatTime(wishlistItem.createdAt) }}</span>
       </div>
     </div>
 
     <!-- 快捷操作菜单 -->
-    <div v-show="showActions"
-class="actions-menu">
-      <el-dropdown trigger="click"
-@command="handleCommand">
-        <el-button class="action-trigger"
-circle size="small" text>
+    <div v-show="showActions" class="actions-menu">
+      <el-dropdown trigger="click" @command="handleCommand">
+        <el-button class="action-trigger" circle size="small" text>
           <el-icon><MoreFilled /></el-icon>
         </el-button>
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item
               :command="
-                wishlistItem.status === 'visited'
-                  ? 'mark-wishlist'
-                  : 'mark-visited'
+                wishlistItem.status === 'visited' ? 'mark-wishlist' : 'mark-visited'
               "
             >
               <el-icon>
                 <{{ wishlistItem.status === "visited" ? "Star" : "Check" }}
               </el-icon>
-              {{
-                wishlistItem.status === "visited" ? "标记为想去" : "标记为去过"
-              }}
+              {{ wishlistItem.status === "visited" ? "标记为想去" : "标记为去过" }}
             </el-dropdown-item>
             <el-dropdown-item command="edit">
               <el-icon><Edit /></el-icon>
@@ -71,8 +61,7 @@ circle size="small" text>
               <el-icon><MapLocation /></el-icon>
               规划行程
             </el-dropdown-item>
-            <el-dropdown-item command="remove"
-divided>
+            <el-dropdown-item command="remove" divided>
               <el-icon><Delete /></el-icon>
               移除城市
             </el-dropdown-item>
@@ -82,12 +71,9 @@ divided>
     </div>
 
     <!-- 状态切换快捷按钮 -->
-    <div class="status-toggle"
-@click.stop="handleStatusToggle">
+    <div class="status-toggle" @click.stop="handleStatusToggle">
       <el-tooltip
-        :content="
-          wishlistItem.status === 'visited' ? '标记为想去' : '标记为去过'
-        "
+        :content="wishlistItem.status === 'visited' ? '标记为想去' : '标记为去过'"
         placement="top"
       >
         <el-button
@@ -140,15 +126,7 @@ export default {
       default: false,
     },
   },
-  emits: [
-    "click",
-    "hover",
-    "status-change",
-    "edit",
-    "weather",
-    "plan",
-    "remove",
-  ],
+  emits: ["click", "hover", "status-change", "edit", "weather", "plan", "remove"],
   setup(props, { emit }) {
     const showActions = ref(false);
 
@@ -198,8 +176,7 @@ export default {
 
     // 状态切换
     const handleStatusToggle = () => {
-      const newStatus =
-        props.wishlistItem.status === "visited" ? "wishlist" : "visited";
+      const newStatus = props.wishlistItem.status === "visited" ? "wishlist" : "visited";
       emit("status-change", {
         id: props.wishlistItem.id,
         status: newStatus,
@@ -288,17 +265,13 @@ export default {
 
 .mini-wishlist-card:hover {
   transform: translateY(-2px);
-  box-shadow:
-    0 8px 24px rgba(145, 168, 208, 0.15),
-    0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 24px rgba(145, 168, 208, 0.15), 0 4px 12px rgba(0, 0, 0, 0.08);
   border-color: rgba(145, 168, 208, 0.3);
 }
 
 .mini-wishlist-card.highlighted {
   transform: translateY(-2px) scale(1.02);
-  box-shadow:
-    0 12px 32px rgba(145, 168, 208, 0.2),
-    0 6px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 32px rgba(145, 168, 208, 0.2), 0 6px 16px rgba(0, 0, 0, 0.1);
   border-color: #91a8d0;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 }

@@ -106,7 +106,7 @@ export const usePreferenceStore = defineStore("preference", () => {
 
         const mappedGoals = tags.map((tag) => tagGoalMap[tag]).filter(Boolean);
 
-        return mappedGoals.length > 0 ? mappedGoals : ["relaxation"];
+        return mappedGoals.length > 0?mappedGoals : ["relaxation"];
     };
 
     // 用户标签到重点体验的映射
@@ -133,13 +133,13 @@ export const usePreferenceStore = defineStore("preference", () => {
     // 基于MBTI推导社交偏好
     const deriveSocialPreference = (mbtiType) => {
         if (!mbtiType) return "mixed";
-        return mbtiType.startsWith("E") ? "lively" : "quiet";
+        return mbtiType.startsWith("E")?"lively" : "quiet";
     };
 
     // 基于标签推导拍照偏好
     const derivePhotoPreference = (tags) => {
         const photoTags = ["photography", "urban", "modern"];
-        return tags.some((tag) => photoTags.includes(tag)) ? "essential" : "casual";
+        return tags.some((tag) => photoTags.includes(tag))?"essential" : "casual";
     };
 
     // 初始化行程偏好（从用户偏好推导默认值）

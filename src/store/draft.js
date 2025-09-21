@@ -20,7 +20,7 @@ export const useDraftStore = defineStore("draft", () => {
             const { useUserStore } = await
             import ("@/store/user.js");
             const userStore = useUserStore();
-            const userId = userStore.currentUser?.id;
+            const userId = userStore.currentUser ? .id;
 
             if (!userId) {
                 ElMessage.error("用户未登录");
@@ -40,7 +40,7 @@ export const useDraftStore = defineStore("draft", () => {
             };
 
             const response = await draftApi.createDraft(draftData);
-            if (response.data?.id) {
+            if (response.data ? .id) {
                 ElMessage.success("草稿保存成功");
                 return response.data.id;
             }
@@ -62,7 +62,7 @@ export const useDraftStore = defineStore("draft", () => {
             const { useUserStore } = await
             import ("@/store/user.js");
             const userStore = useUserStore();
-            const userId = userStore.currentUser?.id;
+            const userId = userStore.currentUser ? .id;
 
             if (!userId) {
                 ElMessage.error("用户未登录");

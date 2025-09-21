@@ -365,25 +365,25 @@ export const enhancePoiData = async(pois) => {
                     name: poi.name,
                     address: poi.address || (poi.pname + poi.cityname + poi.adname),
                     location: poi.location,
-                    tel: Array.isArray(poi.tel) ? (poi.tel[0] || '') : (poi.tel || ''),
-                    rating: (poi.biz_ext && poi.biz_ext.rating) ? parseFloat(poi.biz_ext.rating) : 0,
+                    tel: Array.isArray(poi.tel)?(poi.tel[0] || '') : (poi.tel || ''),
+                    rating: (poi.biz_ext && poi.biz_ext.rating)?parseFloat(poi.biz_ext.rating) : 0,
                     // 餐厅特有信息
-                    cost: (poi.biz_ext && poi.biz_ext.cost) ? parseFloat(poi.biz_ext.cost) : null,
-                    price: (poi.biz_ext && poi.biz_ext.cost) ? parseFloat(poi.biz_ext.cost) : null,
+                    cost: (poi.biz_ext && poi.biz_ext.cost)?parseFloat(poi.biz_ext.cost) : null,
+                    price: (poi.biz_ext && poi.biz_ext.cost)?parseFloat(poi.biz_ext.cost) : null,
                     // 标签信息（餐厅的招牌菜等）
-                    tag: Array.isArray(poi.tag) ? (poi.tag.length > 0 ? poi.tag.join(',') : '') : (poi.tag || ''),
-                    tags: Array.isArray(poi.tag) ? poi.tag.filter(t => t) : (poi.tag ? poi.tag.split(',').map(t => t.trim()).filter(t => t) : []),
+                    tag: Array.isArray(poi.tag)?(poi.tag.length > 0?poi.tag.join(',') : '') : (poi.tag || ''),
+                    tags: Array.isArray(poi.tag)?poi.tag.filter(t => t) : (poi.tag?poi.tag.split(',').map(t => t.trim()).filter(t => t) : []),
                     // 提取图片信息
                     images: [],
                     // 详细信息
-                    businessArea: Array.isArray(poi.business_area) ? (poi.business_area[0] || '') : (poi.business_area || ''),
+                    businessArea: Array.isArray(poi.business_area)?(poi.business_area[0] || '') : (poi.business_area || ''),
                     district: poi.adname || '',
                     category: poi.type || '',
                     type: poi.type || '',
-                    website: Array.isArray(poi.website) ? (poi.website[0] || '') : (poi.website || ''),
+                    website: Array.isArray(poi.website)?(poi.website[0] || '') : (poi.website || ''),
                     openTime: poi.business_time || '',
                     // 坐标信息
-                    coordinates: poi.location ? poi.location.split(',').map(Number) : null,
+                    coordinates: poi.location?poi.location.split(',').map(Number) : null,
                     // 原始数据保留
                     rawData: poi
                 };
@@ -394,17 +394,17 @@ export const enhancePoiData = async(pois) => {
                         .filter(photo => photo && photo.url) // 确保有有效的URL
                         .map(photo => ({
                             url: photo.url,
-                            title: Array.isArray(photo.title) ? (photo.title[0] || poi.name) : (photo.title || poi.name),
-                            alt: Array.isArray(photo.title) ? (photo.title[0] || poi.name) : (photo.title || poi.name),
-                            provider: Array.isArray(photo.provider) ? photo.provider[0] : photo.provider
+                            title: Array.isArray(photo.title)?(photo.title[0] || poi.name) : (photo.title || poi.name),
+                            alt: Array.isArray(photo.title)?(photo.title[0] || poi.name) : (photo.title || poi.name),
+                            provider: Array.isArray(photo.provider)?photo.provider[0] : photo.provider
                         }));
                     // 保持原始photos格式供组件使用，但确保数据结构正确
                     enhancedPoi.photos = poi.photos
                         .filter(photo => photo && photo.url)
                         .map(photo => ({
                             url: photo.url,
-                            title: Array.isArray(photo.title) ? (photo.title[0] || poi.name) : (photo.title || poi.name),
-                            provider: Array.isArray(photo.provider) ? photo.provider[0] : photo.provider
+                            title: Array.isArray(photo.title)?(photo.title[0] || poi.name) : (photo.title || poi.name),
+                            provider: Array.isArray(photo.provider)?photo.provider[0] : photo.provider
                         }));
                 } else {
                     enhancedPoi.photos = [];
@@ -744,7 +744,7 @@ export class AmapService {
                                 type: getSimplifiedLandmarkType(poi.type),
                                 coordinates: { lat, lon },
                                 address: poi.address,
-                                rating: (poi.biz_ext && poi.biz_ext.rating) ? parseFloat(poi.biz_ext.rating) : 0,
+                                rating: (poi.biz_ext && poi.biz_ext.rating)?parseFloat(poi.biz_ext.rating) : 0,
                                 category: poi.type || '',
                                 source: 'api'
                             };
@@ -771,7 +771,7 @@ export class AmapService {
             .sort((a, b) => {
                 // 预设地标排在前面
                 if (a.source !== b.source) {
-                    return a.source === 'preset' ? -1 : 1;
+                    return a.source === 'preset'?-1 : 1;
                 }
                 // 按评分排序
                 return (b.rating || 0) - (a.rating || 0);

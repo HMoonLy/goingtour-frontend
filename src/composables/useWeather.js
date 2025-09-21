@@ -206,8 +206,8 @@ export function useWeather() {
             fetchForecastWeather(city)
         ])
 
-        const currentResult = results[0].status === 'fulfilled' ? results[0].value : null
-        const forecastResult = results[1].status === 'fulfilled' ? results[1].value : null
+        const currentResult = results[0].status === 'fulfilled'?results[0].value : null
+        const forecastResult = results[1].status === 'fulfilled'?results[1].value : null
 
         return {
             current: currentResult,

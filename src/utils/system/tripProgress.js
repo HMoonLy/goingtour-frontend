@@ -532,11 +532,9 @@ class TripProgressManager {
             recentCount: drafts.filter(d => now - d.updatedAt < 24 * 60 * 60 * 1000)
                 .length,
             oldestDate: drafts.length ?
-                Math.min(...drafts.map(d => d.createdAt)) :
-                null,
+                Math.min(...drafts.map(d => d.createdAt)) : null,
             newestDate: drafts.length ?
-                Math.max(...drafts.map(d => d.updatedAt)) :
-                null,
+                Math.max(...drafts.map(d => d.updatedAt)) : null,
             destinations: [
                 ...new Set(
                     drafts.map(d => d.baseForm ? .destinationName).filter(Boolean)

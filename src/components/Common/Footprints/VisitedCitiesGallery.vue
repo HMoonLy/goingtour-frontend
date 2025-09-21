@@ -406,31 +406,20 @@ const toggleExpanded = () => {
 
 const refreshCoverForCity = async (cityId, bustCache = false) => {
   try {
-    console.log(`🔄 refreshCoverForCity called for cityId: ${cityId}, bustCache: ${bustCache}`);
+    
     
     // 通过cityId找到对应的城市对象
     const city = citiesWithPhotos.value.find(c => c.id === cityId);
     if (!city) {
-      console.warn(`找不到ID为 ${cityId} 的城市`);
       return;
     }
-    
-    console.log(`📍 refreshCoverForCity - 城市信息:`, {
-      cityId,
-      cityName: city.cityName,
-      adcode: city.adcode,
-      cityCode: city.cityCode,
-      isNewCity: !previousCityIds.has(cityId)
-    });
-    
+  
     // 使用城市记录中存储的编码，优先使用 adcode（对应数据库的city_code）
     const cityCodeForQuery = city.adcode || city.citycode;
     if (!cityCodeForQuery) {
       console.warn(`城市 ${city.cityName} 缺少有效的城市编码，可用字段:`, Object.keys(city));
       return;
     }
-    
-    console.log(`🏙️ 使用城市编码查询照片: ${cityCodeForQuery} for ${city.cityName}`);
     
     const photos = await wishlistStore.getCityPhotos(cityCodeForQuery, bustCache, true); // 使用静默模式
     if (photos && photos.length > 0) {
@@ -474,20 +463,13 @@ const refreshCoverForCity = async (cityId, bustCache = false) => {
 const refreshAllCovers = async (onlyExistingCities = false) => {
   const ids = citiesWithPhotos.value.map((c) => c.id);
   
-  console.log(`🔄 refreshAllCovers called`, {
-    onlyExistingCities,
-    allCityIds: ids,
-    previousCityIds: [...previousCityIds]
-  });
   
   if (onlyExistingCities && previousCityIds.size > 0) {
     // 只刷新之前已存在的城市
     const existingIds = ids.filter(id => previousCityIds.has(id));
-    console.log(`📋 只刷新现有城市:`, existingIds);
     await Promise.all(existingIds.map((id) => refreshCoverForCity(id)));
   } else {
     // 刷新所有城市（初始加载时使用）
-    console.log(`📋 刷新所有城市:`, ids);
     await Promise.all(ids.map((id) => refreshCoverForCity(id)));
   }
 };
@@ -530,8 +512,6 @@ const uploadPhoto = async (file) => {
   });
 
   try {
-    console.log("📸 开始上传照片:", currentCity.value.cityName);
-
     // 使用新的visited cities API上传照片
     const result = await wishlistStore.uploadCityPhoto(
       file,
@@ -545,8 +525,6 @@ const uploadPhoto = async (file) => {
     );
 
     if (result) {
-      console.log("✅ 照片上传返回结果:", result);
-
       ElMessage.success(`${currentCity.value.cityName} 的照片上传成功！`);
 
       // 立即更新 coverMap 以显示新照片
@@ -694,16 +672,11 @@ const handleDeleteVisitedCity = async (city) => {
 let previousCityIds = new Set();
 
 onMounted(() => {
-  console.log('🚀 VisitedCitiesGallery mounted');
   if (citiesWithPhotos.value && citiesWithPhotos.value.length > 0) {
-    console.log('📋 初始化时发现已有城市，开始刷新封面:', citiesWithPhotos.value.map(c => ({ id: c.id, name: c.cityName })));
     refreshAllCovers(false); // 明确指定为初始加载
     // 初始化previousCityIds
     previousCityIds = new Set(citiesWithPhotos.value.map((c) => c.id));
-    console.log('📝 初始化 previousCityIds:', [...previousCityIds]);
-  } else {
-    console.log('📋 初始化时无城市数据');
-  }
+  } 
 });
 
 watch(
@@ -713,7 +686,6 @@ watch(
     
     // 如果是初始加载（从空到有数据）
     if (!oldIdString && newIdString) {
-      console.log('🚀 初始加载城市列表，刷新所有城市封面');
       refreshAllCovers(false); // 初始加载时刷新所有城市
       previousCityIds = new Set(currentCityIds);
       return;
@@ -723,28 +695,19 @@ watch(
     const newCities = [...currentCityIds].filter(id => !previousCityIds.has(id));
     const existingCities = [...currentCityIds].filter(id => previousCityIds.has(id));
     
-    console.log('城市列表变化:', {
-      新增城市: newCities,
-      现有城市: existingCities.length
-    });
-    
     // 只对现有城市刷新封面（可能有新照片）
     if (existingCities.length > 0) {
-      console.log(`🔄 刷新现有城市封面:`, existingCities);
       Promise.all(existingCities.map(id => refreshCoverForCity(id)));
     }
     
     // 新增城市：明确跳过照片获取，确保显示占位符
     if (newCities.length > 0) {
-      console.log(`🆕 发现新增城市，跳过照片获取:`, newCities);
       newCities.forEach(cityId => {
         // 确保新城市不在coverMap中，这样会显示占位符
         if (coverMap.value[cityId]) {
           const { [cityId]: _, ...rest } = coverMap.value;
           coverMap.value = rest;
-          console.log(`🗑️ 清除新城市 ${cityId} 的 coverMap 条目`);
         }
-        console.log(`📍 新增城市 ${cityId} 将显示上传占位符`);
       });
     }
     

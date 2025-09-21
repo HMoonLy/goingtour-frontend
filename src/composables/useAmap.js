@@ -43,7 +43,7 @@ export function useAmap() {
     })
 
     const searchResultsCount = computed(() => {
-        return searchResults.value ? searchResults.value.length : 0
+        return searchResults.value?searchResults.value.length : 0
     })
 
     const isAnyLoading = computed(() => {
@@ -85,7 +85,7 @@ export function useAmap() {
             }
         })
 
-        stats.avgRating = ratingCount > 0 ? (totalRating / ratingCount).toFixed(1) : 0
+        stats.avgRating = ratingCount > 0?(totalRating / ratingCount).toFixed(1) : 0
 
         return stats
     })
@@ -151,7 +151,7 @@ export function useAmap() {
             })
 
             // amapService.searchPlaces 返回的是 {pois: [...]} 格式
-            const pois = response && response.pois ? response.pois : []
+            const pois = response && response.pois?response.pois : []
 
             if (pois && pois.length > 0) {
                 searchResults.value = pois
