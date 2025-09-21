@@ -249,10 +249,10 @@ router.beforeEach(async(to, from, next) => {
         let hasDraftToRestore = false;
         try {
             // 动态导入并检查草稿store
-            const { useDraftStore } = await
-            import ("@/store/draft.js");
-            const draftStore = useDraftStore();
-            hasDraftToRestore = draftStore.hasDraftToRestore();
+            const { useDraft } = await
+            import ("@/composables/useDraft.js");
+            const draft = useDraft();
+            hasDraftToRestore = draft.hasDraftToRestore();
             console.log("🔍 路由守卫检查草稿状态:", hasDraftToRestore);
         } catch (error) {
             console.warn("检查草稿store失败:", error);

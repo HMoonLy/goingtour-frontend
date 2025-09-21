@@ -220,7 +220,7 @@
             <!-- 现代卡片网格布局 -->
             <VirtualCityGrid
               :city-groups="cityGroups"
-              :wishlist-items="wishlistStore.wishlistItems"
+              :wishlist-items="wishlist.wishlistItems"
               @select-city="selectCity"
             />
           </div>
@@ -302,7 +302,7 @@ import {
 } from "@element-plus/icons-vue";
 import pinyin from "pinyin";
 import { createCachedRequest, debounce } from "@/utils/api/apiOptimizer.js";
-import { useWishlistStore } from "@/store/wishlist.js";
+import { useWishlist } from "@/composables/useWishlist.js";
 import { hotRegions, findCity, seasonalByMonth } from "@/data/destinations.js";
 import { hotCategories as hotCategoriesData } from "@/data/hotGroups.js";
 import LazyImage from "@/components/Common/UI/LazyImage.vue";
@@ -337,7 +337,7 @@ export default {
   setup() {
     const router = useRouter();
     const route = useRoute();
-    const wishlistStore = useWishlistStore();
+    const wishlist = useWishlist();
 
     // 响应式数据
     const searchKeyword = ref("");
@@ -830,7 +830,7 @@ export default {
       loadCityData();
 
       // 加载愿望清单数据
-      wishlistStore.loadWishlist();
+      wishlist.loadWishlist();
 
       // 添加resize事件监听
       window.addEventListener("resize", handleScroll);
@@ -874,20 +874,20 @@ export default {
     const toggleWishlist = createDebouncedHandler(async (city) => {
       return interactionMonitor.measureInteraction("wishlist-toggle", async () => {
         try {
-          const isInWishlist = wishlistStore.isCityInWishlist(city.adcode);
+          const isInWishlist = wishlist.isCityInWishlist(city.adcode);
           
           if (isInWishlist) {
             // 从愿望清单移除
-            const wishlistItem = wishlistStore.getWishlistItemByCityCode(city.adcode);
+            const wishlistItem = wishlist.getWishlistItemByCityCode(city.adcode);
             if (wishlistItem) {
-              await wishlistStore.removeFromWishlist(wishlistItem.id);
+              await wishlist.removeFromWishlist(wishlistItem.id);
               if (isWishlistMode.value) {
                 ElMessage.success(`已从心愿清单移除 ${city.中文名}`);
               }
             }
           } else {
             // 添加到愿望清单
-            await wishlistStore.addToWishlist({
+            await wishlist.addToWishlist({
               adcode: city.adcode,
               cityName: city.中文名,
               reason: "从目的地界面添加",
@@ -913,7 +913,7 @@ export default {
       try {
         // 从热门城市中随机选择未添加的城市
         const availableHotCities = hotCities.value.filter(
-          (city) => !wishlistStore.isCityInWishlist(city.adcode)
+          (city) => !wishlist.isCityInWishlist(city.adcode)
         );
 
         // 从所有城市中随机选择一些有趣的城市
@@ -931,7 +931,7 @@ export default {
         ];
 
         const availableInterestingCities = interestingCities.filter(
-          (city) => !wishlistStore.isCityInWishlist(city.adcode)
+          (city) => !wishlist.isCityInWishlist(city.adcode)
         );
 
         // 合并所有可选城市
@@ -957,7 +957,7 @@ export default {
 
         // 批量添加到愿望清单
         const addPromises = citiesToAdd.map((city) =>
-          wishlistStore.addToWishlist({
+          wishlist.addToWishlist({
             adcode: city.adcode,
             cityName: city.中文名,
             reason: "系统智能推荐",
@@ -1006,7 +1006,7 @@ export default {
       getLetterTitle,
       getProvinceName,
       // 愿望清单相关
-      wishlistStore,
+      wishlist,
       toggleWishlist,
       isWishlistMode,
       toggleWishlistMode,

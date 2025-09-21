@@ -388,7 +388,7 @@ import {
 } from "@element-plus/icons-vue";
 import { useUserStore } from "@/store/user.js";
 import { usePreferenceStore } from "@/store/preference.js";
-import { useDraftStore } from "@/store/draft.js";
+import { useDraft } from "@/composables/useDraft.js";
 import { weatherApi } from "@/api/weather.js";
 import { draftApi } from "@/api/draft.js";
 import { useWeather } from "@/composables/useWeather.js";
@@ -424,9 +424,9 @@ export default {
   setup() {
     const route = useRoute();
     const router = useRouter();
-    const userStore = useUserStore();
-    const preferenceStore = usePreferenceStore();
-    const draftStore = useDraftStore();
+const userStore = useUserStore();
+const preferenceStore = usePreferenceStore();
+const draft = useDraft();
 
 
     // 当前步骤
@@ -878,7 +878,7 @@ export default {
           recommendationType: recommendationType.value,
         };
 
-        const draftId = await draftStore.saveDraft(formData, defaultName);
+        const draftId = await draft.saveDraft(formData, defaultName);
 
         if (draftId) {
           await loadDrafts();
@@ -906,7 +906,7 @@ export default {
           recommendationType: recommendationType.value,
         };
 
-        const draftId = await draftStore.saveDraft(formData, draftName.value);
+        const draftId = await draft.saveDraft(formData, draftName.value);
 
         if (draftId) {
           saveDraftDialog.value = false;
@@ -924,7 +924,7 @@ export default {
       loadingDraftId.value = draftId;
       try {
         // 使用新的草稿store加载草稿
-        const success = await draftStore.loadDraft(draftId);
+        const success = await draft.loadDraft(draftId);
         if (!success) {
           return;
         }
@@ -1144,40 +1144,40 @@ export default {
 
     // 简单直接的草稿恢复函数
     const restoreDraftData = () => {
-      if (draftStore.hasDraftToRestore()) {
-        const draft = draftStore.currentDraft;
+      if (draft.hasDraftToRestore()) {
+        const draftData = draft.currentDraft;
 
         // 恢复步骤
-        currentStep.value = draft.currentStep || 0;
+        currentStep.value = draftData.currentStep || 0;
 
         // 恢复基础表单数据
-        if (draft.baseForm && Object.keys(draft.baseForm).length > 0) {
-          Object.assign(baseForm, draft.baseForm);
+        if (draftData.baseForm && Object.keys(draftData.baseForm).length > 0) {
+          Object.assign(baseForm, draftData.baseForm);
         }
 
         // 恢复偏好数据
-        if (draft.preferenceForm && Object.keys(draft.preferenceForm).length > 0) {
-          preferenceStore.loadDraftPreferences(draft.preferenceForm);
+        if (draftData.preferenceForm && Object.keys(draftData.preferenceForm).length > 0) {
+          preferenceStore.loadDraftPreferences(draftData.preferenceForm);
         }
 
         // 恢复其他数据
-        selectedAttractions.value = draft.selectedAttractions || [];
-        selectedRestaurants.value = draft.selectedRestaurants || [];
-        extraRequirements.value = draft.extraRequirements || "";
+        selectedAttractions.value = draftData.selectedAttractions || [];
+        selectedRestaurants.value = draftData.selectedRestaurants || [];
+        extraRequirements.value = draftData.extraRequirements || "";
         // weatherSuggestion 现在是computed属性，从forecastWeather恢复
-        if (draft.weatherSuggestion) {
-          forecastWeather.value = draft.weatherSuggestion;
+        if (draftData.weatherSuggestion) {
+          forecastWeather.value = draftData.weatherSuggestion;
         }
-        recommendationType.value = draft.recommendationType || 'enhanced';
+        recommendationType.value = draftData.recommendationType || 'enhanced';
 
         // 设置标识
         isFromDraft.value = true;
 
 
         // 恢复完成后清除store中的数据
-        draftStore.clearDraft();
+        draft.clearDraft();
 
-        ElMessage.success(`草稿"${draft.name}"已恢复`);
+        ElMessage.success(`草稿"${draftData.name}"已恢复`);
       } else {
         // 没有检测到草稿数据需要恢复
       }

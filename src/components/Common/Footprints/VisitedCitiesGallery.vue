@@ -7,8 +7,8 @@
           <Camera />
         </el-icon>
         <h3 class="title-text">去过的城市</h3>
-        <span v-if="citiesWithPhotos.length > 0" class="photo-count">
-          ({{ citiesWithPhotos.length }}个城市)
+        <span v-if="visitedCities && visitedCities.length > 0" class="photo-count">
+          ({{ visitedCities.length }}个城市)
         </span>
       </div>
 
@@ -35,7 +35,7 @@
     <!-- 照片展示区域 -->
     <div class="photos-container">
       <!-- 有去过城市的情况 -->
-      <div v-if="citiesWithPhotos.length > 0" class="photos-grid">
+      <div v-if="visitedCities && visitedCities.length > 0" class="photos-grid">
         <div
           v-for="(city, index) in displayedCities"
           :key="city.id"
@@ -316,18 +316,23 @@ import {
   StarFilled,
   Edit,
 } from "@element-plus/icons-vue";
-import { useWishlistStore } from "@/store/wishlist.js";
+import { useWishlist } from "@/composables/useWishlist.js";
+import { usePhotos } from "@/composables/usePhotos.js";
 import {
   getCityPhotoUrl,
   getCityThumbnailUrl,
 } from "@/utils/media/imageUrl.js";
 import { weatherApi } from "@/api/weather.js";
 
-// Props - 现在使用store中的数据
+// Props - 接收父组件传递的数据
 const props = defineProps({
   maxDisplayCount: {
     type: Number,
     default: 6,
+  },
+  visitedCitiesData: {
+    type: Array,
+    default: () => [],
   },
 });
 
@@ -339,11 +344,25 @@ const emit = defineEmits([
   "add-visited-city",
 ]);
 
-// Store
-const wishlistStore = useWishlistStore();
+// Composables
+const wishlist = useWishlist();
+const photos = usePhotos();
 
-// 使用store中的citiesWithPhotos数据
-const citiesWithPhotos = computed(() => wishlistStore.citiesWithPhotos);
+// 直接使用props数据，简化数据流
+const visitedCities = computed(() => {
+  const cities = props.visitedCitiesData;
+  
+  console.log("🔍 VisitedCitiesGallery visitedCities:", {
+    citiesLength: cities.length,
+    hasData: cities.length > 0,
+    firstCity: cities[0]?.cityName || 'N/A'
+  });
+  
+  return cities;
+});
+
+// 为了保持向后兼容，保留citiesWithPhotos别名
+const citiesWithPhotos = visitedCities;
 
 // 响应式数据
 const fileInput = ref(null);
@@ -421,9 +440,9 @@ const refreshCoverForCity = async (cityId, bustCache = false) => {
       return;
     }
     
-    const photos = await wishlistStore.getCityPhotos(cityCodeForQuery, bustCache, true); // 使用静默模式
-    if (photos && photos.length > 0) {
-      const cover = photos.find((p) => p.isCover) || photos[0];
+    const cityPhotos = await photos.getCityPhotos(cityCodeForQuery, bustCache); // 使用静默模式
+    if (cityPhotos && cityPhotos.length > 0) {
+      const cover = cityPhotos.find((p) => p.isCover) || cityPhotos[0];
       // 优先使用缩略图，如果没有则使用原图
       let imageUrl = cover.thumbnailUrl
         ? getCityThumbnailUrl(cover.thumbnailUrl)
@@ -513,7 +532,7 @@ const uploadPhoto = async (file) => {
 
   try {
     // 使用新的visited cities API上传照片
-    const result = await wishlistStore.uploadCityPhoto(
+    const result = await photos.uploadCityPhoto(
       file,
       currentCity.value.adcode,  // 主要的城市编码（6位数字）
       currentCity.value.cityName,
@@ -582,14 +601,14 @@ const handleDeletePhoto = async (city) => {
       return;
     }
     
-    const photos = await wishlistStore.getCityPhotos(cityCodeForQuery);
-    const cover = photos.find((p) => p.isCover) || photos[0];
+    const cityPhotos = await photos.getCityPhotos(cityCodeForQuery);
+    const cover = cityPhotos.find((p) => p.isCover) || cityPhotos[0];
     if (!cover) {
       ElMessage.info("当前城市没有可删除的照片");
       return;
     }
 
-    const ok = await wishlistStore.deletePhoto(cover.id);
+    const ok = await photos.deletePhoto(cover.id);
     if (ok) {
       ElMessage.success(`${city.cityName} 的照片已删除`);
       
@@ -615,7 +634,7 @@ const handleToggleWantAgain = async (city) => {
     const newStatus = !city.want_to_visit_again;
     
     // 传递完整的城市数据而不是ID，让store判断如何处理
-    const success = await wishlistStore.markWantToVisitAgain(
+    const success = await wishlist.markWantToVisitAgain(
       city, // 传递完整的城市对象
       newStatus
     );
@@ -649,13 +668,13 @@ const handleDeleteVisitedCity = async (city) => {
     );
 
     // 找到对应的visited_city记录
-    const visitedCity = wishlistStore.visitedCities.find(vc => vc.adcode === city.adcode);
+    const visitedCity = footprint.visitedCities.value.find(vc => vc.adcode === city.adcode);
     if (!visitedCity) {
       ElMessage.error("未找到对应的城市记录");
       return;
     }
 
-    const success = await wishlistStore.deleteVisitedCity(visitedCity.id);
+    const success = await footprint.deleteVisitedCity(visitedCity.id);
     if (success) {
       // 发送删除事件，让父组件知道城市被删除了
       emit("city-deleted", city);
@@ -919,7 +938,7 @@ const handleEditConfirm = async () => {
   updating.value = true;
   try {
     // 调用API更新城市信息
-    const success = await wishlistStore.updateCityInfo(
+    const success = await footprint.updateCityInfo(
       editingCity.value.id,
       {
         travelTime: editForm.value.travelTime,
@@ -932,7 +951,10 @@ const handleEditConfirm = async () => {
       ElMessage.success("城市信息更新成功");
       showEditDialog.value = false;
       // 重新加载数据
-      await wishlistStore.loadWishlist();
+      await Promise.all([
+        wishlist.loadWishlist(),
+        footprint.loadVisitedCities()
+      ]);
     } else {
       ElMessage.error("更新失败，请重试");
     }

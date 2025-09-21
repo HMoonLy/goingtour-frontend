@@ -191,7 +191,7 @@ import {
   View,
   Plus,
 } from "@element-plus/icons-vue";
-import { useWishlistStore } from "@/store/wishlist.js";
+import { useWishlist } from "@/composables/useWishlist.js";
 
 export default {
   name: "WishlistCard",
@@ -216,7 +216,7 @@ export default {
   },
   emits: ["remove", "edit", "view-weather", "plan-trip"],
   setup(props, { emit }) {
-    const wishlistStore = useWishlistStore();
+    const wishlist = useWishlist();
 
     // 编辑对话框
     const editDialogVisible = ref(false);
@@ -323,8 +323,8 @@ export default {
       saving.value = true;
 
       try {
-        // 调用Store的updateWishlistItem方法
-        const success = await wishlistStore.updateWishlistItem(
+        // 调用wishlist composable的updateWishlistItem方法
+        const success = await wishlist.updateWishlistItem(
           props.wishlistItem.id,
           {
             reason: editForm.value.reason,

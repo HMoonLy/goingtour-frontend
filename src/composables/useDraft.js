@@ -6,14 +6,12 @@ import { ref, computed, watch, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { draftApi } from '@/api/draft.js'
 import { useUserStore } from '@/store/user.js'
-import { useDraftStore } from '@/store/draft.js'
 
 /**
  * 草稿管理主要功能
  */
 export function useDraft() {
     const userStore = useUserStore()
-    const draftStore = useDraftStore()
 
     // 状态管理
     const draftList = ref([])
@@ -266,10 +264,7 @@ export function useDraft() {
 
                 currentDraft.value = parsedDraft
 
-                // 应用到store（保持向后兼容）
-                if (applyToStore) {
-                    await draftStore.loadDraft(draftId)
-                }
+                // 注意：不再需要应用到单独的store，useDraft已经是完整的状态管理
 
                 if (showMessage) {
                     ElMessage.success(`草稿"${parsedDraft.name}"加载成功`)
@@ -557,7 +552,6 @@ export function useDraft() {
     const clearCurrentDraft = () => {
         currentDraft.value = null
         autoDraft.value = null
-        draftStore.clearDraft()
         stopAutoSave()
 
         console.log('已清空当前草稿数据')
@@ -588,6 +582,38 @@ export function useDraft() {
         stopAutoSave()
     }
 
+    /**
+     * 检查是否有草稿数据需要恢复（兼容原 draftStore 接口）
+     */
+    const hasDraftToRestore = () => {
+        return !!(currentDraft.value)
+    }
+
+    /**
+     * 获取要恢复到的步骤（兼容原 draftStore 接口）
+     */
+    const getRestoreStep = () => {
+        if (!hasDraftToRestore()) return 0
+        return currentDraft.value.currentStep || 0
+    }
+
+    /**
+     * 标记正在从草稿加载（兼容原 draftStore 接口）
+     */
+    const isLoadingFromDraft = ref(false)
+
+    const setLoadingFromDraft = (loading) => {
+        isLoadingFromDraft.value = loading
+    }
+
+    /**
+     * 清除草稿（兼容原 draftStore 接口）
+     */
+    const clearDraft = () => {
+        clearCurrentDraft()
+        isLoadingFromDraft.value = false
+    }
+
     return {
         // 状态
         draftList,
@@ -596,6 +622,7 @@ export function useDraft() {
         loading,
         error,
         lastSaveTime,
+        isLoadingFromDraft,
 
         // 计算属性
         hasDrafts,
@@ -623,7 +650,13 @@ export function useDraft() {
         clearCurrentDraft,
         cleanupExpiredDrafts,
         getDraftPreview,
-        cleanup
+        cleanup,
+
+        // 兼容原 draftStore 的方法
+        hasDraftToRestore,
+        getRestoreStep,
+        clearDraft,
+        setLoadingFromDraft
     }
 }
 

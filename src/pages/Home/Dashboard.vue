@@ -191,9 +191,10 @@ import {
   Sunny,
 } from "@element-plus/icons-vue";
 import { useUserStore } from "@/store/user.js";
-import { useWishlistStore } from "@/store/wishlist.js";
+import { useWishlist } from "@/composables/useWishlist.js";
+import { useFootprint } from "@/composables/useFootprint.js";
 import { draftManager } from "@/utils/storage/draftManager.js";
-import { useDraftStore } from "@/store/draft.js";
+import { useDraft } from "@/composables/useDraft.js";
 import { convertBackendTripToFrontend } from "@/utils/data/tripDataConverter.js";
 import { handleApiError, handleSuccess } from "@/utils/api/errorHandler.js";
 import { aiScenarios } from "@/data/aiScenarios.js";
@@ -218,7 +219,8 @@ export default {
   setup() {
     const router = useRouter();
     const userStore = useUserStore();
-    const wishlistStore = useWishlistStore();
+    const wishlist = useWishlist();
+    const footprint = useFootprint();
 
     // 使用天气组合函数
     const {
@@ -236,6 +238,18 @@ export default {
     const autoRefreshEnabled = ref(false);
     const autoRefreshTimer = ref(null);
     const currentWeatherCity = ref(null);
+
+    // 计算属性替代 wishlist store 的功能
+    const hasCities = computed(() => 
+      wishlist.wishlistCount.value > 0 || footprint.visitedCount.value > 0
+    );
+
+    const getRandomCity = computed(() => {
+      const allCities = [...footprint.visitedCities.value, ...wishlist.wishlistItems.value];
+      if (allCities.length === 0) return null;
+      const randomIndex = Math.floor(Math.random() * allCities.length);
+      return allCities[randomIndex];
+    });
 
     const refreshProgress = async () => {
       // 检查是否有自动草稿（新的进度检查方式）
@@ -289,10 +303,10 @@ export default {
       try {
         console.log("🔄 点击继续编辑，草稿ID:", draftId);
 
-        const draftStore = useDraftStore();
+        const draft = useDraft();
 
         // 加载草稿到store
-        const success = await draftStore.loadDraft(draftId);
+        const success = await draft.loadDraft(draftId);
         if (success) {
           // 跳转到创建页面
           router.push("/trip/create");
@@ -518,7 +532,7 @@ export default {
         return;
       }
 
-      if (!wishlistStore.hasCities) {
+      if (!hasCities.value) {
         // 如果没有愿望清单，显示空状态而不是默认城市天气
         if (cityName) {
           // 如果指定了城市名，则获取该城市天气（来自刷新按钮）
@@ -531,7 +545,7 @@ export default {
         return;
       }
 
-      const randomCity = wishlistStore.getRandomCity;
+      const randomCity = getRandomCity.value;
       if (randomCity) {
         await loadWeatherForCity(
           randomCity.cityName,
@@ -539,7 +553,7 @@ export default {
           true,
         );
         currentWeatherCity.value = randomCity;
-        wishlistStore.setCurrentWeatherCity(randomCity);
+        // 设置当前天气城市（本地状态）
         ElMessage.success(`已切换到 ${randomCity.cityName} 的天气`);
       }
     };
@@ -562,7 +576,7 @@ export default {
         ElMessage.info("天气自动轮播已停止");
       } else {
         // 开始自动刷新
-        if (!wishlistStore.hasCities) {
+        if (!hasCities.value) {
           ElMessage.warning("愿望清单为空，无法开启自动轮播");
           return;
         }
@@ -587,12 +601,13 @@ export default {
         loadSavedTrips(),
         refreshProgress(),
         loadDrafts(),
-        wishlistStore.loadWishlist(),
+        wishlist.loadWishlist(),
+        footprint.loadVisitedCities(),
       ]);
 
       // 天气速览优先级: 1.愿望清单随机城市 2.空状态引导用户添加愿望清单
-      if (wishlistStore.hasCities) {
-        const randomCity = wishlistStore.getRandomCity;
+      if (hasCities.value) {
+        const randomCity = getRandomCity.value;
         if (randomCity) {
           await loadWeatherForCity(
             randomCity.cityName,
@@ -600,7 +615,7 @@ export default {
             true,
           );
           currentWeatherCity.value = randomCity;
-          wishlistStore.setCurrentWeatherCity(randomCity);
+          // 设置当前天气城市（本地状态）
         }
       } else {
         // 没有愿望城市时，将weather设为null，让WeatherSummary显示空状态
@@ -667,7 +682,8 @@ export default {
       getStepName,
       getDraftTimeAgo,
       // 愿望清单和天气相关
-      wishlistStore,
+      hasCities,
+      getRandomCity,
       isWishlistWeather,
       loadingWeather: isLoadingForecast,
       autoRefreshEnabled,

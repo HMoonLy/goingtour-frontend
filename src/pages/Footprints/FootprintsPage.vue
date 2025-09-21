@@ -15,6 +15,7 @@
             <!-- 去过的城市照片展示 - 新组件 -->
             <VisitedCitiesGallery
               :max-display-count="6"
+              :visited-cities-data="footprint.visitedCities.value"
               @photo-uploaded="handlePhotoUploaded"
               @photo-deleted="handlePhotoDeleted"
               @add-visited-city="handleAddVisitedCityDirect"
@@ -22,8 +23,8 @@
 
             <!-- 足迹统计卡片 -->
             <FootprintStats
-              :stats="wishlistStore.footprintStats"
-              :has-data="wishlistStore.hasCities"
+              :stats="footprintStats"
+              :has-data="hasCities"
               @share="handleShareFootprint"
               @view-achievements="handleViewAchievements"
             />
@@ -35,7 +36,7 @@
     <!-- 足迹内容 -->
     <div class="page-content">
       <!-- 状态切换控制区域 -->
-      <div v-if="wishlistStore.hasCities" class="view-control-section">
+      <div v-if="hasCities" class="view-control-section">
         <div class="control-header">
           <h3 class="control-title">
             <el-icon><View /></el-icon>
@@ -80,7 +81,7 @@
       </div>
 
       <!-- 地图区域 -->
-      <div v-if="wishlistStore.hasCities" class="map-section">
+      <div v-if="hasCities" class="map-section">
         <div class="map-header">
           <div class="map-title-group">
             <h3 class="map-title">
@@ -90,15 +91,15 @@
             <div class="footprint-stats">
               <span class="stat-badge visited">
                 <el-icon><Check /></el-icon>
-                已去过 {{ wishlistStore.visitedCount }}
+                已去过 {{ footprint.visitedCount.value }}
               </span>
               <span class="stat-badge wishlist">
                 <el-icon><Star /></el-icon>
-                想去 {{ wishlistStore.wishlistOnlyCount }}
+                想去 {{ wishlist.wishlistOnlyCount.value }}
               </span>
               <span class="stat-badge provinces">
                 <el-icon><Location /></el-icon>
-                {{ wishlistStore.exploredProvincesCount }} 省份
+                {{ exploredProvincesCount.value }} 省份
               </span>
             </div>
           </div>
@@ -124,13 +125,13 @@
       </div>
 
       <!-- 动态内容展示区域 -->
-      <div v-if="wishlistStore.hasCities" class="content-display-area">
+      <div v-if="hasCities" class="content-display-area">
         <!-- 想去的城市卡片展示 -->
-        <div v-if="wishlistStore.wishlistOnlyCount > 0" class="wishlist-cities-cards">
+        <div v-if="wishlist.wishlistOnlyCount.value > 0" class="wishlist-cities-cards">
           <div class="section-header">
             <h4 class="section-title">
               <el-icon><Star /></el-icon>
-              想去的城市 ({{ wishlistStore.wishlistOnlyCount }})
+              想去的城市 ({{ wishlist.wishlistOnlyCount.value }})
             </h4>
             <div class="section-controls">
               <div class="filter-controls">
@@ -290,7 +291,7 @@
         </div>
 
         <!-- 想去城市空状态 -->
-        <div v-if="wishlistStore.wishlistOnlyCount === 0" class="empty-wishlist-state">
+        <div v-if="wishlist.wishlistOnlyCount.value === 0" class="empty-wishlist-state">
           <div class="empty-content">
             <el-icon size="64" color="#C0C4CC">
               <Star />
@@ -306,13 +307,13 @@
 
         <!-- 想再去的城市卡片展示 -->
         <div
-          v-if="wishlistStore.wantToVisitAgainCount > 0"
+          v-if="wishlist.wantToVisitAgainCount.value > 0"
           class="want-again-cities-cards"
         >
           <div class="section-header">
             <h4 class="section-title">
               <el-icon><Star /></el-icon>
-              想再去的城市 ({{ wishlistStore.wantToVisitAgainCount }})
+              想再去的城市 ({{ wishlist.wantToVisitAgainCount.value }})
             </h4>
             <div class="section-subtitle">去过但想再次探访的城市</div>
           </div>
@@ -410,7 +411,7 @@
       </div>
 
       <!-- 完全没有数据的空状态 -->
-      <div v-if="!wishlistStore.hasCities" class="empty-wishlist">
+      <div v-if="!hasCities" class="empty-wishlist">
         <el-icon size="64" color="#C0C4CC">
           <Star />
         </el-icon>
@@ -673,15 +674,15 @@
             <div class="map-stats">
               <span class="stat-item">
                 <el-icon><Check /></el-icon>
-                已访问 {{ wishlistStore.visitedCount }}
+                已访问 {{ footprint.visitedCount.value }}
               </span>
               <span class="stat-item">
                 <el-icon><Star /></el-icon>
-                想去 {{ wishlistStore.wishlistOnlyCount }}
+                想去 {{ wishlist.wishlistOnlyCount.value }}
               </span>
               <span class="stat-item">
                 <el-icon><Location /></el-icon>
-                {{ wishlistStore.exploredProvincesCount }} 个省份
+                {{ exploredProvincesCount.value }} 个省份
               </span>
             </div>
           </div>
@@ -761,7 +762,8 @@ import {
   Location as LocationIcon,
   ChatRound,
 } from "@element-plus/icons-vue";
-import { useWishlistStore } from "@/store/wishlist.js";
+import { useWishlist } from "@/composables/useWishlist.js";
+import { useFootprint } from "@/composables/useFootprint.js";
 import { useUserStore } from "@/store/user.js";
 import WishlistCard from "@/components/Common/Wishlist/WishlistCard.vue";
 import MiniWishlistCard from "@/components/Common/Wishlist/MiniWishlistCard.vue";
@@ -804,8 +806,30 @@ export default {
   },
   setup() {
     const router = useRouter();
-    const wishlistStore = useWishlistStore();
+    const wishlist = useWishlist();
+    const footprint = useFootprint();
     const userStore = useUserStore();
+
+    // 计算属性替代 wishlist store 的功能
+    const hasCities = computed(() => 
+      wishlist.wishlistCount.value > 0 || footprint.visitedCount.value > 0
+    );
+
+    const footprintStats = computed(() =>
+      footprint.calculateFootprintStats(wishlist.wishlistItems.value)
+    );
+
+    const exploredProvincesCount = computed(() => {
+      const provinces = new Set();
+      footprint.visitedCities.value.forEach((city) => {
+        const cityCode = city.adcode || city.cityCode;
+        if (cityCode) {
+          const provinceCode = cityCode.toString().substring(0, 2);
+          provinces.add(provinceCode);
+        }
+      });
+      return provinces.size;
+    });
 
     // 快速添加功能
     const showQuickAdd = ref(false);
@@ -897,13 +921,13 @@ export default {
       if (mapDisplayMode.value === "all") {
         // 合并心愿城市和足迹城市，添加类型标识
         return [
-          ...wishlistStore.wishlistCities.map((city) => ({ ...city, _type: "wishlist" })),
-          ...wishlistStore.visitedCities.map((city) => ({ ...city, _type: "visited" })),
+          ...wishlist.wishlistCities.value.map((city) => ({ ...city, _type: "wishlist" })),
+          ...footprint.visitedCities.value.map((city) => ({ ...city, _type: "visited" })),
         ];
       } else if (mapDisplayMode.value === "visited") {
-        return wishlistStore.visitedCities.map((city) => ({ ...city, _type: "visited" }));
+        return footprint.visitedCities.value.map((city) => ({ ...city, _type: "visited" }));
       } else if (mapDisplayMode.value === "wishlist") {
-        return wishlistStore.wishlistCities.map((city) => ({
+        return wishlist.wishlistCities.value.map((city) => ({
           ...city,
           _type: "wishlist",
         }));
@@ -913,12 +937,12 @@ export default {
 
     // 去过的城市 - 使用新的数据模型
     const visitedCities = computed(() => {
-      return wishlistStore.visitedCities;
+      return footprint.visitedCities.value;
     });
 
     // 想去的城市 - 使用新的数据模型
     const wishlistCities = computed(() => {
-      return wishlistStore.wishlistCities;
+      return wishlist.wishlistCities.value;
     });
 
     // 筛选和排序后的想去城市
@@ -944,7 +968,7 @@ export default {
 
     // 排序后的想再去城市
     const sortedWantToVisitAgainCities = computed(() => {
-      let cities = [...wishlistStore.wantToVisitAgainCities];
+      let cities = [...wishlist.wantToVisitAgainCities.value];
 
       // 按访问日期排序（最近访问的在前）
       cities.sort((a, b) => {
@@ -961,13 +985,13 @@ export default {
       if (fullscreenMapMode.value === "all") {
         // 合并心愿城市和足迹城市，添加类型标识
         return [
-          ...wishlistStore.wishlistCities.map((city) => ({ ...city, _type: "wishlist" })),
-          ...wishlistStore.visitedCities.map((city) => ({ ...city, _type: "visited" })),
+          ...wishlist.wishlistCities.value.map((city) => ({ ...city, _type: "wishlist" })),
+          ...footprint.visitedCities.value.map((city) => ({ ...city, _type: "visited" })),
         ];
       } else if (fullscreenMapMode.value === "visited") {
-        return wishlistStore.visitedCities.map((city) => ({ ...city, _type: "visited" }));
+        return footprint.visitedCities.value.map((city) => ({ ...city, _type: "visited" }));
       } else if (fullscreenMapMode.value === "wishlist") {
-        return wishlistStore.wishlistCities.map((city) => ({
+        return wishlist.wishlistCities.value.map((city) => ({
           ...city,
           _type: "wishlist",
         }));
@@ -1008,7 +1032,7 @@ export default {
             await handleCancelWantToVisitAgain(cityData);
           } else {
             // 标记为想再去
-            const success = await wishlistStore.markWantToVisitAgain(cityData.id, true);
+            const success = await wishlist.markWantToVisitAgain(cityData.id, true);
             if (success) {
               ElMessage.success(`已将 ${cityData.cityName} 标记为想再去`);
             }
@@ -1045,7 +1069,7 @@ export default {
     // 标记城市为已去过
     const handleMarkAsVisited = async (item) => {
       try {
-        const success = await wishlistStore.markAsVisited(item.id);
+        const success = await wishlist.markAsVisited(item.id);
         if (success) {
           ElMessage.success(`已将 ${item.cityName} 标记为去过`);
         }
@@ -1058,7 +1082,7 @@ export default {
     // 取消想再去
     const handleCancelWantToVisitAgain = async (item) => {
       try {
-        const success = await wishlistStore.markWantToVisitAgain(item, false);
+        const success = await wishlist.markWantToVisitAgain(item, false);
         if (success) {
           ElMessage.success(`已取消 ${item.cityName} 的想再去状态`);
         }
@@ -1071,7 +1095,7 @@ export default {
     // 状态切换处理（保留兼容性）
     const handleStatusChange = async ({ id, status }) => {
       if (status === "visited") {
-        const item = wishlistStore.wishlistCities.find((i) => i.id === id);
+        const item = wishlist.wishlistCities.value.find((i) => i.id === id);
         if (item) {
           await handleMarkAsVisited(item);
         }
@@ -1080,15 +1104,15 @@ export default {
 
     // 处理卡片事件
     const handleRemove = async (wishlistId) => {
-      await wishlistStore.removeFromWishlist(wishlistId);
+      await wishlist.removeFromWishlist(wishlistId);
     };
 
     const handleEdit = async ({ id, updateData }) => {
-      await wishlistStore.updateWishlistItem(id, updateData);
+      await wishlist.updateWishlistItem(id, updateData);
     };
 
     const handleViewWeather = (city) => {
-      wishlistStore.setCurrentWeatherCity(city);
+      // 设置当前天气城市（本地状态）(city);
       handleWeatherCityChange(city);
       ElMessage.success(`已切换到 ${city.cityName} 的天气预览`);
     };
@@ -1275,7 +1299,7 @@ export default {
         const adcode = String(selectedCity.adcode);
         const citycode = selectedCity.citycode === "\\N" ? null : selectedCity.citycode;
 
-        const success = await wishlistStore.addToWishlist({
+        const success = await wishlist.addToWishlist({
           adcode: adcode,
           citycode: citycode,
           cityName: selectedCity.中文名,
@@ -1505,34 +1529,34 @@ export default {
           confirmMessage = `确定要删除 ${city.cityName} 的访问记录吗？\n\n删除后：\n- 该城市的访问记录和照片将被永久删除\n- 如果您还想去这个城市，它会回到愿望清单中`;
           deleteAction = async () => {
             // 这里需要找到对应的visited_city记录进行删除
-            const visitedCity = wishlistStore.visitedCities.find(
+            const visitedCity = footprint.visitedCities.value.find(
               (vc) => vc.adcode === city.adcode
             );
             if (visitedCity) {
-              return await wishlistStore.deleteVisitedCity(visitedCity.id);
+              return await footprint.deleteVisitedCity(visitedCity.id);
             } else {
               console.warn("未找到对应的访问城市记录，降级为删除wishlist项");
-              return await wishlistStore.removeFromWishlist(city.id);
+              return await wishlist.removeFromWishlist(city.id);
             }
           };
         } else if (city.ever_visited) {
           // 这是只去过但不想再去的城市（理论上不应该出现在这里，但为了安全起见）
           confirmMessage = `确定要删除 ${city.cityName} 的访问记录吗？\n\n删除后该城市的访问记录和照片将被永久删除。`;
           deleteAction = async () => {
-            const visitedCity = wishlistStore.visitedCities.find(
+            const visitedCity = footprint.visitedCities.value.find(
               (vc) => vc.adcode === city.adcode
             );
             if (visitedCity) {
-              return await wishlistStore.deleteVisitedCity(visitedCity.id);
+              return await footprint.deleteVisitedCity(visitedCity.id);
             } else {
-              return await wishlistStore.removeFromWishlist(city.id);
+              return await wishlist.removeFromWishlist(city.id);
             }
           };
         } else {
           // 这是纯粹的愿望清单项（想去但未去过）
           confirmMessage = `确定要从愿望清单中删除 ${city.cityName} 吗？`;
           deleteAction = async () => {
-            return await wishlistStore.removeFromWishlist(city.id);
+            return await wishlist.removeFromWishlist(city.id);
           };
         }
 
@@ -1573,7 +1597,7 @@ export default {
           plannedDate: editForm.value.plannedDate,
         };
 
-        await wishlistStore.updateWishlistItem(editForm.value.id, updateData);
+        await wishlist.updateWishlistItem(editForm.value.id, updateData);
         showEditDialog.value = false;
         ElMessage.success("更新成功");
       } catch (error) {
@@ -1605,8 +1629,24 @@ export default {
 
       console.log("🔄 开始加载愿望清单数据，用户ID:", userStore.userId);
       try {
-        await wishlistStore.loadWishlist();
+        await Promise.all([wishlist.loadWishlist(), footprint.loadVisitedCities()]);
         console.log("✅ 愿望清单数据加载完成");
+        
+        // 调试信息
+        console.log("🔍 数据加载后状态检查:", {
+          visitedCities: footprint.visitedCities.value,
+          visitedCount: footprint.visitedCount.value,
+          citiesWithPhotos: footprint.citiesWithPhotos.value,
+          citiesWithPhotosLength: footprint.citiesWithPhotos.value?.length,
+          wishlistCount: wishlist.wishlistCount.value,
+          hasCities: footprint.visitedCount.value > 0 || wishlist.wishlistCount.value > 0,
+          visitedCitiesDetail: footprint.visitedCities.value?.map(city => ({
+            id: city.id,
+            cityName: city.cityName,
+            hasPhoto: !!city.photo,
+            photoUrl: city.photo
+          }))
+        });
       } catch (error) {
         console.error("❌ 愿望清单数据加载失败:", error);
       }
@@ -1678,13 +1718,14 @@ export default {
         console.log("- 用户登录状态:", userStore.isLoggedIn);
         console.log("- 用户ID:", userStore.userId);
         console.log("- 用户信息:", userStore.currentUser);
-        console.log("- 愿望清单项目数:", wishlistStore.wishlistItems.length);
-        console.log("- 去过的城市数:", wishlistStore.visitedCount);
-        console.log("- 想去的城市数:", wishlistStore.wishlistOnlyCount);
-        console.log("- 愿望清单详情:", wishlistStore.wishlistItems);
+        console.log("- 愿望清单项目数:", wishlist.wishlistItems.value.length);
+        console.log("- 去过的城市数:", footprint.visitedCount.value);
+        console.log("- 想去的城市数:", wishlist.wishlistOnlyCount.value);
+        console.log("- 愿望清单详情:", wishlist.wishlistItems.value);
         return {
           userStore: userStore,
-          wishlistStore: wishlistStore,
+          wishlist: wishlist,
+          footprint: footprint,
           loadWishlistData: loadWishlistData,
         };
       };
@@ -1696,7 +1737,13 @@ export default {
     }
 
     return {
-      wishlistStore,
+      // 计算属性
+      hasCities,
+      footprintStats,
+      exploredProvincesCount,
+      // composables
+      wishlist,
+      footprint,
       userStore,
       dialogContent,
       loadWishlistData,

@@ -330,7 +330,7 @@ import {
 } from "@element-plus/icons-vue";
 
 import { useUserStore } from "@/store/user.js";
-import { useDraftStore } from "@/store/draft.js";
+import { useDraft } from "@/composables/useDraft.js";
 import { draftManager } from "@/utils/storage/draftManager.js";
 import { convertBackendTripToFrontend } from "@/utils/data/tripDataConverter.js";
 import { handleApiError } from "@/utils/api/errorHandler.js";
@@ -367,8 +367,8 @@ export default {
   },
   setup() {
     const router = useRouter();
-    const userStore = useUserStore();
-    const draftStore = useDraftStore();
+  const userStore = useUserStore();
+  const draft = useDraft();
 
     // 响应式数据
     const loading = ref(false);
