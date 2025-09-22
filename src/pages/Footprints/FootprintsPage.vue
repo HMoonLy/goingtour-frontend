@@ -1630,23 +1630,6 @@ export default {
       console.log("🔄 开始加载愿望清单数据，用户ID:", userStore.userId);
       try {
         await Promise.all([wishlist.loadWishlist(), footprint.loadVisitedCities()]);
-        console.log("✅ 愿望清单数据加载完成");
-        
-        // 调试信息
-        console.log("🔍 数据加载后状态检查:", {
-          visitedCities: footprint.visitedCities.value,
-          visitedCount: footprint.visitedCount.value,
-          citiesWithPhotos: footprint.citiesWithPhotos.value,
-          citiesWithPhotosLength: footprint.citiesWithPhotos.value?.length,
-          wishlistCount: wishlist.wishlistCount.value,
-          hasCities: footprint.visitedCount.value > 0 || wishlist.wishlistCount.value > 0,
-          visitedCitiesDetail: footprint.visitedCities.value?.map(city => ({
-            id: city.id,
-            cityName: city.cityName,
-            hasPhoto: !!city.photo,
-            photoUrl: city.photo
-          }))
-        });
       } catch (error) {
         console.error("❌ 愿望清单数据加载失败:", error);
       }
@@ -1655,20 +1638,10 @@ export default {
     // 页面初始化
     onMounted(async () => {
       loadCityData();
-
-      // 等待用户状态稳定后加载数据
-      console.log("🔍 onMounted 检查用户状态:", {
-        isLoggedIn: userStore.isLoggedIn,
-        userId: userStore.userId,
-        currentUser: !!userStore.currentUser,
-      });
-
       // 如果用户状态已就绪，立即加载
       if (userStore.isLoggedIn && userStore.userId) {
         await loadWishlistData();
       } else if (userStore.isLoggedIn) {
-        // 用户已登录但ID未获取，等待一下
-        console.log("⏳ 用户已登录但状态未完全恢复，等待200ms...");
         setTimeout(async () => {
           if (userStore.userId) {
             await loadWishlistData();
@@ -1681,12 +1654,6 @@ export default {
     watch(
       () => userStore.isLoggedIn,
       (isLoggedIn, oldValue) => {
-        console.log("👤 用户登录状态变化:", {
-          from: oldValue,
-          to: isLoggedIn,
-          userId: userStore.userId,
-        });
-
         if (isLoggedIn && userStore.userId) {
           loadWishlistData();
         }
@@ -1698,43 +1665,12 @@ export default {
     watch(
       () => userStore.userId,
       (userId, oldValue) => {
-        console.log("🆔 用户ID变化:", {
-          from: oldValue,
-          to: userId,
-          isLoggedIn: userStore.isLoggedIn,
-        });
-
         if (userId && userStore.isLoggedIn) {
           loadWishlistData();
         }
       },
       { immediate: false } // 改为 false，避免初始化时执行
     );
-
-    // 开发环境调试方法
-    if (import.meta.env.DEV) {
-      window.debugFootprints = () => {
-        console.log("🐛 FootprintsPage 调试信息:");
-        console.log("- 用户登录状态:", userStore.isLoggedIn);
-        console.log("- 用户ID:", userStore.userId);
-        console.log("- 用户信息:", userStore.currentUser);
-        console.log("- 愿望清单项目数:", wishlist.wishlistItems.value.length);
-        console.log("- 去过的城市数:", footprint.visitedCount.value);
-        console.log("- 想去的城市数:", wishlist.wishlistOnlyCount.value);
-        console.log("- 愿望清单详情:", wishlist.wishlistItems.value);
-        return {
-          userStore: userStore,
-          wishlist: wishlist,
-          footprint: footprint,
-          loadWishlistData: loadWishlistData,
-        };
-      };
-
-      window.forceReloadWishlist = () => {
-        console.log("🔄 强制重新加载愿望清单...");
-        loadWishlistData();
-      };
-    }
 
     return {
       // 计算属性

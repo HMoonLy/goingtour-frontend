@@ -15,8 +15,6 @@ export function useFootprint() {
     // 计算属性
     const visitedCount = computed(() => visitedCities.value.length)
 
-    const citiesWithPhotos = computed(() => visitedCities.value)
-
     // 方法
 
     /**
@@ -24,11 +22,8 @@ export function useFootprint() {
      */
     const loadVisitedCities = async(retryCount = 0, maxRetries = 3) => {
         const userStore = useUserStore()
-        const userId = userStore.currentUser?.id || userStore.userId
-
+        const userId = userStore.currentUser ? .id || userStore.userId
         if (!userId) {
-            console.warn("⚠️ 用户未登录，无法加载足迹城市")
-
             if (retryCount < maxRetries && userStore.isLoggedIn) {
                 setTimeout(() => {
                     loadVisitedCities(retryCount + 1, maxRetries)
@@ -43,7 +38,6 @@ export function useFootprint() {
         }
 
         if (loading.value) return
-
         loading.value = true
         try {
             const data = await footprintService.loadUserVisitedCities(userId)
@@ -88,7 +82,7 @@ export function useFootprint() {
      */
     const deleteVisitedCity = async(cityId) => {
         const userStore = useUserStore()
-        const userId = userStore.currentUser?.id || userStore.userId
+        const userId = userStore.currentUser ? .id || userStore.userId
 
         if (!userId) return false
 
@@ -183,7 +177,6 @@ export function useFootprint() {
 
         // 计算属性
         visitedCount,
-        citiesWithPhotos,
 
         // 方法
         loadVisitedCities,
