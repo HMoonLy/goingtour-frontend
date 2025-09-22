@@ -1630,6 +1630,10 @@ export default {
       console.log("🔄 开始加载愿望清单数据，用户ID:", userStore.userId);
       try {
         await Promise.all([wishlist.loadWishlist(), footprint.loadVisitedCities()]);
+        console.log("✅ 数据加载完成");
+        console.log("- 愿望清单数量:", wishlist.wishlistItems.value.length);
+        console.log("- 访问城市数量:", footprint.visitedCities.value.length);
+        console.log("- 访问城市数据:", footprint.visitedCities.value);
       } catch (error) {
         console.error("❌ 愿望清单数据加载失败:", error);
       }

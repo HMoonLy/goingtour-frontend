@@ -92,8 +92,8 @@
               </div>
             </div>
 
-            <!-- 操作按钮层 - 悬浮居中显示 -->
-            <div v-if="getCoverUrl(city)" class="photo-actions-overlay">
+            <!-- 操作按钮层 - 悬浮居中显示（所有城市都显示，不管有没有照片） -->
+            <div class="photo-actions-overlay">
               <div class="actions-backdrop"></div>
               <div class="photo-actions">
                 <el-tooltip content="编辑信息" placement="top">
@@ -127,7 +127,7 @@
                   </el-button>
                 </el-tooltip>
 
-                <el-tooltip content="更换照片" placement="top">
+                <el-tooltip :content="getCoverUrl(city) ? '更换照片' : '添加照片'" placement="top">
                   <el-button
                     size="small"
                     type="primary"
@@ -155,12 +155,16 @@
                   </el-button>
                   <template #dropdown>
                     <el-dropdown-menu>
-                      <el-dropdown-item @click="handleDeletePhoto(city)">
+                      <!-- 只有当有照片时才显示删除照片选项 -->
+                      <el-dropdown-item 
+                        v-if="getCoverUrl(city)" 
+                        @click="handleDeletePhoto(city)"
+                      >
                         <el-icon><Delete /></el-icon>
                         删除照片
                       </el-dropdown-item>
                       <el-dropdown-item
-                        divided
+                        :divided="!!getCoverUrl(city)"
                         class="delete-item"
                         @click="handleDeleteVisitedCity(city)"
                       >
@@ -318,6 +322,7 @@ import {
 } from "@element-plus/icons-vue";
 import { useWishlist } from "@/composables/useWishlist.js";
 import { usePhotos } from "@/composables/usePhotos.js";
+import { useFootprint } from "@/composables/useFootprint.js";
 import {
   getCityPhotoUrl,
   getCityThumbnailUrl,
@@ -347,6 +352,7 @@ const emit = defineEmits([
 // Composables
 const wishlist = useWishlist();
 const photos = usePhotos();
+const footprint = useFootprint();
 
 // 直接使用props数据，无需额外封装
 const visitedCities = toRef(props, 'visitedCitiesData');
@@ -655,8 +661,8 @@ const handleDeleteVisitedCity = async (city) => {
       }
     );
 
-    // 找到对应的visited_city记录
-    const visitedCity = footprint.visitedCities.value.find(vc => vc.adcode === city.adcode);
+    // 找到对应的visited_city记录 - 使用props传入的数据
+    const visitedCity = visitedCities.value.find(vc => vc.adcode === city.adcode);
     if (!visitedCity) {
       ElMessage.error("未找到对应的城市记录");
       return;
