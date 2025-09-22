@@ -220,7 +220,7 @@
             <!-- 现代卡片网格布局 -->
             <VirtualCityGrid
               :city-groups="cityGroups"
-              :wishlist-items="wishlist.wishlistItems"
+              :wishlist-items="wishlist.wishlistItems.value || wishlist.wishlistItems || []"
               @select-city="selectCity"
             />
           </div>

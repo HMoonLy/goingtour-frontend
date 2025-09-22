@@ -32,7 +32,7 @@ export function useDraft() {
     const hasDrafts = computed(() => draftList.value.length > 0)
     const hasCurrentDraft = computed(() => !!currentDraft.value)
     const hasAutoDraft = computed(() => !!autoDraft.value)
-    const canAutoSave = computed(() => userStore.isLoggedIn && userStore.currentUser ? .id)
+    const canAutoSave = computed(() => userStore.isLoggedIn && userStore.currentUser?.id)
 
     const draftStats = computed(() => {
         const total = draftList.value.length
@@ -55,7 +55,7 @@ export function useDraft() {
      * 获取用户ID
      */
     const getUserId = () => {
-        const userId = userStore.currentUser ? .id || userStore.userId
+        const userId = userStore.currentUser?.id || userStore.userId
         if (!userId) {
             throw new Error('用户未登录')
         }
@@ -127,7 +127,7 @@ export function useDraft() {
 
             const response = await draftApi.createDraft(draftData)
 
-            if (response.data ? .id) {
+            if (response.data?.id) {
                 const savedDraft = {
                     ...response.data,
                     formattedDate: new Date().toLocaleDateString(),
@@ -203,7 +203,7 @@ export function useDraft() {
                 }
 
                 // 更新当前草稿
-                if (currentDraft.value ? .id === draftId) {
+                if (currentDraft.value?.id === draftId) {
                     currentDraft.value = draftList.value[index]
                 }
 
@@ -294,7 +294,7 @@ export function useDraft() {
 
             // 确认删除
             if (showConfirm) {
-                const draftName = draftList.value.find(d => d.id === draftId) ? .name || '草稿'
+                const draftName = draftList.value.find(d => d.id === draftId)?.name || '草稿'
                 await ElMessageBox.confirm(
                     `确定要删除草稿"${draftName}"吗？删除后无法恢复。`,
                     '确认删除', {
@@ -316,7 +316,7 @@ export function useDraft() {
                 const deletedDraft = draftList.value.splice(index, 1)[0]
 
                 // 如果删除的是当前草稿，清空当前草稿
-                if (currentDraft.value ? .id === draftId) {
+                if (currentDraft.value?.id === draftId) {
                     currentDraft.value = null
                 }
 
@@ -359,7 +359,7 @@ export function useDraft() {
                 draftList.value[index].name = newName.trim()
 
                 // 更新当前草稿名称
-                if (currentDraft.value ? .id === draftId) {
+                if (currentDraft.value?.id === draftId) {
                     currentDraft.value.name = newName.trim()
                 }
             }
@@ -530,7 +530,7 @@ export function useDraft() {
             const userId = getUserId()
             const response = await draftApi.cleanupExpiredDrafts(userId)
 
-            if (response.data ? .deletedCount > 0) {
+            if (response.data?.deletedCount > 0) {
                 ElMessage.success(`清理了 ${response.data.deletedCount} 个过期草稿`)
                     // 重新加载列表
                 await loadDraftList()
@@ -564,8 +564,8 @@ export function useDraft() {
         const preview = {
             hasBaseForm: !!(draft.baseForm && Object.keys(draft.baseForm).length > 0),
             hasPreferences: !!(draft.preferenceForm && Object.keys(draft.preferenceForm).length > 0),
-            attractionCount: draft.selectedAttractions ? .length || 0,
-            restaurantCount: draft.selectedRestaurants ? .length || 0,
+            attractionCount: draft.selectedAttractions?.length || 0,
+            restaurantCount: draft.selectedRestaurants?.length || 0,
             stepProgress: draft.currentStep || 0,
             lastModified: draft.updatedAt || draft.lastModified,
             isComplete: false
@@ -692,7 +692,7 @@ export function useDraftList() {
             const keyword = searchKeyword.value.toLowerCase()
             filtered = filtered.filter(draft =>
                 draft.name.toLowerCase().includes(keyword) ||
-                (draft.baseForm ? .destinationName || '').toLowerCase().includes(keyword)
+                (draft.baseForm?.destinationName || '').toLowerCase().includes(keyword)
             )
         }
 

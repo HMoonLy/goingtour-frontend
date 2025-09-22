@@ -21,7 +21,7 @@
         <!-- 城市卡片网格 -->
         <CityGridList
           :cities="group.cities"
-          :wishlist-items="wishlistItems"
+          :wishlist-items="Array.isArray(wishlistItems) ? wishlistItems : (wishlistItems?.value || [])"
           :loading="false"
           class="group-grid"
           @select-city="$emit('selectCity', $event)"

@@ -66,6 +66,10 @@ export default defineComponent({
     wishlistItems: {
       type: Array,
       default: () => [],
+      validator: (value) => {
+        // 允许数组类型或者空值
+        return Array.isArray(value) || value === null || value === undefined;
+      },
     },
     loading: {
       type: Boolean,
@@ -76,11 +80,16 @@ export default defineComponent({
   setup(props, { emit }) {
     // 使用Set缓存心愿清单城市编码，提升查询性能
     const wishlistSet = computed(() => {
-      return new Set(props.wishlistItems.map((item) => item.adcode));
+      // 确保 wishlistItems 是数组，并且安全地处理可能的 undefined/null 情况
+      const items = Array.isArray(props.wishlistItems) ? props.wishlistItems : [];
+      return new Set(items.map((item) => item?.adcode).filter(Boolean));
     });
 
     // 是否有收藏的城市
-    const hasWishlistItems = computed(() => props.wishlistItems.length > 0);
+    const hasWishlistItems = computed(() => {
+      const items = Array.isArray(props.wishlistItems) ? props.wishlistItems : [];
+      return items.length > 0;
+    });
 
     // 骨架屏数量（根据屏幕大小动态计算）
     const skeletonCount = computed(() => {
