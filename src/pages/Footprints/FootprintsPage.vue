@@ -1299,18 +1299,31 @@ export default {
         const adcode = String(selectedCity.adcode);
         const citycode = selectedCity.citycode === "\\N" ? null : selectedCity.citycode;
 
-        const success = await wishlist.addToWishlist({
-          adcode: adcode,
-          citycode: citycode,
-          cityName: selectedCity.中文名,
-          reason: quickAddForm.value.reason,
-          tags: tags,
-          status: quickAddForm.value.status, // 保留用于向后兼容
-          ever_visited: quickAddForm.value.ever_visited, // 新的布尔字段
-          want_to_visit_again: quickAddForm.value.want_to_visit_again, // 新的布尔字段
-          travelTime: quickAddForm.value.travelTime, // 旅行时间
-          travelFeeling: quickAddForm.value.travelFeeling, // 旅行感受
-        });
+        let success = false;
+        
+        if (quickAddForm.value.ever_visited) {
+          // 添加到足迹城市
+          success = await footprint.addVisitedCity({
+            adcode: adcode,
+            citycode: citycode,
+            cityName: selectedCity.中文名,
+            tags: tags,
+            travelTime: quickAddForm.value.travelTime,
+            travelFeeling: quickAddForm.value.travelFeeling,
+          });
+        } else {
+          // 添加到愿望清单
+          success = await wishlist.addToWishlist({
+            adcode: adcode,
+            citycode: citycode,
+            cityName: selectedCity.中文名,
+            reason: quickAddForm.value.reason,
+            tags: tags,
+            status: quickAddForm.value.status, // 保留用于向后兼容
+            ever_visited: quickAddForm.value.ever_visited, // 新的布尔字段
+            want_to_visit_again: quickAddForm.value.want_to_visit_again, // 新的布尔字段
+          });
+        }
 
         if (success) {
           handleQuickAddClose();

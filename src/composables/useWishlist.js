@@ -95,10 +95,11 @@ export function useWishlist() {
         }
 
         try {
-            const newItem = await wishlistService.addCityToWishlist(userId.value, cityData)
+            const newItem = await wishlistService.addToWishlist(userId.value, cityData)
             wishlistItems.value.push(newItem)
             return true
         } catch (error) {
+            console.error("❌ 添加到愿望清单失败:", error)
             return false
         }
     }
@@ -131,7 +132,7 @@ export function useWishlist() {
      */
     const markAsVisited = async(wishlistId) => {
         const userStore = useUserStore()
-        const userId = userStore.currentUser?.id || userStore.userId
+        const userId = userStore.currentUser ? .id || userStore.userId
 
         if (!userId) return false
 
@@ -157,7 +158,7 @@ export function useWishlist() {
      */
     const markWantToVisitAgain = async(cityIdOrData, wantToVisit = true) => {
         const userStore = useUserStore()
-        const userId = userStore.currentUser?.id || userStore.userId
+        const userId = userStore.currentUser ? .id || userStore.userId
 
         if (!userId) return false
 
@@ -214,7 +215,7 @@ export function useWishlist() {
      */
     const batchMarkAsVisited = async(cityIds) => {
         const userStore = useUserStore()
-        const userId = userStore.currentUser?.id || userStore.userId
+        const userId = userStore.currentUser ? .id || userStore.userId
 
         if (!userId) return { success: false, error: 'User not logged in' }
 
@@ -246,7 +247,7 @@ export function useWishlist() {
      */
     const updateWishlistItem = async(wishlistId, updateData) => {
         const userStore = useUserStore()
-        const userId = userStore.currentUser?.id || userStore.userId
+        const userId = userStore.currentUser ? .id || userStore.userId
 
         if (!userId) return false
 
@@ -273,14 +274,18 @@ export function useWishlist() {
      * 检查城市是否在心愿清单中
      */
     const isCityInWishlistToVisit = (cityCode) => {
-        return wishlistItems.value.some((item) => item.cityCode === cityCode)
+        return wishlistItems.value.some((item) =>
+            item.cityCode === cityCode || item.adcode === cityCode
+        )
     }
 
     /**
      * 根据城市编码获取城市记录
      */
     const getWishlistItemByCityCode = (cityCode) => {
-        return wishlistItems.value.find((item) => item.cityCode === cityCode)
+        return wishlistItems.value.find((item) =>
+            item.cityCode === cityCode || item.adcode === cityCode
+        )
     }
 
     /**

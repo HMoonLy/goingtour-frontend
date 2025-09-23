@@ -9,34 +9,48 @@ import { BaseService } from './baseService.js'
 class WishlistService extends BaseService {
     constructor() {
         super('WishlistService')
+        this.cacheTimeout = 5 * 60 * 1000 // 5分钟缓存
     }
 
     // ==================== 缓存管理 ====================
     _getCacheKey(userId, action = 'list') {
-        return `wishlist_${action}_${userId}`
+        return `cached_wishlist_${action}_${userId}`
     }
 
     _getFromCache(key) {
-        const cached = this.cache.get(key)
-        if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
-            return cached.data
+        try {
+            const cached = localStorage.getItem(key)
+            if (cached) {
+                const parsed = JSON.parse(cached)
+                if (Date.now() - parsed.timestamp < this.cacheTimeout) {
+                    return parsed.data
+                }
+                localStorage.removeItem(key)
+            }
+        } catch (error) {
+            localStorage.removeItem(key)
         }
-        this.cache.delete(key)
         return null
     }
 
     _setCache(key, data) {
-        this.cache.set(key, {
-            data,
-            timestamp: Date.now()
-        })
+        try {
+            localStorage.setItem(key, JSON.stringify({
+                data,
+                timestamp: Date.now()
+            }))
+        } catch (error) {
+            console.warn('缓存存储失败:', error)
+        }
     }
 
     clearCache(userId) {
         if (userId) {
-            this.cache.delete(this._getCacheKey(userId))
+            const key = this._getCacheKey(userId)
+            localStorage.removeItem(key)
         } else {
-            this.cache.clear()
+            // 清除所有 wishlist 缓存
+            super.clearCache('wishlist')
         }
     }
 
@@ -83,18 +97,24 @@ class WishlistService extends BaseService {
      * 添加城市到愿望清单
      */
     async addToWishlist(userId, cityData) {
-        if (!userId || !cityData?.cityCode) {
+        if (!userId || !(cityData?.cityCode || cityData?.adcode)) {
             throw new Error('用户ID和城市代码不能为空')
         }
 
         return await this.withErrorHandling(
             async() => {
-                const response = await wishlistApi.addToWishlist(userId, cityData)
+                // 合并userId和cityData
+                const wishData = {
+                    userId,
+                    ...cityData
+                }
+
+                const response = await wishlistApi.addToWishlist(wishData)
 
                 // 清除相关缓存
                 this.clearCache(`wishlist_${userId}`)
 
-                return response
+                return response.data || response
             },
             '添加到愿望清单失败'
         )

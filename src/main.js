@@ -113,12 +113,6 @@ initApp().then(() => {
     app.mount("#app");
 });
 
-// 全局错误处理
-app.config.errorHandler = (err, vm, info) => {
-    console.error("Vue全局错误:", err, info);
-    // 这里可以上报错误到监控系统
-};
-
 // 开发环境下的基本启动信息
 if (
     import.meta.env.DEV) {
