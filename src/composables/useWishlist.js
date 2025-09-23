@@ -132,7 +132,7 @@ export function useWishlist() {
      */
     const markAsVisited = async(wishlistId) => {
         const userStore = useUserStore()
-        const userId = userStore.currentUser ? .id || userStore.userId
+        const userId = userStore.currentUser?.id || userStore.userId
 
         if (!userId) return false
 
@@ -158,7 +158,7 @@ export function useWishlist() {
      */
     const markWantToVisitAgain = async(cityIdOrData, wantToVisit = true) => {
         const userStore = useUserStore()
-        const userId = userStore.currentUser ? .id || userStore.userId
+        const userId = userStore.currentUser?.id || userStore.userId
 
         if (!userId) return false
 
@@ -215,7 +215,7 @@ export function useWishlist() {
      */
     const batchMarkAsVisited = async(cityIds) => {
         const userStore = useUserStore()
-        const userId = userStore.currentUser ? .id || userStore.userId
+        const userId = userStore.currentUser?.id || userStore.userId
 
         if (!userId) return { success: false, error: 'User not logged in' }
 
@@ -247,7 +247,7 @@ export function useWishlist() {
      */
     const updateWishlistItem = async(wishlistId, updateData) => {
         const userStore = useUserStore()
-        const userId = userStore.currentUser ? .id || userStore.userId
+        const userId = userStore.currentUser?.id || userStore.userId
 
         if (!userId) return false
 

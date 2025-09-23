@@ -61,7 +61,7 @@ class WishlistService extends BaseService {
      */
     async _getUserWishlistFromApi(userId) {
         const response = await wishlistApi.getUserWishlist(userId)
-        return response?.data || []
+        return response ? .data || []
     }
 
     // ==================== 核心业务方法 ====================
@@ -97,7 +97,7 @@ class WishlistService extends BaseService {
      * 添加城市到愿望清单
      */
     async addToWishlist(userId, cityData) {
-        if (!userId || !(cityData?.cityCode || cityData?.adcode)) {
+        if (!userId || !(cityData ? .cityCode || cityData ? .adcode)) {
             throw new Error('用户ID和城市代码不能为空')
         }
 
@@ -121,7 +121,8 @@ class WishlistService extends BaseService {
     }
 
     /**
-     * 从愿望清单移除城市
+     * 从愿望清单移除城市（按城市代码）
+     * 注意：此方法需要先查找城市对应的wishlistId，然后调用按ID删除的方法
      */
     async removeFromWishlist(userId, cityCode) {
         if (!userId || !cityCode) {
@@ -130,7 +131,39 @@ class WishlistService extends BaseService {
 
         return await this.withErrorHandling(
             async() => {
-                const response = await wishlistApi.removeFromWishlist(userId, cityCode)
+                // 先获取用户的愿望清单，找到对应的城市项
+                const wishlist = await this.loadUserWishlist(userId, false)
+                const wishlistItem = wishlist.find(item =>
+                    item.adcode === cityCode || item.cityCode === cityCode
+                )
+
+                if (!wishlistItem) {
+                    throw new Error('在愿望清单中未找到该城市')
+                }
+
+                // 使用ID删除
+                const response = await wishlistApi.removeFromWishlist(wishlistItem.id, userId)
+
+                // 清除相关缓存
+                this.clearCache(`wishlist_${userId}`)
+
+                return response
+            },
+            '从愿望清单移除失败'
+        )
+    }
+
+    /**
+     * 从愿望清单移除城市（按愿望清单ID）
+     */
+    async removeCityFromWishlist(wishlistId, userId) {
+        if (!wishlistId || !userId) {
+            throw new Error('愿望清单ID和用户ID不能为空')
+        }
+
+        return await this.withErrorHandling(
+            async() => {
+                const response = await wishlistApi.removeFromWishlist(wishlistId, userId)
 
                 // 清除相关缓存
                 this.clearCache(`wishlist_${userId}`)
@@ -181,7 +214,7 @@ class WishlistService extends BaseService {
 
         try {
             const response = await cityPhotosApi.getCityPhotos(cityCode)
-            const photos = response?.data || []
+            const photos = response ? .data || []
 
             if (useCache && photos.length > 0) {
                 this._setCache(cacheKey, photos)
@@ -226,15 +259,15 @@ class WishlistService extends BaseService {
     validateWishlistData(cityData) {
         const errors = []
 
-        if (!cityData.cityCode?.trim()) {
+        if (!cityData.cityCode ? .trim()) {
             errors.push('城市代码不能为空')
         }
 
-        if (!cityData.cityName?.trim()) {
+        if (!cityData.cityName ? .trim()) {
             errors.push('城市名称不能为空')
         }
 
-        if (!cityData.provinceName?.trim()) {
+        if (!cityData.provinceName ? .trim()) {
             errors.push('省份名称不能为空')
         }
 

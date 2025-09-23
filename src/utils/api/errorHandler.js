@@ -19,16 +19,16 @@ function handleApiError(error, defaultMessage = '操作失败', options = {}) {
     let message = defaultMessage
     let code = 'UNKNOWN_ERROR'
 
-    if (error ? .response) {
+    if (error?.response) {
         // HTTP错误响应
         const status = error.response.status
         const data = error.response.data
 
         code = `HTTP_${status}`
 
-        if (data ? .msg) {
+        if (data?.msg) {
             message = data.msg
-        } else if (data ? .message) {
+        } else if (data?.message) {
             message = data.message
         } else {
             switch (status) {
@@ -51,11 +51,11 @@ function handleApiError(error, defaultMessage = '操作失败', options = {}) {
                     message = `请求失败 (${status})`
             }
         }
-    } else if (error ? .code === 'NETWORK_ERROR' || error ? .message ? .includes('Network Error')) {
+    } else if (error?.code === 'NETWORK_ERROR' || error?.message?.includes('Network Error')) {
         // 网络错误
         code = 'NETWORK_ERROR'
         message = '网络连接失败，请检查网络设置'
-    } else if (error ? .message) {
+    } else if (error?.message) {
         // 其他错误
         message = error.message
     }
@@ -109,7 +109,7 @@ function withRetry(asyncFn, retryOptions = {}) {
     const {
         maxRetries = 3,
             retryDelay = 1000,
-            retryCondition = (error) => error ? .code === 'NETWORK_ERROR'
+            retryCondition = (error) => error?.code === 'NETWORK_ERROR'
     } = retryOptions
 
     return async function(...args) {
