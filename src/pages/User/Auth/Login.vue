@@ -88,7 +88,7 @@ class="form-item">
             <label class="form-label">邮箱</label>
             <el-input
               v-model="loginForm.email"
-              :placeholder="邮箱"
+              placeholder="请输入邮箱地址"
               clearable
               class="form-input"
               @input="handleEmailInput"
@@ -106,7 +106,7 @@ class="form-item">
             <div class="code-input-group">
               <el-input
                 v-model="loginForm.code"
-                :placeholder="验证码"
+                placeholder="请输入验证码"
                 clearable
                 maxlength="6"
                 class="form-input"
@@ -184,7 +184,7 @@ class="form-item">
             <span class="register-text">还没有账户？</span>
             <el-link
               type="primary"
-              :underline="false"
+              underline="never"
               class="register-link"
               @click="goToRegister"
             >
@@ -198,9 +198,9 @@ class="form-item">
           <p>
             登录即表示您同意我们的
             <el-link
-type="primary" :underline="false"> 用户协议 </el-link>
+type="primary" underline="never"> 用户协议 </el-link>
             <el-link
-type="primary" :underline="false"> 隐私政策 </el-link>
+type="primary" underline="never"> 隐私政策 </el-link>
           </p>
         </div>
       </div>
