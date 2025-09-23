@@ -87,25 +87,41 @@ export function useFootprint() {
         if (!userId) return false
 
         try {
-            await footprintService.deleteVisitedCity(cityId)
+            console.log("🔄 开始删除城市记录，cityId:", cityId, "类型:", typeof cityId)
+            console.log("📊 当前本地状态中的城市记录:", visitedCities.value.map(city => ({ id: city.id, name: city.cityName, type: typeof city.id })))
 
-            // 从本地状态中移除
-            const index = visitedCities.value.findIndex(city => city.id === cityId)
+            // 调用后端API删除
+            await footprintService.deleteVisitedCity(cityId)
+            console.log("✅ 后端删除成功")
+
+            // 从本地状态中移除 - 使用更宽松的比较
+            const index = visitedCities.value.findIndex(city =>
+                String(city.id) === String(cityId) || city.id === cityId
+            )
+
             if (index !== -1) {
                 const cityName = visitedCities.value[index].cityName
                 const adcode = visitedCities.value[index].adcode
 
+                console.log(`🗑️ 找到要删除的城市记录: ${cityName} (index: ${index})`)
                 visitedCities.value.splice(index, 1)
+                console.log("✅ 本地状态已更新，剩余城市数量:", visitedCities.value.length)
 
                 // 处理相关的wishlist记录
                 await _cleanupRelatedWishlistRecord(adcode, userId, cityName)
 
                 return true
             } else {
-                console.warn("⚠️ 在本地状态中未找到要删除的城市记录")
-                return false
+                console.warn("⚠️ 在本地状态中未找到要删除的城市记录，cityId:", cityId)
+                console.warn("⚠️ 可能的原因：数据类型不匹配或数据未正确加载")
+
+                // 即使本地状态没找到，也返回true，因为后端删除成功了
+                // 触发重新加载数据
+                await loadVisitedCities()
+                return true
             }
         } catch (error) {
+            console.error("❌ 删除城市记录失败:", error)
             return false
         }
     }

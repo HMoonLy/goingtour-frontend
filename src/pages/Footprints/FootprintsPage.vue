@@ -18,6 +18,7 @@
               :visited-cities-data="footprint.visitedCities.value"
               @photo-uploaded="handlePhotoUploaded"
               @photo-deleted="handlePhotoDeleted"
+              @city-deleted="handleCityDeleted"
               @add-visited-city="handleAddVisitedCityDirect"
             />
 
@@ -1443,6 +1444,23 @@ export default {
       console.log("✅ 父组件照片删除处理完成");
     };
 
+    const handleCityDeleted = async (city) => {
+      console.log("🗑️ 父组件接收到城市删除成功事件:", city);
+
+      // 重新加载数据以确保同步
+      try {
+        await Promise.all([
+          footprint.loadVisitedCities(),
+          wishlist.loadWishlist()
+        ]);
+        ElMessage.success(`${city.cityName} 删除成功`);
+        console.log("✅ 父组件城市删除处理完成，数据已重新加载");
+      } catch (error) {
+        console.error("❌ 重新加载数据失败:", error);
+        ElMessage.warning("删除成功，但数据同步可能有延迟");
+      }
+    };
+
     // 地图相关功能
     const handleFullscreenMap = () => {
       showFullscreenMap.value = true;
@@ -1733,6 +1751,7 @@ export default {
       // 照片事件处理
       handlePhotoUploaded,
       handlePhotoDeleted,
+      handleCityDeleted,
       // 卡片事件
       handleRemove,
       handleEdit,

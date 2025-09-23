@@ -661,12 +661,32 @@ const handleDeleteVisitedCity = async (city) => {
       }
     );
 
-    // 找到对应的visited_city记录 - 使用props传入的数据
-    const visitedCity = visitedCities.value.find(vc => vc.adcode === city.adcode);
+    // 优先从footprint.visitedCities中查找（这是最新的数据源）
+    let visitedCity = footprint.visitedCities.value.find(vc => vc.adcode === city.adcode);
+    
+    // 如果没找到，再从props传入的数据中查找
     if (!visitedCity) {
+      visitedCity = visitedCities.value.find(vc => vc.adcode === city.adcode);
+    }
+    
+    // 如果还是没找到，直接使用当前city的id（如果有的话）
+    if (!visitedCity && city.id) {
+      visitedCity = city;
+    }
+
+    if (!visitedCity || !visitedCity.id) {
+      console.error("❌ 未找到对应的城市记录，city:", city);
+      console.error("❌ footprint.visitedCities:", footprint.visitedCities.value);
+      console.error("❌ props.visitedCitiesData:", visitedCities.value);
       ElMessage.error("未找到对应的城市记录");
       return;
     }
+
+    console.log("🔄 准备删除城市记录:", {
+      cityId: visitedCity.id,
+      cityName: visitedCity.cityName || city.cityName,
+      adcode: visitedCity.adcode || city.adcode
+    });
 
     const success = await footprint.deleteVisitedCity(visitedCity.id);
     if (success) {

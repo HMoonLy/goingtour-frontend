@@ -61,7 +61,7 @@ class WishlistService extends BaseService {
      */
     async _getUserWishlistFromApi(userId) {
         const response = await wishlistApi.getUserWishlist(userId)
-        return response ? .data || []
+        return response?.data || []
     }
 
     // ==================== 核心业务方法 ====================
@@ -97,7 +97,7 @@ class WishlistService extends BaseService {
      * 添加城市到愿望清单
      */
     async addToWishlist(userId, cityData) {
-        if (!userId || !(cityData ? .cityCode || cityData ? .adcode)) {
+        if (!userId || !(cityData?.cityCode || cityData?.adcode)) {
             throw new Error('用户ID和城市代码不能为空')
         }
 
@@ -214,7 +214,7 @@ class WishlistService extends BaseService {
 
         try {
             const response = await cityPhotosApi.getCityPhotos(cityCode)
-            const photos = response ? .data || []
+            const photos = response?.data || []
 
             if (useCache && photos.length > 0) {
                 this._setCache(cacheKey, photos)
@@ -259,15 +259,15 @@ class WishlistService extends BaseService {
     validateWishlistData(cityData) {
         const errors = []
 
-        if (!cityData.cityCode ? .trim()) {
+        if (!cityData.cityCode?.trim()) {
             errors.push('城市代码不能为空')
         }
 
-        if (!cityData.cityName ? .trim()) {
+        if (!cityData.cityName?.trim()) {
             errors.push('城市名称不能为空')
         }
 
-        if (!cityData.provinceName ? .trim()) {
+        if (!cityData.provinceName?.trim()) {
             errors.push('省份名称不能为空')
         }
 
