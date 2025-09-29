@@ -11,12 +11,6 @@ export const useUserStore = defineStore("user", {
         // 当前用户信息
         currentUser: null,
 
-        // 用户偏好设置
-        userPreferences: {
-            tags: [],
-            budget: 500,
-        },
-
         // JWT Token信息
         accessToken: null,
         refreshToken: null,
@@ -47,22 +41,50 @@ export const useUserStore = defineStore("user", {
 
         // 检查是否完善了偏好设置
         hasPreferences: (state) => {
-            return state.userPreferences.tags.length > 0;
+            if (!state.currentUser?.preferences) return false;
+            try {
+                const preferences = JSON.parse(state.currentUser.preferences);
+                return Array.isArray(preferences.tags) && preferences.tags.length > 0;
+            } catch {
+                return false;
+            }
         },
 
         // 格式化的偏好标签
         preferenceLabels: (state) => {
-            const tagMap = {
-                历史古迹: "🏛️ 历史古迹",
-                自然风光: "🌄 自然风光",
-                美食: "🍜 美食",
-                亲子游: "👨‍👩‍👧‍👦 亲子游",
-                文艺青年: "🎨 文艺青年",
-                购物: "🛍️ 购物",
-                运动健身: "💪 运动健身",
-                放松休闲: "🧘‍♀️ 放松休闲",
-            };
-            return state.userPreferences.tags.map((tag) => tagMap[tag] || tag);
+            if (!state.currentUser?.preferences) return [];
+            try {
+                const preferences = JSON.parse(state.currentUser.preferences);
+                const tagMap = {
+                    历史古迹: "🏛️ 历史古迹",
+                    自然风光: "🌄 自然风光",
+                    美食: "🍜 美食",
+                    亲子游: "👨‍👩‍👧‍👦 亲子游",
+                    文艺青年: "🎨 文艺青年",
+                    购物: "🛍️ 购物",
+                    运动健身: "💪 运动健身",
+                    放松休闲: "🧘‍♀️ 放松休闲",
+                };
+                return (preferences.tags || []).map((tag) => tagMap[tag] || tag);
+            } catch {
+                return [];
+            }
+        },
+
+        // 获取用户偏好对象
+        userPreferences: (state) => {
+            if (!state.currentUser?.preferences) {
+                return { tags: [], budget: state.currentUser?.budget || 500 };
+            }
+            try {
+                const preferences = JSON.parse(state.currentUser.preferences);
+                return {
+                    tags: preferences.tags || [],
+                    budget: state.currentUser?.budget || 500
+                };
+            } catch {
+                return { tags: [], budget: state.currentUser?.budget || 500 };
+            }
         },
     },
 
@@ -236,17 +258,12 @@ export const useUserStore = defineStore("user", {
             this.refreshToken = null;
             this.tokenExpiry = null;
             this.redirectPath = null;
-            this.userPreferences = {
-                tags: [],
-                budget: 500,
-            };
 
             // 清除本地存储
             localStorage.removeItem("goingtour_token");
             localStorage.removeItem("goingtour_refresh_token");
             localStorage.removeItem("goingtour_token_expiry");
             localStorage.removeItem("goingtour_user");
-            localStorage.removeItem("goingtour_preferences");
 
             ElMessage.info("已退出登录");
         },
@@ -328,25 +345,16 @@ export const useUserStore = defineStore("user", {
                 const response = await userApi.getUserPreferences(this.currentUser.id);
 
                 if (response && response.data) {
-                    // 更新本地状态
                     const { preferences, budget } = response.data;
 
-                    // 合并偏好数据
-                    this.userPreferences = {
-                        ...this.userPreferences,
-                        ...preferences,
-                        budget: budget || this.userPreferences.budget,
-                    };
-
-                    // 更新currentUser中的preferences字段
+                    // 统一更新currentUser中的偏好信息
                     if (this.currentUser) {
                         this.currentUser.preferences = JSON.stringify(preferences || {});
-                        this.currentUser.budget = budget;
+                        this.currentUser.budget = budget || 500;
                     }
 
                     this.saveToStorage();
-
-                    return this.userPreferences;
+                    return this.userPreferences; // 通过getter计算获取
                 }
 
                 throw new Error("获取偏好数据失败");
@@ -410,18 +418,7 @@ export const useUserStore = defineStore("user", {
                 // 更新用户信息
                 this.currentUser = response.data;
 
-                // 解析偏好设置
-                if (response.data.preferences) {
-                    try {
-                        const preferences = JSON.parse(response.data.preferences);
-                        this.userPreferences = {
-                            tags: Array.isArray(preferences)?preferences : [],
-                            budget: response.data.budget || 500,
-                        };
-                    } catch (e) {
-                        console.warn("解析用户偏好数据失败:", e);
-                    }
-                }
+                // 偏好设置已统一存储在currentUser.preferences中，无需单独处理
 
                 this.saveToStorage();
                 return response.data;
@@ -431,157 +428,8 @@ export const useUserStore = defineStore("user", {
             }
         },
 
-        // ========== 设置管理方法 ==========
-        /**
-         * 更新用户基本资料
-         * @param {Object} profileData 基本资料数据
-         */
-        async updateProfile(profileData) {
-            if (!this.currentUser?.id) {
-                throw new Error("用户未登录");
-            }
-
-            try {
-                // TODO: 调用后端API更新用户基本信息
-                // const response = await userApi.updateProfile(this.currentUser.id, profileData)
-
-                // 暂时模拟更新本地状态
-                this.currentUser = {
-                    ...this.currentUser,
-                    ...profileData,
-                };
-
-                this.saveToStorage();
-                console.log("✅ 用户基本资料更新成功:", profileData);
-                return this.currentUser;
-            } catch (error) {
-                console.error("更新用户基本资料失败:", error);
-                throw error;
-            }
-        },
-
-        /**
-         * 更新用户旅行偏好
-         * @param {Object} preferences 偏好设置数据
-         */
-        async updatePreferences(preferences) {
-            if (!this.currentUser?.id) {
-                throw new Error("用户未登录");
-            }
-
-            try {
-                // TODO: 调用后端API更新用户偏好设置
-                // const response = await userApi.updatePreferences(this.currentUser.id, preferences)
-
-                // 更新本地状态
-                this.userPreferences = {
-                    ...this.userPreferences,
-                    ...preferences,
-                };
-
-                // 更新用户对象中的偏好信息
-                if (this.currentUser) {
-                    this.currentUser.preferences = JSON.stringify(preferences);
-                }
-
-                this.saveToStorage();
-                console.log("✅ 用户偏好设置更新成功:", preferences);
-                return this.userPreferences;
-            } catch (error) {
-                console.error("更新用户偏好设置失败:", error);
-                throw error;
-            }
-        },
-
-        /**
-         * 更新用户通知设置
-         * @param {Object} notificationSettings 通知设置数据
-         */
-        async updateNotificationSettings(notificationSettings) {
-            if (!this.currentUser?.id) {
-                throw new Error("用户未登录");
-            }
-
-            try {
-                // TODO: 调用后端API更新通知设置
-                // const response = await userApi.updateNotificationSettings(this.currentUser.id, notificationSettings)
-
-                // 更新本地状态
-                if (this.currentUser) {
-                    this.currentUser.notificationSettings = {
-                        ...this.currentUser.notificationSettings,
-                        ...notificationSettings,
-                    };
-                }
-
-                this.saveToStorage();
-                console.log("✅ 用户通知设置更新成功:", notificationSettings);
-                return notificationSettings;
-            } catch (error) {
-                console.error("更新用户通知设置失败:", error);
-                throw error;
-            }
-        },
-
-        /**
-         * 更新用户隐私设置
-         * @param {Object} privacySettings 隐私设置数据
-         */
-        async updatePrivacySettings(privacySettings) {
-            if (!this.currentUser?.id) {
-                throw new Error("用户未登录");
-            }
-
-            try {
-                // TODO: 调用后端API更新隐私设置
-                // const response = await userApi.updatePrivacySettings(this.currentUser.id, privacySettings)
-
-                // 更新本地状态
-                if (this.currentUser) {
-                    this.currentUser.privacySettings = {
-                        ...this.currentUser.privacySettings,
-                        ...privacySettings,
-                    };
-                }
-
-                this.saveToStorage();
-                console.log("✅ 用户隐私设置更新成功:", privacySettings);
-                return privacySettings;
-            } catch (error) {
-                console.error("更新用户隐私设置失败:", error);
-                throw error;
-            }
-        },
-
-        /**
-         * 更新用户安全设置
-         * @param {Object} securitySettings 安全设置数据
-         */
-        async updateSecuritySettings(securitySettings) {
-            if (!this.currentUser?.id) {
-                throw new Error("用户未登录");
-            }
-
-            try {
-                // TODO: 调用后端API更新安全设置
-                // const response = await userApi.updateSecuritySettings(this.currentUser.id, securitySettings)
-
-                // 更新本地状态
-                if (this.currentUser) {
-                    this.currentUser.securitySettings = {
-                        ...this.currentUser.securitySettings,
-                        ...securitySettings,
-                    };
-                }
-
-                this.saveToStorage();
-                console.log("✅ 用户安全设置更新成功:", securitySettings);
-                return securitySettings;
-            } catch (error) {
-                console.error("更新用户安全设置失败:", error);
-                throw error;
-            }
-        },
+        // ========== 设置管理方法 ========== 
+        // 注意：复杂的设置管理功能已清理，使用基础的updateUserInfo和updateUserPreferences即可
 
         // ========== 本地存储管理 ==========
         /**
@@ -593,12 +441,6 @@ export const useUserStore = defineStore("user", {
                     localStorage.setItem(
                         "goingtour_user",
                         JSON.stringify(this.currentUser),
-                    );
-                }
-                if (this.userPreferences) {
-                    localStorage.setItem(
-                        "goingtour_preferences",
-                        JSON.stringify(this.userPreferences),
                     );
                 }
             } catch (error) {
@@ -637,11 +479,7 @@ export const useUserStore = defineStore("user", {
                     this.currentUser = JSON.parse(userStr);
                 }
 
-                // 恢复用户偏好
-                const preferencesStr = localStorage.getItem("goingtour_preferences");
-                if (preferencesStr) {
-                    this.userPreferences = JSON.parse(preferencesStr);
-                }
+                // 用户偏好已统一存储在currentUser.preferences中
             } catch (error) {
                 console.error("从本地存储恢复用户状态失败:", error);
                 // 如果恢复失败，清除可能损坏的数据
