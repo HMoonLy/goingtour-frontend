@@ -211,7 +211,7 @@ type="primary" underline="never"> 隐私政策 </el-link>
 <script>
 import { ref, reactive, computed, onMounted, onUnmounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { useUser } from "@/composables/useUser.js";
+import { useAuth } from "@/composables/user/useAuth.js";
 import { ElMessage } from "element-plus";
 import {
   MapLocation,
@@ -223,7 +223,7 @@ import {
   User,
   ChatDotRound,
 } from "@element-plus/icons-vue";
-import { formRules } from "@/utils/security/validation.js";
+import { formRules, validateEmail } from "@/utils/security/validation.js";
 
 export default {
   name: "Login",
@@ -251,7 +251,7 @@ export default {
       login,
       isValidEmail,
       cleanup
-    } = useUser();
+    } = useAuth();
 
     // 表单引用
     const loginFormRef = ref();
@@ -270,7 +270,7 @@ export default {
 
     // 计算属性
     const canSendCode = computed(() => {
-      return isValidEmail(loginForm.email);
+      return validateEmail(loginForm.email);
     });
 
     // 输入处理

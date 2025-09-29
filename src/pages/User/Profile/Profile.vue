@@ -153,7 +153,8 @@ import {
   Warning,
 } from "@element-plus/icons-vue";
 import UserCenterNav from "@/components/User/UserCenterNav.vue";
-import { translateTag, getMbtiName } from "@/utils/data/tagMapping.js";
+import { translateTag } from "@/utils/data/travelDataSystem.js";
+import { getMbtiName } from "@/utils/data/aiPromptEngine.js";
 import Preferences from "../Settings/Preferences.vue";
 import Security from "../Settings/Security.vue";
 import Notifications from "../Settings/Notifications.vue";

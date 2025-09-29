@@ -83,7 +83,8 @@
 <script>
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { useUserInfo, useUser } from "@/composables/useUser.js";
+import { useAuth } from "@/composables/user/useAuth.js";
+import { useUserStore } from "@/store/user.js";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
   MapLocation,
@@ -108,11 +109,13 @@ export default {
     const route = useRoute();
     const router = useRouter();
     
-    // 使用用户信息组合函数
-    const { nickname, avatar } = useUserInfo();
+    // 使用用户信息
+    const userStore = useUserStore();
+    const nickname = computed(() => userStore.nickname);
+    const avatar = computed(() => userStore.avatar);
     
-    // 需要logout功能，单独导入
-    const { logout } = useUser();
+    // 认证功能
+    const { logout } = useAuth();
 
     // 当前激活的菜单项
     const activeMenu = computed(() => {

@@ -454,9 +454,276 @@ ${tripPreferences || '暂无特殊偏好'}
     }
 }
 
+/**
+ * 🎯 完整的AI提示词生成器 - 从tagMapping.js迁移
+ * 将用户偏好转换为完整的AI指导文档
+ */
+export class AdvancedPromptGenerator {
+    constructor(userPreferences, tripContext) {
+        this.userPreferences = userPreferences;
+        this.tripContext = tripContext;
+    }
+
+    /**
+     * 生成完整的AI提示词结构
+     */
+    generateAIPrompt() {
+        const prompt = {
+            // 用户画像总结
+            travelerProfile: this.generateTravelerProfile(),
+
+            // 核心需求和约束
+            coreRequirements: this.generateCoreRequirements(),
+
+            // 详细的偏好指导
+            detailedGuidance: this.generateDetailedGuidance(),
+
+            // 特殊注意事项
+            specialConsiderations: this.generateSpecialConsiderations(),
+
+            // 推荐策略
+            recommendationStrategy: this.generateRecommendationStrategy()
+        };
+
+        return prompt;
+    }
+
+    /**
+     * 生成旅行者画像总结
+     */
+    generateTravelerProfile() {
+        let profile = [];
+        const preferences = this.userPreferences;
+
+        // MBTI性格解读
+        if (preferences.mbtiType) {
+            const mbtiInterpreter = new PersonalProfileInterpreter({ mbtiType: preferences.mbtiType });
+            const mbtiPrompt = mbtiInterpreter.getMBTIBehaviorPrompt();
+            profile.push(`性格特征: ${mbtiPrompt}`);
+        }
+
+        // 核心兴趣解读
+        if (preferences.coreInterests?.length > 0) {
+            const interpreter = new PersonalProfileInterpreter({ coreInterests: preferences.coreInterests });
+            const interestPrompt = interpreter.getCoreInterestsPrompt();
+            profile.push(`核心兴趣: ${interestPrompt}`);
+        }
+
+        // 预算和消费水平
+        if (preferences.budget) {
+            profile.push(`预算水平: ${preferences.budget}，需要在此预算范围内提供最优化的体验建议`);
+        }
+
+        return profile.join('\n');
+    }
+
+    /**
+     * 生成核心需求和约束
+     */
+    generateCoreRequirements() {
+        const requirements = [];
+        const tripContext = this.tripContext;
+
+        // 时间和地点约束
+        if (tripContext.destination || tripContext.destinationName) {
+            requirements.push(`目的地: ${tripContext.destination || tripContext.destinationName}`);
+        }
+        if (tripContext.days || tripContext.duration) {
+            requirements.push(`旅行时长: ${tripContext.days || tripContext.duration}天`);
+        }
+
+        // 处理日期范围
+        let dateInfo = '待定';
+        if (tripContext.dateRange && Array.isArray(tripContext.dateRange) && tripContext.dateRange.length === 2) {
+            dateInfo = `${tripContext.dateRange[0]} 至 ${tripContext.dateRange[1]}`;
+        } else if (tripContext.startDate) {
+            dateInfo = tripContext.startDate;
+        }
+        requirements.push(`出行时间: ${dateInfo}`);
+
+        return requirements.join('\n');
+    }
+
+    /**
+     * 生成详细偏好指导
+     */
+    generateDetailedGuidance() {
+        const guidance = {
+            景点选择: [],
+            餐饮安排: [],
+            交通方式: [],
+            时间分配: [],
+            体验重点: []
+        };
+
+        const preferences = this.userPreferences;
+
+        // 根据兴趣生成景点选择指导
+        if (preferences.coreInterests?.includes('nature')) {
+            guidance.景点选择.push("至少30%的行程安排在自然环境中，优先选择视野开阔的户外空间");
+            guidance.时间分配.push("自然景点建议安排在光线条件最佳的时段");
+        }
+
+        if (preferences.coreInterests?.includes('photography')) {
+            guidance.景点选择.push("重视视觉效果和拍照环境，优先选择有设计感或独特视角的场所");
+            guidance.时间分配.push("每个景点预留额外15-30分钟拍摄时间");
+        }
+
+        if (preferences.coreInterests?.includes('food')) {
+            guidance.餐饮安排.push("每餐都安排当地特色，包括街头小吃、传统餐厅和创意料理");
+            guidance.体验重点.push("通过美食体验了解当地文化");
+        }
+
+        return Object.entries(guidance)
+            .filter(([, items]) => items.length > 0)
+            .map(([category, items]) => `${category}: ${items.join('；')}`)
+            .join('\n');
+    }
+
+    /**
+     * 生成特殊注意事项
+     */
+    generateSpecialConsiderations() {
+        const considerations = [];
+        const preferences = this.userPreferences;
+
+        // 饮食禁忌
+        if (preferences.dietaryRestrictions?.length > 0) {
+            considerations.push(`饮食禁忌: ${preferences.dietaryRestrictions.join('、')}`);
+        }
+
+        // 特殊需求
+        if (preferences.needAccessibility) {
+            considerations.push("必须考虑无障碍设施和通道");
+        }
+
+        if (preferences.includeKidsActivities) {
+            considerations.push("需要安排适合儿童的活动和设施");
+        }
+
+        return considerations.join('\n');
+    }
+
+    /**
+     * 生成推荐策略
+     */
+    generateRecommendationStrategy() {
+        const strategies = [];
+        const preferences = this.userPreferences;
+        const tripContext = this.tripContext;
+
+        // 基于MBTI的推荐策略
+        if (preferences.mbtiType) {
+            const mbtiInterpreter = new PersonalProfileInterpreter({ mbtiType: preferences.mbtiType });
+            const mbtiPrompt = mbtiInterpreter.getMBTIBehaviorPrompt();
+            strategies.push(`推荐策略: ${mbtiPrompt}`);
+        }
+
+        // 基于行程目的的策略调整
+        if (tripContext.tripPurpose === 'celebration') {
+            strategies.push("重点创造温馨难忘的回忆，优先推荐有纪念价值和拍照效果的场所");
+        } else if (tripContext.tripPurpose === 'business') {
+            strategies.push("以高效便利为原则，推荐交通便利的经典必游景点");
+        }
+
+        return strategies.join('\n');
+    }
+
+    /**
+     * 生成最终的完整AI提示词
+     */
+    generateCompletePrompt() {
+        const promptStructure = this.generateAIPrompt();
+
+        return `# 旅行规划AI助手指令
+
+## 用户画像
+${promptStructure.travelerProfile}
+
+## 核心需求
+${promptStructure.coreRequirements}
+
+## 详细指导
+${promptStructure.detailedGuidance}
+
+## 特殊注意事项
+${promptStructure.specialConsiderations}
+
+## 推荐策略
+${promptStructure.recommendationStrategy}
+
+请基于以上信息，为用户生成个性化的旅行推荐。确保推荐内容符合用户的性格特征、兴趣偏好和实际约束条件。`;
+    }
+}
+
+/**
+ * 🏷️ MBTI相关工具函数 - 从tagMapping.js迁移
+ */
+export function getMbtiName(type) {
+    const mbtiNames = {
+        INTJ: "建筑师",
+        INTP: "逻辑学家", 
+        ENTJ: "指挥官",
+        ENTP: "辩论家",
+        INFJ: "提倡者",
+        INFP: "调停者",
+        ENFJ: "主人公", 
+        ENFP: "竞选者",
+        ISTJ: "物流师",
+        ISFJ: "守护者",
+        ESTJ: "总经理",
+        ESFJ: "执政官",
+        ISTP: "鉴赏家",
+        ISFP: "探险家",
+        ESTP: "企业家",
+        ESFP: "娱乐家"
+    };
+    return mbtiNames[type] || type;
+}
+
+export function getMbtiTravelDescription(type) {
+    const descriptions = {
+        INTJ: "理性规划，深度体验 - 偏好精心规划的深度游，避开拥挤景点，喜欢探索有历史底蕴和设计感的地点",
+        INTP: "独立思考，探索新知 - 思维敏捷，喜欢独立思考和探索新事物，对文化交流和艺术展览感兴趣",
+        ENTJ: "领导决断，挑战竞争 - 具有领导力和决断力，喜欢挑战和竞争，偏爱极限运动和热门景点",
+        ENTP: "充满好奇，喜欢交流 - 充满好奇心，喜欢交流，对文化体验、美食探索和新奇事物感兴趣",
+        INFJ: "深度体验，追求意义 - 喜欢有深度和意义的旅行体验，偏好小众而有特色的目的地",
+        INFP: "个性化体验，情感连接 - 注重个人感受和情感连接，喜欢能够激发内心共鸣的旅行体验",
+        ENFJ: "关注他人，社交体验 - 善于照顾他人需求，喜欢能够与当地人交流互动的社交型旅行",
+        ENFP: "活力四射，多样体验 - 热爱新奇体验和多样化活动，喜欢充满惊喜和变化的旅行安排",
+        ISTJ: "稳妥计划，经典路线 - 偏好稳妥可靠的计划，喜欢经典的旅游路线和成熟的旅游设施",
+        ISFJ: "贴心周到，舒适安全 - 注重旅行的舒适性和安全性，喜欢温馨而贴心的旅行安排",
+        ESTJ: "高效组织，目标明确 - 追求高效和有组织的旅行，喜欢目标明确的行程安排",
+        ESFJ: "团体和谐，分享快乐 - 重视团体和谐，喜欢与他人分享旅行的快乐和美好时光",
+        ISTP: "灵活自由，实用体验 - 喜欢灵活自由的旅行方式，偏好实用性强的旅行体验",
+        ISFP: "温和体验，美学追求 - 注重美学体验，喜欢温和而富有艺术气息的旅行环境",
+        ESTP: "冒险刺激，即时享受 - 喜欢冒险刺激的活动，追求即时的快乐和新鲜体验",
+        ESFP: "热情开朗，享受当下 - 热情开朗，喜欢享受当下的快乐，偏好轻松愉快的旅行氛围"
+    };
+    return descriptions[type] || "您的旅行偏好将基于您的MBTI类型和预算来定制。";
+}
+
+/**
+ * 便捷函数 - 直接生成AI提示词
+ */
+export function generateAIPrompt(userPreferences, tripContext) {
+    const generator = new AdvancedPromptGenerator(userPreferences, tripContext);
+    return generator.generateAIPrompt();
+}
+
+export function generateCompletePrompt(userPreferences, tripContext) {
+    const generator = new AdvancedPromptGenerator(userPreferences, tripContext);
+    return generator.generateCompletePrompt();
+}
+
 export default {
     PersonalProfileInterpreter,
     TripPreferencesInterpreter,
     SmartPrefillEngine,
-    CompletePromptGenerator
+    CompletePromptGenerator,
+    AdvancedPromptGenerator,
+    generateAIPrompt,
+    generateCompletePrompt,
+    getMbtiName,
+    getMbtiTravelDescription
 };

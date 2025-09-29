@@ -201,7 +201,7 @@ class="preview-placeholder">
 import { ref, computed, watch } from "vue";
 import { ElMessage } from "element-plus";
 import { Plus, Upload, CircleCheck } from "@element-plus/icons-vue";
-import { useUserInfo } from "@/composables/useUser.js";
+import { useUserStore } from "@/store/user.js";
 import { userApi } from "@/api/user.js";
 import { getAvatarUrl } from "@/utils/ui/avatarUtils.js";
 
@@ -240,8 +240,9 @@ const selectedGeneratedStyle = ref(null);
 const currentAvatar = ref("");
 const loadingAvatar = ref(false);
 
-// 使用用户信息组合函数
-const { currentUser } = useUserInfo();
+// 使用用户信息
+const userStore = useUserStore();
+const currentUser = computed(() => userStore.currentUser);
 
 // 监听头像prop变化，直接设置头像URL
 watch(

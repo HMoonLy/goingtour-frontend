@@ -4,14 +4,42 @@
  */
 import { ref, computed, reactive, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { useUserAuth } from './useUser.js'
+import { useAuth } from '@/composables/user/useAuth.js'
+import { useUserStore } from '@/store/user.js'
 import { tripService } from '@/services/tripService.js'
 import { convertBackendTripToFrontend } from '@/utils/data/tripDataConverter.js'
 import { tripProgressManager } from '@/utils/system/tripProgress.js'
 
 export function useTrip() {
     // 使用用户认证
-    const { requireUserReady, userId, waitForUserReady } = useUserAuth()
+    const auth = useAuth()
+    const userStore = useUserStore()
+
+    // 兼容性适配
+    const requireUserReady = (options = {}) => {
+        const { showMessage = true } = options
+        return auth.requireLogin(!showMessage)
+    }
+
+    const waitForUserReady = async(timeout = 3000) => {
+        return new Promise((resolve) => {
+            if (userStore.isLoggedIn) {
+                resolve(true)
+                return
+            }
+
+            const timer = setTimeout(() => resolve(false), timeout)
+            const unwatch = userStore.$subscribe((mutation, state) => {
+                if (state.isLoggedIn) {
+                    clearTimeout(timer)
+                    unwatch()
+                    resolve(true)
+                }
+            })
+        })
+    }
+
+    const userId = userStore.userId
 
     // ==================== 响应式状态 ====================
 

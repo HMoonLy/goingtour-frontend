@@ -389,6 +389,7 @@ import {
 import { useUserStore } from "@/store/user.js";
 import { usePreferenceStore } from "@/store/preference.js";
 import { useDraft } from "@/composables/useDraft.js";
+import { useProfile } from "@/composables/user/useProfile.js";
 import { weatherApi } from "@/api/weather.js";
 import { draftApi } from "@/api/draft.js";
 import { useWeather } from "@/composables/useWeather.js";
@@ -427,6 +428,7 @@ export default {
 const userStore = useUserStore();
 const preferenceStore = usePreferenceStore();
 const draft = useDraft();
+const { fetchUserPreferences } = useProfile();
 
 
     // 当前步骤
@@ -733,7 +735,7 @@ const draft = useDraft();
       // 确保用户偏好数据已加载
       if (userStore.isLoggedIn && userStore.currentUser?.id) {
         try {
-          await userStore.fetchUserPreferences();
+          await fetchUserPreferences();
         } catch (error) {
           console.warn("⚠️ 加载用户偏好失败:", error);
         }

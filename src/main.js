@@ -6,8 +6,8 @@ import * as ElementPlusIconsVue from "@element-plus/icons-vue";
 import "element-plus/theme-chalk/dark/css-vars.css";
 import App from "./App.vue";
 import router from "./router/router.js";
-import { useUserStore } from "./store/user.js";
 import { initTheme } from "./utils/ui/theme.js";
+import { useUserStore } from "./store/user.js";
 
 // 导入全局样式
 import "./style.css";
@@ -55,12 +55,12 @@ if (
         const refreshToken = localStorage.getItem("goingtour_refresh_token");
         const tokenExpiry = localStorage.getItem("goingtour_token_expiry");
         console.log("📊 当前用户状态:");
-        console.log("- userData:", userData?JSON.parse(userData) : null);
+        console.log("- userData:", userData ? JSON.parse(userData) : null);
         console.log("- accessToken:", token);
         console.log("- refreshToken:", refreshToken);
         console.log(
             "- tokenExpiry:",
-            tokenExpiry?new Date(parseInt(tokenExpiry)) : null,
+            tokenExpiry ? new Date(parseInt(tokenExpiry)) : null,
         );
     };
 }
@@ -72,46 +72,27 @@ const initApp = async() => {
     // 初始化主题
     initTheme();
 
-    // 初始化用户状态（包括JWT令牌恢复）
+    // 初始化用户状态（从本地存储恢复）
     const userStore = useUserStore();
-    userStore.init();
-
-    // 等待用户状态完全初始化
-    await new Promise(resolve => {
-        // 如果用户已登录，等待用户信息获取完成
-        if (userStore.isLoggedIn && userStore.currentUser?.id) {
-            // 用户状态已完整，直接继续
-            resolve();
-        } else if (userStore.isLoggedIn) {
-            // 用户已登录但信息不完整，尝试获取用户信息
-            userStore.fetchUserInfo()
-                .then(() => {
-                    console.log("✅ 用户信息获取成功");
-                    resolve();
-                })
-                .catch((error) => {
-                    console.warn("⚠️ 刷新用户信息失败:", error);
-                    // 如果刷新失败，可能token已过期，清除登录状态
-                    userStore.logout();
-                    resolve();
-                });
-        } else {
-            // 用户未登录，直接继续
-            resolve();
-        }
-    });
+    userStore.loadFromStorage();
 
     console.log("🔄 用户状态初始化完成:", {
         isLoggedIn: userStore.isLoggedIn,
         userId: userStore.userId,
-        hasUserInfo: !!userStore.currentUser
+        hasUserInfo: !!userStore.currentUser,
+        tokenValid: userStore.isTokenValid
     });
 };
 
 // 启动应用
 initApp().then(() => {
     app.mount("#app");
+}).catch((error) => {
+    console.error("应用初始化失败:", error);
+    // 即使初始化失败也要挂载应用，避免白屏
+    app.mount("#app");
 });
+
 
 // 开发环境下的基本启动信息
 if (

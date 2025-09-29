@@ -91,6 +91,7 @@
 import { ref, computed, onMounted, reactive, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/user.js";
+import { useProfile } from "@/composables/user/useProfile.js";
 import { ElMessage } from "element-plus";
 import { ArrowLeft } from "@element-plus/icons-vue";
 import AvatarUploader from "@/components/Common/UI/AvatarUploader.vue";
@@ -110,6 +111,7 @@ export default {
   setup(props) {
     const router = useRouter();
     const userStore = useUserStore();
+    const { fetchUserInfo, updateUserInfo } = useProfile();
 
     // 响应式数据
     const profileLoading = ref(false);
@@ -147,7 +149,7 @@ export default {
         router.push("/login");
         return;
       }
-      await userStore.fetchUserInfo();
+      await fetchUserInfo();
     });
 
     // 方法
@@ -170,7 +172,7 @@ export default {
 
       // 自动保存头像更新
       try {
-        await userStore.updateUserInfo(profileForm.nickname, profileForm.avatar);
+        await updateUserInfo(profileForm.nickname, profileForm.avatar);
         ElMessage.success("头像更新成功");
       } catch (error) {
         console.error("头像更新失败:", error);
@@ -181,7 +183,7 @@ export default {
     const updateProfile = async () => {
       profileLoading.value = true;
       try {
-        await userStore.updateUserInfo(profileForm.nickname, profileForm.avatar);
+        await updateUserInfo(profileForm.nickname, profileForm.avatar);
         ElMessage.success("个人信息更新成功");
       } catch (error) {
         ElMessage.error("更新失败，请重试");

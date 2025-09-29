@@ -321,6 +321,7 @@ import {
   CircleCheckFilled
 } from '@element-plus/icons-vue';
 import { useUserStore } from '@/store/user.js';
+import { useProfile } from '@/composables/user/useProfile.js';
 import { PERSONAL_PROFILE_OPTIONS } from '@/utils/data/travelDataSystem.js';
 import { PersonalProfileInterpreter } from '@/utils/data/aiPromptEngine.js';
 
@@ -339,6 +340,7 @@ export default {
   },
   setup(props) {
     const userStore = useUserStore();
+    const { fetchUserPreferences, updateUserPreferences } = useProfile();
     const saving = ref(false);
 
     // 个人档案数据
@@ -552,7 +554,7 @@ export default {
         saving.value = true;
 
         // 调用用户存储保存个人档案
-        await userStore.updateUserPreferences({
+        await updateUserPreferences({
           ...profileData,
           profileCompleted: true,
           lastUpdated: new Date().toISOString()
@@ -573,7 +575,7 @@ export default {
     // 加载现有档案
     const loadProfile = async () => {
       try {
-        await userStore.fetchUserPreferences();
+        await fetchUserPreferences();
         const userPrefs = userStore.currentUser?.preferences;
         
         if (userPrefs) {

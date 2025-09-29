@@ -783,19 +783,21 @@ import {
   Document,
   Close,
 } from "@element-plus/icons-vue";
+// 使用统一的翻译系统
 import {
-  tagMappingZh,
-  tagMappingEn,
-  focusAreaMapping,
-  dietaryRestrictionMappingZh,
-  dietaryRestrictionMappingEn,
-  tripStyleMapping,
-  intensityMapping,
-  specialExperienceMapping,
+  translateTag,
+  translateTags,
+  translateTagsToString,
+  smartTranslateTag
+} from "@/utils/data/travelDataSystem.js";
+// 保留一些特殊功能的导入
+import {
   getBudgetText as getBudgetTextUtil,
   getCityName,
-} from "@/utils/data/tagMapping.js";
+} from "@/utils/data/travelDataSystem.js";
+import { generateCompletePrompt } from "@/utils/data/aiPromptEngine.js";
 import { useUserStore } from "@/store/user.js";
+import { useProfile } from "@/composables/user/useProfile.js";
 
 export default {
   name: "TripGeneration",
@@ -904,6 +906,7 @@ export default {
   setup(props, { emit }) {
     // 获取用户store
     const userStore = useUserStore();
+    const { fetchUserPreferences } = useProfile();
 
     // 生成风格选择
     const selectedGenerationStyle = ref("table"); // 默认表格式
@@ -927,9 +930,9 @@ export default {
       return preferences;
     });
 
-    // 语言映射对象（用于模板中的直接索引）
-    const tagMapping = computed(() => tagMappingZh);
-    const dietaryRestrictionMapping = computed(() => dietaryRestrictionMappingZh);
+    // 使用统一翻译系统替代旧的映射对象
+    const tagMapping = computed(() => ({})); // 保留引用但内容为空，使用新的翻译函数
+    const dietaryRestrictionMapping = computed(() => ({})); // 保留引用但内容为空
 
     // 计算用户偏好标签的中文显示
     const selectedPreferenceTags = computed(() => {
@@ -948,12 +951,13 @@ export default {
         const isTripFocusSet = tripFocus.length > 0;
         travelTags.forEach((tag) => {
           // 若用户在本次行程中设置了 focusAreas，则对于属于体验重点域的标签，按本次行程为准：
-          // - 如果该标签是体验重点域的键，且未被本次行程选择，则不纳入“个人偏好”集合，避免与本次选择冲突
-          const isFocusDomainTag = !!focusAreaMapping[tag];
+          // - 如果该标签是体验重点域的键，且未被本次行程选择，则不纳入"个人偏好"集合，避免与本次选择冲突
+          const focusAreaTranslation = translateTag(tag, 'coreInterests');
+          const isFocusDomainTag = focusAreaTranslation !== tag;
           if (isTripFocusSet && isFocusDomainTag && !tripFocus.includes(tag)) {
             return; // 跳过与本次勾选相冲突的通用/历史标签
           }
-          const chineseTag = tagMapping.value[tag] || focusAreaMapping[tag] || tag;
+          const chineseTag = smartTranslateTag(tag);
           tags.push(chineseTag);
         });
       }
@@ -962,14 +966,14 @@ export default {
       const transports = preferences.selectedTransports || [];
       if (Array.isArray(transports) && transports.length > 0) {
         transports.forEach((transport) => {
-          const chineseTag = tagMapping.value[transport];
+          const chineseTag = translateTag(transport, 'transportationMode');
           if (chineseTag) tags.push(chineseTag);
         });
       }
 
       // 住宿类型
       if (preferences.accommodationType) {
-        const chineseTag = tagMapping.value[preferences.accommodationType];
+        const chineseTag = translateTag(preferences.accommodationType, 'accommodationType');
         if (chineseTag) tags.push(chineseTag);
       }
 
@@ -978,7 +982,7 @@ export default {
         preferences.travelPace &&
         !(props.preferenceForm && props.preferenceForm.pacePreference)
       ) {
-        const chineseTag = tagMapping.value[preferences.travelPace];
+        const chineseTag = translateTag(preferences.travelPace, 'activityLevel');
         if (chineseTag) tags.push(chineseTag);
       }
 
@@ -986,11 +990,8 @@ export default {
       const foodTastes = preferences.foodTastes || [];
       if (Array.isArray(foodTastes) && foodTastes.length > 0) {
         foodTastes.forEach((taste) => {
-          const chineseTag =
-            tagMapping.value[taste] ||
-            focusAreaMapping[taste] ||
-            tagMappingZh[taste] ||
-            taste;
+          // 使用统一翻译系统，优先按餐饮偏好类别翻译
+          const chineseTag = translateTag(taste, 'cuisinePreference');
           tags.push(chineseTag);
         });
       }
@@ -1057,28 +1058,27 @@ export default {
     // 获取不同偏好的文本表示
     const getTripStyleText = (style) => {
       if (!style) return "";
-      return tripStyleMapping[style] || style;
+      return translateTag(style, 'travelStyle');
     };
 
     const getIntensityText = (intensity) => {
       if (!intensity) return "";
-      return intensityMapping[intensity] || intensity;
+      return translateTag(intensity, 'activityLevel');
     };
 
     const getFocusAreasText = (areas) => {
       if (!areas || areas.length === 0) return "";
-      return areas.map((area) => focusAreaMapping[area] || area).join("、");
+      return translateTagsToString(areas, 'coreInterests');
     };
 
     const getSpecialExperiencesText = (experiences) => {
       if (!experiences || experiences.length === 0) return "";
-      return experiences.map((exp) => specialExperienceMapping[exp] || exp).join("、");
+      return translateTagsToString(experiences, 'specialRequirements');
     };
 
     const getDietaryRestrictionsText = (restrictions) => {
       if (!restrictions || restrictions.length === 0) return "";
-      const mapObj = dietaryRestrictionMapping.value;
-      return restrictions.map((r) => mapObj[r] || r).join("、");
+      return translateTagsToString(restrictions, 'specialRequirements');
     };
 
     // 新增：获取行程目标文本
@@ -1210,24 +1210,25 @@ export default {
       if (currentUserPreferences.value && selectedPreferenceTags.value.length > 0) {
         prompt += `我的旅行偏好是${selectedPreferenceTags.value.join("、")}。`;
         if (currentUserPreferences.value.accommodationType) {
-          prompt += `住宿偏好${
-            tagMapping.value[currentUserPreferences.value.accommodationType] ||
-            currentUserPreferences.value.accommodationType
-          }。`;
+          prompt += `住宿偏好${translateTag(
+            currentUserPreferences.value.accommodationType,
+            'accommodationType'
+          )}。`;
         }
         if (currentUserPreferences.value.travelPace) {
-          prompt += `旅行节奏偏好${
-            tagMapping.value[currentUserPreferences.value.travelPace] ||
-            currentUserPreferences.value.travelPace
-          }。`;
+          prompt += `旅行节奏偏好${translateTag(
+            currentUserPreferences.value.travelPace,
+            'activityLevel'
+          )}。`;
         }
         if (
           currentUserPreferences.value.foodTastes &&
           currentUserPreferences.value.foodTastes.length > 0
         ) {
-          prompt += `饮食偏好${currentUserPreferences.value.foodTastes
-            .map((taste) => tagMapping.value[taste] || taste)
-            .join("、")}。`;
+          prompt += `饮食偏好${translateTagsToString(
+            currentUserPreferences.value.foodTastes,
+            'cuisinePreference'
+          )}。`;
         }
         prompt += "\n\n";
       }
@@ -1246,8 +1247,8 @@ export default {
         if (props.preferenceForm.tripGoals && props.preferenceForm.tripGoals.length > 0) {
           // 优先翻译通用标签（如 food、hiking）
           const goalsText = getTripGoalsText(props.preferenceForm.tripGoals)
-            .replace(/food/g, tagMappingZh.food)
-            .replace(/hiking/g, "徒步");
+            .replace(/food/g, translateTag("food"))
+            .replace(/hiking/g, translateTag("hiking"));
           prompt += `本次行程目标是${goalsText}。`;
         }
 
@@ -2035,7 +2036,7 @@ export default {
       ) {
         try {
           // 尝试获取用户偏好数据
-          await userStore.fetchUserPreferences();
+          await fetchUserPreferences();
 
           // 等待下一个tick确保数据更新完成
           await nextTick();

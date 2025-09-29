@@ -4,12 +4,39 @@
  */
 import { ref, computed } from 'vue'
 import { wishlistService } from '@/services/wishlistService.js'
-import { useUserAuth } from '@/composables/useUser.js'
+import { useAuth } from '@/composables/user/useAuth.js'
 import { useUserStore } from '@/store/user.js'
 
 export function useWishlist() {
     // 使用用户认证组合函数
-    const { requireUserReady, userId, waitForUserReady } = useUserAuth()
+    const auth = useAuth()
+    const userStore = useUserStore()
+
+    // 兼容性适配
+    const requireUserReady = (options = {}) => {
+        const { showMessage = true } = options
+        return auth.requireLogin(!showMessage)
+    }
+
+    const waitForUserReady = async(timeout = 3000) => {
+        return new Promise((resolve) => {
+            if (userStore.isLoggedIn) {
+                resolve(true)
+                return
+            }
+
+            const timer = setTimeout(() => resolve(false), timeout)
+            const unwatch = userStore.$subscribe((mutation, state) => {
+                if (state.isLoggedIn) {
+                    clearTimeout(timer)
+                    unwatch()
+                    resolve(true)
+                }
+            })
+        })
+    }
+
+    const userId = userStore.userId
 
     // 状态
     const wishlistItems = ref([])

@@ -245,7 +245,7 @@ class="form-item agreement-item">
 <script>
 import { ref, reactive, computed, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
-import { useUser } from "@/composables/useUser.js";
+import { useAuth } from "@/composables/user/useAuth.js";
 import { ElMessage, ElNotification, ElMessageBox } from "element-plus";
 import {
   MapLocation,
@@ -257,6 +257,7 @@ import {
   User,
   ChatDotRound,
 } from "@element-plus/icons-vue";
+import { validateEmail } from "@/utils/security/validation.js";
 
 export default {
   name: "Register",
@@ -280,9 +281,8 @@ export default {
       countdown,
       sendVerificationCode,
       register,
-      isValidEmail,
       cleanup
-    } = useUser();
+    } = useAuth();
 
     // 表单引用
     const registerFormRef = ref();
@@ -337,7 +337,7 @@ export default {
 
     // 计算属性
     const canSendCode = computed(() => {
-      return isValidEmail(registerForm.email);
+      return validateEmail(registerForm.email);
     });
 
     // 输入处理

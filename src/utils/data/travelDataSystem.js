@@ -6,11 +6,13 @@
  * 2. 数据分层 - 个人档案 vs 行程偏好的明确分离  
  * 3. AI精确 - 将简单选择转换为详细AI指导
  * 4. 智能继承 - 个人档案自动影响行程推荐
+ * 5. 统一翻译 - 提供统一的标签翻译和映射服务
  * 
  * 🏗️ 架构说明：
  * - PersonalProfile: 一次设置，终身受益的个人旅行档案
  * - TripPreferences: 每次旅行可调整的具体偏好
  * - AIPromptEngine: 将用户友好选择转换为AI理解的详细指导
+ * - UnifiedTranslation: 统一的标签翻译系统，整合所有映射逻辑
  */
 
 // ==============================================
@@ -535,11 +537,465 @@ export function formatTagsToString(tags, category) {
     return displayNames.join('、');
 }
 
+// ==============================================
+// 🔄 统一翻译系统 - 整合所有标签映射逻辑
+// ==============================================
+
+/**
+ * 从 tagMapping.js 导入的兜底映射表
+ * 用于处理不在 travelDataSystem 中的通用标签
+ */
+const LEGACY_TAG_MAPPINGS = {
+    // 基础旅行类型
+    nature: "自然风光",
+    culture: "文化体验",
+    relaxation: "休闲放松",
+    food: "美食体验",
+    shopping: "购物娱乐",
+    nightlife: "夜生活",
+    adventure: "冒险体验",
+    hiking: "徒步",
+    photography: "摄影打卡",
+    history: "历史古迹",
+    historical: "历史文化",
+    art: "艺术文化",
+    sports: "运动健身",
+
+    // 出行方式
+    family: "家庭亲子游",
+    couple: "情侣出行",
+    solo: "独行",
+    group: "团体出行",
+
+    // 体验类型
+    luxury: "奢华体验",
+    budget: "经济实惠",
+    local_life: "体验当地生活",
+    festivals: "节庆活动",
+    beaches: "海滩度假",
+    mountains: "山地风光",
+    cities: "城市探索",
+    countryside: "乡村体验",
+    urban: "都市风情",
+    city_life: "都市生活",
+
+    // 交通偏好
+    public: "公共交通",
+    walk: "步行出行",
+    walking: "步行",
+    bicycle: "骑行",
+    bike: "骑行",
+    taxi: "打车出行",
+    car: "自驾",
+    driving: "自驾",
+    metro: "地铁",
+    bus: "公交",
+    shared: "包车/拼车",
+
+    // 住宿偏好
+    hotel: "酒店",
+    hostel: "青年旅社",
+    bnb: "民宿",
+    resort: "度假村",
+    camping: "露营",
+    apartment: "公寓",
+
+    // 餐饮偏好
+    local_cuisine: "当地特色",
+    street_food: "街头小吃",
+    fine_dining: "高端餐厅",
+    vegetarian: "素食",
+    halal: "清真",
+    spicy: "辛辣",
+    mild: "清淡",
+    seafood: "海鲜",
+    barbecue: "烧烤",
+    desserts: "甜品",
+
+    // 活动偏好
+    museums: "博物馆",
+    temples: "寺庙古刹",
+    parks: "公园",
+    markets: "集市",
+    festivals_events: "节庆活动",
+    concerts: "音乐会",
+    theater: "戏剧表演",
+    exhibitions: "展览",
+    workshops: "手工体验",
+    tours: "导览游",
+
+    // === 从图片中发现的缺失翻译 ===
+    exploration: "探索发现",
+    balanced: "平衡型",
+    moderate: "适度",
+
+    // === 旅行风格补充 ===
+    slow: "慢节奏深度游",
+    fast: "快节奏打卡游",
+    flexible: "灵活安排",
+    structured: "结构化行程",
+    spontaneous: "随性而为",
+
+    // === 强度等级 ===
+    low: "轻松休闲",
+    medium: "适中强度",
+    high: "高强度体验",
+
+    // === 预算等级 ===
+    mid_range: "中等消费",
+    luxury_budget: "奢华",
+
+    // === 餐饮限制补充 ===
+    vegan: "严格素食",
+    kosher: "犹太洁食",
+    gluten_free: "无麸质",
+    dairy_free: "无乳制品",
+    nut_free: "无坚果",
+    seafood_allergy: "海鲜过敏",
+    spicy_intolerant: "不能吃辣",
+    low_sodium: "低钠饮食",
+    diabetic: "糖尿病饮食",
+    lactose_intolerant: "乳糖不耐",
+    shellfish_allergy: "贝类过敏",
+    egg_allergy: "鸡蛋过敏",
+    soy_allergy: "大豆过敏",
+    no_pork: "不吃猪肉",
+    no_beef: "不吃牛肉",
+    no_alcohol: "不饮酒",
+    raw_food_only: "只吃生食",
+    cooked_food_only: "只吃熟食",
+
+    // === 焦点区域 ===
+    attractions: "景点推荐",
+    restaurants: "餐厅推荐",
+    hotels: "住宿推荐",
+    transportation: "交通建议",
+    activities: "活动安排",
+    local_tips: "当地贴士",
+    safety: "安全提醒",
+    weather: "天气建议",
+    itinerary: "行程安排",
+    food_guide: "美食指南",
+    seasonal: "季节性推荐",
+    accessibility: "无障碍信息",
+    family_friendly: "亲子友好",
+    romantic: "浪漫推荐",
+    wellness: "健康养生",
+    education: "教育体验",
+    volunteering: "志愿服务",
+    business: "商务差旅",
+    medical: "医疗旅游",
+    spiritual: "精神修行",
+    eco_tourism: "生态旅游",
+    backpacking: "背包客",
+    road_trip: "自驾游",
+    cruise: "邮轮旅行",
+    coastal: "海岸风光",
+    mountain: "山地体验",
+    desert: "沙漠探险",
+    forest: "森林探索",
+    island: "岛屿度假",
+    lake: "湖泊风光",
+    river: "河流体验",
+    hot_springs: "温泉体验",
+    ski: "滑雪运动",
+    beach: "海滩度假",
+    diving: "潜水体验",
+    cycling: "骑行体验",
+
+    // === 特殊体验 ===
+    sunrise: "日出体验",
+    sunset: "日落体验",
+    night_market: "夜市体验",
+    local_festival: "当地节庆",
+    cooking_class: "烹饪课程",
+    art_workshop: "艺术工坊",
+
+    // === 时间偏好 ===
+    morning: "早晨",
+    afternoon: "下午",
+    evening: "傍晚",
+    night: "夜晚",
+    weekend: "周末",
+    weekday: "工作日",
+
+    // === 季节偏好 ===
+    spring: "春季",
+    summer: "夏季",
+    autumn: "秋季",
+    winter: "冬季",
+
+    // === 社交类型 ===
+    quiet: "安静",
+    mixed: "混合",
+    social: "社交",
+
+    // === 拍照偏好 ===
+    essential: "必要",
+    frequent: "频繁",
+
+    // === MBTI 类型 ===
+    INTJ: "建筑师",
+    INTP: "逻辑学家",
+    ENTJ: "指挥官",
+    ENTP: "辩论家",
+    INFJ: "提倡者",
+    INFP: "调停者",
+    ENFJ: "主人公",
+    ENFP: "竞选者",
+    ISTJ: "物流师",
+    ISFJ: "守护者",
+    ESTJ: "总经理",
+    ESFJ: "执政官",
+    ISTP: "鉴赏家",
+    ISFP: "探险家",
+    ESTP: "企业家",
+    ESFP: "娱乐家",
+
+    // === 交通方式补充 ===
+    motorcycle: "摩托车",
+    train: "火车",
+    plane: "飞机",
+    boat: "轮船"
+};
+
+/**
+ * 🎯 统一标签翻译函数
+ * 优先级：travelDataSystem > legacyMappings > 原值
+ * 
+ * @param {string} tag - 要翻译的标签
+ * @param {string} category - 标签类别（用于在 travelDataSystem 中查找）
+ * @returns {string} 翻译后的中文标签
+ */
+export function translateTag(tag, category = null) {
+    if (!tag) return '';
+
+    // 1. 优先使用 travelDataSystem 的映射
+    if (category) {
+        const displayName = getOptionDisplayName(category, tag);
+        if (displayName !== tag) {
+            return displayName;
+        }
+    }
+
+    // 2. 尝试在所有 travelDataSystem 类别中查找
+    const categories = [
+        'mbtiTypes', 'coreInterests', 'travelStyle', 'budgetRange',
+        'activityLevel', 'accommodationType', 'transportationMode',
+        'cuisinePreference', 'specialRequirements'
+    ];
+
+    for (const cat of categories) {
+        const displayName = getOptionDisplayName(cat, tag);
+        if (displayName !== tag) {
+            return displayName;
+        }
+    }
+
+    // 3. 使用兜底映射表
+    if (LEGACY_TAG_MAPPINGS[tag]) {
+        return LEGACY_TAG_MAPPINGS[tag];
+    }
+
+    // 4. 返回原值
+    return tag;
+}
+
+/**
+ * 🎯 批量翻译标签数组
+ * 
+ * @param {Array} tags - 标签数组
+ * @param {string} category - 标签类别
+ * @returns {Array} 翻译后的标签数组
+ */
+export function translateTags(tags, category = null) {
+    if (!Array.isArray(tags)) return [];
+    return tags.map(tag => translateTag(tag, category));
+}
+
+/**
+ * 🎯 将标签数组转换为中文字符串
+ * 
+ * @param {Array} tags - 标签数组
+ * @param {string} category - 标签类别
+ * @returns {string} 翻译后的标签字符串（用顿号分隔）
+ */
+export function translateTagsToString(tags, category = null) {
+    if (!Array.isArray(tags) || tags.length === 0) return '';
+
+    const translatedTags = translateTags(tags, category);
+    return translatedTags.join('、');
+}
+
+/**
+ * 🎯 智能标签翻译（自动检测类别）
+ * 根据标签内容智能判断可能的类别
+ * 
+ * @param {string} tag - 要翻译的标签
+ * @returns {string} 翻译后的标签
+ */
+export function smartTranslateTag(tag) {
+    if (!tag) return '';
+
+    // 尝试各种可能的类别
+    const possibleCategories = [
+        'coreInterests', // 核心兴趣
+        'travelStyle', // 旅行风格
+        'activityLevel', // 活动强度
+        'accommodationType', // 住宿类型
+        'transportationMode', // 交通方式
+        'cuisinePreference', // 餐饮偏好
+        'specialRequirements' // 特殊需求
+    ];
+
+    for (const category of possibleCategories) {
+        const translated = translateTag(tag, category);
+        if (translated !== tag) {
+            return translated;
+        }
+    }
+
+    // 如果都没找到，使用基础翻译
+    return translateTag(tag);
+}
+
+/**
+ * 🎯 预算映射数据（从 tagMapping.js 迁移）
+ */
+const BUDGET_MAPPING = {
+    budget: {
+        text: "经济型",
+        price: "100-300元/天",
+        description: "注重性价比，选择经济实惠的选项"
+    },
+    mid_range: {
+        text: "中等消费",
+        price: "300-800元/天",
+        description: "平衡价格与品质，追求舒适体验"
+    },
+    luxury: {
+        text: "高端奢华",
+        price: "800元以上/天",
+        description: "追求高品质服务和独特体验"
+    }
+};
+
+/**
+ * 🎯 获取预算文本
+ * @param {string} budgetType - 预算类型
+ * @returns {string} 预算描述
+ */
+export function getBudgetText(budgetType) {
+    const budget = BUDGET_MAPPING[budgetType];
+    return budget ? `${budget.text}(${budget.price})` : budgetType;
+}
+
+/**
+ * 🎯 获取城市名称
+ * @param {string} adcode - 城市代码
+ * @param {string} cityName - 城市名称（备选）
+ * @returns {string} 城市名称
+ */
+export function getCityName(adcode, cityName = null) {
+    // 这里可以扩展城市代码到名称的映射
+    // 暂时返回传入的城市名称或代码
+    return cityName || adcode;
+}
+
+/**
+ * 🎯 MBTI 名称映射
+ */
+const MBTI_NAMES = {
+    INTJ: "建筑师",
+    INTP: "逻辑学家",
+    ENTJ: "指挥官",
+    ENTP: "辩论家",
+    INFJ: "提倡者",
+    INFP: "调停者",
+    ENFJ: "主人公",
+    ENFP: "竞选者",
+    ISTJ: "物流师",
+    ISFJ: "守护者",
+    ESTJ: "总经理",
+    ESFJ: "执政官",
+    ISTP: "鉴赏家",
+    ISFP: "探险家",
+    ESTP: "企业家",
+    ESFP: "娱乐家"
+};
+
+/**
+ * 🎯 获取MBTI名称
+ * @param {string} type - MBTI类型
+ * @returns {string} MBTI中文名称
+ */
+export function getMbtiName(type) {
+    return MBTI_NAMES[type] || type;
+}
+
+/**
+ * 🎯 MBTI旅行偏好描述
+ */
+const MBTI_TRAVEL_DESCRIPTIONS = {
+    INTJ: "理性规划，深度体验 - 偏好精心规划的深度游，避开拥挤景点，喜欢探索有历史底蕴和设计感的地点",
+    INTP: "独立思考，探索新知 - 思维敏捷，喜欢独立思考和探索新事物，对文化交流和艺术展览感兴趣",
+    ENTJ: "领导决断，挑战竞争 - 具有领导力和决断力，喜欢挑战和竞争，偏爱极限运动和热门景点",
+    ENTP: "充满好奇，喜欢交流 - 充满好奇心，喜欢交流，对文化体验、美食探索和新奇事物感兴趣",
+    INFJ: "深入体验，寻求意义 - 注重内心体验和精神层面的收获，喜欢有文化底蕴的深度旅行",
+    INFP: "自由探索，追求真我 - 喜欢自由自在的旅行方式，追求个人独特体验和内心平静",
+    ENFJ: "关怀他人，分享快乐 - 注重与他人的情感连接，喜欢能够帮助当地人或参与志愿活动的旅行",
+    ENFP: "充满激情，拥抱变化 - 热爱新鲜事物和意外惊喜，喜欢灵活多变的行程安排",
+    ISTJ: "按部就班，稳妥安全 - 偏好详细计划和安全可靠的旅行安排，注重实用性和传统体验",
+    ISFJ: "贴心周到，温馨舒适 - 关注旅行中的舒适度和安全感，喜欢温馨的家庭式体验",
+    ESTJ: "高效组织，目标导向 - 喜欢高效率的行程安排，注重时间管理和目标达成",
+    ESFJ: "热情社交，团体和谐 - 享受与他人分享旅行乐趣，注重团体和谐和社交互动",
+    ISTP: "实用探索，灵活应变 - 喜欢实际操作和技能学习，偏爱户外活动和冒险体验",
+    ISFP: "艺术审美，宁静致远 - 对美的追求和艺术欣赏，喜欢宁静优美的自然环境",
+    ESTP: "活力四射，即时享受 - 喜欢刺激有趣的活动，注重当下的快乐和感官体验",
+    ESFP: "快乐分享，活在当下 - 热爱生活的乐趣，喜欢与人分享快乐时光和美好回忆"
+};
+
+/**
+ * 🎯 获取MBTI性格的旅行偏好描述
+ * @param {string} type - MBTI类型
+ * @returns {string} 旅行偏好描述
+ */
+export function getMbtiTravelDescription(type) {
+    return MBTI_TRAVEL_DESCRIPTIONS[type] || "您的旅行偏好将基于您的MBTI类型和预算来定制。";
+}
+
+/**
+ * 🎯 获取映射类型列表
+ * @returns {Array} 可用的映射类型
+ */
+export function getMappingTypes() {
+    return [
+        'general',
+        'dietary',
+        'focus',
+        'style',
+        'intensity',
+        'special',
+        'budget'
+    ];
+}
+
 export default {
     PERSONAL_PROFILE_OPTIONS,
     TRIP_PREFERENCES_OPTIONS,
     getOptionDisplayName,
     getOptionDescription,
     validateSelections,
-    formatTagsToString
+    formatTagsToString,
+    // 🎯 统一翻译功能
+    translateTag,
+    translateTags,
+    translateTagsToString,
+    smartTranslateTag,
+    // 🎯 特殊功能（从 tagMapping.js 迁移）
+    getBudgetText,
+    getCityName,
+    getMbtiName,
+    getMbtiTravelDescription,
+    getMappingTypes
 };

@@ -561,6 +561,7 @@ import {
 } from "@/utils/data/aiPromptEngine.js";
 import { useUserStore } from "@/store/user.js";
 import { usePreferenceStore } from "@/store/preference.js";
+import { useProfile } from "@/composables/user/useProfile.js";
 
 export default {
   name: "TripPreferencesNew",
@@ -598,6 +599,7 @@ export default {
   setup(props, { emit }) {
     const userStore = useUserStore();
     const preferenceStore = usePreferenceStore();
+    const { fetchUserPreferences } = useProfile();
     const saving = ref(false);
     const showDetailedAI = ref(false);
     const showAiRecommendationDialog = ref(false);
@@ -1439,7 +1441,7 @@ export default {
     // 加载个人档案
     const loadPersonalProfile = async () => {
       try {
-        await userStore.fetchUserPreferences();
+        await fetchUserPreferences();
         const userPrefs = userStore.currentUser?.preferences;
 
         if (userPrefs) {

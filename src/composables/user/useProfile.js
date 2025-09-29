@@ -1,12 +1,24 @@
 import { ref, computed } from 'vue'
 import { useUserStore } from '@/store/user.js'
 import { handleApiError, handleSuccess } from '@/utils/api/errorHandler.js'
+import { userApi } from '@/api/user.js'
 
 /**
- * useProfile - 用户资料管理组合函数
+ * useProfile - 用户资料管理业务逻辑
  * 
- * 专注于用户信息展示和管理功能
- * 精简版本，移除了重复的getter和复杂的状态处理
+ * 🎯 职责：用户资料相关的API调用 + 业务逻辑 + UI交互
+ * - 获取用户信息API + 流程控制
+ * - 更新用户信息API + 流程控制
+ * - 获取/更新偏好设置API + 流程控制
+ * - 资料展示相关的辅助方法
+ * - UI反馈和错误处理
+ * 
+ * ✅ 包含：
+ * - 用户资料相关的API调用
+ * - 资料管理业务流程
+ * - UI交互逻辑
+ * - 数据格式化和验证
+ * - 错误处理和用户反馈
  */
 export function useProfile() {
     const userStore = useUserStore()
@@ -25,9 +37,10 @@ export function useProfile() {
     // ========== 核心功能方法 ==========
 
     /**
-     * 获取用户完整信息
+     * 获取用户完整信息（API调用 + 业务逻辑：验证 -> API -> 更新状态 -> 错误处理）
      */
     async function fetchUserInfo() {
+        // 1. 前置验证
         if (!userId.value) {
             console.warn('用户未登录，无法获取用户信息')
             return null
@@ -35,7 +48,14 @@ export function useProfile() {
 
         try {
             loading.value = true
-            const userInfo = await userStore.fetchUserInfo()
+
+            // 2. 调用用户信息API
+            const response = await userApi.getUserInfo(userId.value)
+            const userInfo = response.data
+
+            // 3. 更新store状态
+            userStore.updateUserInfo(userInfo)
+
             return userInfo
         } catch (error) {
             handleApiError(error, '获取用户信息失败', {
@@ -49,9 +69,10 @@ export function useProfile() {
     }
 
     /**
-     * 更新用户基本信息
+     * 更新用户基本信息（API调用 + 业务流程：验证 -> API -> 更新状态 -> UI反馈）
      */
     async function updateUserInfo(nickname, avatar) {
+        // 1. 前置验证
         if (!userId.value) {
             handleApiError(new Error('用户未登录'), '更新失败')
             return false
@@ -59,7 +80,18 @@ export function useProfile() {
 
         try {
             loading.value = true
-            await userStore.updateUserInfo(nickname, avatar)
+
+            // 2. 调用更新用户信息API
+            const response = await userApi.updateInfo(userId.value, {
+                nickname,
+                avatar
+            })
+            const updatedInfo = response.data
+
+            // 3. 更新store状态
+            userStore.updateUserInfo(updatedInfo)
+
+            // 4. UI成功反馈
             handleSuccess('个人信息更新成功')
             return true
         } catch (error) {
@@ -71,7 +103,7 @@ export function useProfile() {
     }
 
     /**
-     * 获取用户偏好设置
+     * 获取用户偏好设置（API调用 + 业务逻辑：验证 -> API -> 更新状态 -> 错误处理）
      */
     async function fetchUserPreferences() {
         if (!userId.value) {
@@ -80,7 +112,12 @@ export function useProfile() {
         }
 
         try {
-            const preferences = await userStore.fetchUserPreferences()
+            // 1. 调用获取偏好设置API
+            const response = await userApi.getUserPreferences(userId.value)
+                // 提取偏好数据 - API返回的数据结构是 { preferences: {...}, userId: ..., budget: ... }
+            const preferences = response.data.preferences || response.data
+                // 2. 更新store状态
+            userStore.setUserPreferences(preferences)
             return preferences
         } catch (error) {
             handleApiError(error, '获取用户偏好失败', {
@@ -92,7 +129,7 @@ export function useProfile() {
     }
 
     /**
-     * 更新用户偏好设置
+     * 更新用户偏好设置（API调用 + 业务流程：验证 -> API -> 更新状态 -> UI反馈）
      */
     async function updateUserPreferences(preferences) {
         if (!userId.value) {
@@ -102,7 +139,15 @@ export function useProfile() {
 
         try {
             loading.value = true
-            await userStore.updateUserPreferences(preferences)
+
+            // 1. 调用更新偏好设置API
+            const response = await userApi.updatePreferences(userId.value, preferences)
+                // 提取偏好数据 - API返回的数据结构可能是 { preferences: {...} } 或直接是偏好对象
+            const updatedPreferences = response.data.preferences || response.data
+                // 2. 更新store状态
+            userStore.setUserPreferences(updatedPreferences)
+
+            // 3. UI成功反馈
             handleSuccess('偏好设置更新成功')
             return true
         } catch (error) {

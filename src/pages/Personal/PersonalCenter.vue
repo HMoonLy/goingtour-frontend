@@ -330,11 +330,13 @@ import {
 } from "@element-plus/icons-vue";
 
 import { useUserStore } from "@/store/user.js";
+import { useProfile } from "@/composables/user/useProfile.js";
 import { useDraft } from "@/composables/useDraft.js";
 import { draftManager } from "@/utils/storage/draftManager.js";
 import { convertBackendTripToFrontend } from "@/utils/data/tripDataConverter.js";
 import { handleApiError } from "@/utils/api/errorHandler.js";
-import { translateTag, getMbtiName } from "@/utils/data/tagMapping.js";
+import { translateTag } from "@/utils/data/travelDataSystem.js";
+import { getMbtiName } from "@/utils/data/aiPromptEngine.js";
 import { 
   PERSONAL_PROFILE_OPTIONS, 
   getOptionDisplayName, 
@@ -367,8 +369,9 @@ export default {
   },
   setup() {
     const router = useRouter();
-  const userStore = useUserStore();
-  const draft = useDraft();
+    const userStore = useUserStore();
+    const { fetchUserPreferences, updateUserInfo } = useProfile();
+    const draft = useDraft();
 
     // 响应式数据
     const loading = ref(false);
@@ -439,16 +442,7 @@ export default {
 
     // 用户偏好数据
     const userPreferences = computed(() => {
-      // 从currentUser.preferences字段获取偏好数据
-      if (userStore.currentUser?.preferences) {
-        try {
-          return JSON.parse(userStore.currentUser.preferences);
-        } catch (error) {
-          console.warn("解析用户偏好数据失败:", error);
-        }
-      }
-      
-      // 降级到userStore.userPreferences
+      // 从userStore.userPreferences获取偏好数据（已经是对象）
       if (userStore.userPreferences && Object.keys(userStore.userPreferences).length > 0) {
         return userStore.userPreferences;
       }
@@ -525,7 +519,7 @@ export default {
 
         // 加载用户偏好数据
         try {
-          await userStore.fetchUserPreferences();
+          await fetchUserPreferences();
         } catch (error) {
           console.warn("加载用户偏好失败:", error);
           // 偏好加载失败不影响其他功能，只记录警告
@@ -706,7 +700,7 @@ export default {
 
     const handleAvatarUpdate = async (newAvatar) => {
       try {
-        await userStore.updateUserInfo(userStore.nickname, newAvatar);
+        await updateUserInfo(userStore.nickname, newAvatar);
         ElMessage.success("头像更新成功！");
       } catch (error) {
         console.error("头像更新失败:", error);
