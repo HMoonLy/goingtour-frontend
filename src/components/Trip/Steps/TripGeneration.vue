@@ -86,15 +86,13 @@
                 >。
                 <template v-if="currentUserPreferences.accommodationType">
                   住宿偏好<span class="highlight">{{
-                    tagMapping[currentUserPreferences.accommodationType] ||
-                    currentUserPreferences.accommodationType
+                    translateTag(currentUserPreferences.accommodationType)
                   }}</span
                   >。
                 </template>
                 <template v-if="currentUserPreferences.travelPace">
                   旅行节奏偏好<span class="highlight">{{
-                    tagMapping[currentUserPreferences.travelPace] ||
-                    currentUserPreferences.travelPace
+                    translateTag(currentUserPreferences.travelPace)
                   }}</span
                   >。
                 </template>
@@ -105,9 +103,7 @@
                   "
                 >
                   饮食偏好<span class="highlight">{{
-                    currentUserPreferences.foodTastes
-                      .map((taste) => tagMapping[taste] || taste)
-                      .join("、")
+                    translateTagsToString(currentUserPreferences.foodTastes)
                   }}</span
                   >。
                 </template>
@@ -930,8 +926,7 @@ export default {
       return preferences;
     });
 
-    // 使用统一翻译系统替代旧的映射对象
-    const tagMapping = computed(() => ({})); // 保留引用但内容为空，使用新的翻译函数
+    // 使用统一翻译系统
     const dietaryRestrictionMapping = computed(() => ({})); // 保留引用但内容为空
 
     // 计算用户偏好标签的中文显示
@@ -2099,7 +2094,6 @@ export default {
       selectedPreferenceTags,
       hasUserPreferences,
       currentUserPreferences,
-      tagMapping: tagMapping.value,
       isDateWithinForecastRange,
       // 风格选择相关
       selectedGenerationStyle,
