@@ -25,7 +25,8 @@ body {
   width: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  /* 让窗口成为全局滚动容器，避免与页面内滚动冲突 */
+  overflow-x: hidden;
 }
 
 #app {

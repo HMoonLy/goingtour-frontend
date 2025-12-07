@@ -6,14 +6,19 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "preview": "vite preview",
-        "lint": "eslint . --ext .vue,.js,.jsx --fix"
+        "preview": "vite preview"
     },
     "dependencies": {
         "@element-plus/icons-vue": "^2.3.1",
         "@vueuse/integrations": "^13.6.0",
+        "ali-oss": "^6.23.0",
         "axios": "^1.6.2",
+        "docx": "^9.5.1",
+        "echarts": "^6.0.0",
         "element-plus": "^2.4.3",
+        "file-saver": "^2.0.5",
+        "html2canvas": "^1.4.1",
+        "html2pdf.js": "^0.12.1",
         "markdown-it": "^14.1.0",
         "pinia": "^2.1.7",
         "pinyin": "^3.0.0-alpha.5",

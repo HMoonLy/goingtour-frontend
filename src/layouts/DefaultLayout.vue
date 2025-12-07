@@ -3,9 +3,7 @@
     <!-- 顶部导航栏 -->
     <header class="layout-header">
       <div class="header-container">
-        <div
-class="header-logo" @click="$router.push('/destinations')"
->
+        <div class="header-logo" @click="$router.push('/home')">
           <h2>GoingTour</h2>
         </div>
 
@@ -13,19 +11,27 @@ class="header-logo" @click="$router.push('/destinations')"
           <div class="nav-menu">
             <div
               class="nav-item"
+              :class="{ 'is-active': activeMenu === '/home' }"
+              @click="$router.push('/home')"
+            >
+              <el-icon><House /></el-icon>
+              <span>{{ "首页" }}</span>
+            </div>
+            <div
+              class="nav-item"
               :class="{ 'is-active': activeMenu === '/destinations' }"
               @click="$router.push('/destinations')"
             >
               <el-icon><MapLocation /></el-icon>
-              <span>目的地</span>
+              <span>{{ "目的地" }}</span>
             </div>
             <div
               class="nav-item"
-              :class="{ 'is-active': activeMenu === '/trip/create' }"
-              @click="$router.push('/trip/create')"
+              :class="{ 'is-active': activeMenu === '/personal' }"
+              @click="$router.push('/personal')"
             >
-              <el-icon><Calendar /></el-icon>
-              <span>创建行程</span>
+              <el-icon><User /></el-icon>
+              <span>{{ "个人中心" }}</span>
             </div>
           </div>
         </nav>
@@ -33,13 +39,10 @@ class="header-logo" @click="$router.push('/destinations')"
         <div class="header-user">
           <el-dropdown @command="handleUserCommand">
             <div class="user-info">
-              <el-avatar
-:src="userStore.avatar" :size="32"
->
-                <img
-src="../assets/images/default-avatar.jpg" alt="avatar" />
+              <el-avatar :src="avatar" :size="32">
+                <img src="../assets/images/default-avatar.jpg" alt="avatar" />
               </el-avatar>
-              <span class="username">{{ userStore.nickname }}</span>
+              <span class="username">{{ nickname }}</span>
               <el-icon class="dropdown-icon">
                 <ArrowDown />
               </el-icon>
@@ -47,15 +50,10 @@ src="../assets/images/default-avatar.jpg" alt="avatar" />
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item command="personal">
-                  <el-icon><User /></el-icon>个人中心
+                  <el-icon><User /></el-icon>{{ "个人资料" }}
                 </el-dropdown-item>
-                <el-dropdown-item command="preferences">
-                  <el-icon><Setting /></el-icon>偏好设置
-                </el-dropdown-item>
-                <el-dropdown-item
-divided command="logout"
->
-                  <el-icon><SwitchButton /></el-icon>退出登录
+                <el-dropdown-item divided command="logout">
+                  <el-icon><SwitchButton /></el-icon>{{ "退出登录" }}
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -71,7 +69,10 @@ divided command="logout"
     >
       <div
         class="main-container"
-        :class="{ 'trip-detail-container': isTripDetailPage }"
+        :class="{
+          'trip-detail-container': isTripDetailPage,
+          'full-width': isFullWidthPage,
+        }"
       >
         <router-view />
       </div>
@@ -82,15 +83,16 @@ divided command="logout"
 <script>
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useAuth } from "@/composables/user/useAuth.js";
 import { useUserStore } from "@/store/user.js";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
   MapLocation,
   Calendar,
   User,
-  Setting,
   SwitchButton,
   ArrowDown,
+  House,
 } from "@element-plus/icons-vue";
 
 export default {
@@ -99,20 +101,29 @@ export default {
     MapLocation,
     Calendar,
     User,
-    Setting,
     SwitchButton,
     ArrowDown,
+    House,
   },
   setup() {
     const route = useRoute();
     const router = useRouter();
+    
+    // 使用用户信息
     const userStore = useUserStore();
+    const nickname = computed(() => userStore.nickname);
+    const avatar = computed(() => userStore.avatar);
+    
+    // 认证功能
+    const { logout } = useAuth();
 
     // 当前激活的菜单项
     const activeMenu = computed(() => {
       const path = route.path;
+      if (path === "/" || path.startsWith("/home")) return "/home";
       if (path.startsWith("/destinations")) return "/destinations";
-      if (path.startsWith("/trip/create")) return "/trip/create";
+      if (path.startsWith("/personal")) return "/personal";
+      if (path.startsWith("/wishlist")) return "/wishlist";
       // 其他页面不激活任何主导航菜单项
       return "";
     });
@@ -126,42 +137,37 @@ export default {
 
     // 检查是否是TripDetail页面
     const isTripDetailPage = computed(() => {
-      return route.path.includes("/trip/") && route.params.id;
+      return (
+        route.path.startsWith("/trip/") &&
+        route.params.id &&
+        !route.path.includes("/ai-trip/")
+      );
+    });
+
+    // 需要全宽布局的页面（如首页、目的地）
+    const isFullWidthPage = computed(() => {
+      const path = route.path;
+      return path.startsWith("/home") || path.startsWith("/destinations");
     });
 
     // 处理用户命令
     const handleUserCommand = async (command) => {
       if (command === "logout") {
-        try {
-          await ElMessageBox.confirm("确定要退出登录吗？", "提示", {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning",
-          });
-
-          // 执行退出登录
-          userStore.logout();
-          ElMessage.success("退出登录成功");
-
-          // 跳转到登录页
-          router.push("/login");
-        } catch (error) {
-          // 用户取消退出
-          console.log("用户取消退出登录");
-        }
+        // 使用新的logout方法，内部已处理确认和跳转
+        await logout();
       } else if (command === "personal") {
         router.push("/personal");
-      } else if (command === "preferences") {
-        router.push("/preferences");
       }
     };
 
     return {
       activeMenu,
       showFooter,
-      userStore,
+      nickname,
+      avatar,
       handleUserCommand,
       isTripDetailPage,
+      isFullWidthPage,
     };
   },
 };
@@ -169,16 +175,16 @@ export default {
 
 <style scoped>
 .default-layout {
-  min-height: 100vh;
+  /* min-height: 100vh; */
   display: flex;
   flex-direction: column;
-  background-color: #f7fafc;
-  overflow: hidden; /* 防止水平滚动条 */
+  background-color: var(--bg-color);
+  overflow-x: hidden; /* 只防止水平滚动条 */
 }
 
 /* 顶部导航栏 */
 .layout-header {
-  background: #ffffff;
+  background: var(--card-bg);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   position: sticky;
   top: 0;
@@ -193,7 +199,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 64px;
+  height: var(--header-height);
   position: relative; /* 确保定位上下文 */
 }
 
@@ -212,7 +218,7 @@ export default {
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #91a8d0, #f7cac9);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -243,7 +249,7 @@ export default {
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s;
-  color: #2d3748;
+  color: var(--text-primary);
   font-size: 14px;
   font-weight: 500;
   white-space: nowrap;
@@ -251,17 +257,22 @@ export default {
 }
 
 .nav-item:hover {
-  background-color: #f7fafc;
-  color: #667eea;
+  background-color: var(--bg-secondary);
+  color: var(--primary-color);
 }
 
 .nav-item.is-active {
-  background-color: #edf2f7;
-  color: #667eea;
+  background-color: var(--bg-secondary);
+  color: var(--primary-color);
 }
 
 .nav-item .el-icon {
   font-size: 16px;
+}
+
+/* 桌面端隐藏顶部导航的图标，仅保留文字（scoped 下需要深度选择器） */
+.header-nav :deep(.nav-item .el-icon) {
+  display: none;
 }
 
 /* 用户信息区域 */
@@ -282,13 +293,13 @@ export default {
 }
 
 .user-info:hover {
-  background-color: #f7fafc;
+  background-color: var(--bg-secondary);
 }
 
 .username {
   margin: 0 8px;
   font-size: 0.9rem;
-  color: #2d3748;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
@@ -300,9 +311,12 @@ export default {
 /* 主要内容区域 */
 .layout-main {
   flex: 1;
-  overflow: auto; /* 允许自然滚动 */
-  min-height: calc(100vh - 64px); /* 确保最小高度，减去导航栏高度 */
+  overflow-y: auto !important; /* 允许垂直滚动 */
+  overflow-x: hidden; /* 防止水平滚动 */
+  height: 100%; /* 固定高度，作为唯一滚动容器 */
+  min-height: 0; /* 允许成为滚动容器（flex 子项常见问题） */
   position: relative;
+  width: 100%;
 }
 
 /* TripDetail页面特殊布局 */
@@ -315,9 +329,10 @@ export default {
 .main-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px; /* 增加上下padding */
-  min-height: inherit; /* 继承父容器的最小高度 */
+  padding: 0; /* 移除padding，让子页面自己控制 */
+  min-height: auto; /* 不限制最小高度 */
   box-sizing: border-box;
+  width: 100%;
 }
 
 /* TripDetail页面的容器特殊处理 */
@@ -340,8 +355,8 @@ export default {
 
 /* 页脚 */
 .layout-footer {
-  background: #ffffff;
-  border-top: 1px solid #e2e8f0;
+  background: var(--card-bg);
+  border-top: 1px solid var(--border-color);
   padding: 20px 0;
   flex-shrink: 0; /* 防止页脚被压缩 */
 }
@@ -354,7 +369,7 @@ export default {
 }
 
 .footer-container p {
-  color: #718096;
+  color: var(--text-secondary);
   font-size: 0.85rem;
   margin: 0;
 }
@@ -384,6 +399,11 @@ export default {
     font-size: 13px;
   }
 
+  /* 移动端显示图标，配合更紧凑的文字 */
+  .header-nav :deep(.nav-item .el-icon) {
+    display: inline-flex;
+  }
+
   .layout-main {
     min-height: calc(100vh - 56px); /* 移动端导航栏可能更矮 */
   }
@@ -404,7 +424,7 @@ export default {
 
 @media (max-width: 480px) {
   .header-container {
-    height: 56px;
+    height: var(--header-height);
     padding: 0 12px;
   }
 
@@ -426,7 +446,7 @@ export default {
   }
 
   .layout-main {
-    min-height: calc(100vh - 56px); /* 超小屏幕的导航栏高度 */
+    height: calc(100vh - var(--header-height));
   }
 
   .main-container {

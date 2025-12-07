@@ -3,9 +3,8 @@
     <div class="not-found-content">
       <!-- 404图标 -->
       <div class="error-icon">
-        <el-icon
-size="120" color="#E6A23C"
->
+        <el-icon size="120"
+color="#FB8C00">
           <Warning />
         </el-icon>
       </div>
@@ -13,11 +12,13 @@ size="120" color="#E6A23C"
       <!-- 错误信息 -->
       <div class="error-info">
         <h1 class="error-code">404</h1>
-        <h2 class="error-title">页面不存在</h2>
+        <h2 class="error-title">
+          {{ "页面不存在" }}
+        </h2>
         <p class="error-description">
-          抱歉，您访问的页面不存在或已被移除。
+          {{ "抱歉，您访问的页面不存在或已被移除。" }}
           <br >
-          请检查网址是否正确，或返回首页继续浏览。
+          {{ "请检查网址是否正确，或返回首页继续浏览。" }}
         </p>
       </div>
 
@@ -30,40 +31,42 @@ size="120" color="#E6A23C"
           @click="goHome"
         >
           <el-icon><House /></el-icon>
-          返回首页
+          {{ "返回首页" }}
         </el-button>
 
         <el-button size="large"
-@click="goBack" class="action-btn">
+class="action-btn" @click="goBack">
           <el-icon><Back /></el-icon>
-          返回上页
+          {{ "返回上页" }}
         </el-button>
       </div>
 
       <!-- 建议链接 -->
       <div class="suggestions">
-        <p class="suggestions-title">您可能在寻找：</p>
+        <p class="suggestions-title">
+          {{ "您可能在寻找：" }}
+        </p>
         <div class="suggestions-links">
           <el-link
             type="primary"
             :underline="false"
             @click="$router.push('/login')"
           >
-            登录页面
+            {{ "登录" }}
           </el-link>
           <el-link
             type="primary"
             :underline="false"
             @click="$router.push('/destinations')"
           >
-            选择目的地
+            {{ "选择目的地" }}
           </el-link>
           <el-link
             type="primary"
             :underline="false"
-            @click="$router.push('/personal')"
+            @click="$router.push('/home')"
           >
-            个人中心
+            {{ "首页" }}
           </el-link>
         </div>
       </div>
@@ -112,7 +115,7 @@ export default {
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
 }
 
 .not-found-content {
@@ -138,7 +141,7 @@ export default {
 .error-code {
   font-size: 72px;
   font-weight: 700;
-  color: #e6a23c;
+  color: #f7cac9;
   margin: 0 0 16px 0;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }

@@ -3,39 +3,28 @@
     <!-- 页面头部 -->
     <div class="page-header">
       <div class="header-left">
-        <el-button type="text"
-@click="goBack" class="back-btn">
+        <el-button link class="back-btn" @click="goBack">
           <el-icon><ArrowLeft /></el-icon>
-          返回行程列表
+          返回列表
         </el-button>
       </div>
       <div class="header-right">
-        <el-button
-          v-if="!isEditing"
-          type="primary"
-          class="edit-btn"
-          @click="toggleEdit"
-        >
+        <el-button v-if="!isEditing" type="primary" class="edit-btn" @click="toggleEdit">
           <el-icon><Edit /></el-icon>
           编辑行程
         </el-button>
         <template v-else>
           <el-button @click="cancelEdit"> 取消 </el-button>
-          <el-button
-type="primary" @click="saveChanges"> 保存修改 </el-button>
+          <el-button type="primary" @click="saveChanges"> 保存修改 </el-button>
         </template>
       </div>
     </div>
 
     <!-- 行程概览卡片 -->
-    <el-card
-class="trip-overview-card" shadow="hover"
->
+    <el-card class="trip-overview-card" shadow="hover">
       <div class="trip-header">
         <div class="trip-title-section">
-          <h1
-v-if="!isEditing" class="trip-title"
->
+          <h1 v-if="!isEditing" class="trip-title">
             {{ tripData.title }}
           </h1>
           <el-input
@@ -43,7 +32,7 @@ v-if="!isEditing" class="trip-title"
             v-model="editedTrip.title"
             size="large"
             class="title-input"
-            placeholder="输入行程标题"
+            placeholder="请输入标题"
           />
           <div class="trip-status">
             <el-tag :type="tripData.status === 'draft' ? 'info' : 'success'">
@@ -57,10 +46,25 @@ v-if="!isEditing" class="trip-title"
             <el-icon><Share /></el-icon>
             分享
           </el-button>
-          <el-button @click="exportTrip">
-            <el-icon><Download /></el-icon>
-            导出
-          </el-button>
+          <el-dropdown @command="handleExport" trigger="click">
+            <el-button type="primary">
+              <el-icon><Download /></el-icon>
+              导出行程
+              <el-icon class="el-icon--right"><ArrowDown /></el-icon>
+            </el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="word">
+                  <el-icon><Edit /></el-icon>
+                  导出Word文档
+                </el-dropdown-item>
+                <el-dropdown-item command="image">
+                  <el-icon><Picture /></el-icon>
+                  导出图片
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
           <el-dropdown @command="handleMoreAction">
             <el-button>
               更多<el-icon class="el-icon--right">
@@ -69,17 +73,9 @@ v-if="!isEditing" class="trip-title"
             </el-button>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item command="duplicate">
-                  复制行程
-                </el-dropdown-item>
-                <el-dropdown-item command="template">
-                  保存为模板
-                </el-dropdown-item>
-                <el-dropdown-item
-command="delete" divided
->
-                  删除行程
-                </el-dropdown-item>
+                <el-dropdown-item command="duplicate"> 复制行程 </el-dropdown-item>
+                <el-dropdown-item command="template"> 保存为模板 </el-dropdown-item>
+                <el-dropdown-item command="delete" divided> 删除行程 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -102,7 +98,7 @@ command="delete" divided
             <Calendar />
           </el-icon>
           <div class="info-content">
-            <h4>行程时间</h4>
+            <h4>出行时间</h4>
             <p>{{ formatDateRange(tripData.createTime) }}</p>
           </div>
         </div>
@@ -129,7 +125,7 @@ command="delete" divided
             <DataLine />
           </el-icon>
           <div class="info-content">
-            <h4>预计花费</h4>
+            <h4>预计费用</h4>
             <p>{{ tripData.totalBudget }}</p>
           </div>
         </div>
@@ -140,8 +136,9 @@ command="delete" divided
           <div class="info-content">
             <h4>内容统计</h4>
             <p>
-              {{ tripData.attractions?.length || 0 }}个景点 ·
-              {{ tripData.restaurants?.length || 0 }}家餐厅
+              {{ (tripData.attractions?.length || 0) + "个景点" }}
+              ·
+              {{ (tripData.restaurants?.length || 0) + "家餐厅" }}
             </p>
           </div>
         </div>
@@ -167,7 +164,7 @@ command="delete" divided
               <span class="day-date">{{ formatDayDate(dayIndex) }}</span>
             </div>
             <div class="day-stats">
-              <span>{{ day.activities?.length || 0 }}个活动</span>
+              <span>{{ (day.activities?.length || 0) + "个活动" }}</span>
             </div>
           </div>
 
@@ -189,15 +186,12 @@ command="delete" divided
                     {{ activity.name }}
                   </h4>
                   <div class="activity-meta">
-                    <el-tag
-                      size="small"
-                      :type="getActivityTypeColor(activity.type)"
-                    >
+                    <el-tag size="small" :type="getActivityTypeColor(activity.type)">
                       {{ getActivityTypeText(activity.type) }}
                     </el-tag>
-                    <span
-v-if="activity.price" class="activity-price"
-                    >¥{{ activity.price }}</span>
+                    <span v-if="activity.price" class="activity-price"
+                      >¥{{ activity.price }}</span
+                    >
                   </div>
                 </div>
 
@@ -217,20 +211,12 @@ v-if="activity.price" class="activity-price"
                 </div>
 
                 <!-- 编辑模式下的操作按钮 -->
-                <div
-v-if="isEditing" class="activity-actions"
->
-                  <el-button
-                    size="small"
-                    @click="editActivity(dayIndex, actIndex)"
-                  >
+                <div v-if="isEditing" class="activity-actions">
+                  <el-button size="small" @click="editActivity(dayIndex, actIndex)">
                     <el-icon><Edit /></el-icon>
                     编辑
                   </el-button>
-                  <el-button
-                    size="small"
-                    @click="replaceActivity(dayIndex, actIndex)"
-                  >
+                  <el-button size="small" @click="replaceActivity(dayIndex, actIndex)">
                     <el-icon><Refresh /></el-icon>
                     替换
                   </el-button>
@@ -240,19 +226,15 @@ v-if="isEditing" class="activity-actions"
                     @click="removeActivity(dayIndex, actIndex)"
                   >
                     <el-icon><Delete /></el-icon>
-                    移除
+                    删除
                   </el-button>
                 </div>
               </div>
             </div>
 
             <!-- 添加活动按钮（编辑模式） -->
-            <div
-v-if="isEditing" class="add-activity"
->
-              <el-button
-type="dashed" @click="addActivity(dayIndex)"
->
+            <div v-if="isEditing" class="add-activity">
+              <el-button type="dashed" @click="addActivity(dayIndex)">
                 <el-icon><Plus /></el-icon>
                 添加活动
               </el-button>
@@ -263,14 +245,12 @@ type="dashed" @click="addActivity(dayIndex)"
     </div>
 
     <!-- 行程偏好设置 -->
-    <el-card
-class="preferences-card" shadow="hover"
->
+    <el-card class="preferences-card" shadow="hover">
       <template #header>
         <div class="card-header">
           <h3>
             <el-icon><Setting /></el-icon>
-            行程偏好设置
+            行程偏好
           </h3>
         </div>
       </template>
@@ -299,10 +279,7 @@ class="preferences-card" shadow="hover"
           </div>
         </div>
 
-        <div
-          v-if="tripData.preferences?.transport?.length > 0"
-          class="preference-group"
-        >
+        <div v-if="tripData.preferences?.transport?.length > 0" class="preference-group">
           <h4>交通偏好</h4>
           <div class="tags-row">
             <el-tag
@@ -315,11 +292,8 @@ class="preferences-card" shadow="hover"
           </div>
         </div>
 
-        <div
-          v-if="tripData.preferences?.specialRequests"
-          class="preference-group"
-        >
-          <h4>特殊要求</h4>
+        <div v-if="tripData.preferences?.specialRequests" class="preference-group">
+          <h4>特殊需求</h4>
           <p class="special-requests">
             {{ tripData.preferences.specialRequests }}
           </p>
@@ -350,12 +324,15 @@ import {
   Refresh,
   Delete,
   Setting,
+  Document,
+  Picture,
 } from "@element-plus/icons-vue";
 import { useUserStore } from "@/store/user.js";
 import {
   convertBackendTripToFrontend,
   convertFrontendTripToBackend,
-} from "@/utils/tripDataConverter.js";
+} from "@/utils/data/tripDataConverter.js";
+import { TripExporter } from "@/utils/export/tripExporter";
 
 export default {
   name: "TripDetail",
@@ -376,6 +353,8 @@ export default {
     Refresh,
     Delete,
     Setting,
+    Document,
+    Picture,
   },
   setup() {
     const router = useRouter();
@@ -412,7 +391,7 @@ export default {
           const { tripApi } = await import("@/api/trip.js");
           const response = await tripApi.getTripDetail(
             tripId.value,
-            userStore.currentUser.id,
+            userStore.currentUser.id
           );
 
           if (response.data) {
@@ -434,9 +413,7 @@ export default {
         }
 
         // 降级到localStorage
-        const savedTrips = JSON.parse(
-          localStorage.getItem("savedTrips") || "[]",
-        );
+        const savedTrips = JSON.parse(localStorage.getItem("savedTrips") || "[]");
         const trip = savedTrips.find((t) => t.id === tripId.value);
 
         if (trip) {
@@ -451,13 +428,13 @@ export default {
 
           console.log("✅ 从本地存储加载行程数据成功:", trip);
         } else {
-          ElMessage.error("行程不存在");
-          router.push("/personal");
+          ElMessage.error("找不到该行程");
+          router.push("/home");
         }
       } catch (error) {
         console.error("❌ 加载行程数据失败:", error);
-        ElMessage.error("加载行程数据失败");
-        router.push("/personal");
+        ElMessage.error("加载失败，请重试");
+        router.push("/home");
       } finally {
         loading.value = false;
       }
@@ -466,23 +443,19 @@ export default {
     const goBack = () => {
       // 如果正在编辑，询问用户是否保存
       if (isEditing.value) {
-        ElMessageBox.confirm(
-          "您有未保存的修改，确定要离开吗？",
-          "未保存的修改",
-          {
-            confirmButtonText: "离开",
-            cancelButtonText: "取消",
-            type: "warning",
-          },
-        )
+        ElMessageBox.confirm("您有未保存的修改，确定要离开吗？", "未保存的修改", {
+          confirmButtonText: "离开",
+          cancelButtonText: "取消",
+          type: "warning",
+        })
           .then(() => {
-            router.push("/personal");
+            router.push("/home");
           })
           .catch(() => {
             // 用户选择取消
           });
       } else {
-        router.push("/personal");
+        router.push("/home");
       }
     };
 
@@ -496,7 +469,7 @@ export default {
     const cancelEdit = () => {
       isEditing.value = false;
       editedTrip.value = JSON.parse(JSON.stringify(tripData.value));
-      router.push("/personal");
+      router.push("/home");
     };
 
     // 解析预算字符串为数字（处理格式化字符串如"约 ¥1,600"）
@@ -539,7 +512,7 @@ export default {
           const response = await tripApi.updateTrip(
             tripId.value,
             userStore.currentUser.id,
-            tripRequest,
+            tripRequest
           );
 
           if (response.data) {
@@ -556,12 +529,12 @@ export default {
               });
             }
 
-            ElMessage.success("行程修改保存成功！");
+            ElMessage.success("保存成功！");
             console.log("💾 API保存行程成功:", convertedTrip.title);
 
             // 确保数据保存完成后再跳转
             setTimeout(() => {
-              router.push("/personal");
+              router.push("/home");
             }, 500);
             return;
           }
@@ -570,9 +543,7 @@ export default {
         }
 
         // 降级到localStorage保存
-        const savedTrips = JSON.parse(
-          localStorage.getItem("savedTrips") || "[]",
-        );
+        const savedTrips = JSON.parse(localStorage.getItem("savedTrips") || "[]");
         const index = savedTrips.findIndex((t) => t.id === tripId.value);
 
         if (index !== -1) {
@@ -591,17 +562,17 @@ export default {
             });
           }
 
-          ElMessage.success("行程修改保存成功！");
+          ElMessage.success("保存成功！");
           console.log("💾 本地保存行程成功:", editedTrip.value.title);
 
           // 确保数据保存完成后再跳转
           setTimeout(() => {
-            router.push("/personal");
+            router.push("/home");
           }, 500);
         }
       } catch (error) {
         console.error("❌ 保存失败:", error);
-        ElMessage.error("保存失败，请重试");
+        ElMessage.error("加载失败，请重试");
       } finally {
         loading.value = false;
       }
@@ -611,7 +582,7 @@ export default {
       try {
         return new Date(dateString).toLocaleDateString("zh-CN");
       } catch {
-        return "未知";
+        return "";
       }
     };
 
@@ -627,24 +598,24 @@ export default {
           const end = endDate.toLocaleDateString("zh-CN");
           return `${start} - ${end}`;
         } catch {
-          return "日期格式错误";
+          return "";
         }
       }
 
       // 原有逻辑：使用dateRange
       if (!tripData.value.dateRange || tripData.value.dateRange.length !== 2) {
-        return "未设置";
+        return "";
       }
       try {
         const start = new Date(tripData.value.dateRange[0]).toLocaleDateString(
-          "zh-CN",
+          navigator.language || "en-US"
         );
         const end = new Date(tripData.value.dateRange[1]).toLocaleDateString(
-          "zh-CN",
+          navigator.language || "en-US"
         );
         return `${start} - ${end}`;
       } catch {
-        return "日期格式错误";
+        return "";
       }
     };
 
@@ -659,10 +630,7 @@ export default {
 
         const month = currentDate.getMonth() + 1;
         const day = currentDate.getDate();
-        const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
-        const weekday = weekdays[currentDate.getDay()];
-
-        return `${month}月${day}日 周${weekday}`;
+        return `${month}/${day}`;
       } catch {
         return `第${dayIndex + 1}天`;
       }
@@ -683,7 +651,7 @@ export default {
         attraction: "景点",
         restaurant: "餐厅",
         transport: "交通",
-        hotel: "住宿",
+        hotel: "酒店",
       };
       return texts[type] || "其他";
     };
@@ -719,7 +687,11 @@ export default {
     // 分享行程
     const shareTrip = async () => {
       try {
-        const shareText = `我的${tripData.value.destinationName}${tripData.value.days}日游行程！包含${tripData.value.attractions?.length || 0}个景点和${tripData.value.restaurants?.length || 0}家餐厅，预计花费${tripData.value.estimatedCost}。一起来看看吧！`;
+        const shareText = `我的${tripData.value.destinationName}${
+          tripData.value.days
+        }日游行程！包含${tripData.value.attractions?.length || 0}个景点和${
+          tripData.value.restaurants?.length || 0
+        }家餐厅，预计花费${tripData.value.estimatedCost}。一起来看看吧！`;
 
         if (navigator.share) {
           // 使用原生分享API
@@ -732,7 +704,7 @@ export default {
         } else {
           // 降级到复制链接
           await navigator.clipboard.writeText(
-            shareText + "\n\n查看详情：" + window.location.href,
+            shareText + "\n\n查看详情：" + window.location.href
           );
           ElMessage.success("行程信息已复制到剪贴板！");
         }
@@ -747,25 +719,31 @@ export default {
     };
 
     // 导出行程
-    const exportTrip = () => {
+    const handleExport = async (format) => {
+      const loadingMessage = ElMessage({
+        message: "正在生成文件，请稍候...",
+        type: "info",
+        duration: 0,
+      });
+
       try {
-        // 创建并下载JSON文件
-        const dataStr = JSON.stringify(tripData.value, null, 2);
-        const dataBlob = new Blob([dataStr], { type: "application/json" });
-        const url = URL.createObjectURL(dataBlob);
+        const exporter = new TripExporter(tripData.value);
 
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `${tripData.value.title}-${new Date().toLocaleDateString()}.json`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-
-        ElMessage.success("行程已导出到下载文件夹！");
+        switch (format) {
+          case "word":
+            await exporter.exportToWord();
+            ElMessage.success("Word文档导出成功！文件已保存到下载文件夹");
+            break;
+          case "image":
+            await exporter.exportToImage();
+            ElMessage.success("图片导出成功！文件已保存到下载文件夹");
+            break;
+        }
       } catch (error) {
         console.error("导出失败:", error);
         ElMessage.error("导出失败，请重试");
+      } finally {
+        loadingMessage.close();
       }
     };
 
@@ -794,7 +772,7 @@ export default {
             cancelButtonText: "取消",
             inputValue: `${tripData.value.title} - 副本`,
             inputPlaceholder: "输入新行程标题",
-          },
+          }
         );
 
         if (newTitle) {
@@ -808,9 +786,7 @@ export default {
           };
 
           // 保存到localStorage
-          const savedTrips = JSON.parse(
-            localStorage.getItem("savedTrips") || "[]",
-          );
+          const savedTrips = JSON.parse(localStorage.getItem("savedTrips") || "[]");
           savedTrips.push(duplicatedTrip);
           localStorage.setItem("savedTrips", JSON.stringify(savedTrips));
 
@@ -846,7 +822,7 @@ export default {
             cancelButtonText: "取消",
             inputValue: `${tripData.value.destinationName}${tripData.value.days}日游模板`,
             inputPlaceholder: "输入模板名称",
-          },
+          }
         );
 
         if (templateName) {
@@ -875,7 +851,7 @@ export default {
 
           // 保存到localStorage的模板存储
           const savedTemplates = JSON.parse(
-            localStorage.getItem("tripTemplates") || "[]",
+            localStorage.getItem("tripTemplates") || "[]"
           );
           savedTemplates.push(template);
           localStorage.setItem("tripTemplates", JSON.stringify(savedTemplates));
@@ -893,15 +869,11 @@ export default {
 
     const deleteTrip = async () => {
       try {
-        await ElMessageBox.confirm(
-          "确定要删除这个行程吗？删除后无法恢复。",
-          "删除行程",
-          {
-            confirmButtonText: "删除",
-            cancelButtonText: "取消",
-            type: "warning",
-          },
-        );
+        await ElMessageBox.confirm("确定要删除这个行程吗？删除后无法恢复。", "删除行程", {
+          confirmButtonText: "删除",
+          cancelButtonText: "取消",
+          type: "warning",
+        });
 
         loading.value = true;
 
@@ -922,7 +894,7 @@ export default {
 
           // 确保删除操作完成后再跳转
           setTimeout(() => {
-            router.push("/personal");
+            router.push("/home");
           }, 500);
           return;
         } catch (apiError) {
@@ -930,9 +902,7 @@ export default {
         }
 
         // 降级到localStorage删除
-        const savedTrips = JSON.parse(
-          localStorage.getItem("savedTrips") || "[]",
-        );
+        const savedTrips = JSON.parse(localStorage.getItem("savedTrips") || "[]");
         const filteredTrips = savedTrips.filter((t) => t.id !== tripId.value);
         localStorage.setItem("savedTrips", JSON.stringify(filteredTrips));
 
@@ -941,7 +911,7 @@ export default {
 
         // 确保删除操作完成后再跳转
         setTimeout(() => {
-          router.push("/personal");
+          router.push("/home");
         }, 500);
       } catch (error) {
         if (error === "cancel") {
@@ -957,8 +927,7 @@ export default {
 
     // 编辑活动
     const editActivity = async (dayIndex, actIndex) => {
-      const activity =
-        editedTrip.value.dailyPlan[dayIndex].activities[actIndex];
+      const activity = editedTrip.value.dailyPlan[dayIndex].activities[actIndex];
 
       try {
         const { value: formData } = await ElMessageBox.prompt(
@@ -968,16 +937,17 @@ export default {
             confirmButtonText: "保存",
             cancelButtonText: "取消",
             inputType: "textarea",
-            inputValue: `名称：${activity.name}\n描述：${activity.description || ""}\n时间：${activity.time}`,
-            inputPlaceholder:
-              "请按格式修改：\n名称：xxx\n描述：xxx\n时间：xx:xx",
+            inputValue: `名称：${activity.name}\n描述：${
+              activity.description || ""
+            }\n时间：${activity.time}`,
+            inputPlaceholder: "请按格式修改：\n名称：xxx\n描述：xxx\n时间：xx:xx",
             inputValidator: (value) => {
               if (!value || !value.includes("名称：")) {
                 return "请保持正确的格式";
               }
               return true;
             },
-          },
+          }
         );
 
         // 解析用户输入
@@ -996,17 +966,13 @@ export default {
           .trim();
 
         if (newName) {
-          editedTrip.value.dailyPlan[dayIndex].activities[actIndex].name =
-            newName;
+          editedTrip.value.dailyPlan[dayIndex].activities[actIndex].name = newName;
         }
         if (newDesc) {
-          editedTrip.value.dailyPlan[dayIndex].activities[
-            actIndex
-          ].description = newDesc;
+          editedTrip.value.dailyPlan[dayIndex].activities[actIndex].description = newDesc;
         }
         if (newTime && /^\d{2}:\d{2}$/.test(newTime)) {
-          editedTrip.value.dailyPlan[dayIndex].activities[actIndex].time =
-            newTime;
+          editedTrip.value.dailyPlan[dayIndex].activities[actIndex].time = newTime;
         }
 
         ElMessage.success("活动信息已更新");
@@ -1017,22 +983,13 @@ export default {
 
     // 替换活动
     const replaceActivity = async (dayIndex, actIndex) => {
-      const currentActivity =
-        editedTrip.value.dailyPlan[dayIndex].activities[actIndex];
+      const currentActivity = editedTrip.value.dailyPlan[dayIndex].activities[actIndex];
 
       try {
         if (currentActivity.type === "attraction") {
-          await replaceWithAlternativeAttraction(
-            dayIndex,
-            actIndex,
-            currentActivity,
-          );
+          await replaceWithAlternativeAttraction(dayIndex, actIndex, currentActivity);
         } else if (currentActivity.type === "restaurant") {
-          await replaceWithAlternativeRestaurant(
-            dayIndex,
-            actIndex,
-            currentActivity,
-          );
+          await replaceWithAlternativeRestaurant(dayIndex, actIndex, currentActivity);
         }
       } catch (error) {
         console.error("替换活动失败:", error);
@@ -1044,7 +1001,7 @@ export default {
     const replaceWithAlternativeAttraction = async (
       dayIndex,
       actIndex,
-      currentActivity,
+      currentActivity
     ) => {
       try {
         // 获取备选景点（排除已选的）
@@ -1054,7 +1011,7 @@ export default {
           .map((act) => act.id);
 
         const response = await fetch(
-          `http://localhost:8080/api/attractions/city/${tripData.value.destination}`,
+          `http://localhost:8080/api/attractions/city/${tripData.value.destination}`
         );
 
         if (response.ok) {
@@ -1064,7 +1021,7 @@ export default {
             .slice(0, 5); // 最多5个备选
 
           if (alternatives.length === 0) {
-            ElMessage.warning("暂无其他景点可供替换");
+            ElMessage.warning("没有更多备选景点");
             return;
           }
 
@@ -1074,7 +1031,7 @@ export default {
               alternatives
                 .map(
                   (attr, i) =>
-                    `${i + 1}. ${attr.name} - ${attr.description || "精彩景点"}`,
+                    `${i + 1}. ${attr.name} - ${attr.description || "精彩景点"}`
                 )
                 .join("\n"),
             "选择替换景点",
@@ -1083,7 +1040,7 @@ export default {
               cancelButtonText: "取消",
               inputPattern: /^[1-5]$/,
               inputErrorMessage: "请输入有效的序号（1-5）",
-            },
+            }
           );
 
           const selectedAttr = alternatives[parseInt(selectedIndex) - 1];
@@ -1121,7 +1078,7 @@ export default {
               cancelButtonText: "取消",
               inputPattern: /^[1-2]$/,
               inputErrorMessage: "请输入有效的序号（1-2）",
-            },
+            }
           );
 
           const selectedAttr = mockAlternatives[parseInt(selectedIndex) - 1];
@@ -1146,7 +1103,7 @@ export default {
     const replaceWithAlternativeRestaurant = async (
       dayIndex,
       actIndex,
-      currentActivity,
+      currentActivity
     ) => {
       try {
         // 获取备选餐厅（排除已选的）
@@ -1156,7 +1113,7 @@ export default {
           .map((act) => act.id);
 
         const response = await fetch(
-          `http://localhost:8080/api/restaurants/city/${tripData.value.destination}`,
+          `http://localhost:8080/api/restaurants/city/${tripData.value.destination}`
         );
 
         if (response.ok) {
@@ -1166,7 +1123,7 @@ export default {
             .slice(0, 5); // 最多5个备选
 
           if (alternatives.length === 0) {
-            ElMessage.warning("暂无其他餐厅可供替换");
+            ElMessage.warning("没有更多备选餐厅");
             return;
           }
 
@@ -1174,10 +1131,7 @@ export default {
           const { value: selectedIndex } = await ElMessageBox.prompt(
             "请选择要替换的餐厅（输入序号）：\n" +
               alternatives
-                .map(
-                  (rest, i) =>
-                    `${i + 1}. ${rest.name} - ${rest.cuisine || "美食"}`,
-                )
+                .map((rest, i) => `${i + 1}. ${rest.name} - ${rest.cuisine || "美食"}`)
                 .join("\n"),
             "选择替换餐厅",
             {
@@ -1185,7 +1139,7 @@ export default {
               cancelButtonText: "取消",
               inputPattern: /^[1-5]$/,
               inputErrorMessage: "请输入有效的序号（1-5）",
-            },
+            }
           );
 
           const selectedRest = alternatives[parseInt(selectedIndex) - 1];
@@ -1222,7 +1176,7 @@ export default {
               cancelButtonText: "取消",
               inputPattern: /^[1-2]$/,
               inputErrorMessage: "请输入有效的序号（1-2）",
-            },
+            }
           );
 
           const selectedRest = mockAlternatives[parseInt(selectedIndex) - 1];
@@ -1269,7 +1223,7 @@ export default {
             cancelButtonText: "取消",
             inputPattern: /^[1-3]$/,
             inputErrorMessage: "请输入有效的序号（1-3）",
-          },
+          }
         );
 
         if (activityType === "1") {
@@ -1288,7 +1242,7 @@ export default {
     const addAttractionActivity = async (dayIndex) => {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/attractions/city/${tripData.value.destination}`,
+          `http://localhost:8080/api/attractions/city/${tripData.value.destination}`
         );
 
         if (response.ok) {
@@ -1303,7 +1257,7 @@ export default {
             .slice(0, 5);
 
           if (availableAttractions.length === 0) {
-            ElMessage.warning("暂无可添加的景点");
+            ElMessage.warning("没有景点可添加");
             return;
           }
 
@@ -1312,7 +1266,7 @@ export default {
               availableAttractions
                 .map(
                   (attr, i) =>
-                    `${i + 1}. ${attr.name} - ${attr.description || "精彩景点"}`,
+                    `${i + 1}. ${attr.name} - ${attr.description || "精彩景点"}`
                 )
                 .join("\n"),
             "选择景点",
@@ -1321,11 +1275,10 @@ export default {
               cancelButtonText: "取消",
               inputPattern: /^[1-5]$/,
               inputErrorMessage: "请输入有效的序号",
-            },
+            }
           );
 
-          const selectedAttr =
-            availableAttractions[parseInt(selectedIndex) - 1];
+          const selectedAttr = availableAttractions[parseInt(selectedIndex) - 1];
           if (selectedAttr) {
             const { value: timeInput } = await ElMessageBox.prompt(
               "请输入活动时间（例如：14:30）：",
@@ -1335,7 +1288,7 @@ export default {
                 cancelButtonText: "取消",
                 inputPattern: /^\d{2}:\d{2}$/,
                 inputErrorMessage: "请输入正确的时间格式（如：14:30）",
-              },
+              }
             );
 
             editedTrip.value.dailyPlan[dayIndex].activities.push({
@@ -1361,7 +1314,7 @@ export default {
     const addRestaurantActivity = async (dayIndex) => {
       try {
         const response = await fetch(
-          `http://localhost:8080/api/restaurants/city/${tripData.value.destination}`,
+          `http://localhost:8080/api/restaurants/city/${tripData.value.destination}`
         );
 
         if (response.ok) {
@@ -1376,17 +1329,14 @@ export default {
             .slice(0, 5);
 
           if (availableRestaurants.length === 0) {
-            ElMessage.warning("暂无可添加的餐厅");
+            ElMessage.warning("没有餐厅可添加");
             return;
           }
 
           const { value: selectedIndex } = await ElMessageBox.prompt(
             "请选择要添加的餐厅（输入序号）：\n" +
               availableRestaurants
-                .map(
-                  (rest, i) =>
-                    `${i + 1}. ${rest.name} - ${rest.cuisine || "美食"}`,
-                )
+                .map((rest, i) => `${i + 1}. ${rest.name} - ${rest.cuisine || "美食"}`)
                 .join("\n"),
             "选择餐厅",
             {
@@ -1394,11 +1344,10 @@ export default {
               cancelButtonText: "取消",
               inputPattern: /^[1-5]$/,
               inputErrorMessage: "请输入有效的序号",
-            },
+            }
           );
 
-          const selectedRest =
-            availableRestaurants[parseInt(selectedIndex) - 1];
+          const selectedRest = availableRestaurants[parseInt(selectedIndex) - 1];
           if (selectedRest) {
             const { value: timeInput } = await ElMessageBox.prompt(
               "请输入用餐时间（例如：12:00）：",
@@ -1408,7 +1357,7 @@ export default {
                 cancelButtonText: "取消",
                 inputPattern: /^\d{2}:\d{2}$/,
                 inputErrorMessage: "请输入正确的时间格式（如：12:00）",
-              },
+              }
             );
 
             editedTrip.value.dailyPlan[dayIndex].activities.push({
@@ -1440,19 +1389,14 @@ export default {
             confirmButtonText: "添加",
             cancelButtonText: "取消",
             inputType: "textarea",
-            inputPlaceholder:
-              "名称：xxx\n描述：xxx\n时间：xx:xx\n价格：￥xx（可选）",
+            inputPlaceholder: "名称：xxx\n描述：xxx\n时间：xx:xx\n价格：￥xx（可选）",
             inputValidator: (value) => {
-              if (
-                !value ||
-                !value.includes("名称：") ||
-                !value.includes("时间：")
-              ) {
+              if (!value || !value.includes("名称：") || !value.includes("时间：")) {
                 return "请填写名称和时间信息";
               }
               return true;
             },
-          },
+          }
         );
 
         // 解析用户输入
@@ -1515,7 +1459,7 @@ export default {
       getExperienceText,
       getTransportText,
       shareTrip,
-      exportTrip,
+      handleExport,
       handleMoreAction,
       deleteTrip,
       duplicateTrip,
@@ -1575,7 +1519,7 @@ export default {
 }
 
 .back-btn:hover {
-  color: #409eff;
+  color: #91a8d0;
 }
 
 .header-right {
@@ -1658,7 +1602,7 @@ export default {
   align-items: center;
   justify-content: center;
   font-size: 18px;
-  color: #667eea;
+  color: #91a8d0;
   background: #edf2f7;
 }
 
@@ -1687,7 +1631,7 @@ export default {
   color: #2d3748;
   margin-bottom: 20px;
   padding-bottom: 8px;
-  border-bottom: 2px solid #667eea;
+  border-bottom: 2px solid #91a8d0;
 }
 
 .days-container {
@@ -1701,9 +1645,7 @@ export default {
   border-radius: 16px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   overflow: hidden;
-  transition:
-    transform 0.3s,
-    box-shadow 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .day-card:hover {
@@ -1712,7 +1654,7 @@ export default {
 }
 
 .day-header {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #91a8d0, #f7cac9);
   color: white;
   padding: 20px 24px;
   display: flex;
@@ -1770,7 +1712,7 @@ export default {
 }
 
 .time-text {
-  background: #667eea;
+  background: #91a8d0;
   color: white;
   padding: 8px 12px;
   border-radius: 20px;
@@ -1833,7 +1775,7 @@ export default {
 }
 
 .preferences-card .el-card__header {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #91a8d0, #f7cac9);
   color: white;
   border-bottom: none;
 }

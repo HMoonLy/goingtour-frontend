@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>离线状态 - GoingTour</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+        
+        .offline-container {
+            text-align: center;
+            background: white;
+            padding: 40px 30px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 90%;
+            margin: 20px;
+        }
+        
+        .offline-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: #f5f5f5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: #999;
+        }
+        
+        .offline-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+        
+        .offline-message {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+        
+        .offline-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #409EFF;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #337ecc;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #666;
+            border: 1px solid #e9ecef;
+        }
+        
+        .btn-secondary:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+        }
+        
+        .connection-status {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .connection-status.offline {
+            background: #fef0f0;
+            color: #f56c6c;
+            border: 1px solid #fbc4c4;
+        }
+        
+        .connection-status.online {
+            background: #f0f9ff;
+            color: #67c23a;
+            border: 1px solid #b3d8ff;
+        }
+        
+        .tips {
+            margin-top: 24px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: left;
+        }
+        
+        .tips h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .tips ul {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+            padding-left: 16px;
+        }
+        
+        .tips li {
+            margin-bottom: 4px;
+        }
+        
+        @media (max-width: 480px) {
+            .offline-container {
+                padding: 30px 20px;
+            }
+            .offline-title {
+                font-size: 20px;
+            }
+            .offline-message {
+                font-size: 14px;
+            }
+            .btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+        /* 暗色模式支持 */
+        
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            }
+            .offline-container {
+                background: #2d3748;
+                color: #e2e8f0;
+            }
+            .offline-title {
+                color: #f7fafc;
+            }
+            .offline-message {
+                color: #a0aec0;
+            }
+            .offline-icon {
+                background: #4a5568;
+                color: #a0aec0;
+            }
+            .btn-secondary {
+                background: #4a5568;
+                color: #e2e8f0;
+                border-color: #718096;
+            }
+            .btn-secondary:hover {
+                background: #718096;
+            }
+            .tips {
+                background: #4a5568;
+            }
+            .tips h3 {
+                color: #f7fafc;
+            }
+            .tips ul {
+                color: #a0aec0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">
+            📡
+        </div>
+
+        <h1 class="offline-title">当前离线</h1>
+
+        <p class="offline-message">
+            无法连接到网络。请检查您的网络连接，然后重试。
+        </p>
+
+        <div class="offline-actions">
+            <button class="btn btn-primary" onclick="location.reload()">
+                重新加载
+            </button>
+            <a href="/" class="btn btn-secondary">
+                返回首页
+            </a>
+        </div>
+
+        <div id="connectionStatus" class="connection-status offline">
+            🔴 网络连接已断开
+        </div>
+
+        <div class="tips">
+            <h3>💡 离线使用提示</h3>
+            <ul>
+                <li>您可以查看已缓存的行程数据</li>
+                <li>新建的行程会在网络恢复后自动同步</li>
+                <li>部分功能需要网络连接才能使用</li>
+                <li>建议在WiFi环境下使用以获得最佳体验</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 监听网络状态变化
+        function updateConnectionStatus() {
+            const statusElement = document.getElementById('connectionStatus');
+
+            if (navigator.onLine) {
+                statusElement.textContent = '🟢 网络连接已恢复';
+                statusElement.className = 'connection-status online';
+
+                // 网络恢复后自动重新加载
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            } else {
+                statusElement.textContent = '🔴 网络连接已断开';
+                statusElement.className = 'connection-status offline';
+            }
+        }
+
+        // 初始化连接状态
+        updateConnectionStatus();
+
+        // 监听网络状态变化
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+
+        // 定期检查网络状态
+        setInterval(() => {
+            // 尝试发送一个小的请求来检查网络
+            fetch('/manifest.json', {
+                    method: 'HEAD',
+                    cache: 'no-cache'
+                })
+                .then(() => {
+                    if (!navigator.onLine) {
+                        // 手动触发online事件
+                        window.dispatchEvent(new Event('online'));
+                    }
+                })
+                .catch(() => {
+                    // 网络仍然不可用
+                });
+        }, 5000);
+
+        // 添加键盘快捷键
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+                e.preventDefault();
+                location.reload();
+            }
+
+            if (e.key === 'Escape' || (e.altKey && e.key === 'Home')) {
+                location.href = '/';
+            }
+        });
+
+        // 添加PWA安装提示
+        let deferredPrompt;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+
+            // 显示安装按钮
+            const installButton = document.createElement('button');
+            installButton.textContent = '安装应用';
+            installButton.className = 'btn btn-secondary';
+            installButton.style.marginTop = '12px';
+            installButton.onclick = () => {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('用户接受了安装提示');
+                    }
+                    deferredPrompt = null;
+                    installButton.remove();
+                });
+            };
+
+            document.querySelector('.offline-actions').appendChild(installButton);
+        });
+
+        // 服务工作器更新提示
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                // 服务工作器已更新，刷新页面
+                location.reload();
+            });
+        }
+
+        console.log('GoingTour 离线页面加载完成');
+    </script>
+</body>
+
+</html>

@@ -2,23 +2,25 @@
   <div class="trip-share-page">
     <div class="page-header">
       <h1>行程分享</h1>
-      <p>分享您的精彩旅行行程</p>
+      <p>与朋友分享你的精彩行程</p>
     </div>
 
     <div class="coming-soon-card">
       <el-icon size="64"
-color="#409EFF">
+color="#91A8D0">
         <Share />
       </el-icon>
-      <h3>行程分享功能开发中</h3>
-      <p>我们正在努力完善行程分享功能，包括：</p>
+      <h3>功能开发中</h3>
+      <p>该功能正在紧张开发中，敬请期待！</p>
       <ul class="feature-list">
-        <li>行程海报生成</li>
-        <li>二维码分享</li>
-        <li>社交媒体分享</li>
-        <li>链接分享</li>
+        <li>生成美丽的行程海报</li>
+        <li>创建二维码链接</li>
+        <li>分享到社交媒体</li>
+        <li>生成分享链接</li>
       </ul>
-      <p class="stay-tuned">敬请期待！</p>
+      <p class="stay-tuned">
+        {{ "敏正关注，精彩即将在线！" }}
+      </p>
     </div>
   </div>
 </template>
@@ -31,6 +33,7 @@ export default {
   components: {
     Share,
   },
+  setup() {},
 };
 </script>
 
@@ -93,7 +96,7 @@ export default {
 }
 
 .stay-tuned {
-  color: #409eff;
+  color: #91a8d0;
   font-weight: 500;
   font-size: 16px;
 }
