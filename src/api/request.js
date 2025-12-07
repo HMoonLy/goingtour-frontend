@@ -1,5 +1,4 @@
 import axios from "axios";
-import { ElMessage } from "element-plus";
 import { handleApiError, handleBusinessError } from "../utils/api/errorHandler.js";
 
 // 创建独立的axios实例用于刷新令牌，避免循环依赖
@@ -35,7 +34,7 @@ const requestHandler = (config) => {
     }
 
     // 打印API请求信息（避免显示API密钥）
-    let logParams = {...config.params };
+    let logParams = { ...config.params };
 
     // 隐藏敏感信息
     if (logParams && logParams.key) {
@@ -49,7 +48,7 @@ const requestHandler = (config) => {
 
 // 请求拦截器
 request.interceptors.request.use(
-    async(config) => {
+    async (config) => {
         // 检查是否为FormData，如果是则删除默认的Content-Type让浏览器自动设置
         if (config.data instanceof FormData) {
             delete config.headers['Content-Type'];
@@ -73,8 +72,8 @@ request.interceptors.request.use(
                         if (refreshToken) {
                             const refreshResponse = await refreshTokenRequest.post(
                                 "/user/refresh-token", {
-                                    refreshToken: refreshToken,
-                                },
+                                refreshToken: refreshToken,
+                            },
                             );
 
                             if (refreshResponse.data.code === 200) {
