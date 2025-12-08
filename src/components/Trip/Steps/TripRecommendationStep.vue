@@ -30,32 +30,15 @@
     <div class="recommendation-main">
       <RecommendationSection
         :city-info="cityInfo"
-        :recommended-attractions="recommendedAttractions"
-        :recommended-restaurants="recommendedRestaurants"
         :selected-attractions="selectedAttractions"
         :selected-restaurants="selectedRestaurants"
-        :loading-attractions="loadingAttractions"
-        :loading-restaurants="loadingRestaurants"
-        :api-error="apiError"
-        :search-results="searchResults"
-        :is-search-mode="isSearchMode"
-        :searching="searching"
-        :extract-attraction-tags="extractAttractionTags"
-        :extract-signature-dishes="extractSignatureDishes"
-        :attraction-pagination="attractionPagination"
-        :restaurant-pagination="restaurantPagination"
-        :loading-more-attractions="loadingMoreAttractions"
-        :loading-more-restaurants="loadingMoreRestaurants"
-        :attraction-load-complete="attractionLoadComplete"
-        :restaurant-load-complete="restaurantLoadComplete"
+        :selected-hotels="selectedHotels"
         @add-attraction="handleAddAttraction"
         @remove-attraction="handleRemoveAttraction"
         @add-restaurant="handleAddRestaurant"
         @remove-restaurant="handleRemoveRestaurant"
-        @load-more-attractions="handleLoadMoreAttractions"
-        @load-more-restaurants="handleLoadMoreRestaurants"
-        @search="handleSearch"
-        @clear-search="handleClearSearch"
+        @add-hotel="handleAddHotel"
+        @remove-hotel="handleRemoveHotel"
         @clear-all-selections="handleClearAllSelections"
       />
     </div>
@@ -73,6 +56,10 @@
             <div class="stat-item">
               <el-icon class="stat-icon" color="#f7cac9"><Food /></el-icon>
               <span>{{ selectedRestaurants.length }} 家餐厅</span>
+            </div>
+            <div class="stat-item">
+              <el-icon class="stat-icon" color="#409EFF"><House /></el-icon>
+              <span>{{ selectedHotels.length }} 家酒店</span>
             </div>
           </div>
           <div v-if="totalSelected > 0" class="selection-tip">
@@ -132,21 +119,19 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import {
-  Star, InfoFilled, Location, Food, Check, Warning,
+  Star, InfoFilled, Location, Food, House, Check, Warning,
   ArrowLeft, ArrowRight, MagicStick, Close
 } from '@element-plus/icons-vue';
 import RecommendationSection from '../Cards/RecommendationSection.vue';
-import { getRecommendedAttractions, getRecommendedRestaurants } from '@/api/amap.js';
-import { useAmap } from '@/composables/map/useAmap.js';
 
 export default {
   name: 'TripRecommendationStep',
   components: {
     RecommendationSection,
-    Star, InfoFilled, Location, Food, Check, Warning,
+    Star, InfoFilled, Location, Food, House, Check, Warning,
     ArrowLeft, ArrowRight, MagicStick, Close
   },
   props: {
@@ -178,266 +163,18 @@ export default {
     'save-draft'
   ],
   setup(props, { emit }) {
-    // 使用地图服务composable
-    const { searchPlaces } = useAmap();
-
-    // 推荐数据
-    const recommendedAttractions = ref([]);
-    const recommendedRestaurants = ref([]);
+    // 选中的数据
     const selectedAttractions = ref([]);
     const selectedRestaurants = ref([]);
-
-    // 加载状态
-    const loadingAttractions = ref(false);
-    const loadingRestaurants = ref(false);
-    const loadingMoreAttractions = ref(false);
-    const loadingMoreRestaurants = ref(false);
-    const apiError = ref(null);
-    const hasLoaded = ref(false); // 防止重复加载
-    const currentCityName = ref(''); // 记录当前已加载的城市
-    
-    // 加载完成状态
-    const attractionLoadComplete = ref(false);
-    const restaurantLoadComplete = ref(false);
-
-    // 搜索相关
-    const searchResults = ref([]);
-    const isSearchMode = ref(false);
-    const searching = ref(false);
-
-    // 分页相关状态（用于加载更多）
-    const attractionPagination = ref({
-      currentPage: 1,
-      pageSize: 9,
-      total: 0
-    });
-    
-    const restaurantPagination = ref({
-      currentPage: 1,
-      pageSize: 6,
-      total: 0
-    });
+    const selectedHotels = ref([]);
 
     // AI提示
     const showAiTip = ref(true);
 
     // 计算属性
     const totalSelected = computed(() => 
-      selectedAttractions.value.length + selectedRestaurants.value.length
+      selectedAttractions.value.length + selectedRestaurants.value.length + selectedHotels.value.length
     );
-
-    // 从POI数据中提取标签
-    const extractTags = (poi) => {
-      const tags = [];
-      
-      // 处理type字段 - 过滤掉通用的服务分类
-      if (poi.type && typeof poi.type === 'string') {
-        const typeSegments = poi.type.split(';').filter(Boolean).filter(token => {
-          const trimmed = token.trim();
-          // 过滤掉通用的餐饮服务分类
-          const excludeTypes = [
-            "餐饮服务", "中餐厅", "外国餐厅", "快餐厅", "咖啡厅", 
-            "茶艺馆", "酒吧", "食品", "商务服务", "生活服务"
-          ];
-          return !excludeTypes.some(exclude => trimmed.includes(exclude));
-        });
-        tags.push(...typeSegments);
-      }
-      
-      // 处理tag字段 - 只提取推荐菜品相关内容
-      if (poi.tag && typeof poi.tag === 'string') {
-        const dishTags = extractSignatureDishes(poi);
-        tags.push(...dishTags);
-      }
-      
-      // 从business_area提取
-      if (poi.business_area && typeof poi.business_area === 'string') {
-        tags.push(poi.business_area);
-      }
-      
-      // 去重并过滤空值，确保tag是字符串
-      return [...new Set(tags)].filter(tag => tag && typeof tag === 'string' && tag.trim().length > 0);
-    };
-
-    // 提取景点标签
-    const extractAttractionTags = (attraction) => {
-      return attraction.tags || [];
-    };
-
-    // 提取餐厅招牌菜
-    const extractSignatureDishes = (restaurant) => {
-      if (
-        !restaurant ||
-        !restaurant.tag ||
-        typeof restaurant.tag !== "string"
-      ) {
-        return restaurant.tags || [];
-      }
-
-      const dishes = [];
-      const tagContent = restaurant.tag;
-      
-      // 支持多种分隔符
-      const separators = [",", "，", "、", ";", "；", "|"];
-      let tagTokens = [tagContent];
-      
-      // 找到合适的分隔符并分割
-      for (const separator of separators) {
-        if (tagContent.includes(separator)) {
-          tagTokens = tagContent.split(separator);
-          break;
-        }
-      }
-
-      // 过滤掉明显的非菜品标签
-      const excludeKeywords = [
-        "餐饮服务", "中餐厅", "外国餐厅", "快餐厅", "咖啡厅", 
-        "茶艺馆", "酒吧", "商务服务", "生活服务", "环境", "价格", 
-        "停车", "位置", "交通", "商圈", "商场", "广场", "设施", 
-        "装修", "氛围", "音乐", "包间", "营业时间", "电话", "地址"
-      ];
-
-      tagTokens.forEach((token) => {
-        const trimmedToken = token.trim();
-        
-        // 基本过滤：长度合理，不为空
-        if (trimmedToken.length > 0 && trimmedToken.length <= 20) {
-          // 检查是否包含排除关键词
-          const shouldExclude = excludeKeywords.some(keyword => 
-            trimmedToken.includes(keyword)
-          );
-          
-          if (!shouldExclude) {
-            dishes.push(trimmedToken);
-          }
-        }
-      });
-
-      return [...new Set(dishes)]; // 去重
-    };
-
-      // 加载推荐数据(分页加载)
-      const loadRecommendations = async (forceReload = false) => {
-        const cityName = props.cityInfo?.destinationName;
-        
-        if (!cityName) {
-          console.warn('缺少城市信息，无法加载推荐');
-          return;
-        }
-        
-        // 如果城市变化或强制重载，重置状态
-        const shouldReset = currentCityName.value !== cityName || forceReload;
-        
-        if (shouldReset) {
-          console.log('🔄 重置数据和分页状态', { 
-            cityChange: currentCityName.value !== cityName,
-            forceReload,
-            from: currentCityName.value, 
-            to: cityName 
-          });
-          hasLoaded.value = false;
-          currentCityName.value = '';
-          recommendedAttractions.value = [];
-          recommendedRestaurants.value = [];
-          // 重置分页状态
-          attractionPagination.value.currentPage = 1;
-          attractionPagination.value.total = 0;
-          restaurantPagination.value.currentPage = 1;
-          restaurantPagination.value.total = 0;
-          // 重置加载完成状态
-          attractionLoadComplete.value = false;
-          restaurantLoadComplete.value = false;
-        }
-        
-        // 防止重复加载
-        if (!shouldReset && hasLoaded.value && currentCityName.value === cityName) {
-          console.log('🛑 该城市数据已加载，跳过重复请求，当前城市:', cityName);
-          return;
-        }
-        
-        console.log('🚀 开始为城市加载推荐数据:', cityName);
-
-      try {
-        loadingAttractions.value = true;
-        loadingRestaurants.value = true;
-        apiError.value = null;
-
-        // 并行加载景点和餐厅推荐(基于分页参数)
-        const [attractionsResponse, restaurantsResponse] = await Promise.all([
-          getRecommendedAttractions(
-            props.cityInfo.destinationName, 
-            attractionPagination.value.currentPage, 
-            attractionPagination.value.pageSize
-          ).catch(err => {
-            console.warn('景点推荐API调用失败:', err);
-            if (err.message && err.message.includes('CUQPS_HAS_EXCEEDED_THE_LIMIT')) {
-              throw new Error('API调用次数已达上限，请稍后再试');
-            }
-            return { pois: [], count: 0 };
-          }),
-          getRecommendedRestaurants(
-            props.cityInfo.destinationName, 
-            restaurantPagination.value.currentPage, 
-            restaurantPagination.value.pageSize
-          ).catch(err => {
-            console.warn('餐厅推荐API调用失败:', err);
-            if (err.message && err.message.includes('CUQPS_HAS_EXCEEDED_THE_LIMIT')) {
-              throw new Error('API调用次数已达上限，请稍后再试');
-            }
-            return { pois: [], count: 0 };
-          })
-        ]);
-        // 格式化景点数据
-        if (attractionsResponse.pois && attractionsResponse.pois.length > 0) {
-          recommendedAttractions.value = attractionsResponse.pois.map((poi) => ({
-            id: poi.id,
-            name: poi.name,
-            address: poi.address,
-            rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
-            photos: poi.photos || [],
-            type: poi.type ? poi.type.split(";")[0] : "景点",
-            distance: poi.distance || null,
-            tags: extractTags(poi),
-            tag: poi.tag,
-          }));
-        } else {
-          recommendedAttractions.value = [];
-        }
-        
-        // 更新景点分页信息
-        attractionPagination.value.total = Number(attractionsResponse.count) || attractionsResponse.pois?.length || 0;
-
-        // 格式化餐厅数据
-        if (restaurantsResponse.pois && restaurantsResponse.pois.length > 0) {
-          recommendedRestaurants.value = restaurantsResponse.pois.map((poi) => ({
-            id: poi.id,
-            name: poi.name,
-            address: poi.address,
-            rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
-            photos: poi.photos || [],
-            type: poi.type ? poi.type.split(";")[0] : "餐厅",
-            price: (poi.biz_ext && poi.biz_ext.cost) || "¥¥",
-            tags: extractTags(poi),
-            tag: poi.tag,
-          }));
-        } else {
-          recommendedRestaurants.value = [];
-        }
-        
-        // 更新餐厅分页信息
-        restaurantPagination.value.total = Number(restaurantsResponse.count) || restaurantsResponse.pois?.length || 0;
-        // 标记已加载，防止重复请求
-        hasLoaded.value = true;
-        currentCityName.value = cityName;
-
-      } catch (error) {
-        console.error('❌ 加载推荐数据失败:', error);
-        apiError.value = error.message || '推荐数据加载失败';
-      } finally {
-        loadingAttractions.value = false;
-        loadingRestaurants.value = false;
-      }
-    };
 
     // 景点操作
     const handleAddAttraction = (attraction) => {
@@ -471,265 +208,27 @@ export default {
       }
     };
 
-    // 加载更多处理函数
-    const handleLoadMoreAttractions = async () => {
-      if (loadingMoreAttractions.value || attractionLoadComplete.value) {
-        return;
-      }
-      
-      const nextPage = attractionPagination.value.currentPage + 1;
-      
-      console.log('🔄 加载更多景点:', { 
-        当前页: attractionPagination.value.currentPage,
-        下一页: nextPage,
-        城市: props.cityInfo?.destinationName,
-        当前数据量: recommendedAttractions.value.length
-      });
-      
-      try {
-        loadingMoreAttractions.value = true;
-        
-        console.log('📡 开始加载更多景点数据...');
-        const response = await getRecommendedAttractions(
-          props.cityInfo.destinationName, 
-          nextPage, 
-          attractionPagination.value.pageSize
-        ).catch(err => {
-          console.warn('加载更多景点数据API调用失败:', err);
-          if (err.message && err.message.includes('CUQPS_HAS_EXCEEDED_THE_LIMIT')) {
-            ElMessage.warning('API调用次数已达上限，无法加载更多数据');
-            throw err;
-          }
-          throw err;
-        });
-        
-        console.log('📦 API响应数据:', {
-          总数: response.count,
-          数据长度: response.pois?.length,
-          前2项: response.pois?.slice(0, 2).map(poi => poi.name)
-        });
-        
-        if (response.pois && response.pois.length > 0) {
-          // 累积模式：将新数据添加到现有数据后面
-          const newAttractions = response.pois.map((poi) => ({
-            id: poi.id,
-            name: poi.name,
-            address: poi.address,
-            rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
-            photos: poi.photos || [],
-            type: poi.type ? poi.type.split(";")[0] : "景点",
-            distance: poi.distance || null,
-            tags: extractTags(poi),
-            tag: poi.tag,
-          }));
-          
-          // 去重处理，避免重复数据
-          const existingIds = new Set(recommendedAttractions.value.map(item => item.id));
-          const uniqueNewAttractions = newAttractions.filter(item => !existingIds.has(item.id));
-          
-          recommendedAttractions.value = [...recommendedAttractions.value, ...uniqueNewAttractions];
-          
-          // 更新分页状态
-          attractionPagination.value.currentPage = nextPage;
-          attractionPagination.value.total = Number(response.count) || recommendedAttractions.value.length;
-          
-          // 检查是否已加载完所有数据
-          if (response.pois.length < attractionPagination.value.pageSize) {
-            attractionLoadComplete.value = true;
-            ElMessage.success('已加载全部景点数据');
-          } else {
-            ElMessage.success(`已加载 ${uniqueNewAttractions.length} 个新景点`);
-          }
-          
-          console.log('✅ 景点数据累积成功:', {
-            新增数量: uniqueNewAttractions.length,
-            总数据量: recommendedAttractions.value.length,
-            当前页: attractionPagination.value.currentPage,
-            加载完成: attractionLoadComplete.value
-          });
-          
-          // 平滑滚动到新加载的内容
-          setTimeout(() => {
-            const newItemsStartIndex = recommendedAttractions.value.length - uniqueNewAttractions.length;
-            const targetElement = document.querySelector(`.recommendation-card:nth-child(${newItemsStartIndex + 1})`);
-            if (targetElement) {
-              targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-          }, 100);
-          
-        } else {
-          attractionLoadComplete.value = true;
-          console.log('⚠️ 没有更多景点数据');
-          ElMessage.info('已加载全部景点数据');
-        }
-      } catch (error) {
-        console.error('❌ 加载更多景点数据失败:', error);
-        ElMessage.error('加载更多景点数据失败，请稍后重试');
-      } finally {
-        loadingMoreAttractions.value = false;
-      }
+    // 酒店操作
+    const handleAddHotel = (hotel) => {
+      selectedHotels.value.push(hotel);
+      emitSelectionUpdate();
+      ElMessage.success(`已添加酒店：${hotel.name}`);
     };
 
-    const handleLoadMoreRestaurants = async () => {
-      if (loadingMoreRestaurants.value || restaurantLoadComplete.value) {
-        return;
+    const handleRemoveHotel = (hotel) => {
+      const index = selectedHotels.value.findIndex(h => h.id === hotel.id);
+      if (index > -1) {
+        selectedHotels.value.splice(index, 1);
+        emitSelectionUpdate();
+        ElMessage.info(`已移除酒店：${hotel.name}`);
       }
-      
-      const nextPage = restaurantPagination.value.currentPage + 1;
-      
-      console.log('🔄 加载更多餐厅:', { 
-        当前页: restaurantPagination.value.currentPage,
-        下一页: nextPage,
-        城市: props.cityInfo?.destinationName,
-        当前数据量: recommendedRestaurants.value.length
-      });
-      
-      try {
-        loadingMoreRestaurants.value = true;
-        
-        console.log('📡 开始加载更多餐厅数据...');
-        const response = await getRecommendedRestaurants(
-          props.cityInfo.destinationName, 
-          nextPage, 
-          restaurantPagination.value.pageSize
-        ).catch(err => {
-          console.warn('加载更多餐厅数据API调用失败:', err);
-          if (err.message && err.message.includes('CUQPS_HAS_EXCEEDED_THE_LIMIT')) {
-            ElMessage.warning('API调用次数已达上限，无法加载更多数据');
-            throw err;
-          }
-          throw err;
-        });
-        
-        console.log('📦 API响应数据:', {
-          总数: response.count,
-          数据长度: response.pois?.length,
-          前2项: response.pois?.slice(0, 2).map(poi => poi.name)
-        });
-        
-        if (response.pois && response.pois.length > 0) {
-          // 累积模式：将新数据添加到现有数据后面
-          const newRestaurants = response.pois.map((poi) => ({
-            id: poi.id,
-            name: poi.name,
-            address: poi.address,
-            rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
-            photos: poi.photos || [],
-            type: poi.type ? poi.type.split(";")[0] : "餐厅",
-            price: (poi.biz_ext && poi.biz_ext.cost) || "¥¥",
-            tags: extractTags(poi),
-            tag: poi.tag,
-          }));
-          
-          // 去重处理，避免重复数据
-          const existingIds = new Set(recommendedRestaurants.value.map(item => item.id));
-          const uniqueNewRestaurants = newRestaurants.filter(item => !existingIds.has(item.id));
-          
-          recommendedRestaurants.value = [...recommendedRestaurants.value, ...uniqueNewRestaurants];
-          
-          // 更新分页状态
-          restaurantPagination.value.currentPage = nextPage;
-          restaurantPagination.value.total = Number(response.count) || recommendedRestaurants.value.length;
-          
-          // 检查是否已加载完所有数据
-          if (response.pois.length < restaurantPagination.value.pageSize) {
-            restaurantLoadComplete.value = true;
-            ElMessage.success('已加载全部餐厅数据');
-          } else {
-            ElMessage.success(`已加载 ${uniqueNewRestaurants.length} 家新餐厅`);
-          }
-          
-          console.log('✅ 餐厅数据累积成功:', {
-            新增数量: uniqueNewRestaurants.length,
-            总数据量: recommendedRestaurants.value.length,
-            当前页: restaurantPagination.value.currentPage,
-            加载完成: restaurantLoadComplete.value
-          });
-          
-          // 平滑滚动到新加载的内容
-          setTimeout(() => {
-            const newItemsStartIndex = recommendedRestaurants.value.length - uniqueNewRestaurants.length;
-            const targetElement = document.querySelector(`.recommendation-card:nth-child(${newItemsStartIndex + 1})`);
-            if (targetElement) {
-              targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-          }, 100);
-          
-        } else {
-          restaurantLoadComplete.value = true;
-          console.log('⚠️ 没有更多餐厅数据');
-          ElMessage.info('已加载全部餐厅数据');
-        }
-      } catch (error) {
-        console.error('❌ 加载更多餐厅数据失败:', error);
-        ElMessage.error('加载更多餐厅数据失败，请稍后重试');
-      } finally {
-        loadingMoreRestaurants.value = false;
-      }
-    };
-
-    // 搜索功能
-    const handleSearch = async (searchParams) => {
-      try {
-        searching.value = true;
-        
-        // 使用useAmap搜索
-        const response = await searchPlaces({
-          keywords: searchParams.keyword,
-          city: props.cityInfo.destinationName,
-          types: searchParams.type === 'attractions' ? '110000' : '050000', // 风景名胜或餐饮服务
-          pageSize: 10,
-          page: 1
-        }).catch(err => {
-          console.warn('搜索API调用失败:', err);
-          if (err.message && err.message.includes('CUQPS_HAS_EXCEEDED_THE_LIMIT')) {
-            ElMessage.warning('API调用次数已达上限，无法执行搜索');
-            throw err;
-          }
-          throw err;
-        });
-        
-        // 直接使用增强后的POI数据
-        // useAmap.searchPlaces 现在返回的是pois数组
-        searchResults.value = response || [];
-        
-        console.log('搜索结果:', searchResults.value.length, '个POI');
-        console.log('景点数量:', searchResults.value.filter(poi => poi.isAttraction).length);
-        searchResults.value.forEach(poi => {
-          console.log(`${poi.name}: isAttraction = ${poi.isAttraction}, type = "${poi.type}"`);
-        });
-        
-        isSearchMode.value = true;
-        
-        // 添加更多调试信息
-        console.log('🔍 搜索完成状态更新:', {
-          isSearchMode: isSearchMode.value,
-          searchResults长度: searchResults.value.length,
-          景点数: searchResults.value.filter(item => item.isAttraction).length,
-          餐厅数: searchResults.value.filter(item => !item.isAttraction).length,
-          前2个结果: searchResults.value.slice(0, 2).map(item => ({
-            name: item.name,
-            isAttraction: item.isAttraction,
-            type: item.type
-          }))
-        });
-      } catch (error) {
-        console.error('搜索失败:', error);
-        ElMessage.error('搜索失败');
-      } finally {
-        searching.value = false;
-      }
-    };
-
-    const handleClearSearch = () => {
-      searchResults.value = [];
-      isSearchMode.value = false;
     };
 
     // 清空所有选择
     const handleClearAllSelections = () => {
       selectedAttractions.value = [];
       selectedRestaurants.value = [];
+      selectedHotels.value = [];
       emitSelectionUpdate();
       ElMessage.info('已清空所有选择');
     };
@@ -752,11 +251,10 @@ export default {
     const emitSelectionUpdate = () => {
       emit('selections-updated', {
         selectedAttractions: selectedAttractions.value,
-        selectedRestaurants: selectedRestaurants.value
+        selectedRestaurants: selectedRestaurants.value,
+        selectedHotels: selectedHotels.value
       });
     };
-
-
 
     // 获取提示文本
     const getAiTipText = () => {
@@ -769,61 +267,28 @@ export default {
       }
     };
 
-    // 监听城市信息变化
-    watch(
-      () => props.cityInfo?.destinationName,
-      (newCityName, oldCityName) => {
-        console.log('🔄 城市信息变化:', { oldCityName, newCityName });
-        if (newCityName && newCityName !== oldCityName) {
-          loadRecommendations();
-        }
-      },
-      { immediate: true } // 立即执行一次
-    );
-
     // 组件挂载时的调试信息
     onMounted(() => {
-      console.log('🚀 推荐选择步骤组件挂载', {
-        hasLoaded: hasLoaded.value,
-        currentCity: currentCityName.value,
-        propCity: props.cityInfo?.destinationName
-      });
+      console.log('🚀 推荐选择步骤组件挂载');
     });
 
     return {
       // 数据
-      recommendedAttractions,
-      recommendedRestaurants,
       selectedAttractions,
       selectedRestaurants,
-      loadingAttractions,
-      loadingRestaurants,
-      loadingMoreAttractions,
-      loadingMoreRestaurants,
-      attractionLoadComplete,
-      restaurantLoadComplete,
-      apiError,
-      searchResults,
-      isSearchMode,
-      searching,
+      selectedHotels,
       showAiTip,
       totalSelected,
-      attractionPagination,
-      restaurantPagination,
       
       // 方法
       handleAddAttraction,
       handleRemoveAttraction,
       handleAddRestaurant,
       handleRemoveRestaurant,
-      handleLoadMoreAttractions,
-      handleLoadMoreRestaurants,
-      handleSearch,
-      handleClearSearch,
+      handleAddHotel,
+      handleRemoveHotel,
       handleClearAllSelections,
       handleContinue,
-      extractAttractionTags,
-      extractSignatureDishes,
       getAiTipText
     };
   }

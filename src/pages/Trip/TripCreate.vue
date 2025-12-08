@@ -148,6 +148,7 @@
           :user-preferences="userStore.userPreferences"
           :selected-attractions="selectedAttractions"
           :selected-restaurants="selectedRestaurants"
+          :selected-hotels="selectedHotels"
           :extra-requirements="extraRequirements"
           :weather-suggestion="weatherSuggestion"
           :loading-weather="loadingWeather"
@@ -453,6 +454,7 @@ const { fetchUserPreferences } = useProfile();
     // 已选景点和餐厅
     const selectedAttractions = ref([]);
     const selectedRestaurants = ref([]);
+    const selectedHotels = ref([]);
 
     // 额外需求
     const extraRequirements = ref("");
@@ -517,9 +519,11 @@ const { fetchUserPreferences } = useProfile();
       return (
         !generating.value &&
         (baseForm.destinationName || // 有目的地
+
           Object.keys(preferenceStore.tripPreferenceForm || {}).length > 0 || // 有偏好设置
           selectedAttractions.value.length > 0 || // 有选中的景点
           selectedRestaurants.value.length > 0 || // 有选中的餐厅
+          selectedHotels.value.length > 0 || // 有选中的酒店
           extraRequirements.value.trim()) // 有额外需求
       );
     });
@@ -587,8 +591,9 @@ const { fetchUserPreferences } = useProfile();
 
     // 处理推荐选择更新事件
     const handleSelectionsUpdated = (selections) => {
-      selectedAttractions.value = selections.selectedAttractions || [];
-      selectedRestaurants.value = selections.selectedRestaurants || [];
+      selectedAttractions.value = selections.selectedAttractions || selections.attractions || [];
+      selectedRestaurants.value = selections.selectedRestaurants || selections.restaurants || [];
+      selectedHotels.value = selections.selectedHotels || selections.hotels || [];
       markDataChanged();
     };
 
@@ -606,32 +611,14 @@ const { fetchUserPreferences } = useProfile();
         if (recommendations.hotels) {
           // console.log(`🏨 接收到 ${recommendations.hotels.length} 个酒店推荐`);
         }
-        
-        // 立即检查数据是否正确设置
-        // console.log("✅ aiRecommendationsData已设置:", {
-        //   hasData: !!aiRecommendationsData.value,
-        //   attractionsCount: aiRecommendationsData.value?.attractions?.length || 0,
-        //   restaurantsCount: aiRecommendationsData.value?.restaurants?.length || 0,
-        //   isError: aiRecommendationsData.value?.isError,
-        //   isFallback: aiRecommendationsData.value?.isFallback,
-        //   timestamp: new Date().toLocaleTimeString()
-        // });
+      
         
         markDataChanged();
         
         // 如果选择了增强推荐模式，确保跳转到推荐选择步骤
         if (recommendationType.value === 'enhanced') {
-          // console.log("🎯 AI推荐数据已就绪，当前步骤:", currentStep.value);
-          // console.log("🎯 准备跳转到推荐选择步骤 (step 2)");
-          
-          // 使用 nextTick 确保 Vue 响应式系统更新完成
+  
           nextTick(() => {
-            // console.log("🔄 nextTick: aiRecommendationsData.value 状态:", !!aiRecommendationsData.value);
-            // console.log("🔄 nextTick: 数据详情:", {
-            //   attractions: aiRecommendationsData.value?.attractions?.length || 0,
-            //   restaurants: aiRecommendationsData.value?.restaurants?.length || 0
-            // });
-            
             setTimeout(() => {
               // 确保跳转到第三步（推荐选择）
               if (currentStep.value !== 2) {
@@ -798,6 +785,7 @@ const { fetchUserPreferences } = useProfile();
         preferenceForm,
         selectedAttractions,
         selectedRestaurants,
+        selectedHotels,
         extraRequirements,
       ],
       () => {
@@ -875,6 +863,7 @@ const { fetchUserPreferences } = useProfile();
           preferenceForm: preferenceStore.tripPreferenceForm,
           selectedAttractions: selectedAttractions.value,
           selectedRestaurants: selectedRestaurants.value,
+          selectedHotels: selectedHotels.value,
           extraRequirements: extraRequirements.value,
           weatherSuggestion: forecastWeather.value,
           recommendationType: recommendationType.value,
@@ -903,6 +892,7 @@ const { fetchUserPreferences } = useProfile();
           preferenceForm: preferenceStore.tripPreferenceForm,
           selectedAttractions: selectedAttractions.value,
           selectedRestaurants: selectedRestaurants.value,
+          selectedHotels: selectedHotels.value,
           extraRequirements: extraRequirements.value,
           weatherSuggestion: forecastWeather.value,
           recommendationType: recommendationType.value,
@@ -1165,6 +1155,7 @@ const { fetchUserPreferences } = useProfile();
         // 恢复其他数据
         selectedAttractions.value = draftData.selectedAttractions || [];
         selectedRestaurants.value = draftData.selectedRestaurants || [];
+        selectedHotels.value = draftData.selectedHotels || [];
         extraRequirements.value = draftData.extraRequirements || "";
         // weatherSuggestion 现在是computed属性，从forecastWeather恢复
         if (draftData.weatherSuggestion) {
@@ -1193,6 +1184,7 @@ const { fetchUserPreferences } = useProfile();
       preferenceForm,
       selectedAttractions,
       selectedRestaurants,
+      selectedHotels,
       extraRequirements,
       tripData,
       isLoadingTrip,

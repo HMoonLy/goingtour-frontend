@@ -329,9 +329,10 @@ import {
 } from "@element-plus/icons-vue";
 import { useUserStore } from "@/store/user.js";
 import {
-  convertBackendTripToFrontend,
-  convertFrontendTripToBackend,
-} from "@/utils/data/tripDataConverter.js";
+  translateTag,
+  translateTags,
+  getOptionDisplayName
+} from "@/utils/data/travelDataSystem.js";
 import { TripExporter } from "@/utils/export/tripExporter";
 
 export default {
@@ -657,31 +658,25 @@ export default {
     };
 
     const getIntensityText = (intensity) => {
-      const texts = {
-        relaxed: "轻松休闲",
-        moderate: "适中节奏",
-        intensive: "紧凑高效",
+      if (!intensity) return "未设置";
+      // 兼容旧数据映射
+      const map = {
+        'relaxed': 'slow',
+        'moderate': 'balanced',
+        'fast': 'intensive'
       };
-      return texts[intensity] || "未设置";
+      const key = map[intensity] || intensity;
+      return translateTag(key, 'pacePreference');
     };
 
     const getExperienceText = (experience) => {
-      const texts = {
-        photography: "摄影打卡",
-        local_events: "当地活动",
-        hidden_gems: "小众景点",
-        seasonal: "季节特色",
-      };
-      return texts[experience] || experience;
+      // 尝试直接翻译
+      return translateTag(experience, 'focusAreas');
     };
 
     const getTransportText = (transport) => {
-      const texts = {
-        walking: "多走路",
-        scenic_route: "风景路线",
-        fast_route: "快速到达",
-      };
-      return texts[transport] || transport;
+      // 尝试直接翻译
+      return translateTag(transport, 'transportPreferences');
     };
 
     // 分享行程

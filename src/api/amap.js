@@ -356,6 +356,33 @@ export const getRecommendedRestaurants = async(city, page = 1, pageSize = 6) => 
     }
 };
 
+/**
+ * 搜索指定城市的推荐酒店
+ * @param {string} city - 城市名或citycode
+ * @param {number} [page=1] - 页码
+ * @param {number} [pageSize=6] - 每页数量
+ * @returns {Promise<any>}
+ */
+export const getRecommendedHotels = async(city, page = 1, pageSize = 6) => {
+    // console.log(`🏨 获取城市[${city}]的推荐酒店, 页码:${page}, 每页:${pageSize}`);
+
+    try {
+        const response = await searchPlaces({
+            keywords: "酒店",
+            types: "100000", // 住宿服务
+            city: city,
+            offset: pageSize,
+            page: page,
+        });
+
+        // 直接返回原始数据，不进行数据增强
+        return response;
+    } catch (error) {
+        console.error(`获取推荐酒店失败: ${city}`, error);
+        throw error;
+    }
+};
+
 // ==================== 地理编码相关功能 ====================
 
 // ==================== 坐标系转换 (GCJ-02 -> WGS-84) ====================

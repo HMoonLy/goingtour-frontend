@@ -308,18 +308,20 @@ const getPoiCategory = () => {
 }
 
 const getRating = () => {
+  let rating = null
   // 高德API数据格式
   if (props.poi.biz_ext?.rating && props.poi.biz_ext.rating > 0) {
-    return Number(props.poi.biz_ext.rating)
+    rating = Number(props.poi.biz_ext.rating)
   }
   // 原有格式
-  if (props.poi.poi?.rating && props.poi.poi.rating > 0) {
-    return Number(props.poi.poi.rating)
+  else if (props.poi.poi?.rating && props.poi.poi.rating > 0) {
+    rating = Number(props.poi.poi.rating)
   }
-  if (props.poi.rating && props.poi.rating > 0) {
-    return Number(props.poi.rating)
+  else if (props.poi.rating && props.poi.rating > 0) {
+    rating = Number(props.poi.rating)
   }
-  return null
+  
+  return rating ? Number(rating.toFixed(1)) : null
 }
 
 const getCost = () => {

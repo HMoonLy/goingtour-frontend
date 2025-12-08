@@ -131,6 +131,7 @@ import {
   Delete,
   Refresh,
 } from "@element-plus/icons-vue";
+import { getFullBudgetText, PERSONAL_PROFILE_OPTIONS } from "@/utils/data/travelDataSystem";
 
 export default {
   name: "TripPreview",
@@ -222,17 +223,7 @@ export default {
 
     // 获取预算文本
     const getBudgetText = () => {
-      const budgetMap = {
-        budget: { text: "经济实惠", price: "约400元/天" },
-        moderate: { text: "适中舒适", price: "约750元/天" },
-        comfort: { text: "舒适便利", price: "约1000元/天" },
-        luxury: { text: "豪华奢华", price: "约1500元/天" },
-      };
-
-      const option = budgetMap[props.baseForm.budget];
-      if (!option) return "";
-
-      return `${option.text}(${option.price})`;
+      return getFullBudgetText(props.baseForm.budget);
     };
 
     // 获取预计总花费
@@ -246,12 +237,10 @@ export default {
         return "计算中...";
       }
 
-      const budgetMap = {
-        budget: 400,
-        moderate: 750,
-        luxury: 1500,
-      };
-      const dailyBudget = budgetMap[props.baseForm.budget] || 750;
+      const options = PERSONAL_PROFILE_OPTIONS.budgetLevel.options;
+      const budgetOption = options[props.baseForm.budget];
+      const dailyBudget = budgetOption ? budgetOption.avgCost : 500; // 默认500
+
       const totalCost = dailyBudget * props.baseForm.days * props.baseForm.travelers;
       return `约 ¥${totalCost.toLocaleString()}`;
     };
@@ -304,7 +293,7 @@ export default {
 
     // 组件挂载时的处理
     onMounted(() => {
-      console.log("�� TripPreview组件挂载");
+      console.log(" TripPreview组件挂载");
     });
 
     return {

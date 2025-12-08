@@ -527,6 +527,21 @@
                 {{ "请选择您必须尝试的美食" }}
               </div>
             </div>
+
+            <div class="prompt-section">
+              <div class="section-header">
+                <el-icon><House /></el-icon>
+                <h4>{{ "住宿偏好" }}</h4>
+              </div>
+              <div v-if="selectedHotels.length > 0" class="prompt-text">
+                {{ "已选酒店" }}：<span class="highlight">{{
+                  selectedHotels.map((h) => h.name).join("、")
+                }}</span>
+              </div>
+              <div v-else class="prompt-placeholder">
+                {{ "请选择您的意向酒店" }}
+              </div>
+            </div>
           </div>
 
           <!-- 生成选项 -->
@@ -774,22 +789,22 @@ import {
   Sunny,
   ArrowLeft,
   ArrowRight,
+  House,
   View as ViewIcon,
   DocumentCopy,
   Document,
   Close,
 } from "@element-plus/icons-vue";
-// 使用统一的翻译系统
+// 使用统一的翻译系统和数据转换系统
 import {
   translateTag,
   translateTags,
   translateTagsToString,
-  smartTranslateTag
-} from "@/utils/data/travelDataSystem.js";
-// 保留一些特殊功能的导入
-import {
+  smartTranslateTag,
+  transformToBackendDTO, // 导入DTO转换函数
   getBudgetText as getBudgetTextUtil,
   getCityName,
+  TRIP_PREFERENCES_OPTIONS
 } from "@/utils/data/travelDataSystem.js";
 import { generateCompletePrompt } from "@/utils/data/aiPromptEngine.js";
 import { useUserStore } from "@/store/user.js";
@@ -815,6 +830,7 @@ export default {
     DocumentCopy,
     Document,
     Close,
+    House,
   },
   props: {
     // 基础表单数据
@@ -839,6 +855,11 @@ export default {
     },
     // 选择的餐厅
     selectedRestaurants: {
+      type: Array,
+      default: () => [],
+    },
+    // 选择的酒店
+    selectedHotels: {
       type: Array,
       default: () => [],
     },
@@ -961,14 +982,15 @@ export default {
       const transports = preferences.selectedTransports || [];
       if (Array.isArray(transports) && transports.length > 0) {
         transports.forEach((transport) => {
-          const chineseTag = translateTag(transport, 'transportationMode');
+          const chineseTag = translateTag(transport, 'transportPreferences');
           if (chineseTag) tags.push(chineseTag);
         });
       }
 
       // 住宿类型
       if (preferences.accommodationType) {
-        const chineseTag = translateTag(preferences.accommodationType, 'accommodationType');
+        // 尝试智能翻译，因为暂时没有 accommodationType 的专门字典
+        const chineseTag = smartTranslateTag(preferences.accommodationType);
         if (chineseTag) tags.push(chineseTag);
       }
 
@@ -977,7 +999,7 @@ export default {
         preferences.travelPace &&
         !(props.preferenceForm && props.preferenceForm.pacePreference)
       ) {
-        const chineseTag = translateTag(preferences.travelPace, 'activityLevel');
+        const chineseTag = translateTag(preferences.travelPace, 'pacePreference');
         if (chineseTag) tags.push(chineseTag);
       }
 
@@ -1058,12 +1080,14 @@ export default {
 
     const getIntensityText = (intensity) => {
       if (!intensity) return "";
-      return translateTag(intensity, 'activityLevel');
+      return translateTag(intensity, 'pacePreference');
     };
 
     const getFocusAreasText = (areas) => {
       if (!areas || areas.length === 0) return "";
-      return translateTagsToString(areas, 'coreInterests');
+      // 修正：使用正确的 category 'focusAreas' 进行翻译，而不是 'coreInterests'
+      // 因为 focusAreas 的 key (如 local_cuisine) 与 coreInterests 的 key (如 food) 不同
+      return translateTagsToString(areas, 'focusAreas');
     };
 
     const getSpecialExperiencesText = (experiences) => {
@@ -1076,52 +1100,44 @@ export default {
       return translateTagsToString(restrictions, 'specialRequirements');
     };
 
+    // 获取及转换系统定义的选项文本
+    const getSystemOptionText = (category, key) => {
+      if (!key) return "";
+      // 处理旧数据兼容性
+      if (category === 'pacePreference' && key === 'fast') key = 'intensive';
+      
+      // 尝试从统一配置中获取完整描述
+      const options = TRIP_PREFERENCES_OPTIONS[category]?.options;
+      
+      if (options && options[key]) {
+        // 返回 "名称（描述）" 的格式，这对于AI提示词来说更清晰
+        return `${options[key].name}（${options[key].description}）`;
+      }
+      
+      // 降级回普通翻译
+      return translateTag(key, category);
+    };
+
     // 新增：获取行程目标文本
     const getTripGoalsText = (goals) => {
       if (!goals || goals.length === 0) return "";
-      const goalMapping = {
-        celebration: "庆祝节日/生日",
-        business: "商务出差顺便游玩",
-        family: "家庭亲子游",
-        romantic: "情侣蜜月游",
-        friendship: "朋友聚会游",
-        solo: "个人独旅",
-        learning: "学习文化知识",
-        relaxation: "放松减压",
-        adventure: "寻求刺激冒险",
-        photography: "摄影创作",
-      };
-      return goals.map((goal) => goalMapping[goal] || goal).join("、");
+      // 使用统一翻译
+      return goals.map(goal => getSystemOptionText('tripPurpose', goal)).join("、");
     };
 
     // 新增：获取节奏偏好文本
     const getPacePreferenceText = (pace) => {
-      const paceMapping = {
-        slow: "慢节奏（深度体验，充分休息）",
-        balanced: "平衡型（景点与休息并重）",
-        fast: "紧凑型（多看多玩，充实行程）",
-      };
-      return paceMapping[pace] || pace;
+      return getSystemOptionText('pacePreference', pace);
     };
 
     // 新增：获取社交偏好文本
     const getSocialPreferenceText = (social) => {
-      const socialMapping = {
-        lively: "热闹有趣（人气餐厅、热门景点）",
-        quiet: "安静私密（小众场所、人少景点）",
-        mixed: "灵活搭配（热门与小众结合）",
-      };
-      return socialMapping[social] || social;
+      return getSystemOptionText('socialPreference', social);
     };
 
     // 新增：获取拍照偏好文本
     const getPhotoPreferenceText = (photo) => {
-      const photoMapping = {
-        essential: "必须有（网红打卡点优先）",
-        casual: "随性拍拍（自然美景即可）",
-        minimal: "不太在意（体验优先）",
-      };
-      return photoMapping[photo] || photo;
+      return getSystemOptionText('photoPreference', photo);
     };
 
     // 生成提示词完整度评估
@@ -1758,65 +1774,49 @@ export default {
         emit("update:generationProgress", "分析用户偏好...");
         emit("update:progressPercent", 15);
 
-        // 构建AI请求数据
-        const requestData = {
-          // 基础信息
-          destination: props.baseForm.destination,
-          destinationName: getSelectedCityName(),
-          days: props.baseForm.days,
-          travelers: props.baseForm.travelers,
-          budget: getBudgetText(),
-          startDate: props.baseForm.dateRange?.[0],
-          endDate: props.baseForm.dateRange?.[1],
-          generationStyle: selectedGenerationStyle.value,
-
-          // 用户偏好
+        // 1. 组装前端状态 (Merged State)
+        // 将分散在各个 props 中的数据合并为统一的 System State
+        const tripState = {
+          ...props.baseForm,
+          ...props.preferenceForm,
+          
+          // 确保日期范围格式正确
+          dateRange: props.baseForm.dateRange,
+          
+          // 注入偏好设置
+          userPreferences: currentUserPreferences.value,
           travelTags: selectedPreferenceTags.value,
-          transports: currentUserPreferences.value?.selectedTransports,
-          accommodationType: currentUserPreferences.value?.accommodationType,
-          travelPace: currentUserPreferences.value?.travelPace,
-          foodTastes: currentUserPreferences.value?.foodTastes,
-          dietaryRestrictions: props.preferenceForm.dietaryRestrictions,
-          customDietaryNotes: props.preferenceForm.customDietaryNotes,
-
-          // 行程偏好 - 修复字段映射
-          tripGoals: props.preferenceForm.tripGoals,
-          pacePreference: props.preferenceForm.pacePreference,
-          socialPreference: props.preferenceForm.socialPreference,
-          photoPreference: props.preferenceForm.photoPreference,
-          focusAreas: props.preferenceForm.focusAreas,
-          specialRequirements: props.preferenceForm.specialRequirements,
-
-          // 为了兼容后端，也发送映射后的字段
-          tripStyle: mapTripGoalsToStyle(props.preferenceForm.tripGoals),
-          intensity: mapPaceToIntensity(props.preferenceForm.pacePreference),
-
-          // 必去景点和餐厅
-          selectedAttractions: props.selectedAttractions?.map((a) => ({
-            name: a.name,
-            description: a.description,
-            address: a.address,
-          })),
-          selectedRestaurants: props.selectedRestaurants?.map((r) => ({
-            name: r.name,
-            description: r.description,
-            address: r.address,
-          })),
-
-          // 天气信息
-          weatherInfo: props.weatherSuggestion
-            ? {
-                weatherDesc: props.weatherSuggestion.weatherDesc,
-                tempRange: props.weatherSuggestion.tempRange,
-                tips: props.weatherSuggestion.tips,
-                avoid: props.weatherSuggestion.avoid,
-                isHistorical: props.weatherSuggestion.isHistorical,
-              }
-            : null,
-
-          // 用户类型判断
-          userType: determineUserType(),
+          
+          // 注入生成选项
+          generationStyle: selectedGenerationStyle.value,
+          
+          // 注入选择的必去项
+          selectedAttractions: props.selectedAttractions,
+          selectedRestaurants: props.selectedRestaurants,
+          selectedHotels: props.selectedHotels,
+          
+          // 注入额外需求
+          extraRequirements: props.extraRequirements
         };
+
+        // 2. 使用 System 转换数据 (DTO Transformation)
+        // 这将自动处理字段映射、类型转换和数据清洗
+        const requestData = transformToBackendDTO(tripState);
+        
+        // 补充一些无法自动映射的上下文数据 (如天气信息)
+        // 这些数据不是标准的 AiTripRequest 字段，但在生成过程中可能需要作为上下文
+        if (props.weatherSuggestion) {
+          requestData.weatherContext = {
+            weatherDesc: props.weatherSuggestion.weatherDesc,
+            tempRange: props.weatherSuggestion.tempRange,
+            tips: props.weatherSuggestion.tips,
+            avoid: props.weatherSuggestion.avoid,
+            isHistorical: props.weatherSuggestion.isHistorical,
+          };
+        }
+
+        // 调试输出
+        console.log('🚀 AI Trip Generation Request:', requestData);
 
         // 数据准备完成
         emit("update:generationProgress", "构建提示词...");
@@ -1966,59 +1966,8 @@ export default {
       }
     };
 
-    // 判断用户类型的辅助方法
-    const determineUserType = () => {
-      if (!props || !props.baseForm || !props.baseForm.travelers) return "INDIVIDUAL";
-      if (props.baseForm.travelers > 2) return "FAMILY";
-      if (props.baseForm.travelers === 2) return "COUPLE";
-      return "INDIVIDUAL";
-    };
-
-    // 映射新的行程目标到旧的行程风格字段
-    const mapTripGoalsToStyle = (tripGoals) => {
-      if (!tripGoals || !Array.isArray(tripGoals) || tripGoals.length === 0) {
-        return null;
-      }
-
-      // 根据主要目标确定行程风格
-      if (tripGoals.includes("learning") || tripGoals.includes("culture")) {
-        return "cultural"; // 文化深度游
-      }
-      if (tripGoals.includes("relaxation")) {
-        return "leisure"; // 休闲游
-      }
-      if (tripGoals.includes("adventure")) {
-        return "adventure"; // 探险游
-      }
-      if (tripGoals.includes("photography")) {
-        return "photo"; // 摄影游
-      }
-      if (tripGoals.includes("business")) {
-        return "business"; // 商务游
-      }
-      if (tripGoals.includes("family")) {
-        return "family"; // 家庭游
-      }
-      if (tripGoals.includes("romantic")) {
-        return "romantic"; // 浪漫游
-      }
-
-      // 默认综合游
-      return "comprehensive";
-    };
-
-    // 映射新的节奏偏好到旧的强度字段
-    const mapPaceToIntensity = (pacePreference) => {
-      if (!pacePreference) return null;
-
-      const paceMapping = {
-        slow: "light", // 慢节奏 -> 轻松
-        balanced: "moderate", // 平衡型 -> 适中
-        fast: "intensive", // 紧凑型 -> 紧凑
-      };
-
-      return paceMapping[pacePreference] || "moderate";
-    };
+    // 移除已废弃的辅助方法 mapTripGoalsToStyle, mapPaceToIntensity, determineUserType
+    // 这些逻辑现在已集成到 AiTripRequest.js 和 transformToBackendDTO 中
 
     // 组件挂载时的处理
     onMounted(async () => {

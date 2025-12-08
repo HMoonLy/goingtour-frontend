@@ -55,7 +55,7 @@
           <div v-if="days && travelers" class="budget-preview">
             <div class="preview-label">总预算</div>
             <div class="preview-amount">
-              {{ calculateBudgetPreview(option.value) }}
+              {{ calculateBudgetPreview(option.avgCost) }}
             </div>
           </div>
           <div v-if="modelValue === option.value" class="budget-check">
@@ -68,8 +68,10 @@
 </template>
 
 <script setup>
-import { Money, Star, Check, Setting } from '@element-plus/icons-vue';
+import { computed } from 'vue';
+import { Money, Star, Check, Setting, Coffee } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
+import { PERSONAL_PROFILE_OPTIONS } from '@/utils/data/travelDataSystem';
 
 const props = defineProps({
   modelValue: String,
@@ -80,38 +82,28 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue']);
 
-const budgetOptions = [
-  {
-    value: "budget",
-    title: "经济实惠",
-    price: "¥200/人/天",
-    description: "青旅/民宿 + 公共交通 + 特色小吃",
-    icon: "Money",
-  },
-  {
-    value: "moderate",
-    title: "舒适适中",
-    price: "¥500/人/天",
-    description: "舒适酒店 + 打车出行 + 必吃餐厅",
-    icon: "Star",
-  },
-  {
-    value: "luxury",
-    title: "豪华享受",
-    price: "¥1000+/人/天",
-    description: "高端酒店 + 专车接送 + 精致餐饮",
-    icon: "Setting",
-  },
-];
+// 从统一数据系统生成选项
+const budgetOptions = computed(() => {
+  const options = PERSONAL_PROFILE_OPTIONS.budgetLevel.options;
+  return Object.entries(options).map(([key, value]) => ({
+    value: key,
+    title: value.name,
+    price: value.range,
+    description: value.description,
+    icon: value.icon,
+    avgCost: value.avgCost
+  }));
+});
 
 // 是否为推荐预算
 const isRecommendedBudget = (value) => {
   if (!props.userPreferences?.budget) return false;
   const userBudget = parseInt(props.userPreferences.budget);
   
-  if (value === 'budget' && userBudget <= 500) return true;
-  if (value === 'moderate' && userBudget > 500 && userBudget <= 1000) return true;
-  if (value === 'luxury' && userBudget > 1000) return true;
+  if (value === 'budget' && userBudget <= 300) return true;
+  if (value === 'moderate' && userBudget > 300 && userBudget <= 500) return true;
+  if (value === 'comfort' && userBudget > 500 && userBudget <= 800) return true;
+  if (value === 'luxury' && userBudget > 800) return true;
   
   return false;
 };
@@ -121,9 +113,10 @@ const applyRecommendedBudget = () => {
   if (!props.userPreferences?.budget) return;
   const userBudget = parseInt(props.userPreferences.budget);
   
-  if (userBudget <= 500) selectBudget('budget');
-  else if (userBudget > 1000) selectBudget('luxury');
-  else selectBudget('moderate');
+  if (userBudget <= 300) selectBudget('budget');
+  else if (userBudget <= 500) selectBudget('moderate');
+  else if (userBudget <= 800) selectBudget('comfort');
+  else selectBudget('luxury');
   
   ElMessage.success('已为您应用推荐预算');
 };
@@ -132,16 +125,11 @@ const selectBudget = (value) => {
   emit('update:modelValue', value);
 };
 
-const calculateBudgetPreview = (budgetType) => {
+const calculateBudgetPreview = (avgCost) => {
   const travelers = props.travelers || 1;
   const days = props.days || 1;
   
-  let perPersonPerDay = 0;
-  if (budgetType === 'budget') perPersonPerDay = 400;
-  else if (budgetType === 'moderate') perPersonPerDay = 750;
-  else if (budgetType === 'luxury') perPersonPerDay = 1500;
-  
-  const total = perPersonPerDay * travelers * days;
+  const total = avgCost * travelers * days;
   
   if (total >= 10000) {
     return `约 ${(total / 10000).toFixed(1)}万`;
@@ -191,9 +179,9 @@ const calculateBudgetPreview = (budgetType) => {
 }
 
 .budget-selector {
- display: flex;
- justify-content: space-around;
- align-items: center;
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+ gap: 20px;
  width:100%;
 }
 
@@ -340,4 +328,3 @@ const calculateBudgetPreview = (budgetType) => {
   }
 }
 </style>
-
