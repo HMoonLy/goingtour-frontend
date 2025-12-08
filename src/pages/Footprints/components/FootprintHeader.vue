@@ -64,11 +64,6 @@ defineEmits([
   margin-bottom: 24px;
 }
 
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
 
 .page-title {
   font-size: 28px;
@@ -92,10 +87,7 @@ defineEmits([
 }
 
 .quick-actions-buttons {
-  display: flex;
-  gap: 24px;
-  align-items: flex-start;
-  flex-wrap: wrap;
+width:100%;
 }
 
 @media (max-width: 768px) {

@@ -84,21 +84,21 @@ const budgetOptions = [
   {
     value: "budget",
     title: "经济实惠",
-    price: "¥400/人/天",
+    price: "¥200/人/天",
     description: "青旅/民宿 + 公共交通 + 特色小吃",
     icon: "Money",
   },
   {
     value: "moderate",
     title: "舒适适中",
-    price: "¥750/人/天",
+    price: "¥500/人/天",
     description: "舒适酒店 + 打车出行 + 必吃餐厅",
     icon: "Star",
   },
   {
     value: "luxury",
     title: "豪华享受",
-    price: "¥1500+/人/天",
+    price: "¥1000+/人/天",
     description: "高端酒店 + 专车接送 + 精致餐饮",
     icon: "Setting",
   },
@@ -187,26 +187,14 @@ const calculateBudgetPreview = (budgetType) => {
 }
 
 .budget-section {
-  background: #fff;
-}
 
-.preference-hint-banner {
-  display: flex;
-  align-items: center;
-  background: #f0f9eb;
-  border: 1px solid #e1f3d8;
-  color: #67c23a;
-  padding: 8px 16px;
-  border-radius: 8px;
-  margin-bottom: 16px;
-  font-size: 13px;
-  gap: 8px;
 }
 
 .budget-selector {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+ display: flex;
+ justify-content: space-around;
+ align-items: center;
+ width:100%;
 }
 
 .budget-card {
