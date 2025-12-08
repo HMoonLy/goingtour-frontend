@@ -5,7 +5,7 @@
 
 import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { aiRecommendationService } from '@/services/aiRecommendationService'
+import { aiRecommendationService } from '@/services/trip/aiRecommendationService.js'
 
 export function useAiRecommendations() {
     // 响应式状态

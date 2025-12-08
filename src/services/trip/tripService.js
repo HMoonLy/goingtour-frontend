@@ -7,7 +7,7 @@ import {
     convertBackendTripToFrontend,
     convertFrontendTripToBackend
 } from '@/utils/data/tripDataConverter.js'
-import { BaseService } from './baseService.js'
+import { BaseService } from '../common/baseService.js'
 
 class TripService extends BaseService {
     constructor() {

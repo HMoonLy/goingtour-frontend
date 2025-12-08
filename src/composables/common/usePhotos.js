@@ -3,7 +3,7 @@
  * 提供照片相关的响应式状态和方法
  */
 import { ref } from 'vue'
-import { photoService } from '@/services/photoService.js'
+import { photoService } from '@/services/common/photoService.js'
 import { useUserStore } from '@/store/user.js'
 
 export function usePhotos() {

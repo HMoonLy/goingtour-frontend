@@ -388,11 +388,11 @@ import {
 } from "@element-plus/icons-vue";
 import { useUserStore } from "@/store/user.js";
 import { usePreferenceStore } from "@/store/preference.js";
-import { useDraft } from "@/composables/useDraft.js";
+import { useDraft } from "@/composables/trip/useDraft.js";
 import { useProfile } from "@/composables/user/useProfile.js";
 import { weatherApi } from "@/api/weather.js";
 import { draftApi } from "@/api/draft.js";
-import { useWeather } from "@/composables/useWeather.js";
+import { useWeather } from "@/composables/common/useWeather.js";
 import TripBaseInfo from "@/components/Trip/Steps/TripBaseInfo.vue";
 import TripGeneration from "@/components/Trip/Steps/TripGeneration.vue";
 import TripPreview from "@/components/Trip/Steps/TripPreview.vue";

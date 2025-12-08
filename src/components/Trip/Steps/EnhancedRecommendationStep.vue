@@ -274,7 +274,7 @@ import HotelCard from '../Cards/HotelCard.vue'
 import PoiDetailDialog from '../Dialogs/PoiDetailDialog.vue'
 
 // 高德API增强服务
-import { enhanceAiRecommendations } from '@/services/poiEnhancementService.js'
+import { enhanceAiRecommendations } from '@/services/map/poiEnhancementService.js'
 
 // Props
 const props = defineProps({
@@ -523,8 +523,8 @@ const fetchPoiDetails = async (item, type) => {
       showClose: false
     })
     
-    // 动态导入以避免初始加载时的API调用
-    const { enhancePoiWithCoordinates } = await import('@/services/poiEnhancementService.js')
+      // 动态导入以避免初始加载时的API调用
+      const { enhancePoiWithCoordinates } = await import('@/services/map/poiEnhancementService.js')
     
     const enhancedPoi = await enhancePoiWithCoordinates(item, city, type)
     

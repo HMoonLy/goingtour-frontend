@@ -4,7 +4,7 @@
  */
 import { wishlistApi } from '@/api/wishlist.js'
 import { cityPhotosApi } from '@/api/cityPhotos.js'
-import { BaseService } from './baseService.js'
+import { BaseService } from '../common/baseService.js'
 
 class WishlistService extends BaseService {
     constructor() {

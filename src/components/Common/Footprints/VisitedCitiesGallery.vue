@@ -320,9 +320,9 @@ import {
   StarFilled,
   Edit,
 } from "@element-plus/icons-vue";
-import { useWishlist } from "@/composables/useWishlist.js";
-import { usePhotos } from "@/composables/usePhotos.js";
-import { useFootprint } from "@/composables/useFootprint.js";
+import { useWishlist } from "@/composables/user/useWishlist.js";
+import { usePhotos } from "@/composables/common/usePhotos.js";
+import { useFootprint } from "@/composables/user/useFootprint.js";
 import {
   getCityPhotoUrl,
   getCityThumbnailUrl,

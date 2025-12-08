@@ -10,23 +10,27 @@ import { useUserStore } from '@/store/user.js'
 /**
  * 草稿管理主要功能
  */
+
+// 状态管理 - 提升到模块作用域以实现单例模式
+const draftList = ref([])
+const currentDraft = ref(null)
+const autoDraft = ref(null)
+const loading = ref({
+    list: false,
+    save: false,
+    load: false,
+    delete: false,
+    auto: false
+})
+const error = ref(null)
+const autoSaveTimer = ref(null)
+const lastSaveTime = ref(null)
+
+// 标记正在从草稿加载（兼容原 draftStore 接口）
+const isLoadingFromDraft = ref(false)
+
 export function useDraft() {
     const userStore = useUserStore()
-
-    // 状态管理
-    const draftList = ref([])
-    const currentDraft = ref(null)
-    const autoDraft = ref(null)
-    const loading = ref({
-        list: false,
-        save: false,
-        load: false,
-        delete: false,
-        auto: false
-    })
-    const error = ref(null)
-    const autoSaveTimer = ref(null)
-    const lastSaveTime = ref(null)
 
     // 计算属性
     const hasDrafts = computed(() => draftList.value.length > 0)
@@ -596,11 +600,6 @@ export function useDraft() {
         if (!hasDraftToRestore()) return 0
         return currentDraft.value.currentStep || 0
     }
-
-    /**
-     * 标记正在从草稿加载（兼容原 draftStore 接口）
-     */
-    const isLoadingFromDraft = ref(false)
 
     const setLoadingFromDraft = (loading) => {
         isLoadingFromDraft.value = loading

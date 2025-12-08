@@ -140,7 +140,7 @@ import {
 } from '@element-plus/icons-vue';
 import RecommendationSection from '../Cards/RecommendationSection.vue';
 import { getRecommendedAttractions, getRecommendedRestaurants } from '@/api/amap.js';
-import { useAmap } from '@/composables/useAmap.js';
+import { useAmap } from '@/composables/map/useAmap.js';
 
 export default {
   name: 'TripRecommendationStep',

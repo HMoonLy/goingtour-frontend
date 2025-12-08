@@ -100,8 +100,7 @@ class="form-item">
           </el-form-item>
 
           <!-- 验证码输入 -->
-          <el-form-item prop="code"
-class="form-item">
+          <el-form-item prop="code" class="form-item">
             <label class="form-label">验证码</label>
             <div class="code-input-group">
               <el-input
@@ -593,6 +592,7 @@ export default {
   font-weight: 500;
   color: #606266;
   margin-bottom: 8px;
+  padding:5px;
 }
 
 .form-input :deep(.el-input__wrapper) {

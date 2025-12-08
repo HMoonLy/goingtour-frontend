@@ -1,295 +1,50 @@
 <template>
   <div class="page-shell footprints-page">
     <!-- 页面头部 -->
-    <div class="page-header">
-      <div class="header-content">
-        <div>
-          <h1 class="page-title">
-            <el-icon><Star /></el-icon>
-            我的足迹
-          </h1>
-          <p class="page-subtitle">记录你的足迹，分享你的旅行故事</p>
-
-          <!-- 快捷操作按钮组 -->
-          <div class="quick-actions-buttons">
-            <!-- 去过的城市照片展示 - 新组件 -->
-            <VisitedCitiesGallery
-              :max-display-count="6"
-              :visited-cities-data="footprint.visitedCities.value"
-              @photo-uploaded="handlePhotoUploaded"
-              @photo-deleted="handlePhotoDeleted"
-              @city-deleted="handleCityDeleted"
-              @add-visited-city="handleAddVisitedCityDirect"
-            />
-
-            <!-- 足迹统计卡片 -->
-            <FootprintStats
-              :stats="footprintStats"
-              :has-data="hasCities"
-              @share="handleShareFootprint"
-              @view-achievements="handleViewAchievements"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+    <FootprintHeader
+      :visited-cities="footprint.visitedCities.value"
+      :stats="footprintStats"
+      :has-data="hasCities"
+      @photo-uploaded="handlePhotoUploaded"
+      @photo-deleted="handlePhotoDeleted"
+      @city-deleted="handleCityDeleted"
+      @add-visited-city="handleAddVisitedCityDirect"
+      @share="handleShareFootprint"
+      @view-achievements="handleViewAchievements"
+    />
 
     <!-- 足迹内容 -->
     <div class="page-content">
-      <!-- 状态切换控制区域 -->
-      <div v-if="hasCities" class="view-control-section">
-        <div class="control-header">
-          <h3 class="control-title">
-            <el-icon><View /></el-icon>
-            地图显示模式
-          </h3>
-          <p class="control-subtitle">
-            选择在地图上显示的城市类型，去过的城市已在上方展示
-          </p>
-        </div>
+      <!-- 地图显示模式与地图区域 -->
+      <FootprintMapSection
+        v-if="hasCities"
+        v-model="mapDisplayMode"
+        :visited-count="footprint.visitedCount.value"
+        :wishlist-count="wishlist.wishlistOnlyCount.value"
+        :provinces-count="exploredProvincesCount"
+        :map-items="mapDisplayItems"
+        :highlighted-city="highlightedCity"
+        @fullscreen="handleFullscreenMap"
+        @city-click="handleMapCityClick"
+        @map-click="handleMapClick"
+        @map-right-click="handleMapRightClick"
+      />
 
-        <div class="view-mode-buttons">
-          <el-button
-            :type="mapDisplayMode === 'all' ? 'primary' : ''"
-            size="large"
-            class="mode-button"
-            @click="mapDisplayMode = 'all'"
-          >
-            <el-icon><Location /></el-icon>
-            全部显示
-          </el-button>
-
-          <el-button
-            :type="mapDisplayMode === 'wishlist' ? 'primary' : ''"
-            size="large"
-            class="mode-button wishlist-mode"
-            @click="mapDisplayMode = 'wishlist'"
-          >
-            <el-icon><Star /></el-icon>
-            想去的城市
-          </el-button>
-
-          <el-button
-            :type="mapDisplayMode === 'visited' ? 'primary' : ''"
-            size="large"
-            class="mode-button visited-mode"
-            @click="mapDisplayMode = 'visited'"
-          >
-            <el-icon><Check /></el-icon>
-            去过的城市
-          </el-button>
-        </div>
-      </div>
-
-      <!-- 地图区域 -->
-      <div v-if="hasCities" class="map-section">
-        <div class="map-header">
-          <div class="map-title-group">
-            <h3 class="map-title">
-              <el-icon><MapLocation /></el-icon>
-              足迹地图
-            </h3>
-            <div class="footprint-stats">
-              <span class="stat-badge visited">
-                <el-icon><Check /></el-icon>
-                已去过 {{ footprint.visitedCount.value }}
-              </span>
-              <span class="stat-badge wishlist">
-                <el-icon><Star /></el-icon>
-                想去 {{ wishlist.wishlistOnlyCount.value }}
-              </span>
-              <span class="stat-badge provinces">
-                <el-icon><Location /></el-icon>
-                {{ exploredProvincesCount.value }} 省份
-              </span>
-            </div>
-          </div>
-          <div class="map-controls">
-            <el-button size="small" type="primary" @click="handleFullscreenMap">
-              <el-icon><View /></el-icon>
-              全屏查看
-            </el-button>
-          </div>
-        </div>
-
-        <div class="map-container">
-          <ChinaWishlistMap
-            :wishlist-items="mapDisplayItems"
-            height="600px"
-            :enable-map-click="true"
-            :highlighted-city="highlightedCity"
-            @city-click="handleMapCityClick"
-            @map-click="handleMapClick"
-            @map-right-click="handleMapRightClick"
-          />
-        </div>
-      </div>
 
       <!-- 动态内容展示区域 -->
       <div v-if="hasCities" class="content-display-area">
         <!-- 想去的城市卡片展示 -->
-        <div v-if="wishlist.wishlistOnlyCount.value > 0" class="wishlist-cities-cards">
-          <div class="section-header">
-            <h4 class="section-title">
-              <el-icon><Star /></el-icon>
-              想去的城市 ({{ wishlist.wishlistOnlyCount.value }})
-            </h4>
-            <div class="section-controls">
-              <div class="filter-controls">
-                <el-select
-                  v-model="sortBy"
-                  placeholder="排序方式"
-                  size="small"
-                  style="width: 120px"
-                  @change="handleSortChange"
-                >
-                  <el-option label="添加时间" value="date" />
-                  <el-option label="城市名称" value="name" />
-                </el-select>
-              </div>
-
-              <el-button size="small" type="primary" @click="handleAddWishlistCityDirect">
-                <el-icon><Plus /></el-icon>
-                添加城市
-              </el-button>
-            </div>
-          </div>
-
-          <div class="simple-cards-container">
-            <div
-              v-for="item in filteredAndSortedWishlistCities"
-              :key="item.id"
-              class="enhanced-wishlist-card"
-              @click="handleCardClick(item)"
-            >
-              <div class="card-main-content">
-                <div class="card-header">
-                  <div class="city-info">
-                    <!-- 重访标识 -->
-                    <div
-                      v-if="item.ever_visited && item.want_to_visit_again"
-                      class="revisit-badge"
-                    >
-                      <el-icon><Star /></el-icon>
-                      <span>想再去</span>
-                    </div>
-
-                    <h5 class="card-city-name">
-                      {{ item.cityName }}
-                    </h5>
-                    <span class="added-time">
-                      {{ formatAddedTime(item.createdAt) }}
-                    </span>
-                  </div>
-                  <div class="card-actions">
-                    <!-- 只有从未去过的城市才显示"标记为已去过"按钮 -->
-                    <div v-if="!item.ever_visited" class="primary-action">
-                      <el-button
-                        size="small"
-                        type="primary"
-                        class="action-btn visited-btn"
-                        @click.stop="handleMarkAsVisited(item)"
-                      >
-                        <el-icon><Check /></el-icon>
-                        <span class="action-text">标记为已去过</span>
-                      </el-button>
-                    </div>
-                    <div class="secondary-actions">
-                      <el-button
-                        size="small"
-                        class="action-btn edit-btn"
-                        @click.stop="handleEditCity(item)"
-                      >
-                        <el-icon><Edit /></el-icon>
-                        <span class="action-text">编辑</span>
-                      </el-button>
-                      <el-dropdown trigger="click" placement="bottom-end" @click.stop>
-                        <el-button size="small" class="action-btn more-btn" @click.stop>
-                          <el-icon><MoreFilled /></el-icon>
-                        </el-button>
-                        <template #dropdown>
-                          <el-dropdown-menu>
-                            <el-dropdown-item @click="handlePlanTrip(item)">
-                              <el-icon><Calendar /></el-icon>
-                              规划行程
-                            </el-dropdown-item>
-                            <el-dropdown-item
-                              divided
-                              class="delete-item"
-                              @click="handleDeleteCity(item)"
-                            >
-                              <el-icon><Delete /></el-icon>
-                              删除城市
-                            </el-dropdown-item>
-                          </el-dropdown-menu>
-                        </template>
-                      </el-dropdown>
-                    </div>
-                  </div>
-                </div>
-
-                <div v-if="item.tags && item.tags.length > 0" class="card-tags">
-                  <el-tag
-                    v-for="tag in item.tags.slice(0, 3)"
-                    :key="tag"
-                    size="small"
-                    :type="getTagType(tag)"
-                    class="enhanced-tag"
-                  >
-                    <el-icon class="tag-icon">
-                      <component :is="getTagIcon(tag)" />
-                    </el-icon>
-                    {{ tag }}
-                  </el-tag>
-                  <span v-if="item.tags.length > 3" class="more-tags">
-                    +{{ item.tags.length - 3 }}
-                  </span>
-                </div>
-
-                <p v-if="item.reason" class="card-reason">
-                  {{ item.reason }}
-                </p>
-
-                <!-- 规划信息 -->
-                <div v-if="item.plannedDate" class="planning-info">
-                  <div v-if="item.plannedDate" class="plan-item">
-                    <el-icon class="plan-icon">
-                      <Calendar />
-                    </el-icon>
-                    <span>{{ formatPlannedDate(item.plannedDate) }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 空状态 -->
-            <div
-              v-if="
-                filteredAndSortedWishlistCities.length === 0 && wishlistCities.length > 0
-              "
-              class="empty-filtered"
-            >
-              <el-icon size="48">
-                <Search />
-              </el-icon>
-              <p>没有符合条件的城市</p>
-              <el-button size="small" link @click="clearFilters">
-                清除筛选条件
-              </el-button>
-            </div>
-
-            <!-- 完全空状态 -->
-            <div v-if="wishlistCities.length === 0" class="empty-wishlist">
-              <el-icon size="48">
-                <Star />
-              </el-icon>
-              <p>还没有心愿城市</p>
-              <el-button size="small" type="primary" @click="handleAddWishlistCityDirect">
-                添加心愿城市
-              </el-button>
-            </div>
-          </div>
-        </div>
+        <WishlistSection
+          v-if="wishlist.wishlistOnlyCount.value > 0"
+          v-model:sort-value="sortBy"
+          :items="filteredAndSortedWishlistCities"
+          :count="wishlist.wishlistOnlyCount.value"
+          @add-city="handleAddWishlistCityDirect"
+          @card-click="handleCardClick"
+          @mark-visited="handleMarkAsVisited"
+          @edit="handleEditCity"
+          @delete="handleDeleteCity"
+        />
 
         <!-- 想去城市空状态 -->
         <div v-if="wishlist.wishlistOnlyCount.value === 0" class="empty-wishlist-state">
@@ -763,8 +518,8 @@ import {
   Location as LocationIcon,
   ChatRound,
 } from "@element-plus/icons-vue";
-import { useWishlist } from "@/composables/useWishlist.js";
-import { useFootprint } from "@/composables/useFootprint.js";
+import { useWishlist } from "@/composables/user/useWishlist.js";
+import { useFootprint } from "@/composables/user/useFootprint.js";
 import { useUserStore } from "@/store/user.js";
 import WishlistCard from "@/components/Common/Wishlist/WishlistCard.vue";
 import MiniWishlistCard from "@/components/Common/Wishlist/MiniWishlistCard.vue";
@@ -773,10 +528,16 @@ import FootprintStats from "@/components/Common/Stats/FootprintStats.vue";
 import VisitedCitiesGallery from "@/components/Common/Footprints/VisitedCitiesGallery.vue";
 import pinyin from "pinyin";
 import { debounce } from "@/utils/api/apiOptimizer.js";
+import FootprintHeader from './components/FootprintHeader.vue';
+import FootprintMapSection from './components/FootprintMapSection.vue';
+import WishlistSection from './components/WishlistSection.vue';
 
 export default {
   name: "FootprintsPage",
   components: {
+    FootprintHeader,
+    FootprintMapSection,
+    WishlistSection,
     WishlistCard,
     MiniWishlistCard,
     ChinaWishlistMap,

@@ -5,7 +5,7 @@
 
 import { ref, computed, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
-import { amapService, POI_TYPES, SEARCH_KEYWORDS } from '@/services/amapService.js'
+import { amapService, POI_TYPES, SEARCH_KEYWORDS } from '@/services/map/amapService.js'
 
 export function useAmap() {
     // ==================== 响应式状态 ====================

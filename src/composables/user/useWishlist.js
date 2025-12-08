@@ -3,7 +3,7 @@
  * 提供愿望清单相关的响应式状态和方法
  */
 import { ref, computed } from 'vue'
-import { wishlistService } from '@/services/wishlistService.js'
+import { wishlistService } from '@/services/user/wishlistService.js'
 import { useAuth } from '@/composables/user/useAuth.js'
 import { useUserStore } from '@/store/user.js'
 

@@ -191,7 +191,7 @@ import {
   View,
   Plus,
 } from "@element-plus/icons-vue";
-import { useWishlist } from "@/composables/useWishlist.js";
+import { useWishlist } from "@/composables/user/useWishlist.js";
 
 export default {
   name: "WishlistCard",

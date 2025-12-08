@@ -3,7 +3,7 @@
  * 提供足迹相关的响应式状态和方法
  */
 import { ref, computed } from 'vue'
-import { footprintService } from '@/services/footprintService.js'
+import { footprintService } from '@/services/user/footprintService.js'
 import { useUserStore } from '@/store/user.js'
 // import { useWishlist } from './useWishlist.js' // 避免循环依赖
 

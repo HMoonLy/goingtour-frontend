@@ -25,7 +25,7 @@ class="map-loading">
 <script>
 import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
 import * as echarts from "echarts";
-import { useAmap } from "@/composables/useAmap.js";
+import { useAmap } from "@/composables/map/useAmap.js";
 import { debounce } from "@/utils/api/apiOptimizer.js";
 
 export default {

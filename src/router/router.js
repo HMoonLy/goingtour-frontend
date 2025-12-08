@@ -47,25 +47,37 @@ const routes = [
                     requiresAuth: true,
                 },
             },
+            // 用户中心主页 (统一入口)
             {
-                path: "personal",
-                name: "Personal",
+                path: "user/dashboard",
+                name: "UserDashboard",
                 component: () =>
-                    import ("../pages/Personal/PersonalCenter.vue"),
+                    import ("../pages/User/Dashboard.vue"),
                 meta: {
                     titleKey: "route.personal",
                     requiresAuth: true,
                 },
             },
+            // 向后兼容：personal 重定向到 user/dashboard
             {
-                path: "personal/settings",
-                name: "PersonalSettings",
+                path: "personal",
+                redirect: "/user/dashboard",
+            },
+            // 用户设置主页
+            {
+                path: "user/settings",
+                name: "UserSettings",
                 component: () =>
-                    import ("../pages/Personal/Settings.vue"),
+                    import ("../pages/User/Settings/index.vue"),
                 meta: {
                     titleKey: "route.personalSettings",
                     requiresAuth: true,
                 },
+            },
+            // 向后兼容：personal/settings 重定向到 user/settings
+            {
+                path: "personal/settings",
+                redirect: "/user/settings",
             },
             {
                 path: "user/personal-profile",
@@ -250,7 +262,7 @@ router.beforeEach(async(to, from, next) => {
         try {
             // 动态导入并检查草稿store
             const { useDraft } = await
-            import ("@/composables/useDraft.js");
+            import ("@/composables/trip/useDraft.js");
             const draft = useDraft();
             hasDraftToRestore = draft.hasDraftToRestore();
             console.log("🔍 路由守卫检查草稿状态:", hasDraftToRestore);

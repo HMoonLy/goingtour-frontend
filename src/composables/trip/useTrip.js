@@ -6,7 +6,7 @@ import { ref, computed, reactive, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useAuth } from '@/composables/user/useAuth.js'
 import { useUserStore } from '@/store/user.js'
-import { tripService } from '@/services/tripService.js'
+import { tripService } from '@/services/trip/tripService.js'
 import { convertBackendTripToFrontend } from '@/utils/data/tripDataConverter.js'
 import { tripProgressManager } from '@/utils/system/tripProgress.js'
 

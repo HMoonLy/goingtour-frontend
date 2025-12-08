@@ -191,14 +191,14 @@ import {
   Sunny,
 } from "@element-plus/icons-vue";
 import { useUserStore } from "@/store/user.js";
-import { useWishlist } from "@/composables/useWishlist.js";
-import { useFootprint } from "@/composables/useFootprint.js";
+import { useWishlist } from "@/composables/user/useWishlist.js";
+import { useFootprint } from "@/composables/user/useFootprint.js";
 import { draftManager } from "@/utils/storage/draftManager.js";
-import { useDraft } from "@/composables/useDraft.js";
+import { useDraft } from "@/composables/trip/useDraft.js";
 import { convertBackendTripToFrontend } from "@/utils/data/tripDataConverter.js";
 import { handleApiError, handleSuccess } from "@/utils/api/errorHandler.js";
 import { aiScenarios } from "@/data/aiScenarios.js";
-import { useWeather } from "@/composables/useWeather.js";
+import { useWeather } from "@/composables/common/useWeather.js";
 import WeatherSummary from "@/components/Common/Weather/WeatherSummary.vue";
 
 export default {

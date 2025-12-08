@@ -331,7 +331,7 @@ import {
 
 import { useUserStore } from "@/store/user.js";
 import { useProfile } from "@/composables/user/useProfile.js";
-import { useDraft } from "@/composables/useDraft.js";
+import { useDraft } from "@/composables/trip/useDraft.js";
 import { draftManager } from "@/utils/storage/draftManager.js";
 import { convertBackendTripToFrontend } from "@/utils/data/tripDataConverter.js";
 import { handleApiError } from "@/utils/api/errorHandler.js";

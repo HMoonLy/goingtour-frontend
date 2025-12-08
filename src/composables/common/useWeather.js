@@ -5,7 +5,7 @@
 
 import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { weatherService } from '@/services/weatherService.js'
+import { weatherService } from '@/services/common/weatherService.js'
 
 export function useWeather() {
     // 响应式状态

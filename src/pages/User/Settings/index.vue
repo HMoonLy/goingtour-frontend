@@ -70,13 +70,13 @@
 import { ref } from "vue";
 import { ArrowLeft, User, Star, Bell, Lock, Setting, Document, Warning } from "@element-plus/icons-vue";
 
-// 导入User目录下的子组件
-import AccountSettings from "../User/Profile/AccountSettings.vue";
-import Notifications from "../User/Settings/Notifications.vue";
-import PrivacySystem from "../User/Settings/PrivacySystem.vue";
-import AccountSecurity from "../User/Settings/AccountSecurity.vue";
-import DangerZone from "../User/Settings/DangerZone.vue";
-import PersonalProfile from "../User/Settings/PersonalProfile.vue";
+// 导入子组件
+import AccountSettings from "../Profile/AccountSettings.vue";
+import Notifications from "./Notifications.vue";
+import PrivacySystem from "./PrivacySystem.vue";
+import AccountSecurity from "./AccountSecurity.vue";
+import DangerZone from "./DangerZone.vue";
+import PersonalProfile from "./PersonalProfile.vue";
 
 export default {
   name: "PersonalSettings",

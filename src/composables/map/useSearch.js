@@ -6,7 +6,7 @@
 import { ref, computed, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useAmap } from './useAmap.js'
-import { useAiRecommendations } from './useAiRecommendations.js'
+import { useAiRecommendations } from "@/composables/trip/useAiRecommendations.js";
 
 export function useSearch() {
     // 使用现有的高德地图搜索功能

@@ -302,7 +302,7 @@ import {
 } from "@element-plus/icons-vue";
 import pinyin from "pinyin";
 import { createCachedRequest, debounce } from "@/utils/api/apiOptimizer.js";
-import { useWishlist } from "@/composables/useWishlist.js";
+import { useWishlist } from "@/composables/user/useWishlist.js";
 import { hotRegions, findCity, seasonalByMonth } from "@/data/destinations.js";
 import { hotCategories as hotCategoriesData } from "@/data/hotGroups.js";
 import LazyImage from "@/components/Common/UI/LazyImage.vue";
