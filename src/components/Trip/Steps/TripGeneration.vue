@@ -1202,278 +1202,41 @@ export default {
       // 安全检查：确保props已经初始化
       if (!props || !props.baseForm || !props.preferenceForm) return "";
 
-      let prompt = "";
+      // 1. 组装完整的上下文数据 (Context)
+      const context = {
+        // --- 基础信息 ---
+        destination: props.baseForm.destination,
+        destinationName: props.baseForm.destinationName || getSelectedCityName(),
+        days: props.baseForm.days,
+        travelers: props.baseForm.travelers,
+        dateRange: props.baseForm.dateRange,
+        startDate: props.baseForm.dateRange?.[0], // 补充startDate方便处理
+        budget: props.baseForm.budget,
 
-      // 基本信息
-      if (props.baseForm.destination && props.baseForm.days) {
-        prompt += `为我规划一次前往${getSelectedCityName()}的${
-          props.baseForm.days
-        }天行程，共${props.baseForm.travelers}人出行，`;
-        prompt += `预算约${getBudgetText()}。`;
-        if (props.baseForm.dateRange && props.baseForm.dateRange.length === 2) {
-          prompt += `出行日期为${formatDateRange()}。\n\n`;
-        } else {
-          prompt += "\n\n";
-        }
-      }
+        // --- 偏好设置 ---
+        // 注意：tripGoals 是数组，而引擎主要处理 tripPurpose (单值)。
+        // 策略：取第一个作为主要目的，如果有多个，稍后引擎可能会扩展支持，或者在这里仅传主要的一个。
+        tripPurpose: props.preferenceForm.tripGoals?.[0], 
+        focusAreas: props.preferenceForm.focusAreas,
+        pacePreference: props.preferenceForm.pacePreference,
+        socialPreference: props.preferenceForm.socialPreference,
+        photoPreference: props.preferenceForm.photoPreference,
+        
+        // --- 特殊需求 ---
+        dietaryRestrictions: props.preferenceForm.dietaryRestrictions,
+        customDietaryNotes: props.preferenceForm.customDietaryNotes,
+        extraRequirements: props.extraRequirements || props.preferenceForm.specialRequirements,
 
-      // 个人偏好
-      if (currentUserPreferences.value && selectedPreferenceTags.value.length > 0) {
-        prompt += `我的旅行偏好是${selectedPreferenceTags.value.join("、")}。`;
-        if (currentUserPreferences.value.accommodationType) {
-          prompt += `住宿偏好${translateTag(
-            currentUserPreferences.value.accommodationType,
-            'accommodationType'
-          )}。`;
-        }
-        if (currentUserPreferences.value.travelPace) {
-          prompt += `旅行节奏偏好${translateTag(
-            currentUserPreferences.value.travelPace,
-            'activityLevel'
-          )}。`;
-        }
-        if (
-          currentUserPreferences.value.foodTastes &&
-          currentUserPreferences.value.foodTastes.length > 0
-        ) {
-          prompt += `饮食偏好${translateTagsToString(
-            currentUserPreferences.value.foodTastes,
-            'cuisinePreference'
-          )}。`;
-        }
-        prompt += "\n\n";
-      }
+        // --- 上下文信息 ---
+        weatherSuggestion: props.weatherSuggestion,
+        selectedAttractions: props.selectedAttractions,
+        selectedRestaurants: props.selectedRestaurants,
+        selectedHotels: props.selectedHotels,
+        generationStyle: selectedGenerationStyle.value
+      };
 
-      // 本次行程偏好
-      const hasAnyPreference =
-        (props.preferenceForm.tripGoals && props.preferenceForm.tripGoals.length > 0) ||
-        props.preferenceForm.pacePreference ||
-        props.preferenceForm.socialPreference ||
-        props.preferenceForm.photoPreference ||
-        (props.preferenceForm.focusAreas && props.preferenceForm.focusAreas.length > 0) ||
-        props.preferenceForm.specialRequirements;
-
-      if (hasAnyPreference) {
-        // 行程目标
-        if (props.preferenceForm.tripGoals && props.preferenceForm.tripGoals.length > 0) {
-          // 优先翻译通用标签（如 food、hiking）
-          const goalsText = getTripGoalsText(props.preferenceForm.tripGoals)
-            .replace(/food/g, translateTag("food"))
-            .replace(/hiking/g, translateTag("hiking"));
-          prompt += `本次行程目标是${goalsText}。`;
-        }
-
-        // 行程节奏偏好
-        if (props.preferenceForm.pacePreference) {
-          prompt += `行程节奏偏好${getPacePreferenceText(
-            props.preferenceForm.pacePreference
-          )}。`;
-        }
-
-        // 社交环境偏好
-        if (props.preferenceForm.socialPreference) {
-          prompt += `社交环境偏好${getSocialPreferenceText(
-            props.preferenceForm.socialPreference
-          )}。`;
-        }
-
-        // 拍照打卡需求
-        if (props.preferenceForm.photoPreference) {
-          prompt += `拍照打卡需求${getPhotoPreferenceText(
-            props.preferenceForm.photoPreference
-          )}。`;
-        }
-
-        // 重点体验内容
-        if (
-          props.preferenceForm.focusAreas &&
-          props.preferenceForm.focusAreas.length > 0
-        ) {
-          prompt += `重点体验${getFocusAreasText(props.preferenceForm.focusAreas)}。`;
-        }
-
-        // 特殊需求
-        if (props.preferenceForm.specialRequirements) {
-          prompt += `特殊需求：${props.preferenceForm.specialRequirements}。`;
-        }
-
-        prompt += "\n\n";
-      }
-
-      // 天气建议
-      if (props.weatherSuggestion) {
-        const isDateInRange = isDateWithinForecastRange();
-        const tripDays = props.baseForm.days || 1;
-        const forecastDays = props.weatherSuggestion.forecast
-          ? props.weatherSuggestion.forecast.length
-          : 0;
-
-        // 根据日期范围和数据来源添加前缀说明
-        if (isDateInRange) {
-          // 日期在预报范围内
-          if (props.weatherSuggestion.isHistorical) {
-            prompt += `基于历史气候数据分析，出行期间天气预计${props.weatherSuggestion.weatherDesc}，气温${props.weatherSuggestion.tempRange}。`;
-
-            // 如果有降雨概率信息，添加到提示中
-            if (props.weatherSuggestion.rainProbability) {
-              prompt += `降雨概率约${props.weatherSuggestion.rainProbability}。`;
-            }
-
-            // 添加季节信息
-            if (props.weatherSuggestion.season) {
-              prompt += `${props.weatherSuggestion.season}时节特点明显。`;
-            }
-          } else {
-            prompt += `根据高德天气API实时数据，出行期间天气预计${props.weatherSuggestion.weatherDesc}，气温${props.weatherSuggestion.tempRange}。`;
-
-            // 添加高德API提供的详细天气信息
-            if (props.weatherSuggestion.humidity) {
-              prompt += `湿度${props.weatherSuggestion.humidity}。`;
-            }
-
-            if (
-              props.weatherSuggestion.windDirection &&
-              props.weatherSuggestion.windPower
-            ) {
-              prompt += `风向${props.weatherSuggestion.windDirection}${props.weatherSuggestion.windPower}级。`;
-            }
-
-            // 如果有当前温度信息
-            if (props.weatherSuggestion.currentTemp) {
-              prompt += `当前温度${props.weatherSuggestion.currentTemp}℃。`;
-            }
-          }
-        } else {
-          // 日期超出预报范围，给出说明
-          if (tripDays > forecastDays) {
-            prompt += `🌤️ 天气预报说明：您的${tripDays}天行程中，我们仅能提供前${forecastDays}天的准确天气预报。`;
-            if (
-              props.weatherSuggestion.forecast &&
-              props.weatherSuggestion.forecast.length > 0
-            ) {
-              prompt += `已知的天气情况：${props.weatherSuggestion.weatherDesc}，气温${props.weatherSuggestion.tempRange}。`;
-            }
-            prompt += `超出预报范围的日期建议您关注当地实时天气预报，并准备适应性较强的衣物。`;
-          } else {
-            prompt += `⚠️ 天气预报说明：由于您选择的出行日期与当前天气预报时间范围不匹配，无法提供准确的天气预报。建议您在出行前关注目的地的实时天气预报。`;
-          }
-        }
-
-        // 只有在日期范围内时才添加活动建议
-        if (
-          isDateInRange &&
-          props.weatherSuggestion.activities &&
-          props.weatherSuggestion.activities.length > 0
-        ) {
-          prompt += `适合安排${props.weatherSuggestion.activities.join("、")}等活动。`;
-        }
-
-        // 只有在日期范围内时才添加建议和注意事项
-        if (
-          isDateInRange &&
-          props.weatherSuggestion.tips &&
-          props.weatherSuggestion.tips.length > 0
-        ) {
-          prompt += `建议：${props.weatherSuggestion.tips.join("；")}。`;
-        }
-
-        if (
-          isDateInRange &&
-          props.weatherSuggestion.avoid &&
-          props.weatherSuggestion.avoid.length > 0
-        ) {
-          prompt += `注意事项：${props.weatherSuggestion.avoid.join("；")}。`;
-        }
-
-        // 详细天气预报：根据日期覆盖情况调整
-        if (
-          props.weatherSuggestion.forecast &&
-          props.weatherSuggestion.forecast.length > 0
-        ) {
-          if (isDateInRange) {
-            prompt += `具体天气预报：`;
-            const forecastSummary = props.weatherSuggestion.forecast
-              .map(
-                (day) => `${day.date}${day.dayWeather}，${day.dayTemp}℃/${day.nightTemp}℃`
-              )
-              .join("；");
-            prompt += forecastSummary + "。";
-          } else if (tripDays > forecastDays) {
-            // 部分日期有预报
-            prompt += `可获取的天气预报（前${forecastDays}天）：`;
-            const forecastSummary = props.weatherSuggestion.forecast
-              .map(
-                (day) => `${day.date}${day.dayWeather}，${day.dayTemp}℃/${day.nightTemp}℃`
-              )
-              .join("；");
-            prompt += forecastSummary + "。";
-            prompt += `第${forecastDays + 1}天及之后的天气情况需要关注实时预报。`;
-          }
-        }
-
-        // 如果完全没有可用预报，给出通用建议
-        if (!isDateInRange && tripDays <= forecastDays) {
-          prompt += `建议在行程规划时预留天气变化的应对方案，准备雨具和适合不同天气的衣物。`;
-        }
-
-        prompt += "\n\n";
-      }
-
-      // 饮食禁忌
-      // 饮食禁忌
-      if (
-        props.preferenceForm.dietaryRestrictions &&
-        (props.preferenceForm.dietaryRestrictions.length > 0 ||
-          props.preferenceForm.customDietaryNotes)
-      ) {
-        prompt += "饮食禁忌：";
-        if (
-          props.preferenceForm.dietaryRestrictions &&
-          props.preferenceForm.dietaryRestrictions.length > 0
-        ) {
-          prompt += getDietaryRestrictionsText(props.preferenceForm.dietaryRestrictions);
-        }
-        if (props.preferenceForm.customDietaryNotes) {
-          if (
-            props.preferenceForm.dietaryRestrictions &&
-            props.preferenceForm.dietaryRestrictions.length > 0
-          ) {
-            prompt += "，";
-          }
-          prompt += props.preferenceForm.customDietaryNotes;
-        }
-        prompt += "。\n\n";
-      }
-
-      // 必去景点和餐厅
-      if (props.selectedAttractions.length > 0) {
-        prompt += `必去景点：${props.selectedAttractions
-          .map((a) => a.name)
-          .join("、")}。\n`;
-      }
-      if (props.selectedRestaurants.length > 0) {
-        prompt += `必去餐厅：${props.selectedRestaurants
-          .map((r) => r.name)
-          .join("、")}。\n`;
-      }
-
-      // 添加专业的AI生成指导
-      prompt += "\n\n请根据以上信息，为我生成一份详细的旅行计划，包括：\n";
-      prompt += "1. 每日行程安排（包含具体时间、景点、餐厅、交通方式）\n";
-      prompt += "2. 预算分配建议（门票、餐饮、交通、住宿等）\n";
-      prompt += "3. 实用出行提示（最佳游览时间、避坑指南、当地文化注意事项）\n";
-      prompt += "4. 备选方案（雨天室内活动、行程调整建议）\n";
-      prompt += "5. 必备物品清单\n\n";
-
-      prompt += "请确保：\n";
-      prompt += "- 行程安排合理，时间充裕，避免过度紧张\n";
-      prompt += "- 推荐的景点和餐厅具有当地特色和良好口碑\n";
-      prompt += "- 考虑交通便利性和地理位置的合理性\n";
-      prompt += "- 预算控制在指定范围内\n";
-      prompt += "- 提供具体的地址、营业时间、门票价格等实用信息\n";
-      prompt += "- 语言表达亲切自然，适合实际执行\n";
-
-      return prompt;
+      // 2. 调用引擎生成
+      return generateCompletePrompt(currentUserPreferences.value, context);
     };
 
     // 检查用户选择的日期是否在天气预报范围内
@@ -1802,6 +1565,7 @@ export default {
         // 2. 使用 System 转换数据 (DTO Transformation)
         // 这将自动处理字段映射、类型转换和数据清洗
         const requestData = transformToBackendDTO(tripState);
+        requestData.prompt = generatePromptText();
         
         // 补充一些无法自动映射的上下文数据 (如天气信息)
         // 这些数据不是标准的 AiTripRequest 字段，但在生成过程中可能需要作为上下文

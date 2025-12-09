@@ -7,19 +7,17 @@
           <Camera />
         </el-icon>
         <h3 class="title-text">去过的城市</h3>
-        <span v-if="visitedCities && visitedCities.length > 0" class="photo-count">
+        <span
+          v-if="visitedCities && visitedCities.length > 0"
+          class="photo-count"
+        >
           ({{ visitedCities.length }}个城市)
         </span>
       </div>
 
       <!-- 展开/收起按钮 -->
       <div v-if="needsToggle" class="toggle-section">
-        <el-button
-          link
-          size="small"
-          class="toggle-btn"
-          @click="toggleExpanded"
-        >
+        <el-button link size="small" class="toggle-btn" @click="toggleExpanded">
           <span>{{
             isExpanded
               ? "收起"
@@ -109,8 +107,10 @@
                 </el-tooltip>
 
                 <!-- 想再去按钮 -->
-                <el-tooltip 
-                  :content="city.want_to_visit_again ? '取消想再去' : '标记想再去'" 
+                <el-tooltip
+                  :content="
+                    city.want_to_visit_again ? '取消想再去' : '标记想再去'
+                  "
                   placement="top"
                 >
                   <el-button
@@ -127,7 +127,10 @@
                   </el-button>
                 </el-tooltip>
 
-                <el-tooltip :content="getCoverUrl(city) ? '更换照片' : '添加照片'" placement="top">
+                <el-tooltip
+                  :content="getCoverUrl(city) ? '更换照片' : '添加照片'"
+                  placement="top"
+                >
                   <el-button
                     size="small"
                     type="primary"
@@ -139,11 +142,7 @@
                   </el-button>
                 </el-tooltip>
 
-                <el-dropdown
-                  trigger="click"
-                  placement="bottom-end"
-                  @click.stop
-                >
+                <el-dropdown trigger="click" placement="bottom-end" @click.stop>
                   <el-button
                     size="small"
                     type="danger"
@@ -156,8 +155,8 @@
                   <template #dropdown>
                     <el-dropdown-menu>
                       <!-- 只有当有照片时才显示删除照片选项 -->
-                      <el-dropdown-item 
-                        v-if="getCoverUrl(city)" 
+                      <el-dropdown-item
+                        v-if="getCoverUrl(city)"
                         @click="handleDeletePhoto(city)"
                       >
                         <el-icon><Delete /></el-icon>
@@ -284,12 +283,7 @@
             @keyup.enter="handleInputConfirm"
             @blur="handleInputConfirm"
           />
-          <el-button
-            v-else
-            class="add-tag-btn"
-            size="small"
-            @click="showInput"
-          >
+          <el-button v-else class="add-tag-btn" size="small" @click="showInput">
             + 添加标签
           </el-button>
         </el-form-item>
@@ -298,7 +292,11 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="handleEditCancel">取消</el-button>
-          <el-button type="primary" @click="handleEditConfirm" :loading="updating">
+          <el-button
+            type="primary"
+            @click="handleEditConfirm"
+            :loading="updating"
+          >
             确定
           </el-button>
         </span>
@@ -327,7 +325,6 @@ import {
   getCityPhotoUrl,
   getCityThumbnailUrl,
 } from "@/utils/media/imageUrl.js";
-import { weatherApi } from "@/api/weather.js";
 
 // Props - 接收父组件传递的数据
 const props = defineProps({
@@ -355,7 +352,7 @@ const photos = usePhotos();
 const footprint = useFootprint();
 
 // 直接使用props数据，无需额外封装
-const visitedCities = toRef(props, 'visitedCitiesData');
+const visitedCities = toRef(props, "visitedCitiesData");
 const citiesWithPhotos = visitedCities;
 
 // 响应式数据
@@ -419,21 +416,22 @@ const toggleExpanded = () => {
 
 const refreshCoverForCity = async (cityId, bustCache = false) => {
   try {
-    
-    
     // 通过cityId找到对应的城市对象
-    const city = citiesWithPhotos.value.find(c => c.id === cityId);
+    const city = citiesWithPhotos.value.find((c) => c.id === cityId);
     if (!city) {
       return;
     }
-  
+
     // 使用城市记录中存储的编码，优先使用 adcode（对应数据库的city_code）
     const cityCodeForQuery = city.adcode || city.citycode;
     if (!cityCodeForQuery) {
-      console.warn(`城市 ${city.cityName} 缺少有效的城市编码，可用字段:`, Object.keys(city));
+      console.warn(
+        `城市 ${city.cityName} 缺少有效的城市编码，可用字段:`,
+        Object.keys(city)
+      );
       return;
     }
-    
+
     const cityPhotos = await photos.getCityPhotos(cityCodeForQuery, bustCache); // 使用静默模式
     if (cityPhotos && cityPhotos.length > 0) {
       const cover = cityPhotos.find((p) => p.isCover) || cityPhotos[0];
@@ -475,11 +473,10 @@ const refreshCoverForCity = async (cityId, bustCache = false) => {
 
 const refreshAllCovers = async (onlyExistingCities = false) => {
   const ids = citiesWithPhotos.value.map((c) => c.id);
-  
-  
+
   if (onlyExistingCities && previousCityIds.size > 0) {
     // 只刷新之前已存在的城市
-    const existingIds = ids.filter(id => previousCityIds.has(id));
+    const existingIds = ids.filter((id) => previousCityIds.has(id));
     await Promise.all(existingIds.map((id) => refreshCoverForCity(id)));
   } else {
     // 刷新所有城市（初始加载时使用）
@@ -528,13 +525,13 @@ const uploadPhoto = async (file) => {
     // 使用新的visited cities API上传照片
     const result = await photos.uploadCityPhoto(
       file,
-      currentCity.value.adcode,  // 主要的城市编码（6位数字）
+      currentCity.value.adcode, // 主要的城市编码（6位数字）
       currentCity.value.cityName,
-      "",  // caption
-      [],  // tags
+      "", // caption
+      [], // tags
       currentCity.value.travelTime,
       currentCity.value.travelFeeling,
-      currentCity.value.citycode  // 电话区号（可选）
+      currentCity.value.citycode // 电话区号（可选）
     );
 
     if (result) {
@@ -591,10 +588,13 @@ const handleDeletePhoto = async (city) => {
     // 使用城市记录中存储的编码，优先使用 adcode（对应数据库的city_code）
     const cityCodeForQuery = city.adcode || city.citycode;
     if (!cityCodeForQuery) {
-      console.warn(`城市 ${city.cityName} 缺少有效的城市编码，可用字段:`, Object.keys(city));
+      console.warn(
+        `城市 ${city.cityName} 缺少有效的城市编码，可用字段:`,
+        Object.keys(city)
+      );
       return;
     }
-    
+
     const cityPhotos = await photos.getCityPhotos(cityCodeForQuery);
     const cover = cityPhotos.find((p) => p.isCover) || cityPhotos[0];
     if (!cover) {
@@ -605,11 +605,11 @@ const handleDeletePhoto = async (city) => {
     const ok = await photos.deletePhoto(cover.id);
     if (ok) {
       ElMessage.success(`${city.cityName} 的照片已删除`);
-      
+
       // 立即更新 coverMap，移除已删除照片的封面
       const { [city.id]: _, ...rest } = coverMap.value;
       coverMap.value = rest;
-      
+
       // 直接发送删除事件，无需重新获取照片
       emit("photo-deleted", city);
     } else {
@@ -626,17 +626,17 @@ const handleDeletePhoto = async (city) => {
 const handleToggleWantAgain = async (city) => {
   try {
     const newStatus = !city.want_to_visit_again;
-    
+
     // 传递完整的城市数据而不是ID，让store判断如何处理
     const success = await wishlist.markWantToVisitAgain(
       city, // 传递完整的城市对象
       newStatus
     );
-    
+
     if (success) {
       // 更新本地状态
       city.want_to_visit_again = newStatus;
-      
+
       // 不需要显示消息，store中已经显示了
     }
   } catch (error) {
@@ -662,13 +662,15 @@ const handleDeleteVisitedCity = async (city) => {
     );
 
     // 优先从footprint.visitedCities中查找（这是最新的数据源）
-    let visitedCity = footprint.visitedCities.value.find(vc => vc.adcode === city.adcode);
-    
+    let visitedCity = footprint.visitedCities.value.find(
+      (vc) => vc.adcode === city.adcode
+    );
+
     // 如果没找到，再从props传入的数据中查找
     if (!visitedCity) {
-      visitedCity = visitedCities.value.find(vc => vc.adcode === city.adcode);
+      visitedCity = visitedCities.value.find((vc) => vc.adcode === city.adcode);
     }
-    
+
     // 如果还是没找到，直接使用当前city的id（如果有的话）
     if (!visitedCity && city.id) {
       visitedCity = city;
@@ -676,7 +678,10 @@ const handleDeleteVisitedCity = async (city) => {
 
     if (!visitedCity || !visitedCity.id) {
       console.error("❌ 未找到对应的城市记录，city:", city);
-      console.error("❌ footprint.visitedCities:", footprint.visitedCities.value);
+      console.error(
+        "❌ footprint.visitedCities:",
+        footprint.visitedCities.value
+      );
       console.error("❌ props.visitedCitiesData:", visitedCities.value);
       ElMessage.error("未找到对应的城市记录");
       return;
@@ -685,7 +690,7 @@ const handleDeleteVisitedCity = async (city) => {
     console.log("🔄 准备删除城市记录:", {
       cityId: visitedCity.id,
       cityName: visitedCity.cityName || city.cityName,
-      adcode: visitedCity.adcode || city.adcode
+      adcode: visitedCity.adcode || city.adcode,
     });
 
     const success = await footprint.deleteVisitedCity(visitedCity.id);
@@ -695,7 +700,7 @@ const handleDeleteVisitedCity = async (city) => {
     }
   } catch (error) {
     // 用户取消删除或删除失败
-    if (error !== 'cancel') {
+    if (error !== "cancel") {
       console.error("删除城市记录失败:", error);
     }
   }
@@ -709,33 +714,37 @@ onMounted(() => {
     refreshAllCovers(false); // 明确指定为初始加载
     // 初始化previousCityIds
     previousCityIds = new Set(citiesWithPhotos.value.map((c) => c.id));
-  } 
+  }
 });
 
 watch(
   () => citiesWithPhotos.value.map((c) => c.id).join(","),
   (newIdString, oldIdString) => {
     const currentCityIds = new Set(citiesWithPhotos.value.map((c) => c.id));
-    
+
     // 如果是初始加载（从空到有数据）
     if (!oldIdString && newIdString) {
       refreshAllCovers(false); // 初始加载时刷新所有城市
       previousCityIds = new Set(currentCityIds);
       return;
     }
-    
+
     // 找出新增的城市和需要刷新的城市
-    const newCities = [...currentCityIds].filter(id => !previousCityIds.has(id));
-    const existingCities = [...currentCityIds].filter(id => previousCityIds.has(id));
-    
+    const newCities = [...currentCityIds].filter(
+      (id) => !previousCityIds.has(id)
+    );
+    const existingCities = [...currentCityIds].filter((id) =>
+      previousCityIds.has(id)
+    );
+
     // 只对现有城市刷新封面（可能有新照片）
     if (existingCities.length > 0) {
-      Promise.all(existingCities.map(id => refreshCoverForCity(id)));
+      Promise.all(existingCities.map((id) => refreshCoverForCity(id)));
     }
-    
+
     // 新增城市：明确跳过照片获取，确保显示占位符
     if (newCities.length > 0) {
-      newCities.forEach(cityId => {
+      newCities.forEach((cityId) => {
         // 确保新城市不在coverMap中，这样会显示占位符
         if (coverMap.value[cityId]) {
           const { [cityId]: _, ...rest } = coverMap.value;
@@ -743,7 +752,7 @@ watch(
         }
       });
     }
-    
+
     // 更新previousCityIds为当前状态
     previousCityIds = new Set(currentCityIds);
   }
@@ -952,14 +961,11 @@ const handleEditConfirm = async () => {
   updating.value = true;
   try {
     // 调用API更新城市信息
-    const success = await footprint.updateCityInfo(
-      editingCity.value.id,
-      {
-        travelTime: editForm.value.travelTime,
-        travelFeeling: editForm.value.travelFeeling,
-        tags: editForm.value.tags,
-      }
-    );
+    const success = await footprint.updateCityInfo(editingCity.value.id, {
+      travelTime: editForm.value.travelTime,
+      travelFeeling: editForm.value.travelFeeling,
+      tags: editForm.value.tags,
+    });
 
     if (success) {
       ElMessage.success("城市信息更新成功");
@@ -967,7 +973,7 @@ const handleEditConfirm = async () => {
       // 重新加载数据
       await Promise.all([
         wishlist.loadWishlist(),
-        footprint.loadVisitedCities()
+        footprint.loadVisitedCities(),
       ]);
     } else {
       ElMessage.error("更新失败，请重试");

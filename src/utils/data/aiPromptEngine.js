@@ -294,8 +294,8 @@ export class SmartPrefillEngine {
 }
 
 /**
- * 完整的AI提示词生成器
- * 整合个人档案和行程偏好，生成最终的AI提示词
+ * 完整的AI提示词生成器 - 旧版保留以兼容
+ * 建议使用 AdvancedPromptGenerator
  */
 export class CompletePromptGenerator {
     constructor(personalProfile, tripPreferences, tripContext) {
@@ -304,83 +304,24 @@ export class CompletePromptGenerator {
         this.tripContext = tripContext;
     }
 
-    /**
-     * 生成完整的AI旅行规划提示词
-     */
     generateCompletePrompt() {
-        const travelerProfile = this.profileInterpreter.generateCompleteProfile();
-        const tripPreferences = this.preferencesInterpreter.generateCompletePreferences();
-
-        const prompt = `# 🌟 个性化旅行规划助手
-
-## 👤 旅行者画像分析
-${travelerProfile || '暂无个人档案信息'}
-
-## ✈️ 本次行程偏好
-${tripPreferences || '暂无特殊偏好'}
-
-## 📍 行程基本信息
-- 目的地：${this.tripContext.destination || this.tripContext.destinationName || '待定'}
-- 旅行天数：${this.tripContext.days || this.tripContext.duration || '待定'}天
-- 出发时间：${this.tripContext.dateRange ? (Array.isArray(this.tripContext.dateRange) ? `${this.tripContext.dateRange[0]} 至 ${this.tripContext.dateRange[1]}` : this.tripContext.dateRange) : (this.tripContext.startDate || '待定')}
-
-## 🎯 AI规划任务
-请基于以上旅行者画像和偏好信息，为这位旅行者规划一份详细的个性化行程。请注意：
-
-### 规划原则：
-1. **个性匹配**：严格按照旅行者的性格特征和兴趣偏好进行推荐
-2. **偏好优先**：重点体现本次行程的特定偏好和体验重点  
-3. **实用可行**：提供具体可操作的建议，包含时间、地点、交通方式
-4. **预算合理**：推荐内容符合旅行者的预算水平
-5. **限制遵守**：严格遵守所有饮食限制和特殊需求
-
-### 请提供：
-- **每日详细行程**：包含景点、餐厅、交通路线
-- **个性化解释**：说明为什么这样推荐（基于旅行者特征）
-- **实用信息**：开放时间、预约需求、预估费用
-- **贴心提示**：基于个人偏好的特别建议
-- **备选方案**：应对天气或突发情况的Plan B
-
-### 输出格式：
-请以JSON格式输出，包含每日行程、预算估算、个性化建议等完整信息。`;
-
-        return prompt;
-    }
-
-    /**
-     * 生成用户友好的AI解读
-     */
-    generateUserFriendlyExplanation() {
-        const explanations = [];
-
-        // 解释AI如何理解用户的个人档案
-        if (this.profileInterpreter.profile.mbtiType) {
-            const mbtiOption = PERSONAL_PROFILE_OPTIONS.mbtiTypes.options[this.profileInterpreter.profile.mbtiType];
-            if (mbtiOption && mbtiOption.travelStyle) {
-                explanations.push(`📋 基于您的${mbtiOption.name}性格，AI会${mbtiOption.travelStyle}`);
-            }
-        }
-
-        // 解释AI如何理解用户的行程偏好
-        if (this.preferencesInterpreter.preferences.tripPurpose) {
-            const purposeOption = TRIP_PREFERENCES_OPTIONS.tripPurpose.options[this.preferencesInterpreter.preferences.tripPurpose];
-            if (purposeOption && purposeOption.aiStrategy) {
-                explanations.push(`🎯 针对您的${purposeOption.name}目的，AI会${purposeOption.aiStrategy}`);
-            }
-        }
-
-        return explanations.join('\n');
+        // 使用新版生成器代理
+        const generator = new AdvancedPromptGenerator(
+            { ...this.profileInterpreter.profile, ...this.preferencesInterpreter.preferences },
+            this.tripContext
+        );
+        return generator.generateCompletePrompt();
     }
 }
 
 /**
- * 🎯 完整的AI提示词生成器 - 从tagMapping.js迁移
+ * 🎯 完整的AI提示词生成器
  * 将用户偏好转换为完整的AI指导文档
  */
 export class AdvancedPromptGenerator {
     constructor(userPreferences, tripContext) {
-        this.userPreferences = userPreferences;
-        this.tripContext = tripContext;
+        this.userPreferences = userPreferences || {};
+        this.tripContext = tripContext || {};
     }
 
     /**
@@ -393,6 +334,9 @@ export class AdvancedPromptGenerator {
 
             // 核心需求和约束
             coreRequirements: this.generateCoreRequirements(),
+            
+            // 环境上下文 (天气等)
+            environmentContext: this.generateEnvironmentContext(),
 
             // 详细的偏好指导
             detailedGuidance: this.generateDetailedGuidance(),
@@ -401,7 +345,10 @@ export class AdvancedPromptGenerator {
             specialConsiderations: this.generateSpecialConsiderations(),
 
             // 推荐策略
-            recommendationStrategy: this.generateRecommendationStrategy()
+            recommendationStrategy: this.generateRecommendationStrategy(),
+            
+            // 输出格式要求
+            outputFormat: this.generateOutputFormat()
         };
 
         return prompt;
@@ -444,23 +391,88 @@ export class AdvancedPromptGenerator {
         const tripContext = this.tripContext;
 
         // 时间和地点约束
-        if (tripContext.destination || tripContext.destinationName) {
-            requirements.push(`目的地: ${tripContext.destination || tripContext.destinationName}`);
+        const destination = tripContext.destinationName || tripContext.destination;
+        if (destination) {
+            requirements.push(`目的地: ${destination}`);
         }
-        if (tripContext.days || tripContext.duration) {
-            requirements.push(`旅行时长: ${tripContext.days || tripContext.duration}天`);
+        
+        const duration = tripContext.days || tripContext.duration;
+        if (duration) {
+            requirements.push(`旅行时长: ${duration}天`);
+        }
+        
+        const travelers = tripContext.travelers;
+        if (travelers) {
+            requirements.push(`出行人数: ${travelers}人`);
         }
 
         // 处理日期范围
         let dateInfo = '待定';
         if (tripContext.dateRange && Array.isArray(tripContext.dateRange) && tripContext.dateRange.length === 2) {
-            dateInfo = `${tripContext.dateRange[0]} 至 ${tripContext.dateRange[1]}`;
+            try {
+                // 简单格式化日期，如果对象是Date类型
+                const start = new Date(tripContext.dateRange[0]).toLocaleDateString();
+                const end = new Date(tripContext.dateRange[1]).toLocaleDateString();
+                dateInfo = `${start} 至 ${end}`;
+            } catch (e) {
+                dateInfo = `${tripContext.dateRange[0]} 至 ${tripContext.dateRange[1]}`;
+            }
         } else if (tripContext.startDate) {
             dateInfo = tripContext.startDate;
         }
         requirements.push(`出行时间: ${dateInfo}`);
+        
+        // 必去 POI (Attractions, Restaurants, Hotels)
+        if (tripContext.selectedAttractions && tripContext.selectedAttractions.length > 0) {
+            const names = tripContext.selectedAttractions.map(a => a.name).join('、');
+            requirements.push(`必去景点: ${names} (请务必安排在行程中)`);
+        }
+        
+        if (tripContext.selectedRestaurants && tripContext.selectedRestaurants.length > 0) {
+            const names = tripContext.selectedRestaurants.map(r => r.name).join('、');
+            requirements.push(`必吃餐厅: ${names} (请务必安排用餐)`);
+        }
+        
+        if (tripContext.selectedHotels && tripContext.selectedHotels.length > 0) {
+            const names = tripContext.selectedHotels.map(h => h.name).join('、');
+            requirements.push(`入住酒店: ${names}`);
+        }
 
         return requirements.join('\n');
+    }
+    
+    /**
+     * 生成环境上下文 (天气等)
+     */
+    generateEnvironmentContext() {
+        const contexts = [];
+        const weather = this.tripContext.weatherSuggestion;
+        
+        if (weather) {
+            let weatherText = "天气情况: ";
+            if (weather.isHistorical) {
+                weatherText += `基于历史数据，预计天气${weather.weatherDesc}，气温${weather.tempRange}。`;
+                if (weather.season) weatherText += ` 正值${weather.season}。`;
+            } else {
+                weatherText += `实时预报显示天气${weather.weatherDesc}，气温${weather.tempRange}。`;
+            }
+            
+            if (weather.tips && weather.tips.length > 0) {
+                weatherText += ` 建议：${weather.tips.join('；')}。`;
+            }
+            
+            contexts.push(weatherText);
+            
+            // 如果有具体的预报数据
+            if (weather.forecast && weather.forecast.length > 0) {
+                const forecastSummary = weather.forecast.slice(0, 3).map(f => 
+                    `${f.date}: ${f.dayWeather} (${f.dayTemp}/${f.nightTemp}℃)`
+                ).join('; ');
+                contexts.push(`近期预报参考: ${forecastSummary}...`);
+            }
+        }
+        
+        return contexts.join('\n');
     }
 
     /**
@@ -476,21 +488,54 @@ export class AdvancedPromptGenerator {
         };
 
         const preferences = this.userPreferences;
+        const context = this.tripContext;
 
-        // 根据兴趣生成景点选择指导
+        // --- 1. 基于核心兴趣 (Long-term) ---
         if (preferences.coreInterests?.includes('nature')) {
             guidance.景点选择.push("至少30%的行程安排在自然环境中，优先选择视野开阔的户外空间");
-            guidance.时间分配.push("自然景点建议安排在光线条件最佳的时段");
         }
-
         if (preferences.coreInterests?.includes('photography')) {
-            guidance.景点选择.push("重视视觉效果和拍照环境，优先选择有设计感或独特视角的场所");
+            guidance.景点选择.push("重视视觉效果，优先选择有设计感或独特视角的场所");
             guidance.时间分配.push("每个景点预留额外15-30分钟拍摄时间");
         }
-
         if (preferences.coreInterests?.includes('food')) {
             guidance.餐饮安排.push("每餐都安排当地特色，包括街头小吃、传统餐厅和创意料理");
-            guidance.体验重点.push("通过美食体验了解当地文化");
+        }
+        
+        // --- 2. 基于本次行程偏好 (Short-term) ---
+        // 体验重点 (Focus Areas)
+        if (context.focusAreas && context.focusAreas.length > 0) {
+            const areas = context.focusAreas.map(area => {
+               const opt = TRIP_PREFERENCES_OPTIONS.focusAreas.options[area];
+               return opt ? opt.name : area;
+            }).join('、');
+            guidance.体验重点.push(`本次旅行特别关注：${areas}`);
+            
+            // 特定逻辑
+            if (context.focusAreas.includes('urban_lifestyle')) {
+                 guidance.景点选择.push("包含当地商业区、文创园或地标建筑");
+            }
+        }
+        
+        // 节奏偏好 (Pace)
+        if (context.pacePreference) {
+            const paceOpt = TRIP_PREFERENCES_OPTIONS.pacePreference.options[context.pacePreference];
+            if (paceOpt) {
+                guidance.时间分配.push(paceOpt.aiPrompt || paceOpt.description);
+            }
+        }
+        
+        // 社交偏好 (Social)
+        if (context.socialPreference) {
+             const socialOpt = TRIP_PREFERENCES_OPTIONS.socialPreference.options[context.socialPreference];
+             if (socialOpt) {
+                 guidance.景点选择.push(socialOpt.aiPrompt || socialOpt.description);
+             }
+        }
+        
+        // 拍照偏好 (Photo) - 覆盖核心兴趣
+        if (context.photoPreference === 'essential') {
+             guidance.时间分配.push("必须预留充足的摄影时间，推荐最佳机位");
         }
 
         return Object.entries(guidance)
@@ -504,21 +549,39 @@ export class AdvancedPromptGenerator {
      */
     generateSpecialConsiderations() {
         const considerations = [];
-        const preferences = this.userPreferences;
+        const preferences = this.userPreferences; // 长期
+        const context = this.tripContext; // 本次
 
-        // 饮食禁忌
-        if (preferences.dietaryRestrictions?.length > 0) {
-            const interpreter = new PersonalProfileInterpreter({ dietaryRestrictions: preferences.dietaryRestrictions });
+        // 1. 饮食禁忌 (合并长期和本次)
+        const restrictions = [
+            ...(preferences.dietaryRestrictions || []),
+            ...(context.dietaryRestrictions || [])
+        ];
+        
+        if (restrictions.length > 0) {
+            const uniqueRestrictions = [...new Set(restrictions)];
+            const interpreter = new PersonalProfileInterpreter({ dietaryRestrictions: uniqueRestrictions });
             considerations.push(interpreter.getDietaryPrompt());
         }
-
-        // 特殊需求
-        if (preferences.needAccessibility) {
-            considerations.push("必须考虑无障碍设施和通道");
+        
+        // 自定义饮食备注
+        if (context.customDietaryNotes) {
+            considerations.push(`其他饮食要求: ${context.customDietaryNotes}`);
         }
 
-        if (preferences.includeKidsActivities) {
-            considerations.push("需要安排适合儿童的活动和设施");
+        // 2. 特殊需求 (Extra Requirements)
+        // 从 temporaryNeeds 或 extraRequirements 字段
+        if (preferences.needAccessibility) considerations.push("必须考虑无障碍设施和通道");
+        if (preferences.includeKidsActivities) considerations.push("需要安排适合儿童的活动和设施");
+        
+        if (context.extraRequirements) {
+            considerations.push(`用户备注: ${context.extraRequirements}`);
+        }
+        
+        // 3. 预算限制
+        if (context.budget) {
+            const budgetText = getOptionDisplayName('budgetLevel', context.budget);
+            considerations.push(`预算控制: ${budgetText}`);
         }
 
         return considerations.join('\n');
@@ -536,17 +599,46 @@ export class AdvancedPromptGenerator {
         if (preferences.mbtiType) {
             const mbtiInterpreter = new PersonalProfileInterpreter({ mbtiType: preferences.mbtiType });
             const mbtiPrompt = mbtiInterpreter.getMBTIBehaviorPrompt();
-            strategies.push(`推荐策略: ${mbtiPrompt}`);
+            strategies.push(`个性化策略: ${mbtiPrompt}`);
         }
 
         // 基于行程目的的策略调整
-        if (tripContext.tripPurpose === 'celebration') {
-            strategies.push("重点创造温馨难忘的回忆，优先推荐有纪念价值和拍照效果的场所");
-        } else if (tripContext.tripPurpose === 'business') {
-            strategies.push("以高效便利为原则，推荐交通便利的经典必游景点");
+        if (tripContext.tripPurpose) {
+             const purposeOpt = TRIP_PREFERENCES_OPTIONS.tripPurpose.options[tripContext.tripPurpose];
+             if (purposeOpt) {
+                 strategies.push(`行程主旨: ${purposeOpt.aiPrompt || purposeOpt.aiStrategy}`);
+             }
         }
 
         return strategies.join('\n');
+    }
+    
+    /**
+     * 生成输出格式要求
+     */
+    generateOutputFormat() {
+        const style = this.tripContext.generationStyle || 'table';
+        
+        let formatPrompt = "";
+        
+        switch (style) {
+            case 'table':
+                formatPrompt = "以清晰的时间表形式呈现每日行程，精确到小时。";
+                break;
+            case 'narrative':
+                formatPrompt = "以游记叙述的方式呈现，注重描绘体验感和氛围，文字优美。";
+                break;
+            case 'checklist':
+                formatPrompt = "以清单列表形式呈现，重点突出打卡项目和待办事项，简洁明了。";
+                break;
+            case 'card':
+                formatPrompt = "以卡片式结构呈现，每个地点作为独立单元，包含核心信息。";
+                break;
+            default:
+                formatPrompt = "以结构化的方式呈现行程。";
+        }
+        
+        return `请${formatPrompt} 必须包含JSON格式的结构化数据以便程序解析。`;
     }
 
     /**
@@ -555,29 +647,27 @@ export class AdvancedPromptGenerator {
     generateCompletePrompt() {
         const promptStructure = this.generateAIPrompt();
 
+        // 过滤空的部分
+        const sections = [
+            { title: "用户画像", content: promptStructure.travelerProfile },
+            { title: "核心需求", content: promptStructure.coreRequirements },
+            { title: "环境上下文", content: promptStructure.environmentContext },
+            { title: "详细指导", content: promptStructure.detailedGuidance },
+            { title: "特殊注意事项", content: promptStructure.specialConsiderations },
+            { title: "推荐策略", content: promptStructure.recommendationStrategy },
+            { title: "输出要求", content: promptStructure.outputFormat }
+        ].filter(s => s.content && s.content.trim().length > 0);
+
         return `# 旅行规划AI助手指令
 
-## 用户画像
-${promptStructure.travelerProfile}
-
-## 核心需求
-${promptStructure.coreRequirements}
-
-## 详细指导
-${promptStructure.detailedGuidance}
-
-## 特殊注意事项
-${promptStructure.specialConsiderations}
-
-## 推荐策略
-${promptStructure.recommendationStrategy}
+${sections.map(s => `## ${s.title}\n${s.content}`).join('\n\n')}
 
 请基于以上信息，为用户生成个性化的旅行推荐。确保推荐内容符合用户的性格特征、兴趣偏好和实际约束条件。`;
     }
 }
 
 /**
- * 🏷️ MBTI相关工具函数 - 从tagMapping.js迁移
+ * 🏷️ MBTI相关工具函数
  */
 export function getMbtiName(type) {
     return getOptionDisplayName('mbtiTypes', type);

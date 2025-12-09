@@ -2,7 +2,7 @@
  * 服务基类 - 提供统一的缓存和错误处理
  */
 import { createCachedRequest } from '@/utils/api/apiOptimizer.js'
-import { handleApiError, withErrorHandling } from '@/utils/api/errorHandler.js'
+import { withErrorHandling } from '@/utils/api/errorHandler.js'
 
 export class BaseService {
     constructor(serviceName) {
