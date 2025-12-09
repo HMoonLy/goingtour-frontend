@@ -14,10 +14,10 @@ class AiRecommendationService {
     // ==================== 缓存管理 ====================
     _generateCacheKey(params) {
         const key = JSON.stringify({
-            city: params.baseInfo ? .city,
-            days: params.baseInfo ? .days,
-            budget: params.baseInfo ? .budget,
-            travelers: params.baseInfo ? .travelers,
+            city: params.baseInfo?.city,
+            days: params.baseInfo?.days,
+            budget: params.baseInfo?.budget,
+            travelers: params.baseInfo?.travelers,
             preferences: params.preferences
         })
         return `ai_recommendations_${btoa(key).slice(0, 16)}`
@@ -55,7 +55,7 @@ class AiRecommendationService {
     }
 
     formatRecommendations(rawData) {
-        if (!rawData ? .data) {
+        if (!rawData?.data) {
             return {
                 attractions: [],
                 restaurants: [],
@@ -126,7 +126,7 @@ class AiRecommendationService {
             // 调用API
             const response = await aiRecommendationApi.getRecommendations(params)
 
-            if (response ? .data) {
+            if (response?.data) {
                 const formatted = this.formatRecommendations(response)
 
                 if (useCache) {
@@ -208,7 +208,7 @@ class AiRecommendationService {
      * 获取降级推荐数据
      */
     _getFallbackRecommendations(params) {
-        const cityName = params.baseInfo ? .city || '目的地'
+        const cityName = params.baseInfo?.city || '目的地'
 
         return {
             attractions: [{
@@ -250,11 +250,11 @@ class AiRecommendationService {
     validateParams(params) {
         const errors = []
 
-        if (!params.baseInfo ? .city) {
+        if (!params.baseInfo?.city) {
             errors.push('目的地城市不能为空')
         }
 
-        if (!params.baseInfo ? .days || params.baseInfo.days < 1) {
+        if (!params.baseInfo?.days || params.baseInfo.days < 1) {
             errors.push('行程天数必须大于0')
         }
 

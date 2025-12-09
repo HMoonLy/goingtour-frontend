@@ -97,7 +97,7 @@ class WishlistService extends BaseService {
      * 添加城市到愿望清单
      */
     async addToWishlist(userId, cityData) {
-        if (!userId || !(cityData?.cityCode || cityData?.adcode)) {
+        if (!userId || !(cityData?.cityCode || cityData?.adcode || cityData?.citycode)) {
             throw new Error('用户ID和城市代码不能为空')
         }
 

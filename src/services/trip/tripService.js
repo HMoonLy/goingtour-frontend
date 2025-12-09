@@ -113,7 +113,7 @@ class TripService extends BaseService {
      * 创建行程（使用统一错误处理和缓存清理）
      */
     async createTrip(userId, tripData) {
-        if (!userId || !tripData ? .title || !tripData ? .city) {
+        if (!userId || !tripData?.title || !tripData?.city) {
             throw new Error('用户ID、行程标题和目的地不能为空')
         }
 
@@ -193,7 +193,7 @@ class TripService extends BaseService {
      * AI行程生成（核心业务逻辑）
      */
     async generateAiTrip(params, onProgress) {
-        if (!params ? .city || !params ? .days) {
+        if (!params?.city || !params?.days) {
             throw new Error('城市和天数不能为空')
         }
 
@@ -212,11 +212,11 @@ class TripService extends BaseService {
     validateTripData(tripData) {
         const errors = []
 
-        if (!tripData.title ? .trim()) {
+        if (!tripData.title?.trim()) {
             errors.push('行程标题不能为空')
         }
 
-        if (!tripData.city ? .trim()) {
+        if (!tripData.city?.trim()) {
             errors.push('目的地城市不能为空')
         }
 
@@ -280,7 +280,7 @@ class TripService extends BaseService {
             totalAttractions,
             totalRestaurants,
             estimatedCost: totalCost,
-            avgRating: ratedItems > 0 ? (totalRating / ratedItems).toFixed(1) : 0
+            avgRating: ratedItems > 0?(totalRating / ratedItems).toFixed(1) : 0
         }
     }
 }

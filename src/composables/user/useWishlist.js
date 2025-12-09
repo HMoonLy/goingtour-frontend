@@ -36,7 +36,7 @@ export function useWishlist() {
         })
     }
 
-    const userId = userStore.userId
+    const userId = computed(() => userStore.userId)
 
     // 状态
     const wishlistItems = ref([])
