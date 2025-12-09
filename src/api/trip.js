@@ -165,4 +165,18 @@ export const tripApi = {
   removeCollaborator(tripId, collaboratorId) {
     return http.delete(`/trip/${tripId}/collaborators/${collaboratorId}`);
   },
+
+  // ========== AI 行程生成 ==========
+
+  /**
+   * AI 生成行程
+   * @param {Object} data - 生成参数
+   * @param {Object} config - 额外配置（如 signal 用于取消请求）
+   */
+  generateAiTrip(data, config = {}) {
+    return http.post('/ai/trip/generate', data, {
+      timeout: 120000, // AI生成较慢，设置2分钟超时
+      ...config
+    });
+  },
 };
