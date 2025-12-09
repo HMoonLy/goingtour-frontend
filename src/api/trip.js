@@ -175,7 +175,7 @@ export const tripApi = {
    */
   generateAiTrip(data, config = {}) {
     return http.post('/ai/trip/generate', data, {
-      timeout: 120000, // AI生成较慢，设置2分钟超时
+      timeout: 300000, // AI生成较慢，设置5分钟超时
       ...config
     });
   },

@@ -3,89 +3,18 @@
     <el-card class="info-card" shadow="hover">
       <div v-if="tripData" class="trip-preview">
         <!-- 行程概述 -->
-        <div class="trip-summary">
-          <div class="summary-header">
-            <div class="summary-title">
-              <h3>{{ getSelectedCityName() }} {{ baseForm?.days || 0 }}天</h3>
-              <div class="summary-stats">
-                <div class="stat-item">
-                  <el-icon><MapLocation /></el-icon>
-                  <span>{{ `${tripData?.attractions?.length || 0}个景点` }}</span>
-                </div>
-                <div class="stat-item">
-                  <el-icon><Shop /></el-icon>
-                  <span>{{ `${tripData?.restaurants?.length || 0}家餐厅` }}</span>
-                </div>
-                <div class="stat-item">
-                  <el-icon><Money /></el-icon>
-                  <span>{{ "预计花费" }}：{{ getEstimatedCost() }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="summary-actions">
-              <el-button type="primary" size="large" @click="shareTrip">
-                <el-icon><Share /></el-icon>
-                {{ "分享" }}
-              </el-button>
-            </div>
-          </div>
+        <TripSummary
+          :base-form="baseForm"
+          :trip-data="tripData"
+          @share="shareTrip"
+        />
 
-          <!-- 日程安排 -->
-          <div class="daily-schedule">
-            <div v-for="(day, index) in tripData.dailyPlan" :key="index" class="day-plan">
-              <div class="day-header">
-                <h4>{{ `第${index + 1}天` }}</h4>
-                <span class="day-date">{{ formatDayDate(index) }}</span>
-              </div>
-              <div class="day-activities">
-                <div
-                  v-for="(activity, activityIndex) in day.activities"
-                  :key="activityIndex"
-                  class="activity-item"
-                >
-                  <div class="activity-time">
-                    {{ activity.time }}
-                  </div>
-                  <div class="activity-content">
-                    <div class="activity-info">
-                      <h5>{{ activity.name }}</h5>
-                      <p>{{ activity.description }}</p>
-                      <div class="activity-tags">
-                        <el-tag
-                          v-for="tag in activity.tags"
-                          :key="tag"
-                          size="small"
-                          :type="getTagType(tag, activity.type)"
-                        >
-                          {{ tag }}
-                        </el-tag>
-                      </div>
-                    </div>
-                    <div class="activity-actions">
-                      <el-button
-                        size="small"
-                        circle
-                        @click="replaceActivity(index, activityIndex)"
-                      >
-                        <el-icon><Refresh /></el-icon>
-                      </el-button>
-                      <el-popconfirm
-                        :title="'确定要删除吗？'"
-                        @confirm="removeActivity(index, activityIndex)"
-                      >
-                        <template #reference>
-                          <el-button size="small" circle type="danger">
-                            <el-icon><Delete /></el-icon>
-                          </el-button>
-                        </template>
-                      </el-popconfirm>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <!-- 日程安排 -->
+        <DailySchedule
+          :trip-data="tripData"
+          :base-form="baseForm"
+          @regenerate="handleRegenerate"
+        />
       </div>
 
       <!-- 加载中状态 -->
@@ -118,33 +47,17 @@
 </template>
 
 <script>
-import { ref, computed, reactive, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import {
-  MapLocation,
-  Shop,
-  Money,
-  Share,
-  Download,
-  View,
-  ArrowLeft,
-  Delete,
-  Refresh,
-} from "@element-plus/icons-vue";
-import { getFullBudgetText, PERSONAL_PROFILE_OPTIONS } from "@/utils/data/travelDataSystem";
+import { onMounted } from "vue";
+import { ArrowLeft } from "@element-plus/icons-vue";
+import TripSummary from "./TripPreviewParts/TripSummary.vue";
+import DailySchedule from "./TripPreviewParts/DailySchedule.vue";
 
 export default {
   name: "TripPreview",
   components: {
-    MapLocation,
-    Shop,
-    Money,
-    Share,
-    Download,
-    View,
     ArrowLeft,
-    Delete,
-    Refresh,
+    TripSummary,
+    DailySchedule,
   },
   props: {
     // 基础表单数据
@@ -165,124 +78,13 @@ export default {
   },
   emits: ["regenerate", "saved", "prev-step"],
   setup(props, { emit }) {
-    // 城市信息数据库
-    const cityInfoDatabase = {
-      beijing: {
-        name: "北京",
-        description: "千年古都，文化底蕴深厚",
-      },
-      shanghai: {
-        name: "上海",
-        description: "国际化大都市，东西文化交汇",
-      },
-    };
-
-    // 获取城市名称
-    const getSelectedCityName = () => {
-      if (!props.baseForm || !props.baseForm.destination) {
-        return "未选择";
-      }
-
-      const adcode = props.baseForm.destination;
-
-      // 从cityInfoDatabase获取城市名称
-      if (cityInfoDatabase[adcode]) {
-        return cityInfoDatabase[adcode].name;
-      }
-
-      // 没有找到城市信息，返回城市代码
-      return adcode;
-    };
-
-    // 格式化日期
-    const formatDayDate = (dayIndex) => {
-      if (
-        !props.baseForm ||
-        !props.baseForm.dateRange ||
-        props.baseForm.dateRange.length !== 2
-      ) {
-        return `第${dayIndex + 1}天`;
-      }
-
-      try {
-        const startDate = new Date(props.baseForm.dateRange[0]);
-        const currentDate = new Date(startDate);
-        currentDate.setDate(startDate.getDate() + dayIndex);
-
-        const month = currentDate.getMonth() + 1;
-        const day = currentDate.getDate();
-        const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
-        const weekday = weekdays[currentDate.getDay()];
-
-        return `第${dayIndex + 1}天 ${month}月${day}日 (周${weekday})`;
-      } catch (error) {
-        console.error("日期格式化失败:", error);
-        return `第${dayIndex + 1}天`;
-      }
-    };
-
-    // 获取预算文本
-    const getBudgetText = () => {
-      return getFullBudgetText(props.baseForm.budget);
-    };
-
-    // 获取预计总花费
-    const getEstimatedCost = () => {
-      if (
-        !props.baseForm ||
-        !props.baseForm.budget ||
-        !props.baseForm.days ||
-        !props.baseForm.travelers
-      ) {
-        return "计算中...";
-      }
-
-      const options = PERSONAL_PROFILE_OPTIONS.budgetLevel.options;
-      const budgetOption = options[props.baseForm.budget];
-      const dailyBudget = budgetOption ? budgetOption.avgCost : 500; // 默认500
-
-      const totalCost = dailyBudget * props.baseForm.days * props.baseForm.travelers;
-      return `约 ¥${totalCost.toLocaleString()}`;
-    };
-
-    // 获取活动标签类型
-    const getTagType = (tag, activityType) => {
-      if (activityType === "attraction") {
-        return "success"; // 景点
-      } else if (activityType === "restaurant") {
-        return "info"; // 餐厅
-      } else {
-        return "primary"; // 其他
-      }
-    };
-
-    // 跳转到生成步骤
-    const goToGenerationStep = () => {
-      emit("prev-step"); // 假设第三步（index 2）是生成步骤
-    };
-
-    // 替换活动
-    const replaceActivity = (dayIndex, activityIndex) => {
-      emit("regenerate", dayIndex, activityIndex);
-    };
-
-    // 移除活动
-    const removeActivity = (dayIndex, activityIndex) => {
+    // 处理重新生成/替换/删除
+    const handleRegenerate = (dayIndex, activityIndex) => {
       emit("regenerate", dayIndex, activityIndex);
     };
 
     // 分享行程
     const shareTrip = () => {
-      emit("saved");
-    };
-
-    // 导出行程
-    const exportTrip = () => {
-      emit("saved");
-    };
-
-    // 预览行程
-    const previewTrip = () => {
       emit("saved");
     };
 
@@ -293,26 +95,18 @@ export default {
 
     // 组件挂载时的处理
     onMounted(() => {
-      console.log(" TripPreview组件挂载");
+      console.log("TripPreview组件挂载");
     });
 
     return {
-      getSelectedCityName,
-      formatDayDate,
-      getBudgetText,
-      getEstimatedCost,
-      getTagType,
-      goToGenerationStep,
-      replaceActivity,
-      removeActivity,
+      handleRegenerate,
       shareTrip,
-      exportTrip,
-      previewTrip,
       saveTrip,
     };
   },
 };
 </script>
+
 <style scoped>
 .info-card {
   border-radius: 12px;
@@ -325,151 +119,6 @@ export default {
 
 .trip-preview {
   padding-top: 16px;
-}
-
-.trip-summary {
-  margin-bottom: 32px;
-}
-
-.summary-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 20px;
-  margin-top: 8px;
-  flex-wrap: wrap;
-}
-
-.summary-title h3 {
-  margin: 0 0 16px 0;
-  color: #303133;
-  font-size: 20px;
-}
-
-.summary-stats {
-  display: flex;
-  gap: 24px;
-  margin-top: 12px;
-  flex-wrap: wrap;
-}
-
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: #606266;
-}
-
-.summary-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.summary-actions .el-button {
-  width: 120px;
-  justify-content: center; /* 按钮内容居中对齐 */
-}
-
-.daily-schedule {
-  margin-top: 24px;
-}
-
-.day-plan {
-  margin-bottom: 24px;
-  border: 1px solid #e4e7ed;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-}
-
-.day-header {
-  background: #f5f7fa;
-  padding: 14px 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #e4e7ed;
-}
-
-.day-header h4 {
-  margin: 0;
-  color: #303133;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.day-date {
-  color: #606266;
-  font-size: 14px;
-}
-
-.day-activities {
-  padding: 16px;
-}
-
-.activity-item {
-  display: flex;
-  margin-bottom: 16px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.activity-item:last-child {
-  margin-bottom: 0;
-  padding-bottom: 0;
-  border-bottom: none;
-}
-
-.activity-time {
-  width: 60px;
-  flex-shrink: 0;
-  font-weight: 500;
-  color: #409eff;
-  font-size: 14px;
-}
-
-.activity-content {
-  flex: 1;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.activity-info {
-  flex: 1;
-}
-
-.activity-info h5 {
-  margin: 0 0 6px 0;
-  color: #303133;
-  font-size: 15px;
-}
-
-.activity-info p {
-  margin: 0 0 8px 0;
-  color: #606266;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.activity-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin-bottom: 8px;
-}
-
-.activity-tags .el-tag {
-  margin-right: 4px;
-  font-size: 12px;
-}
-
-.activity-actions {
-  display: flex;
-  gap: 8px;
-  margin-left: 10px;
 }
 
 .no-trip-data {
@@ -487,45 +136,5 @@ export default {
 
 .step-actions .el-button {
   width: 120px;
-}
-
-@media (max-width: 768px) {
-  .summary-header {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .summary-title {
-    text-align: center;
-    width: 100%;
-  }
-
-  .summary-stats {
-    justify-content: center;
-  }
-
-  .summary-actions {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .activity-item {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .activity-time {
-    width: auto;
-    font-size: 13px;
-  }
-
-  .activity-content {
-    flex-direction: column;
-  }
-
-  .activity-actions {
-    margin-left: 0;
-    margin-top: 10px;
-  }
 }
 </style>
