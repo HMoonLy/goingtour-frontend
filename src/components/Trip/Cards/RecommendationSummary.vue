@@ -8,12 +8,13 @@
         <div class="summary-title">
           <el-icon><Check /></el-icon>
           <span>已选择</span>
-          <el-tag size="small" type="primary">
+              <el-tag size="small" type="primary" effect="light">
             {{ totalSelected }}
           </el-tag>
         </div>
         <el-button
           type="primary"
+          link
           size="small"
           @click="toggleSummaryDetail"
         >
@@ -103,7 +104,7 @@
 
           <!-- 操作按钮 -->
           <div class="summary-actions-compact">
-            <el-button type="danger" link size="small" @click="confirmClearAll">
+            <el-button type="info" link size="small" @click="confirmClearAll">
               重置所有选择
             </el-button>
           </div>
@@ -200,9 +201,10 @@ export default {
 }
 
 .summary-float-card {
-  background-color: #e4e7ed;
-  border:none;
-  box-shadow: none;
+  background-color: white;
+  border: 1px solid #ebeef5;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   overflow: hidden;
   animation: slideDown 0.3s ease-out;
 }
@@ -223,8 +225,8 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
-  color: white;
+  background: white;
+  border-bottom: 1px solid #f2f6fc;
 }
 
 .summary-title {
@@ -233,11 +235,13 @@ export default {
   gap: 8px;
   font-weight: 600;
   font-size: 16px;
+  color: #303133;
 }
 
 .summary-detail {
   padding: 16px 20px;
-  border-top: 1px solid rgba(145, 168, 208, 0.1);
+  background: #fafafa;
+  border-top: none;
   animation: slideDown 0.2s ease-out;
 }
 

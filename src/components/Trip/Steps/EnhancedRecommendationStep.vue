@@ -783,9 +783,9 @@ const handleNextStep = () => {
 
 const emitSelectionsUpdate = () => {
   emit("selections-updated", {
-    attractions: selectedAttractions.value,
-    restaurants: selectedRestaurants.value,
-    hotels: selectedHotels.value,
+    selectedAttractions: selectedAttractions.value,
+    selectedRestaurants: selectedRestaurants.value,
+    selectedHotels: selectedHotels.value,
   });
 };
 

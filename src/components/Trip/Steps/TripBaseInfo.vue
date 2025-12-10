@@ -75,7 +75,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from "vue";
+import { ref, watch, onMounted, nextTick } from "vue";
 import { ElMessage } from "element-plus";
 import { MapLocation, ArrowRight, Document } from "@element-plus/icons-vue";
 
@@ -128,12 +128,26 @@ const tripRules = {
 };
 
 // 同步数据
-watch(tripForm, (newVal) => emit("update:baseForm", newVal), { deep: true });
-watch(() => props.baseForm, (newVal) => {
-  if (JSON.stringify(newVal) !== JSON.stringify(tripForm.value)) {
-    tripForm.value = { ...newVal };
+const isUpdatingFromProps = ref(false);
+
+watch(tripForm, (newVal) => {
+  if (!isUpdatingFromProps.value) {
+    emit("update:baseForm", newVal);
   }
 }, { deep: true });
+
+// 监听父组件传入的 baseForm 变化，强制同步到本地
+watch(() => props.baseForm, (newVal) => {
+  if (newVal) {
+    isUpdatingFromProps.value = true;
+    // 直接覆盖，不做复杂的比较，确保草稿恢复时数据能穿透
+    tripForm.value = { ...newVal };
+    // 使用 nextTick 确保 watcher 触发完成后再重置标志
+    nextTick(() => {
+      isUpdatingFromProps.value = false;
+    });
+  }
+}, { deep: true, immediate: true });
 
 // 逻辑方法
 const applyUserPreferences = () => {

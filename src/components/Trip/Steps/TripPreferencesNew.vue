@@ -747,6 +747,18 @@ export default {
       initFromStore();
     });
 
+    // 监听 store 变化，确保草稿恢复时本地状态能同步
+    watch(
+      () => preferenceStore.tripPreferenceForm,
+      (newVal) => {
+        if (newVal) {
+          console.log("🔄 检测到 Store 偏好更新，同步到本地状态...");
+          initFromStore();
+        }
+      },
+      { deep: true }
+    );
+
     watch(
       () => userStore.currentUser?.preferences,
       (newPrefs) => {

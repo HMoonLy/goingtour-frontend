@@ -13,10 +13,12 @@ export class TripDetail {
     // 关联 ID
     this.attractionId = data.attractionId || (data.attraction ? data.attraction.id : null);
     this.restaurantId = data.restaurantId || (data.restaurant ? data.restaurant.id : null);
+    this.hotelId = data.hotelId || (data.hotel ? data.hotel.id : null);
 
     // 完整的实体数据 (Backend populated)
     this.attraction = data.attraction || null;
     this.restaurant = data.restaurant || null;
+    this.hotel = data.hotel || null;
 
     // 前端辅助字段：具体时间点
     this.time = this._calculateTime();
@@ -45,6 +47,7 @@ export class TripDetail {
   get type() {
     if (this.attraction) return 'attraction';
     if (this.restaurant) return 'restaurant';
+    if (this.hotel) return 'hotel';
     return 'other';
   }
 
@@ -54,6 +57,7 @@ export class TripDetail {
   get name() {
     if (this.attraction) return this.attraction.name;
     if (this.restaurant) return this.restaurant.name;
+    if (this.hotel) return this.hotel.name;
     return '自定义活动';
   }
 
@@ -63,6 +67,7 @@ export class TripDetail {
   get data() {
     if (this.attraction) return this.attraction;
     if (this.restaurant) return this.restaurant;
+    if (this.hotel) return this.hotel;
     return null;
   }
 
@@ -77,7 +82,8 @@ export class TripDetail {
       duration: this.duration,
       notes: this.notes,
       attractionId: this.attractionId,
-      restaurantId: this.restaurantId
+      restaurantId: this.restaurantId,
+      hotelId: this.hotelId
     };
   }
 }

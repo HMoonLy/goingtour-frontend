@@ -277,11 +277,6 @@ export default {
     });
     const loadingWeather = computed(() => isLoadingForecast.value);
 
-    // ----------------------------------------------------------------
-    // 核心逻辑：自动保存与恢复
-    // ----------------------------------------------------------------
-
-    // 收集当前页面所有数据
     const getData = () => {
       return {
         currentStep: currentStep.value,
@@ -297,22 +292,54 @@ export default {
       };
     };
 
-    // 恢复数据逻辑
     const restoreDraftData = (draftData) => {
-      console.log("正在恢复数据...", draftData);
+      console.log("🚀 restoreDraftData called with:", draftData);
       
-      if (draftData.baseForm) Object.assign(baseForm, draftData.baseForm);
-      if (draftData.preferenceForm) preferenceStore.loadDraftPreferences(draftData.preferenceForm);
+      if (draftData.baseForm) {
+        console.log("📦 Found baseForm in draft:", draftData.baseForm);
+        
+        // 确保数字类型正确，防止字符串导致 UI 组件异常
+        const safeBaseForm = { ...draftData.baseForm };
+        if (safeBaseForm.travelers) safeBaseForm.travelers = Number(safeBaseForm.travelers);
+        if (safeBaseForm.days) safeBaseForm.days = Number(safeBaseForm.days);
+        
+        // 批量赋值前先清空，确保触发深层更新
+        // Object.keys(baseForm).forEach(key => delete baseForm[key]); // 暂时注释掉，可能导致 reactivity 丢失
+        Object.assign(baseForm, safeBaseForm);
+        
+        console.log("✅ baseForm updated:", baseForm);
+
+        // 日期处理：el-date-picker 使用 value-format="YYYY-MM-DD"
+        if (safeBaseForm.dateRange && Array.isArray(safeBaseForm.dateRange)) {
+             baseForm.dateRange = safeBaseForm.dateRange;
+        }
+      } else {
+        console.warn("⚠️ No baseForm found in draft data!");
+      }
+
+      if (draftData.preferenceForm) {
+          console.log("⚙️ Restoring preferences...", draftData.preferenceForm);
+          preferenceStore.loadDraftPreferences(draftData.preferenceForm);
+      }
       
-      // 恢复数组
+      // 恢复已选项目
       selectedAttractions.value = draftData.selectedAttractions || [];
       selectedRestaurants.value = draftData.selectedRestaurants || [];
       selectedHotels.value = draftData.selectedHotels || [];
       
       extraRequirements.value = draftData.extraRequirements || "";
       if (draftData.weatherSuggestion) forecastWeather.value = draftData.weatherSuggestion;
-      recommendationType.value = draftData.recommendationType || 'enhanced';
-      if (draftData.aiRecommendationsData) aiRecommendationsData.value = draftData.aiRecommendationsData;
+      
+      // 恢复 AI 推荐数据 & 决定推荐模式
+      if (draftData.aiRecommendationsData && Object.keys(draftData.aiRecommendationsData).length > 0) {
+        console.log("🤖 Restoring AI recommendations...");
+        aiRecommendationsData.value = draftData.aiRecommendationsData;
+        // 如果缓存了 AI 数据，优先使用 enhanced 模式展示
+        recommendationType.value = 'enhanced';
+      } else {
+        // 否则使用草稿中保存的类型，或者默认为 basic
+        recommendationType.value = draftData.recommendationType || 'basic';
+      }
 
       // 恢复步骤
       currentStep.value = draftData.currentStep || 0;
@@ -320,7 +347,6 @@ export default {
       ElMessage.success("已恢复上次的编辑进度");
     };
 
-    // ----------------------------------------------------------------
 
     // 步骤控制
     const nextStep = () => {
@@ -365,8 +391,12 @@ export default {
       if (selections.selectedHotels) selectedHotels.value = selections.selectedHotels;
     };
 
-    const handleAiRecommendationsGenerated = (recommendations) => {
+    const handleAiRecommendationsGenerated = async (recommendations) => {
       aiRecommendationsData.value = recommendations;
+      
+      // 立即保存草稿，防止刷新丢失昂贵的 AI 数据
+      await forceSave(getData());
+
       if (recommendationType.value === 'enhanced') {
         nextTick(() => {
           setTimeout(() => {
@@ -392,7 +422,13 @@ export default {
 
     // 监听城市变化
     watch(() => baseForm.destinationName, (city) => {
-      if (city) fetchWeatherForTrip(city);
+      console.log("🏙️ destinationName changed to:", city);
+      if (city) {
+        fetchWeatherForTrip(city);
+      } else if (!isRestoringProgress.value) {
+        // 如果非恢复状态下城市被清空，记录日志
+        console.warn("⚠️ destinationName cleared unexpectedly");
+      }
     });
 
     let autoSaveCleanup = null;
@@ -410,11 +446,29 @@ export default {
       // 只有当不是从"目的地选择页"特意跳过来开始新行程时，才检查
       if (!route.query.city && !route.query.preset) {
         isRestoringProgress.value = true;
-        const draftData = await checkAndRestoreAutoDraft();
-        if (draftData) {
-            restoreDraftData(draftData);
+        try {
+          const draftData = await checkAndRestoreAutoDraft();
+          if (draftData) {
+              restoreDraftData(draftData);
+              
+              // 备份关键数据，防止组件渲染过程中的竞争条件导致数据丢失
+              const backupName = draftData.baseForm?.destinationName;
+              const backupDestination = draftData.baseForm?.destination;
+
+              // 强制等待两个 tick，确保深层组件更新完成
+              await nextTick();
+              await new Promise(resolve => setTimeout(resolve, 50)); 
+              
+              // 二次检查：如果数据在渲染过程中丢失，尝试恢复
+              if (!baseForm.destinationName && backupName) {
+                 console.warn("⚠️ BaseForm destinationName lost after render tick, restoring from backup");
+                 baseForm.destinationName = backupName;
+                 if (backupDestination) baseForm.destination = backupDestination;
+              }
+          }
+        } finally {
+          isRestoringProgress.value = false;
         }
-        isRestoringProgress.value = false;
       }
       
       // 3. 处理URL参数预设 (Keep existing logic)

@@ -4,8 +4,6 @@ import { draftApi } from '@/api/draft.js'
 import { useUserStore } from '@/store/user.js'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
-// --- 全局共享状态 (模拟 Store 行为) ---
-// 将状态移出函数，使其在不同组件和路由守卫中共享
 const saveStatus = ref('idle') // 'idle' | 'saving' | 'success' | 'error'
 const lastSavedTime = ref(null)
 const autoDraftId = ref(null) // 记录当前关联的自动草稿ID
@@ -13,21 +11,11 @@ const draftList = ref([]) // 草稿列表
 const draftStats = ref({}) // 草稿统计
 const currentDraft = ref(null) // 当前加载的草稿
 
-/**
- * 全新的草稿管理 Composable
- * 核心理念：隐式交互、自动保存、后端为主
- */
 export function useDraft() {
     const userStore = useUserStore()
     
     // 防抖定时器
     let _debounceTimer = null
-
-    // --- 内部辅助函数 ---
-
-    /**
-     * 标准化草稿数据（处理 JSON 字符串转对象等）
-     */
     const _normalizeData = (apiData) => {
         if (!apiData) return null
         
@@ -42,17 +30,21 @@ export function useDraft() {
             'selectedRestaurants', 
             'selectedHotels',
             'weatherSuggestion',
-            'aiRecommendationsData'
+            'aiRecommendationsData',
+            'extraRequirements'
         ]
 
         jsonFields.forEach(field => {
-            if (data[field] && typeof data[field] === 'string') {
-                try {
-                    data[field] = JSON.parse(data[field])
-                } catch (e) {
-                    console.warn(`[Draft] 解析字段 ${field} 失败`, e)
-                    data[field] = null
+            const value = data[field];
+            if (value) {
+                if (typeof value === 'string') {
+                    try {
+                        data[field] = JSON.parse(value)
+                    } catch (e) {
+                        console.warn(`[Draft] 解析字段 ${field} 失败，保留原值`, e)
+                    }
                 }
+                // 如果已经是对象则无需处理
             }
         })
         
@@ -111,19 +103,43 @@ export function useDraft() {
             if (!userId) return
 
             // 构造 API 需要的数据结构
-            const payload = { ...data }
-            
-            // 确保有 name 字段
-            if (!payload.name) {
-                const destName = data?.baseForm?.destinationName
-                payload.name = destName ? `${destName}的行程` : '我的行程草稿'
+            // 显式处理复杂字段的序列化，确保后端存储格式统一
+            const payload = { 
+                ...data,
+                // 确保有 name 字段
+                name: data.name || (data.baseForm?.destinationName ? `${data.baseForm.destinationName}的行程` : '我的行程草稿')
             }
+            
+            // 定义需要序列化为字符串的字段
+            const jsonFields = [
+                'baseForm', 
+                'preferenceForm', 
+                'selectedAttractions', 
+                'selectedRestaurants', 
+                'selectedHotels',
+                'weatherSuggestion',
+                'aiRecommendationsData',
+                'extraRequirements'
+            ]
+
+            jsonFields.forEach(field => {
+                // 如果该字段存在且为对象（非null），则转为JSON字符串
+                if (payload[field] && typeof payload[field] === 'object') {
+                    try {
+                        payload[field] = JSON.stringify(payload[field])
+                    } catch (e) {
+                        console.warn(`[Draft] 序列化字段 ${field} 失败`, e)
+                    }
+                }
+            })
 
             let res;
             if (!autoDraftId.value) {
                 res = await draftApi.getOrCreateAutoDraft(userId, payload)
                 if (res.data?.id) autoDraftId.value = res.data.id
             } else {
+                // 更新时带上 ID
+                payload.id = autoDraftId.value
                 res = await draftApi.updateAutoDraft(userId, payload)
             }
 
@@ -244,10 +260,15 @@ export function useDraft() {
         
         try {
             const autoDraft = await getAutoDraft()
+            console.log("🔍 Auto draft found:", autoDraft); // Debug log
+
             if (!autoDraft) return null
 
             // 检查是否有实质内容
-            if (!autoDraft?.baseForm?.destinationName) return null
+            if (!autoDraft?.baseForm?.destinationName) {
+                console.warn("⚠️ Auto draft is empty or missing destinationName");
+                return null
+            }
 
             // 记录ID以便后续更新
             autoDraftId.value = autoDraft.id

@@ -134,6 +134,21 @@ export class Trip {
   }
 
   /**
+   * 获取所有酒店列表 (去重)
+   */
+  get hotels() {
+    const list = [];
+    const ids = new Set();
+    this.details.forEach(d => {
+      if (d.type === 'hotel' && d.hotel && !ids.has(d.hotel.id)) {
+        ids.add(d.hotel.id);
+        list.push(d.hotel);
+      }
+    });
+    return list;
+  }
+
+  /**
    * 转换为后端请求格式 (创建/更新)
    */
   toBackendRequest() {

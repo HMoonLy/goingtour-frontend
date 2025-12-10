@@ -55,6 +55,7 @@ export function convertBackendTripToFrontend(backendTrip) {
     dailyPlan: trip.dailyPlan,
     attractions: trip.attractions,
     restaurants: trip.restaurants,
+    hotels: trip.hotels,
     
     // 原始数据保留
     tripDetails: backendTrip.tripDetails,
