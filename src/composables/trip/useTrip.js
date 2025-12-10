@@ -115,7 +115,7 @@ export function useTrip() {
     /**
      * 当前行程ID
      */
-    const currentTripId = computed(() => currentTrip.value ? .id)
+    const currentTripId = computed(() => currentTrip.value?.id)
 
     /**
      * 是否有当前行程
@@ -338,7 +338,7 @@ export function useTrip() {
                 }
 
                 // 更新当前行程
-                if (currentTrip.value ? .id === tripId) {
+                if (currentTrip.value?.id === tripId) {
                     currentTrip.value = updatedTrip
                 }
 
@@ -378,7 +378,7 @@ export function useTrip() {
 
         // 获取要删除的行程名称
         const tripToDelete = tripList.value.find(trip => trip.id === tripId)
-        const tripName = tripToDelete ? .title || '此行程'
+        const tripName = tripToDelete?.title || '此行程'
 
         // 显示确认对话框
         if (showConfirm) {
@@ -410,7 +410,7 @@ export function useTrip() {
                 tripList.value = tripList.value.filter(trip => trip.id !== tripId)
 
                 // 如果删除的是当前行程，清空当前行程
-                if (currentTrip.value ? .id === tripId) {
+                if (currentTrip.value?.id === tripId) {
                     currentTrip.value = null
                     tripDetails.value = null
                 }
@@ -598,12 +598,12 @@ export function useTrip() {
                 }
 
                 // 更新当前行程状态
-                if (currentTrip.value ? .id === tripId) {
+                if (currentTrip.value?.id === tripId) {
                     currentTrip.value.statusCode = status
                     currentTrip.value.status = status
                 }
 
-                const statusText = status === 1 ? '草稿' : status === 2 ? '已发布' : '已完成'
+                const statusText = status === 1?'草稿' : status === 2?'已发布' : '已完成'
                 ElMessage.success(`行程状态已更新为${statusText}`)
 
                 return { success: true }
@@ -642,7 +642,7 @@ export function useTrip() {
                     tripList.value[index].shareCode = result.data.shareCode
                 }
 
-                if (currentTrip.value ? .id === tripId) {
+                if (currentTrip.value?.id === tripId) {
                     currentTrip.value.shareCode = result.data.shareCode
                 }
 

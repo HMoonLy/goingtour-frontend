@@ -91,7 +91,7 @@
       <!-- 操作区域 -->
       <div class="card-actions">
         <el-button 
-          size="medium" 
+          size="default" 
           class="details-btn"
           @click="handleShowDetails"
         >
@@ -101,7 +101,7 @@
         </el-button>
         
         <el-button 
-          size="medium"
+          size="default"
           :type="isSelected ? 'success' : 'primary'"
           :class="['select-btn', { 'selected': isSelected }]"
           @click="isSelected ? handleUnselect() : handleSelect()"

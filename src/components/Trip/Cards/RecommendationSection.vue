@@ -182,17 +182,10 @@ export default {
 /* 表单分区样式 */
 .form-section {
   background: white;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e8eaed;
-  transition: all 0.3s ease;
+  box-shadow: none;
+  border:none;
 }
 
-.form-section:hover {
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
-}
 
 /* 分区标题 */
 .section-title {

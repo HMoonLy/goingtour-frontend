@@ -244,6 +244,8 @@ router.beforeEach(async (to, from, next) => {
     if (to.meta.requiresDestination) {
         // 检查是否有城市参数或保存的进度
         const hasDestinationParam = to.query.city && to.query.cityName;
+        // 检查是否有加载草稿的参数
+        const hasLoadDraftParam = !!to.query.loadDraft;
         const hasSavedProgress = localStorage.getItem("goingtour_trip_progress");
 
         // 检查是否有草稿正在加载（通过Pinia store）
@@ -259,7 +261,7 @@ router.beforeEach(async (to, from, next) => {
             console.warn("检查草稿store失败:", error);
         }
 
-        let hasValidDestination = hasDestinationParam || hasDraftToRestore;
+        let hasValidDestination = hasDestinationParam || hasDraftToRestore || hasLoadDraftParam;
 
         // 如果没有URL参数和草稿，检查保存的进度
         if (!hasValidDestination && hasSavedProgress) {

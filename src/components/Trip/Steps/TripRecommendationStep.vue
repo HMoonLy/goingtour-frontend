@@ -1,36 +1,71 @@
 <template>
   <div class="trip-recommendation-step">
-    <!-- 页面头部 -->
-    <RecommendationHeader 
-      :city-name="cityInfo?.destinationName" 
-    />
-
-    <!-- 推荐内容区域 -->
-    <div class="recommendation-main">
-      <RecommendationSection
-        :city-info="cityInfo"
-        :selected-attractions="selectedAttractions"
-        :selected-restaurants="selectedRestaurants"
-        :selected-hotels="selectedHotels"
-        @add-attraction="handleAddAttraction"
-        @remove-attraction="handleRemoveAttraction"
-        @add-restaurant="handleAddRestaurant"
-        @remove-restaurant="handleRemoveRestaurant"
-        @add-hotel="handleAddHotel"
-        @remove-hotel="handleRemoveHotel"
-        @clear-all-selections="handleClearAllSelections"
-      />
+    <!-- 页面标题区域 -->
+    <div class="page-title">
+      <div class="title-content">
+        <el-icon class="title-icon">
+          <Star />
+        </el-icon>
+        <div class="title-text">
+          <h2 class="main-title">推荐选择</h2>
+          <p class="subtitle">为您精选的目的地推荐，自由搭配您的行程</p>
+        </div>
+      </div>
     </div>
 
+    <!-- 推荐内容区域 -->
+    <el-card class="info-card">
+      <div class="recommendation-main">
+        <RecommendationSection
+          :city-info="cityInfo"
+          :selected-attractions="selectedAttractions"
+          :selected-restaurants="selectedRestaurants"
+          :selected-hotels="selectedHotels"
+          @add-attraction="handleAddAttraction"
+          @remove-attraction="handleRemoveAttraction"
+          @add-restaurant="handleAddRestaurant"
+          @remove-restaurant="handleRemoveRestaurant"
+          @add-hotel="handleAddHotel"
+          @remove-hotel="handleRemoveHotel"
+          @clear-all-selections="handleClearAllSelections"
+        />
+      </div>
+    </el-card>
+
     <!-- 底部操作区域 -->
-    <RecommendationActions
-      :selected-attractions-count="selectedAttractions.length"
-      :selected-restaurants-count="selectedRestaurants.length"
-      :selected-hotels-count="selectedHotels.length"
-      :generating="generating"
-      @prev-step="$emit('prev-step')"
-      @continue="handleContinue"
-    />
+    <div class="step-actions">
+      <!-- 左侧：选择摘要 (保留统计功能但样式简化) -->
+      <div class="action-left">
+        <div class="selection-stats">
+          <el-tag type="info" effect="plain" round>
+            <el-icon><Location /></el-icon> {{ selectedAttractions.length }} 景点
+          </el-tag>
+          <el-tag type="info" effect="plain" round>
+            <el-icon><Food /></el-icon> {{ selectedRestaurants.length }} 餐厅
+          </el-tag>
+          <el-tag type="info" effect="plain" round>
+            <el-icon><House /></el-icon> {{ selectedHotels.length }} 酒店
+          </el-tag>
+        </div>
+      </div>
+
+      <!-- 右侧：按钮 -->
+      <div class="action-right">
+        <el-button size="large" @click="$emit('prev-step')">
+          <el-icon><ArrowLeft /></el-icon>
+          上一步
+        </el-button>
+        <el-button
+          type="primary"
+          size="large"
+          :loading="generating"
+          @click="handleContinue"
+        >
+          {{ totalSelected > 0 ? '生成行程' : '跳过生成' }}
+          <el-icon><ArrowRight /></el-icon>
+        </el-button>
+      </div>
+    </div>
 
     <!-- 推荐助手提示 -->
     <AiRecommendationTip
@@ -42,20 +77,18 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { ElMessage } from 'element-plus';
+import { Star, Location, Food, House, ArrowLeft, ArrowRight } from '@element-plus/icons-vue';
 import RecommendationSection from '../Cards/RecommendationSection.vue';
-import RecommendationHeader from './TripRecommendationParts/RecommendationHeader.vue';
-import RecommendationActions from './TripRecommendationParts/RecommendationActions.vue';
 import AiRecommendationTip from './TripRecommendationParts/AiRecommendationTip.vue';
 
 export default {
   name: 'TripRecommendationStep',
   components: {
     RecommendationSection,
-    RecommendationHeader,
-    RecommendationActions,
-    AiRecommendationTip
+    AiRecommendationTip,
+    Star, Location, Food, House, ArrowLeft, ArrowRight
   },
   props: {
     // 城市信息
@@ -77,6 +110,18 @@ export default {
     generating: {
       type: Boolean,
       default: false
+    },
+    initialSelectedAttractions: {
+      type: Array,
+      default: () => []
+    },
+    initialSelectedRestaurants: {
+      type: Array,
+      default: () => []
+    },
+    initialSelectedHotels: {
+      type: Array,
+      default: () => []
     }
   },
   emits: [
@@ -87,9 +132,29 @@ export default {
   ],
   setup(props, { emit }) {
     // 选中的数据
-    const selectedAttractions = ref([]);
-    const selectedRestaurants = ref([]);
-    const selectedHotels = ref([]);
+    const selectedAttractions = ref([...props.initialSelectedAttractions]);
+    const selectedRestaurants = ref([...props.initialSelectedRestaurants]);
+    const selectedHotels = ref([...props.initialSelectedHotels]);
+
+    // 监听外部传入的初始选择变化
+    watch(() => props.initialSelectedAttractions, (newVal) => {
+      if (newVal && JSON.stringify(newVal) !== JSON.stringify(selectedAttractions.value)) {
+        selectedAttractions.value = [...newVal];
+      }
+    }, { deep: true });
+
+    watch(() => props.initialSelectedRestaurants, (newVal) => {
+      if (newVal && JSON.stringify(newVal) !== JSON.stringify(selectedRestaurants.value)) {
+        selectedRestaurants.value = [...newVal];
+      }
+    }, { deep: true });
+
+    watch(() => props.initialSelectedHotels, (newVal) => {
+      if (newVal && JSON.stringify(newVal) !== JSON.stringify(selectedHotels.value)) {
+        selectedHotels.value = [...newVal];
+      }
+    }, { deep: true });
+
 
     // AI提示
     const showAiTip = ref(true);
@@ -220,28 +285,124 @@ export default {
 
 <style scoped>
 .trip-recommendation-step {
-  max-width: 1200px;
-  margin: 0 auto;
-  background: #fff;
-  min-height: 100vh;
-  padding: 0 16px;
+  width: 100%;
 }
 
-/* 推荐内容区域 */
-.recommendation-main {
-  margin-bottom: 32px;
+.page-title {
+  padding: 24px 16px;
+}
+
+.title-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.title-icon {
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--el-color-primary-light-9);
+  border-radius: 12px;
+  color: var(--el-color-primary);
+}
+
+.title-text .main-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #303133;
+  margin: 0 0 4px 0;
+  line-height: 1.2;
+}
+
+.title-text .subtitle {
+  font-size: 14px;
+  color: #909399;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.info-card {
+  border: none;
+  box-shadow: none;
+  margin-bottom: 24px;
+  overflow: visible;
+}
+
+/* 操作区域 */
+.step-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #ebeef5;
+}
+
+.action-left {
+  display: flex;
+  align-items: center;
+}
+
+.action-right {
+  display: flex;
+  gap: 16px;
+}
+
+.selection-stats {
+  display: flex;
+  gap: 8px;
+}
+
+.selection-stats .el-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-color: transparent;
+  background-color: #f5f7fa;
+  color: #606266;
+}
+
+.selection-stats .el-tag .el-icon {
+  font-size: 14px;
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .trip-recommendation-step {
-    padding: 0 8px;
+  .page-title {
+    padding: 16px;
+    margin-bottom: 16px;
   }
-}
 
-@media (max-width: 480px) {
-  .trip-recommendation-step {
-    padding: 0 4px;
+  .title-content {
+    gap: 12px;
+  }
+
+  .title-text .main-title {
+    font-size: 20px;
+  }
+
+  .step-actions {
+    flex-direction: column-reverse;
+    gap: 16px;
+    align-items: stretch;
+  }
+  
+  .action-left, .action-right {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .action-right .el-button {
+    flex: 1;
+  }
+  
+  .selection-stats {
+    flex-wrap: wrap;
+    justify-content: center;
   }
 }
 </style>

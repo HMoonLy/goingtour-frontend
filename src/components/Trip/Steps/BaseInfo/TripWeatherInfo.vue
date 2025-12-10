@@ -164,11 +164,10 @@ const getWeatherSourceText = () => {
 
 <style scoped>
 .form-section {
-  padding: 24px;
+  padding: 0;
   background: #fff;
-  border-radius: 12px;
-  border: 1px solid #ebeef5;
-  margin-bottom: 24px;
+  border: none;
+  box-shadow: none;
 }
 
 .section-title {

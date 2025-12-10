@@ -447,16 +447,15 @@ export default {
 <style scoped>
 .ai-prompt-card {
   background: white;
-  border-radius: 20px;
   padding: 32px;
   margin-bottom: 32px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e8eaed;
+  box-shadow: none;
+  border:none;
   transition: all 0.3s ease;
 }
 
 .ai-prompt-card:hover {
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  border-color: #c0c4cc;
   transform: translateY(-2px);
 }
 

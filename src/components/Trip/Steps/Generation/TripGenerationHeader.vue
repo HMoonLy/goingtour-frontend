@@ -1,14 +1,12 @@
 <template>
-  <div class="page-header">
-    <div class="header-content">
-      <div class="header-icon">
-        <el-icon><MagicStick /></el-icon>
-      </div>
-      <div class="header-text">
-        <h1 class="page-title">🚀 AI行程生成</h1>
-        <p class="page-subtitle">
-          基于您的偏好设置，为您生成专属的个性化旅行行程
-        </p>
+  <div class="page-title">
+    <div class="title-content">
+      <el-icon class="title-icon">
+        <MagicStick />
+      </el-icon>
+      <div class="title-text">
+        <h2 class="main-title">AI行程生成</h2>
+        <p class="subtitle">基于您的偏好设置，为您生成专属的个性化旅行行程</p>
       </div>
     </div>
   </div>
@@ -24,85 +22,55 @@ export default {
 </script>
 
 <style scoped>
-.page-header {
-  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
-  border-radius: 20px;
-  padding: 40px;
-  margin-bottom: 32px;
-  color: white;
-  position: relative;
-  overflow: hidden;
+.page-title {
+  padding: 0;
 }
 
-.page-header::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><radialGradient id="a" cx="50" cy="50" r="50"><stop offset="0" stop-color="white" stop-opacity="0.1"/><stop offset="1" stop-color="white" stop-opacity="0.05"/></radialGradient></defs><rect width="100" height="20" fill="url(%23a)"/></svg>');
-  opacity: 0.3;
-}
-
-.header-content {
+.title-content {
   display: flex;
   align-items: center;
-  gap: 24px;
-  position: relative;
-  z-index: 1;
+  gap: 12px;
 }
 
-.header-icon {
-  width: 80px;
-  height: 80px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
+.title-icon {
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 40px;
-  backdrop-filter: blur(10px);
-  flex-shrink: 0;
+  background: var(--el-color-primary-light-9);
+  border-radius: 12px;
+  color: var(--el-color-primary);
 }
 
-.header-text {
-  flex: 1;
-}
-
-.page-title {
-  font-size: 36px;
+.title-text .main-title {
+  font-size: 24px;
   font-weight: 700;
-  margin: 0 0 12px 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: #303133;
+  margin: 0 0 4px 0;
+  line-height: 1.2;
 }
 
-.page-subtitle {
-  font-size: 16px;
+.title-text .subtitle {
+  font-size: 14px;
+  color: #909399;
   margin: 0;
-  opacity: 0.9;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 @media (max-width: 768px) {
-  .page-header {
-    padding: 32px 24px;
-    margin-bottom: 24px;
-  }
-
-  .header-content {
-    flex-direction: column;
-    text-align: center;
-    gap: 20px;
-  }
-
   .page-title {
-    font-size: 28px;
+    padding: 16px;
+    margin-bottom: 16px;
   }
 
-  .page-subtitle {
-    font-size: 14px;
+  .title-content {
+    gap: 12px;
+  }
+
+  .title-text .main-title {
+    font-size: 20px;
   }
 }
 </style>
-

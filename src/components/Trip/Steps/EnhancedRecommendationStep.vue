@@ -298,6 +298,19 @@ const props = defineProps({
     type: Object,
     default: () => null,
   },
+  // 初始选中项（用于草稿恢复）
+  initialSelectedAttractions: {
+    type: Array,
+    default: () => [],
+  },
+  initialSelectedRestaurants: {
+    type: Array,
+    default: () => [],
+  },
+  initialSelectedHotels: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 // Emits
@@ -311,13 +324,31 @@ const emit = defineEmits([
 ]);
 
 // 本地状态
-const selectedAttractions = ref([]);
-const selectedRestaurants = ref([]);
-const selectedHotels = ref([]);
-const showReasoningDialog = ref(false);
+const selectedAttractions = ref([...props.initialSelectedAttractions]);
+const selectedRestaurants = ref([...props.initialSelectedRestaurants]);
+const selectedHotels = ref([...props.initialSelectedHotels]);
 const showDetailsDialog = ref(false);
 const selectedItemDetails = ref(null);
 const isLoading = ref(false);
+
+// 监听外部传入的初始选择变化（用于草稿恢复等场景）
+watch(() => props.initialSelectedAttractions, (newVal) => {
+  if (newVal && JSON.stringify(newVal) !== JSON.stringify(selectedAttractions.value)) {
+    selectedAttractions.value = [...newVal];
+  }
+}, { deep: true });
+
+watch(() => props.initialSelectedRestaurants, (newVal) => {
+  if (newVal && JSON.stringify(newVal) !== JSON.stringify(selectedRestaurants.value)) {
+    selectedRestaurants.value = [...newVal];
+  }
+}, { deep: true });
+
+watch(() => props.initialSelectedHotels, (newVal) => {
+  if (newVal && JSON.stringify(newVal) !== JSON.stringify(selectedHotels.value)) {
+    selectedHotels.value = [...newVal];
+  }
+}, { deep: true });
 
 // 增强后的推荐数据
 const enhancedAttractions = ref([]);

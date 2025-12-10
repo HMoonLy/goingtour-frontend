@@ -36,6 +36,55 @@ amapRequest.interceptors.request.use(
     },
 );
 
+// 请求队列管理类
+class RequestQueue {
+    constructor(concurrency = 1, interval = 300) {
+        this.concurrency = concurrency;
+        this.interval = interval;
+        this.queue = [];
+        this.activeCount = 0;
+        this.lastRequestTime = 0;
+    }
+
+    async add(requestFn) {
+        return new Promise((resolve, reject) => {
+            this.queue.push({ requestFn, resolve, reject });
+            this.process();
+        });
+    }
+
+    async process() {
+        if (this.activeCount >= this.concurrency || this.queue.length === 0) {
+            return;
+        }
+
+        const now = Date.now();
+        const timeSinceLastRequest = now - this.lastRequestTime;
+        
+        if (timeSinceLastRequest < this.interval) {
+            setTimeout(() => this.process(), this.interval - timeSinceLastRequest);
+            return;
+        }
+
+        const { requestFn, resolve, reject } = this.queue.shift();
+        this.activeCount++;
+        this.lastRequestTime = Date.now();
+
+        try {
+            const result = await requestFn();
+            resolve(result);
+        } catch (error) {
+            reject(error);
+        } finally {
+            this.activeCount--;
+            this.process();
+        }
+    }
+}
+
+// 创建全局请求队列实例，限制并发数为1，请求间隔300ms
+const requestQueue = new RequestQueue(1, 300);
+
 // 添加响应拦截器
 amapRequest.interceptors.response.use(
     (response) => {
@@ -95,12 +144,12 @@ export const searchPlaces = async(params) => {
     // console.log('🔍 高德地图API搜索参数:', fullParams);
 
     try {
-        // 使用专用的amapRequest实例，直接请求完整URL
-        const response = await amapRequest({
+        // 使用请求队列发送请求
+        const response = await requestQueue.add(() => amapRequest({
             url: baseUrl,
             method: "get",
             params: fullParams,
-        });
+        }));
 
         // 高德地图API返回的数据在response.data中
         const data = response.data;
@@ -146,7 +195,7 @@ export const getPoiDetail = async(poiId) => {
     try {
         console.log(`🔍 正在获取POI详情: ${poiId}`);
 
-        const response = await amapRequest({
+        const response = await requestQueue.add(() => amapRequest({
             url: "https://restapi.amap.com/v3/place/detail",
             method: "get",
             params: {
@@ -155,7 +204,7 @@ export const getPoiDetail = async(poiId) => {
                 output: "json",
                 extensions: "all"
             },
-        });
+        }));
 
         const data = response.data;
 
@@ -525,7 +574,7 @@ export const getCityCoordinate = async(cityName) => {
         // console.log(`📍 正在获取城市坐标: ${cityName}`);
 
         // 调用高德地理编码API
-        const response = await amapRequest({
+        const response = await requestQueue.add(() => amapRequest({
             url: "https://restapi.amap.com/v3/geocode/geo",
             method: "get",
             params: {
@@ -533,7 +582,7 @@ export const getCityCoordinate = async(cityName) => {
                 address: cityName,
                 output: "JSON",
             },
-        });
+        }));
 
         const data = response.data;
 
@@ -553,8 +602,6 @@ export const getCityCoordinate = async(cityName) => {
 
                 // 缓存结果
                 setCachedCoordinate(cityName, coordinate);
-
-                // console.log(`✅ 获取城市坐标成功 [${cityName}]:`, coordinate);
                 return coordinate;
             }
         }

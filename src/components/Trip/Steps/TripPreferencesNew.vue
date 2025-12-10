@@ -5,60 +5,83 @@
       <AiLoadingOverlay @cancel="cancelAiRequest" />
     </div>
 
-    <!-- 页面头部 -->
-    <TripPreferencesHeader
-      :personal-profile="personalProfile"
-      :has-personal-profile="hasPersonalProfile"
-    />
+    <!-- 页面标题区域 -->
+    <div class="page-title">
+      <div class="title-content">
+        <el-icon class="title-icon">
+          <Suitcase />
+        </el-icon>
+        <div class="title-text">
+          <h2 class="main-title">行程偏好设置</h2>
+          <p class="subtitle">为这次旅行量身定制，随时可以调整的偏好设置</p>
+        </div>
+      </div>
+    </div>
 
     <!-- 行程偏好设置区域 -->
-    <div class="preferences-content">
-      <!-- 1. 旅行目的 -->
-      <PreferenceTripPurpose
-        :model-value="localPreferences.tripPurpose"
-        :options="tripPurposeOptions"
-        @update:model-value="(val) => updatePreference('tripPurpose', val)"
-      />
+    <el-card class="info-card">
+      <div class="preferences-content">
+        <!-- 个人档案智能提示 (保留并简化) -->
+        <div v-if="hasPersonalProfile" class="smart-prefill-simple">
+          <el-alert
+            title="智能预填已启用"
+            type="success"
+            :closable="false"
+            show-icon
+          >
+            <template #default>
+              根据您的个人档案（{{ getMbtiDisplayName(personalProfile.mbtiType) }}），已为您预选合适的选项。
+            </template>
+          </el-alert>
+        </div>
 
-      <!-- 2. 体验重点 -->
-      <PreferenceFocusArea
-        :model-value="localPreferences.focusAreas"
-        :options="focusAreaOptions"
-        :recommended-options="recommendedFocusAreas"
-        @update:model-value="(val) => updatePreference('focusAreas', val)"
-      />
+        <!-- 1. 旅行目的 -->
+        <PreferenceTripPurpose
+          :model-value="localPreferences.tripPurpose"
+          :options="tripPurposeOptions"
+          @update:model-value="(val) => updatePreference('tripPurpose', val)"
+        />
 
-      <!-- 3. 行程节奏 -->
-      <PreferencePace
-        :model-value="localPreferences.pacePreference"
-        :options="pacePreferenceOptions"
-        :recommended-value="recommendedPace"
-        @update:model-value="(val) => updatePreference('pacePreference', val)"
-      />
+        <!-- 2. 体验重点 -->
+        <PreferenceFocusArea
+          :model-value="localPreferences.focusAreas"
+          :options="focusAreaOptions"
+          :recommended-options="recommendedFocusAreas"
+          @update:model-value="(val) => updatePreference('focusAreas', val)"
+        />
 
-      <!-- 4. 社交偏好 -->
-      <PreferenceSocial
-        :model-value="localPreferences.socialPreference"
-        :options="socialPreferenceOptions"
-        :recommended-value="recommendedSocial"
-        @update:model-value="(val) => updatePreference('socialPreference', val)"
-      />
+        <!-- 3. 行程节奏 -->
+        <PreferencePace
+          :model-value="localPreferences.pacePreference"
+          :options="pacePreferenceOptions"
+          :recommended-value="recommendedPace"
+          @update:model-value="(val) => updatePreference('pacePreference', val)"
+        />
 
-      <!-- 5. 拍照需求 -->
-      <PreferencePhoto
-        :model-value="localPreferences.photoPreference"
-        :options="photoPreferenceOptions"
-        :recommended-value="recommendedPhoto"
-        @update:model-value="(val) => updatePreference('photoPreference', val)"
-      />
+        <!-- 4. 社交偏好 -->
+        <PreferenceSocial
+          :model-value="localPreferences.socialPreference"
+          :options="socialPreferenceOptions"
+          :recommended-value="recommendedSocial"
+          @update:model-value="(val) => updatePreference('socialPreference', val)"
+        />
 
-      <!-- 6. 临时特殊需求 -->
-      <PreferenceTemporaryNeeds
-        :model-value="localPreferences.temporaryNeeds"
-        :options="temporaryNeedsOptions"
-        @update:model-value="(val) => updatePreference('temporaryNeeds', val)"
-      />
-    </div>
+        <!-- 5. 拍照需求 -->
+        <PreferencePhoto
+          :model-value="localPreferences.photoPreference"
+          :options="photoPreferenceOptions"
+          :recommended-value="recommendedPhoto"
+          @update:model-value="(val) => updatePreference('photoPreference', val)"
+        />
+
+        <!-- 6. 临时特殊需求 -->
+        <PreferenceTemporaryNeeds
+          :model-value="localPreferences.temporaryNeeds"
+          :options="temporaryNeedsOptions"
+          @update:model-value="(val) => updatePreference('temporaryNeeds', val)"
+        />
+      </div>
+    </el-card>
 
     <!-- AI理解预览 -->
     <AiPreviewSection
@@ -66,6 +89,7 @@
       :personal-profile="personalProfile"
       :trip-context="tripContext"
       :has-valid-preferences="hasValidPreferences"
+      style="margin-top: 24px;"
     />
 
     <!-- 操作区域 -->
@@ -122,9 +146,11 @@ import {
   Document,
   ArrowRight,
   ArrowLeft,
+  Suitcase,
 } from "@element-plus/icons-vue";
 import {
   TRIP_PREFERENCES_OPTIONS,
+  PERSONAL_PROFILE_OPTIONS,
 } from "@/utils/data/travelDataSystem.js";
 import {
   SmartPrefillEngine,
@@ -135,7 +161,6 @@ import { useProfile } from "@/composables/user/useProfile.js";
 
 // 导入拆分的子组件
 import AiLoadingOverlay from "./TripPreferencesParts/AiLoadingOverlay.vue";
-import TripPreferencesHeader from "./TripPreferencesParts/TripPreferencesHeader.vue";
 import PreferenceTripPurpose from "./TripPreferencesParts/PreferenceTripPurpose.vue";
 import PreferenceFocusArea from "./TripPreferencesParts/PreferenceFocusArea.vue";
 import PreferencePace from "./TripPreferencesParts/PreferencePace.vue";
@@ -151,8 +176,9 @@ export default {
     Document,
     ArrowRight,
     ArrowLeft,
+    Suitcase,
     AiLoadingOverlay,
-    TripPreferencesHeader,
+    // TripPreferencesHeader,
     PreferenceTripPurpose,
     PreferenceFocusArea,
     PreferencePace,
@@ -315,7 +341,7 @@ export default {
 
     // 偏好完整性检查 - 基于本地数据
     const hasValidPreferences = computed(() => {
-      return (
+      return !!(
         localPreferences.tripPurpose ||
         localPreferences.focusAreas.length > 0 ||
         localPreferences.temporaryNeeds.length > 0 ||
@@ -566,7 +592,7 @@ export default {
     // 获取基础推荐数据 (保持原有逻辑)
     const getBasicRecommendations = async () => {
       console.log('🗺️ 用户选择使用高德地图基础推荐，开始获取数据...')
-      const { getRecommendedAttractions, getRecommendedRestaurants } =
+      const { getRecommendedAttractions, getRecommendedRestaurants, getRecommendedHotels } =
         await import("@/api/amap.js");
 
       const cityName = props.tripContext?.destination || "";
@@ -574,9 +600,10 @@ export default {
         throw new Error("缺少目的地信息，无法获取推荐数据");
       }
 
-      const [attractionsResult, restaurantsResult] = await Promise.all([
+      const [attractionsResult, restaurantsResult, hotelsResult] = await Promise.all([
         getRecommendedAttractions(cityName, 1, 8).catch((err) => ({ pois: [] })),
         getRecommendedRestaurants(cityName, 1, 6).catch((err) => ({ pois: [] })),
+        getRecommendedHotels(cityName, 1, 4).catch((err) => ({ pois: [] })),
       ]);
 
       const attractions = (attractionsResult.pois || []).map((poi, index) => ({
@@ -613,16 +640,34 @@ export default {
         rawData: poi
       }));
 
+      const hotels = (hotelsResult.pois || []).map((poi, index) => ({
+        id: poi.id || `hotel_${index}`,
+        name: poi.name,
+        description: poi.address || poi.type || '暂无描述',
+        rating: parseFloat((poi.biz_ext && poi.biz_ext.rating) || 4.5),
+        price: parseInt((poi.biz_ext && poi.biz_ext.cost) || 300),
+        starRating: (poi.biz_ext && poi.biz_ext.star) ? poi.biz_ext.star.length : 4,
+        tags: poi.type ? [poi.type.split(';')[0], '高德推荐'] : ['高德推荐'],
+        image: (poi.photos && poi.photos.length > 0) ? poi.photos[0].url : '/api/placeholder/300/200',
+        location: poi.address || '暂无地址',
+        coordinates: poi.location ? poi.location.split(',').map(Number) : null,
+        isAiRecommended: false,
+        isBasicRecommended: true,
+        confidence: 0.7,
+        reasoning: '基于高德地图热门推荐',
+        rawData: poi
+      }));
+
       return {
         attractions,
         restaurants,
-        hotels: [],
+        hotels,
         reasoning: `为您展示 ${cityName} 的热门推荐。基于高德地图数据的优质选择，值得一游！`,
         stats: {
-          total: attractions.length + restaurants.length,
+          total: attractions.length + restaurants.length + hotels.length,
           attractions: attractions.length,
           restaurants: restaurants.length,
-          hotels: 0,
+          hotels: hotels.length,
           ai: 0,
           confidence: 0.75,
         },
@@ -643,34 +688,24 @@ export default {
 
     // 取消AI推荐请求
     const cancelAiRequest = async () => {
-      console.log("🚫 用户取消AI推荐请求，使用高德API获取数据");
+      console.log("🚫 用户取消AI推荐请求，直接跳转到基础推荐页面");
 
       try {
-        ElMessage.info("正在为您获取基础推荐数据...");
-        const basicRecommendations = await getBasicRecommendations();
-        ElMessage.success(
-          `基于高德地图为您推荐了 ${basicRecommendations.attractions.length} 个景点和 ${basicRecommendations.restaurants.length} 个餐厅`
-        );
-        emit("ai-recommendations-generated", basicRecommendations);
-      } catch (error) {
-        console.error("❌ 获取高德推荐数据失败:", error);
-        ElMessage.warning("获取推荐数据失败，将进入空白推荐页面");
+        // 1. 切换到基础推荐模式
+        emit("use-basic-recommendation");
         
-        const emptyRecommendations = {
-          attractions: [],
-          restaurants: [],
-          hotels: [],
-          reasoning: "推荐数据获取失败，您可以在推荐页面手动搜索或重试",
-          stats: { total: 0 },
-          isFallback: true,
-          isError: true,
-          timestamp: Date.now(),
-        };
-        emit("ai-recommendations-generated", emptyRecommendations);
-      } finally {
+        // 2. 停止loading
         saving.value = false;
+        
+        // 3. 同步并保存偏好（触发父组件跳转）
         syncToStore();
         emit("preferences-saved", preferenceStore.tripPreferenceForm);
+        
+        ElMessage.success("已切换至基础推荐模式");
+      } catch (error) {
+        console.error("切换推荐模式失败:", error);
+        ElMessage.error("操作失败，请重试");
+        saving.value = false;
       }
     };
 
@@ -725,11 +760,17 @@ export default {
       { deep: true }
     );
 
+    // 获取MBTI显示名称
+    const getMbtiDisplayName = (type) => {
+      return type || ''; 
+    };
+
     return {
       tripPreferences,
       localPreferences,
       personalProfile,
       hasPersonalProfile,
+      getMbtiDisplayName,
       saving,
       showAiRecommendationDialog,
       
@@ -761,9 +802,50 @@ export default {
 
 <style scoped>
 .trip-preferences-container {
-  padding: 24px;
-  background: #fff;
-  min-height: 100vh;
+  width: 100%;
+}
+
+.page-title {
+  padding: 24px 16px;
+}
+
+.title-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.title-icon {
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--el-color-primary-light-9);
+  border-radius: 12px;
+  color: var(--el-color-primary);
+}
+
+.title-text .main-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #303133;
+  margin: 0 0 4px 0;
+  line-height: 1.2;
+}
+
+.title-text .subtitle {
+  font-size: 14px;
+  color: #909399;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.info-card {
+  border: none;
+  box-shadow: none;
+  overflow: visible;
 }
 
 .preferences-content {
@@ -772,26 +854,32 @@ export default {
   gap: 32px;
 }
 
+.smart-prefill-simple {
+  margin-bottom: 16px;
+}
+
 /* 操作区域 */
 .step-actions {
-  background: white;
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 32px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e8eaed;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 24px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #ebeef5;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 24px 0 0 0;
 }
 
 .action-left {
-  flex: 0 0 auto;
+  display: flex;
+  gap: 16px;
 }
 
 .action-right {
-  flex: 0 0 auto;
+  display: flex;
+  gap: 16px;
 }
 
 /* 导航按钮容器 */
@@ -801,30 +889,31 @@ export default {
   align-items: center;
 }
 
-/* 统一按钮样式 - 与TripBaseInfo保持一致 */
-.step-actions .el-button {
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: 12px;
-  min-width: 120px;
-  transition: all 0.3s ease;
-}
-
-.step-actions .el-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
+/* 统一按钮样式 */
+/* .el-button styles inherit from theme or scoped logic if needed, but Element defaults are fine usually */
 
 @media (max-width: 768px) {
-  .trip-preferences-container {
+  .page-title {
     padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .title-content {
+    gap: 12px;
+  }
+
+  .title-text .main-title {
+    font-size: 20px;
   }
 
   .step-actions {
-    padding: 20px 16px;
-    flex-direction: column;
+    flex-direction: column-reverse;
     gap: 16px;
+    padding: 20px 0 0 0;
+  }
+  
+  .action-left, .action-right {
+    width: 100%;
   }
 
   .navigation-buttons {
@@ -832,9 +921,10 @@ export default {
     justify-content: space-between;
   }
 
-  .navigation-buttons .el-button {
+  .navigation-buttons .el-button,
+  .action-left .el-button {
     flex: 1;
-    min-width: auto;
+    width: 100%;
   }
 }
 </style>

@@ -13,7 +13,7 @@
       </div>
     </div>
 
-    <el-card class="info-card" shadow="hover">
+    <el-card class="info-card">
       <el-form
         ref="tripFormRef"
         :model="tripForm"
@@ -229,7 +229,6 @@ onMounted(() => {
 
 .page-title {
   padding: 24px 16px;
-  margin-bottom: 24px;
 }
 
 .title-content {
@@ -245,9 +244,9 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #ecf5ff;
+  background: var(--el-color-primary-light-9);
   border-radius: 12px;
-  color: #409eff;
+  color: var(--el-color-primary);
 }
 
 .title-text .main-title {
@@ -266,9 +265,8 @@ onMounted(() => {
 }
 
 .info-card {
-  border-radius: 16px;
   border: none;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-shadow: none;
   margin-bottom: 24px;
   overflow: visible;
 }

@@ -193,9 +193,11 @@ import {
 import { useUserStore } from "@/store/user.js";
 import { useWishlist } from "@/composables/user/useWishlist.js";
 import { useFootprint } from "@/composables/user/useFootprint.js";
-import { draftManager } from "@/utils/storage/draftManager.js";
 import { useDraft } from "@/composables/trip/useDraft.js";
-import { convertBackendTripToFrontend } from "@/utils/data/tripDataConverter.js";
+import { 
+  convertBackendTripToFrontend,
+  convertDraftToFrontendTrip 
+} from "@/utils/data/tripDataConverter.js";
 import { handleApiError, handleSuccess } from "@/utils/api/errorHandler.js";
 import { aiScenarios } from "@/data/aiScenarios.js";
 import { useWeather } from "@/composables/common/useWeather.js";
@@ -221,6 +223,7 @@ export default {
     const userStore = useUserStore();
     const wishlist = useWishlist();
     const footprint = useFootprint();
+    const draft = useDraft();
 
     // 使用天气组合函数
     const {
@@ -253,8 +256,9 @@ export default {
 
     const refreshProgress = async () => {
       // 检查是否有自动草稿（新的进度检查方式）
-      hasProgress.value = await draftManager.hasAutoDraft();
-      progressSummary.value = (await draftManager.getAutoDraftSummary()) || {};
+      const autoDraft = await draft.getAutoDraft();
+      hasProgress.value = !!autoDraft;
+      progressSummary.value = (await draft.getAutoDraftSummary()) || {};
     };
 
     // 草稿相关状态
@@ -263,38 +267,18 @@ export default {
 
     // 加载草稿列表
     const loadDrafts = async () => {
-      drafts.value = await draftManager.getAllDrafts();
-      draftStats.value = await draftManager.getDraftStats();
+      drafts.value = await draft.loadDraftList();
+      draftStats.value = await draft.getDraftStats();
     };
 
     // 删除草稿
     const handleDeleteDraft = async (draftId) => {
-      try {
-        const draft = await draftManager.getDraft(draftId);
-        if (!draft) return;
-
-        await ElMessageBox.confirm(
-          `确定要删除草稿"${draft.name}"吗？删除后无法恢复。`,
-          "删除草稿",
-          {
-            confirmButtonText: "确定删除",
-            cancelButtonText: "取消",
-            type: "warning",
-          },
-        );
-
-        const success = await draftManager.deleteDraft(draftId);
+      const success = await draft.deleteDraft(draftId, { showConfirm: true });
         if (success) {
-          ElMessage.success("草稿删除成功！");
-          loadDrafts();
-        } else {
-          ElMessage.error("草稿删除失败！");
-        }
-      } catch (error) {
-        if (error !== "cancel") {
-          console.error("删除草稿失败:", error);
-          ElMessage.error("草稿删除失败！");
-        }
+        // 更新统计信息
+        draftStats.value = await draft.getDraftStats();
+        // 列表更新由 useDraft 内部处理，但为了同步本地 ref
+        drafts.value = draft.draftList.value; 
       }
     };
 
@@ -302,8 +286,6 @@ export default {
     const handleLoadDraft = async (draftId) => {
       try {
         console.log("🔄 点击继续编辑，草稿ID:", draftId);
-
-        const draft = useDraft();
 
         // 加载草稿到store
         const success = await draft.loadDraft(draftId);
@@ -314,18 +296,17 @@ export default {
         }
       } catch (error) {
         console.error("❌ 加载草稿失败:", error);
-        ElMessage.error("加载草稿失败，请重试");
       }
     };
 
     // 获取步骤名称
     const getStepName = (step) => {
-      return draftManager.getStepName(step);
+      return draft.getStepName(step);
     };
 
     // 获取相对时间
     const getDraftTimeAgo = (timestamp) => {
-      return draftManager.getTimeAgo(new Date(timestamp));
+      return draft.getTimeAgo(timestamp);
     };
 
     const goToCreate = () => router.push("/destinations");
@@ -337,7 +318,7 @@ export default {
     const goToPersonalCenter = () => router.push("/personal");
     const resumeProgress = async () => {
       // 获取自动草稿并直接加载
-      const autoDraft = await draftManager.getAutoDraft();
+      const autoDraft = await draft.getAutoDraft();
       if (autoDraft) {
         router.push(`/trip/create?loadDraft=${autoDraft.id}`);
       } else {
@@ -357,14 +338,14 @@ export default {
         );
 
         // 删除自动草稿
-        const autoDraft = await draftManager.getAutoDraft();
+        const autoDraft = await draft.getAutoDraft();
         if (autoDraft) {
-          await draftManager.deleteDraft(autoDraft.id);
+          await draft.deleteDraft(autoDraft.id, { showConfirm: false });
         }
 
         refreshProgress();
         loadDrafts(); // 重新加载草稿列表
-        ElMessage.success("操作成功！");
+        // ElMessage.success("操作成功！");
       } catch {}
     };
 
@@ -412,18 +393,7 @@ export default {
     const recentTripsPreview = computed(() => {
       const allTrips = [
         ...savedTrips.value,
-        ...drafts.value.map((draft) => ({
-          id: draft.id,
-          title: draft.name,
-          destinationName: draft.baseForm?.destinationName || "未知目的地",
-          days: draft.baseForm?.days || 0,
-          status: "draft",
-          createdAt: draft.createdAt,
-          updatedAt: draft.updatedAt,
-          currentStep: draft.currentStep,
-          isDraft: true,
-          draftData: draft,
-        })),
+        ...drafts.value.map(convertDraftToFrontendTrip),
       ];
 
       // 按最新更新时间排序，取前3个

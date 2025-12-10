@@ -100,6 +100,37 @@ export function convertDailyPlanToTripDetails(dailyPlan) {
 }
 
 
+/**
+ * 将草稿数据转换为前端行程显示格式 (兼容 TripList)
+ * @param {Object} draft - 草稿数据
+ * @returns {Object} 兼容 TripList 的行程数据
+ */
+export function convertDraftToFrontendTrip(draft) {
+  if (!draft) return null;
+
+  return {
+    id: draft.id,
+    title: draft.name || "未命名行程",
+    destinationName: draft.baseForm?.destinationName || "未知目的地",
+    destination: draft.baseForm?.destination, // 可能需要根据 actual data structure 调整
+    days: draft.baseForm?.days || 0,
+    totalBudget: draft.baseForm?.totalBudget,
+    
+    // 状态标识
+    isDraft: true,
+    aiGenerated: false,
+    status: "draft",
+    
+    // 时间
+    createdAt: draft.createdAt,
+    updatedAt: draft.updatedAt,
+    
+    // 草稿特有
+    currentStep: draft.currentStep,
+    draftData: draft
+  };
+}
+
 // --- 辅助函数保留 (用于显示格式化) ---
 
 /**

@@ -38,8 +38,10 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import { useUserStore } from "@/store/user.js";
 import { useProfile } from "@/composables/user/useProfile.js";
 import { useDraft } from "@/composables/trip/useDraft.js";
-import { draftManager } from "@/utils/storage/draftManager.js";
-import { convertBackendTripToFrontend } from "@/utils/data/tripDataConverter.js";
+import { 
+  convertBackendTripToFrontend,
+  convertDraftToFrontendTrip
+} from "@/utils/data/tripDataConverter.js";
 import { handleApiError } from "@/utils/api/errorHandler.js";
 
 // Components
@@ -72,19 +74,7 @@ export default {
       const trips = [...savedTrips.value];
 
       // 添加草稿数据
-      const draftTrips = drafts.value.map((draft) => ({
-        id: draft.id,
-        title: draft.name || "未命名行程",
-        destinationName: draft.baseForm?.destinationName || "未知目的地",
-        destination: draft.baseForm?.destination,
-        days: draft.baseForm?.days || 0,
-        totalBudget: draft.baseForm?.totalBudget,
-        isDraft: true,
-        aiGenerated: false,
-        createdAt: draft.createdAt,
-        updatedAt: draft.updatedAt,
-        currentStep: draft.currentStep,
-      }));
+      const draftTrips = drafts.value.map(convertDraftToFrontendTrip);
 
       trips.push(...draftTrips);
 
@@ -143,8 +133,8 @@ export default {
           }
         }
 
-        // 加载草稿
-        drafts.value = await draftManager.getAllDrafts();
+        // 加载草稿 - 使用 useDraft
+        drafts.value = await draft.loadDraftList();
 
         // 加载用户偏好数据
         try {
@@ -245,7 +235,8 @@ export default {
         );
 
         if (trip.isDraft) {
-          await draftManager.deleteDraft(trip.id);
+          // 使用 useDraft 删除草稿，并禁用内部确认弹窗（因为上面已经弹过了）
+          await draft.deleteDraft(trip.id, { showConfirm: false });
         } else {
           const { tripApi } = await import("@/api/trip.js");
           await tripApi.deleteTrip(trip.id, userStore.currentUser.id);

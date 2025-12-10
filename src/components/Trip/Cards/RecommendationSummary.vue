@@ -200,11 +200,9 @@ export default {
 }
 
 .summary-float-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  border: 2px solid #91a8d0;
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(145, 168, 208, 0.2);
-  backdrop-filter: blur(10px);
+  background-color: #e4e7ed;
+  border:none;
+  box-shadow: none;
   overflow: hidden;
   animation: slideDown 0.3s ease-out;
 }

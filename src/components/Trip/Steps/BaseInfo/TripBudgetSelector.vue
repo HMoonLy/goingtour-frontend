@@ -140,10 +140,10 @@ const calculateBudgetPreview = (avgCost) => {
 
 <style scoped>
 .form-section {
-  padding: 24px;
+  padding: 0;
   background: #fff;
-  border-radius: 12px;
-  border: 1px solid #ebeef5;
+  border: none;
+  box-shadow: none;
   margin-bottom: 24px;
 }
 

@@ -12,12 +12,8 @@
   >
     <div class="dialog-content">
       <div class="dialog-header">
-        <div class="header-icon">
-          <el-icon><MagicStick /></el-icon>
-        </div>
         <div>
           <h3>选择推荐方式</h3>
-          <h3>🤖 是否使用AI智能推荐？</h3>
         </div>
       </div>
 
@@ -134,11 +130,13 @@ export default {
 
 .dialog-header {
   display: flex;
-  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
-  color: white;
+  background-color: #e4e7ed;
+  color: #303133;
   padding: 24px;
   text-align: center;
-  border-radius: 8px 8px 0 0;
+  border-radius: 16px;
+  border: none;
+  box-shadow: none;
   align-items: center;
 }
 
@@ -188,19 +186,11 @@ export default {
 }
 
 .ai-option {
-  background: linear-gradient(
-    135deg,
-    rgba(145, 168, 208, 0.05) 0%,
-    rgba(255, 255, 255, 1) 100%
-  );
+  background: var(--el-color-primary-light-9);
 }
 
 .basic-option {
-  background: linear-gradient(
-    135deg,
-    rgba(247, 202, 201, 0.05) 0%,
-    rgba(255, 255, 255, 1) 100%
-  );
+  background: #fafafa;
 }
 
 .card-header {

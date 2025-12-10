@@ -93,11 +93,11 @@ export default {
 <style scoped>
 /* AI预览 */
 .ai-preview {
-  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
+  background: var(--el-color-primary-light-9);
   border-radius: 20px;
   padding: 32px;
   margin: 32px 0;
-  color: white;
+  color: #303133;
 }
 
 .preview-header {

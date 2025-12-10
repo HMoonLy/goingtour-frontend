@@ -87,61 +87,56 @@ export default {
 
 <style scoped>
 .step-actions {
-  background: white;
-  border-radius: 20px;
-  padding: 32px;
-  margin: 32px 0;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e8eaed;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 24px;
-}
-
-.step-actions:hover {
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #ebeef5;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
 }
 
 .action-left,
 .action-right {
-  flex: 0 0 auto;
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-.step-actions .el-button {
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: 12px;
-  min-width: 120px;
-  transition: all 0.3s ease;
+.navigation-buttons {
+  display: flex;
+  gap: 16px;
+  align-items: center;
 }
 
-.step-actions .el-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
+/* 统一按钮样式 (可选，如果全局已有则可简化) */
+/* .step-actions .el-button { ... } */
 
 @media (max-width: 768px) {
   .step-actions {
-    padding: 24px 20px;
-    flex-direction: column;
+    flex-direction: column-reverse; /* Put primary actions at bottom on mobile usually, or keep column */
     gap: 16px;
+    padding-top: 20px;
+    align-items: stretch;
   }
 
   .action-left,
   .action-right {
     width: 100%;
-    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .navigation-buttons {
+    width: 100%;
+    flex-direction: column;
+    gap: 12px;
   }
 
   .step-actions .el-button {
     width: 100%;
-    max-width: 280px;
-    margin: 0 auto;
   }
 }
 </style>
