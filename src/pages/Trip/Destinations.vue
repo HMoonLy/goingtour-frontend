@@ -1,39 +1,15 @@
 <template>
-  <div class="page-shell destinations">
+  <div class="page-shell destinations" ref="pageShell">
     <!-- 英雄横幅（大图+搜索） -->
-    <section class="hero">
-      <div class="hero-bg" />
-      <div class="hero-content">
-        <h1 class="hero-title">去哪里旅行</h1>
-        <p class="hero-sub">发现灵感目的地 · 开启下一段旅程</p>
-        <div class="hero-search">
-          <el-input
-            v-model="searchKeyword"
-            placeholder="搜索城市、地区..."
-            size="large"
-            class="hero-input"
-            clearable
-            @input="debouncedSearch"
-            @clear="clearSearch"
-          >
-            <template #prefix>
-              <el-icon><Search /></el-icon>
-            </template>
-          </el-input>
-          <el-button class="hero-btn" type="primary" @click="debouncedSearch()">
-            搜索
-          </el-button>
-        </div>
-      </div>
-    </section>
+    <DestinationsHero
+      ref="heroRef"
+      v-model="searchKeyword"
+      @search="debouncedSearch"
+      @clear="clearSearch"
+    />
 
     <!-- 内容区域 -->
     <div class="cities-content-wrapper">
-      <!-- 滚动指示器（隐藏） -->
-      <div class="scroll-indicator" style="display: none">
-        {{ activeLetter }}
-      </div>
-
       <div ref="citiesContent" class="cities-content">
         <!-- 加载状态 -->
         <div v-if="loading" class="loading-container">
@@ -41,274 +17,64 @@
         </div>
 
         <!-- 搜索结果 -->
-        <div v-else-if="isSearchMode" class="search-results">
-          <h2 v-if="searchResults?.length > 0">
-            搜索结果 ({{ searchResults?.length || 0 }})
-          </h2>
-          <el-empty v-else description="未找到匹配的城市，请尝试其他关键词" />
-
-          <!-- 列表视图（默认，仅显示结果，不展示收藏按钮） -->
-          <div class="city-rows">
-            <div v-for="city in searchResults" :key="city.adcode" class="city-row">
-              <div class="city-left" @click="selectCity(city)">
-                <span class="city-name">{{ city.中文名 }}</span>
-                <span class="city-province">{{ getProvinceName(city) }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <DestinationsSearchResults
+          v-else-if="isSearchMode"
+          :results="searchResults"
+          @select="selectCity"
+        />
 
         <!-- 常规展示模式（整页流式） -->
         <template v-else>
-          <!-- 热门目的地（马蜂窝风格卡片） -->
-          <div class="city-section hot-destinations-section">
-            <h2><i class="hot-icon">🔥</i> 热门目的地</h2>
-            <div v-if="hotDestinations?.length > 0" class="hot-destinations-grid">
-              <div
-                v-for="city in hotDestinations"
-                :key="city.name"
-                class="hot-destination-card"
-                @click="selectCity({ 中文名: city.name, adcode: city.adcode })"
-              >
-                <LazyImage
-                  :src="city.cover"
-                  :alt="city.name"
-                  :height="200"
-                  :show-skeleton="true"
-                  class="destination-image"
-                >
-                  <div class="destination-overlay">
-                    <div class="destination-tags">
-                      <span v-for="tag in city.tags" :key="tag" class="destination-tag">
-                        {{ tag }}
-                      </span>
-                    </div>
-                  </div>
-                </LazyImage>
-                <div class="destination-info">
-                  <h3 class="destination-name">
-                    {{ city.name.replace("市", "") }}
-                  </h3>
-                  <p class="destination-description">
-                    {{ city.description }}
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div v-else class="loading-placeholder">
-              <el-skeleton :rows="3" animated />
-            </div>
-          </div>
-
-          <!-- 热门目的地（分组标签云 - 隐藏） -->
-          <div class="city-section hot-group-section" style="display: none">
-            <h2><i class="hot-icon">🔥</i> 热门目的地</h2>
-            <div class="group-tabs">
-              <button
-                v-for="(cat, idx) in hotCats"
-                :key="cat.label"
-                class="group-tab"
-                :class="{ active: activeHotIdx === idx }"
-                @click="activeHotIdx = idx"
-              >
-                {{ cat.label }}
-              </button>
-            </div>
-            <div class="hot-tags">
-              <a
-                v-for="city in hotCats[activeHotIdx].cities"
-                :key="city.name"
-                class="hot-tag"
-                @click="handleCityClick(city.name)"
-              >
-                {{ city.name }}
-              </a>
-            </div>
-          </div>
+          <!-- 热门目的地 -->
+          <DestinationsHot
+            :destinations="hotDestinations"
+            @select="selectCity"
+          />
 
           <!-- 当季推荐 -->
-          <div class="city-section season-section">
-            <h2>
-              <i class="letter-icon">季</i>
-              当季推荐
-            </h2>
-            <div class="month-tabs">
-              <button
-                v-for="m in months"
-                :key="m"
-                class="month-tab"
-                :class="{ active: selectedMonth === m }"
-                @click="selectedMonth = m"
-                @mouseenter="handleMonthHover(m)"
-              >
-                {{ m }}月
-              </button>
-            </div>
-            <div class="dest-grid">
-              <div
-                v-for="item in seasonalDisplayCities"
-                :key="item.name"
-                class="dest-card"
-                @click="selectCity({ 中文名: item.name, adcode: item.adcode })"
+          <DestinationsSeasonal
+            v-model:month="selectedMonth"
+            :months="months"
+            :cities="seasonalDisplayCities"
+            @select="selectCity"
+          />
 
-              >
-                <LazyImage
-                  :src="item.cover"
-                  :alt="item.name"
-                  :height="200"
-                  class="dest-cover"
-                />
-                <div
-                  class="dest-meta"
-                >
-                  <div class="dest-title">
-                    {{ item.name }}
-                  </div>
-                  <div class="dest-sub">
-                    {{ item.province || "" }}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- 热门目的地（区域 tabs + 城市标签） -->
-          <div v-if="false" id="hot-cities" class="city-section hot-city-section">
-            <h2><i class="hot-icon">🔥</i> 热门目的地</h2>
-            <div class="region-tabs">
-              <button
-                v-for="(r, idx) in regions"
-                :key="r.label"
-                class="region-tab"
-                :class="{ active: activeRegionIdx === idx }"
-                @click="activeRegionIdx = idx"
-              >
-                {{ r.label }}
-              </button>
-            </div>
-            <div class="city-tags">
-              <a
-                v-for="city in regions[activeRegionIdx].cities"
-                :key="city.adcode"
-                class="city-tag-link"
-                @click="selectCity({ 中文名: city.name, adcode: city.adcode })"
-              >
-                {{ city.name }}
-              </a>
-            </div>
-          </div>
-
-          <!-- 全国城市（现代卡片网格布局） -->
-          <div class="cities-section">
-            <div class="section-header">
-              <h2>
-                <i class="letter-icon">城</i>
-                全国城市
-              </h2>
-              
-              <!-- 模式切换滑块 -->
-              <div class="mode-toggle-container">
-                <div class="mode-switch">
-                  <span class="mode-label" :class="{ active: !isWishlistMode }">浏览模式</span>
-                  <div class="toggle-switch" @click="toggleWishlistMode">
-                    <div class="toggle-slider" :class="{ active: isWishlistMode }"></div>
-                  </div>
-                  <span class="mode-label" :class="{ active: isWishlistMode }">收藏模式</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- 现代卡片网格布局 -->
-            <VirtualCityGrid
+          <!-- 全国城市 -->
+          <DestinationsAllCities
               :city-groups="cityGroups"
-              :wishlist-items="wishlist.wishlistItems.value || wishlist.wishlistItems || []"
-              @select-city="selectCity"
+            :wishlist-items="
+              wishlist.wishlistItems.value || wishlist.wishlistItems || []
+            "
+            :is-wishlist-mode="isWishlistMode"
+            @select="selectCity"
+            @toggle-wishlist-mode="toggleWishlistMode"
             />
-          </div>
         </template>
-
-        <!-- 导航辅助按钮组（隐藏） -->
-        <div class="nav-assist-buttons" style="display: none">
-          <el-tooltip content="热门城市" placement="left" :offset="10">
-            <el-button
-              class="nav-button hot-button"
-              circle
-              size="small"
-              @click="scrollToLetter(hotLabel)"
-            >
-              <el-icon><Top /></el-icon>
-            </el-button>
-          </el-tooltip>
-
-          <el-backtop target=".cities-content" :right="50" :bottom="100">
-            <div class="back-top">
-              <el-icon><Top /></el-icon>
             </div>
-          </el-backtop>
 
-          <el-tooltip content="跳至Z" placement="left" :offset="10">
-            <el-button
-              class="nav-button z-button"
-              circle
-              size="small"
-              @click="scrollToLetter('Z')"
-            >
-              <el-icon><Bottom /></el-icon>
-            </el-button>
-          </el-tooltip>
-        </div>
-      </div>
-
-      <!-- 添加快捷字母导航（隐藏） -->
-      <div class="letter-nav" style="display: none">
-        <div
-          class="letter-item special"
-          :class="{ active: activeLetter === hotLabel }"
-          title="热门城市"
-          @click="scrollToLetter(hotLabel)"
-        >
-          热门
-        </div>
-
-        <div class="letter-section">
-          <div
-            v-for="letter in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"
-            :key="letter"
-            class="letter-item"
-            :class="{ active: activeLetter === letter }"
-            :title="letter"
-            @click="scrollToLetter(letter)"
-          >
-            {{ letter }}
-          </div>
-        </div>
-      </div>
+      <!-- 字母导航 -->
+      <Transition name="nav-fade">
+        <DestinationsLetterNav
+          v-show="showLetterNav"
+          :active-letter="activeLetter"
+          :hot-label="hotLabel"
+          :show-indicator="showScrollIndicator"
+          @change="scrollToLetter"
+        />
+      </Transition>
     </div>
   </div>
 </template>
 
-<script>
-import { ref, computed, onMounted, onBeforeUnmount } from "vue";
+<script setup>
+import { ref, computed, onMounted, onBeforeUnmount, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
-import {
-  Search,
-  Top,
-  Bottom,
-  Star,
-  StarFilled,
-  ArrowDown,
-  ArrowUp,
-  MagicStick,
-} from "@element-plus/icons-vue";
 import pinyin from "pinyin";
+
 import { createCachedRequest, debounce } from "@/utils/api/apiOptimizer.js";
 import { useWishlist } from "@/composables/user/useWishlist.js";
 import { hotRegions, findCity, seasonalByMonth } from "@/data/destinations.js";
-import { hotCategories as hotCategoriesData } from "@/data/hotGroups.js";
-import LazyImage from "@/components/Common/UI/LazyImage.vue";
-import OptimizedVirtualCityList from "@/components/Common/City/OptimizedVirtualCityList.vue";
-import VirtualCityGrid from "@/components/Common/City/VirtualCityGrid.vue";
-import CityGridList from "@/components/Common/City/CityGridList.vue";
 import {
   pagePerformance,
   imagePerformance,
@@ -318,46 +84,31 @@ import {
   createDebouncedHandler,
 } from "@/utils/system/interactionMonitor.js";
 
-export default {
-  name: "Destinations",
-  components: {
-    Search,
-    Top,
-    Bottom,
-    Star,
-    StarFilled,
-    ArrowDown,
-    ArrowUp,
-    MagicStick,
-    LazyImage,
-    OptimizedVirtualCityList,
-    VirtualCityGrid,
-    CityGridList,
-  },
-  setup() {
+// Components
+import DestinationsHero from "@/components/Trip/Destinations/DestinationsHero.vue";
+import DestinationsHot from "@/components/Trip/Destinations/DestinationsHot.vue";
+import DestinationsSeasonal from "@/components/Trip/Destinations/DestinationsSeasonal.vue";
+import DestinationsSearchResults from "@/components/Trip/Destinations/DestinationsSearchResults.vue";
+import DestinationsAllCities from "@/components/Trip/Destinations/DestinationsAllCities.vue";
+import DestinationsLetterNav from "@/components/Trip/Destinations/DestinationsLetterNav.vue";
+
     const router = useRouter();
     const route = useRoute();
     const wishlist = useWishlist();
 
     // 响应式数据
     const searchKeyword = ref("");
-    // 统一使用现代卡片布局
     const allCities = ref([]);
     const loading = ref(true);
     const isSearchMode = ref(false);
     const searchResults = ref([]);
     const hotLabel = "热门";
     const activeLetter = ref(hotLabel);
-    const citiesContent = ref(null);
-    const letterSections = ref([]);
     const showScrollIndicator = ref(false);
+    const showLetterNav = ref(false);
+    const heroRef = ref(null);
 
-    // 热门区域 tabs
-    const regions = hotRegions;
-    const activeRegionIdx = ref(0);
-    // 热门目的地分组云
-    const hotCats = hotCategoriesData;
-    const activeHotIdx = ref(0);
+
 
     // 当季推荐静态数据
     const months = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -365,7 +116,6 @@ export default {
 
     const seasonalDisplayCities = computed(() => {
       const names = seasonalByMonth[selectedMonth.value] || [];
-      // 在 hotRegions 或 themeGroups 中尝试匹配 adcode/封面
       const mapped = names.map((n) => {
         const hit = findCity(n);
         return {
@@ -386,65 +136,7 @@ export default {
       return (hotRegions[0]?.cities || []).slice(0, 8);
     });
 
-    function handleMonthHover(m) {
-      selectedMonth.value = m;
-    }
-
-    function getCoverStyle(item) {
-      return item.cover
-        ? {
-            backgroundImage: `url(${item.cover})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }
-        : { background: "linear-gradient(135deg, #eef2ff, #f8fafc)" };
-    }
-
-    function handleCityClick(name) {
-      // 直接进入创建行程页面
-      const hit = findCity(name) || { adcode: "", name };
-      selectCity({ 中文名: name, adcode: hit.adcode || "" });
-    }
-
-    // 批量操作相关状态
-    const showWishlistQuickView = ref(false);
-    const addingRecommendations = ref(false);
-    
-    // 心愿清单模式状态
-    const isWishlistMode = ref(false);
-
-    // 字母导航列表 - 单独定义每个字母
-    const letterNavs = [
-      hotLabel,
-      "A",
-      "B",
-      "C",
-      "D",
-      "E",
-      "F",
-      "G",
-      "H",
-      "I",
-      "J",
-      "K",
-      "L",
-      "M",
-      "N",
-      "O",
-      "P",
-      "Q",
-      "R",
-      "S",
-      "T",
-      "U",
-      "V",
-      "W",
-      "X",
-      "Y",
-      "Z",
-    ];
-
-    // 热门城市列表
+// 热门城市列表 (Used for adding random recommendations if needed, keeping logic)
     const hotCities = computed(() => {
       if (!hotRegions || !Array.isArray(hotRegions) || hotRegions.length === 0) {
         return [];
@@ -478,10 +170,6 @@ export default {
       try {
         const cityData = await cachedFetchCityData();
 
-        if (import.meta.env.DEV) {
-          console.log(`加载了 ${cityData.length} 条城市数据`);
-        }
-
         // 过滤只保留市级城市
         allCities.value = cityData.filter((city) => {
           const name = city.中文名 || "";
@@ -492,10 +180,6 @@ export default {
             name.includes("盟")
           );
         });
-
-        if (import.meta.env.DEV) {
-          console.log(`过滤后保留了 ${allCities.value.length} 条城市数据`);
-        }
 
         pagePerformance.end();
       } catch (error) {
@@ -600,9 +284,14 @@ export default {
       }
     };
 
+    // 监听搜索模式变化，更新导航栏显示
+    watch(isSearchMode, () => {
+      handleScroll();
+    });
+
     // 滚动到指定字母区域
     const scrollToLetter = (letter) => {
-      // 设置激活字母（即使在搜索模式下也应该更新）
+  // 设置激活字母
       activeLetter.value = letter;
 
       // 如果在搜索模式，先清除搜索
@@ -613,20 +302,18 @@ export default {
       // 显示滚动指示器
       showScrollIndicator.value = true;
 
-      // 延迟一点时间等待DOM更新和搜索清除完成
+  // 延迟执行滚动，确保搜索模式已退出且DOM已更新
       setTimeout(() => {
         let targetElement = null;
 
         if (letter === hotLabel) {
-          // 滚动到热门城市区域
           targetElement = document.getElementById("hot-cities");
         } else {
-          // 滚动到对应字母区域
           targetElement = document.getElementById(`letter-${letter}`);
         }
 
         if (targetElement) {
-          // 平滑滚动到目标元素
+      // 使用 scrollIntoView，它能自动找到滚动容器并滚动
           targetElement.scrollIntoView({
             behavior: "smooth",
             block: "start",
@@ -635,11 +322,8 @@ export default {
           // 视觉反馈 - 高亮显示区域
           targetElement.classList.add("highlight");
 
-          // 移除高亮效果
           setTimeout(() => {
             targetElement.classList.remove("highlight");
-
-            // 隐藏滚动指示器
             setTimeout(() => {
               showScrollIndicator.value = false;
             }, 800);
@@ -648,222 +332,78 @@ export default {
       }, 100);
     };
 
+    // 滚动监听容器引用
+    const pageShell = ref(null);
+
     // 监听滚动，更新当前激活的字母
     const handleScroll = () => {
-      if (!citiesContent.value || isSearchMode.value) return;
+      if (!isSearchMode.value && heroRef.value && heroRef.value.$el) {
+        const heroRect = heroRef.value.$el.getBoundingClientRect();
+        if (heroRect.bottom < 80) {
+          showLetterNav.value = true;
+        } else {
+          showLetterNav.value = false;
+        }
+      } else {
+        // 如果无法获取 Hero ref 或者在搜索模式下，fallback 或隐藏
+        if (isSearchMode.value) {
+            showLetterNav.value = false;
+        }
+      }
+      
+      // 后续逻辑仅在非搜索模式下执行...
+      if (isSearchMode.value) return;
 
-      // 获取所有字母区域元素
       const sections = [...document.getElementsByClassName("city-section")];
       if (sections.length === 0) return;
 
-      // 获取搜索框的高度，作为偏移量计算
-      const searchSectionHeight =
-        document.querySelector(".search-section")?.offsetHeight || 0;
+      // 获取搜索框的高度或头部偏移
+      const headerOffset = 100;
 
-      // 检查元素是否在可见区域，考虑搜索框的高度
-      const isElementInView = (el, offset = 0) => {
+      // 检查元素是否在可见区域
+      const isElementInView = (el) => {
         const rect = el.getBoundingClientRect();
-        // 这里的值包含了搜索框高度和其他UI元素的偏移
-        const threshold = searchSectionHeight + 60 + offset;
-        return rect.top <= threshold && rect.bottom > threshold - 20;
+        // 当元素顶部接近视口顶部(考虑偏移)时，或者元素覆盖了视口大部分时
+        return rect.top <= headerOffset + 60 && rect.bottom > headerOffset;
       };
 
       let newActiveLetter = activeLetter.value;
       let letterChanged = false;
 
-      // 如果滚动到顶部，激活热门
-      if (citiesContent.value.scrollTop < 10) {
+      // 检查热门区域
+      const hotSection = document.getElementById("hot-cities");
+      if (hotSection && isElementInView(hotSection)) {
         if (activeLetter.value !== hotLabel) {
           newActiveLetter = hotLabel;
           letterChanged = true;
         }
       } else {
-        // 检查热门区域是否在视口内
-        const hotSection = document.getElementById("hot-cities");
-        if (hotSection && isElementInView(hotSection, 0)) {
-          if (activeLetter.value !== hotLabel) {
-            newActiveLetter = hotLabel;
-            letterChanged = true;
-          }
-        } else {
-          // 检查字母区域
-          let foundVisible = false;
+        // 检查字母区域
+        let foundVisible = false;
 
-          for (let i = 0; i < sections.length; i++) {
-            const section = sections[i];
-            if (!section.id.startsWith("letter-")) continue;
+        for (let i = 0; i < sections.length; i++) {
+          const section = sections[i];
+          if (!section.id.startsWith("letter-")) continue;
 
-            if (isElementInView(section)) {
-              const letter = section.id.replace("letter-", "");
-              if (activeLetter.value !== letter) {
-                newActiveLetter = letter;
-                letterChanged = true;
-              }
-              foundVisible = true;
-              break;
+          if (isElementInView(section)) {
+            const letter = section.id.replace("letter-", "");
+            if (activeLetter.value !== letter) {
+              newActiveLetter = letter;
+              letterChanged = true;
             }
-          }
-
-          // 如果没有找到可见的字母区域，尝试根据滚动位置确定最接近的字母
-          if (!foundVisible) {
-            // 检查是否滚动到底部 - 激活Z
-            const scrollBottom =
-              citiesContent.value.scrollTop + citiesContent.value.clientHeight;
-            const scrollPercentage = scrollBottom / citiesContent.value.scrollHeight;
-
-            if (scrollPercentage > 0.95) {
-              const zSection = document.getElementById("letter-Z");
-              if (zSection && activeLetter.value !== "Z") {
-                newActiveLetter = "Z";
-                letterChanged = true;
-              }
-            } else {
-              // 找出最接近视口顶部的部分
-              let closestSection = null;
-              let minDistance = Infinity;
-
-              for (let i = 0; i < sections.length; i++) {
-                const section = sections[i];
-                if (!section.id.startsWith("letter-")) continue;
-
-                const rect = section.getBoundingClientRect();
-                const distance = Math.abs(rect.top - searchSectionHeight);
-
-                if (distance < minDistance) {
-                  minDistance = distance;
-                  closestSection = section;
-                }
-              }
-
-              if (closestSection) {
-                const letter = closestSection.id.replace("letter-", "");
-                if (activeLetter.value !== letter) {
-                  newActiveLetter = letter;
-                  letterChanged = true;
-                }
-              }
-            }
+            foundVisible = true;
+            break;
           }
         }
       }
 
-      // 如果字母变化，更新并显示指示器
       if (letterChanged) {
         activeLetter.value = newActiveLetter;
-        showScrollIndicator.value = true;
-
-        // 自动隐藏指示器
-        setTimeout(() => {
-          showScrollIndicator.value = false;
-        }, 1500);
       }
     };
 
-    // 获取字母导航项的title
-    const getLetterTitle = (letter) => {
-      if (letter === hotLabel) {
-        return "热门城市";
-      }
-      return letter;
-    };
-
-    // 获取省份名称
-    const getProvinceName = (city) => {
-      const adcode = String(city.adcode || "");
-      if (!adcode || adcode.length < 2) {
-        return "";
-      }
-
-      // 通过adcode前两位判断省份
-      const provinceCode = adcode.substring(0, 2);
-
-      // 省份编码映射
-      const provinceMap = {
-        11: "北京市",
-        12: "天津市",
-        13: "河北省",
-        14: "山西省",
-        15: "内蒙古",
-        21: "辽宁省",
-        22: "吉林省",
-        23: "黑龙江省",
-        31: "上海市",
-        32: "江苏省",
-        33: "浙江省",
-        34: "安徽省",
-        35: "福建省",
-        36: "江西省",
-        37: "山东省",
-        41: "河南省",
-        42: "湖北省",
-        43: "湖南省",
-        44: "广东省",
-        45: "广西",
-        46: "海南省",
-        50: "重庆市",
-        51: "四川省",
-        52: "贵州省",
-        53: "云南省",
-        54: "西藏",
-        61: "陕西省",
-        62: "甘肃省",
-        63: "青海省",
-        64: "宁夏",
-        65: "新疆",
-        71: "台湾省",
-        81: "香港",
-        82: "澳门",
-      };
-
-      return provinceMap[provinceCode] || "";
-    };
-
-    // 生命周期钩子
-    onMounted(() => {
-      // 启动页面性能监控
-      pagePerformance.start("page-mount");
-      pagePerformance.observePageRender();
-
-      // 启动交互性能监控
-      interactionMonitor.start();
-
-      loadCityData();
-
-      // 加载愿望清单数据
-      wishlist.loadWishlist();
-
-      // 添加resize事件监听
-      window.addEventListener("resize", handleScroll);
-
-      // 检查是否有重定向消息
-      if (route.query.message) {
-        ElMessage.warning({
-          message: route.query.message,
-          duration: 4000,
-          showClose: true,
-        });
-      }
-
-      pagePerformance.end();
-
-      // 在开发环境下输出性能报告
-      if (import.meta.env.DEV) {
-        setTimeout(() => {
-          pagePerformance.logReport();
-          interactionMonitor.logReport();
-        }, 3000);
-      }
-    });
-
-    onBeforeUnmount(() => {
-      // 清理性能监控
-      pagePerformance.disconnect();
-      imagePerformance.disconnect();
-      interactionMonitor.stop();
-
-      // 移除resize事件监听
-      window.removeEventListener("resize", handleScroll);
-    });
+// 批量操作相关状态
+const isWishlistMode = ref(false);
 
     // 切换心愿清单模式
     const toggleWishlistMode = () => {
@@ -904,492 +444,61 @@ export default {
       });
     }, 150);
 
-    // 批量添加推荐城市
-    const addRandomRecommendations = async () => {
-      if (addingRecommendations.value) return;
+// 生命周期钩子
+onMounted(() => {
+  // 启动页面性能监控
+  pagePerformance.start("page-mount");
+  pagePerformance.observePageRender();
 
-      addingRecommendations.value = true;
+  // 启动交互性能监控
+  interactionMonitor.start();
 
-      try {
-        // 从热门城市中随机选择未添加的城市
-        const availableHotCities = hotCities.value.filter(
-          (city) => !wishlist.isCityInWishlist(city.adcode)
-        );
+  loadCityData();
 
-        // 从所有城市中随机选择一些有趣的城市
-        const interestingCities = [
-          { 中文名: "拉萨市", adcode: "540100" },
-          { 中文名: "乌鲁木齐市", adcode: "650100" },
-          { 中文名: "银川市", adcode: "640100" },
-          { 中文名: "兰州市", adcode: "620100" },
-          { 中文名: "呼和浩特市", adcode: "150100" },
-          { 中文名: "太原市", adcode: "140100" },
-          { 中文名: "贵阳市", adcode: "520100" },
-          { 中文名: "海口市", adcode: "460100" },
-          { 中文名: "长春市", adcode: "220100" },
-          { 中文名: "哈尔滨市", adcode: "230100" },
-        ];
+  // 加载愿望清单数据
+  wishlist.loadWishlist();
 
-        const availableInterestingCities = interestingCities.filter(
-          (city) => !wishlist.isCityInWishlist(city.adcode)
-        );
+  // 全局滚动监听，以防万一
+  window.addEventListener("scroll", handleScroll, true);
 
-        // 合并所有可选城市
-        const allAvailableCities = [...availableHotCities, ...availableInterestingCities];
 
-        if (allAvailableCities.length === 0) {
-          ElMessage.info("已经添加了所有推荐城市！");
-          return;
-        }
+  handleScroll();
 
-        // 随机选择3-5个城市
-        const numToAdd = Math.min(
-          Math.floor(Math.random() * 3) + 3,
-          allAvailableCities.length
-        );
-        const citiesContainer = [...allAvailableCities];
-        const citiesToAdd = [];
+  // 检查是否有重定向消息
+  if (route.query.message) {
+    ElMessage.warning({
+      message: route.query.message,
+      duration: 4000,
+      showClose: true,
+    });
+  }
 
-        for (let i = 0; i < numToAdd; i++) {
-          const randomIndex = Math.floor(Math.random() * citiesContainer.length);
-          citiesToAdd.push(citiesContainer.splice(randomIndex, 1)[0]);
-        }
+  pagePerformance.end();
+});
 
-        // 批量添加到愿望清单
-        const addPromises = citiesToAdd.map((city) =>
-          wishlist.addToWishlist({
-            adcode: city.adcode,
-            cityName: city.中文名,
-            reason: "系统智能推荐",
-            tags: ["智能推荐", "精选目的地"],
-          })
-        );
+onBeforeUnmount(() => {
+  // 清理性能监控
+  pagePerformance.disconnect();
+  imagePerformance.disconnect();
+  interactionMonitor.stop();
 
-        await Promise.all(addPromises);
-
-        ElMessage.success(`已为你推荐 ${citiesToAdd.length} 个精选城市！`);
-
-        // 自动展开愿望清单预览
-        showWishlistQuickView.value = true;
-      } catch (error) {
-        console.error("添加推荐城市失败:", error);
-        ElMessage.error("推荐失败，请重试");
-      } finally {
-        addingRecommendations.value = false;
-      }
-    };
-
-    return {
-      searchKeyword,
-      hotCities,
-      cityGroups,
-      loading,
-      isSearchMode,
-      searchResults,
-      activeLetter,
-      hotLabel,
-      letterNavs,
-      citiesContent,
-      letterSections,
-      // 热门区域 tabs
-      regions,
-      activeRegionIdx,
-      // 热门分组标签云
-      hotCats,
-      activeHotIdx,
-      handleCityClick,
-      clearSearch,
-      debouncedSearch,
-      selectCity,
-      scrollToLetter,
-      handleScroll,
-      getLetterTitle,
-      getProvinceName,
-      // 愿望清单相关
-      wishlist,
-      toggleWishlist,
-      isWishlistMode,
-      toggleWishlistMode,
-      // 批量操作相关
-      showWishlistQuickView,
-      addingRecommendations,
-      addRandomRecommendations,
-      // 当季
-      months,
-      selectedMonth,
-      seasonalDisplayCities,
-      handleMonthHover,
-      getCoverStyle,
-      // 热门目的地
-      hotDestinations,
-    };
-  },
-};
+  window.removeEventListener("scroll", handleScroll, true);
+  
+  // 移除scroll事件监听 - 尝试移除所有可能的容器监听
+  const mainScrollContainer = document.querySelector('.layout-main');
+  if (mainScrollContainer) mainScrollContainer.removeEventListener("scroll", handleScroll);
+  
+  if (pageShell.value) pageShell.value.removeEventListener("scroll", handleScroll);
+  window.removeEventListener("scroll", handleScroll);
+});
 </script>
 
 <style scoped>
-/* ===== 城市区域样式 ===== */
-.cities-section {
-  margin: 0 0 24px 0; /* 与其他section保持一致 */
-  padding: 20px;
-  background: var(--card-bg, #fff);
-  border-radius: 8px;
-  border: 1px solid rgba(145, 168, 208, 0.08);
-  transition: all 0.3s;
-}
-
-.section-header {
-  margin: 0 0 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #ebeef5;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.section-header h2 {
-  font-size: 20px;
-  color: #303133;
-  margin: 0;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.section-header-with-toggle h2 {
-  font-size: 20px;
-  color: #303133;
-  margin: 0;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.city-total-count {
-  font-size: 14px;
-  color: #909399;
-  font-weight: 400;
-  background: rgba(144, 147, 153, 0.1);
-  padding: 4px 12px;
-  border-radius: 12px;
-}
-
-.view-toggle-buttons {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: rgba(0, 0, 0, 0.04);
-  padding: 4px;
-  border-radius: 8px;
-}
-
-.toggle-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border: none;
-  background: transparent;
-  color: #6b7280;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.toggle-btn:hover {
-  background: rgba(145, 168, 208, 0.1);
-  color: #91a8d0;
-}
-
-.toggle-btn.active {
-  background: #ffffff;
-  color: #91a8d0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-}
-
-.toggle-btn svg {
-  transition: all 0.2s ease;
-}
-
-@media (max-width: 768px) {
-  .section-header {
-    flex-direction: column;
-    gap: 16px;
-    padding: 16px;
-  }
-
-  .section-header-with-toggle h2 {
-    font-size: 18px;
-    align-self: flex-start;
-  }
-
-  .view-toggle-buttons {
-    align-self: flex-end;
-  }
-}
-
-/* ===== 整体布局：使用全局 .page-shell 提供的滚动与背景，不再使用页面内 fixed 布局 ===== */
-
-/* 英雄横幅（大图） */
-.hero {
-  position: relative;
-  height: 320px;
-  overflow: hidden;
-}
-
-.hero-bg {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
-    url("/images/scenarios/weekend_citywalk.jpg");
-  background-size: cover;
-  background-position: center;
-  filter: saturate(1.05);
-}
-
-.hero-content {
-  position: relative;
-  z-index: 1;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  text-align: center;
-}
-
-.hero-title {
-  font-size: 32px;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-.hero-sub {
-  margin-top: 6px;
-  opacity: 0.9;
-}
-
-.hero-search {
-  margin-top: 16px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 12px;
-  padding: 8px;
-}
-.hero-input {
-  width: 420px;
-}
-.hero-btn {
-  border-radius: 10px;
-}
-
-.search-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.search-container h1 {
-  font-size: 28px;
-  color: #303133;
-  margin: 0 0 20px;
-  font-weight: 600;
-  position: relative;
-  display: inline-block;
-}
-
-.search-container h1:after {
-  content: "";
-  position: absolute;
-  bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 40px;
-  height: 3px;
-  background-color: #91a8d0;
-  border-radius: 3px;
-}
-
-.search-input {
-  max-width: 500px;
-  margin: 0 auto;
-}
-
-.view-toggle {
-  margin-top: 12px;
-  display: flex;
-  justify-content: center;
-}
-
-.search-input :deep(.el-input__inner) {
-  border-radius: 20px;
-  padding-left: 15px;
-  transition: all 0.3s;
-}
-
-.search-input :deep(.el-input__inner):focus {
-  border-color: #91a8d0;
-  box-shadow: 0 0 0 2px rgba(145, 168, 208, 0.2);
-}
-
-/* 批量操作区域 */
-.batch-actions {
-  margin-top: 20px;
-  padding: 16px;
-  background: rgba(145, 168, 208, 0.05);
-  border-radius: 8px;
-  border: 1px solid rgba(145, 168, 208, 0.1);
-}
-
-.batch-info {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 0;
-}
-
-.wishlist-quick-view {
-  border-top: 1px solid rgba(145, 168, 208, 0.1);
-  padding-top: 12px;
-  margin-top: 12px;
-}
-
-.quick-view-cities {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
-}
-
-.more-indicator {
-  color: #909399;
-  font-size: 12px;
-  align-self: center;
-}
-
-/* 字母导航 */
-.letter-nav {
-  position: sticky;
-  top: var(--header-height);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  background: rgba(255, 255, 255, 0.9);
-  z-index: 10;
-  text-align: center;
-  width: 32px; /* 瘦身，弱化抢占 */
-  padding: 10px 0;
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
-  box-shadow: inset 1px 0 0 #ebeef5; /* 改为细分隔线，弱化存在感 */
-  transition: all 0.3s ease;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.letter-nav:hover {
-  box-shadow: -3px 0 15px rgba(145, 168, 208, 0.15);
-  width: 42px;
-}
-
-.letter-item {
-  width: 100%;
-  height: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  cursor: pointer;
-  color: #606266;
-  transition: all 0.2s;
-  user-select: none;
-  position: relative;
-  margin: 1px 0;
-}
-
-.letter-item:after {
-  content: "";
-  position: absolute;
-  left: 0;
-  width: 2px;
-  height: 0;
-  background-color: #91a8d0;
-  transition: all 0.2s ease;
-  border-radius: 2px;
-  opacity: 0;
-}
-
-.letter-item:hover:after {
-  height: 60%;
-  opacity: 0.6;
-}
-
-.letter-item.active:after {
-  width: 3px;
-  height: 80%;
-  opacity: 1;
-}
-
-.letter-item.special {
-  font-weight: 500;
-  color: #91a8d0;
-  height: 30px; /* 增大热门选项高度 */
-  font-size: 13px; /* 略大字体 */
-  padding: 2px 0;
-  margin-top: 0; /* 移除顶部大间距 */
-  margin-bottom: 8px; /* 增加底部间距 */
-}
-
-.letter-item.special:after {
-  height: 0;
-  opacity: 0;
-}
-
-.letter-item.special.active:after {
-  height: 70%;
-  opacity: 1;
-}
-
-.letter-section {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  justify-content: space-between;
-  padding: 5px 0;
-  height: calc(100% - 40px); /* 减去热门按钮的高度 */
-}
-
-.letter-item:hover {
-  color: #91a8d0;
-  font-weight: 500;
-  background-color: #f5f7fa;
-}
-
-.letter-item.active {
-  color: #fff;
-  background-color: #91a8d0;
-  font-weight: 500;
-}
-
-/* 移除分隔线样式 */
-.letter-divider {
-  display: none;
-}
-
 /* 内容和导航栏容器 */
 .cities-content-wrapper {
   flex: 1;
   position: relative;
   display: flex;
-  overflow: hidden;
   width: 100%;
 }
 
@@ -1405,671 +514,9 @@ export default {
   position: relative;
 }
 
+
 .loading-container {
   padding: 20px;
-}
-
-/* 城市分组 */
-.city-section {
-  margin: 0 0 24px 0; /* 与 Dashboard 版式统一的上下间距 */
-  padding: 20px;
-  background: var(--card-bg, #fff);
-  border-radius: 8px;
-  border: 1px solid rgba(145, 168, 208, 0.08);
-  transition: all 0.3s;
-}
-
-.city-section h2 {
-  font-size: 20px;
-  color: #303133;
-  margin: 0 0 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #ebeef5;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  position: sticky; /* 分组标题吸顶 */
-  top: 0;
-  z-index: 2;
-  background: var(--card-bg, #fff);
-}
-
-.hot-icon {
-  font-style: normal;
-  margin-right: 8px;
-  font-size: 18px;
-  color: #f56c6c;
-}
-
-/* 热门目的地卡片样式（优化版） */
-.hot-destinations-section {
-  margin-bottom: 32px;
-}
-
-.hot-destinations-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  margin-top: 16px;
-}
-
-.hot-destination-card {
-  position: relative;
-  background: #fff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  cursor: pointer;
-}
-
-.hot-destination-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-}
-
-.destination-image {
-  position: relative;
-  height: 200px;
-  overflow: hidden;
-}
-
-.destination-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.6) 100%);
-  display: flex;
-  align-items: flex-end;
-  padding: 16px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  will-change: opacity;
-}
-
-.hot-destination-card:hover .destination-overlay {
-  opacity: 1;
-}
-
-.destination-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.destination-tag {
-  background: rgba(255, 255, 255, 0.9);
-  color: #333;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-  backdrop-filter: blur(4px);
-}
-
-.destination-info {
-  padding: 16px 20px 20px;
-}
-
-.destination-name {
-  font-size: 18px;
-  font-weight: 600;
-  color: #333;
-  margin: 0 0 8px 0;
-  line-height: 1.3;
-}
-
-.destination-description {
-  font-size: 14px;
-  color: #666;
-  line-height: 1.5;
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* 响应式适配 */
-@media (max-width: 1200px) {
-  .hot-destinations-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-  }
-}
-
-@media (max-width: 992px) {
-  .hot-destinations-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-  }
-}
-
-@media (max-width: 768px) {
-  .hot-destinations-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-  }
-
-  .destination-image {
-    height: 160px;
-  }
-
-  .destination-info {
-    padding: 14px 16px 18px;
-  }
-
-  .destination-name {
-    font-size: 16px;
-  }
-
-  .destination-description {
-    font-size: 13px;
-  }
-}
-
-@media (max-width: 480px) {
-  .hot-destinations-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.group-tabs {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
-}
-.group-tab {
-  padding: 6px 10px;
-  border: 1px solid var(--border-color, #ebeef5);
-  background: var(--btn-bg, #fff);
-  color: var(--text-secondary, #606266);
-  border-radius: 6px;
-  font-size: 12px;
-  cursor: pointer;
-}
-.group-tab.active {
-  background: #91a8d0;
-  border-color: #91a8d0;
-  color: #fff;
-}
-.hot-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 14px;
-}
-.hot-tag {
-  color: #303133;
-  font-size: 14px;
-  padding: 4px 8px;
-  border-radius: 6px;
-  background: #f7f8fa;
-  border: 1px solid var(--border-color, #ebeef5);
-  cursor: pointer;
-}
-.hot-tag:hover {
-  background: rgba(247, 202, 201, 0.08);
-  border-color: rgba(145, 168, 208, 0.3);
-  color: #91a8d0;
-}
-
-.region-tabs {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
-}
-.region-tab {
-  padding: 6px 10px;
-  border: 1px solid var(--border-color, #ebeef5);
-  background: var(--btn-bg, #fff);
-  color: var(--text-secondary, #606266);
-  border-radius: 6px;
-  font-size: 12px;
-}
-.region-tab.active {
-  background: #91a8d0;
-  border-color: #91a8d0;
-  color: #fff;
-}
-
-.city-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 14px;
-}
-.city-tag-link {
-  color: #303133;
-  font-size: 14px;
-  padding: 4px 8px;
-  border-radius: 6px;
-  background: #f7f8fa;
-  border: 1px solid var(--border-color, #ebeef5);
-  cursor: pointer;
-}
-.city-tag-link:hover {
-  background: rgba(247, 202, 201, 0.08);
-  border-color: rgba(145, 168, 208, 0.3);
-  color: #91a8d0;
-}
-
-/* 月份 tabs - 简化版 */
-.month-tabs {
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0;
-  margin-bottom: 12px;
-  border-bottom: 1px solid var(--border-color, #ebeef5);
-  padding-bottom: 6px;
-}
-
-.month-tab {
-  background: transparent;
-  border: none;
-  outline: none;
-  padding: 8px 10px;
-  color: var(--text-secondary, #606266);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  position: relative;
-  transition: color 0.2s ease;
-}
-
-.month-tab:hover {
-  color: #91a8d0;
-}
-
-.month-tab.active {
-  color: #91a8d0;
-}
-
-.month-tab.active::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: -7px;
-  width: 24px;
-  height: 3px;
-  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
-  border-radius: 2px;
-}
-
-.letter-icon {
-  font-style: normal;
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  background: var(--bg-secondary, #f5f7fa);
-  border: 1px solid var(--border-color, #eaeef2);
-  color: var(--text-secondary, #606266);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* 模式切换滑块样式 - 重新设计 */
-.mode-toggle-container {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 12px;
-}
-
-.mode-description {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.mode-hint {
-  font-size: 13px;
-  color: #606266;
-  background: rgba(145, 168, 208, 0.08);
-  padding: 6px 16px;
-  border-radius: 16px;
-  white-space: nowrap;
-  transition: all 0.3s ease;
-  border: 1px solid rgba(145, 168, 208, 0.12);
-  font-weight: 500;
-}
-
-.mode-switch {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  background: rgba(255, 255, 255, 0.8);
-  padding: 8px 16px;
-  border-radius: 20px;
-  border: 1px solid rgba(145, 168, 208, 0.15);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  backdrop-filter: blur(10px);
-}
-
-.mode-label {
-  font-size: 14px;
-  color: #909399;
-  transition: all 0.3s ease;
-  user-select: none;
-  white-space: nowrap;
-  font-weight: 500;
-  position: relative;
-}
-
-.mode-label.active {
-  color: #91a8d0;
-  font-weight: 600;
-}
-
-.mode-label.active::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  height: 2px;
-  border-radius: 1px;
-  opacity: 0.8;
-}
-
-.toggle-switch {
-  position: relative;
-  width: 52px;
-  height: 28px;
-  background: #f5f7fa;
-  border-radius: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: 2px solid rgba(145, 168, 208, 0.1);
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.toggle-switch:hover {
-  background: #edf2f7;
-  border-color: rgba(145, 168, 208, 0.2);
-  transform: scale(1.02);
-}
-
-.toggle-slider {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 20px;
-  height: 20px;
-  background: linear-gradient(135deg, #ffffff, #f8fafc);
-  border-radius: 50%;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(145, 168, 208, 0.1);
-}
-
-.toggle-slider.active {
-  transform: translateX(24px);
-  background: linear-gradient(135deg, #91a8d0, #b8c9e0);
-  box-shadow: 0 2px 8px rgba(145, 168, 208, 0.3), 0 1px 3px rgba(145, 168, 208, 0.2);
-  border-color: rgba(145, 168, 208, 0.3);
-}
-
-.toggle-switch:has(.toggle-slider.active) {
-  background: linear-gradient(135deg, rgba(145, 168, 208, 0.15), rgba(247, 202, 201, 0.1));
-  border-color: rgba(145, 168, 208, 0.25);
-}
-
-.toggle-switch:hover:has(.toggle-slider.active) {
-  background: linear-gradient(135deg, rgba(145, 168, 208, 0.2), rgba(247, 202, 201, 0.15));
-  border-color: rgba(145, 168, 208, 0.35);
-}
-
-/* 热门城市网格 */
-.city-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 16px;
-}
-
-/* 简化卡片视图样式 */
-.dest-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
-  cursor: pointer;
-}
-
-.dest-card {
-  background: var(--card-bg, #fff);
-  border: 1px solid var(--border-color, #ebeef5);
-  border-radius: 10px;
-  overflow: hidden;
-  transition: transform 0.2s ease;
-  will-change: transform;
-}
-
-.dest-card:hover {
-  transform: translateY(-2px);
-}
-
-.dest-cover {
-  height: 200px;
-  background: linear-gradient(135deg, #eef2ff, #f8fafc);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.dest-meta {
-  padding: 12px 12px 14px;
-}
-
-.dest-title {
-  font-weight: 600;
-  color: #303133;
-}
-
-.dest-sub {
-  margin-top: 4px;
-  font-size: 12px;
-  color: #909399;
-}
-
-.city-item {
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-/* 旧卡片样式（不再使用） */
-.city-card {
-  display: none;
-}
-
-/* 移除空规则：.city-card:hover */
-
-.city-name {
-  font-size: 16px;
-  font-weight: 500;
-  color: #303133;
-  margin-bottom: 6px;
-  transition: all 0.3s;
-}
-
-.city-info {
-  font-size: 12px;
-  color: #909399;
-  transition: all 0.3s;
-}
-
-.city-card:hover .city-name {
-  color: #91a8d0;
-}
-
-/* 省份分组 */
-.provinces-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.province-group {
-  margin-bottom: 10px;
-}
-
-.province-name {
-  font-size: 16px;
-  font-weight: 500;
-  color: #666;
-  margin: 0 0 10px;
-  border-left: 3px solid #ff9d00;
-  padding-left: 10px;
-}
-
-.cities-list {
-  display: none; /* 切换为行式列表后不再使用 */
-}
-
-.city-rows {
-  display: grid;
-  grid-template-columns: 1fr; /* 默认单列 */
-  gap: 6px;
-}
-
-@media (min-width: 992px) {
-  .city-rows {
-    grid-template-columns: 1fr 1fr; /* 桌面端双列，提高信息密度 */
-  }
-}
-
-.city-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  min-height: 36px;
-  padding: 6px 10px;
-  border-radius: 6px;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.city-row:hover {
-  background: var(--bg-secondary, #f5f7fa);
-}
-
-.city-row.in-wishlist {
-  background: var(--bg-secondary, #f8f9fa);
-  border: 1px solid var(--border-color, #eaeef2);
-}
-
-.city-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.city-left .city-name {
-  font-size: 14px;
-  color: #303133;
-}
-
-.city-left .city-province {
-  font-size: 12px;
-  color: #909399;
-}
-
-.city-right {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.wishlist-toggle {
-  width: 28px;
-  height: 28px;
-  border: 1px solid var(--border-color, #eaeef2);
-  background: var(--btn-bg, #fff);
-  color: var(--text-secondary, #606266);
-}
-
-.wishlist-toggle.active {
-  background: #91a8d0;
-  border-color: #91a8d0;
-  color: #fff;
-  animation: wishlist-pop 120ms ease-out;
-}
-
-.wishlist-toggle:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.25);
-}
-
-@keyframes wishlist-pop {
-  0% {
-    transform: scale(0.9);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-.city-tag {
-  background: #f5f7fa;
-  border-radius: 4px;
-  padding: 6px 12px;
-  font-size: 14px;
-  color: #606266;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-bottom: 8px;
-  margin-right: 8px;
-  display: inline-block;
-}
-
-.city-tag:hover {
-  background: #91a8d0;
-  color: #fff;
-}
-
-/* 搜索结果 */
-.search-results h2 {
-  margin-bottom: 20px;
-  color: #303133;
-  font-size: 20px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #ebeef5;
-  display: flex;
-  align-items: center;
-}
-
-/* 滚动指示器 - 当前字母高亮 */
-.scroll-indicator {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.8);
-  background: rgba(145, 168, 208, 0.9);
-  color: #fff;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  font-weight: bold;
-  opacity: 0;
-  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); /* 弹性动画 */
-  z-index: 999;
-  pointer-events: none;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-.scroll-indicator.visible {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
 }
 
 /* 响应式设计 */
@@ -2082,72 +529,8 @@ export default {
   .cities-content {
     width: 100%;
     padding: 20px;
-  }
-
-  .letter-nav {
-    position: fixed;
-    right: unset;
-    top: unset;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 40px;
-    flex-direction: row;
-    justify-content: space-around;
-    padding: 5px 0;
-    border-radius: 0;
-    border-top: 1px solid #ebeef5;
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
-
-  .letter-section {
-    flex-direction: row;
-    padding: 0;
-    margin-left: 10px;
-  }
-
-  .letter-item {
-    width: auto;
-    padding: 0 3px;
-  }
-
-  .letter-item:after {
-    left: 0;
-    bottom: -2px;
-    width: 100%;
-    height: 0;
-  }
-
-  .letter-item:hover:after,
-  .letter-item.active:after {
-    width: 100%;
-    height: 2px;
-  }
-
-  .letter-item.special {
-    margin: 0;
-  }
-
-  .city-grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  }
-
-  .city-card {
-    height: 60px;
-    padding: 10px;
-  }
-
-  .city-name {
-    font-size: 16px;
-  }
-
-  .search-container h1 {
-    font-size: 22px;
-  }
-
-  .city-section h2 {
-    font-size: 20px;
+    height: auto; /* Let it flow on mobile? Or fixed height? */
+    /* Mobile usually scrolls body or specific container */
   }
 }
 
@@ -2164,268 +547,28 @@ export default {
   }
 }
 
-.city-section.highlight {
+:deep(.city-section.highlight) {
   animation: highlight-pulse 1s ease-out;
   background-color: rgba(236, 245, 255, 0.9);
   transition: background-color 1s ease;
 }
 
-/* 添加热门城市区域的样式 */
-.hot-city-section {
-  background: #ffffff;
+/* 导航栏过渡动画 */
+.nav-fade-enter-active,
+.nav-fade-leave-active {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.hot-city-card {
-  background: #f6faff;
-  border: 1px solid #d9ecff;
-}
-
-.hot-city-card:hover {
-  background: rgba(247, 202, 201, 0.08);
-  border-color: rgba(145, 168, 208, 0.3);
-}
-
-/* 导航辅助按钮组 */
-.nav-assist-buttons {
-  position: absolute;
-  bottom: 100px; /* 调整位置，使其在底部 */
-  right: 50px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 10;
-}
-
-.nav-button {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #fff;
-  border: 1px solid #ebeef5;
-  border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  cursor: pointer;
-  color: #606266;
-}
-
-.nav-button:hover {
-  background-color: rgba(247, 202, 201, 0.1);
-  border-color: #f7cac9;
-  color: #91a8d0;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.hot-button {
-  font-size: 20px;
-}
-
-.z-button {
-  font-size: 18px;
-}
-
-/* 回到顶部按钮样式 */
-.back-top {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-}
-
-:deep(.el-backtop) {
-  background-color: #fff;
-  border: 1px solid #ebeef5;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  color: #606266;
-}
-
-:deep(.el-backtop:hover) {
-  background-color: rgba(247, 202, 201, 0.1);
-  border-color: #f7cac9;
-  color: #91a8d0;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* 重定向提示样式 */
-.redirect-notice {
-  margin-bottom: 20px;
-}
-
-.custom-alert {
-  border-radius: 12px;
-  border: 2px solid #91a8d0;
-  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-}
-
-.alert-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 0;
-}
-
-.alert-text {
-  flex: 1;
-}
-
-.alert-text strong {
-  color: #91a8d0;
-  font-size: 16px;
-  display: block;
-  margin-bottom: 4px;
-}
-
-.alert-text p {
-  color: #606266;
-  font-size: 14px;
-  margin: 0;
-  line-height: 1.5;
-}
-
-.alert-icon {
-  margin-left: 16px;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-/* 移动端适配 */
-@media (max-width: 768px) {
-  .redirect-notice {
-    margin-bottom: 16px;
-  }
-
-  .alert-content {
-    flex-direction: column;
-    text-align: center;
-    gap: 12px;
-  }
-
-  .alert-icon {
-    margin-left: 0;
-  }
-}
-
-/* 愿望清单相关样式 */
-.city-item {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-}
-
-.city-item.in-wishlist {
-  transform: scale(1.02);
-}
-
-/* 移除空规则：.city-item.in-wishlist .city-card */
-
-.city-actions {
-  display: none;
-}
-
-/* 移除空规则：.city-item:hover .city-actions */
-
-/* 移除空规则：.city-item.in-wishlist .city-actions */
-
-.wishlist-btn {
-  transition: all 0.3s ease;
-}
-
-.wishlist-btn:hover {
-  transform: scale(1.1);
-}
-
-/* 字母分组城市的愿望清单样式 */
-.city-tag-container {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  margin: 0; /* 依赖父容器gap，避免双重间距导致不齐 */
-  padding: 0; /* 不为按钮预留额外空间，避免布局不齐 */
-  border-radius: 16px;
-  transition: all 0.3s ease;
-}
-
-.city-tag-container:hover {
-  background: rgba(145, 168, 208, 0.1);
-}
-
-.city-tag-container.in-wishlist {
-  background: rgba(103, 194, 58, 0.1);
-  border: 1px solid rgba(103, 194, 58, 0.3);
-}
-
-.city-tag-container .city-tag {
-  flex: 0 0 auto; /* 仅按内容宽度展示，避免被拉伸 */
-  margin: 0;
-  cursor: pointer;
-  white-space: nowrap; /* 保持单行展示 */
-  padding-right: 22px; /* 为悬浮按钮预留少量内边距，不影响整体布局 */
-}
-
-.wishlist-btn-small {
-  position: absolute;
-  right: 2px; /* 覆盖在标签内部右缘，不挤占布局 */
-  top: 50%;
-  transform: translateY(-50%) scale(0.8);
+.nav-fade-enter-from,
+.nav-fade-leave-to {
   opacity: 0;
-  pointer-events: none;
-  transition: all 0.2s ease;
-  height: 24px;
-  width: 24px;
-  min-width: 24px;
-  z-index: 1;
+  transform: translateX(30px);
 }
 
-.city-tag-container:hover .wishlist-btn-small,
-.city-tag-container.in-wishlist .wishlist-btn-small {
-  opacity: 1;
-  transform: translateY(-50%) scale(1);
-  pointer-events: auto;
-}
-
-/* 愿望清单状态指示器 */
-.city-item.in-wishlist::before {
-  content: none;
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.6;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-/* 响应式调整 */
 @media (max-width: 768px) {
-  .city-actions {
-    display: none;
-  }
-
-  .city-item.in-wishlist::before {
-    display: none;
+  .nav-fade-enter-from,
+  .nav-fade-leave-to {
+    transform: translateY(30px);
   }
 }
 </style>

@@ -6,8 +6,7 @@
         <!-- Logo和品牌名 -->
         <div class="brand-header">
           <div class="brand-logo">
-            <el-icon size="60"
-color="#ffffff">
+            <el-icon size="60" color="#ffffff">
               <MapLocation />
             </el-icon>
           </div>
@@ -19,8 +18,7 @@ color="#ffffff">
         <div class="features">
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32"
-color="#ffffff">
+              <el-icon size="32" color="#ffffff">
                 <Location />
               </el-icon>
             </div>
@@ -32,8 +30,7 @@ color="#ffffff">
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32"
-color="#ffffff">
+              <el-icon size="32" color="#ffffff">
                 <DataAnalysis />
               </el-icon>
             </div>
@@ -45,8 +42,7 @@ color="#ffffff">
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32"
-color="#ffffff">
+              <el-icon size="32" color="#ffffff">
                 <Share />
               </el-icon>
             </div>
@@ -74,27 +70,17 @@ color="#ffffff">
         </div>
 
         <!-- 登录表单 -->
-        <el-form
-          ref="loginFormRef"
-          :model="loginForm"
-          :rules="loginRules"
-          class="login-form"
-          size="large"
-          @submit.prevent="handleLogin"
-        >
+        <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" class="login-form" size="large"
+          @submit.prevent="handleLogin">
           <!-- 邮箱输入 -->
-          <el-form-item prop="email"
-class="form-item">
+          <el-form-item prop="email" class="form-item">
             <label class="form-label">邮箱</label>
-            <el-input
-              v-model="loginForm.email"
-              placeholder="请输入邮箱地址"
-              clearable
-              class="form-input"
-              @input="handleEmailInput"
-            >
+            <el-input v-model="loginForm.email" placeholder="请输入邮箱地址" clearable class="form-input"
+              @input="handleEmailInput">
               <template #prefix>
-                <el-icon><Message /></el-icon>
+                <el-icon>
+                  <Message />
+                </el-icon>
               </template>
             </el-input>
           </el-form-item>
@@ -103,28 +89,18 @@ class="form-item">
           <el-form-item prop="code" class="form-item">
             <label class="form-label">验证码</label>
             <div class="code-input-group">
-              <el-input
-                v-model="loginForm.code"
-                placeholder="请输入验证码"
-                clearable
-                maxlength="6"
-                class="form-input"
-                @input="handleCodeInput"
-              >
+              <el-input v-model="loginForm.code" placeholder="请输入验证码" clearable maxlength="6" class="form-input"
+                @input="handleCodeInput">
                 <template #prefix>
-                  <el-icon><Key /></el-icon>
+                  <el-icon>
+                    <Key />
+                  </el-icon>
                 </template>
               </el-input>
 
               <!-- 发送验证码按钮 -->
-              <el-button
-                :disabled="!canSendCode || countdown > 0"
-                :loading="sendingCode"
-                class="send-code-btn"
-                type="primary"
-                plain
-                @click="sendVerificationCode"
-              >
+              <el-button :disabled="!canSendCode || countdown > 0" :loading="sendingCode" class="send-code-btn"
+                type="primary" plain @click="sendVerificationCode">
                 {{ countdown > 0 ? `${countdown}秒后重发` : "发送验证码" }}
               </el-button>
             </div>
@@ -132,13 +108,7 @@ class="form-item">
 
           <!-- 登录按钮 -->
           <el-form-item class="form-item">
-            <el-button
-              type="primary"
-              :loading="loggingIn"
-              class="login-btn"
-              size="large"
-              @click="handleLogin"
-            >
+            <el-button type="primary" :loading="loggingIn" class="login-btn" size="large" @click="handleLogin">
               <el-icon v-if="!loggingIn">
                 <User />
               </el-icon>
@@ -153,24 +123,13 @@ class="form-item">
             </el-divider>
 
             <div class="social-login">
-              <el-button
-                class="social-btn wechat-btn"
-                size="large"
-                circle
-                @click="handleWechatLogin"
-              >
+              <el-button class="social-btn wechat-btn" size="large" circle @click="handleWechatLogin">
                 <el-icon size="20">
                   <ChatDotRound />
                 </el-icon>
               </el-button>
 
-              <el-button
-                class="social-btn qq-btn"
-                size="large"
-                circle
-                disabled
-                @click="handleQQLogin"
-              >
+              <el-button class="social-btn qq-btn" size="large" circle disabled @click="handleQQLogin">
                 <el-icon size="20">
                   <User />
                 </el-icon>
@@ -181,12 +140,7 @@ class="form-item">
           <!-- 注册链接 -->
           <div class="register-section">
             <span class="register-text">还没有账户？</span>
-            <el-link
-              type="primary"
-              underline="never"
-              class="register-link"
-              @click="goToRegister"
-            >
+            <el-link type="primary" underline="never" class="register-link" @click="goToRegister">
               立即注册
             </el-link>
           </div>
@@ -196,10 +150,8 @@ class="form-item">
         <div class="agreement">
           <p>
             登录即表示您同意我们的
-            <el-link
-type="primary" underline="never"> 用户协议 </el-link>
-            <el-link
-type="primary" underline="never"> 隐私政策 </el-link>
+            <el-link type="primary" underline="never"> 用户协议 </el-link>
+            <el-link type="primary" underline="never"> 隐私政策 </el-link>
           </p>
         </div>
       </div>
@@ -239,7 +191,7 @@ export default {
   setup() {
     const router = useRouter();
     const route = useRoute();
-    
+
     // 使用新的用户管理组合函数
     const {
       isLoggedIn,
@@ -292,7 +244,7 @@ export default {
 
       try {
         await loginFormRef.value.validate();
-        
+
         // 使用新的login方法，内部已处理跳转和提示
         await login(loginForm.email, loginForm.code);
       } catch (error) {
@@ -388,11 +340,9 @@ export default {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(
-    circle,
-    rgba(255, 255, 255, 0.1) 1px,
-    transparent 1px
-  );
+  background: radial-gradient(circle,
+      rgba(255, 255, 255, 0.1) 1px,
+      transparent 1px);
   background-size: 50px 50px;
   animation: float-dots 20s linear infinite;
 }
@@ -401,6 +351,7 @@ export default {
   0% {
     transform: translate(0, 0) rotate(0deg);
   }
+
   100% {
     transform: translate(-50px, -50px) rotate(360deg);
   }
@@ -425,10 +376,12 @@ export default {
 }
 
 @keyframes float {
+
   0%,
   100% {
     transform: translateY(0px);
   }
+
   50% {
     transform: translateY(-10px);
   }
@@ -448,6 +401,7 @@ export default {
   0% {
     filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
   }
+
   100% {
     filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6));
   }
@@ -532,12 +486,10 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(255, 255, 255, 0.8) 50%,
-    rgba(255, 255, 255, 0.9) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.9) 0%,
+      rgba(255, 255, 255, 0.8) 50%,
+      rgba(255, 255, 255, 0.9) 100%);
   z-index: 1;
 }
 
@@ -557,6 +509,7 @@ export default {
     transform: translateX(50px);
     opacity: 0;
   }
+
   100% {
     transform: translateX(0);
     opacity: 1;
@@ -592,7 +545,7 @@ export default {
   font-weight: 500;
   color: #606266;
   margin-bottom: 8px;
-  padding:5px;
+  padding: 5px;
 }
 
 .form-input :deep(.el-input__wrapper) {
@@ -669,12 +622,10 @@ export default {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent);
   transition: left 0.5s;
 }
 
@@ -947,6 +898,7 @@ export default {
     opacity: 0;
     transform: translateY(30px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);

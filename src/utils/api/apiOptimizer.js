@@ -109,10 +109,6 @@ export function createCachedRequest(requestFunction, options = {}) {
 
                 // 检查缓存是否过期
                 if (now - parsed.timestamp < ttl) {
-                    if (
-                        import.meta.env.DEV) {
-                        console.log(`🎯 缓存命中: ${finalCacheKey}`);
-                    }
                     return parsed.data;
                 }
             }

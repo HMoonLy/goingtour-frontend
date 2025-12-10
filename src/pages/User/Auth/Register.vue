@@ -6,8 +6,7 @@
         <!-- Logo和品牌名 -->
         <div class="brand-header">
           <div class="brand-logo">
-            <el-icon size="60"
-color="#ffffff">
+            <el-icon size="60" color="#ffffff">
               <MapLocation />
             </el-icon>
           </div>
@@ -19,8 +18,7 @@ color="#ffffff">
         <div class="features">
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32"
-color="#ffffff">
+              <el-icon size="32" color="#ffffff">
                 <UserFilled />
               </el-icon>
             </div>
@@ -32,8 +30,7 @@ color="#ffffff">
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32"
-color="#ffffff">
+              <el-icon size="32" color="#ffffff">
                 <Setting />
               </el-icon>
             </div>
@@ -45,8 +42,7 @@ color="#ffffff">
 
           <div class="feature-item">
             <div class="feature-icon">
-              <el-icon size="32"
-color="#ffffff">
+              <el-icon size="32" color="#ffffff">
                 <Star />
               </el-icon>
             </div>
@@ -74,103 +70,63 @@ color="#ffffff">
         </div>
 
         <!-- 注册表单 -->
-        <el-form
-          ref="registerFormRef"
-          :model="registerForm"
-          :rules="registerRules"
-          class="register-form"
-          size="large"
-          @submit.prevent="handleRegister"
-        >
+        <el-form ref="registerFormRef" :model="registerForm" :rules="registerRules" class="register-form" size="large"
+          @submit.prevent="handleRegister">
           <!-- 邮箱输入 -->
-          <el-form-item prop="email"
-class="form-item">
+          <el-form-item prop="email" class="form-item">
             <label class="form-label">邮箱</label>
-            <el-input
-              v-model="registerForm.email"
-              :placeholder="邮箱"
-              clearable
-              class="form-input"
-              @input="handleEmailInput"
-            >
+            <el-input v-model="registerForm.email" :placeholder="邮箱" clearable class="form-input"
+              @input="handleEmailInput">
               <template #prefix>
-                <el-icon><Message /></el-icon>
+                <el-icon>
+                  <Message />
+                </el-icon>
               </template>
             </el-input>
           </el-form-item>
 
           <!-- 验证码输入 -->
-          <el-form-item prop="code"
-class="form-item code-form-item">
+          <el-form-item prop="code" class="form-item code-form-item">
             <label class="form-label">验证码</label>
             <div class="code-input-group">
-              <el-input
-                v-model="registerForm.code"
-                :placeholder="验证码"
-                clearable
-                maxlength="6"
-                class="form-input"
-                @input="handleCodeInput"
-              >
+              <el-input v-model="registerForm.code" :placeholder="验证码" clearable maxlength="6" class="form-input"
+                @input="handleCodeInput">
                 <template #prefix>
-                  <el-icon><Key /></el-icon>
+                  <el-icon>
+                    <Key />
+                  </el-icon>
                 </template>
               </el-input>
 
               <!-- 发送验证码按钮 -->
-              <el-button
-                :disabled="!canSendCode || countdown > 0"
-                :loading="sendingCode"
-                class="send-code-btn"
-                type="primary"
-                plain
-                @click="sendVerificationCode"
-              >
+              <el-button :disabled="!canSendCode || countdown > 0" :loading="sendingCode" class="send-code-btn"
+                type="primary" plain @click="sendVerificationCode">
                 {{ countdown > 0 ? `${countdown}秒后重发` : "发送验证码" }}
               </el-button>
             </div>
           </el-form-item>
 
           <!-- 昵称输入（可选） -->
-          <el-form-item prop="nickname"
-class="form-item">
-            <label class="form-label"
-              >昵称 <span class="optional">(可选)</span></label
-            >
-            <el-input
-              v-model="registerForm.nickname"
-              :placeholder="昵称"
-              clearable
-              maxlength="20"
-              class="form-input"
-            >
+          <el-form-item prop="nickname" class="form-item">
+            <label class="form-label">昵称 <span class="optional">(可选)</span></label>
+            <el-input v-model="registerForm.nickname" :placeholder="昵称" clearable maxlength="20" class="form-input">
               <template #prefix>
-                <el-icon><User /></el-icon>
+                <el-icon>
+                  <User />
+                </el-icon>
               </template>
             </el-input>
           </el-form-item>
 
           <!-- 用户协议确认 -->
-          <el-form-item prop="agreement"
-class="form-item agreement-item">
-            <el-checkbox
-              v-model="registerForm.agreement"
-              class="agreement-checkbox"
-            >
+          <el-form-item prop="agreement" class="form-item agreement-item">
+            <el-checkbox v-model="registerForm.agreement" class="agreement-checkbox">
               我已阅读并同意
-              <el-link
-                type="primary"
-                :underline="false"
-                @click="showUserAgreement"
-              >
+              <el-link type="primary" :underline="false" @click="showUserAgreement">
                 用户协议
               </el-link>
               和
-              <el-link
-                type="primary"
-                :underline="false"
-                @click="showPrivacyPolicy"
-              >
+              <el-link type="primary" :underline="false" @click="showPrivacyPolicy">
                 隐私政策
               </el-link>
             </el-checkbox>
@@ -178,13 +134,7 @@ class="form-item agreement-item">
 
           <!-- 注册按钮 -->
           <el-form-item class="form-item">
-            <el-button
-              type="primary"
-              :loading="registering"
-              class="register-btn"
-              size="large"
-              @click="handleRegister"
-            >
+            <el-button type="primary" :loading="registering" class="register-btn" size="large" @click="handleRegister">
               <el-icon v-if="!registering">
                 <UserFilled />
               </el-icon>
@@ -199,24 +149,13 @@ class="form-item agreement-item">
             </el-divider>
 
             <div class="social-register">
-              <el-button
-                class="social-btn wechat-btn"
-                size="large"
-                circle
-                @click="handleWechatRegister"
-              >
+              <el-button class="social-btn wechat-btn" size="large" circle @click="handleWechatRegister">
                 <el-icon size="20">
                   <ChatDotRound />
                 </el-icon>
               </el-button>
 
-              <el-button
-                class="social-btn qq-btn"
-                size="large"
-                circle
-                disabled
-                @click="handleQQRegister"
-              >
+              <el-button class="social-btn qq-btn" size="large" circle disabled @click="handleQQRegister">
                 <el-icon size="20">
                   <User />
                 </el-icon>
@@ -227,12 +166,7 @@ class="form-item agreement-item">
           <!-- 登录链接 -->
           <div class="login-section">
             <span class="login-text">已有账户？</span>
-            <el-link
-              type="primary"
-              :underline="false"
-              class="login-link"
-              @click="goToLogin"
-            >
+            <el-link type="primary" :underline="false" class="login-link" @click="goToLogin">
               立即登录
             </el-link>
           </div>
@@ -273,7 +207,7 @@ export default {
   },
   setup() {
     const router = useRouter();
-    
+
     // 使用新的用户管理组合函数
     const {
       loading,
@@ -360,7 +294,7 @@ export default {
 
       try {
         await registerFormRef.value.validate();
-        
+
         // 使用新的register方法，内部已处理跳转和提示
         await register(
           registerForm.email,
@@ -500,11 +434,9 @@ export default {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(
-    circle,
-    rgba(255, 255, 255, 0.1) 1px,
-    transparent 1px
-  );
+  background: radial-gradient(circle,
+      rgba(255, 255, 255, 0.1) 1px,
+      transparent 1px);
   background-size: 50px 50px;
   animation: float-dots 20s linear infinite;
 }
@@ -513,6 +445,7 @@ export default {
   0% {
     transform: translate(0, 0) rotate(0deg);
   }
+
   100% {
     transform: translate(-50px, -50px) rotate(360deg);
   }
@@ -537,10 +470,12 @@ export default {
 }
 
 @keyframes float {
+
   0%,
   100% {
     transform: translateY(0px);
   }
+
   50% {
     transform: translateY(-8px);
   }
@@ -560,6 +495,7 @@ export default {
   0% {
     filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
   }
+
   100% {
     filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6));
   }
@@ -669,6 +605,7 @@ export default {
     transform: translateX(50px);
     opacity: 0;
   }
+
   100% {
     transform: translateX(0);
     opacity: 1;
@@ -760,8 +697,7 @@ export default {
   cursor: not-allowed;
 }
 
-.agreement-item {
-}
+.agreement-item {}
 
 .agreement-checkbox {
   width: 100%;
@@ -793,12 +729,10 @@ export default {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent);
   transition: left 0.5s;
 }
 
@@ -904,6 +838,7 @@ export default {
     opacity: 0;
     transform: translateY(30px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
