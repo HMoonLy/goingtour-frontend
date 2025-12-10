@@ -6,7 +6,7 @@
       :stats="{
         total: totalTrips,
         saved: savedTripsCount,
-        draft: draftTripsCount
+        draft: draftTripsCount,
       }"
       @update:avatar="handleAvatarUpdate"
     />
@@ -23,15 +23,10 @@
       />
 
       <!-- 个人旅行档案 -->
-      <PreferenceProfile
-        :preferences="userPreferences"
-        :loading="loading"
-      />
+      <PreferenceProfile :preferences="userPreferences" :loading="loading" />
 
       <!-- 快捷功能 -->
-      <QuickActions
-        @export="exportTrips"
-      />
+      <QuickActions @export="exportTrips" />
     </div>
   </div>
 </template>
@@ -48,10 +43,10 @@ import { convertBackendTripToFrontend } from "@/utils/data/tripDataConverter.js"
 import { handleApiError } from "@/utils/api/errorHandler.js";
 
 // Components
-import DashboardHeader from "./components/DashboardHeader.vue";
-import TripList from "./components/TripList.vue";
-import PreferenceProfile from "./components/PreferenceProfile.vue";
-import QuickActions from "./components/QuickActions.vue";
+import DashboardHeader from "./DashboardHeader.vue";
+import TripList from "./TripList.vue";
+import PreferenceProfile from "./PreferenceProfile.vue";
+import QuickActions from "./QuickActions.vue";
 
 export default {
   name: "PersonalCenter",
@@ -96,7 +91,8 @@ export default {
       // 按更新时间排序
       return trips.sort(
         (a, b) =>
-          new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt)
+          new Date(b.updatedAt || b.createdAt) -
+          new Date(a.updatedAt || a.createdAt)
       );
     });
 
@@ -111,7 +107,10 @@ export default {
     // 用户偏好数据
     const userPreferences = computed(() => {
       // 从userStore.userPreferences获取偏好数据（已经是对象）
-      if (userStore.userPreferences && Object.keys(userStore.userPreferences).length > 0) {
+      if (
+        userStore.userPreferences &&
+        Object.keys(userStore.userPreferences).length > 0
+      ) {
         return userStore.userPreferences;
       }
       return {};
@@ -126,9 +125,13 @@ export default {
         if (userStore.currentUser?.id) {
           try {
             const { tripApi } = await import("@/api/trip.js");
-            const response = await tripApi.getUserTrips(userStore.currentUser.id);
+            const response = await tripApi.getUserTrips(
+              userStore.currentUser.id
+            );
             if (response.data) {
-              savedTrips.value = response.data.map(convertBackendTripToFrontend);
+              savedTrips.value = response.data.map(
+                convertBackendTripToFrontend
+              );
             }
           } catch (error) {
             console.warn("从API加载行程失败，尝试本地存储:", error);
@@ -265,7 +268,11 @@ export default {
           destination: trip.destinationName || trip.destination,
           days: trip.days,
           budget: trip.totalBudget,
-          status: trip.isDraft ? "草稿" : trip.aiGenerated ? "AI生成" : "已完成",
+          status: trip.isDraft
+            ? "草稿"
+            : trip.aiGenerated
+              ? "AI生成"
+              : "已完成",
           createdAt: trip.createdAt,
           updatedAt: trip.updatedAt,
         }));

@@ -7,7 +7,7 @@ const routes = [
         path: "/login",
         name: "Login",
         component: () =>
-            import ("../pages/User/Auth/Login.vue"),
+            import("../pages/User/Auth/Login.vue"),
         meta: {
             titleKey: "route.login",
             requiresAuth: false,
@@ -17,7 +17,7 @@ const routes = [
         path: "/register",
         name: "Register",
         component: () =>
-            import ("../pages/User/Auth/Register.vue"),
+            import("../pages/User/Auth/Register.vue"),
         meta: {
             titleKey: "route.register",
             requiresAuth: false,
@@ -28,7 +28,7 @@ const routes = [
     {
         path: "/",
         component: () =>
-            import ("../layouts/DefaultLayout.vue"),
+            import("../layouts/DefaultLayout.vue"),
         children: [
             // 默认重定向到首页
             {
@@ -41,7 +41,7 @@ const routes = [
                 path: "home",
                 name: "Home",
                 component: () =>
-                    import ("../pages/Home/Dashboard.vue"),
+                    import("../pages/Home/Dashboard.vue"),
                 meta: {
                     titleKey: "route.home",
                     requiresAuth: true,
@@ -52,7 +52,7 @@ const routes = [
                 path: "user/dashboard",
                 name: "UserDashboard",
                 component: () =>
-                    import ("../pages/User/Dashboard.vue"),
+                    import("../pages/User/components/Dashboard.vue"),
                 meta: {
                     titleKey: "route.personal",
                     requiresAuth: true,
@@ -68,7 +68,7 @@ const routes = [
                 path: "user/settings",
                 name: "UserSettings",
                 component: () =>
-                    import ("../pages/User/Settings/index.vue"),
+                    import("../pages/User/Settings/index.vue"),
                 meta: {
                     titleKey: "route.personalSettings",
                     requiresAuth: true,
@@ -83,7 +83,7 @@ const routes = [
                 path: "user/personal-profile",
                 name: "PersonalProfile",
                 component: () =>
-                    import ("../pages/User/Settings/PersonalProfile.vue"),
+                    import("../pages/User/Settings/PersonalProfile.vue"),
                 meta: {
                     titleKey: "route.personalProfile",
                     requiresAuth: true,
@@ -94,7 +94,7 @@ const routes = [
                 path: "user/profile",
                 name: "PersonalProfile",
                 component: () =>
-                    import ("../pages/User/Settings/PersonalProfile.vue"),
+                    import("../pages/User/Settings/PersonalProfile.vue"),
                 meta: {
                     title: "个人旅行档案",
                     requiresAuth: true,
@@ -105,7 +105,7 @@ const routes = [
                 path: "footprints",
                 name: "Footprints",
                 component: () =>
-                    import ("../pages/Footprints/FootprintsPage.vue"),
+                    import("../pages/Footprints/FootprintsPage.vue"),
                 meta: {
                     titleKey: "route.footprints",
                     requiresAuth: true,
@@ -122,7 +122,7 @@ const routes = [
                 path: "destinations",
                 name: "Destinations",
                 component: () =>
-                    import ("../pages/Trip/Destinations.vue"),
+                    import("../pages/Trip/Destinations.vue"),
                 meta: {
                     titleKey: "route.destinations",
                     requiresAuth: true,
@@ -132,7 +132,7 @@ const routes = [
                 path: "trip/create",
                 name: "TripCreate",
                 component: () =>
-                    import ("../pages/Trip/TripCreate.vue"),
+                    import("../pages/Trip/TripCreate.vue"),
                 meta: {
                     titleKey: "route.tripCreate",
                     requiresAuth: true,
@@ -143,7 +143,7 @@ const routes = [
                 path: "trip/:id",
                 name: "TripDetail",
                 component: () =>
-                    import ("../pages/Trip/TripDetail.vue"),
+                    import("../pages/Trip/TripDetail.vue"),
                 props: true,
                 meta: {
                     titleKey: "route.tripDetail",
@@ -154,7 +154,7 @@ const routes = [
                 path: "ai-trip/:id/edit",
                 name: "AiTripEdit",
                 component: () =>
-                    import ("../pages/Trip/AiTripEdit.vue"),
+                    import("../pages/Trip/AiTripEdit.vue"),
                 props: true,
                 meta: {
                     titleKey: "route.aiTripEdit",
@@ -169,7 +169,7 @@ const routes = [
         path: "/share/trip/:id",
         name: "TripShare",
         component: () =>
-            import ("../pages/Trip/TripShare.vue"),
+            import("../pages/Trip/TripShare.vue"),
         props: true,
         meta: {
             titleKey: "route.tripShare",
@@ -182,7 +182,7 @@ const routes = [
         path: "/:pathMatch(.*)*",
         name: "NotFound",
         component: () =>
-            import ("../pages/Error/NotFound.vue"),
+            import("../pages/Error/NotFound.vue"),
         meta: {
             titleKey: "route.notFound",
             requiresAuth: false,
@@ -204,7 +204,7 @@ const router = createRouter({
 });
 
 // ========== 全局路由守卫 ==========
-router.beforeEach(async(to, from, next) => {
+router.beforeEach(async (to, from, next) => {
     const userStore = useUserStore();
 
     // 路由标题映射
@@ -262,7 +262,7 @@ router.beforeEach(async(to, from, next) => {
         try {
             // 动态导入并检查草稿store
             const { useDraft } = await
-            import ("@/composables/trip/useDraft.js");
+                import("@/composables/trip/useDraft.js");
             const draft = useDraft();
             hasDraftToRestore = draft.hasDraftToRestore();
             console.log("🔍 路由守卫检查草稿状态:", hasDraftToRestore);
