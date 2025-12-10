@@ -146,9 +146,6 @@ export function useProfile() {
             const updatedPreferences = response.data.preferences || response.data
                 // 2. 更新store状态
             userStore.setUserPreferences(updatedPreferences)
-
-            // 3. UI成功反馈
-            handleSuccess('偏好设置更新成功')
             return true
         } catch (error) {
             handleApiError(error, '更新偏好设置失败')

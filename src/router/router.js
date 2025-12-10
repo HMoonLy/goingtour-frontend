@@ -80,23 +80,12 @@ const routes = [
                 redirect: "/user/settings",
             },
             {
-                path: "user/personal-profile",
-                name: "PersonalProfile",
-                component: () =>
-                    import("../pages/User/Settings/PersonalProfile.vue"),
-                meta: {
-                    titleKey: "route.personalProfile",
-                    requiresAuth: true,
-                },
-            },
-            // 新的用户档案页面
-            {
                 path: "user/profile",
                 name: "PersonalProfile",
                 component: () =>
                     import("../pages/User/Settings/PersonalProfile.vue"),
                 meta: {
-                    title: "个人旅行档案",
+                    titleKey: "route.personalProfile",
                     requiresAuth: true,
                 },
             },

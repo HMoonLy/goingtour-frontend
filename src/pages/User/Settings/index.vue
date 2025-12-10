@@ -71,7 +71,7 @@ import { ref } from "vue";
 import { ArrowLeft, User, Star, Bell, Lock, Setting, Document, Warning } from "@element-plus/icons-vue";
 
 // 导入子组件
-import AccountSettings from "../Profile/AccountSettings.vue";
+import AccountSettings from "./AccountSettings.vue";
 import Notifications from "./Notifications.vue";
 import PrivacySystem from "./PrivacySystem.vue";
 import AccountSecurity from "./AccountSecurity.vue";

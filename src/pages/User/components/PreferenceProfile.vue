@@ -6,7 +6,7 @@
         个人旅行档案
       </h3>
       <div class="header-actions">
-        <el-button size="small" @click="$router.push('/personal/settings')">
+        <el-button size="small" @click="$router.push({ path: '/user/profile', query: { from: 'dashboard' } })">
           <el-icon><Setting /></el-icon>
           编辑档案
         </el-button>
@@ -24,7 +24,7 @@
             <Star />
           </el-icon>
         </template>
-        <el-button type="primary" @click="$router.push('/personal/settings')">
+        <el-button type="primary" @click="$router.push({ path: '/user/profile', query: { from: 'dashboard' } })">
           设置档案
         </el-button>
       </el-empty>
