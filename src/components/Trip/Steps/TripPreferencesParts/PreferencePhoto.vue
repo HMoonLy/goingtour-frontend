@@ -1,8 +1,11 @@
 <template>
   <div class="preference-section photo-section">
     <div class="section-header">
+      <el-icon class="section-icon">
+        <Camera />
+      </el-icon>
       <div class="section-info">
-        <h3 class="section-title">📸 这次旅行对拍照的重视程度</h3>
+        <h3 class="section-title">这次旅行对拍照的重视程度</h3>
         <p class="section-desc">
           帮助我们安排合适的拍照时间和推荐上镜景点
           <span v-if="recommendedValue" class="smart-tip">
@@ -91,7 +94,21 @@ export default {
   margin-bottom: 32px;
 }
 
-
+.section-icon {
+  width: 48px;
+  height: 48px;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 关键点：用极淡的背景色代替边框 */
+  background: var(--el-color-primary-light-9); 
+  color: var(--el-color-primary);
+  border-radius: 12px;
+  /* 去掉边框 */
+  border: none; 
+  flex-shrink: 0;
+}
 .section-info {
   flex: 1;
 }

@@ -1,8 +1,11 @@
 <template>
   <div class="preference-section focus-section">
     <div class="section-header">
+      <el-icon class="section-icon">
+        <Star />
+      </el-icon>
       <div class="section-info">
-        <h3 class="section-title">🌟 这次最想体验什么？</h3>
+        <h3 class="section-title">这次最想体验什么？</h3>
         <p class="section-desc">
           选择这次旅行您最期待的体验类型（最多3个）
           <span v-if="recommendedOptions.length > 0" class="smart-tip">
@@ -135,7 +138,21 @@ export default {
   margin-bottom: 32px;
 }
 
-
+.section-icon {
+  width: 48px;
+  height: 48px;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 关键点：用极淡的背景色代替边框 */
+  background: var(--el-color-primary-light-9); 
+  color: var(--el-color-primary);
+  border-radius: 12px;
+  /* 去掉边框 */
+  border: none; 
+  flex-shrink: 0;
+}
 .section-info {
   flex: 1;
 }

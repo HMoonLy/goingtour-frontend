@@ -157,7 +157,7 @@ const handleDateChange = (val) => {
 .section-title {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   font-size: 18px;
   font-weight: 600;
   color: var(--text-primary);
@@ -167,11 +167,17 @@ const handleDateChange = (val) => {
 }
 
 .section-title .el-icon {
-  font-size: 30px;
+  width: 48px;
+  height: 48px;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--el-color-primary-light-9);
   color: var(--el-color-primary);
-  background: transparent;
+  border-radius: 12px;
   padding: 0;
-  border-radius: 0;
+  flex-shrink: 0;
 }
 
 .days-text {

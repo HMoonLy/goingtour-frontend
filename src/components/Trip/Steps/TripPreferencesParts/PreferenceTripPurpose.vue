@@ -1,8 +1,11 @@
 <template>
   <div class="preference-section purpose-section">
     <div class="section-header">
+      <el-icon class="section-icon">
+        <Flag />
+      </el-icon>
       <div class="section-info">
-        <h3 class="section-title">🎯 这次旅行的主要目的</h3>
+        <h3 class="section-title">这次旅行的主要目的</h3>
         <p class="section-desc">
           告诉我们这次旅行的特殊意义，我们会相应调整推荐风格
         </p>
@@ -69,6 +72,25 @@ export default {
 
 .section-header {
   margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.section-icon {
+  width: 48px;
+  height: 48px;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 关键点：用极淡的背景色代替边框 */
+  background: var(--el-color-primary-light-9); 
+  color: var(--el-color-primary);
+  border-radius: 12px;
+  /* 去掉边框 */
+  border: none; 
+  flex-shrink: 0;
 }
 
 .section-info {
