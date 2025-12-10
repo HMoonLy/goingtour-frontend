@@ -6,16 +6,16 @@
 <template>
   <div class="enhanced-recommendation-step">
     <!-- 页面头部 -->
-    <div class="step-header">
-      <div class="header-content">
-        <div class="header-icon">
-          <el-icon><MagicStick /></el-icon>
-        </div>
-        <div class="header-text">
-          <h2 class="step-title">
+    <div class="page-title">
+      <div class="title-content">
+        <el-icon class="title-icon">
+          <MagicStick />
+        </el-icon>
+        <div class="title-text">
+          <h2 class="main-title">
             🎯 {{ cityInfo?.destinationName || "目的地" }}智能推荐
           </h2>
-          <p class="step-subtitle">
+          <p class="subtitle">
             基于您的偏好，为您精选了合适的景点和餐厅
             <span v-if="apiData?.stats?.total > 0" class="item-count">
               ({{ apiData.stats.total }}个精选推荐)
@@ -836,51 +836,47 @@ watch(
 }
 
 /* 页面头部 */
-.step-header {
-  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
-  color: white;
-  padding: 32px 24px;
-  border-radius: 16px;
+.page-title {
+  padding: 24px 0;
   margin-bottom: 24px;
 }
 
-.header-content {
+.title-content {
   display: flex;
   align-items: center;
-  margin-bottom: 16px;
+  gap: 12px;
 }
 
-.header-icon {
-  width: 64px;
-  height: 64px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
+.title-icon {
+  width: 48px;
+  height: 48px;
+  font-size: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 20px;
-  font-size: 28px;
+  background: transparent;
+  border-radius: 12px;
+  color: var(--el-color-primary);
+  border: 1px solid var(--el-color-primary-light-5);
 }
 
-.header-text {
-  flex: 1;
-}
-
-.step-title {
-  margin: 0 0 8px 0;
-  font-size: 28px;
+.title-text .main-title {
+  font-size: 24px;
   font-weight: 700;
+  color: #303133;
+  margin: 0 0 4px 0;
+  line-height: 1.2;
 }
 
-.step-subtitle {
+.title-text .subtitle {
+  font-size: 14px;
+  color: #909399;
   margin: 0;
-  font-size: 16px;
-  opacity: 0.9;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 .item-count {
-  color: #ffd700;
+  color: var(--el-color-warning);
   font-weight: 600;
 }
 
@@ -1007,6 +1003,11 @@ watch(
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.section-title .el-icon {
+  font-size: 30px;
+  color: var(--el-color-primary);
 }
 
 /* 推荐网格和列表 */

@@ -1,9 +1,6 @@
 <template>
   <div class="preference-section needs-section">
     <div class="section-header">
-      <div class="section-icon">
-        <el-icon><Warning /></el-icon>
-      </div>
       <div class="section-info">
         <h3 class="section-title">⚠️ 这次旅行的特殊情况</h3>
         <p class="section-desc">选择这次旅行需要特别考虑的因素（可多选）</p>
@@ -78,9 +75,10 @@ export default {
 <style scoped>
 .preference-section {
   background: white;
-  padding: 0;
+  padding: 24px;
   box-shadow: none;
-  border: none;
+  border: 1px solid #e4e7ed;
+  border-radius: 16px;
 }
 
 .section-header {
@@ -90,19 +88,6 @@ export default {
   margin-bottom: 32px;
 }
 
-.section-icon {
-  width: 56px;
-  height: 56px;
-  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 24px;
-  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.2);
-  flex-shrink: 0;
-}
 
 .section-info {
   flex: 1;

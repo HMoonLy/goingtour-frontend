@@ -140,9 +140,10 @@ const calculateBudgetPreview = (avgCost) => {
 
 <style scoped>
 .form-section {
-  padding: 0;
+  padding: 24px;
   background: #fff;
-  border: none;
+  border: 1px solid #e4e7ed;
+  border-radius: 16px;
   box-shadow: none;
   margin-bottom: 24px;
 }
@@ -150,18 +151,21 @@ const calculateBudgetPreview = (avgCost) => {
 .section-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   font-size: 18px;
   font-weight: 600;
-  color: #303133;
+  color: var(--text-primary);
   margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #ebeef5;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .section-title .el-icon {
-  font-size: 22px;
-  color: #409eff;
+  font-size: 30px;
+  color: var(--el-color-primary);
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
 }
 
 .section-subtitle {
@@ -174,9 +178,7 @@ const calculateBudgetPreview = (avgCost) => {
   border-radius: 4px;
 }
 
-.budget-section {
-
-}
+/* .budget-section {} */
 
 .budget-selector {
  display: grid;
@@ -199,41 +201,41 @@ const calculateBudgetPreview = (avgCost) => {
 }
 
 .budget-card:hover {
-  border-color: #409eff;
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
+  border-color: var(--el-color-primary);
+  box-shadow: var(--shadow-sm);
   transform: translateY(-2px);
 }
 
 .budget-card.selected {
-  border-color: #409eff;
-  background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
-  box-shadow: 0 6px 16px rgba(64, 158, 255, 0.2);
+  border-color: var(--el-color-primary);
+  background: var(--el-color-primary-light-9);
+  box-shadow: var(--shadow-md);
 }
 
 .budget-card.recommended {
   border-top-width: 4px;
-  border-top-color: #67c23a;
+  border-top-color: var(--el-color-success);
 }
 
 .budget-icon {
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: #f2f6fc;
+  background: var(--bg-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 16px;
   font-size: 24px;
-  color: #909399;
+  color: var(--text-secondary);
   transition: all 0.3s ease;
 }
 
 .budget-card.selected .budget-icon {
-  background: #409eff;
+  background: var(--el-color-primary);
   color: white;
   transform: scale(1.1);
-  box-shadow: 0 4px 10px rgba(64, 158, 255, 0.3);
+  box-shadow: var(--shadow-sm);
 }
 
 .budget-content {
@@ -243,7 +245,7 @@ const calculateBudgetPreview = (avgCost) => {
 .budget-title {
   font-size: 16px;
   font-weight: 600;
-  color: #303133;
+  color: var(--text-primary);
   margin: 0 0 8px 0;
   display: flex;
   align-items: center;
@@ -254,7 +256,7 @@ const calculateBudgetPreview = (avgCost) => {
 .budget-price {
   font-size: 15px;
   font-weight: 500;
-  color: #409eff;
+  color: var(--el-color-primary);
   margin-bottom: 8px;
 }
 
@@ -281,7 +283,7 @@ const calculateBudgetPreview = (avgCost) => {
 .preview-amount {
   font-size: 14px;
   font-weight: 600;
-  color: #f56c6c;
+  color: var(--el-color-danger);
 }
 
 .budget-check {
@@ -291,7 +293,7 @@ const calculateBudgetPreview = (avgCost) => {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: #409eff;
+  background: var(--el-color-primary);
   color: white;
   display: flex;
   align-items: center;

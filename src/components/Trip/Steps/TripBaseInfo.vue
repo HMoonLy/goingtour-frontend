@@ -238,15 +238,16 @@ onMounted(() => {
 }
 
 .title-icon {
-  width: 40px;
-  height: 40px;
-  font-size: 20px;
+  width: 48px;
+  height: 48px;
+  font-size: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--el-color-primary-light-9);
+  background: transparent;
   border-radius: 12px;
   color: var(--el-color-primary);
+  border: 1px solid var(--el-color-primary-light-5);
 }
 
 .title-text .main-title {

@@ -146,9 +146,10 @@ const handleDateChange = (val) => {
 
 <style scoped>
 .form-section {
-  padding: 0;
+  padding: 24px;
   background: #fff;
-  border: none;
+  border: 1px solid #e4e7ed;
+  border-radius: 16px;
   box-shadow: none;
   margin-bottom: 24px;
 }
@@ -156,30 +157,27 @@ const handleDateChange = (val) => {
 .section-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   font-size: 18px;
   font-weight: 600;
-  color: #303133;
+  color: var(--text-primary);
   margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #ebeef5;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .section-title .el-icon {
-  font-size: 22px;
-  color: #409eff;
-}
-
-.days-input-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  font-size: 30px;
+  color: var(--el-color-primary);
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
 }
 
 .days-text {
   font-size: 12px;
-  color: #409eff;
-  background: #ecf5ff;
+  color: var(--el-color-primary);
+  background: var(--el-color-primary-light-9);
   padding: 2px 8px;
   border-radius: 4px;
 }
@@ -202,7 +200,7 @@ const handleDateChange = (val) => {
 }
 
 .date-match {
-  color: #67c23a;
+  color: var(--el-color-success);
   display: flex;
   align-items: center;
   gap: 4px;

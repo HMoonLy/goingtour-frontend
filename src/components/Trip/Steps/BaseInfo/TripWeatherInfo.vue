@@ -164,27 +164,32 @@ const getWeatherSourceText = () => {
 
 <style scoped>
 .form-section {
-  padding: 0;
+  padding: 24px;
   background: #fff;
-  border: none;
+  border: 1px solid #e4e7ed;
+  border-radius: 16px;
   box-shadow: none;
+  margin-bottom: 24px;
 }
 
 .section-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   font-size: 18px;
   font-weight: 600;
-  color: #303133;
+  color: var(--text-primary);
   margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #ebeef5;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .section-title .el-icon {
-  font-size: 22px;
-  color: #409eff;
+  font-size: 30px;
+  color: var(--el-color-primary);
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
 }
 
 .weather-section {
@@ -207,7 +212,7 @@ const getWeatherSourceText = () => {
 
 .weather-loading .el-icon {
   font-size: 24px;
-  color: #409eff;
+  color: var(--el-color-primary);
 }
 
 .weather-source-tag {
@@ -215,8 +220,8 @@ const getWeatherSourceText = () => {
 }
 
 .weather-disabled-notice {
-  background: #fdf6ec;
-  color: #e6a23c;
+  background: var(--el-color-warning-light-9);
+  color: var(--el-color-warning);
   padding: 10px 16px;
   border-radius: 8px;
   display: flex;
@@ -224,7 +229,7 @@ const getWeatherSourceText = () => {
   gap: 8px;
   font-size: 13px;
   margin-bottom: 16px;
-  border: 1px solid #faecd8;
+  border: 1px solid var(--el-color-warning-light-8);
 }
 
 /* 天气预报网格样式 */
@@ -237,8 +242,8 @@ const getWeatherSourceText = () => {
 }
 
 .forecast-card {
-  background: #f8f9fa;
-  border: 2px solid #e9ecef;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
   border-radius: 12px;
   padding: 16px;
   text-align: center;
@@ -247,14 +252,14 @@ const getWeatherSourceText = () => {
 }
 
 .forecast-card:hover {
-  border-color: #409eff;
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
+  border-color: var(--el-color-primary);
+  box-shadow: var(--shadow-sm);
   transform: translateY(-2px);
 }
 
 .forecast-card.today {
-  background: linear-gradient(135deg, #f0f7ff 0%, #e6f3ff 100%);
-  border-color: #409eff;
+  background: var(--el-color-primary-light-9);
+  border-color: var(--el-color-primary);
 }
 
 .forecast-card.today::before {
@@ -262,7 +267,7 @@ const getWeatherSourceText = () => {
   position: absolute;
   top: -8px;
   right: -8px;
-  background: #409eff;
+  background: var(--el-color-primary);
   color: white;
   font-size: 10px;
   padding: 2px 6px;
@@ -309,7 +314,7 @@ const getWeatherSourceText = () => {
 .temp-high {
   font-size: 16px;
   font-weight: 700;
-  color: #e6a23c;
+  color: var(--el-color-warning);
   margin-bottom: 2px;
 }
 
@@ -359,12 +364,12 @@ const getWeatherSourceText = () => {
 .summary-value {
   font-size: 14px;
   font-weight: 600;
-  color: #409eff;
+  color: var(--el-color-primary);
 }
 
 .weather-tips {
   margin-top: 16px;
-  background: #ecf5ff;
+  background: var(--el-color-primary-light-9);
   border-radius: 8px;
   padding: 12px 16px;
 }
@@ -373,7 +378,7 @@ const getWeatherSourceText = () => {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #409eff;
+  color: var(--el-color-primary);
   font-size: 13px;
   font-weight: 600;
   margin-bottom: 4px;

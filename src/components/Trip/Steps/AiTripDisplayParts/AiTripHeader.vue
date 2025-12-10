@@ -3,7 +3,7 @@
     <div class="trip-header-content">
       <div class="trip-title-section">
         <div class="title-with-icon">
-          <el-icon class="ai-icon" color="#409eff">
+          <el-icon class="title-icon">
             <Cpu />
           </el-icon>
           <h1 class="trip-main-title">
@@ -23,7 +23,7 @@
       <div class="trip-stats">
         <div class="stat-card">
           <div class="stat-icon">
-            <el-icon color="#409eff">
+            <el-icon>
               <Calendar />
             </el-icon>
           </div>
@@ -36,7 +36,7 @@
         </div>
         <div class="stat-card">
           <div class="stat-icon">
-            <el-icon color="#67c23a">
+            <el-icon>
               <User />
             </el-icon>
           </div>
@@ -49,7 +49,7 @@
         </div>
         <div class="stat-card">
           <div class="stat-icon">
-            <el-icon color="#e6a23c">
+            <el-icon>
               <Trophy />
             </el-icon>
           </div>
@@ -62,7 +62,7 @@
         </div>
         <div class="stat-card">
           <div class="stat-icon">
-            <el-icon color="#f56c6c">
+            <el-icon>
               <Timer />
             </el-icon>
           </div>
@@ -121,9 +121,17 @@ const formatProcessingTime = (time) => {
   margin-bottom: 16px;
 }
 
-.ai-icon {
-  font-size: 32px;
-  color: #667eea;
+.title-icon {
+  width: 48px;
+  height: 48px;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border-radius: 12px;
+  color: var(--el-color-primary);
+  border: 1px solid var(--el-color-primary-light-5);
 }
 
 .trip-main-title {
@@ -170,11 +178,11 @@ const formatProcessingTime = (time) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f7fafc;
-  border-radius: 8px;
+  background: transparent;
+  border-radius: 12px;
   font-size: 24px;
-  color: #667eea;
-  border: 1px solid #e2e8f0;
+  color: var(--el-color-primary);
+  border: 1px solid var(--el-color-primary-light-5);
 }
 
 .stat-content {

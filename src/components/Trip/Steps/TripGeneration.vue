@@ -1,7 +1,6 @@
 <template>
   <div class="trip-generation-container">
-    <!-- 页面头部 -->
-    <TripGenerationHeader />
+
 
     <!-- AI提示词预览面板 -->
     <PromptPreviewCard
@@ -66,7 +65,6 @@ import { useTripGenerationLogic } from "@/composables/trip/useTripGenerationLogi
 import { useTripPrompt } from "@/composables/trip/useTripPrompt.js";
 
 // Components
-import TripGenerationHeader from "./Generation/TripGenerationHeader.vue";
 import PromptPreviewCard from "./Generation/PromptPreviewCard.vue";
 import GenerationActions from "./Generation/GenerationActions.vue";
 import FullPromptDialog from "./Generation/FullPromptDialog.vue";
@@ -74,7 +72,6 @@ import FullPromptDialog from "./Generation/FullPromptDialog.vue";
 export default {
   name: "TripGeneration",
   components: {
-    TripGenerationHeader,
     PromptPreviewCard,
     GenerationActions,
     FullPromptDialog

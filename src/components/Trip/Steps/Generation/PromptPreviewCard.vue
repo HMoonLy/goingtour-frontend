@@ -3,7 +3,7 @@
     <div class="card-header">
       <div class="header-left">
         <div class="header-icon-small">
-          <el-icon size="20">
+          <el-icon>
             <MagicStick />
           </el-icon>
         </div>
@@ -28,7 +28,7 @@
     <div class="ai-prompt-content">
       <div v-if="!generating && !generatedTrip">
         <div class="generation-intro">
-          <el-icon size="48" color="#91A8D0">
+          <el-icon class="intro-icon">
             <MagicStick />
           </el-icon>
           <h3>准备生成您的个性化行程</h3>
@@ -477,13 +477,14 @@ export default {
 .header-icon-small {
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
-  border-radius: 14px;
+  font-size: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.2);
+  background: transparent;
+  border-radius: 12px;
+  color: var(--el-color-primary);
+  border: 1px solid var(--el-color-primary-light-5);
   flex-shrink: 0;
 }
 
@@ -558,6 +559,11 @@ export default {
   align-items: center;
   gap: 8px;
   margin-bottom: 12px;
+}
+
+.section-header .el-icon {
+  font-size: 30px;
+  color: var(--el-color-primary);
 }
 
 .section-header h4 {
