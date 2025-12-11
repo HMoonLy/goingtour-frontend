@@ -23,10 +23,10 @@
         </p>
 
         <div class="option-cards">
-          <div class="option-card ai-option">
+          <div class="option-card ai-option" @click="$emit('confirm-ai')">
             <div class="card-header">
               <el-icon class="card-icon"><MagicStick /></el-icon>
-              <h4>🚀 AI智能推荐</h4>
+              <h4>AI智能推荐</h4>
             </div>
             <div class="card-content">
               <ul>
@@ -38,10 +38,10 @@
             </div>
           </div>
 
-          <div class="option-card basic-option">
+          <div class="option-card basic-option" @click="$emit('confirm-basic')">
             <div class="card-header">
               <el-icon class="card-icon"><MapLocation /></el-icon>
-              <h4>🗺️ 基础推荐</h4>
+              <h4>基础推荐</h4>
             </div>
             <div class="card-content">
               <ul>
@@ -100,24 +100,18 @@ export default {
 <style scoped>
 /* AI推荐确认对话框样式 */
 :deep(.ai-recommendation-dialog) {
-  border-radius: 16px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
-/* 使用最高优先级的选择器来覆盖Element Plus样式 */
+/* 覆盖Element Plus默认样式 */
 :deep(.el-overlay .el-dialog.ai-recommendation-dialog .el-dialog__header),
 :deep(.ai-recommendation-dialog.el-dialog .el-dialog__header),
 :deep(.ai-recommendation-dialog .el-dialog__header) {
   padding: 0 !important;
-  border-bottom: none !important;
-  background-color: transparent !important;
-  background: transparent !important;
-  border: none !important;
-}
-
-/* 确保对话框头部完全没有背景和边框 */
-:deep(.el-dialog.ai-recommendation-dialog .el-dialog__header::before),
-:deep(.el-dialog.ai-recommendation-dialog .el-dialog__header::after) {
-  display: none !important;
+  margin: 0 !important;
+  display: none !important; /* 完全隐藏默认header */
 }
 
 :deep(.ai-recommendation-dialog .el-dialog__body) {
@@ -125,95 +119,116 @@ export default {
 }
 
 .dialog-content {
-  padding: 0;
+  padding: 32px;
+  background-color: #ffffff;
 }
 
 .dialog-header {
-  display: flex;
-  background-color: #e4e7ed;
-  color: #303133;
-  padding: 24px;
   text-align: center;
-  border-radius: 16px;
-  border: none;
-  box-shadow: none;
-  align-items: center;
-}
-
-.dialog-header .header-icon {
-  font-size: 32px;
-  margin-bottom: 12px;
-  margin-right: 25px;
+  margin-bottom: 20px;
 }
 
 .dialog-header h3 {
   margin: 0;
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: -0.5px;
 }
 
 .dialog-body {
-  padding: 24px;
+  padding: 0;
 }
 
 .dialog-description {
   text-align: center;
   color: #606266;
-  margin: 0 0 24px 0;
-  font-size: 16px;
-  line-height: 1.5;
+  margin: 0 0 32px 0;
+  font-size: 15px;
+  line-height: 1.6;
+  opacity: 0.8;
 }
 
 .option-cards {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 24px;
+  gap: 16px;
+  margin-bottom: 32px;
 }
 
 .option-card {
-  border: 2px solid #e4e7ed;
-  border-radius: 12px;
-  padding: 20px;
-  transition: all 0.3s ease;
+  border: 1px solid #ebeef5;
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .option-card:hover {
-  border-color: #91a8d0;
-  box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15);
-  transform: translateY(-2px);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
+  border-color: transparent;
 }
 
+/* AI 选项样式 */
 .ai-option {
-  background: var(--el-color-primary-light-9);
+  background: linear-gradient(145deg, #f0f7ff 0%, #ffffff 100%);
+  border-color: #e1effe;
 }
 
+.ai-option:hover {
+  border-color: var(--el-color-primary-light-5);
+  box-shadow: 0 12px 28px rgba(64, 158, 255, 0.15);
+}
+
+/* 基础选项样式 */
 .basic-option {
-  background: #fafafa;
+  background: linear-gradient(145deg, #f9fafb 0%, #ffffff 100%);
+  border-color: #f0f2f5;
+}
+
+.basic-option:hover {
+  border-color: #dcdfe6;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
 }
 
 .card-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 .card-icon {
-  font-size: 20px;
-  color: #91a8d0;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ai-option .card-icon {
+  color: var(--el-color-primary);
 }
 
 .basic-option .card-icon {
-  color: #f7cac9;
+  color: #909399;
 }
 
 .card-header h4 {
   margin: 0;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 600;
   color: #303133;
+}
+
+.card-content {
+  flex: 1;
 }
 
 .card-content ul {
@@ -223,55 +238,79 @@ export default {
 }
 
 .card-content li {
-  padding: 6px 0;
-  font-size: 12px;
-  color: #606266;
-  line-height: 1.4;
+  padding: 8px 0;
+  font-size: 13px;
+  color: #555;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+}
+
+/* 列表项前的emoji微调 */
+.card-content li::first-letter {
+  margin-right: 0px; /* emoji本身自带间距，这里如果不带emoji可以加icon */
 }
 
 .dialog-actions {
   display: flex;
   gap: 16px;
-  justify-content: center;
-  padding: 0 24px 24px 24px;
+  padding: 0;
 }
 
 .dialog-actions .el-button {
   flex: 1;
-  padding: 12px 24px;
+  height: 52px;
   font-size: 16px;
   font-weight: 600;
   border-radius: 12px;
-  min-height: 48px;
+  border: none;
   transition: all 0.3s ease;
 }
 
-.dialog-actions .el-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+.dialog-actions .el-button--default {
+  background-color: #f5f7fa;
+  color: #606266;
 }
 
-/* 响应式 - 对话框 */
+.dialog-actions .el-button--default:hover {
+  background-color: #e4e7ed;
+  color: #303133;
+  transform: translateY(-2px);
+}
+
+.dialog-actions .el-button--primary {
+  background: linear-gradient(90deg, var(--el-color-primary) 0%, var(--el-color-primary-light-3) 100%);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+}
+
+.dialog-actions .el-button--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(64, 158, 255, 0.4);
+  filter: brightness(1.05);
+}
+
+/* 响应式适配 */
 @media (max-width: 768px) {
   :deep(.ai-recommendation-dialog) {
-    width: 90% !important;
-    margin: 0 !important;
+    width: 92% !important;
+  }
+  
+  .dialog-content {
+    padding: 24px;
   }
 
   .option-cards {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 16px;
   }
-
+  
   .dialog-actions {
-    flex-direction: column;
-    gap: 12px;
+    flex-direction: column-reverse; /* 手机端把主要按钮放上面 */
   }
-
+  
   .dialog-actions .el-button {
-    min-height: 44px;
-    font-size: 15px;
+    width: 100%;
+    margin: 0 !important;
   }
 }
 </style>
-

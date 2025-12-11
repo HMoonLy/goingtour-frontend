@@ -188,6 +188,7 @@ export default {
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s;
+  position: relative; /* 为绝对定位的check-icon做准备 */
 }
 
 .interest-item:hover {
@@ -228,6 +229,9 @@ export default {
 }
 
 .check-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
   color: #67c23a;
   font-size: 16px;
 }
@@ -257,4 +261,3 @@ export default {
   }
 }
 </style>
-

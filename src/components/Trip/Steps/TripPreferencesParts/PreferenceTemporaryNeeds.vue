@@ -1,14 +1,14 @@
 <template>
-  <div class="preference-section needs-section">
-    <div class="section-header">
-      <el-icon class="section-icon">
-        <Warning />
-      </el-icon>
-      <div class="section-info">
-        <h3 class="section-title">这次旅行的特殊情况</h3>
-        <p class="section-desc">选择这次旅行需要特别考虑的因素（可多选）</p>
+  <el-card class="section" shadow="never">
+    <template #header>
+      <div class="section-header">
+        <el-icon><Warning /></el-icon>
+        <div>
+          <div class="section-title">这次旅行的特殊情况</div>
+          <div class="section-desc">选择这次旅行需要特别考虑的因素（可多选）</div>
+        </div>
       </div>
-    </div>
+    </template>
 
     <div class="needs-content">
       <div class="needs-grid">
@@ -30,20 +30,28 @@
             <el-icon><InfoFilled /></el-icon>
             <span>{{ need.aiStrategy }}</span>
           </div>
+
+          <el-icon
+            v-if="modelValue.includes(need.value)"
+            class="check-icon"
+          >
+            <Check />
+          </el-icon>
         </div>
       </div>
     </div>
-  </div>
+  </el-card>
 </template>
 
 <script>
-import { Warning, InfoFilled } from "@element-plus/icons-vue";
+import { Warning, InfoFilled, Check } from "@element-plus/icons-vue";
 
 export default {
   name: "PreferenceTemporaryNeeds",
   components: {
     Warning,
     InfoFilled,
+    Check,
   },
   props: {
     modelValue: {
@@ -76,86 +84,80 @@ export default {
 </script>
 
 <style scoped>
-.preference-section {
-  background: white;
-  padding: 24px;
-  box-shadow: none;
-  border: 1px solid #e4e7ed;
-  border-radius: 16px;
+.section {
+  margin-bottom: 24px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.section :deep(.el-card__header) {
+  background: linear-gradient(
+    90deg,
+    rgba(145, 168, 208, 0.12),
+    rgba(247, 202, 201, 0.06)
+  );
+  padding: 20px;
 }
 
 .section-header {
   display: flex;
   align-items: flex-start;
-  gap: 20px;
-  margin-bottom: 32px;
+  gap: 12px;
 }
 
-.section-icon {
-  width: 48px;
-  height: 48px;
-  font-size: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* 关键点：用极淡的背景色代替边框 */
-  background: var(--el-color-primary-light-9); 
-  color: var(--el-color-primary);
-  border-radius: 12px;
-  /* 去掉边框 */
-  border: none; 
-  flex-shrink: 0;
-}
-
-.section-info {
-  flex: 1;
+.section-header .el-icon {
+  font-size: 20px;
+  color: #91a8d0;
+  margin-top: 2px;
 }
 
 .section-title {
-  margin: 0 0 8px;
   font-weight: 600;
-  font-size: 24px;
   color: #303133;
+  font-size: 18px;
+  margin-bottom: 4px;
 }
 
 .section-desc {
-  margin: 0;
-  font-size: 16px;
-  color: #606266;
-  line-height: 1.5;
+  color: #909399;
+  font-size: 14px;
 }
 
-/* 特殊需求网格 */
+.needs-content {
+  padding: 20px;
+}
+
 .needs-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  gap: 16px;
 }
 
 .need-item {
-  padding: 24px;
-  border: 2px solid #e4e7ed;
-  border-radius: 16px;
+  position: relative;
+  padding: 16px;
+  border: 1px solid #ebeef5;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s;
 }
 
 .need-item:hover {
-  border-color: #e53935;
-  box-shadow: 0 4px 12px rgba(229, 57, 53, 0.15);
-  transform: translateY(-2px);
+  border-color: #91a8d0;
+  background: #f5f7fa;
 }
 
 .need-item.selected {
-  border-color: #e53935;
-  background: linear-gradient(135deg, rgba(229, 57, 53, 0.05) 0%, #ffffff 100%);
+  border-color: #91a8d0;
+  background: rgba(145, 168, 208, 0.1);
 }
 
 .need-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .need-icon {
@@ -169,8 +171,8 @@ export default {
 }
 
 .need-desc {
-  margin: 0 0 16px;
-  font-size: 14px;
+  margin: 0 0 12px;
+  font-size: 13px;
   color: #606266;
   line-height: 1.4;
 }
@@ -178,28 +180,24 @@ export default {
 .need-strategy {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
+  gap: 6px;
+  font-size: 12px;
   color: #909399;
   font-style: italic;
 }
 
+.check-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: #67c23a;
+  font-size: 18px;
+}
+
 @media (max-width: 768px) {
-  .preference-section {
-    padding: 24px 20px;
-  }
-
-  .section-header {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 16px;
-  }
-
   .needs-grid {
     grid-template-columns: 1fr;
     gap: 12px;
   }
 }
 </style>
-

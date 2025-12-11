@@ -11,47 +11,43 @@
     </template>
 
     <div class="form-item">
-      <div class="item-label">选择您偏好的交通方式</div>
+      <div class="item-label">
+        <span>选择您偏好的交通方式</span>
+        <!-- 不限制数量，或者限制全选 -->
+      </div>
       <div class="item-help">
         我们会优先推荐您喜欢的交通方式，并在行程中合理安排换乘和路线
       </div>
 
-      <!-- 紧凑标签式 -->
-      <div class="transport-compact-wrapper">
-        <div class="compact-grid">
+      <div class="transport-grid">
           <div
             v-for="transport in transportPreferenceOptions"
             :key="transport.value"
-            class="compact-item"
+          class="transport-item"
             :class="{
-              selected: modelValue.includes(
-                transport.value
-              ),
+            selected: modelValue.includes(transport.value),
             }"
             @click="toggleTransport(transport.value)"
           >
-            <span class="compact-icon">{{ transport.icon }}</span>
-            <span class="compact-name">{{ transport.name }}</span>
+          <span class="transport-icon">{{ transport.icon }}</span>
+          <div class="transport-info">
+            <span class="transport-name">{{ transport.name }}</span>
+            <span class="transport-desc">{{ transport.description }}</span>
+          </div>
+          <el-icon
+            v-if="modelValue.includes(transport.value)"
+            class="check-icon"
+          >
+            <Check />
+          </el-icon>
           </div>
         </div>
 
-        <!-- 紧凑模式的详情展示 -->
-        <div
-          v-if="selectedTransportDetails.length > 0"
-          class="compact-details"
+      <div class="selection-status">
+        <span class="count">已选择 {{ modelValue.length }} 种交通方式</span>
+        <span v-if="modelValue.length === 0" class="hint"
+          >请至少选择1种交通方式</span
         >
-          <div class="compact-details-title">已选择：</div>
-          <div class="compact-details-content">
-            <div
-              v-for="item in selectedTransportDetails"
-              :key="item.value"
-              class="compact-detail-item"
-            >
-              <strong>{{ item.icon }} {{ item.name }}</strong
-              >：{{ item.benefit }}
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </el-card>
@@ -59,12 +55,12 @@
 
 <script>
 import { computed } from "vue";
-import { MapLocation } from "@element-plus/icons-vue";
+import { MapLocation, Check } from "@element-plus/icons-vue";
 import { PERSONAL_PROFILE_OPTIONS } from "@/utils/data/travelDataSystem.js";
 
 export default {
   name: "TransportSection",
-  components: { MapLocation },
+  components: { MapLocation, Check },
   props: {
     modelValue: {
       type: Array,
@@ -82,12 +78,6 @@ export default {
       }));
     });
 
-    const selectedTransportDetails = computed(() => {
-      return transportPreferenceOptions.value.filter((transport) =>
-        props.modelValue.includes(transport.value)
-      );
-    });
-
     const toggleTransport = (transport) => {
       const newValue = [...props.modelValue];
       const index = newValue.indexOf(transport);
@@ -101,7 +91,6 @@ export default {
 
     return {
       transportPreferenceOptions,
-      selectedTransportDetails,
       toggleTransport,
     };
   },
@@ -169,119 +158,83 @@ export default {
   line-height: 1.5;
 }
 
-.transport-compact-wrapper {
-  margin-top: 12px;
-}
-
-.compact-grid {
-  display: flex;
-  flex-wrap: wrap;
+.transport-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 12px;
-  margin-top: 16px;
+  margin-bottom: 16px;
 }
 
-.compact-item {
+.transport-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  border: 2px solid #e8f0fe;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #ebeef5;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  background: white;
-  position: relative;
-  min-width: 140px;
+  transition: all 0.3s;
 }
 
-.compact-item:hover {
+.transport-item:hover {
   border-color: #91a8d0;
-  box-shadow: 0 2px 8px rgba(145, 168, 208, 0.15);
+  background: #f5f7fa;
 }
 
-.compact-item.selected {
-  border-color: #1976d2;
-  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-  color: #1976d2;
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.25);
-  transform: translateY(-1px);
-  position: relative;
+.transport-item.selected {
+  border-color: #91a8d0;
+  background: rgba(145, 168, 208, 0.1);
 }
 
-.compact-item.selected::before {
-  content: "";
-  position: absolute;
-  top: -2px;
-  right: -2px;
-  bottom: -2px;
-  left: -2px;
-  background: linear-gradient(45deg, #1976d2, #42a5f5);
-  border-radius: inherit;
-  z-index: -1;
-  opacity: 0.6;
-}
-
-.compact-item.selected .compact-icon {
-  text-shadow: 0 1px 3px rgba(25, 118, 210, 0.3);
-  transform: scale(1.1);
-}
-
-.compact-icon {
+.transport-icon {
   font-size: 20px;
-  flex-shrink: 0;
+  width: 32px;
+  text-align: center;
 }
 
-.compact-name {
-  font-size: 14px;
-  font-weight: 500;
-  white-space: nowrap;
+.transport-info {
+  flex: 1;
 }
 
-.compact-details {
-  margin-top: 16px;
-  padding: 16px;
-  background: #f8faff;
-  border: 1px solid #e3f2fd;
-  border-radius: 8px;
-}
-
-.compact-details-title {
-  font-size: 14px;
+.transport-name {
+  display: block;
   font-weight: 600;
-  color: #1976d2;
-  margin-bottom: 12px;
+  color: #303133;
+  margin-bottom: 4px;
 }
 
-.compact-details-content {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.compact-detail-item {
+.transport-desc {
+  color: #909399;
   font-size: 13px;
+}
+
+.check-icon {
+  color: #67c23a;
+  font-size: 16px;
+}
+
+.selection-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f5f7fa;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.count {
   color: #606266;
-  line-height: 1.4;
+  font-weight: 500;
+}
+
+.hint {
+  color: #e6a23c;
 }
 
 @media (max-width: 768px) {
-  .compact-grid {
-    gap: 8px;
-  }
-  
-  .compact-item {
-    padding: 10px 12px;
-    min-width: 120px;
-  }
-  
-  .compact-icon {
-    font-size: 18px;
-  }
-  
-  .compact-name {
-    font-size: 13px;
+  .transport-grid {
+    flex-direction: column;
   }
 }
 </style>
-

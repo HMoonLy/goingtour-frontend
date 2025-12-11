@@ -267,25 +267,18 @@ export default {
   height: 80px;
   border-radius: 8px;
   overflow: hidden;
-  background: white;
-  border: 1px solid #e0e0e0;
-  transition: transform 0.3s ease;
+  background-color: transparent;
+  border: none;
 }
 
-.mbti-image-section:hover {
-  transform: scale(1.02);
-}
 
 .mbti-character-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  mix-blend-mode: multiply; 
 }
 
-.mbti-character-image:hover {
-  transform: scale(1.05);
-}
 
 .mbti-info-section {
   flex: 1;

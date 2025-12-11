@@ -88,7 +88,7 @@
 /* 日期选择器组件 */
 
 .el-date-table td.today .el-date-table-cell__text {
-    color: #ffffff !important;
+    color: #91A8D0 !important;
     font-weight: bold !important;
 }
 
@@ -411,8 +411,7 @@
 /* 对话框组件 */
 
 .el-dialog__header {
-    background-color: rgba(145, 168, 208, 0.05) !important;
-    border-bottom: 1px solid rgba(145, 168, 208, 0.1) !important;
+ 
 }
 
 

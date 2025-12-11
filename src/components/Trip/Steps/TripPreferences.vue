@@ -178,7 +178,6 @@ export default {
     ArrowLeft,
     Suitcase,
     AiLoadingOverlay,
-    // TripPreferencesHeader,
     PreferenceTripPurpose,
     PreferenceFocusArea,
     PreferencePace,

@@ -53,7 +53,7 @@
         />
 
         <!-- 第二步：个性化偏好 -->
-        <TripPreferencesNew
+        <TripPreferences
           v-show="currentStep === 1"
           :trip-context="{ 
             destination: baseForm.destinationName,
@@ -178,7 +178,7 @@ import TripBaseInfo from "@/components/Trip/Steps/TripBaseInfo.vue";
 import TripGeneration from "@/components/Trip/Steps/TripGeneration.vue";
 import TripPreview from "@/components/Trip/Steps/TripPreview.vue";
 import AiTripDisplay from "@/components/Trip/Steps/AiTripDisplay.vue";
-import TripPreferencesNew from "@/components/Trip/Steps/TripPreferencesNew.vue";
+import TripPreferences from "@/components/Trip/Steps/TripPreferences.vue";
 import TripRecommendationStep from "@/components/Trip/Steps/TripRecommendationStep.vue";
 import EnhancedRecommendationStep from "@/components/Trip/Steps/EnhancedRecommendationStep.vue"; 
 import TripNoDestination from "@/components/Trip/Steps/TripNoDestination.vue";
@@ -187,7 +187,7 @@ export default {
   name: "TripCreate",
   components: {
     TripBaseInfo,
-    TripPreferencesNew,
+    TripPreferences,
     TripRecommendationStep,
     EnhancedRecommendationStep,
     TripGeneration,

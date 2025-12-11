@@ -90,27 +90,21 @@ class WeatherService {
         const casts = forecastData.casts.map(cast => ({
             date: cast.date,
             week: this.getWeekDay(cast.week),
-            dayweather: cast.dayweather,
-            nightweather: cast.nightweather,
-            daytemp: cast.daytemp,
-            nighttemp: cast.nighttemp,
-            daywind: cast.daywind,
-            nightwind: cast.nightwind,
-            daypower: cast.daypower,
-            nightpower: cast.nightpower,
-            daytemp_float: parseFloat(cast.daytemp_float),
-            nighttemp_float: parseFloat(cast.nighttemp_float),
-            // 添加WeatherSummary期望的字段
+            // 统一使用驼峰命名供 UI 使用
             dayWeather: cast.dayweather,
             nightWeather: cast.nightweather,
             dayTemp: cast.daytemp,
-            nightTemp: cast.nighttemp
+            nightTemp: cast.nighttemp,
+            dayWind: cast.daywind,
+            nightWind: cast.nightwind,
+            dayPower: cast.daypower,
+            nightPower: cast.nightpower
         }))
 
         // 计算温度范围
         const temps = casts.map(cast => ({
-            high: parseInt(cast.daytemp),
-            low: parseInt(cast.nighttemp)
+            high: parseInt(cast.dayTemp),
+            low: parseInt(cast.nightTemp)
         }))
         const maxTemp = Math.max(...temps.map(t => t.high))
         const minTemp = Math.min(...temps.map(t => t.low))
@@ -122,9 +116,9 @@ class WeatherService {
             adcode: forecastData.adcode,
             reporttime: forecastData.reporttime,
             // WeatherSummary期望的字段
-            currentTemp: casts[0]?.daytemp || '--',
-            currentWeather: casts[0]?.dayweather || '晴',
-            weatherDesc: casts[0]?.dayweather || '晴',
+            currentTemp: casts[0]?.dayTemp || '--',
+            currentWeather: casts[0]?.dayWeather || '晴',
+            weatherDesc: casts[0]?.dayWeather || '晴',
             tempRange: `${minTemp}°-${maxTemp}°`,
             forecast: casts,
             tips: [], // 出行建议，可以根据天气条件生成
@@ -138,10 +132,8 @@ class WeatherService {
      * 转换星期数字为中文
      */
     getWeekDay(weekNumber) {
-        console.log(weekNumber);
-        
         const weekDays = [ '一', '二', '三', '四', '五', '六','日']
-        return `星期${weekDays[parseInt(weekNumber-1)]}`
+        return `${weekDays[parseInt(weekNumber-1)]}`
     }
 
     /**
@@ -186,7 +178,7 @@ class WeatherService {
 
         try {
             console.log('请求天气预报:', city)
-            const response = await weatherApi.getForecastWeather(city)
+            const response = await weatherApi.getForecastWeather(city)     
             const transformedData = this.transformForecastWeatherData(response)
 
             this.setCache(cacheKey, transformedData)
@@ -234,14 +226,14 @@ class WeatherService {
 
         if (forecast.casts && forecast.casts.length > 0) {
             const temps = forecast.casts.map(cast => ({
-                high: parseInt(cast.daytemp),
-                low: parseInt(cast.nighttemp)
+                high: parseInt(cast.dayTemp),
+                low: parseInt(cast.nightTemp)
             }))
 
             const maxTemp = Math.max(...temps.map(t => t.high))
             const minTemp = Math.min(...temps.map(t => t.low))
             const hasRain = forecast.casts.some(cast =>
-                cast.dayweather.includes('雨') || cast.nightweather.includes('雨')
+                cast.dayWeather.includes('雨') || cast.nightWeather.includes('雨')
             )
 
             // 衣物建议

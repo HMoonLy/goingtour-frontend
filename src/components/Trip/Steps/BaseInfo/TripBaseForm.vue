@@ -5,9 +5,10 @@
       <span>基本信息</span>
     </div>
 
-    <el-row :gutter="24">
-      <!-- 目的地 -->
-      <el-col :span="12">
+    <div class="section-content">
+      <el-row :gutter="24">
+        <!-- 目的地 -->
+        <el-col :span="12">
         <el-form-item label="目的地" prop="destination">
           <el-input
             :model-value="modelValue.destinationName"
@@ -92,6 +93,7 @@
         </el-form-item>
       </el-col>
     </el-row>
+    </div>
   </div>
 </template>
 
@@ -148,12 +150,13 @@ const handleDateChange = (val) => {
 
 <style scoped>
 .form-section {
-  padding: 24px;
+  padding: 0;
   background: #fff;
   border: 1px solid #e4e7ed;
   border-radius: 16px;
   box-shadow: none;
   margin-bottom: 24px;
+  overflow: hidden;
 }
 
 .section-title {
@@ -163,9 +166,18 @@ const handleDateChange = (val) => {
   font-size: 18px;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 24px;
-  padding-bottom: 0;
-  border-bottom: none;
+  margin-bottom: 0;
+  padding: 20px;
+  border-bottom: 1px solid #e4e7ed;
+  background: linear-gradient(
+    90deg,
+    rgba(145, 168, 208, 0.12),
+    rgba(247, 202, 201, 0.06)
+  );
+}
+
+.section-content {
+  padding: 24px;
 }
 
 .section-title .el-icon {
@@ -216,7 +228,7 @@ const handleDateChange = (val) => {
 }
 
 @media (max-width: 768px) {
-  .form-section {
+  .section-content {
     padding: 16px;
   }
 }

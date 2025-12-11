@@ -21,8 +21,9 @@
       </el-tag>
     </div>
 
-    <!-- 天气加载状态 -->
-    <div v-if="loading" class="weather-loading">
+    <div class="section-content">
+      <!-- 天气加载状态 -->
+      <div v-if="loading" class="weather-loading">
       <el-icon class="is-loading">
         <Loading />
       </el-icon>
@@ -78,15 +79,10 @@
           </div>
 
           <div class="forecast-temp">
-            <div class="temp-high">{{ forecast.dayTemp }}°</div>
-            <div class="temp-low">{{ forecast.nightTemp }}°</div>
+            <div class="temp-high" :class="getTempClass(forecast.dayTemp)">{{ forecast.dayTemp }}°</div>
+            <div class="temp-low" :class="getTempClass(forecast.nightTemp)">{{ forecast.nightTemp }}°</div>
           </div>
 
-          <div class="forecast-wind">
-            <div class="wind-info">
-              {{ forecast.dayWind }} {{ forecast.dayPower }}级
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -116,6 +112,7 @@
       <div class="tips-content">
         {{ tips.slice(0, 2).join("；") }}
       </div>
+    </div>
     </div>
   </div>
 </template>
@@ -150,6 +147,16 @@ const getWeatherEmoji = (weather) => {
   return "⛅";
 };
 
+const getTempClass = (temp) => {
+  const val = parseFloat(temp);
+  if (isNaN(val)) return "";
+  if (val >= 30) return "temp-hot";     // 炎热
+  if (val >= 20) return "temp-warm";    // 温暖
+  if (val >= 10) return "temp-cool";    // 凉爽
+  if (val >= 0) return "temp-cold";     // 寒冷
+  return "temp-freezing";               // 严寒
+};
+
 
 const getWeatherSourceText = () => {
   if (!props.suggestion) return "";
@@ -159,12 +166,13 @@ const getWeatherSourceText = () => {
 
 <style scoped>
 .form-section {
-  padding: 24px;
+  padding: 0;
   background: #fff;
   border: 1px solid #e4e7ed;
   border-radius: 16px;
   box-shadow: none;
   margin-bottom: 24px;
+  overflow: hidden;
 }
 
 .section-title {
@@ -174,9 +182,18 @@ const getWeatherSourceText = () => {
   font-size: 18px;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 24px;
-  padding-bottom: 0;
-  border-bottom: none;
+  margin-bottom: 0;
+  padding: 20px;
+  border-bottom: 1px solid #e4e7ed;
+  background: linear-gradient(
+    90deg,
+    rgba(145, 168, 208, 0.12),
+    rgba(247, 202, 201, 0.06)
+  );
+}
+
+.section-content {
+  padding: 24px;
 }
 
 .section-title .el-icon {
@@ -191,10 +208,6 @@ const getWeatherSourceText = () => {
   border-radius: 12px;
   padding: 0;
   flex-shrink: 0;
-}
-
-.weather-section {
-  background: linear-gradient(180deg, #fdfeff 0%, #ffffff 100%);
 }
 
 .weather-loading, .weather-error {
@@ -315,14 +328,20 @@ const getWeatherSourceText = () => {
 .temp-high {
   font-size: 16px;
   font-weight: 700;
-  color: var(--el-color-warning);
   margin-bottom: 2px;
 }
 
 .temp-low {
   font-size: 12px;
-  color: #909399;
+  opacity: 0.9;
 }
+
+/* 温度颜色 */
+.temp-hot { color: #ef8b8b; }      /* >30°C 柔和红 */
+.temp-warm { color: #eebb77; }     /* 20-30°C 柔和橙 */
+.temp-cool { color: #95c977; }     /* 10-20°C 柔和绿 */
+.temp-cold { color: #8bbdf9; }     /* 0-10°C 柔和蓝 */
+.temp-freezing { color: #909399; } /* <0°C 柔和灰 */
 
 .forecast-wind {
   margin-top: auto;
@@ -393,7 +412,7 @@ const getWeatherSourceText = () => {
 }
 
 @media (max-width: 768px) {
-  .form-section {
+  .section-content {
     padding: 16px;
   }
   

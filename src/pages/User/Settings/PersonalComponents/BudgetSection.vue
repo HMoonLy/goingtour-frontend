@@ -25,21 +25,21 @@
           class="budget-option"
           :class="{
             selected: modelValue === budget.value,
-            recommended: budget.value === 'moderate',
           }"
           @click="$emit('update:modelValue', budget.value)"
         >
           <div class="budget-header">
             <span class="budget-name">{{ budget.name }}</span>
-            <span v-if="budget.value === 'moderate'" class="recommend-tag"
-              >推荐</span
-            >
           </div>
           <div class="budget-range">{{ budget.range }}</div>
           <div class="budget-desc">{{ budget.description }}</div>
           <div class="budget-examples">
             <small>例如：{{ budget.examples }}</small>
           </div>
+          
+          <el-icon v-if="modelValue === budget.value" class="check-icon">
+            <Check />
+          </el-icon>
         </div>
       </div>
     </div>
@@ -48,12 +48,12 @@
 
 <script>
 import { computed } from "vue";
-import { Money } from "@element-plus/icons-vue";
+import { Money, Check } from "@element-plus/icons-vue";
 import { PERSONAL_PROFILE_OPTIONS } from "@/utils/data/travelDataSystem.js";
 
 export default {
   name: "BudgetSection",
-  components: { Money },
+  components: { Money, Check },
   props: {
     modelValue: {
       type: String,
@@ -169,6 +169,7 @@ export default {
   cursor: pointer;
   transition: all 0.3s;
   text-align: center;
+  position: relative;
 }
 
 .budget-option:hover {
@@ -187,9 +188,18 @@ export default {
 
 .budget-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
+  gap: 8px;
   margin-bottom: 8px;
+}
+
+.check-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: #67c23a;
+  font-size: 18px; /* 调整大小 */
 }
 
 .budget-name {
@@ -229,4 +239,3 @@ export default {
   }
 }
 </style>
-

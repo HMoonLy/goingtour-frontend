@@ -74,7 +74,7 @@
       <div v-if="preferences.budgetLevel" class="preference-group">
         <h4><el-icon><Money /></el-icon>预算水平</h4>
         <div class="budget-display">
-          <el-tag type="success" size="small" class="budget-level-tag">
+          <el-tag type="primary" size="small" class="budget-level-tag">
             {{ getBudgetLevelDisplayName(preferences.budgetLevel) }}
           </el-tag>
           <span class="budget-range">{{ getBudgetLevelRange(preferences.budgetLevel) }}</span>
@@ -88,7 +88,7 @@
           <el-tag
             v-for="transport in preferences.transportPreferences"
             :key="transport"
-            type="warning"
+            type="primary"
             size="small"
             class="preference-tag"
           >
@@ -279,6 +279,7 @@ export default {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  mix-blend-mode: multiply; 
 }
 
 .mbti-image img {

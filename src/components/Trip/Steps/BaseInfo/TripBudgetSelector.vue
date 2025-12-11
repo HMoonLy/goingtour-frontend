@@ -6,7 +6,8 @@
       <span class="section-subtitle">每人/天</span>
     </div>
 
-    <el-form-item prop="budget">
+    <div class="section-content">
+      <el-form-item prop="budget">
       <div
         v-if="userPreferences && userPreferences.budget"
         class="preference-hint-banner"
@@ -63,7 +64,8 @@
           </div>
         </div>
       </div>
-    </el-form-item>
+      </el-form-item>
+    </div>
   </div>
 </template>
 
@@ -140,12 +142,13 @@ const calculateBudgetPreview = (avgCost) => {
 
 <style scoped>
 .form-section {
-  padding: 24px;
+  padding: 0;
   background: #fff;
   border: 1px solid #e4e7ed;
   border-radius: 16px;
   box-shadow: none;
   margin-bottom: 24px;
+  overflow: hidden;
 }
 
 .section-title {
@@ -155,9 +158,18 @@ const calculateBudgetPreview = (avgCost) => {
   font-size: 18px;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 24px;
-  padding-bottom: 0;
-  border-bottom: none;
+  margin-bottom: 0;
+  padding: 20px;
+  border-bottom: 1px solid #e4e7ed;
+  background: linear-gradient(
+    90deg,
+    rgba(145, 168, 208, 0.12),
+    rgba(247, 202, 201, 0.06)
+  );
+}
+
+.section-content {
+  padding: 24px;
 }
 
 .section-title .el-icon {
@@ -322,7 +334,7 @@ const calculateBudgetPreview = (avgCost) => {
 }
 
 @media (max-width: 768px) {
-  .form-section {
+  .section-content {
     padding: 16px;
   }
 
