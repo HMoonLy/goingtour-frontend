@@ -1,6 +1,6 @@
 <template>
   <div class="recommendation-section">
-    <!-- 选择摘要悬浮卡片 -->
+    <!-- 选择摘要悬浮卡片 (保持不变) -->
     <RecommendationSummary
       :selected-attractions="selectedAttractions"
       :selected-restaurants="selectedRestaurants"
@@ -11,62 +11,66 @@
       @clear-all-selections="clearAllSelections"
     />
 
-    <!-- 推荐区域主体 -->
-    <div class="form-section">
-      <div class="section-title">
-        <el-icon><Location /></el-icon>
-        <span>{{ (cityInfo?.destinationName || "目的地") + "推荐内容" }}</span>
+    <!-- 主要布局容器：左右分栏 -->
+    <div class="main-layout">
+      
+      <!-- 左侧：导航栏 -->
+      <div class="sidebar">
+        <!-- 可以在这里放一个小标题，比如"分类" -->
+        <RecommendationTabs v-model="activeTab" />
       </div>
 
-      <!-- 切换标签 -->
-      <RecommendationTabs v-model="activeTab" />
+      <!-- 右侧：内容区 -->
+      <div class="content-area">
+        
+        <!-- 搜索功能 -->
+        <div class="search-wrapper">
+           <RecommendationSearch
+            v-model:search-keyword="searchKeyword"
+            v-model:sort-by="sortBy"
+            :active-tab="activeTab"
+            @search="handleSearch"
+            @clear-search="handleClearSearch"
+          />
+        </div>
 
-      <!-- 搜索功能 -->
-      <RecommendationSearch
-        v-model:search-keyword="searchKeyword"
-        v-model:sort-by="sortBy"
-        :active-tab="activeTab"
-        @search="handleSearch"
-        @clear-search="handleClearSearch"
-      />
+        <!-- 列表内容 -->
+        <div class="list-container">
+          <AttractionList
+            v-show="activeTab === 'attractions'"
+            :city-info="cityInfo"
+            :selected-items="selectedAttractions"
+            v-model:search-keyword="searchKeyword"
+            :trigger-search="triggerSearch"
+            :sort-by="sortBy"
+            @add="$emit('add-attraction', $event)"
+            @remove="$emit('remove-attraction', $event)"
+          />
 
-      <!-- 景点推荐内容 -->
-      <AttractionList
-        v-show="activeTab === 'attractions'"
-        :city-info="cityInfo"
-        :selected-items="selectedAttractions"
-        v-model:search-keyword="searchKeyword"
-        :trigger-search="triggerSearch"
-        :sort-by="sortBy"
-        @add="$emit('add-attraction', $event)"
-        @remove="$emit('remove-attraction', $event)"
-      />
+          <RestaurantList
+            v-show="activeTab === 'restaurants'"
+            :city-info="cityInfo"
+            :selected-items="selectedRestaurants"
+            v-model:search-keyword="searchKeyword"
+            :trigger-search="triggerSearch"
+            :sort-by="sortBy"
+            @add="$emit('add-restaurant', $event)"
+            @remove="$emit('remove-restaurant', $event)"
+          />
 
-      <!-- 餐厅推荐内容 -->
-      <RestaurantList
-        v-show="activeTab === 'restaurants'"
-        :city-info="cityInfo"
-        :selected-items="selectedRestaurants"
-        v-model:search-keyword="searchKeyword"
-        :trigger-search="triggerSearch"
-        :sort-by="sortBy"
-        @add="$emit('add-restaurant', $event)"
-        @remove="$emit('remove-restaurant', $event)"
-      />
-
-      <!-- 酒店推荐内容 -->
-      <HotelList
-        v-show="activeTab === 'hotels'"
-        :city-info="cityInfo"
-        :selected-items="selectedHotels"
-        v-model:search-keyword="searchKeyword"
-        :trigger-search="triggerSearch"
-        :sort-by="sortBy"
-        @add="$emit('add-hotel', $event)"
-        @remove="$emit('remove-hotel', $event)"
-      />
+          <HotelList
+            v-show="activeTab === 'hotels'"
+            :city-info="cityInfo"
+            :selected-items="selectedHotels"
+            v-model:search-keyword="searchKeyword"
+            :trigger-search="triggerSearch"
+            :sort-by="sortBy"
+            @add="$emit('add-hotel', $event)"
+            @remove="$emit('remove-hotel', $event)"
+          />
+        </div>
+      </div>
     </div>
-
   </div>
 </template>
 
@@ -179,75 +183,42 @@ export default {
   position: relative;
 }
 
-/* 表单分区样式 */
-.form-section {
-  background: white;
-  box-shadow: none;
-  border:none;
-}
-
-
-/* 分区标题 */
-.section-title {
+/* 核心布局：左右 Flex */
+.main-layout {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 20px;
-  font-weight: 600;
-  color: #303133;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid #f0f2f5;
-  position: relative;
+  gap: 24px; /* 侧边栏和内容的间距 */
+  align-items: flex-start; /* 顶部对齐 */
 }
 
-.section-title::after {
-  content: "";
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 60px;
-  height: 2px;
-  background: linear-gradient(135deg, #91a8d0, #f7cac9);
-  border-radius: 1px;
+/* 左侧边栏宽度 */
+.sidebar {
+  width: 200px; /* 固定宽度，可以根据需要调整 */
+  flex-shrink: 0;
+  position: sticky; /* 使得侧边栏在滚动时吸顶 */
+  top: 20px;
 }
 
-.section-title .el-icon {
-  color: #91a8d0;
-  font-size: 24px;
+/* 右侧内容区自动撑满 */
+.content-area {
+  flex: 1;
+  min-width: 0; /* 防止子元素撑破布局 */
 }
 
-/* 响应式设计 */
-@media (max-width: 1200px) {
-  .form-section {
-    padding: 24px;
-  }
+/* 搜索框下方的间距 */
+.search-wrapper {
+  margin-bottom: 20px;
 }
 
-@media (max-width: 768px) {
-  /* 平板适配 */
-  .form-section {
-    padding: 20px 16px;
-    margin: 0 8px;
+/* 响应式：平板/手机端自动变回上下布局 */
+@media (max-width: 900px) {
+  .main-layout {
+    flex-direction: column;
+    gap: 16px;
   }
   
-  .section-title {
-    font-size: 18px;
-    margin-bottom: 20px;
-  }
-}
-
-@media (max-width: 480px) {
-  /* 手机端优化 */
-  .form-section {
-    padding: 16px 12px;
-    margin: 0 4px;
-    border-radius: 12px;
-  }
-  
-  .section-title {
-    font-size: 16px;
-    margin-bottom: 16px;
+  .sidebar {
+    width: 100%;
+    position: static;
   }
 }
 </style>
