@@ -85,6 +85,39 @@
     border-color: rgba(145, 168, 208, 0.2) !important;
 }
 
+/* 日期选择器组件 */
+
+.el-date-table td.today .el-date-table-cell__text {
+    color: #ffffff !important;
+    font-weight: bold !important;
+}
+
+.el-date-table td.current:not(.disabled) .el-date-table-cell__text {
+    background-color: #91A8D0 !important;
+    color: #ffffff !important;
+}
+
+.el-picker-panel__shortcut:hover {
+    color: #91A8D0 !important;
+}
+
+/* 范围选择器 - 选中日期的背景色（开始和结束） */
+.el-date-table td.start-date .el-date-table-cell__text,
+.el-date-table td.end-date .el-date-table-cell__text {
+    background-color: #91A8D0 !important;
+    color: #ffffff !important;
+    font-weight: bold !important;
+}
+
+/* 范围选择器 - 中间范围的背景色 */
+.el-date-table td.in-range .el-date-table-cell {
+    background-color: rgba(145, 168, 208, 0.1) !important;
+}
+
+/* 范围选择器 - 鼠标悬停时的范围背景色 */
+.el-date-table td.in-range .el-date-table-cell:hover {
+    background-color: rgba(145, 168, 208, 0.2) !important;
+}
 
 /* 选择器组件 */
 
@@ -442,7 +475,7 @@
 /* 时间选择器组件 */
 
 .el-time-panel__btn.confirm:hover {
-    color: #91A8D0 !important;
+    color: #ffffff !important;
 }
 
 .el-time-spinner__item:hover:not(.is-disabled):not(.is-active) {
@@ -450,25 +483,11 @@
 }
 
 .el-time-spinner__item.is-active:not(.is-disabled) {
-    color: #91A8D0 !important;
-}
-
-
-/* 日期选择器组件 */
-
-.el-date-table td.today .el-date-table-cell__text {
-    color: #91A8D0 !important;
-    font-weight: bold !important;
-}
-
-.el-date-table td.current:not(.disabled) .el-date-table-cell__text {
-    background-color: #91A8D0 !important;
     color: #ffffff !important;
 }
 
-.el-picker-panel__shortcut:hover {
-    color: #91A8D0 !important;
-}
+
+
 
 
 /* 颜色选择器组件 */

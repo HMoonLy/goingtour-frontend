@@ -88,12 +88,11 @@ export default {
 }
 
 .generation-status.generating {
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  background: #f8f9fa;
 }
-
+  
 .generation-status.complete {
-  background: linear-gradient(135deg, #f0fff4 0%, #ecfdf5 100%);
-  border-color: #d1fae5;
+  background: #f8f9fa;
 }
 
 .generation-status::before {
@@ -103,7 +102,7 @@ export default {
   left: -100%;
   width: 100%;
   height: 4px;
-  background: linear-gradient(90deg, transparent, #91a8d0, transparent);
+  background: linear-gradient(90deg, transparent, #d8f0f8, transparent);
   animation: shimmer 2s infinite;
 }
 

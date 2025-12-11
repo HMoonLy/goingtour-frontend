@@ -39,16 +39,16 @@
           :is-out-of-range="isDateRangeOutOfForecast()"
           :format-date-range="formatDateRange()"
         />
+
+        <!-- 3. 预算选择区域 -->
+        <TripBudgetSelector
+          v-model="tripForm.budget"
+          :days="tripForm.days"
+          :travelers="tripForm.travelers"
+          :user-preferences="userPreferences"
+        />
       </el-form>
     </el-card>
-
-    <!-- 3. 预算选择区域 -->
-    <TripBudgetSelector
-      v-model="tripForm.budget"
-      :days="tripForm.days"
-      :travelers="tripForm.travelers"
-      :user-preferences="userPreferences"
-    />
 
     <!-- 操作按钮区域 -->
     <div class="step-actions">
@@ -75,7 +75,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, nextTick } from "vue";
+import { ref, watch, onMounted} from "vue";
 import { ElMessage } from "element-plus";
 import { MapLocation, ArrowRight, Document } from "@element-plus/icons-vue";
 
@@ -95,59 +95,64 @@ const props = defineProps({
 
 const emit = defineEmits(["update:baseForm", "next-step", "formValid", "fetch-weather", "save-draft"]);
 
-// 本地状态
-const tripForm = ref({ ...props.baseForm });
+// 本地状态，完全由组件自己管理
+const tripForm = ref({
+  destination: "",
+  destinationName: "",
+  days: 3,
+  dateRange: null,
+  travelers: 1,
+  budget: "moderate"
+});
+
 const tripFormRef = ref(null);
 const dateRangeError = ref("");
 
-// 表单验证规则
-const tripRules = {
-  destination: [{ required: true, message: "请从首页选择目的地", trigger: "change" }],
-  days: [
-    { required: true, message: "请输入出行天数", trigger: "change" },
-    { type: "number", min: 1, message: "天数至少为1天", trigger: "change" },
-  ],
-  travelers: [
-    { required: true, message: "请输入出行人数", trigger: "change" },
-    { type: "number", min: 1, message: "人数至少为1人", trigger: "change" },
-  ],
-  dateRange: [
-    { required: true, message: "请选择出行日期范围", trigger: "change" },
-    {
-      validator: (rule, value, callback) => {
-        if (!value || value.length !== 2) {
-          callback(new Error("请选择出行日期范围"));
-        } else {
-          callback();
-        }
-      },
-      trigger: "change",
-    },
-  ],
-  budget: [{ required: true, message: "请选择预算范围", trigger: "change" }],
+// 对外暴露的方法
+const getFormData = () => {
+    // 返回纯净数据副本
+    return JSON.parse(JSON.stringify(tripForm.value));
 };
 
-// 同步数据
-const isUpdatingFromProps = ref(false);
+const setFormData = (data) => {
+    if (!data) return;
+    Object.assign(tripForm.value, data);
+    // 确保类型正确
+    if (tripForm.value.travelers) tripForm.value.travelers = Number(tripForm.value.travelers);
+    if (tripForm.value.days) tripForm.value.days = Number(tripForm.value.days);
+};
 
-watch(tripForm, (newVal) => {
-  if (!isUpdatingFromProps.value) {
-    emit("update:baseForm", newVal);
-  }
-}, { deep: true });
+defineExpose({
+    getFormData,
+    setFormData,
+    validate: () => {
+        return new Promise(resolve => {
+            if (tripFormRef.value) {
+                tripFormRef.value.validate(resolve);
+            } else {
+                resolve(true); // 简单模式下默认通过
+            }
+        });
+    }
+});
 
-// 监听父组件传入的 baseForm 变化，强制同步到本地
+// 初始化
 watch(() => props.baseForm, (newVal) => {
-  if (newVal) {
-    isUpdatingFromProps.value = true;
-    // 直接覆盖，不做复杂的比较，确保草稿恢复时数据能穿透
-    tripForm.value = { ...newVal };
-    // 使用 nextTick 确保 watcher 触发完成后再重置标志
-    nextTick(() => {
-      isUpdatingFromProps.value = false;
-    });
+  // 仅在初始化时或明确需要重置时接收父组件的初始值
+  // 这里做一个简单的判断：如果本地是空的，父组件有值，则同步
+  if (newVal && newVal.destinationName && !tripForm.value.destinationName) {
+      setFormData(newVal);
   }
-}, { deep: true, immediate: true });
+}, { immediate: true, deep: true });
+
+// 移除原来的复杂 watch 和 emit 逻辑，不再实时 emit update:baseForm
+// 改为在关键变化时通知父组件（可选，仅用于触发某些联动）
+watch(tripForm, (newVal) => {
+    emit("change", newVal); // 发出一个普通的 change 事件供父组件监听（如果需要）
+    if(newVal.destinationName) {
+        emit("update:baseForm", newVal); // 保持兼容，但主要数据流走 getFormData
+    }
+}, { deep: true });
 
 // 逻辑方法
 const applyUserPreferences = () => {

@@ -14,6 +14,7 @@
             size="large"
             disabled
             placeholder="搜索城市、地区..."
+            style="width: 100%"
           />
           <div class="selected-city-info">
             <el-tag type="success" size="small">
@@ -26,7 +27,7 @@
       <!-- 天数 -->
       <el-col :span="12">
         <el-form-item label="出行天数" prop="days">
-          <div class="days-input-container">
+          <div class="days-input-container" style="width: 100%">
             <el-input-number
               :model-value="modelValue.days"
               :min="1"
@@ -34,6 +35,7 @@
               size="large"
               disabled
               placeholder="根据日期自动计算"
+              style="width: 100%"
             />
             <div v-if="modelValue.days" class="days-description">
               <span class="days-text">{{ getDaysDescription(modelValue.days) }}</span>
@@ -206,7 +208,7 @@ const handleDateChange = (val) => {
 }
 
 .date-match {
-  color: var(--el-color-success);
+  color: #909399;
   display: flex;
   align-items: center;
   gap: 4px;

@@ -138,8 +138,10 @@ class WeatherService {
      * 转换星期数字为中文
      */
     getWeekDay(weekNumber) {
-        const weekDays = ['日', '一', '二', '三', '四', '五', '六']
-        return `星期${weekDays[parseInt(weekNumber)]}`
+        console.log(weekNumber);
+        
+        const weekDays = [ '一', '二', '三', '四', '五', '六','日']
+        return `星期${weekDays[parseInt(weekNumber-1)]}`
     }
 
     /**
@@ -271,73 +273,6 @@ class WeatherService {
         }
 
         return suggestions
-    }
-
-    /**
-     * 获取模拟实时天气数据
-     */
-    getMockLiveWeather(city) {
-        return {
-            city: city,
-            province: '模拟省份',
-            weather: '晴',
-            temperature: '25',
-            winddirection: '东南',
-            windpower: '2',
-            humidity: '60',
-            reporttime: new Date().toLocaleString(),
-            isLive: false,
-            isMock: true
-        }
-    }
-
-    /**
-     * 获取模拟天气预报数据
-     */
-    getMockForecastWeather(city) {
-        const today = new Date()
-        const casts = []
-
-        for (let i = 0; i < 4; i++) {
-            const date = new Date(today.getTime() + i * 24 * 60 * 60 * 1000)
-            casts.push({
-                date: date.toISOString().split('T')[0],
-                week: this.getWeekDay(date.getDay().toString()),
-                dayweather: i % 2 === 0?'晴' : '多云',
-                nightweather: '晴',
-                daytemp: (25 + Math.random() * 5).toFixed(0),
-                nighttemp: (18 + Math.random() * 3).toFixed(0),
-                daywind: '东南',
-                nightwind: '东南',
-                daypower: '1-3',
-                nightpower: '1-3',
-                daytemp_float: 25 + Math.random() * 5,
-                nighttemp_float: 18 + Math.random() * 3
-            })
-        }
-
-        return {
-            city: city,
-            province: '模拟省份',
-            adcode: '000000',
-            reporttime: new Date().toLocaleString(),
-            casts: casts,
-            isMock: true
-        }
-    }
-
-    /**
-     * 获取模拟天气建议
-     */
-    getMockWeatherSuggestions(city, startDate, days) {
-        return {
-            city: city,
-            period: `${startDate} 起 ${days} 天`,
-            clothing: ['长袖衬衫', '薄外套', '长裤', '运动鞋'],
-            activities: ['户外景点游览', '公园漫步', '博物馆参观'],
-            tips: ['天气服务暂时不可用，显示通用建议'],
-            isMock: true
-        }
     }
 }
 

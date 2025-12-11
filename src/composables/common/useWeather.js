@@ -237,84 +237,6 @@ export function useWeather() {
         error.value = null
     }
 
-    /**
-     * 根据天气获取推荐的衣物
-     */
-    const getClothingRecommendation = computed(() => {
-        if (!temperatureRange.value) return null
-
-        const { maxTemp, minTemp } = temperatureRange.value
-
-        if (maxTemp >= 30) {
-            return {
-                category: '夏季着装',
-                items: ['短袖T恤', '短裤/短裙', '凉鞋', '防晒帽', '太阳镜'],
-                tips: '选择透气轻薄的衣物，注意防晒'
-            }
-        } else if (minTemp <= 5) {
-            return {
-                category: '冬季着装',
-                items: ['厚外套/羽绒服', '毛衣', '长裤', '保暖鞋', '围巾手套'],
-                tips: '多层穿衣，注意保暖'
-            }
-        } else if (maxTemp - minTemp > 10) {
-            return {
-                category: '春秋着装',
-                items: ['薄外套', '长袖衬衫', '长裤', '运动鞋', '薄围巾'],
-                tips: '准备可以增减的衣物，应对温差变化'
-            }
-        } else {
-            return {
-                category: '舒适着装',
-                items: ['长袖衬衫', '薄外套', '长裤', '休闲鞋'],
-                tips: '温度适宜，正常着装即可'
-            }
-        }
-    })
-
-    /**
-     * 获取活动建议
-     */
-    const getActivityRecommendation = computed(() => {
-        if (!forecastSummary.value) return null
-
-        const hasRain = forecastSummary.value.some(day =>
-            day.weather.includes('雨') || day.weather.includes('雪')
-        )
-        const { maxTemp, minTemp } = temperatureRange.value || {}
-
-        const recommendations = []
-
-        if (hasRain) {
-            recommendations.push({
-                type: '室内活动',
-                items: ['博物馆参观', '购物中心', '室内娱乐', '美食探索'],
-                reason: '有降水天气，建议选择室内活动'
-            })
-        } else {
-            recommendations.push({
-                type: '户外活动',
-                items: ['景点游览', '公园漫步', '户外摄影', '街头探索'],
-                reason: '天气晴好，适合户外活动'
-            })
-        }
-
-        if (maxTemp > 30) {
-            recommendations.push({
-                type: '避暑活动',
-                items: ['水上乐园', '游泳', '室内场馆', '阴凉区域游览'],
-                reason: '天气炎热，建议选择凉爽的活动'
-            })
-        } else if (minTemp < 10) {
-            recommendations.push({
-                type: '温暖活动',
-                items: ['温泉', '室内spa', '热饮品尝', '温暖场所'],
-                reason: '天气较冷，建议选择温暖的活动'
-            })
-        }
-
-        return recommendations
-    })
 
     return {
         // 状态
@@ -331,8 +253,6 @@ export function useWeather() {
         weatherSummary,
         forecastSummary,
         temperatureRange,
-        getClothingRecommendation,
-        getActivityRecommendation,
 
         // 方法
         fetchCurrentWeather,

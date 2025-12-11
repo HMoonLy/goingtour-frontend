@@ -12,7 +12,7 @@
       <span>天气预报</span>
       <el-tag
         v-if="suggestion"
-        :type="getWeatherTagType()"
+        type="info"
         size="small"
         effect="plain"
         class="weather-source-tag"
@@ -150,11 +150,6 @@ const getWeatherEmoji = (weather) => {
   return "⛅";
 };
 
-const getWeatherTagType = () => {
-  if (!props.suggestion) return "info";
-  if (props.suggestion.source === 'realtime') return "success";
-  return "warning";
-};
 
 const getWeatherSourceText = () => {
   if (!props.suggestion) return "";

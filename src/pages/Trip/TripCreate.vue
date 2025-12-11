@@ -41,13 +41,15 @@
         />
         <!-- 第一步：基础信息 -->
         <TripBaseInfo
+          ref="tripBaseInfoRef"
           v-show="currentStep === 0"
-          v-model:base-form="baseForm"
+          :base-form="baseForm"
           :weather-suggestion="weatherSuggestion"
           :loading-weather="loadingWeather"
           :weather-error="weatherError"
           @next-step="nextStep"
           @fetch-weather="fetchWeatherForTrip"
+          @change="(val) => Object.assign(baseForm, val)"
         />
 
         <!-- 第二步：个性化偏好 -->
@@ -163,7 +165,7 @@ import {
   nextTick,
 } from "vue";
 import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
-import { ElMessage, ElMessageBox } from "element-plus";
+import { ElMessage } from "element-plus";
 import { Check, Loading, Warning } from "@element-plus/icons-vue";
 import { useUserStore } from "@/store/user.js";
 import { usePreferenceStore } from "@/store/preference.js";
@@ -214,6 +216,8 @@ export default {
 
     // 当前步骤
     const currentStep = ref(0);
+
+    const tripBaseInfoRef = ref(null);
 
     // 基础表单数据
     const baseForm = reactive({
@@ -278,9 +282,32 @@ export default {
     const loadingWeather = computed(() => isLoadingForecast.value);
 
     const getData = () => {
+      // 优先从子组件获取最新的基础信息状态，确保数据实时性
+      let currentBaseForm = { ...baseForm };
+      if (tripBaseInfoRef.value) {
+          const childData = tripBaseInfoRef.value.getFormData();
+          // 合并数据，以子组件为准
+          Object.assign(currentBaseForm, childData);
+      }
+
+      // 显式提取日期数组，强制转换为纯数组，规避 Proxy 问题
+      let rawDateRange = null;
+      if (currentBaseForm.dateRange && Array.isArray(currentBaseForm.dateRange) && currentBaseForm.dateRange.length === 2) {
+          rawDateRange = [currentBaseForm.dateRange[0], currentBaseForm.dateRange[1]];
+      }
+
+      const safeBaseForm = {
+        destination: currentBaseForm.destination,
+        destinationName: currentBaseForm.destinationName,
+        days: Number(currentBaseForm.days),
+        travelers: Number(currentBaseForm.travelers),
+        budget: currentBaseForm.budget,
+        dateRange: rawDateRange
+      };
+
       return {
         currentStep: currentStep.value,
-        baseForm: { ...baseForm },
+        baseForm: safeBaseForm,
         preferenceForm: { ...preferenceStore.tripPreferenceForm },
         selectedAttractions: [...selectedAttractions.value],
         selectedRestaurants: [...selectedRestaurants.value],
@@ -293,32 +320,34 @@ export default {
     };
 
     const restoreDraftData = (draftData) => {
-      console.log("🚀 restoreDraftData called with:", draftData);
-      
+      // 基础信息恢复
       if (draftData.baseForm) {
-        console.log("📦 Found baseForm in draft:", draftData.baseForm);
+        // 使用 Object.assign 批量更新本地响应式对象
+        Object.assign(baseForm, draftData.baseForm);
         
-        // 确保数字类型正确，防止字符串导致 UI 组件异常
-        const safeBaseForm = { ...draftData.baseForm };
-        if (safeBaseForm.travelers) safeBaseForm.travelers = Number(safeBaseForm.travelers);
-        if (safeBaseForm.days) safeBaseForm.days = Number(safeBaseForm.days);
+        // 类型转换修复
+        if (baseForm.travelers) baseForm.travelers = Number(baseForm.travelers);
+        if (baseForm.days) baseForm.days = Number(baseForm.days);
         
-        // 批量赋值前先清空，确保触发深层更新
-        // Object.keys(baseForm).forEach(key => delete baseForm[key]); // 暂时注释掉，可能导致 reactivity 丢失
-        Object.assign(baseForm, safeBaseForm);
-        
-        console.log("✅ baseForm updated:", baseForm);
-
-        // 日期处理：el-date-picker 使用 value-format="YYYY-MM-DD"
-        if (safeBaseForm.dateRange && Array.isArray(safeBaseForm.dateRange)) {
-             baseForm.dateRange = safeBaseForm.dateRange;
+        // 日期处理
+        if (draftData.baseForm.dateRange && Array.isArray(draftData.baseForm.dateRange)) {
+             baseForm.dateRange = draftData.baseForm.dateRange;
         }
-      } else {
-        console.warn("⚠️ No baseForm found in draft data!");
+
+        // 【关键】同步给子组件，确保 UI 状态正确
+        if (tripBaseInfoRef.value) {
+            tripBaseInfoRef.value.setFormData(baseForm);
+        } else {
+            // 如果子组件还没挂载，nextTick 后再试一次
+            nextTick(() => {
+                if (tripBaseInfoRef.value) {
+                    tripBaseInfoRef.value.setFormData(baseForm);
+                }
+            });
+        }
       }
 
       if (draftData.preferenceForm) {
-          console.log("⚙️ Restoring preferences...", draftData.preferenceForm);
           preferenceStore.loadDraftPreferences(draftData.preferenceForm);
       }
       
@@ -332,12 +361,9 @@ export default {
       
       // 恢复 AI 推荐数据 & 决定推荐模式
       if (draftData.aiRecommendationsData && Object.keys(draftData.aiRecommendationsData).length > 0) {
-        console.log("🤖 Restoring AI recommendations...");
         aiRecommendationsData.value = draftData.aiRecommendationsData;
-        // 如果缓存了 AI 数据，优先使用 enhanced 模式展示
         recommendationType.value = 'enhanced';
       } else {
-        // 否则使用草稿中保存的类型，或者默认为 basic
         recommendationType.value = draftData.recommendationType || 'basic';
       }
 
@@ -450,21 +476,6 @@ export default {
           const draftData = await checkAndRestoreAutoDraft();
           if (draftData) {
               restoreDraftData(draftData);
-              
-              // 备份关键数据，防止组件渲染过程中的竞争条件导致数据丢失
-              const backupName = draftData.baseForm?.destinationName;
-              const backupDestination = draftData.baseForm?.destination;
-
-              // 强制等待两个 tick，确保深层组件更新完成
-              await nextTick();
-              await new Promise(resolve => setTimeout(resolve, 50)); 
-              
-              // 二次检查：如果数据在渲染过程中丢失，尝试恢复
-              if (!baseForm.destinationName && backupName) {
-                 console.warn("⚠️ BaseForm destinationName lost after render tick, restoring from backup");
-                 baseForm.destinationName = backupName;
-                 if (backupDestination) baseForm.destination = backupDestination;
-              }
           }
         } finally {
           isRestoringProgress.value = false;

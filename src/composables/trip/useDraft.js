@@ -98,9 +98,20 @@ export function useDraft() {
      */
     const _performAutoSave = async (data) => {
         try {
-            saveStatus.value = 'saving'
             const userId = userStore.currentUser?.id
             if (!userId) return
+
+            // 【安全检查】防止因组件初始化而丢失关键数据
+            // 如果已经在之前的草稿中有日期，但这次保存没有，可能是异常覆盖
+            if (autoDraftId.value && draftList.value.length > 0) {
+                const existingDraft = draftList.value.find(d => d.id === autoDraftId.value);
+                if (existingDraft?.baseForm?.dateRange && !data.baseForm?.dateRange) {
+                    console.warn('[Draft] 自动保存被拦截：检测到日期字段异常丢失');
+                    return; // 拒绝保存这次可能损坏的数据
+                }
+            }
+
+            saveStatus.value = 'saving'
 
             // 构造 API 需要的数据结构
             // 显式处理复杂字段的序列化，确保后端存储格式统一

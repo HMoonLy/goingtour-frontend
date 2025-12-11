@@ -126,13 +126,21 @@ export class AiTripRequest {
     let startDate = state.startDate;
     let endDate = state.endDate;
     
+    // 优先使用 dateRange (UI组件产生的数组)
+    // 如果 state 中已有明确的 startDate/endDate (如来自草稿)，则保留原值，除非 dateRange 有新输入
     if (Array.isArray(state.dateRange) && state.dateRange.length === 2) {
       startDate = state.dateRange[0];
       endDate = state.dateRange[1];
+    } else if (!startDate && !endDate && state.dateRange) {
+        // 兼容处理：有些草稿可能存的是 dateRange 数组但没有解构为 start/end
+        // 这里不做处理，保持 null，交给后端或后续逻辑决定默认值
     }
     
     // 2. 智能推断 UserType (如果未显式指定)
-    let userType = state.userType || 'INDIVIDUAL';
+    // 优化：仅在 userType 确实为空时才推断，防止覆盖草稿中已保存的 userType
+    let userType = state.userType;
+    if (!userType) {
+        userType = 'INDIVIDUAL'; // 默认值
     const travelers = typeof state.travelers === 'number' ? state.travelers : 1;
     
     // 简单的推断逻辑：
@@ -151,6 +159,7 @@ export class AiTripRequest {
       if (travelers > 2) userType = 'FAMILY'; 
       else if (travelers === 2) userType = 'COUPLE';
       else userType = 'INDIVIDUAL';
+        }
     }
 
     // 3. 创建实例
@@ -160,7 +169,7 @@ export class AiTripRequest {
       endDate,
       userType,
       // 兼容可能传入的旧字段名
-      travelTags: allTags,
+      travelTags: Array.isArray(state.travelTags) ? state.travelTags : (Array.isArray(state.tripGoals) ? state.tripGoals : []),
     });
     
     return dto;

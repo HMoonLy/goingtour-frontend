@@ -68,18 +68,13 @@ const {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  background: #f5f7fa;
   min-height: 100vh;
 }
 
 /* 内容卡片 */
 .content-card {
   margin-bottom: 24px;
-  border-radius: 12px;
   overflow: hidden;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  background: white;
 }
 
 .content-card :deep(.el-card__body) {
