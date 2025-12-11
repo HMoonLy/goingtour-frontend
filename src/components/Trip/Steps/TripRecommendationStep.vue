@@ -80,7 +80,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { Star, Location, Food, House, ArrowLeft, ArrowRight } from '@element-plus/icons-vue';
-import RecommendationSection from '../Cards/RecommendationSection.vue';
+import RecommendationSection from './TripRecommends/RecommendationSection.vue';
 import AiRecommendationTip from './TripRecommendationParts/AiRecommendationTip.vue';
 
 export default {

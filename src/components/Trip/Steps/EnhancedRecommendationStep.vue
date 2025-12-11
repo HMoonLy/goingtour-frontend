@@ -267,9 +267,9 @@ import {
 } from "@element-plus/icons-vue";
 
 // 新的卡片组件
-import AttractionCard from "../Cards/AttractionCard.vue";
-import RestaurantCard from "../Cards/RestaurantCard.vue";
-import HotelCard from "../Cards/HotelCard.vue";
+import AttractionCard from "../Cards/AIRecommendCard/AttractionCard.vue";
+import RestaurantCard from "../Cards/AIRecommendCard/RestaurantCard.vue";
+import HotelCard from "../Cards/AIRecommendCard/HotelCard.vue";
 import PoiDetailDialog from "../Dialogs/PoiDetailDialog.vue";
 
 // 高德API增强服务

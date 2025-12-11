@@ -1,6 +1,6 @@
 <template>
   <div class="recommendation-content">
-    <!-- 搜索模式提示 (保持不变) -->
+    <!-- 搜索模式提示 -->
     <div
       v-if="isSearchMode && items.length > 0"
       class="search-mode-tip"
@@ -11,7 +11,9 @@
           currentSearchKeyword +
           '\'\u7684结果（' +
           items.length +
-          '个景点）'
+          config.unit +
+          config.label +
+          '）'
         "
         type="info"
         :closable="false"
@@ -29,7 +31,7 @@
       v-else-if="isSearchMode && items.length === 0 && !loading"
       class="no-search-results"
     >
-      <el-empty description="没有找到相关景点">
+      <el-empty :description="'没有找到相关' + config.label">
         <el-button type="primary" @click="handleClearSearch">
           返回推荐列表
         </el-button>
@@ -47,8 +49,8 @@
             <template #template>
               <el-skeleton-item variant="image" style="height: 180px; border-radius: 12px 12px 0 0;" />
               <div style="padding: 16px;">
-                <el-skeleton-item variant="h3" style="width: 80%; margin-bottom: 8px;" />
-                <el-skeleton-item variant="text" style="width: 60%; margin-bottom: 6px;" />
+                <el-skeleton-item variant="h3" style="width: 75%; margin-bottom: 8px;" />
+                <el-skeleton-item variant="text" style="width: 50%; margin-bottom: 6px;" />
                 <el-skeleton-item variant="text" style="width: 90%; margin-bottom: 8px;" />
                 <el-skeleton-item variant="button" style="width: 100%; height: 32px;" />
               </div>
@@ -62,7 +64,7 @@
       v-else-if="items.length === 0 && !apiError"
       class="empty-state"
     >
-      <el-empty description="暂无推荐景点" />
+      <el-empty :description="'暂无推荐' + config.label" />
     </div>
 
     <div v-else-if="apiError" class="error-state">
@@ -75,19 +77,18 @@
     </div>
 
     <div v-else class="recommendation-list">
-      <!-- 复用 RecommendationCard -->
       <RecommendationCard
-        v-for="attraction in items"
-        :key="attraction.id"
-        :item="attraction"
-        :is-selected="isSelected(attraction)"
-        type="attraction"
+        v-for="item in items"
+        :key="item.id"
+        :item="item"
+        :is-selected="isSelected(item)"
+        :type="category"
         @add="$emit('add', $event)"
         @remove="$emit('remove', $event)"
       />
     </div>
 
-    <!-- 景点加载更多按钮 -->
+    <!-- 加载更多按钮 -->
     <div
       v-if="items.length > 0 && !isSearchMode && !loadComplete"
       class="load-more-container"
@@ -100,7 +101,7 @@
       >
         <template v-if="!loadingMore">
           <el-icon><ArrowDown /></el-icon>
-          查看更多景点
+          查看更多{{ config.label }}
         </template>
         <template v-else>
           加载中...
@@ -108,7 +109,7 @@
       </el-button>
     </div>
 
-    <!-- 景点加载完成提示 -->
+    <!-- 加载完成提示 -->
     <div
       v-if="items.length > 0 && !isSearchMode && loadComplete"
       class="load-complete-tip"
@@ -116,7 +117,7 @@
       <el-divider>
         <span class="complete-text">
           <el-icon><Check /></el-icon>
-          已显示全部 {{ items.length }} 个景点
+          已显示全部 {{ items.length }} {{ config.unit }}{{ config.label }}
         </span>
       </el-divider>
     </div>
@@ -124,25 +125,38 @@
 </template>
 
 <script>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import {
   ArrowDown,
   Check
 } from "@element-plus/icons-vue";
 import RecommendationCard from "./RecommendationCard.vue";
-import { getRecommendedAttractions } from '@/api/amap.js';
+import { 
+  getRecommendedAttractions, 
+  getRecommendedRestaurants, 
+  getRecommendedHotels 
+} from '@/api/amap.js';
 import { useAmap } from '@/composables/map/useAmap.js';
-import { extractAttractionTags } from '@/utils/poiUtils.js';
+import { 
+  extractAttractionTags, 
+  extractSignatureDishes, 
+  extractHotelTags 
+} from '@/utils/poiUtils.js';
 import { ElMessage } from 'element-plus';
 
 export default {
-  name: "AttractionList",
+  name: "GenericRecommendationList",
   components: {
     RecommendationCard,
     ArrowDown,
     Check
   },
   props: {
+    category: {
+      type: String,
+      required: true,
+      validator: (value) => ['attraction', 'restaurant', 'hotel'].includes(value)
+    },
     cityInfo: {
       type: Object,
       default: () => ({})
@@ -168,6 +182,42 @@ export default {
   setup(props, { emit }) {
     const { searchPlaces } = useAmap();
 
+    // 配置映射
+    const configs = {
+      attraction: {
+        api: getRecommendedAttractions,
+        searchType: '110000',
+        tagExtractor: extractAttractionTags,
+        pageSize: 9,
+        label: '景点',
+        unit: '个',
+        defaultType: '景点',
+        defaultPrice: null
+      },
+      restaurant: {
+        api: getRecommendedRestaurants,
+        searchType: '050000',
+        tagExtractor: extractSignatureDishes,
+        pageSize: 6,
+        label: '餐厅',
+        unit: '家',
+        defaultType: '餐厅',
+        defaultPrice: '¥¥'
+      },
+      hotel: {
+        api: getRecommendedHotels,
+        searchType: '100000',
+        tagExtractor: extractHotelTags,
+        pageSize: 6,
+        label: '酒店',
+        unit: '家',
+        defaultType: '酒店',
+        defaultPrice: '¥¥¥'
+      }
+    };
+
+    const config = computed(() => configs[props.category]);
+
     // 状态
     const items = ref([]);
     const loading = ref(false);
@@ -180,19 +230,21 @@ export default {
     // 分页
     const pagination = ref({
       currentPage: 1,
-      pageSize: 9,
+      pageSize: config.value.pageSize,
       total: 0
     });
 
-    // 提取标签辅助函数
-    const getTags = (item) => extractAttractionTags(item);
+    // 监听 config 变化更新 pageSize
+    watch(() => config.value, (newConfig) => {
+      pagination.value.pageSize = newConfig.pageSize;
+    });
 
-    // 判断是否选中
+    const getTags = (item) => config.value.tagExtractor(item);
+
     const isSelected = (item) => {
       return props.selectedItems.some((i) => i.id === item.id);
     };
 
-    // 加载数据
     const loadData = async (reset = false) => {
       if (!props.cityInfo?.destinationName) return;
       
@@ -211,7 +263,7 @@ export default {
         }
         apiError.value = null;
 
-        const response = await getRecommendedAttractions(
+        const response = await config.value.api(
           props.cityInfo.destinationName,
           pagination.value.currentPage,
           pagination.value.pageSize
@@ -223,9 +275,9 @@ export default {
           address: poi.address,
           rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
           photos: poi.photos || [],
-          type: poi.type ? poi.type.split(";")[0] : "景点",
+          type: poi.type ? poi.type.split(";")[0] : config.value.defaultType,
           distance: poi.distance || null,
-          price: (poi.biz_ext && poi.biz_ext.cost),
+          price: (poi.biz_ext && poi.biz_ext.cost) || config.value.defaultPrice,
           cost: (poi.biz_ext && poi.biz_ext.cost),
           tags: getTags(poi),
           tag: poi.tag,
@@ -240,13 +292,12 @@ export default {
            items.value = [...items.value, ...uniqueNew];
         }
 
-        // 更新分页和完成状态
         if (newItems.length < pagination.value.pageSize) {
           loadComplete.value = true;
         }
 
       } catch (err) {
-        console.error('加载景点失败:', err);
+        console.error(`加载${config.value.label}失败:`, err);
         apiError.value = err.message || '加载失败';
       } finally {
         loading.value = false;
@@ -254,14 +305,12 @@ export default {
       }
     };
 
-    // 加载更多
     const loadMore = () => {
       if (loadingMore.value || loadComplete.value) return;
       pagination.value.currentPage++;
       loadData(false);
     };
 
-    // 搜索功能
     const handleSearch = async () => {
       if (!props.searchKeyword.trim()) {
         if (isSearchMode.value) {
@@ -275,11 +324,10 @@ export default {
         isSearchMode.value = true;
         currentSearchKeyword.value = props.searchKeyword;
         
-        // 调用搜索API
         const response = await searchPlaces({
           keywords: props.searchKeyword,
           city: props.cityInfo.destinationName,
-          types: '110000', // 景点类型代码
+          types: config.value.searchType,
           pageSize: 20,
           page: 1
         });
@@ -288,32 +336,29 @@ export default {
         items.value = rawResults.map(poi => ({
           ...poi,
           tags: getTags(poi),
-           // 确保字段一致性
           rating: (poi.biz_ext && poi.biz_ext.rating) || "4.5",
-          price: (poi.biz_ext && poi.biz_ext.cost),
-          type: poi.type ? poi.type.split(";")[0] : "景点",
+          price: (poi.biz_ext && poi.biz_ext.cost) || config.value.defaultPrice,
+          cost: (poi.biz_ext && poi.biz_ext.cost),
+          type: poi.type ? poi.type.split(";")[0] : config.value.defaultType,
         }));
         
-        // 搜索模式下不分页或简单处理
         loadComplete.value = true; 
 
       } catch (err) {
-        console.error('搜索景点失败:', err);
+        console.error(`搜索${config.value.label}失败:`, err);
         ElMessage.error('搜索失败');
       } finally {
         loading.value = false;
       }
     };
 
-    // 清除搜索
     const handleClearSearch = () => {
       isSearchMode.value = false;
       currentSearchKeyword.value = "";
-      emit('update:search-keyword', ''); // 通知父组件清空输入框
-      loadData(true); // 重新加载推荐
+      emit('update:search-keyword', '');
+      loadData(true);
     };
 
-    // 监听排序变化 (本地排序)
     watch(() => props.sortBy, (newSort) => {
         if (items.value.length === 0) return;
         
@@ -333,16 +378,19 @@ export default {
         items.value = sorted;
     });
 
-    // 监听城市变化
     watch(() => props.cityInfo?.destinationName, (newVal, oldVal) => {
       if (newVal && newVal !== oldVal) {
         loadData(true);
       }
     }, { immediate: true });
 
-    // 监听搜索触发
     watch(() => props.triggerSearch, () => {
         handleSearch();
+    });
+
+    // 监听 category 变化，重置并加载
+    watch(() => props.category, () => {
+       loadData(true);
     });
 
     return {
@@ -353,6 +401,7 @@ export default {
       apiError,
       isSearchMode,
       currentSearchKeyword,
+      config,
       isSelected,
       loadMore,
       handleClearSearch
@@ -388,7 +437,6 @@ export default {
   margin-bottom: 16px;
 }
 
-/* Skeleton styles */
 .skeleton-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -406,13 +454,12 @@ export default {
 
 .recommendation-list {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 保持 3 列 */
+  grid-template-columns: repeat(3, 1fr);
   gap: 24px;
   margin-top: 16px;
   min-height: 200px;
 }
 
-/* Load more styles */
 .load-more-container {
   display: flex;
   flex-direction: column;
@@ -501,3 +548,4 @@ export default {
   }
 }
 </style>
+

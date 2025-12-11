@@ -15,8 +15,6 @@
         <span class="tab-label">{{ tab.label }}</span>
     </div>
       
-      <!-- 只有在大屏时显示Tag，或者直接去掉Tag -->
-      <!-- <div class="tab-tag-wrapper">...</div> -->
     </div>
   </div>
 </template>

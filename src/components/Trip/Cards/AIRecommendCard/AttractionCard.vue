@@ -117,13 +117,10 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
 import { 
   StarFilled, 
   MapLocation, 
   InfoFilled,
-  Check,
-  Plus,
   ZoomIn,
   ArrowRight
 } from '@element-plus/icons-vue'

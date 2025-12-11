@@ -81,10 +81,10 @@
 import { ref, watch } from "vue";
 import { ElMessage } from "element-plus";
 import { Location } from "@element-plus/icons-vue";
-import RecommendationSummary from "../Steps/TripRecommends/RecommendationSummary.vue";
-import RecommendationTabs from "../";
-import RecommendationSearch from "../Steps/TripRecommends/RecommendationSearch.vue";
-import GenericRecommendationList from "./TripRecommendCard/GenericRecommendationList.vue";
+import RecommendationSummary from "./RecommendationSummary.vue";
+import RecommendationTabs from "./RecommendationTabs.vue";
+import RecommendationSearch from "./RecommendationSearch.vue";
+import GenericRecommendationList from "../../Cards/TripRecommendCard/GenericRecommendationList.vue";
 
 export default {
   name: "RecommendationSection",
