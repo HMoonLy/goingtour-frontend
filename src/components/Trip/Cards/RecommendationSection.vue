@@ -22,53 +22,53 @@
 
       <!-- 右侧：内容区 -->
       <div class="content-area">
-        
-        <!-- 搜索功能 -->
+
+      <!-- 搜索功能 -->
         <div class="search-wrapper">
-           <RecommendationSearch
-            v-model:search-keyword="searchKeyword"
-            v-model:sort-by="sortBy"
-            :active-tab="activeTab"
-            @search="handleSearch"
-            @clear-search="handleClearSearch"
-          />
+      <RecommendationSearch
+        v-model:search-keyword="searchKeyword"
+        v-model:sort-by="sortBy"
+        :active-tab="activeTab"
+        @search="handleSearch"
+        @clear-search="handleClearSearch"
+      />
         </div>
 
         <!-- 列表内容 -->
         <div class="list-container">
-          <AttractionList
-            v-show="activeTab === 'attractions'"
-            :city-info="cityInfo"
-            :selected-items="selectedAttractions"
-            v-model:search-keyword="searchKeyword"
-            :trigger-search="triggerSearch"
-            :sort-by="sortBy"
-            @add="$emit('add-attraction', $event)"
-            @remove="$emit('remove-attraction', $event)"
-          />
+      <AttractionList
+        v-show="activeTab === 'attractions'"
+        :city-info="cityInfo"
+        :selected-items="selectedAttractions"
+        v-model:search-keyword="searchKeyword"
+        :trigger-search="triggerSearch"
+        :sort-by="sortBy"
+        @add="$emit('add-attraction', $event)"
+        @remove="$emit('remove-attraction', $event)"
+      />
 
-          <RestaurantList
-            v-show="activeTab === 'restaurants'"
-            :city-info="cityInfo"
-            :selected-items="selectedRestaurants"
-            v-model:search-keyword="searchKeyword"
-            :trigger-search="triggerSearch"
-            :sort-by="sortBy"
-            @add="$emit('add-restaurant', $event)"
-            @remove="$emit('remove-restaurant', $event)"
-          />
+      <RestaurantList
+        v-show="activeTab === 'restaurants'"
+        :city-info="cityInfo"
+        :selected-items="selectedRestaurants"
+        v-model:search-keyword="searchKeyword"
+        :trigger-search="triggerSearch"
+        :sort-by="sortBy"
+        @add="$emit('add-restaurant', $event)"
+        @remove="$emit('remove-restaurant', $event)"
+      />
 
-          <HotelList
-            v-show="activeTab === 'hotels'"
-            :city-info="cityInfo"
-            :selected-items="selectedHotels"
-            v-model:search-keyword="searchKeyword"
-            :trigger-search="triggerSearch"
-            :sort-by="sortBy"
-            @add="$emit('add-hotel', $event)"
-            @remove="$emit('remove-hotel', $event)"
-          />
-        </div>
+      <HotelList
+        v-show="activeTab === 'hotels'"
+        :city-info="cityInfo"
+        :selected-items="selectedHotels"
+        v-model:search-keyword="searchKeyword"
+        :trigger-search="triggerSearch"
+        :sort-by="sortBy"
+        @add="$emit('add-hotel', $event)"
+        @remove="$emit('remove-hotel', $event)"
+      />
+    </div>
       </div>
     </div>
   </div>
@@ -183,42 +183,57 @@ export default {
   position: relative;
 }
 
-/* 核心布局：左右 Flex */
+/* 核心布局：左右 Flex，回归极简通透 */
 .main-layout {
   display: flex;
-  gap: 24px; /* 侧边栏和内容的间距 */
-  align-items: flex-start; /* 顶部对齐 */
+  align-items: flex-start;
+  gap: 32px; /* 稍微拉大间距，利用留白分割 */
+  /* 去掉 background, box-shadow, border */
+  min-height: auto;
 }
 
-/* 左侧边栏宽度 */
+/* 左侧边栏 */
 .sidebar {
-  width: 200px; /* 固定宽度，可以根据需要调整 */
+  width: 180px;
   flex-shrink: 0;
-  position: sticky; /* 使得侧边栏在滚动时吸顶 */
-  top: 20px;
+  padding: 0; /* 去掉内边距 */
+  /* 去掉 background, border */
+  position: sticky;
+  top: 24px;
+  /* 如果希望和右侧搜索框顶部严格对齐，可以微调 margin-top */
+  margin-top: 4px; 
 }
 
-/* 右侧内容区自动撑满 */
+/* 右侧内容区 */
 .content-area {
   flex: 1;
-  min-width: 0; /* 防止子元素撑破布局 */
+  min-width: 0;
+  padding: 0; /* 去掉内边距 */
+  /* 去掉 background */
 }
 
-/* 搜索框下方的间距 */
+/* 搜索框：去掉白色背景，让它变轻 */
 .search-wrapper {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  background: transparent; /* 去掉白色背景 */
+  padding: 0; /* 去掉内边距 */
+  box-shadow: none; /* 去掉阴影 */
 }
 
-/* 响应式：平板/手机端自动变回上下布局 */
+/* 响应式 */
 @media (max-width: 900px) {
   .main-layout {
     flex-direction: column;
-    gap: 16px;
+    gap: 20px;
   }
-  
   .sidebar {
     width: 100%;
     position: static;
+    margin-top: 0;
+  }
+  .search-wrapper {
+    /* 移动端可能还是需要一点背景或者 padding */
+    margin-bottom: 16px;
   }
 }
 </style>

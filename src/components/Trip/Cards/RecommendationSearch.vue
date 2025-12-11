@@ -3,45 +3,45 @@
     <div class="search-container">
       <!-- 搜索输入框 -->
       <div class="search-input-wrapper">
-        <el-input
-          :model-value="searchKeyword"
-          :placeholder="placeholder"
-          clearable
-          class="search-input"
+      <el-input
+        :model-value="searchKeyword"
+        :placeholder="placeholder"
+        clearable
+        class="search-input"
           @update:model-value="handleInput"
           @keyup.enter="handleSearch"
           @clear="handleClear"
-        >
-          <template #prefix>
+      >
+        <template #prefix>
             <el-icon class="search-icon"><Search /></el-icon>
-          </template>
-        </el-input>
+        </template>
+      </el-input>
         
         <!-- 搜索按钮 (桌面端显示文字，移动端可能只显示图标或隐藏) -->
-        <el-button 
-          type="primary" 
+      <el-button
+        type="primary"
           :loading="loading"
           class="search-btn"
           @click="handleSearch"
-        >
-          搜索
-        </el-button>
-      </div>
-
+      >
+        搜索
+      </el-button>
+    </div>
+    
       <!-- 筛选区域 -->
       <div class="filter-group">
         <span class="filter-label">排序：</span>
-        <el-select
-          :model-value="sortBy"
+      <el-select
+        :model-value="sortBy"
           size="default"
           class="sort-select"
-          @update:model-value="$emit('update:sort-by', $event)"
-        >
+        @update:model-value="$emit('update:sort-by', $event)"
+      >
           <el-option label="默认推荐" value="default" />
           <el-option label="评分最高" value="rating" />
           <!-- 可以预留更多排序选项 -->
           <!-- <el-option label="距离最近" value="distance" /> -->
-        </el-select>
+      </el-select>
       </div>
     </div>
     
@@ -130,12 +130,13 @@ export default {
 </script>
 
 <style scoped>
+/* 1. 去掉最外层容器的内边距和背景，让它变轻 */
 .search-section {
-  padding: 16px;
-  background: #fff;
-  border-bottom: 1px solid #f0f2f5;
-  /* 如果不需要底部边框，可以去掉，或者改为圆角卡片背景 */
-  /* background: #f8f9fa; border-radius: 8px; */
+  padding: 0; /* 去掉 padding */
+  background: transparent; /* 去掉背景 */
+  border-radius: 0;
+  margin-bottom: 0; /* 由父组件控制间距 */
+  border: none; /* 去掉边框 */
 }
 
 .search-container {
@@ -160,7 +161,7 @@ export default {
 /* 覆盖 Element Plus 输入框样式，使其更圆润或更平滑 */
 :deep(.el-input__wrapper) {
   box-shadow: 0 0 0 1px #dcdfe6 inset;
-  border-radius: 4px;
+  border-radius: 8px; /* 稍微大一点圆角 */
 }
 
 :deep(.el-input__wrapper.is-focus) {
@@ -187,8 +188,10 @@ export default {
 @media (max-width: 768px) {
   .search-section {
     padding: 12px;
+    background: #fff; /* 移动端可能还是保留背景比较好，或者去掉也可以 */
+    border-radius: 12px;
   }
-  
+
   .search-container {
     gap: 12px;
   }
@@ -203,7 +206,7 @@ export default {
     width: 100%;
     justify-content: space-between;
   }
-  
+
   .sort-select {
     width: 130px; /* 稍微宽一点方便点击 */
   }

@@ -13,7 +13,7 @@
           <component :is="tab.icon" />
         </el-icon>
         <span class="tab-label">{{ tab.label }}</span>
-      </div>
+    </div>
       
       <!-- 只有在大屏时显示Tag，或者直接去掉Tag -->
       <!-- <div class="tab-tag-wrapper">...</div> -->
@@ -71,50 +71,60 @@ export default {
 </script>
 
 <style scoped>
-/* 容器：垂直排列 */
+/* 容器 */
 .tab-switcher {
   display: flex;
-  flex-direction: column; /* 关键：垂直方向 */
+  flex-direction: column;
   gap: 8px;
   background: transparent;
   padding: 0;
   border: none;
+  width: 100%;
 }
 
-/* 单个 Tab：左侧菜单项样式 */
+/* 单个 Tab */
 .tab-item {
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* 左对齐 */
-  padding: 12px 16px;
+  /* 左侧内边距稍微调小，紧凑一点 */
+  padding: 10px 12px; 
   cursor: pointer;
   color: #606266;
   border-radius: 8px;
   transition: all 0.2s;
   font-size: 15px;
-}
-
-/* 选中状态：浅蓝背景 + 深蓝文字 + 左侧蓝条 */
-.tab-item.active {
-  background: #ecf5ff; /* 极淡的蓝色背景 */
-  color: var(--el-color-primary);
-  font-weight: 600;
-}
-
-.tab-content {
-  display: flex;
-  align-items: center;
-  gap: 10px;
   width: 100%;
 }
 
+/* 关键：修复对齐！ */
+.tab-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* 给图标容器一个固定宽度，比如 24px，并居中 */
 .tab-icon {
-  color: inherit;
+  width: 24px; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 12px; /* 图标和文字的间距 */
+  flex-shrink: 0; /* 防止图标被压缩 */
+}
+
+/* 选中状态：用最轻的交互 */
+.tab-item.active {
+  background: #fff; /* 纯白背景 */
+  color: var(--el-color-primary);
+  font-weight: 600;
+  /* 加一个小阴影，让选中的项浮起来，而不是凹下去 */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
 }
 
 /* Hover 效果 */
 .tab-item:not(.active):hover {
-  background: #f5f7fa;
+  background: rgba(0,0,0,0.03); /* 极淡的灰 */
 }
 
 /* 响应式：在移动端/平板端变回水平排列 */
@@ -137,6 +147,10 @@ export default {
     background: #fff;
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
   }
+  
+  .tab-icon {
+    margin-right: 6px;
+    width: auto;
+  }
 }
 </style>
-

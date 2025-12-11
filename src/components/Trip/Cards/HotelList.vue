@@ -45,17 +45,11 @@
         >
           <el-skeleton animated>
             <template #template>
-              <el-skeleton-item variant="image" style="height: 140px; border-radius: 8px 8px 0 0;" />
-              <div style="padding: 12px;">
+              <el-skeleton-item variant="image" style="height: 180px; border-radius: 12px 12px 0 0;" />
+              <div style="padding: 16px;">
                 <el-skeleton-item variant="h3" style="width: 75%; margin-bottom: 8px;" />
                 <el-skeleton-item variant="text" style="width: 50%; margin-bottom: 6px;" />
-                <div style="display: flex; gap: 4px; margin: 8px 0;">
-                  <el-skeleton-item variant="text" style="width: 45px; height: 20px; border-radius: 4px;" />
-                  <el-skeleton-item variant="text" style="width: 40px; height: 20px; border-radius: 4px;" />
-                  <el-skeleton-item variant="text" style="width: 55px; height: 20px; border-radius: 4px;" />
-                </div>
-                <el-skeleton-item variant="text" style="width: 85%; margin-bottom: 8px;" />
-                <el-skeleton-item variant="text" style="width: 95%; margin-bottom: 12px;" />
+                <el-skeleton-item variant="text" style="width: 90%; margin-bottom: 8px;" />
                 <el-skeleton-item variant="button" style="width: 100%; height: 32px;" />
               </div>
             </template>
@@ -71,10 +65,7 @@
       <el-empty description="暂无推荐酒店" />
     </div>
 
-    <div
-      v-else-if="apiError"
-      class="error-state"
-    >
+    <div v-else-if="apiError" class="error-state">
       <el-alert
         :title="apiError"
         type="error"
@@ -84,115 +75,16 @@
     </div>
 
     <div v-else class="recommendation-list">
-      <div
+      <!-- 复用 RecommendationCard -->
+      <RecommendationCard
         v-for="hotel in items"
         :key="hotel.id"
-        class="recommendation-item vertical-layout"
-      >
-        <div class="recommendation-image">
-          <img
-            v-if="hotel.photos && hotel.photos.length > 0 && !hotel.imageError"
-            :src="hotel.photos[0].url"
-            :alt="hotel.name"
-            @error="handleImageError(hotel)"
-          />
-          <div v-else class="no-image">
-            <el-icon><House /></el-icon>
-            <span>暂无图片</span>
-          </div>
-        </div>
-        <div class="recommendation-content-body">
-          <h4 :title="hotel.name" class="full-width-name">
-            {{ hotel.name }}
-          </h4>
-          <div class="recommendation-rating rating-with-number">
-            <el-rate
-              :model-value="Number(hotel.rating) || 0"
-              disabled
-              text-color="#ff9900"
-            />
-            <span class="rating-value">{{ hotel.rating || '暂无评分' }}</span>
-          </div>
-          <div class="recommendation-tags">
-            <el-tag 
-              v-if="hotel.price || hotel.cost" 
-              size="small" 
-              type="danger" 
-              class="price-tag"
-            >
-              ￥{{ hotel.price || hotel.cost }}起
-            </el-tag>
-            <el-tag size="small" type="info" class="category-tag">
-              住宿服务
-            </el-tag>
-            <el-tag size="small" class="tag-item">
-              {{ hotel.type || '酒店' }}
-            </el-tag>
-          </div>
-
-          <!-- 设施/标签信息 -->
-          <div class="signature-dishes">
-            <p class="signature-title">
-              <el-icon><Star /></el-icon>
-              特色
-            </p>
-            <div
-              v-if="getTags(hotel).length > 0"
-              class="dish-tags"
-            >
-              <el-tag
-                v-for="(tag, index) in getTags(hotel).slice(0, 3)"
-                :key="index"
-                size="small"
-                effect="plain"
-                type="success"
-                class="dish-tag"
-              >
-                {{ tag }}
-              </el-tag>
-            </div>
-            <div v-else class="dish-tags">
-              <el-tag
-                size="small"
-                effect="plain"
-                type="info"
-                class="dish-tag empty-tag"
-              >
-                暂无标签
-              </el-tag>
-            </div>
-          </div>
-
-          <p class="recommendation-address">
-            <el-icon><Location /></el-icon>
-            <span class="address-text">{{
-              hotel.address || "暂无地址信息"
-            }}</span>
-          </p>
-
-          <!-- 添加到计划按钮 -->
-          <div class="add-to-plan">
-            <el-button
-              v-if="!isSelected(hotel)"
-              size="small"
-              plain
-              @click="$emit('add', hotel)"
-            >
-              <el-icon><Plus /></el-icon>
-              添加到计划
-            </el-button>
-            <el-button
-              v-else
-              type="danger"
-              size="small"
-              @click="$emit('remove', hotel)"
-            >
-              <el-icon><Close /></el-icon>
-              取消添加
-            </el-button>
-          </div>
-        </div>
-      </div>
+        :item="hotel"
+        :is-selected="isSelected(hotel)"
+        type="hotel"
+        @add="$emit('add', $event)"
+        @remove="$emit('remove', $event)"
+      />
     </div>
 
     <!-- 酒店加载更多按钮 -->
@@ -201,8 +93,6 @@
       class="load-more-container"
     >
       <el-button
-        type="primary"
-        size="large"
         :loading="loadingMore"
         :disabled="loadComplete"
         @click="loadMore"
@@ -210,7 +100,7 @@
       >
         <template v-if="!loadingMore">
           <el-icon><ArrowDown /></el-icon>
-          加载更多酒店
+          查看更多酒店
         </template>
         <template v-else>
           加载中...
@@ -234,16 +124,12 @@
 </template>
 
 <script>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import {
-  House,
-  Star,
-  Location,
-  Plus,
-  Close,
   ArrowDown,
   Check
 } from "@element-plus/icons-vue";
+import RecommendationCard from "./RecommendationCard.vue";
 import { getRecommendedHotels } from '@/api/amap.js';
 import { useAmap } from '@/composables/map/useAmap.js';
 import { extractHotelTags } from '@/utils/poiUtils.js';
@@ -252,11 +138,7 @@ import { ElMessage } from 'element-plus';
 export default {
   name: "HotelList",
   components: {
-    House,
-    Star,
-    Location,
-    Plus,
-    Close,
+    RecommendationCard,
     ArrowDown,
     Check
   },
@@ -308,11 +190,6 @@ export default {
     // 判断是否选中
     const isSelected = (item) => {
       return props.selectedItems.some((i) => i.id === item.id);
-    };
-
-    // 处理图片错误
-    const handleImageError = (item) => {
-      item.imageError = true;
     };
 
     // 加载数据
@@ -474,9 +351,7 @@ export default {
       apiError,
       isSearchMode,
       currentSearchKeyword,
-      handleImageError,
       isSelected,
-      getTags,
       loadMore,
       handleClearSearch
     };
@@ -485,6 +360,7 @@ export default {
 </script>
 
 <style scoped>
+/* 这里只保留容器和通用样式，卡片具体样式已移至 RecommendationCard */
 .recommendation-content {
   animation: slideIn 0.3s ease-out;
 }
@@ -511,232 +387,55 @@ export default {
   margin-bottom: 16px;
 }
 
-/* Skeleton styles */
 .skeleton-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
   margin-top: 16px;
 }
 
 .skeleton-card {
   background: #ffffff;
-  border: 1px solid #ebeef5;
-  border-radius: 8px;
+  border: 1px solid #f0f2f5;
+  border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .recommendation-list {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
   margin-top: 16px;
   min-height: 200px;
 }
 
-.recommendation-item {
-  border: 1px solid #ebeef5;
-  border-radius: 8px;
-  overflow: hidden;
-  transition: all 0.3s;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  background-color: #fff;
-}
-
-.recommendation-item:hover {
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  transform: translateY(-3px);
-}
-
-.recommendation-item.vertical-layout {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.recommendation-image {
-  height: 140px;
-  overflow: hidden;
-  position: relative;
-}
-
-.recommendation-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: all 0.5s;
-}
-
-.recommendation-item:hover .recommendation-image img {
-  transform: scale(1.05);
-}
-
-.no-image {
-  background: #f5f7fa;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #909399;
-  font-size: 24px;
-  gap: 8px;
-}
-
-.no-image span {
-  font-size: 12px;
-  color: #c0c4cc;
-  margin-top: 4px;
-}
-
-.recommendation-content-body {
-  padding: 12px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.recommendation-content-body h4 {
-  margin: 0 0 8px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #303133;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.full-width-name {
-  width: 100%;
-}
-
-.recommendation-rating {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.rating-with-number .el-rate {
-  font-size: 14px;
-  line-height: 1;
-}
-
-.rating-value {
-  margin-left: 8px;
-  color: #ff9900;
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.recommendation-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin-bottom: 6px;
-}
-
-.category-tag,
-.tag-item {
-  font-size: 11px;
-}
-
-.signature-dishes {
-  margin: 6px 0;
-}
-
-.signature-title {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin: 0 0 4px;
-  font-size: 11px;
-  color: #606266;
-}
-
-.dish-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.dish-tag {
-  margin-right: 2px;
-  margin-bottom: 2px;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 10px;
-}
-
-.empty-tag {
-  opacity: 0.6;
-}
-
-.recommendation-address {
-  display: flex;
-  align-items: flex-start;
-  margin: 6px 0;
-  color: #606266;
-  font-size: 11px;
-  line-height: 1.3;
-}
-
-.address-text {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  margin-left: 4px;
-}
-
-.add-to-plan {
-  margin-top: auto;
-  padding-top: 8px;
-  text-align: right;
-}
-
-.add-to-plan .el-button {
-  padding: 6px 12px;
-  font-size: 12px;
-  background: #91A8D0;
-  color: white;
-}
-
-/* Load more styles */
 .load-more-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  margin: 5px 0;
-  padding: 5px;
-  transition: all 0.3s ease;
-}
-
-.load-more-container:hover {
-  transform: translateY(-1px);
+  margin: 32px 0 16px;
+  padding: 0;
 }
 
 .load-more-btn {
-  padding: 12px 32px;
+  padding: 10px 24px;
   font-size: 14px;
-  font-weight: 500;
-  border-radius: 8px;
+  font-weight: normal;
+  border-radius: 20px;
+  background: #f5f7fa;
+  color: #606266;
+  border: none;
   transition: all 0.3s ease;
-  min-width: 160px;
+  min-width: auto;
 }
 
 .load-more-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(79, 130, 202, 0.2);
+  background: #e6f7ff;
+  color: var(--el-color-primary);
+  transform: none;
+  box-shadow: none;
 }
 
 .load-complete-tip {
@@ -762,7 +461,7 @@ export default {
   .recommendation-list,
   .skeleton-grid {
     grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    gap: 20px;
   }
 }
 
@@ -774,84 +473,13 @@ export default {
   }
 }
 
-@media (max-width: 768px) {
-  .load-more-container {
-    margin: 16px 0;
-    padding: 16px;
-    gap: 12px;
-  }
-  
-  .load-more-btn {
-    padding: 10px 24px;
-    font-size: 13px;
-    min-width: 140px;
-  }
-}
-
-@media (max-width: 480px) {
+@media (max-width: 600px) {
   .recommendation-list,
   .skeleton-grid {
     grid-template-columns: 1fr;
     gap: 12px;
   }
-
-  .recommendation-item {
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    border: 1px solid #f0f0f0;
-  }
-
-  .recommendation-image {
-    height: 160px;
-  }
-
-  .recommendation-content-body {
-    padding: 12px;
-  }
-
-  .recommendation-content-body h4 {
-    font-size: 15px;
-    margin-bottom: 8px;
-    line-height: 1.3;
-  }
-
-  .rating-with-number .el-rate {
-    font-size: 14px;
-  }
-
-  .rating-value {
-    font-size: 13px;
-    margin-left: 6px;
-  }
-
-  .recommendation-tags,
-  .signature-dishes {
-    margin: 8px 0;
-  }
-
-  .category-tag,
-  .tag-item,
-  .dish-tag {
-    font-size: 11px;
-    padding: 2px 6px;
-  }
   
-  .recommendation-address {
-    font-size: 12px;
-    margin: 8px 0;
-  }
-
-  .add-to-plan {
-    padding-top: 12px;
-  }
-
-  .add-to-plan .el-button {
-    padding: 8px 16px;
-    font-size: 12px;
-    border-radius: 8px;
-    width: 100%;
-  }
-
   .load-more-container {
     margin: 12px 0;
     padding: 12px;
