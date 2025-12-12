@@ -1,4 +1,5 @@
 <template>
+
   <div class="trip-recommendation-step">
     <!-- 页面标题区域 -->
     <div class="page-title">
@@ -16,19 +17,11 @@
     <!-- 推荐内容区域 -->
     <el-card class="info-card">
       <div class="recommendation-main">
-        <RecommendationSection
-          :city-info="cityInfo"
-          :selected-attractions="selectedAttractions"
-          :selected-restaurants="selectedRestaurants"
-          :selected-hotels="selectedHotels"
-          @add-attraction="handleAddAttraction"
-          @remove-attraction="handleRemoveAttraction"
-          @add-restaurant="handleAddRestaurant"
-          @remove-restaurant="handleRemoveRestaurant"
-          @add-hotel="handleAddHotel"
-          @remove-hotel="handleRemoveHotel"
-          @clear-all-selections="handleClearAllSelections"
-        />
+        <RecommendationSection :city-info="cityInfo" :selected-attractions="selectedAttractions"
+          :selected-restaurants="selectedRestaurants" :selected-hotels="selectedHotels"
+          @add-attraction="handleAddAttraction" @remove-attraction="handleRemoveAttraction"
+          @add-restaurant="handleAddRestaurant" @remove-restaurant="handleRemoveRestaurant" @add-hotel="handleAddHotel"
+          @remove-hotel="handleRemoveHotel" @clear-all-selections="handleClearAllSelections" />
       </div>
     </el-card>
 
@@ -38,13 +31,19 @@
       <div class="action-left">
         <div class="selection-stats">
           <el-tag type="info" effect="plain" round>
-            <el-icon><Location /></el-icon> {{ selectedAttractions.length }} 景点
+            <el-icon>
+              <Location />
+            </el-icon> {{ selectedAttractions.length }} 景点
           </el-tag>
           <el-tag type="info" effect="plain" round>
-            <el-icon><Food /></el-icon> {{ selectedRestaurants.length }} 餐厅
+            <el-icon>
+              <Food />
+            </el-icon> {{ selectedRestaurants.length }} 餐厅
           </el-tag>
           <el-tag type="info" effect="plain" round>
-            <el-icon><House /></el-icon> {{ selectedHotels.length }} 酒店
+            <el-icon>
+              <House />
+            </el-icon> {{ selectedHotels.length }} 酒店
           </el-tag>
         </div>
       </div>
@@ -52,27 +51,25 @@
       <!-- 右侧：按钮 -->
       <div class="action-right">
         <el-button size="large" @click="$emit('prev-step')">
-          <el-icon><ArrowLeft /></el-icon>
+          <el-icon>
+            <ArrowLeft />
+          </el-icon>
           上一步
         </el-button>
-        <el-button
-          type="primary"
-          size="large"
-          :loading="generating"
-          @click="handleContinue"
-        >
+        <el-button type="primary" size="large" :loading="generating" @click="handleContinue">
           {{ totalSelected > 0 ? '生成行程' : '跳过生成' }}
-          <el-icon><ArrowRight /></el-icon>
+          <el-icon>
+            <ArrowRight />
+          </el-icon>
         </el-button>
       </div>
     </div>
 
     <!-- 推荐助手提示 -->
-    <AiRecommendationTip
-      :visible="showAiTip"
-      :tip-text="getAiTipText()"
-      @close="showAiTip = false"
-    />
+    <AiRecommendationTip :visible="showAiTip" :tip-text="getAiTipText()" @close="showAiTip = false" />
+
+    <!-- 回到顶部：right="48" 是为了与下方宽 56px 的清单按钮(right:40px)中心对齐 -->
+    <el-backtop target="body" :right="48" :bottom="120" :visibility-height="100" style="z-index: 9999;" />
   </div>
 </template>
 
@@ -126,7 +123,7 @@ export default {
   },
   emits: [
     'prev-step',
-    'next-step', 
+    'next-step',
     'selections-updated',
     'save-draft'
   ],
@@ -160,7 +157,7 @@ export default {
     const showAiTip = ref(true);
 
     // 计算属性
-    const totalSelected = computed(() => 
+    const totalSelected = computed(() =>
       selectedAttractions.value.length + selectedRestaurants.value.length + selectedHotels.value.length
     );
 
@@ -225,13 +222,13 @@ export default {
     const handleContinue = () => {
       // 发送选择更新事件
       emitSelectionUpdate();
-      
+
       if (totalSelected.value > 0) {
         ElMessage.success(`已选择 ${totalSelected.value} 项，开始生成行程`);
       } else {
         ElMessage.info('跳过推荐选择，直接生成行程');
       }
-      
+
       emit('next-step');
     };
 
@@ -255,10 +252,8 @@ export default {
       }
     };
 
-    // 组件挂载时的调试信息
-    onMounted(() => {
-      console.log('🚀 推荐选择步骤组件挂载');
-    });
+
+    
 
     return {
       // 数据
@@ -267,7 +262,7 @@ export default {
       selectedHotels,
       showAiTip,
       totalSelected,
-      
+
       // 方法
       handleAddAttraction,
       handleRemoveAttraction,
@@ -391,16 +386,17 @@ export default {
     gap: 16px;
     align-items: stretch;
   }
-  
-  .action-left, .action-right {
+
+  .action-left,
+  .action-right {
     width: 100%;
     justify-content: center;
   }
-  
+
   .action-right .el-button {
     flex: 1;
   }
-  
+
   .selection-stats {
     flex-wrap: wrap;
     justify-content: center;

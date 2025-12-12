@@ -1,4 +1,11 @@
 <template>
+      <el-backtop 
+      target=".cities-content-wrapper"
+      :right="40" 
+      :bottom="120" 
+      :visibility-height="0"
+      style="z-index: 9999;"
+    />
   <div class="page-shell destinations" ref="pageShell">
     <!-- 英雄横幅（大图+搜索） -->
     <DestinationsHero

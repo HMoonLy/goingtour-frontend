@@ -1,20 +1,11 @@
 <template>
-  <div v-if="visible" class="ai-tip-card">
-    <div class="ai-tip-content">
-      <div class="ai-tip-header">
-        <el-icon class="ai-icon"><MagicStick /></el-icon>
-        <h4>💡 推荐建议</h4>
-        <el-button 
-          link 
-          size="small" 
-          @click="$emit('close')"
-        >
-          <el-icon><Close /></el-icon>
-        </el-button>
-      </div>
-      <div class="ai-tip-text">
-        {{ tipText }}
-      </div>
+  <div v-if="visible" class="ai-tip-bubble">
+    <div class="tip-content">
+      <el-icon class="icon"><MagicStick /></el-icon>
+      <span class="text">{{ tipText }}</span>
+    </div>
+    <div class="close-btn" @click.stop="$emit('close')">
+      <el-icon><Close /></el-icon>
     </div>
   </div>
 </template>
@@ -43,17 +34,61 @@ export default {
 </script>
 
 <style scoped>
-.ai-tip-card {
+.ai-tip-bubble {
   position: fixed;
-  bottom: 20px;
+  top: 150px;
   right: 20px;
-  width: 320px;
-  background: linear-gradient(135deg, #91a8d0 0%, #f7cac9 100%);
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  width: 260px;
+  /* 保持渐变风格但更紧凑 */
+  background: linear-gradient(135deg, rgba(145, 168, 208, 0.95) 0%, rgba(247, 202, 201, 0.95) 100%);
+  backdrop-filter: blur(4px);
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   z-index: 1000;
   color: white;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
   animation: slideInRight 0.3s ease-out;
+  transition: all 0.3s;
+}
+
+.ai-tip-bubble:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16);
+}
+
+.tip-content {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.icon {
+  font-size: 16px;
+  margin-top: 3px; /* 微调图标对齐 */
+  opacity: 0.95;
+}
+
+.text {
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: justify;
+  font-weight: 500;
+}
+
+.close-btn {
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  display: flex;
+  margin-top: 2px;
+}
+
+.close-btn:hover {
+  opacity: 1;
 }
 
 @keyframes slideInRight {
@@ -67,53 +102,12 @@ export default {
   }
 }
 
-.ai-tip-content {
-  padding: 20px;
-}
-
-.ai-tip-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.ai-tip-header h4 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.ai-icon {
-  font-size: 20px;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.ai-tip-text {
-  font-size: 14px;
-  line-height: 1.5;
-  opacity: 0.9;
-}
-
 @media (max-width: 768px) {
-  .ai-tip-card {
-    position: relative;
+  .ai-tip-bubble {
+    top: 80px;
+    right: 16px;
     width: auto;
-    margin: 16px 8px;
-    right: auto;
-    bottom: auto;
-    border-radius: 12px;
-  }
-}
-
-@media (max-width: 480px) {
-  .ai-tip-card {
-    margin: 12px 4px;
-    border-radius: 8px;
+    max-width: 280px;
   }
 }
 </style>
-

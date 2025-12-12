@@ -252,6 +252,8 @@
       @select="handleSelectFromDialog"
       @unselect="handleUnselectFromDialog"
     />
+    <!-- 回到顶部：right="48" 是为了与下方宽 56px 的清单按钮(right:40px)中心对齐 -->
+    <el-backtop target="body" :right="48" :bottom="120" :visibility-height="100" style="z-index: 9999;" />
   </div>
 </template>
 

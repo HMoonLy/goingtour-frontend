@@ -175,8 +175,8 @@ export default {
 <style scoped>
 .summary-wrapper {
   position: fixed;
-  right: 32px;
-  bottom: 100px;
+  right: 40px;
+  bottom: 40px;
   z-index: 2000;
   display: flex;
   flex-direction: column;
@@ -187,8 +187,8 @@ export default {
 /* 悬浮按钮 */
 .floating-btn {
   pointer-events: auto;
-  width: 56px;
-  height: 56px;
+  width: 50px;
+  height: 50px;
   background: white;
   border-radius: 28px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
@@ -214,7 +214,7 @@ export default {
 }
 
 .btn-icon {
-  font-size: 24px;
+  font-size: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -238,9 +238,13 @@ export default {
 
 /* 自定义 Badge 样式覆盖 */
 :deep(.custom-badge .el-badge__content) {
+  width: 20px;
+  height: 20px;
   border: 2px solid white;
   background-color: var(--el-color-danger);
-  transform: translateY(-2px) translateX(2px);
+  top: -6px;
+  left:-20px;
+  transform: scale(0.85); /* 稍微缩小一点更精致 */
 }
 
 /* 详情面板 */
