@@ -180,7 +180,6 @@ export default {
     TripRecommendationStep,
     EnhancedRecommendationStep,
     TripGeneration,
-    TripPreview,
     AiTripDisplay,
     TripNoDestination,
     Check,

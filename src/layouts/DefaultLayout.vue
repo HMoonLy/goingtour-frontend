@@ -19,6 +19,14 @@
             </div>
             <div
               class="nav-item"
+              :class="{ 'is-active': activeMenu === '/community' }"
+              @click="$router.push('/community')"
+            >
+              <el-icon><ChatDotRound /></el-icon>
+              <span>{{ "社区" }}</span>
+            </div>
+            <div
+              class="nav-item"
               :class="{ 'is-active': activeMenu === '/destinations' }"
               @click="$router.push('/destinations')"
             >
@@ -92,6 +100,7 @@ import {
   SwitchButton,
   ArrowDown,
   House,
+  ChatDotRound,
 } from "@element-plus/icons-vue";
 
 export default {
@@ -103,6 +112,7 @@ export default {
     SwitchButton,
     ArrowDown,
     House,
+    ChatDotRound,
   },
   setup() {
     const route = useRoute();
@@ -120,6 +130,7 @@ export default {
     const activeMenu = computed(() => {
       const path = route.path;
       if (path === "/" || path.startsWith("/home")) return "/home";
+      if (path.startsWith("/community")) return "/community";
       if (path.startsWith("/destinations")) return "/destinations";
       if (path.startsWith("/personal")) return "/personal";
       if (path.startsWith("/wishlist")) return "/wishlist";

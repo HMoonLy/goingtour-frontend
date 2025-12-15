@@ -106,6 +106,38 @@ const routes = [
                 redirect: "/footprints",
             },
 
+            // ========== 社区模块 ==========
+            {
+                path: "community",
+                name: "CommunityPlaza",
+                component: () =>
+                    import("../pages/Community/CommunityPlaza.vue"),
+                meta: {
+                    titleKey: "route.community",
+                    requiresAuth: false,
+                },
+            },
+            {
+                path: "community/post/:id",
+                name: "PostDetail",
+                component: () =>
+                    import("../pages/Community/PostDetail.vue"),
+                meta: {
+                    titleKey: "route.postDetail",
+                    requiresAuth: false,
+                },
+            },
+            {
+                path: "community/publish",
+                name: "PostPublish",
+                component: () =>
+                    import("../pages/Community/PostPublish.vue"),
+                meta: {
+                    titleKey: "route.postPublish",
+                    requiresAuth: true,
+                },
+            },
+
             // 行程模块
             {
                 path: "destinations",
@@ -201,6 +233,9 @@ router.beforeEach(async (to, from, next) => {
         "route.login": "登录",
         "route.register": "注册",
         "route.home": "首页",
+        "route.community": "社区广场",
+        "route.postDetail": "游记详情",
+        "route.postPublish": "发布游记",
         "route.personal": "个人中心",
         "route.personalProfile": "个人资料",
         "route.accountSettings": "账户设置",

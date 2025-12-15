@@ -52,6 +52,10 @@
           </el-button>
           <template #dropdown>
             <el-dropdown-menu>
+              <el-dropdown-item command="publish">
+                <el-icon><Promotion /></el-icon>
+                发布到社区
+              </el-dropdown-item>
               <el-dropdown-item command="duplicate"> 复制行程 </el-dropdown-item>
               <el-dropdown-item command="template"> 保存为模板 </el-dropdown-item>
               <el-dropdown-item command="delete" divided> 删除行程 </el-dropdown-item>
@@ -138,6 +142,7 @@ import {
   Money,
   DataLine,
   Collection,
+  Promotion,
 } from "@element-plus/icons-vue";
 
 export default {
@@ -154,6 +159,7 @@ export default {
     Money,
     DataLine,
     Collection,
+    Promotion,
   },
   props: {
     tripData: {

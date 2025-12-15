@@ -360,6 +360,12 @@ export default {
 
     const handleMoreAction = async (command) => {
       switch (command) {
+        case "publish":
+          router.push({
+            path: "/community/publish",
+            query: { tripId: tripData.value.id },
+          });
+          break;
         case "duplicate":
           await duplicateTrip();
           break;
