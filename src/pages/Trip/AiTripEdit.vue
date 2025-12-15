@@ -8,6 +8,7 @@
       @save="saveChanges"
       @export="handleExport"
       @toggle-read-only="toggleReadOnly"
+      @publish="handlePublish"
     />
 
     <!-- 加载状态 -->
@@ -273,6 +274,33 @@ const handleExport = async (format) => {
     ElMessage.error("导出失败，请重试");
   } finally {
     loadingMessage.close();
+  }
+};
+
+const handlePublish = () => {
+  if (hasUnsavedChanges()) {
+    ElMessageBox.confirm(
+      "您有未保存的修改，发布前请先保存。是否立即保存？",
+      "提示",
+      {
+        confirmButtonText: "保存并发布",
+        cancelButtonText: "取消",
+        type: "warning",
+      }
+    )
+      .then(async () => {
+        await saveChanges();
+        router.push({
+          path: "/community/publish",
+          query: { tripId: tripId.value },
+        });
+      })
+      .catch(() => {});
+  } else {
+    router.push({
+      path: "/community/publish",
+      query: { tripId: tripId.value },
+    });
   }
 };
 </script>

@@ -168,7 +168,7 @@ export default {
 <style scoped>
 .community-plaza {
   min-height: 100vh;
-  background-color: #f5f7fa;
+  background-color: #ffffff;
 }
 
 .plaza-hero {

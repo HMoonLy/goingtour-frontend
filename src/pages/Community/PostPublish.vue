@@ -129,6 +129,15 @@
             <div class="form-tip">留空则自动使用目的地精美图片作为封面</div>
           </el-form-item>
 
+          <el-form-item label="行程摘要" prop="tripSummary">
+            <el-input
+              v-model="form.tripSummary"
+              type="textarea"
+              :rows="8"
+              placeholder="输入行程摘要"
+            />
+          </el-form-item>
+
           <!-- 提交按钮 -->
           <div class="form-actions">
             <el-button @click="$router.back()">取消</el-button>
@@ -143,7 +152,7 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/store/user';
 import { tripService } from '@/services/trip/tripService';
@@ -175,7 +184,8 @@ export default {
       content: '',
       rating: 5.0,
       tags: [],
-      coverImage: ''
+      coverImage: '',
+      tripSummary: null // 新增
     });
 
     const rules = {
@@ -185,15 +195,79 @@ export default {
       rating: [{ required: true, message: '请评分', trigger: 'change' }]
     };
 
+    // 提取 JSON 的辅助函数
+    const extractJsonFromContent = (content) => {
+      if (!content) return null;
+      try {
+        let jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/i);
+        if (!jsonMatch) {
+             const codeBlocks = [...content.matchAll(/```\s*([\s\S]*?)\s*```/g)];
+             if (codeBlocks.length > 0) {
+                 const lastBlock = codeBlocks[codeBlocks.length - 1][1];
+                 if (lastBlock.trim().startsWith('{')) {
+                     jsonMatch = [null, lastBlock];
+                 }
+             }
+        }
+        if (jsonMatch && jsonMatch[1]) {
+           return JSON.parse(jsonMatch[1]);
+        }
+        return null;
+      } catch (e) {
+        console.warn('提取JSON失败:', e);
+        return null;
+      }
+    };
+
+    // 格式化行程摘要为文本
+    const formatTripSummary = (data) => {
+      if (!data) return '';
+      
+      let summary = '';
+      
+      // 1. 基础信息
+      if (data.trip_summary) {
+        const { destination, duration_days, travel_theme, hotel, traveler_count, start_date, end_date } = data.trip_summary;
+        summary += `【行程概览】\n`;
+        if (destination) summary += `📍 目的地：${destination}\n`;
+        if (start_date && end_date) summary += `📅 时间：${start_date} 至 ${end_date} (${duration_days}天)\n`;
+        else if (duration_days) summary += `⏱️ 行程天数：${duration_days}天\n`;
+        if (traveler_count) summary += `👥 出行人数：${traveler_count}人\n`;
+        if (travel_theme) summary += `🏷️ 旅行主题：${travel_theme}\n`;
+        if (hotel) summary += `🏨 推荐住宿：${hotel}\n`;
+        summary += '\n';
+      }
+      
+      // 2. 每日行程
+      if (data.daily_itineraries && Array.isArray(data.daily_itineraries)) {
+        summary += `【每日行程】\n`;
+        data.daily_itineraries.forEach(item => {
+           summary += `D${item.day} (${item.date})：${item.theme || ''}\n`;
+        });
+        summary += '\n';
+      }
+      
+      // 3. 实用建议
+      if (data.general_recommendations) {
+        summary += `【实用建议】\n`;
+        const { transportation, clothing, booking, budget_note } = data.general_recommendations;
+        if (transportation) summary += `🚗 交通：${transportation}\n`;
+        if (clothing) summary += `👔 衣物：${clothing}\n`;
+        if (booking) summary += `📅 预订：${booking}\n`;
+        if (budget_note) summary += `💰 预算：${budget_note}\n`;
+      }
+      
+      return summary;
+    };
+
     const fetchUserTrips = async () => {
-      if (!userStore.userInfo?.id) return;
+      if (!userStore.currentUser?.id) return;
       
       loadingTrips.value = true;
       try {
-        const userTrips = await tripService.getUserTrips(userStore.userInfo.id);
+        const userTrips = await tripService.getUserTrips(userStore.currentUser.id);
         trips.value = userTrips || [];
         
-        // 如果URL中有tripId，自动选中
         const queryTripId = route.query.tripId;
         if (queryTripId) {
           const tripId = parseInt(queryTripId);
@@ -213,9 +287,23 @@ export default {
 
     const handleTripChange = (tripId) => {
       selectedTrip.value = trips.value.find(t => t.id === tripId);
-      // 自动填充标题
+      // 1. 自动填充标题
       if (selectedTrip.value && !form.title) {
         form.title = `${selectedTrip.value.city}${selectedTrip.value.days}日游分享`;
+      }
+      
+      // 2. 自动提取行程摘要 JSON
+      if (selectedTrip.value) {
+         // 兼容字段名
+         const aiContent = selectedTrip.value.aiContent || selectedTrip.value.ai_content;
+         if (aiContent) {
+             const extracted = extractJsonFromContent(aiContent);
+             if (extracted) {
+                 // 将 JSON 对象格式化为易读文本
+                 form.tripSummary = formatTripSummary(extracted);
+                 console.log('自动提取行程摘要成功:', extracted);
+             }
+         }
       }
     };
 
@@ -226,13 +314,38 @@ export default {
         if (valid) {
           submitting.value = true;
           try {
+            // 处理 tripSummary，确保符合后端 JSON 字符串要求
+            let summaryToSubmit = null;
+            if (form.tripSummary && form.tripSummary.trim() !== '') {
+              // 1. 如果是普通文本，包装为对象
+              let summaryObj = form.tripSummary;
+              if (typeof form.tripSummary === 'string') {
+                 // 尝试判断是否已经是 JSON 字符串，如果不是则包装
+                 if (!form.tripSummary.trim().startsWith('{')) {
+                    summaryObj = { text_content: form.tripSummary };
+                 } else {
+                    // 如果已经是 JSON 字符串（比如复制粘贴的），尝试解析验证
+                    try {
+                       summaryObj = JSON.parse(form.tripSummary);
+                    } catch (e) {
+                       // 解析失败，当作普通文本处理
+                       summaryObj = { text_content: form.tripSummary };
+                    }
+                 }
+              }
+              
+              // 2. 转换为 JSON 字符串发送
+              summaryToSubmit = JSON.stringify(summaryObj);
+            }
+
             const data = {
               tripId: form.tripId,
               title: form.title,
               content: form.content,
               rating: form.rating,
               tags: form.tags,
-              coverImage: form.coverImage || undefined // 如果为空则不传
+              coverImage: form.coverImage || undefined, // 如果为空则不传
+              tripSummary: summaryToSubmit
             };
             
             const res = await communityApi.publishPost(data);
@@ -253,6 +366,8 @@ export default {
     };
 
     onMounted(() => {
+      console.log('发布');
+      
       if (!userStore.isLoggedIn) {
         ElMessage.warning('请先登录');
         router.push('/login?redirect=/community/publish');
@@ -280,7 +395,7 @@ export default {
 <style scoped>
 .publish-page {
   min-height: 100vh;
-  background-color: #f5f7fa;
+  background-color: #ffffff;
   padding: 40px 20px;
 }
 

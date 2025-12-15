@@ -16,6 +16,7 @@ export const communityApi = {
    *   rating: number, // 1.0 - 5.0
    *   tags: string[],
    *   coverImage: string // 可选
+   *   tripSummary: string // 行程摘要
    * }
    */
   publishPost(data) {

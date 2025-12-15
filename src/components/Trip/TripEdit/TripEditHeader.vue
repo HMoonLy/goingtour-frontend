@@ -17,14 +17,18 @@
         保存修改
       </el-button>
       <!-- 导出按钮 -->
-      <el-dropdown @command="(cmd) => $emit('export', cmd)" trigger="click">
+      <el-dropdown @command="handleCommand" trigger="click">
         <el-button>
           <el-icon><Download /></el-icon>
-          导出行程
+          更多操作
           <el-icon class="el-icon--right"><ArrowDown /></el-icon>
         </el-button>
         <template #dropdown>
           <el-dropdown-menu>
+            <el-dropdown-item command="publish">
+              <el-icon><Promotion /></el-icon>
+              发布到社区
+            </el-dropdown-item>
             <el-dropdown-item command="word">
               <el-icon><Edit /></el-icon>
               导出Word文档
@@ -56,6 +60,7 @@ import {
   Download,
   ArrowDown,
   Picture,
+  Promotion,
 } from "@element-plus/icons-vue";
 
 defineProps({
@@ -69,7 +74,15 @@ defineProps({
   },
 });
 
-defineEmits(["back", "save", "export", "toggleReadOnly"]);
+const emit = defineEmits(["back", "save", "export", "toggleReadOnly", "publish"]);
+
+const handleCommand = (command) => {
+  if (command === "publish") {
+    emit("publish");
+  } else {
+    emit("export", command);
+  }
+};
 </script>
 
 <style scoped>

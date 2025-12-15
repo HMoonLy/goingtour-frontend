@@ -101,25 +101,27 @@
           
           <el-divider />
 
-          <!-- 行程详情 (复用 TripDailyItinerary) -->
-          <div class="trip-details-section" v-if="formattedTrip">
+          <!-- 行程详情 -->
+          <div class="trip-details-section">
             <div class="section-header">
-              <h3><el-icon><MapLocation /></el-icon> 关联行程：{{ formattedTrip.destinationName }} {{ formattedTrip.days }}日游</h3>
-              <div class="trip-budget-tag">
-                预算: {{ formattedTrip.budgetText }}
+              <!-- 使用可选链防止数据为空报错 -->
+              <h3><el-icon><MapLocation /></el-icon> 关联行程：{{ post.trip?.city }} {{ post.trip?.days }}日游</h3>
+              <div class="trip-budget-tag" v-if="post.trip?.totalBudget">
+                预算: 约 ¥{{ post.trip.totalBudget }}
               </div>
             </div>
             
-            <TripDailyItinerary 
-              :daily-plan="formattedTrip.dailyPlan"
-              :destination="formattedTrip.destination"
-              :is-editing="false"
+            <!-- 优先展示直接存储在 Post 中的 JSON 摘要 (新方案) -->
+            <TripSummaryCard 
+              v-if="post.tripSummary"
+              :summary-data="post.tripSummary"
             />
+            
+            <div v-else class="empty-trip">
+               <el-empty description="暂无详细行程内容" image-size="60" />
+            </div>
           </div>
         </div>
-
-        <!-- 右侧：侧边栏 (可选，预留) -->
-        <!-- <div class="post-sidebar"></div> -->
       </div>
     </div>
   </div>
@@ -131,7 +133,8 @@ import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/store/user';
 import { communityApi } from '@/api/community';
 import { convertBackendTripToFrontend } from '@/utils/data/tripDataConverter';
-import TripDailyItinerary from '@/components/Trip/Details/TripDailyItinerary.vue';
+import TripSummaryCard from '@/components/Trip/Details/TripSummaryCard.vue';
+import TripMarkdownRenderer from '@/components/Trip/Steps/TripMarkdownRenderer.vue';
 import { 
   Star, StarFilled, CollectionTag, CopyDocument, 
   More, Delete, MapLocation 
@@ -141,7 +144,8 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 export default {
   name: 'PostDetail',
   components: {
-    TripDailyItinerary,
+    TripSummaryCard,
+    TripMarkdownRenderer,
     Star, StarFilled, CollectionTag, CopyDocument, 
     More, Delete, MapLocation
   },
@@ -153,18 +157,79 @@ export default {
     const loading = ref(true);
     const post = ref(null);
     const formattedTrip = ref(null);
+    const extractedTripSummary = ref(null);
 
     const isAuthor = computed(() => {
       return post.value && userStore.userInfo && post.value.author.id === userStore.userInfo.id;
     });
 
+
+    const extractJsonFromMarkdown = (content) => {
+      console.log('content', content);
+      
+      if (!content) return null;
+      try {
+        // 1. 优先匹配明确标记为 json 的块
+        let jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/i);
+        
+        // 2. 如果没匹配到，尝试匹配最后一个代码块 (通常 summary 在最后)
+        if (!jsonMatch) {
+             const codeBlocks = [...content.matchAll(/```\s*([\s\S]*?)\s*```/g)];
+             if (codeBlocks.length > 0) {
+                 // 取最后一个代码块，检查是否像 JSON
+                 const lastBlock = codeBlocks[codeBlocks.length - 1][1];
+                 if (lastBlock.trim().startsWith('{')) {
+                     jsonMatch = [null, lastBlock];
+                 }
+             }
+        }
+
+        if (jsonMatch && jsonMatch[1]) {
+           return JSON.parse(jsonMatch[1]);
+        }
+        return null;
+      } catch (e) {
+        console.warn('Failed to parse trip summary JSON:', e);
+        return null;
+      }
+    };
+
     const fetchDetail = async () => {
       loading.value = true;
       try {
         const id = route.params.id;
+        console.log(id);
+        
         const res = await communityApi.getPostDetail(id);
         if (res.code === 200) {
           post.value = res.data;
+          
+          // 解析 tripSummary JSON 字符串
+          if (post.value.tripSummary && typeof post.value.tripSummary === 'string') {
+             try {
+                post.value.tripSummary = JSON.parse(post.value.tripSummary);
+             } catch (e) {
+                console.warn('解析 tripSummary 失败', e);
+                // 尝试作为纯文本处理
+                post.value.tripSummary = { text_content: post.value.tripSummary };
+             }
+          }
+          
+          const tripData = post.value.trip || {};
+          // 兼容下划线和驼峰
+          const aiContent = tripData.aiContent || tripData.ai_content;
+          
+          // 尝试提取 JSON Summary
+          if (aiContent) {
+            console.log(aiContent);
+            
+            extractedTripSummary.value = extractJsonFromMarkdown(aiContent);
+            
+            // 确保 aiContent 字段有值，供 Markdown 渲染器降级使用
+            if (!post.value.trip.aiContent) {
+                post.value.trip.aiContent = aiContent;
+            }
+          }
           
           // 转换行程数据格式
           if (post.value.trip) {
@@ -265,9 +330,7 @@ export default {
         if (res.code === 200) {
           ElMessage.success('复制成功！即将跳转到编辑页面...');
           setTimeout(() => {
-            router.push(`/trip/${res.data.newTripId}`); // 跳转到详情页或编辑页
-            // 如果需要编辑，可以跳转到 /trip/${id}/edit 或 ai-trip/${id}/edit
-            // 根据后端返回的trip类型可能需要判断，这里先跳到详情页
+            router.push(`/trip/${res.data.newTripId}`);
           }, 1500);
         } else {
           ElMessage.error(res.msg || '复制失败');
@@ -325,6 +388,7 @@ export default {
       loading,
       post,
       formattedTrip,
+      extractedTripSummary,
       isAuthor,
       handleLike,
       handleCollect,
@@ -340,7 +404,7 @@ export default {
 <style scoped>
 .post-detail-page {
   min-height: 100vh;
-  background-color: #f5f7fa;
+  background-color: #ffffff;
   padding-bottom: 40px;
 }
 
@@ -476,6 +540,10 @@ export default {
   border-radius: 4px;
   font-size: 14px;
   font-weight: 600;
+}
+
+.empty-trip {
+  margin-top: 20px;
 }
 
 @media (max-width: 768px) {
