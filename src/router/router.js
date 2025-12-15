@@ -161,17 +161,6 @@ const routes = [
                 },
             },
             {
-                path: "trip/:id",
-                name: "TripDetail",
-                component: () =>
-                    import("../pages/Trip/TripDetail.vue"),
-                props: true,
-                meta: {
-                    titleKey: "route.tripDetail",
-                    requiresAuth: true,
-                },
-            },
-            {
                 path: "ai-trip/:id/edit",
                 name: "AiTripEdit",
                 component: () =>

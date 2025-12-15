@@ -107,11 +107,45 @@ export function useAiTripDisplay(props, emit) {
   const shareTrip = async () => {
     sharing.value = true;
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      ElMessage.success("分享成功！");
+      await ElMessageBox.confirm(
+        "您想要将行程发布到社区广场，还是直接复制链接分享给好友？",
+        "分享行程",
+        {
+          confirmButtonText: "发布到社区",
+          cancelButtonText: "复制链接分享",
+          distinguishCancelAndClose: true,
+          type: "info",
+          center: true,
+        }
+      )
+        .then(() => {
+          // 跳转到发布页，注意这里需要先保存行程
+          if (!props.tripData.id && !props.tripData.savedTripId) {
+            ElMessage.warning("请先保存行程后再发布");
+            return;
+          }
+          
+          const tripId = props.tripData.id || props.tripData.savedTripId;
+          router.push({
+            path: "/community/publish",
+            query: { tripId: tripId },
+          });
+        })
+        .catch(async (action) => {
+          if (action === "cancel") {
+            // 复制内容分享
+            const content = props.tripData?.content || "";
+            await navigator.clipboard.writeText(content);
+            ElMessage.success("行程内容已复制到剪贴板！");
+          }
+        });
+        
       emit("share", props.tripData);
     } catch (err) {
-      ElMessage.error("分享失败，请重试");
+      if (err !== 'cancel' && err !== 'close') {
+        console.error("分享失败:", err);
+        ElMessage.error("分享操作异常");
+      }
     } finally {
       sharing.value = false;
     }

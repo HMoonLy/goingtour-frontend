@@ -136,85 +136,186 @@ const handleDaysChange = (val) => {
 </script>
 
 <style scoped>
-.form-section {
-  padding: 0;
-  background: #fff;
-  border: 1px solid #e4e7ed;
-  border-radius: 16px;
-  box-shadow: none;
-  margin-bottom: 24px;
-  overflow: hidden;
-}
-
-.section-title {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 0;
-  padding: 20px;
-  border-bottom: 1px solid #e4e7ed;
-  background: linear-gradient(90deg,
-      rgba(145, 168, 208, 0.12),
-      rgba(247, 202, 201, 0.06));
-}
-
-.section-content {
-  padding: 24px;
-}
-
-.section-title .el-icon {
-  width: 48px;
-  height: 48px;
-  font-size: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--el-color-primary-light-9);
-  color: var(--el-color-primary);
-  border-radius: 12px;
-  padding: 0;
-  flex-shrink: 0;
-}
-
-.days-text {
-  font-size: 12px;
-  color: var(--el-color-primary);
-  background: var(--el-color-primary-light-9);
-  padding: 2px 8px;
-  border-radius: 4px;
-}
-
-.form-tip {
-  font-size: 12px;
-  color: #909399;
-  line-height: 1.4;
-  margin-top: 4px;
-}
-
-.selected-city-info {
-  margin-top: 8px;
-}
-
-.date-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.date-match {
-  color: #909399;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-weight: 500;
-}
-
-@media (max-width: 768px) {
-  .section-content {
-    padding: 16px;
+  .community-plaza {
+    min-height: 100vh;
+    background-color: #f8fafc; /* 稍微冷一点的灰，更有质感 */
   }
-}
-</style>
+  
+  /* Hero 区域：增加底部圆角，优化渐变 */
+  .plaza-hero {
+    /* 莫兰迪色系渐变，保持低饱和度 */
+    background: linear-gradient(135deg, rgba(145, 168, 208, 0.18) 0%, rgba(247, 202, 201, 0.12) 100%);
+    padding: 80px 20px 60px;
+    text-align: center;
+    /* 底部圆角，让头部和内容区分隔更柔和 */
+    border-radius: 0 0 32px 32px;
+    margin-bottom: 32px;
+  }
+  
+  .hero-content h1 {
+    font-size: 36px;
+    margin-bottom: 16px;
+    font-weight: 800;
+    color: #2c3e50;
+    letter-spacing: 1px;
+  }
+  
+  .hero-content p {
+    font-size: 16px;
+    color: #606266;
+    opacity: 0.8;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .plaza-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px 40px;
+    /* 让内容向上浮动一点，产生重叠效果（可选，这里先保持分离） */
+  }
+  
+  /* 工具栏优化：更干净的卡片风格 */
+  .toolbar {
+    background: white;
+    padding: 24px 32px;
+    border-radius: 16px;
+    margin-bottom: 32px;
+    box-shadow: 0 8px 24px rgba(145, 168, 208, 0.06); /* 更柔和的投影 */
+    border: 1px solid rgba(255, 255, 255, 0.8);
+  }
+  
+  .sort-tabs {
+    margin-bottom: 24px;
+  }
+  
+  /* --- Element Plus Tabs 深度定制 --- */
+  /* 移除默认的灰色底线 */
+  :deep(.el-tabs__nav-wrap::after) {
+    display: none !important;
+  }
+  
+  /* Tab 文字样式优化 */
+  :deep(.el-tabs__item) {
+    font-size: 16px;
+    color: #909399;
+    padding: 0 24px !important; /* 增加点击区域 */
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  
+  /* 选中状态：更大、更黑、更重 */
+  :deep(.el-tabs__item.is-active) {
+    font-size: 18px;
+    font-weight: 700;
+    color: #303133;
+  }
+  
+  /* 底部指示条：变成一个小短横线/圆点风格 */
+  :deep(.el-tabs__active-bar) {
+    height: 4px;
+    border-radius: 2px;
+    background-color: #91a8d0; /* 主题色 */
+    bottom: 0px;
+    /* 配合 padding 可能会显得长，但 Element 计算宽度是基于 item 的 */
+  }
+  
+  /* 标签筛选区 */
+  .tags-filter {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px dashed #ebeef5; /* 添加虚线分割，增加层次 */
+  }
+  
+  .filter-label {
+    font-size: 14px;
+    color: #909399;
+    font-weight: 500;
+    margin-right: 8px;
+  }
+  
+  .tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  /* 标签样式：胶囊按钮风格 */
+  .filter-tag {
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+    background-color: #f5f7fa;
+    color: #606266;
+    border-radius: 20px; /* 圆角胶囊 */
+    padding: 6px 16px;
+    height: auto;
+    line-height: 1.4;
+    font-size: 13px;
+  }
+  
+  .filter-tag:hover {
+    transform: translateY(-1px);
+    background-color: white;
+    border-color: #91a8d0;
+    color: #91a8d0;
+    box-shadow: 0 2px 8px rgba(145, 168, 208, 0.15);
+  }
+  
+  /* 选中状态的 Tag */
+  .filter-tag.el-tag--dark {
+    background: #91a8d0;
+    color: white;
+    border-color: #91a8d0;
+    box-shadow: 0 4px 12px rgba(145, 168, 208, 0.3);
+  }
+  
+  /* 列表网格 */
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+  
+  @media (max-width: 1024px) {
+    .posts-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .posts-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .toolbar {
+      padding: 16px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .posts-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  /* 分页器美化 */
+  .pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+    padding-bottom: 40px;
+  }
+  
+  :deep(.el-pagination.is-background .el-pager li:not(.is-disabled).is-active) {
+    background-color: #91a8d0 !important;
+  }
+  
+  :deep(.el-pagination.is-background .el-pager li:hover) {
+    color: #91a8d0;
+  }
+  </style>
