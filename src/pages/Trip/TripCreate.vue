@@ -133,16 +133,6 @@
           @save="handleTripSaved"
           @share="handleTripShare"
         />
-
-        <TripPreview
-          v-else-if="currentStep === 4 && tripData && tripData.dailyPlan"
-          :trip-data="tripData"
-          :is-loading="isLoadingTrip"
-          :base-form="baseForm"
-          @regenerate="regenerateTrip"
-          @saved="handleTripSaved"
-          @prev-step="prevStep"
-        />
         
         <div v-else-if="currentStep === 4" class="empty-trip-state">
           <el-empty description="未找到行程数据" :image-size="200">
@@ -176,7 +166,6 @@ import { useWeather } from "@/composables/common/useWeather.js";
 // 组件引入
 import TripBaseInfo from "@/components/Trip/Steps/TripBaseInfo.vue";
 import TripGeneration from "@/components/Trip/Steps/TripGeneration.vue";
-import TripPreview from "@/components/Trip/Steps/TripPreview.vue";
 import AiTripDisplay from "@/components/Trip/Steps/AiTripDisplay.vue";
 import TripPreferences from "@/components/Trip/Steps/TripPreferences.vue";
 import TripRecommendationStep from "@/components/Trip/Steps/TripRecommendationStep.vue";

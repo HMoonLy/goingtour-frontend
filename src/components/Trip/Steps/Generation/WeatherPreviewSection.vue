@@ -1,14 +1,11 @@
 <template>
   <div v-if="weatherSuggestion" class="prompt-section">
     <div class="section-header">
-      <el-icon><Sunny /></el-icon>
+      <el-icon>
+        <Sunny />
+      </el-icon>
       <h4>天气建议</h4>
-      <el-tag
-        v-if="weatherSuggestion.isHistorical"
-        size="small"
-        type="info"
-        effect="plain"
-      >
+      <el-tag v-if="weatherSuggestion.isHistorical" size="small" type="info" effect="plain">
         {{ weatherSuggestion.dataSource }}
       </el-tag>
       <el-tag v-else size="small" type="success" effect="plain">
@@ -20,45 +17,31 @@
       <template v-if="isDateWithinForecastRange">
         <p>
           <template v-if="weatherSuggestion.isHistorical">
+            <!-- 保持历史数据展示逻辑不变，如果有的话 -->
             基于历史气候数据，出行期间天气预计<span class="highlight">{{
               weatherSuggestion.weatherDesc
-            }}</span
-            >， 气温<span class="highlight">{{
-              weatherSuggestion.tempRange
-            }}</span
-            >。
-            <template v-if="weatherSuggestion.rainProbability">
-              降雨概率约<span class="highlight">{{
-                weatherSuggestion.rainProbability
-              }}</span
-              >。
-            </template>
-            <template v-if="weatherSuggestion.season">
-              <span class="highlight">{{ weatherSuggestion.season }}</span
-              >时节特点明显。
-            </template>
+              }}</span>， 气温<span class="highlight">{{
+                weatherSuggestion.tempRange
+              }}</span>。
           </template>
           <template v-else>
-            根据高德天气API实时数据，出行期间天气预计<span class="highlight">{{
-              weatherSuggestion.weatherDesc
-            }}</span
-            >， 气温<span class="highlight">{{
-              weatherSuggestion.tempRange
-            }}</span
-            >。
-            <template v-if="weatherSuggestion.humidity">
-              湿度<span class="highlight">{{ weatherSuggestion.humidity }}</span
-              >。
+            <!-- 简化实时数据展示，移除 weatherDesc/tempRange 这些聚合字段的使用，改用 forecast[0] 或 lives 数据 -->
+            <!-- 这里假设 weatherSuggestion 包含了 forecast 数组，通常第一个元素是当天的 -->
+            <template v-if="weatherSuggestion.forecast && weatherSuggestion.forecast.length > 0">
+               近期天气以<span class="highlight">{{ weatherSuggestion.forecast[0].dayWeather }}</span>为主，
+               气温在<span class="highlight">{{ weatherSuggestion.forecast[0].nightTemp }}℃ - {{ weatherSuggestion.forecast[0].dayTemp }}℃</span>之间。
             </template>
-            <template
-              v-if="
-                weatherSuggestion.windDirection && weatherSuggestion.windPower
-              "
-            >
-              风向<span class="highlight"
-                >{{ weatherSuggestion.windDirection
-                }}{{ weatherSuggestion.windPower }}级</span
-              >。
+            <template v-else-if="weatherSuggestion.weather">
+               <!-- 如果有实时天气 lives 数据 -->
+               当前天气<span class="highlight">{{ weatherSuggestion.weather }}</span>，
+               气温<span class="highlight">{{ weatherSuggestion.temperature }}℃</span>。
+            </template>
+            
+            <template v-if="weatherSuggestion.humidity">
+              湿度<span class="highlight">{{ weatherSuggestion.humidity }}%</span>。
+            </template>
+            <template v-if="weatherSuggestion.windDirection && weatherSuggestion.windPower">
+              风向<span class="highlight">{{ weatherSuggestion.windDirection }}风 {{ weatherSuggestion.windPower }}级</span>。
             </template>
           </template>
         </p>
@@ -67,34 +50,16 @@
       <!-- 日期超出预报范围的说明 -->
       <template v-else>
         <div class="weather-limitation-notice">
-          <template
-            v-if="
-              baseForm &&
-              baseForm.days &&
-              baseForm.days > (weatherSuggestion.forecast?.length || 0)
-            "
-          >
+          <template v-if="baseForm && baseForm.days && baseForm.days > (weatherSuggestion.forecast?.length || 0)">
             <p class="notice-title">🌤️ 天气预报说明</p>
             <p>
-              您的<span class="highlight">{{ baseForm.days }}天</span
-              >行程中，我们仅能提供前<span class="highlight"
-                >{{ weatherSuggestion.forecast?.length || 0 }}天</span
-              >的准确天气预报。
+              您的<span class="highlight">{{ baseForm.days }}天</span>行程中，我们仅能提供前<span class="highlight">{{
+                weatherSuggestion.forecast?.length || 0 }}天</span>的准确天气预报。
             </p>
-            <template
-              v-if="
-                weatherSuggestion.forecast &&
-                weatherSuggestion.forecast.length > 0
-              "
-            >
+            <template v-if="weatherSuggestion.forecast && weatherSuggestion.forecast.length > 0">
               <p>
-                已知的天气情况：<span class="highlight">{{
-                  weatherSuggestion.weatherDesc
-                }}</span
-                >，气温<span class="highlight">{{
-                  weatherSuggestion.tempRange
-                }}</span
-                >。
+                近期天气情况：<span class="highlight">{{ weatherSuggestion.forecast[0].dayWeather }}</span>，
+                气温<span class="highlight">{{ weatherSuggestion.forecast[0].nightTemp }}℃ - {{ weatherSuggestion.forecast[0].dayTemp }}℃</span>。
               </p>
             </template>
             <p class="notice-suggestion">
@@ -112,143 +77,66 @@
           </template>
         </div>
       </template>
-      <template
-        v-if="
-          isDateWithinForecastRange &&
-          weatherSuggestion.activities &&
-          weatherSuggestion.activities.length > 0
-        "
-      >
-        <p>
-          适合安排<span class="highlight">{{
-            weatherSuggestion.activities.join("、")
-          }}</span
-          >等活动。
-        </p>
-      </template>
-      <template
-        v-if="
-          weatherSuggestion.tips &&
-          weatherSuggestion.tips.length > 0 &&
-          isDateWithinForecastRange
-        "
-      >
-        <p>
-          建议：<span class="highlight">{{
-            weatherSuggestion.tips.join("；")
-          }}</span
-          >。
-        </p>
-      </template>
-      <template
-        v-if="
-          weatherSuggestion.avoid &&
-          weatherSuggestion.avoid.length > 0 &&
-          isDateWithinForecastRange
-        "
-      >
-        <p>
-          注意事项：<span class="highlight">{{
-            weatherSuggestion.avoid.join("；")
-          }}</span
-          >。
-        </p>
-      </template>
+      
 
-      <!-- 天气预报详情展示 -->
-      <template
-        v-if="
-          weatherSuggestion.forecast && weatherSuggestion.forecast.length > 0
-        "
-      >
+      <template v-if="
+        weatherSuggestion.forecast && weatherSuggestion.forecast.length > 0
+      ">
         <div class="weather-forecast">
           <h5>
-            <el-icon><Calendar /></el-icon>
+            <el-icon>
+              <Calendar />
+            </el-icon>
             <template v-if="isDateWithinForecastRange">
               具体天气预报
             </template>
-            <template
-              v-else-if="
-                baseForm &&
-                baseForm.days &&
-                weatherSuggestion.forecast &&
-                baseForm.days > weatherSuggestion.forecast.length
-              "
-            >
+            <template v-else-if="baseForm && baseForm.days && weatherSuggestion.forecast && baseForm.days > weatherSuggestion.forecast.length">
               部分天气预报（前{{ weatherSuggestion.forecast.length }}天）
             </template>
             <template v-else>
               参考天气预报
             </template>
-            <el-tag
-              v-if="weatherSuggestion.isHistorical"
-              size="small"
-              type="info"
-            >
+            <el-tag v-if="weatherSuggestion.isHistorical" size="small" type="info">
               历史气候模拟
             </el-tag>
             <el-tag v-else size="small" type="success">
               高德API实时预报
             </el-tag>
-            <el-tag
-              v-if="!isDateWithinForecastRange"
-              size="small"
-              type="warning"
-            >
+            <el-tag v-if="!isDateWithinForecastRange" size="small" type="warning">
               日期超出范围
             </el-tag>
           </h5>
           <div class="forecast-list">
-            <div
-              v-for="(day, index) in weatherSuggestion.forecast"
-              :key="index"
-              class="forecast-item"
-              :class="{
-                'forecast-outdated': !isDateWithinForecastRange,
-              }"
-            >
+           
+            <div v-for="(day, index) in weatherSuggestion.forecast" :key="index" class="forecast-item" :class="{
+              'forecast-outdated': !isDateWithinForecastRange,
+            }">
               <div class="forecast-date">
-                {{ day.date }}
+                {{ day.date }} <span class="weekday">{{ day.week ? `周${day.week}` : '' }}</span>
               </div>
               <div class="forecast-weather">
-                <span class="day-weather">{{ day.dayWeather }}</span>
-                <span
-                  v-if="day.nightWeather && day.nightWeather !== day.dayWeather"
-                  class="night-weather"
-                >
-                  / {{ day.nightWeather }}
+                <span class="day-weather">{{ day.dayWeather || day.dayweather }}</span>
+                <span v-if="(day.nightWeather || day.nightweather) && (day.nightWeather || day.nightweather) !== (day.dayWeather || day.dayweather)" class="night-weather">
+                  / {{ day.nightWeather || day.nightweather }}
                 </span>
               </div>
               <div class="forecast-temp">
-                {{ day.dayTemp }}℃/{{ day.nightTemp }}℃
+                {{ day.nightTemp || day.nighttemp }}℃ ~ {{ day.dayTemp || day.daytemp }}℃
               </div>
-              <div v-if="day.dayWind || day.nightWind" class="forecast-wind">
-                <template v-if="day.dayWind">
-                  {{ day.dayWind }}{{ day.dayPower }}级
-                </template>
-                <template v-if="day.nightWind && day.nightWind !== day.dayWind">
-                  / {{ day.nightWind }}{{ day.nightPower }}级
+              <div v-if="(day.dayWind || day.daywind) || (day.nightWind || day.nightwind)" class="forecast-wind">
+                <template v-if="day.dayWind || day.daywind">
+                  {{ day.dayWind || day.daywind }}风 {{ day.dayPower || day.daypower }}级
                 </template>
               </div>
             </div>
           </div>
           <!-- 超出预报范围的提醒 -->
-          <template
-            v-if="
-              !isDateWithinForecastRange &&
-              baseForm &&
-              baseForm.days &&
-              weatherSuggestion.forecast &&
-              baseForm.days > weatherSuggestion.forecast.length
-            "
-          >
+          <template v-if="!isDateWithinForecastRange && baseForm && baseForm.days && weatherSuggestion.forecast && baseForm.days > weatherSuggestion.forecast.length">
             <div class="forecast-limitation-notice">
-              <el-icon><Warning /></el-icon>
-              <span>{{
-                `第${
-                  weatherSuggestion.forecast.length + 1
-                }天及之后需要特别关注天气变化`
-              }}</span>
+              <el-icon>
+                <Warning />
+              </el-icon>
+              <span>{{ `第${weatherSuggestion.forecast.length + 1}天及之后需要特别关注天气变化` }}</span>
             </div>
           </template>
         </div>
@@ -259,7 +147,9 @@
   <!-- 天气加载状态 -->
   <div v-else-if="loadingWeather" class="prompt-section">
     <div class="section-header">
-      <el-icon><Loading /></el-icon>
+      <el-icon>
+        <Loading />
+      </el-icon>
       <h4>天气建议</h4>
     </div>
     <div class="prompt-text loading-text">
@@ -270,7 +160,9 @@
   <!-- 天气错误状态 -->
   <div v-else-if="weatherError" class="prompt-section">
     <div class="section-header">
-      <el-icon><Warning /></el-icon>
+      <el-icon>
+        <Warning />
+      </el-icon>
       <h4>天气建议</h4>
     </div>
     <div class="prompt-text error-text">
@@ -311,6 +203,8 @@ export default {
       const forecastStartDate = new Date(Math.min(...forecastDates));
       const forecastEndDate = new Date(Math.max(...forecastDates));
 
+      // 只要行程开始日期在预报范围内，或者预报覆盖了行程的一部分，都算“相关”
+      // 这里放宽一点逻辑，只要两者有交集即可，避免“超出范围”提示太生硬
       return userStartDate <= forecastEndDate && userEndDate >= forecastStartDate;
     });
 
@@ -512,4 +406,3 @@ export default {
   }
 }
 </style>
-

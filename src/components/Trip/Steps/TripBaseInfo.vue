@@ -25,6 +25,7 @@
           v-model="tripForm"
           :date-range-error="dateRangeError"
           @date-change="handleDateChange"
+          @days-change="handleDaysChange"
         />
 
         <!-- 2. 天气信息区域 -->
@@ -105,6 +106,21 @@ const tripForm = ref({
   budget: "moderate"
 });
 
+const tripRules = {
+  destinationName: [
+    { required: true, message: "请选择目的地", trigger: "change" }
+  ],
+  days: [
+    { required: true, message: "请输入出行天数", trigger: "change" }
+  ],
+  dateRange: [
+    { type: "array", required: true, message: "请选择出行日期", trigger: "change" }
+  ],
+  travelers: [
+    { required: true, message: "请输入出行人数", trigger: "change" }
+  ]
+};
+
 const tripFormRef = ref(null);
 const dateRangeError = ref("");
 
@@ -181,6 +197,29 @@ const handleDateChange = (val) => {
     validateForm();
   } else {
     tripForm.value.days = 3;
+  }
+};
+
+const handleDaysChange = (days) => {
+  if (!days) return;
+
+  // 如果有开始日期，自动调整结束日期
+  if (tripForm.value.dateRange && tripForm.value.dateRange[0]) {
+    const start = new Date(tripForm.value.dateRange[0]);
+    const end = new Date(start);
+    end.setDate(start.getDate() + (days - 1));
+
+    const formatDate = (date) => {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    };
+
+    tripForm.value.dateRange = [tripForm.value.dateRange[0], formatDate(end)];
+
+    if (tripForm.value.destinationName) emit("fetch-weather");
+    validateForm();
   }
 };
 

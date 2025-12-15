@@ -6,8 +6,7 @@
     </div>
 
     <div class="coming-soon-card">
-      <el-icon size="64"
-color="#91A8D0">
+      <el-icon size="64" color="#91A8D0">
         <Share />
       </el-icon>
       <h3>功能开发中</h3>
@@ -33,7 +32,7 @@ export default {
   components: {
     Share,
   },
-  setup() {},
+  setup() { },
 };
 </script>
 
@@ -76,7 +75,7 @@ export default {
   font-size: 24px;
 }
 
-.coming-soon-card > p {
+.coming-soon-card>p {
   color: #909399;
   margin-bottom: 24px;
   font-size: 16px;

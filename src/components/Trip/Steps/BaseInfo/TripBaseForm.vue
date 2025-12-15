@@ -1,98 +1,76 @@
 <template>
   <div class="form-section">
     <div class="section-title">
-      <el-icon><MapLocation /></el-icon>
+      <el-icon>
+        <MapLocation />
+      </el-icon>
       <span>基本信息</span>
     </div>
 
     <div class="section-content">
       <el-row :gutter="24">
+
         <!-- 目的地 -->
         <el-col :span="12">
-        <el-form-item label="目的地" prop="destination">
-          <el-input
-            :model-value="modelValue.destinationName"
-            size="large"
-            disabled
-            placeholder="搜索城市、地区..."
-            style="width: 100%"
-          />
-          <div class="selected-city-info">
-            <el-tag type="success" size="small">
-              已选择: {{ modelValue.destinationName }}
-            </el-tag>
-          </div>
-        </el-form-item>
-      </el-col>
-
-      <!-- 天数 -->
-      <el-col :span="12">
-        <el-form-item label="出行天数" prop="days">
-          <div class="days-input-container" style="width: 100%">
-            <el-input-number
-              :model-value="modelValue.days"
-              :min="1"
-              :max="365"
-              size="large"
-              disabled
-              placeholder="根据日期自动计算"
-              style="width: 100%"
-            />
-            <div v-if="modelValue.days" class="days-description">
-              <span class="days-text">{{ getDaysDescription(modelValue.days) }}</span>
+          <el-form-item label="目的地" prop="destination">
+            <el-input :model-value="modelValue.destinationName" size="large" disabled placeholder="搜索城市、地区..."
+              style="width: 100%" />
+            <div class="selected-city-info">
+              <el-tag type="success" size="small">
+                已选择: {{ modelValue.destinationName }}
+              </el-tag>
             </div>
-            <div class="form-tip">天数将根据您选择的日期范围自动计算</div>
-          </div>
-        </el-form-item>
-      </el-col>
-    </el-row>
+          </el-form-item>
+        </el-col>
 
-    <el-row :gutter="24">
-      <!-- 日期范围 -->
-      <el-col :span="12">
-        <el-form-item label="行程时间" prop="dateRange" :error="dateRangeError">
-          <el-date-picker
-            v-model="dateRange"
-            type="daterange"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            size="large"
-            style="width: 100%"
-            format="YYYY-MM-DD"
-            value-format="YYYY-MM-DD"
-            :disabled-date="disabledDate"
-            :clearable="true"
-            @change="handleDateChange"
-          />
-          <div class="form-tip">
-            <template v-if="dateRange && dateRange.length === 2">
-              <div class="date-info">
-                <span class="date-match">
-                  <el-icon><Check /></el-icon>
-                  已选择日期范围：{{ formatDateRange() }}
-                </span>
+
+        <!-- 天数 -->
+        <el-col :span="12">
+          <el-form-item label="出行天数" prop="days">
+            <div class="days-input-container" style="width: 100%">
+              <el-input-number v-model="days" :min="1" :max="365" size="large" placeholder="请输入或根据日期计算"
+                style="width: 100%" @change="handleDaysChange" />
+              <div v-if="modelValue.days" class="days-description">
+                <span class="days-text">{{ getDaysDescription(modelValue.days) }}</span>
               </div>
-            </template>
-            <template v-else> 请选择您计划出行的日期范围 </template>
-          </div>
-        </el-form-item>
-      </el-col>
+              <div class="form-tip">输入天数可自动调整结束日期</div>
+            </div>
+          </el-form-item>
+        </el-col>
+      </el-row>
 
-      <!-- 人数 -->
-      <el-col :span="12">
-        <el-form-item label="人数" prop="travelers">
-          <el-input-number
-            v-model="travelers"
-            :min="1"
-            :max="20"
-            size="large"
-            style="width: 100%"
-          />
-          <div class="form-tip">人数会影响餐厅和住宿推荐</div>
-        </el-form-item>
-      </el-col>
-    </el-row>
+
+      <el-row :gutter="24">
+        <!-- 日期范围 -->
+        <el-col :span="12">
+          <el-form-item label="行程时间" prop="dateRange" :error="dateRangeError">
+            <el-date-picker v-model="dateRange" type="daterange" range-separator="至" start-placeholder="开始日期"
+              end-placeholder="结束日期" size="large" style="width: 100%" format="YYYY-MM-DD" value-format="YYYY-MM-DD"
+              :disabled-date="disabledDate" :clearable="true" @change="handleDateChange" />
+            <div class="form-tip">
+              <template v-if="dateRange && dateRange.length === 2">
+                <div class="date-info">
+                  <span class="date-match">
+                    <el-icon>
+                      <Check />
+                    </el-icon>
+                    已选择日期范围：{{ formatDateRange() }}
+                  </span>
+                </div>
+              </template>
+              <template v-else> 请选择您计划出行的日期范围 </template>
+            </div>
+          </el-form-item>
+        </el-col>
+
+        <!-- 人数 -->
+        <el-col :span="12">
+          <el-form-item label="人数" prop="travelers">
+            <el-input-number v-model="travelers" :min="1" :max="20" size="large" style="width: 100%" />
+            <div class="form-tip">人数会影响餐厅和住宿推荐</div>
+          </el-form-item>
+        </el-col>
+      </el-row>
     </div>
   </div>
 </template>
@@ -112,12 +90,17 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['update:modelValue', 'date-change']);
+const emit = defineEmits(['update:modelValue', 'date-change', 'days-change']);
 
 // 代理 modelValue 的属性
 const dateRange = computed({
   get: () => props.modelValue.dateRange,
   set: (val) => emit('update:modelValue', { ...props.modelValue, dateRange: val })
+});
+
+const days = computed({
+  get: () => props.modelValue.days,
+  set: (val) => emit('update:modelValue', { ...props.modelValue, days: val })
 });
 
 const travelers = computed({
@@ -146,6 +129,10 @@ const formatDateRange = () => {
 const handleDateChange = (val) => {
   emit('date-change', val);
 };
+
+const handleDaysChange = (val) => {
+  emit('days-change', val);
+};
 </script>
 
 <style scoped>
@@ -169,11 +156,9 @@ const handleDateChange = (val) => {
   margin-bottom: 0;
   padding: 20px;
   border-bottom: 1px solid #e4e7ed;
-  background: linear-gradient(
-    90deg,
-    rgba(145, 168, 208, 0.12),
-    rgba(247, 202, 201, 0.06)
-  );
+  background: linear-gradient(90deg,
+      rgba(145, 168, 208, 0.12),
+      rgba(247, 202, 201, 0.06));
 }
 
 .section-content {
@@ -233,4 +218,3 @@ const handleDateChange = (val) => {
   }
 }
 </style>
-

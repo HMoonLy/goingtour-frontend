@@ -200,7 +200,6 @@ export default {
       countdown,
       sendVerificationCode,
       login,
-      isValidEmail,
       cleanup
     } = useAuth();
 

@@ -31,6 +31,7 @@ export function useAuth() {
     const loading = ref(false)
     const verifyCodeLoading = ref(false)
     const countdown = ref(0)
+    let timer = null
 
     // ========== 计算属性 ==========
     const isLoggedIn = computed(() => userStore.isLoggedIn)
@@ -76,14 +77,29 @@ export function useAuth() {
      * 启动倒计时
      */
     function startCountdown(seconds = 60) {
+        if (timer) {
+            clearInterval(timer)
+            timer = null
+        }
         countdown.value = seconds
-        const timer = setInterval(() => {
+        timer = setInterval(() => {
             countdown.value--
                 if (countdown.value <= 0) {
                     clearInterval(timer)
+                    timer = null
                     countdown.value = 0
                 }
         }, 1000)
+    }
+
+    /**
+     * 清理定时器
+     */
+    function cleanup() {
+        if (timer) {
+            clearInterval(timer)
+            timer = null
+        }
     }
 
     /**
@@ -257,6 +273,7 @@ export function useAuth() {
         register,
         logout,
         requireLogin,
-        refreshToken
+        refreshToken,
+        cleanup
     }
 }
