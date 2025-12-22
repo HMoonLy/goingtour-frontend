@@ -13,7 +13,7 @@
       </el-tabs>
     </div>
     <div class="right">
-      <el-link type="primary" :underline="false" @click="goPersonal">
+      <el-link type="primary" underline="never" @click="goPersonal">
         ← {{ "个人中心" }}
       </el-link>
     </div>

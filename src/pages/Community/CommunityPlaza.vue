@@ -213,7 +213,7 @@ export default {
   margin-bottom: 16px;
 }
 
-/* 覆盖Element Plus Tabs样式 */
+  /* 覆盖Element Plus Tabs样式 */
 :deep(.el-tabs__nav-wrap::after) {
   height: 1px;
   background-color: #f0f2f5;
@@ -254,22 +254,11 @@ export default {
 .filter-tag {
   cursor: pointer;
   transition: all 0.2s;
-  border: none;
-  background-color: #f4f6f9;
-  color: #606266;
 }
 
 .filter-tag:hover {
   transform: translateY(-1px);
-  color: #91a8d0;
-  background-color: rgba(145, 168, 208, 0.1);
-}
 
-/* 选中状态的 Tag */
-.filter-tag.el-tag--dark {
-  background: linear-gradient(135deg, #91a8d0 0%, #aabfd6 100%);
-  color: white;
-  border: none;
 }
 
 .posts-grid {

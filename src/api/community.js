@@ -73,24 +73,38 @@ export const communityApi = {
     return http.post(`/community/posts/${id}/fork`);
   },
 
-  // ========== 评论相关 (预留) ==========
+  // ========== 评论相关 ==========
 
   /**
    * 获取评论列表
-   * @param {number} postId 帖子ID
-   * @param {Object} params { page, pageSize }
+   * @param {Object} params { postId, page, pageSize }
    */
-  getComments(postId, params) {
-    return http.get(`/community/posts/${postId}/comments`, params);
+  getComments(params) {
+    return http.get('/community/comments/list', params);
   },
 
   /**
    * 发表评论
-   * @param {number} postId 帖子ID
-   * @param {Object} data { content, parentId }
+   * @param {Object} data { postId, content, parentId }
    */
-  addComment(postId, data) {
-    return http.post(`/community/posts/${postId}/comments`, data);
+  publishComment(data) {
+    return http.post('/community/comments/publish', data);
+  },
+
+  /**
+   * 删除评论
+   * @param {number} commentId 评论ID
+   */
+  deleteComment(commentId) {
+    return http.delete(`/community/comments/${commentId}`);
+  },
+
+  /**
+   * 评论点赞/取消点赞
+   * @param {number} commentId 评论ID
+   */
+  toggleCommentLike(commentId) {
+    return http.post(`/community/comments/${commentId}/like`);
   }
 };
 

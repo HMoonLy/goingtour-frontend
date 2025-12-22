@@ -206,39 +206,6 @@
 }
 
 
-/* 标签组件 */
-
-.el-tag--primary {
-    background-color: rgba(145, 168, 208, 0.1) !important;
-    border-color: rgba(145, 168, 208, 0.2) !important;
-    color: #91A8D0 !important;
-}
-
-.el-tag--success {
-    background-color: rgba(145, 168, 208, 0.1) !important;
-    border-color: rgba(145, 168, 208, 0.2) !important;
-    color: #91A8D0 !important;
-}
-
-.el-tag--danger {
-    background-color: rgba(247, 202, 201, 0.1) !important;
-    border-color: rgba(247, 202, 201, 0.2) !important;
-    color: #F7CAC9 !important;
-}
-
-.el-tag--warning {
-    background-color: rgba(242, 194, 193, 0.1) !important;
-    border-color: rgba(242, 194, 193, 0.2) !important;
-    color: #F2C2C1 !important;
-}
-
-.el-tag--info {
-    background-color: rgba(150, 172, 210, 0.1) !important;
-    border-color: rgba(150, 172, 210, 0.2) !important;
-    color: #96ACD2 !important;
-}
-
-
 /* 提示框组件 */
 
 .el-alert--success {

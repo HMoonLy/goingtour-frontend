@@ -135,6 +135,11 @@
                <el-empty description="暂无详细行程内容" image-size="60" />
             </div>
           </div>
+
+          <el-divider />
+
+          <!-- 评论区 -->
+          <CommentSection v-if="post && post.id" :post-id="post.id" />
         </div>
       </div>
     </div>
@@ -149,6 +154,7 @@ import { communityApi } from '@/api/community';
 import { convertBackendTripToFrontend } from '@/utils/data/tripDataConverter';
 import TripSummaryCard from '@/components/Trip/Details/TripSummaryCard.vue';
 import TripMarkdownRenderer from '@/components/Trip/Steps/TripMarkdownRenderer.vue';
+import CommentSection from '@/components/Community/CommentSection.vue';
 import { 
   Star, StarFilled, CollectionTag, CopyDocument, 
   More, Delete, MapLocation 
@@ -160,6 +166,7 @@ export default {
   components: {
     TripSummaryCard,
     TripMarkdownRenderer,
+    CommentSection,
     Star, StarFilled, CollectionTag, CopyDocument, 
     More, Delete, MapLocation
   },
@@ -173,6 +180,7 @@ export default {
     const formattedTrip = ref(null);
     const extractedTripSummary = ref(null);
     const triggerLikeAnimation = ref(false);
+    const triggerCollectAnimation = ref(false);
 
     const isAuthor = computed(() => {
       return post.value && userStore.currentUser && post.value.author.id === userStore.currentUser.id;
@@ -317,6 +325,13 @@ export default {
       post.value.isCollected = !post.value.isCollected;
       post.value.stats.collectCount += (action === 'add' ? 1 : -1);
       
+      if (post.value.isCollected) {
+        triggerCollectAnimation.value = true;
+        setTimeout(() => {
+          triggerCollectAnimation.value = false;
+        }, 1000);
+      }
+
       try {
         const res = await communityApi.interact(post.value.id, type, action);
         if (res.code !== 200) {
@@ -350,9 +365,9 @@ export default {
 
         const res = await communityApi.forkTrip(post.value.id);
         if (res.code === 200) {
-          ElMessage.success('复制成功！即将跳转到编辑页面...');
+          ElMessage.success('复制成功！正在跳转个人中心...');
           setTimeout(() => {
-            router.push(`/trip/${res.data.newTripId}`);
+            router.push('/user/dashboard');
           }, 1500);
         } else {
           ElMessage.error(res.msg || '复制失败');
@@ -412,6 +427,7 @@ export default {
       formattedTrip,
       extractedTripSummary,
       triggerLikeAnimation,
+      triggerCollectAnimation,
       isAuthor,
       handleLike,
       handleCollect,

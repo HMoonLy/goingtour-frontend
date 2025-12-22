@@ -12,7 +12,7 @@ import { useUserStore } from "./store/user.js";
 // 导入全局样式
 import "./style.css";
 import "./styles/themes.css";
-import "./styles/element-plus-overrides.css"; // Element Plus 主题完整覆盖
+import "./styles/element-plus-overrides.css"; 
 
 // 创建Vue应用实例
 const app = createApp(App);
@@ -48,9 +48,4 @@ initApp().then(() => {
 }).catch((error) => {
     console.error("应用初始化失败:", error);
     app.mount("#app");
-});
-
-// 处理未捕获的Promise错误
-window.addEventListener("unhandledrejection", (event) => {
-    console.error("未处理的Promise拒绝:", event.reason);
 });

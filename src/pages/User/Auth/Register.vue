@@ -122,11 +122,11 @@
           <el-form-item prop="agreement" class="form-item agreement-item">
             <el-checkbox v-model="registerForm.agreement" class="agreement-checkbox">
               我已阅读并同意
-              <el-link type="primary" :underline="false" @click="showUserAgreement">
+              <el-link type="primary" underline="never" @click="showUserAgreement">
                 用户协议
               </el-link>
               和
-              <el-link type="primary" :underline="false" @click="showPrivacyPolicy">
+              <el-link type="primary" underline="never" @click="showPrivacyPolicy">
                 隐私政策
               </el-link>
             </el-checkbox>
@@ -166,7 +166,7 @@
           <!-- 登录链接 -->
           <div class="login-section">
             <span class="login-text">已有账户？</span>
-            <el-link type="primary" :underline="false" class="login-link" @click="goToLogin">
+            <el-link type="primary" underline="never" class="login-link" @click="goToLogin">
               立即登录
             </el-link>
           </div>
@@ -696,8 +696,6 @@ export default {
   opacity: 0.6;
   cursor: not-allowed;
 }
-
-.agreement-item {}
 
 .agreement-checkbox {
   width: 100%;
