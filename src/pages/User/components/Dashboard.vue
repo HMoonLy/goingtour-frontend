@@ -13,14 +13,28 @@
 
     <!-- 主要功能区域 -->
     <div class="main-content">
-      <!-- 我的行程 -->
-      <TripList
-        :trips="allTrips"
-        :loading="loading"
-        @create="goToCreate"
-        @view="viewTrip"
-        @action="handleTripAction"
-      />
+      <!-- 列表区域 (Tabs切换) -->
+      <div class="content-tabs">
+        <el-tabs v-model="activeTab" class="custom-tabs">
+          <el-tab-pane label="我的行程" name="trips">
+            <TripList
+              :trips="allTrips"
+              :loading="loading"
+              @create="goToCreate"
+              @view="viewTrip"
+              @action="handleTripAction"
+            />
+          </el-tab-pane>
+          <el-tab-pane label="我的帖子" name="posts">
+            <PostList
+              :posts="userPosts"
+              :loading="postsLoading"
+              @view="viewPost"
+              @delete="handleDeletePost"
+            />
+          </el-tab-pane>
+        </el-tabs>
+      </div>
 
       <!-- 个人旅行档案 -->
       <PreferenceProfile :preferences="userPreferences" :loading="loading" />
@@ -38,6 +52,7 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import { useUserStore } from "@/store/user.js";
 import { useProfile } from "@/composables/user/useProfile.js";
 import { useDraft } from "@/composables/trip/useDraft.js";
+import { communityApi } from "@/api/community.js";
 import { 
   convertBackendTripToFrontend,
   convertDraftToFrontendTrip
@@ -47,6 +62,7 @@ import { handleApiError } from "@/utils/api/errorHandler.js";
 // Components
 import DashboardHeader from "./DashboardHeader.vue";
 import TripList from "./TripList.vue";
+import PostList from "./PostList.vue";
 import PreferenceProfile from "./PreferenceProfile.vue";
 import QuickActions from "./QuickActions.vue";
 
@@ -55,6 +71,7 @@ export default {
   components: {
     DashboardHeader,
     TripList,
+    PostList,
     PreferenceProfile,
     QuickActions,
   },
@@ -65,9 +82,14 @@ export default {
     const draft = useDraft();
 
     // 响应式数据
+    const activeTab = ref("trips");
     const loading = ref(false);
     const savedTrips = ref([]);
     const drafts = ref([]);
+    
+    // 帖子相关数据
+    const postsLoading = ref(false);
+    const userPosts = ref([]);
 
     // 计算属性
     const allTrips = computed(() => {
@@ -147,6 +169,34 @@ export default {
         handleApiError(error, "加载行程数据失败", { showNotification: false });
       } finally {
         loading.value = false;
+      }
+    };
+
+    const loadUserPosts = async () => {
+      if (!userStore.currentUser?.id) return;
+      
+      postsLoading.value = true;
+      try {
+        // 假设 API 支持通过 params 传参过滤，这里传递 userId
+        // 如果后端还不支持，这里获取的可能是全部帖子，需要前端过滤
+        // 但根据计划，我们假定 API 支持或我们尽力而为
+        const res = await communityApi.getPosts({
+          userId: userStore.currentUser.id, // 尝试传递 userId
+          page: 1,
+          pageSize: 100 // 获取最近的100条
+        });
+
+        if (res.code === 200) {
+          let posts = res.data.list || [];
+          // 如果后端没过滤，前端再次过滤确保安全
+          posts = posts.filter(p => p.author && p.author.id === userStore.currentUser.id);
+          userPosts.value = posts;
+        }
+      } catch (error) {
+        console.error("加载帖子失败:", error);
+        // 静默失败，不打扰用户
+      } finally {
+        postsLoading.value = false;
       }
     };
 
@@ -296,6 +346,39 @@ export default {
       }
     };
 
+    // 帖子相关方法
+    const viewPost = (post) => {
+      router.push(`/community/post/${post.id}`);
+    };
+
+    const handleDeletePost = async (post) => {
+      try {
+        await ElMessageBox.confirm(
+          `确定要删除帖子"${post.title}"吗？删除后无法恢复。`,
+          "删除帖子",
+          {
+            confirmButtonText: "删除",
+            cancelButtonText: "取消",
+            type: "warning",
+          }
+        );
+
+        const res = await communityApi.deletePost(post.id);
+        if (res.code === 200) {
+          ElMessage.success("删除成功");
+          // 刷新列表
+          await loadUserPosts();
+        } else {
+          ElMessage.error(res.msg || "删除失败");
+        }
+      } catch (error) {
+        if (error !== "cancel") {
+          console.error("删除帖子失败:", error);
+          ElMessage.error("删除失败，请重试");
+        }
+      }
+    };
+
     // 生命周期
     onMounted(async () => {
       if (!userStore.isLoggedIn) {
@@ -303,11 +386,15 @@ export default {
         return;
       }
 
-      await loadTrips();
+      await Promise.all([
+        loadTrips(),
+        loadUserPosts()
+      ]);
     });
 
     return {
       // 数据
+      activeTab,
       loading,
       userStore,
       allTrips,
@@ -315,6 +402,10 @@ export default {
       savedTripsCount,
       draftTripsCount,
       userPreferences,
+      
+      // 帖子数据
+      postsLoading,
+      userPosts,
 
       // 方法
       goToCreate,
@@ -322,6 +413,10 @@ export default {
       handleTripAction,
       exportTrips,
       handleAvatarUpdate,
+      
+      // 帖子方法
+      viewPost,
+      handleDeletePost
     };
   },
 };
@@ -332,5 +427,35 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 24px;
+}
+
+/* Tabs 样式定制 */
+.content-tabs {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+:deep(.custom-tabs .el-tabs__nav-scroll) {
+  padding: 0 20px;
+}
+
+:deep(.custom-tabs .el-tabs__header) {
+  margin-bottom: 0;
+  border-bottom: 1px solid #f0f2f5;
+  padding-top: 10px;
+}
+
+:deep(.custom-tabs .el-tabs__content) {
+  padding: 0; /* 让内部组件控制 padding */
+}
+
+/* 让内部列表组件去掉外层阴影和圆角，以适应 Tab */
+:deep(.trips-section),
+:deep(.posts-section) {
+  box-shadow: none;
+  border-radius: 0 0 12px 12px;
+  margin-top: 0;
 }
 </style>

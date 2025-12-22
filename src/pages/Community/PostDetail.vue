@@ -48,22 +48,36 @@
 
             <div class="post-actions">
               <el-button 
-                :type="post.isLiked ? 'warning' : 'default'"
-                :plain="!post.isLiked"
+                class="action-btn"
+                :class="{ 'is-liked': post.isLiked }"
                 circle
                 @click="handleLike"
               >
-                <el-icon><StarFilled v-if="post.isLiked" /><Star v-else /></el-icon>
+                <el-icon :class="{ 'bounce-animation': triggerLikeAnimation }" :size="20">
+                  <svg v-if="post.isLiked" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em">
+                    <path d="M707.3 133.3c-30.9 0-60.9 6.4-89 17.8-39.3 12.6-74.9 35.2-102.6 66.1l-3.8 4.2-3.9-4.2c-27-29-60.3-50.5-96.6-63.5-29.8-13-61.8-20.4-95-20.4-139 0-252.1 121.3-252.1 270.5 0 245.3 271.6 412.1 388.4 472.4 18.4 9.5 38.8 14.4 59.4 14.4 20.4 0 40.5-4.8 58.7-14C687.8 817 959.4 652 959.4 403.7c0-149.1-113.1-270.4-252.1-270.4z" fill="#d81e06"></path>
+                  </svg>
+                  <svg v-else class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em">
+                    <path d="M707.3 133.3c-30.9 0-60.9 6.4-89 17.8-39.3 12.6-74.9 35.2-102.6 66.1l-3.8 4.2-3.9-4.2c-27-29-60.3-50.5-96.6-63.5-29.8-13-61.8-20.4-95-20.4-139 0-252.1 121.3-252.1 270.5 0 245.3 271.6 412.1 388.4 472.4 18.4 9.5 38.8 14.4 59.4 14.4 20.4 0 40.5-4.8 58.7-14C687.8 817 959.4 652 959.4 403.7c0-149.1-113.1-270.4-252.1-270.4z" fill="#e6e6e6"></path>
+                  </svg>
+                </el-icon>
               </el-button>
               <span class="action-count">{{ post.stats.likeCount }}</span>
               
               <el-button 
-                :type="post.isCollected ? 'warning' : 'default'" 
-                :plain="!post.isCollected"
+                class="action-btn"
+                :class="{ 'is-collected': post.isCollected }"
                 circle
                 @click="handleCollect"
               >
-                <el-icon><CollectionTag /></el-icon>
+                <el-icon :class="{ 'bounce-animation': triggerCollectAnimation }" :size="20">
+                  <svg v-if="post.isCollected" class="icon" viewBox="0 0 1426 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em">
+                    <path d="M985.6 1022.976c-14.848 0-31.744-4.096-47.104-12.288L716.288 899.584l-223.744 111.104c-14.336 7.68-30.208 11.776-47.104 11.776-21.504 0-42.496-6.656-59.392-19.456-31.232-23.552-47.104-64-39.936-101.376l45.568-237.056-175.616-163.328c-27.136-27.648-37.376-67.072-27.136-104.448l0.512-1.024c12.8-38.4 44.544-65.024 82.944-70.144l243.712-44.544L625.152 58.88C642.56 23.552 678.4 1.024 716.288 1.024c39.424 0 76.288 23.552 91.648 58.368l109.056 221.696 243.712 42.496c38.4 5.632 70.656 33.28 81.408 71.168 12.288 36.864 2.048 77.312-25.6 104.96l-0.512 0.512-174.592 164.864 44.032 237.568c7.168 37.888-8.192 76.288-39.424 100.352-17.92 12.8-38.912 19.968-60.416 19.968z" fill="#f4ea2a"></path>
+                  </svg>
+                  <svg v-else class="icon" viewBox="0 0 1426 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em">
+                    <path d="M985.6 1022.976c-14.848 0-31.744-4.096-47.104-12.288L716.288 899.584l-223.744 111.104c-14.336 7.68-30.208 11.776-47.104 11.776-21.504 0-42.496-6.656-59.392-19.456-31.232-23.552-47.104-64-39.936-101.376l45.568-237.056-175.616-163.328c-27.136-27.648-37.376-67.072-27.136-104.448l0.512-1.024c12.8-38.4 44.544-65.024 82.944-70.144l243.712-44.544L625.152 58.88C642.56 23.552 678.4 1.024 716.288 1.024c39.424 0 76.288 23.552 91.648 58.368l109.056 221.696 243.712 42.496c38.4 5.632 70.656 33.28 81.408 71.168 12.288 36.864 2.048 77.312-25.6 104.96l-0.512 0.512-174.592 164.864 44.032 237.568c7.168 37.888-8.192 76.288-39.424 100.352-17.92 12.8-38.912 19.968-60.416 19.968z" fill="#e6e6e6"></path>
+                  </svg>
+                </el-icon>
               </el-button>
               <span class="action-count">{{ post.stats.collectCount }}</span>
               
@@ -158,9 +172,10 @@ export default {
     const post = ref(null);
     const formattedTrip = ref(null);
     const extractedTripSummary = ref(null);
+    const triggerLikeAnimation = ref(false);
 
     const isAuthor = computed(() => {
-      return post.value && userStore.userInfo && post.value.author.id === userStore.userInfo.id;
+      return post.value && userStore.currentUser && post.value.author.id === userStore.currentUser.id;
     });
 
 
@@ -262,6 +277,13 @@ export default {
       
       post.value.isLiked = !post.value.isLiked;
       post.value.stats.likeCount += (action === 'add' ? 1 : -1);
+      
+      if (post.value.isLiked) {
+        triggerLikeAnimation.value = true;
+        setTimeout(() => {
+          triggerLikeAnimation.value = false;
+        }, 1000);
+      }
       
       try {
         const res = await communityApi.interact(post.value.id, type, action);
@@ -389,6 +411,7 @@ export default {
       post,
       formattedTrip,
       extractedTripSummary,
+      triggerLikeAnimation,
       isAuthor,
       handleLike,
       handleCollect,
@@ -575,5 +598,17 @@ export default {
     margin-left: 0;
   }
 }
+
+@keyframes like-bounce {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+.like-animation {
+  animation: like-bounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+
 </style>
 
