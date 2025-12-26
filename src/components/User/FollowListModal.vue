@@ -23,35 +23,65 @@
             <span class="bio" v-if="user.bio">{{ user.bio }}</span>
           </div>
         </div>
-        
-        <!-- 不显示关注按钮给当前登录用户自己 -->
-        <div class="action-btn" v-if="currentUserId !== user.id">
-          <el-button
-            v-if="user.isFollowing"
-            size="small"
-            type="info"
-            plain
-            round
-            @click="handleUnfollow(user)"
-            :loading="user.actionLoading"
-          >
-            已关注
-          </el-button>
-          <el-button
-            v-else
-            size="small"
-            type="primary"
-            round
-            @click="handleFollow(user)"
-            :loading="user.actionLoading"
-          >
-            关注
-          </el-button>
-        </div>
-      </div>
-      
-      <div v-if="loading" class="loading-more">加载中...</div>
-      <div v-if="noMore && userList.length > 0" class="no-more">没有更多了</div>
+    
+    <!-- 不显示关注按钮给当前登录用户自己 -->
+    <div class="action-btn" v-if="currentUserId !== user.id">
+      <!-- 互相关注 -->
+      <el-button
+        v-if="user.isMutual"
+        size="small"
+        type="info"
+        plain
+        round
+        @click="handleUnfollow(user)"
+        :loading="user.actionLoading"
+      >
+        <el-icon class="el-icon--left"><Switch /></el-icon>互相关注
+      </el-button>
+
+      <!-- 已关注 (单向) -->
+      <el-button
+        v-else-if="user.isFollowing"
+        size="small"
+        type="info"
+        plain
+        round
+        @click="handleUnfollow(user)"
+        :loading="user.actionLoading"
+      >
+        已关注
+      </el-button>
+
+      <!-- 未关注 -->
+      <template v-else>
+        <!-- 在自己的粉丝列表中，未关注的粉丝显示"回关" -->
+        <el-button
+          v-if="isSelf && type === 'followers'"
+          size="small"
+          type="primary"
+          round
+          @click="handleFollow(user)"
+          :loading="user.actionLoading"
+        >
+          回关
+        </el-button>
+        <!-- 其他情况显示"关注" -->
+        <el-button
+          v-else
+          size="small"
+          type="primary"
+          round
+          @click="handleFollow(user)"
+          :loading="user.actionLoading"
+        >
+          关注
+        </el-button>
+      </template>
+    </div>
+  </div>
+  
+  <div v-if="loading" class="loading-more">加载中...</div>
+      <div v-if="finished && userList.length > 0" class="no-more">没有更多了</div>
       <div v-if="!loading && userList.length === 0" class="empty-state">
         <el-empty description="暂无数据" :image-size="100" />
       </div>
@@ -66,6 +96,7 @@ import { followApi } from '@/api/follow';
 import { useUserStore } from '@/store/user';
 import { getAvatarUrl } from '@/utils/media/imageUrl';
 import { ElMessage } from 'element-plus';
+import { Switch } from '@element-plus/icons-vue';
 
 const props = defineProps({
   modelValue: {
@@ -88,6 +119,7 @@ const emit = defineEmits(['update:modelValue']);
 const router = useRouter();
 const userStore = useUserStore();
 const currentUserId = computed(() => userStore.userId);
+const isSelf = computed(() => props.userId === currentUserId.value);
 
 const visible = computed({
   get: () => props.modelValue,
@@ -108,11 +140,11 @@ const loading = ref(false);
 const page = ref(1);
 const pageSize = 20;
 const total = ref(0);
-const noMore = computed(() => userList.value.length >= total.value && total.value > 0);
-const disabled = computed(() => loading.value || noMore.value);
+const finished = ref(false);
+const disabled = computed(() => loading.value || finished.value);
 
 const loadData = async () => {
-  if (loading.value) return;
+  if (loading.value || finished.value) return;
   loading.value = true;
   
   try {
@@ -128,13 +160,18 @@ const loadData = async () => {
     }
     
     if (res && res.data) {
-      const newList = res.data.list || [];
+      // 兼容 list 和 users 字段，后端返回的粉丝列表字段为 users
+      const newList = res.data.users || res.data.list || [];
       total.value = res.data.total || 0;
       
       if (page.value === 1) {
         userList.value = newList.map(u => ({ ...u, actionLoading: false }));
       } else {
         userList.value.push(...newList.map(u => ({ ...u, actionLoading: false })));
+      }
+      
+      if (newList.length < pageSize) {
+        finished.value = true;
       }
       
       page.value++;
@@ -157,6 +194,7 @@ const reset = () => {
   userList.value = [];
   page.value = 1;
   total.value = 0;
+  finished.value = false;
 };
 
 watch(() => props.modelValue, (val) => {
@@ -185,6 +223,12 @@ const handleFollow = async (user) => {
   try {
     await followApi.followUser(user.id);
     user.isFollowing = true;
+    
+    // 如果是在自己的粉丝列表中回关，状态变为互关
+    if (isSelf.value && props.type === 'followers') {
+      user.isMutual = true;
+    }
+    
     ElMessage.success('关注成功');
   } catch (error) {
     console.error('Follow failed:', error);
@@ -199,6 +243,7 @@ const handleUnfollow = async (user) => {
   try {
     await followApi.unfollowUser(user.id);
     user.isFollowing = false;
+    user.isMutual = false; // 取消关注后，互关状态一定为 false
     ElMessage.success('已取消关注');
   } catch (error) {
     console.error('Unfollow failed:', error);
@@ -212,12 +257,12 @@ const handleUnfollow = async (user) => {
 <style scoped>
 .follow-list-modal :deep(.el-dialog__body) {
   padding: 0;
-  max-height: 60vh;
-  overflow-y: auto;
 }
 
 .user-list {
   padding: 10px 20px;
+  max-height: 60vh;
+  overflow-y: auto;
 }
 
 .user-item {

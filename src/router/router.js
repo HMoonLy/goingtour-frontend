@@ -251,7 +251,7 @@ router.beforeEach(async (to, from, next) => {
         "route.tripShare": "行程分享",
         "route.notFound": "页面不存在",
         "route.footprints": "我的足迹",
-        "route.wishlist": "愿望清单", // 向后兼容
+        "route.wishlist": "愿望清单",
         "settings.securitySettings": "安全设置",
         "settings.notifications": "通知设置",
         "settings.systemSettings": "系统设置",
