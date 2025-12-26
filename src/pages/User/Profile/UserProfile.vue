@@ -6,79 +6,101 @@
       </div>
       
       <div class="profile-info-container">
-        <div class="profile-main">
-          <div class="avatar-wrapper">
-            <el-avatar 
-              :size="100" 
-              :src="getAvatarUrl(userInfo?.avatar)" 
-              class="user-avatar"
-            />
-            <div class="verification-badge" v-if="userInfo?.verified">
-              <el-icon><Select /></el-icon>
-            </div>
-          </div>
-          
-          <div class="user-details">
-            <div class="name-row">
-              <h1 class="nickname">{{ userInfo?.nickname || '用户' }}</h1>
-              <el-tag v-if="userInfo?.verified" size="small" type="success" effect="plain" round>
-                认证旅行家
-              </el-tag>
-            </div>
-            <p class="bio">{{ userInfo?.bio || '这个人很懒，什么都没写~' }}</p>
-            
-            <div class="meta-row">
-              <div class="meta-item" v-if="userInfo?.location">
-                <el-icon><Location /></el-icon>
-                {{ userInfo.location }}
-              </div>
-              <div class="meta-item">
-                <el-icon><User /></el-icon>
-                ID: {{ userInfo?.id }}
+        <div class="profile-card">
+          <div class="profile-header-row">
+            <!-- 左侧头像 -->
+            <div class="avatar-section">
+              <div class="avatar-wrapper">
+                <el-avatar 
+                  :size="110" 
+                  :src="getAvatarUrl(userInfo?.avatar)" 
+                  class="user-avatar"
+                  shape="circle"
+                />
+                <div class="verification-badge" v-if="userInfo?.verified">
+                  <el-icon :size="14"><Select /></el-icon>
+                </div>
               </div>
             </div>
-          </div>
-          
-          <div class="action-buttons">
-            <template v-if="isCurrentUser">
-              <el-button type="primary" plain round @click="router.push('/user/settings')">
-                <el-icon><Edit /></el-icon> 编辑资料
-              </el-button>
-            </template>
-            <template v-else>
-              <el-button 
-                :type="followStatus.isFollowing ? 'info' : 'primary'" 
-                round 
-                :plain="followStatus.isFollowing"
-                :loading="followLoading"
-                @click="toggleFollow"
-              >
-                <el-icon v-if="!followStatus.isFollowing"><Plus /></el-icon>
-                {{ followStatus.isFollowing ? (followStatus.isMutual ? '互相关注' : '已关注') : '关注' }}
-              </el-button>
-              <el-button round plain @click="handleMessage">
-                <el-icon><Message /></el-icon> 私信
-              </el-button>
-            </template>
-          </div>
-        </div>
-        
-        <div class="stats-row">
-          <div class="stat-item clickable" @click="openFollowList('following')">
-            <span class="count">{{ formatCount(userInfo?.followingCount) }}</span>
-            <span class="label">关注</span>
-          </div>
-          <div class="stat-item clickable" @click="openFollowList('followers')">
-            <span class="count">{{ formatCount(userInfo?.followersCount) }}</span>
-            <span class="label">粉丝</span>
-          </div>
-          <div class="stat-item">
-            <span class="count">{{ formatCount(userInfo?.totalLikes) }}</span>
-            <span class="label">获赞</span>
-          </div>
-          <div class="stat-item">
-            <span class="count">{{ formatCount(userInfo?.visitedCitiesCount) }}</span>
-            <span class="label">足迹城市</span>
+
+            <!-- 右侧信息 -->
+            <div class="info-section">
+              <div class="info-top">
+                <div class="name-wrap">
+                  <h1 class="nickname">{{ userInfo?.nickname || '用户' }}</h1>
+                  <el-tag v-if="userInfo?.verified" size="small" type="success" effect="light" round class="verified-tag">
+                    <el-icon class="mr-1"><Select /></el-icon> 认证旅行家
+                  </el-tag>
+                </div>
+                
+                <div class="action-buttons">
+                  <template v-if="isCurrentUser">
+                    <el-button class="edit-btn" round @click="router.push('/user/settings')">
+                      编辑资料
+                    </el-button>
+                  </template>
+                  <template v-else>
+                    <el-button 
+                      :type="followStatus.isFollowing ? 'default' : 'primary'" 
+                      round 
+                      class="action-btn"
+                      :class="{ 'following': followStatus.isFollowing }"
+                      :loading="followLoading"
+                      @click="toggleFollow"
+                    >
+                      <template v-if="!followStatus.isFollowing">
+                        <el-icon><Plus /></el-icon> 关注
+                      </template>
+                      <template v-else>
+                        {{ followStatus.isMutual ? '互相关注' : '已关注' }}
+                      </template>
+                    </el-button>
+                    <el-button round class="action-btn" @click="handleMessage">
+                      私信
+                    </el-button>
+                  </template>
+                </div>
+              </div>
+
+              <div class="stats-bar">
+                <div class="stat-item clickable" @click="openFollowList('following')">
+                  <span class="count">{{ formatCount(userInfo?.followingCount) }}</span>
+                  <span class="label">关注</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item clickable" @click="openFollowList('followers')">
+                  <span class="count">{{ formatCount(userInfo?.followersCount) }}</span>
+                  <span class="label">粉丝</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                  <span class="count">{{ formatCount(userInfo?.totalLikes) }}</span>
+                  <span class="label">获赞</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                  <span class="count">{{ formatCount(userInfo?.visitedCitiesCount) }}</span>
+                  <span class="label">足迹</span>
+                </div>
+              </div>
+              
+              <div class="bio-section">
+                <p class="bio" :class="{ 'empty': !userInfo?.bio }">
+                  {{ userInfo?.bio || '这个人很懒，什么都没写~' }}
+                </p>
+              </div>
+
+              <div class="meta-info">
+                <div class="meta-item" v-if="userInfo?.location">
+                  <el-icon><Location /></el-icon>
+                  <span>{{ userInfo.location }}</span>
+                </div>
+                <div class="meta-item">
+                  <span class="id-label">ID:</span>
+                  <span>{{ userInfo?.id }}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -367,18 +389,18 @@ watch(activeTab, (newTab) => {
 <style scoped>
 .user-profile-page {
   min-height: 100vh;
-  background: #f5f7fa;
+  background: #f6f7f8;
   padding-bottom: 40px;
 }
 
 .page-header {
-  background: white;
-  margin-bottom: 20px;
+  background: transparent;
+  margin-bottom: 0;
   position: relative;
 }
 
 .cover-image {
-  height: 240px;
+  height: 280px;
   background-size: cover;
   background-position: center;
   position: relative;
@@ -387,7 +409,7 @@ watch(activeTab, (newTab) => {
 .cover-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.1));
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(0,0,0,0.2));
 }
 
 .profile-info-container {
@@ -395,14 +417,26 @@ watch(activeTab, (newTab) => {
   margin: 0 auto;
   padding: 0 20px;
   position: relative;
-  transform: translateY(-40px);
+  z-index: 10;
+  margin-top: -60px;
 }
 
-.profile-main {
+.profile-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  padding: 24px;
+  position: relative;
+}
+
+.profile-header-row {
   display: flex;
-  align-items: flex-end;
   gap: 24px;
-  margin-bottom: 24px;
+}
+
+.avatar-section {
+  flex-shrink: 0;
+  margin-top: -60px;
 }
 
 .avatar-wrapper {
@@ -413,14 +447,18 @@ watch(activeTab, (newTab) => {
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
+.user-avatar {
+  border: 1px solid #f0f0f0;
+}
+
 .verification-badge {
   position: absolute;
   bottom: 8px;
   right: 8px;
   background: #18a058;
   color: white;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -428,62 +466,67 @@ watch(activeTab, (newTab) => {
   border: 2px solid white;
 }
 
-.user-details {
+.info-section {
   flex: 1;
-  padding-bottom: 8px;
+  padding-top: 4px;
 }
 
-.name-row {
+.info-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.name-wrap {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 8px;
+  flex-wrap: wrap;
 }
 
 .nickname {
   font-size: 24px;
   font-weight: 700;
-  color: #333;
+  color: #1d2129;
   margin: 0;
-  text-shadow: 0 2px 4px rgba(255,255,255,0.8); /* 防止背景太白看不清 */
+  line-height: 1.2;
 }
 
-.bio {
-  color: #666;
-  font-size: 14px;
-  margin: 0 0 12px 0;
-  max-width: 600px;
-}
-
-.meta-row {
-  display: flex;
-  gap: 16px;
-  color: #999;
-  font-size: 13px;
-}
-
-.meta-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.verified-tag {
+  border: none;
+  background: #e6f7ef;
+  color: #18a058;
 }
 
 .action-buttons {
-  padding-bottom: 12px;
   display: flex;
   gap: 12px;
 }
 
-.stats-row {
+.action-btn {
+  font-weight: 600;
+  padding: 8px 20px;
+}
+
+.action-btn.following {
+  background: #f2f3f5;
+  border-color: #f2f3f5;
+  color: #4e5969;
+}
+
+.stats-bar {
   display: flex;
-  gap: 40px;
-  padding-left: 140px; /* offset avatar width + gap */
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 16px;
 }
 
 .stat-item {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  align-items: baseline;
+  gap: 6px;
+  cursor: default;
 }
 
 .stat-item.clickable {
@@ -492,47 +535,111 @@ watch(activeTab, (newTab) => {
 }
 
 .stat-item.clickable:hover {
-  opacity: 0.8;
+  opacity: 0.7;
 }
 
 .stat-item .count {
   font-size: 18px;
-  font-weight: 700;
-  color: #333;
+  font-weight: 600;
+  color: #1d2129;
+  font-family: 'DIN Alternate', 'Roboto', sans-serif;
 }
 
 .stat-item .label {
+  font-size: 14px;
+  color: #86909c;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 12px;
+  background: #e5e6eb;
+}
+
+.bio-section {
+  margin-bottom: 16px;
+}
+
+.bio {
+  color: #4e5969;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 700px;
+}
+
+.bio.empty {
+  color: #c9cdd4;
+}
+
+.meta-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
   font-size: 12px;
-  color: #999;
+  color: #86909c;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f7f8fa;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.id-label {
+  font-weight: 500;
 }
 
 /* Content Section */
 .content-section {
   max-width: 1000px;
-  margin: 0 auto;
+  margin: 20px auto 0;
   padding: 0 20px;
 }
 
+/* Tabs Optimization */
 .profile-tabs :deep(.el-tabs__nav-wrap::after) {
   height: 1px;
-  background-color: #eee;
+  background-color: #f2f3f5;
+}
+
+.profile-tabs :deep(.el-tabs__item) {
+  font-size: 16px;
+  color: #4e5969;
+  height: 48px;
+  font-weight: 500;
+}
+
+.profile-tabs :deep(.el-tabs__item.is-active) {
+  font-size: 18px;
+  color: #1d2129;
+  font-weight: 600;
+}
+
+.profile-tabs :deep(.el-tabs__active-bar) {
+  height: 3px;
+  border-radius: 2px;
+  bottom: 5px;
 }
 
 .tab-content {
   min-height: 300px;
-  padding-top: 20px;
+  padding-top: 16px;
 }
 
 /* Grid Layouts */
 .posts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
 }
 
 .trips-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
 }
 
@@ -596,45 +703,80 @@ watch(activeTab, (newTab) => {
   gap: 4px;
 }
 
+/* Mobile Adaptation */
 @media (max-width: 768px) {
-  .profile-main {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 12px;
+  .cover-image {
+    height: 160px;
   }
   
   .profile-info-container {
-    transform: translateY(-50px);
+    margin-top: -20px;
+    padding: 0 12px;
   }
   
-  .user-details {
-    width: 100%;
+  .profile-card {
+    padding: 16px;
   }
   
-  .name-row {
-    justify-content: center;
+  .profile-header-row {
+    flex-direction: column;
+    gap: 12px;
   }
   
-  .bio {
-    margin: 0 auto 12px;
+  .avatar-section {
+    margin-top: -40px;
+    margin-bottom: 0;
   }
   
-  .meta-row {
-    justify-content: center;
+  .avatar-wrapper {
+    width: 88px;
+    height: 88px;
+    padding: 2px;
   }
   
-  .stats-row {
-    padding-left: 0;
-    justify-content: center;
-    gap: 24px;
-    margin-top: 12px;
+  .avatar-wrapper :deep(.el-avatar) {
+    width: 80px !important;
+    height: 80px !important;
+  }
+
+  .info-top {
+    flex-direction: column;
+    gap: 12px;
   }
   
   .action-buttons {
-    justify-content: center;
     width: 100%;
-    margin-top: 12px;
+  }
+  
+  .action-btn {
+    flex: 1;
+  }
+  
+  .stats-bar {
+    justify-content: space-between;
+    background: #f7f8fa;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    gap: 0;
+  }
+  
+  .stat-divider {
+    display: none;
+  }
+  
+  .stat-item {
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  
+  .stat-item .count {
+    font-size: 16px;
+  }
+  
+  .stat-item .label {
+    font-size: 12px;
   }
 }
 </style>

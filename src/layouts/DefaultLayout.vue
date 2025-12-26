@@ -3,52 +3,58 @@
     <!-- 顶部导航栏 -->
     <header class="layout-header">
       <div class="header-container">
+        <!-- 移动端菜单按钮 -->
+        <div class="mobile-menu-btn" @click="toggleMobileMenu">
+          <el-icon><Menu /></el-icon>
+        </div>
+
         <div class="header-logo" @click="$router.push('/home')">
           <h2>GoingTour</h2>
         </div>
 
-        <nav class="header-nav">
+        <!-- 桌面端导航 -->
+        <nav class="header-nav desktop-nav">
           <div class="nav-menu">
             <div
               class="nav-item"
               :class="{ 'is-active': activeMenu === '/home' }"
-              @click="$router.push('/home')"
+              @click="handleNavClick('/home')"
             >
               <el-icon><House /></el-icon>
-              <span>{{ "首页" }}</span>
+              <span>首页</span>
             </div>
             <div
               class="nav-item"
               :class="{ 'is-active': activeMenu === '/community' }"
-              @click="$router.push('/community')"
+              @click="handleNavClick('/community')"
             >
               <el-icon><ChatDotRound /></el-icon>
-              <span>{{ "社区" }}</span>
+              <span>社区</span>
             </div>
             <div
               class="nav-item"
               :class="{ 'is-active': activeMenu === '/destinations' }"
-              @click="$router.push('/destinations')"
+              @click="handleNavClick('/destinations')"
             >
               <el-icon><MapLocation /></el-icon>
-              <span>{{ "目的地" }}</span>
+              <span>目的地</span>
             </div>
             <div
               class="nav-item"
               :class="{ 'is-active': activeMenu === '/personal' }"
-              @click="$router.push('/personal')"
+              @click="handleNavClick('/personal')"
             >
               <el-icon><User /></el-icon>
-              <span>{{ "个人中心" }}</span>
+              <span>个人中心</span>
             </div>
           </div>
         </nav>
 
         <div class="header-user">
-          <el-dropdown @command="handleUserCommand">
+          <el-dropdown @command="handleUserCommand" trigger="click">
             <div class="user-info">
               <el-avatar :src="avatar" :size="32">
-                <img src="../assets/images/default-avatar.jpg" alt="avatar" />
+                <img src="@/assets/images/default-avatar.jpg" alt="avatar" />
               </el-avatar>
               <span class="username">{{ nickname }}</span>
               <el-icon class="dropdown-icon">
@@ -58,10 +64,10 @@
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item command="personal">
-                  <el-icon><User /></el-icon>{{ "个人资料" }}
+                  <el-icon><User /></el-icon>个人资料
                 </el-dropdown-item>
                 <el-dropdown-item divided command="logout">
-                  <el-icon><SwitchButton /></el-icon>{{ "退出登录" }}
+                  <el-icon><SwitchButton /></el-icon>退出登录
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -70,10 +76,66 @@
       </div>
     </header>
 
+    <!-- 移动端抽屉菜单 -->
+    <el-drawer
+      v-model="mobileMenuVisible"
+      direction="ltr"
+      size="70%"
+      :with-header="false"
+      class="mobile-nav-drawer"
+      append-to-body
+    >
+      <div class="drawer-content">
+        <div class="drawer-header" @click="handleNavClick('/home')">
+          <h2>GoingTour</h2>
+        </div>
+        <div class="drawer-menu">
+          <div
+            class="drawer-item"
+            :class="{ 'is-active': activeMenu === '/home' }"
+            @click="handleNavClick('/home')"
+          >
+            <el-icon><House /></el-icon>
+            <span>首页</span>
+          </div>
+          <div
+            class="drawer-item"
+            :class="{ 'is-active': activeMenu === '/community' }"
+            @click="handleNavClick('/community')"
+          >
+            <el-icon><ChatDotRound /></el-icon>
+            <span>社区</span>
+          </div>
+          <div
+            class="drawer-item"
+            :class="{ 'is-active': activeMenu === '/destinations' }"
+            @click="handleNavClick('/destinations')"
+          >
+            <el-icon><MapLocation /></el-icon>
+            <span>目的地</span>
+          </div>
+          <div
+            class="drawer-item"
+            :class="{ 'is-active': activeMenu === '/personal' }"
+            @click="handleNavClick('/personal')"
+          >
+            <el-icon><User /></el-icon>
+            <span>个人中心</span>
+          </div>
+        </div>
+        <div class="drawer-footer">
+          <el-button type="danger" plain @click="handleUserCommand('logout')" class="logout-btn">
+            <el-icon><SwitchButton /></el-icon>退出登录
+          </el-button>
+        </div>
+      </div>
+    </el-drawer>
+
     <!-- 主要内容区域 -->
     <main
       class="layout-main"
       :class="{ 'trip-detail-layout': isTripDetailPage }"
+      ref="mainContent"
     >
       <div
         class="main-container"
@@ -82,14 +144,14 @@
           'full-width': isFullWidthPage,
         }"
       >
-        <router-view />
+      <router-view />
       </div>
     </main>
   </div>
 </template>
 
 <script>
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuth } from "@/composables/user/useAuth.js";
 import { useUserStore } from "@/store/user.js";
@@ -101,6 +163,7 @@ import {
   ArrowDown,
   House,
   ChatDotRound,
+  Menu,
 } from "@element-plus/icons-vue";
 
 export default {
@@ -113,16 +176,19 @@ export default {
     ArrowDown,
     House,
     ChatDotRound,
+    Menu,
   },
   setup() {
     const route = useRoute();
     const router = useRouter();
-    
+    const mainContent = ref(null);
+    const mobileMenuVisible = ref(false);
+
     // 使用用户信息
     const userStore = useUserStore();
     const nickname = computed(() => userStore.nickname);
     const avatar = computed(() => userStore.avatar);
-    
+
     // 认证功能
     const { logout } = useAuth();
 
@@ -132,15 +198,24 @@ export default {
       if (path === "/" || path.startsWith("/home")) return "/home";
       if (path.startsWith("/community")) return "/community";
       if (path.startsWith("/destinations")) return "/destinations";
-      if (path.startsWith("/personal")) return "/personal";
-      if (path.startsWith("/wishlist")) return "/wishlist";
-      // 其他页面不激活任何主导航菜单项
+      if (path.startsWith("/personal") || path.startsWith("/user")) return "/personal";
+      if (path.startsWith("/wishlist") || path.startsWith("/footprints")) return "/wishlist";
       return "";
     });
 
+    // 监听路由变化，关闭移动端菜单并滚动到顶部
+    watch(
+      () => route.path,
+      () => {
+        mobileMenuVisible.value = false;
+        if (mainContent.value) {
+          mainContent.value.scrollTop = 0;
+        }
+      }
+    );
+
     // 是否显示页脚
     const showFooter = computed(() => {
-      // 在某些页面可能不需要显示页脚
       const hideFooterRoutes = ["/trip/create"];
       return !hideFooterRoutes.includes(route.path);
     });
@@ -154,20 +229,29 @@ export default {
       );
     });
 
-    // 需要全宽布局的页面（如首页、目的地）
+    // 需要全宽布局的页面
     const isFullWidthPage = computed(() => {
       const path = route.path;
       return path.startsWith("/home") || path.startsWith("/destinations");
     });
 
+    const toggleMobileMenu = () => {
+      mobileMenuVisible.value = !mobileMenuVisible.value;
+    };
+
+    const handleNavClick = (path) => {
+      router.push(path);
+      mobileMenuVisible.value = false;
+    };
+
     // 处理用户命令
     const handleUserCommand = async (command) => {
       if (command === "logout") {
-        // 使用新的logout方法，内部已处理确认和跳转
         await logout();
       } else if (command === "personal") {
         router.push("/personal");
       }
+      mobileMenuVisible.value = false;
     };
 
     return {
@@ -178,6 +262,10 @@ export default {
       handleUserCommand,
       isTripDetailPage,
       isFullWidthPage,
+      mobileMenuVisible,
+      toggleMobileMenu,
+      handleNavClick,
+      mainContent,
     };
   },
 };
@@ -185,39 +273,40 @@ export default {
 
 <style scoped>
 .default-layout {
-  /* min-height: 100vh; */
+  height: 100vh; /* 固定高度 */
   display: flex;
   flex-direction: column;
   background-color: var(--bg-color);
-  overflow-x: hidden; /* 只防止水平滚动条 */
+  overflow: hidden; /* 防止外层滚动 */
 }
 
 /* 顶部导航栏 */
 .layout-header {
   background: var(--card-bg);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  position: sticky;
-  top: 0;
   z-index: 1000;
-  flex-shrink: 0; /* 防止导航栏被压缩 */
+  flex-shrink: 0;
+  height: var(--header-height);
 }
 
 .header-container {
   width: 100%;
-  max-width: none;
-  padding: 0 24px; /* 减少左右padding，给菜单更多空间 */
+  padding: 0 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: var(--header-height);
-  position: relative; /* 确保定位上下文 */
+  height: 100%;
+  position: relative;
+  max-width: 1440px;
+  margin: 0 auto;
 }
 
 .header-logo {
   cursor: pointer;
   transition: transform 0.2s;
-  flex-shrink: 0; /* 防止logo被压缩 */
-  z-index: 1; /* 确保logo在最上层 */
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
 }
 
 .header-logo:hover {
@@ -234,28 +323,36 @@ export default {
   background-clip: text;
 }
 
+/* 移动端菜单按钮 */
+.mobile-menu-btn {
+  display: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--text-primary);
+  padding: 8px;
+  margin-right: 10px;
+}
+
+/* 导航菜单 */
 .header-nav {
   flex: 1;
   display: flex;
   justify-content: center;
-  min-width: 0;
-  max-width: 600px; /* 限制最大宽度，避免过度拉伸 */
-  margin: 0 20px; /* 左右给一些边距 */
+  margin: 0 20px;
 }
 
 .nav-menu {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
-  gap: 16px; /* 菜单项之间的间距 */
+  gap: 16px;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 12px 20px;
+  padding: 8px 16px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s;
@@ -266,38 +363,28 @@ export default {
   user-select: none;
 }
 
-.nav-item:hover {
-  background-color: var(--bg-secondary);
-  color: var(--primary-color);
-}
-
+.nav-item:hover,
 .nav-item.is-active {
   background-color: var(--bg-secondary);
   color: var(--primary-color);
 }
 
 .nav-item .el-icon {
-  font-size: 16px;
-}
-
-/* 桌面端隐藏顶部导航的图标，仅保留文字（scoped 下需要深度选择器） */
-.header-nav :deep(.nav-item .el-icon) {
-  display: none;
+  font-size: 18px;
 }
 
 /* 用户信息区域 */
 .header-user {
   display: flex;
   align-items: center;
-  flex-shrink: 0; /* 防止用户区域被压缩 */
-  min-width: 120px; /* 确保最小宽度 */
+  flex-shrink: 0;
 }
 
 .user-info {
   display: flex;
   align-items: center;
   cursor: pointer;
-  padding: 8px 12px;
+  padding: 6px 12px;
   border-radius: 20px;
   transition: background-color 0.3s;
 }
@@ -311,6 +398,10 @@ export default {
   font-size: 0.9rem;
   color: var(--text-primary);
   font-weight: 500;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .dropdown-icon {
@@ -321,149 +412,135 @@ export default {
 /* 主要内容区域 */
 .layout-main {
   flex: 1;
-  overflow-y: auto !important; /* 允许垂直滚动 */
-  overflow-x: hidden; /* 防止水平滚动 */
-  height: 100%; /* 固定高度，作为唯一滚动容器 */
-  min-height: 0; /* 允许成为滚动容器（flex 子项常见问题） */
+  overflow-y: auto; /* 允许垂直滚动 */
+  overflow-x: hidden;
   position: relative;
   width: 100%;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch; /* iOS顺滑滚动 */
 }
 
 /* TripDetail页面特殊布局 */
 .layout-main.trip-detail-layout {
-  overflow: visible; /* TripDetail页面允许溢出 */
-  position: relative;
-  z-index: 1; /* 确保内容在导航栏下方 */
+  /* TripDetail可能需要特殊的滚动处理，保持一致性 */
+  overflow-y: auto;
 }
 
 .main-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0; /* 移除padding，让子页面自己控制 */
-  min-height: auto; /* 不限制最小高度 */
+  min-height: 100%;
   box-sizing: border-box;
-  width: 100%;
+  padding: 20px;
 }
 
-/* TripDetail页面的容器特殊处理 */
-.main-container.trip-detail-container {
-  max-width: none; /* 移除宽度限制 */
-  margin: 0;
-  padding: 0;
-  position: relative;
-  z-index: 1;
-  min-height: auto; /* 重置最小高度 */
-}
-
-/* 全宽布局，用于destinations等页面 */
+/* 全宽布局 */
 .main-container.full-width {
   max-width: none;
-  margin: 0;
   padding: 0;
-  min-height: auto; /* 重置最小高度 */
 }
 
-/* 页脚 */
-.layout-footer {
-  background: var(--card-bg);
-  border-top: 1px solid var(--border-color);
-  padding: 20px 0;
-  flex-shrink: 0; /* 防止页脚被压缩 */
+.main-container.trip-detail-container {
+  max-width: none;
+  padding: 0;
 }
 
-.footer-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-  text-align: center;
+
+/* 移动端抽屉样式 */
+.drawer-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px;
 }
 
-.footer-container p {
-  color: var(--text-secondary);
-  font-size: 0.85rem;
+.drawer-header {
+  margin-bottom: 30px;
+  cursor: pointer;
+}
+
+.drawer-header h2 {
+  font-size: 1.5rem;
+  background: linear-gradient(135deg, #91a8d0, #f7cac9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin: 0;
+}
+
+.drawer-menu {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.drawer-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+.drawer-item:hover,
+.drawer-item.is-active {
+  background-color: var(--bg-secondary);
+  color: var(--primary-color);
+}
+
+.drawer-footer {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.logout-btn {
+  width: 100%;
+  justify-content: center;
 }
 
 /* 响应式设计 */
-@media (min-width: 1200px) {
-  .header-container {
-    padding: 0 40px; /* 大屏幕上给更多空间 */
-  }
-
-  .header-nav {
-    max-width: 800px; /* 大屏幕上允许更宽的菜单 */
-  }
-}
-
 @media (max-width: 768px) {
+  .desktop-nav {
+    display: none; /* 隐藏桌面端导航 */
+  }
+
+  .mobile-menu-btn {
+    display: block; /* 显示移动端菜单按钮 */
+  }
+
   .header-container {
     padding: 0 16px;
+    justify-content: space-between;
   }
 
-  .header-nav {
-    margin: 0 10px;
-  }
-
-  .nav-item {
-    padding: 8px 12px;
-    font-size: 13px;
-  }
-
-  /* 移动端显示图标，配合更紧凑的文字 */
-  .header-nav :deep(.nav-item .el-icon) {
-    display: inline-flex;
-  }
-
-  .layout-main {
-    min-height: calc(100vh - 56px); /* 移动端导航栏可能更矮 */
-  }
-
-  .main-container {
-    padding: 15px;
-  }
-
-  /* 全宽布局在移动端保持全宽 */
-  .main-container.full-width {
-    padding: 0;
-  }
-
-  .username {
-    display: none; /* 移动端隐藏用户名，节省空间 */
-  }
-}
-
-@media (max-width: 480px) {
-  .header-container {
-    height: var(--header-height);
-    padding: 0 12px;
-  }
-
+  /* 调整Header Logo位置 */
   .header-logo h2 {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
   }
 
-  .header-nav {
-    margin: 0 6px;
+  /* 调整用户信息显示 */
+  .username {
+    display: none; /* 移动端隐藏用户名 */
   }
 
-  .nav-item {
-    padding: 6px 10px;
-    font-size: 12px;
+  .user-info {
+    padding: 4px;
   }
-
-  .nav-item span {
-    display: none; /* 超小屏幕只显示图标 */
-  }
-
-  .layout-main {
-    height: calc(100vh - var(--header-height));
+  
+  .dropdown-icon {
+    display: none;
   }
 
   .main-container {
-    padding: 10px;
+    padding: 16px; /* 移动端内边距减小 */
   }
-
-  /* 全宽布局在超小屏幕也保持全宽 */
+  
   .main-container.full-width {
     padding: 0;
   }
