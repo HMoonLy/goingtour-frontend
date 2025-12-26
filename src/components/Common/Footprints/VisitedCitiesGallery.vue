@@ -41,10 +41,14 @@
           class="city-photo-item"
           :style="{ animationDelay: `${index * 0.1}s` }"
         >
-          <div class="photo-wrapper" @click="handlePhotoClick(city)">
+          <div 
+            class="photo-wrapper" 
+            :class="{ 'is-readonly': readonly }"
+            @click="!readonly && handlePhotoClick(city)"
+          >
             <!-- 想再去标识 -->
             <div
-              v-if="city.ever_visited && city.want_to_visit_again"
+              v-if="!readonly && city.ever_visited && city.want_to_visit_again"
               class="want-again-badge"
             >
               <el-icon><Star /></el-icon>
@@ -63,14 +67,24 @@
 
             <!-- 没有照片的情况 - 上传引导 -->
             <template v-else>
-              <div class="upload-placeholder">
-                <el-icon size="32" class="upload-icon">
-                  <Plus />
-                </el-icon>
-                <p class="upload-text">
-                  {{ city.cityName }}
-                </p>
-                <p class="upload-hint">点击添加照片</p>
+              <div class="upload-placeholder" :class="{ 'readonly-placeholder': readonly }">
+                <template v-if="!readonly">
+                  <el-icon size="32" class="upload-icon">
+                    <Plus />
+                  </el-icon>
+                  <p class="upload-text">
+                    {{ city.cityName }}
+                  </p>
+                  <p class="upload-hint">点击添加照片</p>
+                </template>
+                <template v-else>
+                  <el-icon size="24" class="upload-icon">
+                    <CameraFilled />
+                  </el-icon>
+                  <p class="upload-text">
+                    {{ city.cityName }}
+                  </p>
+                </template>
               </div>
             </template>
 
@@ -90,8 +104,8 @@
               </div>
             </div>
 
-            <!-- 操作按钮层 - 悬浮居中显示（所有城市都显示，不管有没有照片） -->
-            <div class="photo-actions-overlay">
+            <!-- 操作按钮层 - 悬浮居中显示（仅在非只读模式下显示） -->
+            <div v-if="!readonly" class="photo-actions-overlay">
               <div class="actions-backdrop"></div>
               <div class="photo-actions">
                 <el-tooltip content="编辑信息" placement="top">
@@ -197,12 +211,18 @@
           <el-icon size="64" class="empty-icon">
             <CameraFilled />
           </el-icon>
-          <h4>还没有足迹照片</h4>
-          <p>添加你去过的城市，记录你的旅行足迹</p>
-          <el-button type="primary" @click="$emit('add-visited-city')">
-            <el-icon><Plus /></el-icon>
-            记录足迹城市
-          </el-button>
+          <template v-if="!readonly">
+            <h4>还没有足迹照片</h4>
+            <p>添加你去过的城市，记录你的旅行足迹</p>
+            <el-button type="primary" @click="$emit('add-visited-city')">
+              <el-icon><Plus /></el-icon>
+              记录足迹城市
+            </el-button>
+          </template>
+          <template v-else>
+            <h4>暂无足迹照片</h4>
+            <p>该用户还没有上传过旅行足迹</p>
+          </template>
         </div>
       </div>
     </div>
@@ -335,6 +355,10 @@ const props = defineProps({
   visitedCitiesData: {
     type: Array,
     default: () => [],
+  },
+  readonly: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -1339,12 +1363,20 @@ const formatVisitDate = (dateString) => {
   overflow: hidden;
 }
 
+.photo-wrapper.is-readonly {
+  cursor: default;
+}
+
 .photo-wrapper:hover {
   transform: rotate(0deg) translateY(-8px) scale(1.05);
   box-shadow:
     0 16px 32px rgba(0, 0, 0, 0.4),
     0 0 0 1px rgba(0, 0, 0, 0.2),
     inset 0 0 0 1px rgba(255, 255, 255, 0.9);
+}
+
+.photo-wrapper.is-readonly:hover {
+  transform: rotate(0deg) translateY(-4px) scale(1.02); /* 只读模式下动效减弱 */
 }
 
 /* 照片样式 */
@@ -1380,6 +1412,18 @@ const formatVisitDate = (dateString) => {
   background: linear-gradient(135deg, #ffffff 0%, #f8fafe 100%);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(145, 168, 208, 0.15);
+}
+
+.upload-placeholder.readonly-placeholder {
+  border-style: solid;
+  border-color: rgba(145, 168, 208, 0.1);
+  background: #f9fafb;
+}
+
+.upload-placeholder.readonly-placeholder:hover {
+  transform: none;
+  box-shadow: none;
+  background: #f9fafb;
 }
 
 .upload-icon {

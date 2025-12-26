@@ -49,6 +49,14 @@ export const userApi = {
     },
 
     /**
+     * 获取用户公开主页信息（包含社交状态）
+     * @param {number} userId - 用户ID
+     */
+    getUserProfile(userId) {
+        return http.get(`/user/profile/${userId}`);
+    },
+
+    /**
      * 获取用户偏好设置
      * @param {number} userId - 用户ID
      */

@@ -89,6 +89,17 @@ const routes = [
                     requiresAuth: true,
                 },
             },
+            // 用户公开主页
+            {
+                path: "u/:userId",
+                name: "UserProfile",
+                component: () =>
+                    import("../pages/User/Profile/UserProfile.vue"),
+                meta: {
+                    titleKey: "route.userProfile",
+                    requiresAuth: false,
+                },
+            },
             // 足迹模块
             {
                 path: "footprints",
@@ -227,6 +238,7 @@ router.beforeEach(async (to, from, next) => {
         "route.postPublish": "发布游记",
         "route.personal": "个人中心",
         "route.personalProfile": "个人资料",
+        "route.userProfile": "用户主页",
         "route.accountSettings": "账户设置",
         "route.preferences": "偏好设置",
         "route.destinations": "选择目的地",

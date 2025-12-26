@@ -38,6 +38,15 @@ export const communityApi = {
   },
 
   /**
+   * 获取特定用户的帖子列表
+   * @param {number} userId 用户ID
+   * @param {Object} params { page, pageSize }
+   */
+  getUserPosts(userId, params) {
+    return http.get(`/community/posts/user/${userId}`, params);
+  },
+
+  /**
    * 获取帖子详情
    * @param {number} id 帖子ID
    */

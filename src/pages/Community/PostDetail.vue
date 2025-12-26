@@ -414,7 +414,9 @@ export default {
     };
     
     const goToUser = (userId) => {
-      // router.push(`/user/${userId}`); // 暂时没有用户主页
+      if (userId) {
+        router.push(`/u/${userId}`);
+      }
     };
 
     onMounted(() => {

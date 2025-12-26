@@ -25,7 +25,7 @@
     <div class="card-content">
       <h3 class="post-title">{{ post.title }}</h3>
       
-      <div class="author-info">
+      <div class="author-info" @click.stop="navigateToUser">
         <el-avatar :size="24" :src="post.author.avatar">
           <img src="@/assets/images/default-avatar.jpg" />
         </el-avatar>
@@ -50,6 +50,7 @@
 
 <script>
 import { Picture, Location, View, Star } from '@element-plus/icons-vue';
+import { useRouter } from 'vue-router';
 
 export default {
   name: 'PostCard',
@@ -66,7 +67,9 @@ export default {
     }
   },
   emits: ['click'],
-  setup() {
+  setup(props) {
+    const router = useRouter();
+
     const formatCount = (count) => {
       if (!count) return '0';
       if (count >= 10000) {
@@ -75,8 +78,15 @@ export default {
       return count;
     };
 
+    const navigateToUser = () => {
+      if (props.post.author && props.post.author.id) {
+        router.push(`/u/${props.post.author.id}`);
+      }
+    };
+
     return {
-      formatCount
+      formatCount,
+      navigateToUser
     };
   }
 };

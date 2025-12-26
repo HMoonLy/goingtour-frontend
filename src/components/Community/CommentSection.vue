@@ -40,13 +40,23 @@
 
       <div v-for="comment in comments" :key="comment.id" class="comment-item">
         <div class="comment-main">
-          <el-avatar :size="40" :src="comment.userAvatar" class="comment-avatar">
+          <el-avatar 
+            :size="40" 
+            :src="comment.userAvatar" 
+            class="comment-avatar clickable-avatar"
+            @click="navigateToUser(comment.userId)"
+          >
             <img src="@/assets/images/default-avatar.jpg" />
           </el-avatar>
           
           <div class="comment-content-wrapper">
             <div class="comment-header">
-              <span class="nickname">{{ comment.userNickname }}</span>
+              <span 
+                class="nickname clickable-name"
+                @click="navigateToUser(comment.userId)"
+              >
+                {{ comment.userNickname }}
+              </span>
               <span class="time">{{ formatTime(comment.createTime) }}</span>
             </div>
             
@@ -94,15 +104,25 @@
             <!-- 回复列表 -->
             <div v-if="comment.replies && comment.replies.length > 0" class="replies-list">
               <div v-for="reply in comment.replies" :key="reply.id" class="reply-item">
-                <el-avatar :size="24" :src="reply.userAvatar" class="reply-avatar">
+                <el-avatar 
+                  :size="24" 
+                  :src="reply.userAvatar" 
+                  class="reply-avatar clickable-avatar"
+                  @click="navigateToUser(reply.userId)"
+                >
                   <img src="@/assets/images/default-avatar.jpg" />
                 </el-avatar>
                 
                 <div class="reply-content-box">
                   <div class="reply-header">
-                    <span class="nickname">{{ reply.userNickname }}</span>
+                    <span 
+                      class="nickname clickable-name"
+                      @click="navigateToUser(reply.userId)"
+                    >
+                      {{ reply.userNickname }}
+                    </span>
                     <span v-if="reply.parentUserNickname" class="reply-target">
-                      回复 <span class="target-name">@{{ reply.parentUserNickname }}</span>
+                      回复 <span class="target-name clickable-name" @click="navigateToUser(reply.parentUserId)">@{{ reply.parentUserNickname }}</span>
                     </span>
                     <span class="time">{{ formatTime(reply.createTime) }}</span>
                   </div>
@@ -383,6 +403,12 @@ export default {
       return true;
     };
 
+    const navigateToUser = (userId) => {
+      if (userId) {
+        router.push(`/u/${userId}`);
+      }
+    };
+
     const formatTime = (time) => {
       if (!time) return '';
       const date = new Date(time);
@@ -432,6 +458,7 @@ export default {
       handleDelete,
       handleLike,
       handlePageChange,
+      navigateToUser,
       formatTime
     };
   }
@@ -491,6 +518,24 @@ export default {
   color: #333;
   font-size: 14px;
   margin-right: 10px;
+}
+
+.clickable-avatar {
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.clickable-avatar:hover {
+  opacity: 0.8;
+}
+
+.clickable-name {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.clickable-name:hover {
+  color: #409eff;
 }
 
 .time {
