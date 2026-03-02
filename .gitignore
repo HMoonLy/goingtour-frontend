@@ -24,3 +24,10 @@ dist-ssr
 *.sw?
 
 .env
+
+# Claude Code local config
+.claude/
+
+# Images (stored externally, not in git)
+public/images/
+src/assets/images/
