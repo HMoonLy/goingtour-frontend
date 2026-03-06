@@ -1,8 +1,12 @@
-import { createRouter, createWebHistory } from "vue-router";
+﻿import { createRouter, createWebHistory } from "vue-router";
 import { useUserStore } from "@/store/user";
 
+function hasAdminRole(role) {
+    const normalized = (role || "").toUpperCase();
+    return normalized === "ADMIN" || normalized === "ROLE_ADMIN";
+}
+
 const routes = [
-    // ========== 认证相关页面（无需登录） ==========
     {
         path: "/login",
         name: "Login",
@@ -23,20 +27,25 @@ const routes = [
             requiresAuth: false,
         },
     },
-
-    // ========== 主应用页面（使用DefaultLayout） ==========
+    {
+        path: "/admin-login",
+        name: "AdminLogin",
+        component: () =>
+            import("../pages/Admin/AdminLogin.vue"),
+        meta: {
+            titleKey: "route.adminLogin",
+            requiresAuth: false,
+        },
+    },
     {
         path: "/",
         component: () =>
             import("../layouts/DefaultLayout.vue"),
         children: [
-            // 默认重定向到首页
             {
                 path: "",
                 redirect: "/home",
             },
-
-            // 用户模块
             {
                 path: "home",
                 name: "Home",
@@ -47,7 +56,6 @@ const routes = [
                     requiresAuth: true,
                 },
             },
-            // 用户中心主页 (统一入口)
             {
                 path: "user/dashboard",
                 name: "UserDashboard",
@@ -58,12 +66,10 @@ const routes = [
                     requiresAuth: true,
                 },
             },
-            // 向后兼容：personal 重定向到 user/dashboard
             {
                 path: "personal",
                 redirect: "/user/dashboard",
             },
-            // 用户设置主页
             {
                 path: "user/settings",
                 name: "UserSettings",
@@ -74,7 +80,6 @@ const routes = [
                     requiresAuth: true,
                 },
             },
-            // 向后兼容：personal/settings 重定向到 user/settings
             {
                 path: "personal/settings",
                 redirect: "/user/settings",
@@ -89,7 +94,6 @@ const routes = [
                     requiresAuth: true,
                 },
             },
-            // 用户公开主页
             {
                 path: "u/:userId",
                 name: "UserProfile",
@@ -100,7 +104,6 @@ const routes = [
                     requiresAuth: false,
                 },
             },
-            // 足迹模块
             {
                 path: "footprints",
                 name: "Footprints",
@@ -111,13 +114,10 @@ const routes = [
                     requiresAuth: true,
                 },
             },
-            // 向后兼容：愿望清单路由重定向到足迹
             {
                 path: "wishlist",
                 redirect: "/footprints",
             },
-
-            // ========== 社区模块 ==========
             {
                 path: "community",
                 name: "CommunityPlaza",
@@ -148,8 +148,6 @@ const routes = [
                     requiresAuth: true,
                 },
             },
-
-            // 行程模块
             {
                 path: "destinations",
                 name: "Destinations",
@@ -168,7 +166,7 @@ const routes = [
                 meta: {
                     titleKey: "route.tripCreate",
                     requiresAuth: true,
-                    requiresDestination: true, // 需要先选择目的地
+                    requiresDestination: true,
                 },
             },
             {
@@ -184,8 +182,24 @@ const routes = [
             },
         ],
     },
-
-    // ========== 分享页面（无需登录） ==========
+    {
+        path: "/admin",
+        component: () =>
+            import("../layouts/AdminLayout.vue"),
+        children: [
+            {
+                path: "",
+                name: "AdminPanel",
+                component: () =>
+                    import("../pages/Admin/AdminPanel.vue"),
+                meta: {
+                    titleKey: "route.admin",
+                    requiresAuth: true,
+                    requiresAdmin: true,
+                },
+            },
+        ],
+    },
     {
         path: "/share/trip/:id",
         name: "TripShare",
@@ -197,8 +211,6 @@ const routes = [
             requiresAuth: false,
         },
     },
-
-    // ========== 404页面 ==========
     {
         path: "/:pathMatch(.*)*",
         name: "NotFound",
@@ -214,7 +226,6 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(),
     routes,
-    // 路由切换时滚动到顶部
     scrollBehavior(to, from, savedPosition) {
         if (savedPosition) {
             return savedPosition;
@@ -223,83 +234,96 @@ const router = createRouter({
         }
     },
 });
-
-// ========== 全局路由守卫 ==========
 router.beforeEach(async (to, from, next) => {
     const userStore = useUserStore();
-
-    // 路由标题映射
     const titleMap = {
-        "route.login": "登录",
-        "route.register": "注册",
-        "route.home": "首页",
-        "route.community": "社区广场",
-        "route.postDetail": "游记详情",
-        "route.postPublish": "发布游记",
-        "route.personal": "个人中心",
-        "route.personalProfile": "个人资料",
-        "route.userProfile": "用户主页",
-        "route.accountSettings": "账户设置",
-        "route.preferences": "偏好设置",
-        "route.destinations": "选择目的地",
-        "route.tripCreate": "创建行程",
-        "route.tripDetail": "行程详情",
-        "route.aiTripEdit": "编辑AI行程",
-        "route.attractionDetail": "景点详情",
-        "route.restaurantList": "餐厅列表",
-        "route.search": "搜索结果",
-        "route.tripShare": "行程分享",
-        "route.notFound": "页面不存在",
-        "route.footprints": "我的足迹",
-        "route.wishlist": "愿望清单",
-        "settings.securitySettings": "安全设置",
-        "settings.notifications": "通知设置",
-        "settings.systemSettings": "系统设置",
-        "settings.loginHistory": "登录记录",
-        "settings.exportData": "导出数据",
-        "settings.deleteAccount": "注销账户",
+        "route.login": "Login",
+        "route.register": "Register",
+        "route.adminLogin": "Admin Login",
+        "route.home": "Home",
+        "route.community": "Community",
+        "route.postDetail": "Post Detail",
+        "route.postPublish": "Publish Post",
+        "route.personal": "Personal Center",
+        "route.personalProfile": "Profile",
+        "route.userProfile": "User Profile",
+        "route.accountSettings": "Account Settings",
+        "route.preferences": "Preferences",
+        "route.destinations": "Destinations",
+        "route.tripCreate": "Create Trip",
+        "route.tripDetail": "Trip Detail",
+        "route.aiTripEdit": "Edit AI Trip",
+        "route.attractionDetail": "Attraction Detail",
+        "route.restaurantList": "Restaurant List",
+        "route.search": "Search",
+        "route.tripShare": "Trip Share",
+        "route.admin": "Admin Panel",
+        "route.notFound": "Not Found",
+        "route.footprints": "Footprints",
+        "route.wishlist": "Wishlist",
+        "settings.securitySettings": "Security Settings",
+        "settings.notifications": "Notifications",
+        "settings.systemSettings": "System Settings",
+        "settings.loginHistory": "Login History",
+        "settings.exportData": "Export Data",
+        "settings.deleteAccount": "Delete Account",
     };
-
     const titleKey = to.meta.titleKey;
     const translated = titleKey ? titleMap[titleKey] || "GoingTour" : "GoingTour";
     document.title = `${translated} - GoingTour`;
 
-    // 检查是否需要登录
-    if (to.meta.requiresAuth) {
-        if (!userStore.isLoggedIn) {
-            // 未登录，重定向到登录页
-            next({
-                path: "/login",
-                query: { redirect: to.fullPath }, // 保存原始路径，登录后跳转
-            });
-            return;
+    if (to.meta.requiresAuth && !userStore.isLoggedIn) {
+        const loginPath = to.path.startsWith("/admin") ? "/admin-login" : "/login";
+        next({
+            path: loginPath,
+            query: { redirect: to.fullPath },
+        });
+        return;
+    }
+
+    // Logged-in user without role in local storage: pull once from backend.
+    if (userStore.isLoggedIn && userStore.currentUser?.id && !userStore.currentUser?.role) {
+        try {
+            const { userApi } = await import("@/api/user.js");
+            const res = await userApi.getUserInfo(userStore.currentUser.id);
+            const role = res?.data?.role;
+            const status = res?.data?.status;
+            if (role || status) {
+                userStore.updateUserInfo({ role, status });
+            }
+        } catch (error) {
+            console.warn("Failed to sync user role:", error);
         }
     }
 
-    // 检查是否需要先选择目的地
+    if (to.meta.requiresAdmin && !hasAdminRole(userStore.currentUser?.role)) {
+        next("/home");
+        return;
+    }
+
+    // Admin users are restricted to admin routes only.
+    if (userStore.isLoggedIn && hasAdminRole(userStore.currentUser?.role)) {
+        const isAdminRoute = to.path === "/admin" || to.path.startsWith("/admin/");
+        const isAuthRoute = to.path === "/login" || to.path === "/register" || to.path === "/admin-login";
+        if (!isAdminRoute && !isAuthRoute) {
+            next("/admin");
+            return;
+        }
+    }
     if (to.meta.requiresDestination) {
-        // 检查是否有城市参数或保存的进度
         const hasDestinationParam = to.query.city && to.query.cityName;
-        // 检查是否有加载草稿的参数
         const hasLoadDraftParam = !!to.query.loadDraft;
         const hasSavedProgress = localStorage.getItem("goingtour_trip_progress");
-
-        // 检查是否有草稿正在加载（通过Pinia store）
         let hasDraftToRestore = false;
         try {
-            // 动态导入并检查草稿store
-            const { useDraft } = await
-                import("@/composables/trip/useDraft.js");
+            const { useDraft } = await import("@/composables/trip/useDraft.js");
             const draft = useDraft();
             hasDraftToRestore = draft.hasDraftToRestore();
-            console.log("🔍 路由守卫检查草稿状态:", hasDraftToRestore);
         } catch (error) {
-            console.warn("检查草稿store失败:", error);
+            console.warn("Failed to check local draft:", error);
         }
 
         let hasValidDestination = hasDestinationParam || hasDraftToRestore || hasLoadDraftParam;
-
-        // 如果没有URL参数和草稿，检查保存的进度
         if (!hasValidDestination && hasSavedProgress) {
             try {
                 const progressData = JSON.parse(hasSavedProgress);
@@ -307,16 +331,15 @@ router.beforeEach(async (to, from, next) => {
                     progressData &&
                     progressData.baseForm &&
                     progressData.baseForm.destinationName &&
-                    Date.now() - progressData.timestamp <= 24 * 60 * 60 * 1000; // 24小时内有效
+                    Date.now() - progressData.timestamp <= 24 * 60 * 60 * 1000;
 
                 hasValidDestination = isValidProgress;
             } catch (error) {
-                console.warn("解析保存的进度失败:", error);
+                console.warn("Failed to parse saved trip progress:", error);
             }
         }
 
         if (!hasValidDestination) {
-            // 没有目的地信息，重定向到目的地选择页面
             next({
                 path: "/destinations",
                 query: {
@@ -327,13 +350,11 @@ router.beforeEach(async (to, from, next) => {
             return;
         }
     }
-
-    // 如果已登录用户访问登录页，重定向到首页
     if (
         userStore.isLoggedIn &&
-        (to.path === "/login" || to.path === "/register")
+        (to.path === "/login" || to.path === "/register" || to.path === "/admin-login")
     ) {
-        next("/home");
+        next(hasAdminRole(userStore.currentUser?.role) ? "/admin" : "/home");
         return;
     }
 
@@ -341,3 +362,5 @@ router.beforeEach(async (to, from, next) => {
 });
 
 export default router;
+
+

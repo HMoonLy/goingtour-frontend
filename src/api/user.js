@@ -31,6 +31,14 @@ export const userApi = {
     },
 
     /**
+     * 管理员账号密码登录
+     * @param {Object} data - {account: string, password: string}
+     */
+    adminLogin(data) {
+        return http.post("/user/admin-login", data);
+    },
+
+    /**
      * 刷新访问令牌
      * @param {string} refreshToken - 刷新令牌
      */

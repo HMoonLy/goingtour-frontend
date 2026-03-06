@@ -143,6 +143,9 @@
             <el-link type="primary" underline="never" class="register-link" @click="goToRegister">
               立即注册
             </el-link>
+            <el-link type="info" underline="never" class="register-link" @click="goToAdminLogin">
+              管理员登录
+            </el-link>
           </div>
         </el-form>
 
@@ -195,6 +198,7 @@ export default {
     // 使用新的用户管理组合函数
     const {
       isLoggedIn,
+      currentUser,
       loading,
       verifyCodeLoading,
       countdown,
@@ -267,10 +271,16 @@ export default {
       router.push("/register");
     };
 
+    // 跳转管理员登录
+    const goToAdminLogin = () => {
+      router.push("/admin-login");
+    };
+
     // 组件挂载
     onMounted(() => {
       if (isLoggedIn.value) {
-        router.push("/home");
+        const role = (currentUser.value?.role || "").toUpperCase();
+        router.push(role === "ADMIN" || role === "ROLE_ADMIN" ? "/admin" : "/home");
       }
     });
 
@@ -294,6 +304,7 @@ export default {
       handleWechatLogin,
       handleQQLogin,
       goToRegister,
+      goToAdminLogin,
     };
   },
 };

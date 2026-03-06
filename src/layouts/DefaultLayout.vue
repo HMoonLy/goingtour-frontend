@@ -1,9 +1,7 @@
 <template>
   <div class="default-layout">
-    <!-- 顶部导航栏 -->
     <header class="layout-header">
       <div class="header-container">
-        <!-- 移动端菜单按钮 -->
         <div class="mobile-menu-btn" @click="toggleMobileMenu">
           <el-icon><Menu /></el-icon>
         </div>
@@ -12,7 +10,6 @@
           <h2>GoingTour</h2>
         </div>
 
-        <!-- 桌面端导航 -->
         <nav class="header-nav desktop-nav">
           <div class="nav-menu">
             <div
@@ -66,6 +63,9 @@
                 <el-dropdown-item command="personal">
                   <el-icon><User /></el-icon>个人资料
                 </el-dropdown-item>
+                <el-dropdown-item v-if="isAdmin" command="admin">
+                  <el-icon><Setting /></el-icon>后台管理
+                </el-dropdown-item>
                 <el-dropdown-item divided command="logout">
                   <el-icon><SwitchButton /></el-icon>退出登录
                 </el-dropdown-item>
@@ -76,7 +76,6 @@
       </div>
     </header>
 
-    <!-- 移动端抽屉菜单 -->
     <el-drawer
       v-model="mobileMenuVisible"
       direction="ltr"
@@ -131,20 +130,12 @@
       </div>
     </el-drawer>
 
-    <!-- 主要内容区域 -->
-    <main
-      class="layout-main"
-      :class="{ 'trip-detail-layout': isTripDetailPage }"
-      ref="mainContent"
-    >
+    <main class="layout-main" :class="{ 'trip-detail-layout': isTripDetailPage }" ref="mainContent">
       <div
         class="main-container"
-        :class="{
-          'trip-detail-container': isTripDetailPage,
-          'full-width': isFullWidthPage,
-        }"
+        :class="{ 'trip-detail-container': isTripDetailPage, 'full-width': isFullWidthPage }"
       >
-      <router-view />
+        <router-view />
       </div>
     </main>
   </div>
@@ -157,26 +148,26 @@ import { useAuth } from "@/composables/user/useAuth.js";
 import { useUserStore } from "@/store/user.js";
 import {
   MapLocation,
-  Calendar,
   User,
   SwitchButton,
   ArrowDown,
   House,
   ChatDotRound,
   Menu,
+  Setting,
 } from "@element-plus/icons-vue";
 
 export default {
   name: "DefaultLayout",
   components: {
     MapLocation,
-    Calendar,
     User,
     SwitchButton,
     ArrowDown,
     House,
     ChatDotRound,
     Menu,
+    Setting,
   },
   setup() {
     const route = useRoute();
@@ -184,26 +175,31 @@ export default {
     const mainContent = ref(null);
     const mobileMenuVisible = ref(false);
 
-    // 使用用户信息
     const userStore = useUserStore();
     const nickname = computed(() => userStore.nickname);
     const avatar = computed(() => userStore.avatar);
-
-    // 认证功能
+    const isAdmin = computed(() => userStore.isAdmin);
     const { logout } = useAuth();
 
-    // 当前激活的菜单项
     const activeMenu = computed(() => {
       const path = route.path;
       if (path === "/" || path.startsWith("/home")) return "/home";
       if (path.startsWith("/community")) return "/community";
       if (path.startsWith("/destinations")) return "/destinations";
       if (path.startsWith("/personal") || path.startsWith("/user")) return "/personal";
-      if (path.startsWith("/wishlist") || path.startsWith("/footprints")) return "/wishlist";
+      if (path.startsWith("/admin")) return "/admin";
       return "";
     });
 
-    // 监听路由变化，关闭移动端菜单并滚动到顶部
+    const isTripDetailPage = computed(() => {
+      return route.path.startsWith("/trip/") && route.params.id && !route.path.includes("/ai-trip/");
+    });
+
+    const isFullWidthPage = computed(() => {
+      const path = route.path;
+      return path.startsWith("/home") || path.startsWith("/destinations");
+    });
+
     watch(
       () => route.path,
       () => {
@@ -211,29 +207,8 @@ export default {
         if (mainContent.value) {
           mainContent.value.scrollTop = 0;
         }
-      }
+      },
     );
-
-    // 是否显示页脚
-    const showFooter = computed(() => {
-      const hideFooterRoutes = ["/trip/create"];
-      return !hideFooterRoutes.includes(route.path);
-    });
-
-    // 检查是否是TripDetail页面
-    const isTripDetailPage = computed(() => {
-      return (
-        route.path.startsWith("/trip/") &&
-        route.params.id &&
-        !route.path.includes("/ai-trip/")
-      );
-    });
-
-    // 需要全宽布局的页面
-    const isFullWidthPage = computed(() => {
-      const path = route.path;
-      return path.startsWith("/home") || path.startsWith("/destinations");
-    });
 
     const toggleMobileMenu = () => {
       mobileMenuVisible.value = !mobileMenuVisible.value;
@@ -244,21 +219,22 @@ export default {
       mobileMenuVisible.value = false;
     };
 
-    // 处理用户命令
     const handleUserCommand = async (command) => {
       if (command === "logout") {
         await logout();
       } else if (command === "personal") {
         router.push("/personal");
+      } else if (command === "admin") {
+        router.push("/admin");
       }
       mobileMenuVisible.value = false;
     };
 
     return {
       activeMenu,
-      showFooter,
       nickname,
       avatar,
+      isAdmin,
       handleUserCommand,
       isTripDetailPage,
       isFullWidthPage,
@@ -273,14 +249,13 @@ export default {
 
 <style scoped>
 .default-layout {
-  height: 100vh; /* 固定高度 */
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background-color: var(--bg-color);
-  overflow: hidden; /* 防止外层滚动 */
+  overflow: hidden;
 }
 
-/* 顶部导航栏 */
 .layout-header {
   background: var(--card-bg);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -323,7 +298,6 @@ export default {
   background-clip: text;
 }
 
-/* 移动端菜单按钮 */
 .mobile-menu-btn {
   display: none;
   font-size: 24px;
@@ -333,7 +307,6 @@ export default {
   margin-right: 10px;
 }
 
-/* 导航菜单 */
 .header-nav {
   flex: 1;
   display: flex;
@@ -373,7 +346,6 @@ export default {
   font-size: 18px;
 }
 
-/* 用户信息区域 */
 .header-user {
   display: flex;
   align-items: center;
@@ -409,20 +381,17 @@ export default {
   color: #a0aec0;
 }
 
-/* 主要内容区域 */
 .layout-main {
   flex: 1;
-  overflow-y: auto; /* 允许垂直滚动 */
+  overflow-y: auto;
   overflow-x: hidden;
   position: relative;
   width: 100%;
   scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch; /* iOS顺滑滚动 */
+  -webkit-overflow-scrolling: touch;
 }
 
-/* TripDetail页面特殊布局 */
 .layout-main.trip-detail-layout {
-  /* TripDetail可能需要特殊的滚动处理，保持一致性 */
   overflow-y: auto;
 }
 
@@ -434,19 +403,12 @@ export default {
   padding: 20px;
 }
 
-/* 全宽布局 */
-.main-container.full-width {
-  max-width: none;
-  padding: 0;
-}
-
+.main-container.full-width,
 .main-container.trip-detail-container {
   max-width: none;
   padding: 0;
 }
 
-
-/* 移动端抽屉样式 */
 .drawer-content {
   display: flex;
   flex-direction: column;
@@ -504,14 +466,13 @@ export default {
   justify-content: center;
 }
 
-/* 响应式设计 */
 @media (max-width: 768px) {
   .desktop-nav {
-    display: none; /* 隐藏桌面端导航 */
+    display: none;
   }
 
   .mobile-menu-btn {
-    display: block; /* 显示移动端菜单按钮 */
+    display: block;
   }
 
   .header-container {
@@ -519,28 +480,26 @@ export default {
     justify-content: space-between;
   }
 
-  /* 调整Header Logo位置 */
   .header-logo h2 {
     font-size: 1.2rem;
   }
 
-  /* 调整用户信息显示 */
   .username {
-    display: none; /* 移动端隐藏用户名 */
+    display: none;
   }
 
   .user-info {
     padding: 4px;
   }
-  
+
   .dropdown-icon {
     display: none;
   }
 
   .main-container {
-    padding: 16px; /* 移动端内边距减小 */
+    padding: 16px;
   }
-  
+
   .main-container.full-width {
     padding: 0;
   }
