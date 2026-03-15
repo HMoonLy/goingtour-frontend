@@ -53,7 +53,7 @@ const routes = [
                     import("../pages/Home/Dashboard.vue"),
                 meta: {
                     titleKey: "route.home",
-                    requiresAuth: true,
+                    requiresAuth: false,
                 },
             },
             {

@@ -4,7 +4,8 @@
  */
 import { cityPhotosApi } from '@/api/cityPhotos.js'
 import { weatherApi } from '@/api/weather.js'
-import { ElMessage } from 'element-plus'
+import { handleApiError } from '@/utils/api/errorHandler.js'
+import { notify } from '@/utils/ui/notify.js'
 
 class PhotoService {
     constructor() {
@@ -25,14 +26,18 @@ class PhotoService {
         tags = [],
         travelTime = null,
         travelFeeling = "",
-        citycode = null
+        citycode = null,
+        options = {}
     ) {
+        const { showMessage = true } = options
         try {
             // 验证文件
             const validation = this._validateImageFile(file)
             if (!validation.valid) {
                 console.error("❌ 文件验证失败:", validation.error)
-                ElMessage.error(validation.error)
+                if (showMessage) {
+                    notify.error(validation.error)
+                }
                 return null
             }
 
@@ -52,7 +57,9 @@ class PhotoService {
             })
 
             if (response.data) {
-                ElMessage.success("照片上传成功")
+                if (showMessage) {
+                    notify.success("照片上传成功")
+                }
                 return response.data
             } else {
                 throw new Error("服务器响应异常")
@@ -64,7 +71,10 @@ class PhotoService {
                 fileName: file.name
             })
 
-            this._handleUploadError(error)
+            handleApiError(error, "照片上传失败，请重试", {
+                showMessage,
+                logError: false
+            })
             return null
         }
     }
@@ -76,6 +86,7 @@ class PhotoService {
         const results = []
         let successCount = 0
         let failedCount = 0
+        const { showMessage = true } = options
 
         for (let i = 0; i < files.length; i++) {
             const file = files[i]
@@ -88,7 +99,11 @@ class PhotoService {
                     options.caption || `照片 ${i + 1}`,
                     options.tags || [],
                     options.travelTime || null,
-                    options.travelFeeling || ""
+                    options.travelFeeling || "",
+                    undefined, {
+                        ...options,
+                        showMessage: false
+                    }
                 )
 
                 if (result) {
@@ -117,12 +132,14 @@ class PhotoService {
         }
 
         const message = `批量上传完成：成功 ${successCount} 张，失败 ${failedCount} 张`
-        if (successCount > 0 && failedCount === 0) {
-            ElMessage.success(message)
-        } else if (successCount > 0) {
-            ElMessage.warning(message)
-        } else {
-            ElMessage.error(message)
+        if (showMessage) {
+            if (successCount > 0 && failedCount === 0) {
+                notify.success(message)
+            } else if (successCount > 0) {
+                notify.warning(message)
+            } else {
+                notify.error(message)
+            }
         }
 
         return { success: successCount, failed: failedCount, results }
@@ -160,7 +177,8 @@ class PhotoService {
     /**
      * 更新照片信息
      */
-    async updatePhoto(photoId, caption, tags = []) {
+    async updatePhoto(photoId, caption, tags = [], options = {}) {
+        const { showMessage = true } = options
         try {
             const response = await cityPhotosApi.updatePhoto(photoId, {
                 caption,
@@ -168,14 +186,19 @@ class PhotoService {
             })
 
             if (response.data) {
-                ElMessage.success("照片信息更新成功")
+                if (showMessage) {
+                    notify.success("照片信息更新成功")
+                }
                 return response.data
             } else {
                 throw new Error("更新失败")
             }
         } catch (error) {
             console.error("❌ 更新照片失败:", error)
-            ElMessage.error("更新照片失败，请重试")
+            handleApiError(error, "更新照片失败，请重试", {
+                showMessage,
+                logError: false
+            })
             return false
         }
     }
@@ -183,19 +206,25 @@ class PhotoService {
     /**
      * 删除照片
      */
-    async deletePhoto(photoId) {
+    async deletePhoto(photoId, options = {}) {
+        const { showMessage = true } = options
         try {
             const response = await cityPhotosApi.deletePhoto(photoId)
 
             if (response.success !== false) {
-                ElMessage.success("照片删除成功")
+                if (showMessage) {
+                    notify.success("照片删除成功")
+                }
                 return true
             } else {
                 throw new Error("删除失败")
             }
         } catch (error) {
             console.error("❌ 删除照片失败:", error)
-            ElMessage.error("删除照片失败，请重试")
+            handleApiError(error, "照片删除失败，请重试", {
+                showMessage,
+                logError: false
+            })
             return false
         }
     }
@@ -203,16 +232,22 @@ class PhotoService {
     /**
      * 批量删除照片
      */
-    async batchDeletePhotos(photoIds) {
+    async batchDeletePhotos(photoIds, options = {}) {
+        const { showMessage = true } = options
         try {
             const response = await cityPhotosApi.batchDeletePhotos(photoIds)
             const deletedCount = response.data || 0
 
-            ElMessage.success(`成功删除 ${deletedCount} 张照片`)
+            if (showMessage) {
+                notify.success(`成功删除 ${deletedCount} 张照片`)
+            }
             return deletedCount
         } catch (error) {
             console.error("❌ 批量删除照片失败:", error)
-            ElMessage.error("批量删除失败，请重试")
+            handleApiError(error, "批量删除失败，请重试", {
+                showMessage,
+                logError: false
+            })
             return 0
         }
     }
@@ -220,19 +255,25 @@ class PhotoService {
     /**
      * 设置封面照片
      */
-    async setCoverPhoto(photoId) {
+    async setCoverPhoto(photoId, options = {}) {
+        const { showMessage = true } = options
         try {
             const response = await cityPhotosApi.setCoverPhoto(photoId)
 
             if (response.success !== false) {
-                ElMessage.success("封面设置成功")
+                if (showMessage) {
+                    notify.success("封面设置成功")
+                }
                 return true
             } else {
                 throw new Error("设置封面失败")
             }
         } catch (error) {
             console.error("❌ 设置封面失败:", error)
-            ElMessage.error("设置封面失败，请重试")
+            handleApiError(error, "设置封面失败，请重试", {
+                showMessage,
+                logError: false
+            })
             return false
         }
     }
@@ -240,19 +281,25 @@ class PhotoService {
     /**
      * 更新照片排序
      */
-    async updatePhotoOrder(photoIds) {
+    async updatePhotoOrder(photoIds, options = {}) {
+        const { showMessage = true } = options
         try {
             const response = await cityPhotosApi.updatePhotoOrder(photoIds)
 
             if (response.success !== false) {
-                ElMessage.success("照片排序更新成功")
+                if (showMessage) {
+                    notify.success("照片排序更新成功")
+                }
                 return true
             } else {
                 throw new Error("更新排序失败")
             }
         } catch (error) {
             console.error("❌ 更新照片排序失败:", error)
-            ElMessage.error("更新排序失败，请重试")
+            handleApiError(error, "更新排序失败，请重试", {
+                showMessage,
+                logError: false
+            })
             return false
         }
     }
@@ -299,7 +346,7 @@ class PhotoService {
                 return false // 已经有新照片了，不需要迁移
             }
 
-            ElMessage.info(
+            notify.info(
                 `检测到 ${cityItem.cityName} 有旧格式照片，建议重新上传以获得更好的功能`
             )
 
@@ -342,21 +389,6 @@ class PhotoService {
     }
 
     /**
-     * 处理上传错误
-     */
-    _handleUploadError(error) {
-        if (error.response) {
-            console.error("❌ 服务器错误响应:", error.response)
-            ElMessage.error(`照片上传失败: ${error.response.data?.message || '服务器错误'}`)
-        } else if (error.request) {
-            console.error("❌ 网络请求失败:", error.request)
-            ElMessage.error("照片上传失败: 网络连接异常")
-        } else {
-            ElMessage.error("照片上传失败，请重试")
-        }
-    }
-
-    /**
      * 处理照片获取错误
      */
     _handlePhotoError(error) {
@@ -371,7 +403,6 @@ class PhotoService {
             return []
         } else if (error.response?.status === 401) {
             console.error("❌ 认证失败，需要重新登录")
-            ElMessage.error("认证失败，请重新登录")
             return []
         } else if (error.response?.status >= 500) {
             console.error("❌ 服务器内部错误")

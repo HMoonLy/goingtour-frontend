@@ -172,6 +172,23 @@ export const userApi = {
         return http.delete(`/user/${userId}/account`, { data });
     },
 
-    // ========== 登录记录 ========== 
-    // 注意：登录记录相关功能当前未使用，已清理
+    // ========== 登录记录 ==========
+
+    /**
+     * 获取登录历史
+     * @param {number} userId - 用户ID
+     * @param {number} page - 页码
+     * @param {number} size - 每页数量
+     */
+    getLoginHistory(userId, page = 1, size = 10) {
+        return http.get(`/user/${userId}/login-history`, { page, size });
+    },
+
+    /**
+     * 清除登录历史
+     * @param {number} userId - 用户ID
+     */
+    clearLoginHistory(userId) {
+        return http.delete(`/user/${userId}/login-history`);
+    },
 };

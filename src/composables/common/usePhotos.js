@@ -24,7 +24,8 @@ export function usePhotos() {
         tags = [],
         travelTime = null,
         travelFeeling = "",
-        citycode = null
+        citycode = null,
+        options = {}
     ) => {
         const userStore = useUserStore()
 
@@ -42,7 +43,8 @@ export function usePhotos() {
                 tags,
                 travelTime,
                 travelFeeling,
-                citycode
+                citycode,
+                options
             )
 
             return result
@@ -127,7 +129,7 @@ export function usePhotos() {
     /**
      * 更新照片信息
      */
-    const updatePhoto = async(photoId, caption, tags = []) => {
+    const updatePhoto = async(photoId, caption, tags = [], options = {}) => {
         const userStore = useUserStore()
 
         if (!userStore.isLoggedIn) {
@@ -135,7 +137,7 @@ export function usePhotos() {
         }
 
         try {
-            return await photoService.updatePhoto(photoId, caption, tags)
+            return await photoService.updatePhoto(photoId, caption, tags, options)
         } catch (error) {
             return false
         }
@@ -144,7 +146,7 @@ export function usePhotos() {
     /**
      * 删除照片
      */
-    const deletePhoto = async(photoId) => {
+    const deletePhoto = async(photoId, options = {}) => {
         const userStore = useUserStore()
 
         if (!userStore.isLoggedIn) {
@@ -152,7 +154,7 @@ export function usePhotos() {
         }
 
         try {
-            return await photoService.deletePhoto(photoId)
+            return await photoService.deletePhoto(photoId, options)
         } catch (error) {
             return false
         }
@@ -161,7 +163,7 @@ export function usePhotos() {
     /**
      * 批量删除照片
      */
-    const batchDeletePhotos = async(photoIds) => {
+    const batchDeletePhotos = async(photoIds, options = {}) => {
         const userStore = useUserStore()
 
         if (!userStore.isLoggedIn) {
@@ -169,7 +171,7 @@ export function usePhotos() {
         }
 
         try {
-            return await photoService.batchDeletePhotos(photoIds)
+            return await photoService.batchDeletePhotos(photoIds, options)
         } catch (error) {
             return 0
         }
@@ -178,7 +180,7 @@ export function usePhotos() {
     /**
      * 设置封面照片
      */
-    const setCoverPhoto = async(photoId) => {
+    const setCoverPhoto = async(photoId, options = {}) => {
         const userStore = useUserStore()
 
         if (!userStore.isLoggedIn) {
@@ -186,7 +188,7 @@ export function usePhotos() {
         }
 
         try {
-            return await photoService.setCoverPhoto(photoId)
+            return await photoService.setCoverPhoto(photoId, options)
         } catch (error) {
             return false
         }
@@ -195,7 +197,7 @@ export function usePhotos() {
     /**
      * 更新照片排序
      */
-    const updatePhotoOrder = async(photoIds) => {
+    const updatePhotoOrder = async(photoIds, options = {}) => {
         const userStore = useUserStore()
 
         if (!userStore.isLoggedIn) {
@@ -203,7 +205,7 @@ export function usePhotos() {
         }
 
         try {
-            return await photoService.updatePhotoOrder(photoIds)
+            return await photoService.updatePhotoOrder(photoIds, options)
         } catch (error) {
             return false
         }

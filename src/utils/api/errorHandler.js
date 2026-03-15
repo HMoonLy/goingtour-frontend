@@ -1,7 +1,11 @@
 /**
  * API错误处理工具
  */
-import { ElMessage } from 'element-plus'
+import {
+    hasErrorMessageShown,
+    markErrorMessageShown,
+    notify
+} from '@/utils/ui/notify.js'
 
 /**
  * 处理API错误的通用函数
@@ -13,7 +17,9 @@ function handleApiError(error, defaultMessage = '操作失败', options = {}) {
     const {
         showMessage = true,
             logError = true,
-            rethrow = false
+            rethrow = false,
+            showNotification = false,
+            title = '操作失败'
     } = options
 
     let message = defaultMessage
@@ -24,7 +30,7 @@ function handleApiError(error, defaultMessage = '操作失败', options = {}) {
         const status = error.response.status
         const data = error.response.data
 
-        code = `HTTP_${status}`
+        code = error.code || `HTTP_${status}`
 
         if (data?.msg) {
             message = data.msg
@@ -64,8 +70,18 @@ function handleApiError(error, defaultMessage = '操作失败', options = {}) {
         console.error('API错误:', error)
     }
 
-    if (showMessage) {
-        ElMessage.error(message)
+    const shouldShowMessage = showMessage && !hasErrorMessageShown(error)
+
+    if (shouldShowMessage) {
+        if (showNotification) {
+            notify.errorNotification({
+                title,
+                message
+            })
+        } else {
+            notify.error(message)
+        }
+        markErrorMessageShown(error)
     }
 
     const result = {
@@ -176,28 +192,20 @@ function handleSuccess(message, options = {}) {
     } = options
 
     try {
-        // 动态导入 Element Plus 组件来避免循环依赖
-        import ('element-plus').then(({ ElMessage, ElNotification }) => {
-            if (showNotification && ElNotification) {
-                ElNotification({
-                    title,
-                    message,
-                    type: 'success',
-                    duration,
-                    showClose
-                })
-            } else if (ElMessage) {
-                ElMessage({
-                    message,
-                    type: 'success',
-                    duration,
-                    showClose
-                })
-            }
-        }).catch(() => {
-            // 如果 Element Plus 不可用，则使用控制台输出
-            console.log('Success:', message)
-        })
+        if (showNotification) {
+            notify.successNotification({
+                title,
+                message,
+                duration,
+                showClose
+            })
+        } else {
+            notify.success({
+                message,
+                duration,
+                showClose
+            })
+        }
     } catch (error) {
         console.error('Failed to show success message:', error)
         console.log('Original success message:', message)
@@ -223,25 +231,27 @@ function handleBusinessError(message, options = {}) {
     const {
         type = 'error',
             duration = 3000,
-            showClose = true
+            showClose = true,
+            showNotification = false,
+            title = '提示'
     } = options
 
     try {
-        // 动态导入 ElMessage 来避免循环依赖
-        import ('element-plus').then(({ ElMessage }) => {
-            ElMessage({
+        if (showNotification) {
+            notify.notification({
+                title,
                 message,
                 type,
                 duration,
                 showClose
             })
-        }).catch(() => {
-            // 如果 ElMessage 不可用，则使用原生 alert
-            console.error('Business Error:', message)
-            if (type === 'error') {
-                alert(`错误: ${message}`)
-            }
-        })
+        } else {
+            notify[type]({
+                message,
+                duration,
+                showClose
+            })
+        }
     } catch (error) {
         console.error('Failed to show business error:', error)
         console.error('Original business error:', message)

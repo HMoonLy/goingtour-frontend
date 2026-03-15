@@ -19,7 +19,7 @@
         <!-- 头像设置 -->
         <div class="avatar-section">
           <div class="avatar-wrapper">
-            <el-avatar :size="80" :src="formData.avatar" @error="() => true">
+            <el-avatar :size="80" :src="avatarPreview" @error="() => true">
               <img
                 src="https://cube.elemecdn.com/e/fd/0fc7d20532fdaf769a25683617711png.png"
               />
@@ -48,9 +48,9 @@
         >
           <el-row :gutter="20">
             <el-col :span="12" :xs="24">
-              <el-form-item label="昵称" prop="username">
+              <el-form-item label="昵称" prop="nickname">
                 <el-input
-                  v-model="formData.username"
+                  v-model="formData.nickname"
                   placeholder="请输入昵称"
                   maxlength="20"
                   show-word-limit
@@ -126,6 +126,7 @@ import { Camera } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import { useUserStore } from "@/store/user";
 import { userApi } from "@/api/user";
+import { getAvatarUrl } from "@/utils/media/imageUrl.js";
 
 const props = defineProps({
   embedded: Boolean,
@@ -137,7 +138,7 @@ const formRef = ref(null);
 const loading = ref(false);
 
 const formData = reactive({
-  username: "",
+  nickname: "",
   email: "",
   phone: "",
   bio: "",
@@ -147,20 +148,14 @@ const formData = reactive({
 const originalData = reactive({});
 
 const rules = {
-  username: [
+  nickname: [
     { required: true, message: "请输入昵称", trigger: "blur" },
     { min: 2, max: 20, message: "长度在 2 到 20 个字符", trigger: "blur" },
   ],
 };
 
-// 初始化数据
-onMounted(() => {
-  initData();
-});
-
-const initData = () => {
-  const user = userStore.currentUser || {};
-  formData.username = user.username || "";
+const initData = (user = userStore.currentUser || {}) => {
+  formData.nickname = user.nickname || "";
   formData.email = user.email || "";
   formData.phone = user.phone || "";
   formData.bio = user.bio || "";
@@ -170,13 +165,49 @@ const initData = () => {
   Object.assign(originalData, JSON.parse(JSON.stringify(formData)));
 };
 
+const loadUserInfo = async () => {
+  if (!userStore.userId) {
+    initData();
+    return;
+  }
+
+  try {
+    const response = await userApi.getUserInfo(userStore.userId);
+    const user = response?.data || {};
+    userStore.updateUserInfo(user);
+    initData(user);
+  } catch (error) {
+    console.error("加载用户信息失败:", error);
+    initData();
+  }
+};
+
+// 初始化数据
+onMounted(() => {
+  loadUserInfo();
+});
+
+watch(
+  () => userStore.currentUser,
+  (user) => {
+    if (user) {
+      initData(user);
+    }
+  },
+  { immediate: true, deep: true }
+);
+
 // 检查是否有修改
 const hasChanges = computed(() => {
   return (
-    formData.username !== originalData.username ||
+    formData.nickname !== originalData.nickname ||
     formData.bio !== originalData.bio ||
     formData.avatar !== originalData.avatar
   );
+});
+
+const avatarPreview = computed(() => {
+  return getAvatarUrl(formData.avatar) || "/images/default-avatar.jpg";
 });
 
 // 头像上传
@@ -217,22 +248,22 @@ const saveChanges = async () => {
       try {
         loading.value = true;
         // 调用更新接口
-        await userApi.updateProfile(userStore.userId, {
-          username: formData.username,
+        const response = await userApi.updateInfo(userStore.userId, {
+          nickname: formData.nickname,
           bio: formData.bio,
           avatar: formData.avatar
         });
-        
+
         // 更新store
-        userStore.updateUserInfo({
-          username: formData.username,
+        userStore.updateUserInfo(response?.data || {
+          nickname: formData.nickname,
           bio: formData.bio,
           avatar: formData.avatar
         });
-        
+
+        initData(userStore.currentUser || response?.data || formData);
+
         // 更新原始数据
-        Object.assign(originalData, JSON.parse(JSON.stringify(formData)));
-        
         ElMessage.success("保存成功");
       } catch (error) {
         console.error(error);

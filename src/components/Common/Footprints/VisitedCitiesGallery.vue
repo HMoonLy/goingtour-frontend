@@ -327,7 +327,6 @@
 
 <script setup>
 import { ref, computed, onMounted, watch, nextTick, toRef } from "vue";
-import { ElMessage, ElMessageBox } from "element-plus";
 import {
   Camera,
   Plus,
@@ -345,6 +344,7 @@ import {
   getCityPhotoUrl,
   getCityThumbnailUrl,
 } from "@/utils/media/imageUrl.js";
+import { notify } from "@/utils/ui/notify.js";
 
 // Props - 接收父组件传递的数据
 const props = defineProps({
@@ -415,7 +415,19 @@ const normalizePhotoUrl = (url) => {
   return getCityPhotoUrl(url);
 };
 
-const getCoverUrl = (city) => coverMap.value[city.id] || "";
+const getUploadedPhotoUrl = (photoData) => {
+  if (!photoData) {
+    return "";
+  }
+
+  return photoData.thumbnailUrl
+    ? getCityThumbnailUrl(photoData.thumbnailUrl)
+    : getCityPhotoUrl(photoData.photoUrl);
+};
+
+const getCoverUrl = (city) =>
+  coverMap.value[city.id] ||
+  normalizePhotoUrl(city.thumbnailUrl || city.photoUrl);
 
 // 计算显示的城市列表
 const displayedCities = computed(() => {
@@ -526,7 +538,7 @@ const handleFileSelect = (event) => {
   // 验证文件
   const validation = validateFile(file);
   if (!validation.valid) {
-    ElMessage.error(validation.error);
+    notify.error(validation.error);
     return;
   }
 
@@ -540,9 +552,8 @@ const uploadPhoto = async (file) => {
   if (uploading.value) return;
 
   uploading.value = true;
-  const loadingMessage = ElMessage.info({
+  const loadingMessage = notify.loading({
     message: `正在上传 ${currentCity.value.cityName} 的照片...`,
-    duration: 0,
   });
 
   try {
@@ -555,33 +566,34 @@ const uploadPhoto = async (file) => {
       [], // tags
       currentCity.value.travelTime,
       currentCity.value.travelFeeling,
-      currentCity.value.citycode // 电话区号（可选）
+      currentCity.value.citycode, // 电话区号（可选）
+      { showMessage: false }
     );
 
     if (result) {
-      ElMessage.success(`${currentCity.value.cityName} 的照片上传成功！`);
+      notify.success(`${currentCity.value.cityName} 的照片上传成功！`);
 
       // 立即更新 coverMap 以显示新照片
-      const imageUrl = result.thumbnailUrl
-        ? getCityThumbnailUrl(result.thumbnailUrl)
-        : getCityPhotoUrl(result.photoUrl);
+      const imageUrl = getUploadedPhotoUrl(result);
 
       if (imageUrl) {
         const cacheBuster = `?t=${Date.now()}`;
+        const normalizedUrl = normalizePhotoUrl(imageUrl) + cacheBuster;
         coverMap.value = {
           ...coverMap.value,
-          [currentCity.value.id]: normalizePhotoUrl(imageUrl) + cacheBuster,
+          [currentCity.value.id]: normalizedUrl,
+          ...(result.id ? { [result.id]: normalizedUrl } : {}),
         };
       }
 
       // 直接使用上传返回的照片数据，无需重新请求
       emit("photo-uploaded", currentCity.value, result);
     } else {
-      ElMessage.error("照片上传失败，请重试");
+      notify.error("照片上传失败，请重试");
     }
   } catch (error) {
     console.error("照片上传失败:", error);
-    ElMessage.error("照片上传失败，请重试");
+    notify.error("照片上传失败，请重试");
   } finally {
     loadingMessage.close();
     uploading.value = false;
@@ -598,7 +610,7 @@ const uploadPhoto = async (file) => {
  */
 const handleDeletePhoto = async (city) => {
   try {
-    await ElMessageBox.confirm(
+    await notify.confirm(
       `确定要删除 ${city.cityName} 的封面照片吗？`,
       "删除照片",
       {
@@ -622,13 +634,13 @@ const handleDeletePhoto = async (city) => {
     const cityPhotos = await photos.getCityPhotos(cityCodeForQuery);
     const cover = cityPhotos.find((p) => p.isCover) || cityPhotos[0];
     if (!cover) {
-      ElMessage.info("当前城市没有可删除的照片");
+      notify.info("当前城市没有可删除的照片");
       return;
     }
 
-    const ok = await photos.deletePhoto(cover.id);
+    const ok = await photos.deletePhoto(cover.id, { showMessage: false });
     if (ok) {
-      ElMessage.success(`${city.cityName} 的照片已删除`);
+      notify.success(`${city.cityName} 的照片已删除`);
 
       // 立即更新 coverMap，移除已删除照片的封面
       const { [city.id]: _, ...rest } = coverMap.value;
@@ -637,7 +649,7 @@ const handleDeletePhoto = async (city) => {
       // 直接发送删除事件，无需重新获取照片
       emit("photo-deleted", city);
     } else {
-      ElMessage.error("照片删除失败，请重试");
+      notify.error("照片删除失败，请重试");
     }
   } catch (error) {
     // 用户取消或删除失败
@@ -665,7 +677,7 @@ const handleToggleWantAgain = async (city) => {
     }
   } catch (error) {
     console.error("切换想再去状态失败:", error);
-    ElMessage.error("操作失败，请重试");
+    notify.error("操作失败，请重试");
   }
 };
 
@@ -674,7 +686,7 @@ const handleToggleWantAgain = async (city) => {
  */
 const handleDeleteVisitedCity = async (city) => {
   try {
-    await ElMessageBox.confirm(
+    await notify.confirm(
       `确定要删除 ${city.cityName} 的访问记录吗？\n\n删除后：\n- 该城市的访问记录和所有照片将被永久删除\n- 如果您还想去这个城市，它会回到愿望清单中`,
       "删除城市记录",
       {
@@ -707,7 +719,7 @@ const handleDeleteVisitedCity = async (city) => {
         footprint.visitedCities.value
       );
       console.error("❌ props.visitedCitiesData:", visitedCities.value);
-      ElMessage.error("未找到对应的城市记录");
+      notify.error("未找到对应的城市记录");
       return;
     }
 
@@ -992,7 +1004,7 @@ const handleEditConfirm = async () => {
     });
 
     if (success) {
-      ElMessage.success("城市信息更新成功");
+      notify.success("城市信息更新成功");
       showEditDialog.value = false;
       // 重新加载数据
       await Promise.all([
@@ -1000,11 +1012,11 @@ const handleEditConfirm = async () => {
         footprint.loadVisitedCities(),
       ]);
     } else {
-      ElMessage.error("更新失败，请重试");
+      notify.error("更新失败，请重试");
     }
   } catch (error) {
     console.error("更新城市信息失败:", error);
-    ElMessage.error("更新失败，请重试");
+    notify.error("更新失败，请重试");
   } finally {
     updating.value = false;
   }

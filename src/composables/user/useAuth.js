@@ -1,9 +1,9 @@
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/user.js";
-import { ElMessage, ElMessageBox } from "element-plus";
 import { handleApiError, handleSuccess } from "@/utils/api/errorHandler.js";
 import { userApi } from "@/api/user.js";
+import { notify } from "@/utils/ui/notify.js";
 
 function hasAdminRole(role) {
     const normalized = (role || "").toUpperCase();
@@ -25,7 +25,7 @@ export function useAuth() {
 
     async function sendVerificationCode(email, type = "login") {
         if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            ElMessage.warning("Invalid email format");
+            notify.warning("Invalid email format");
             return false;
         }
 
@@ -36,7 +36,7 @@ export function useAuth() {
         try {
             verifyCodeLoading.value = true;
             await userApi.sendCode({ email, type });
-            ElMessage.success("Verification code has been sent");
+            notify.success("Verification code has been sent");
             startCountdown(60);
             return true;
         } catch (error) {
@@ -88,7 +88,7 @@ export function useAuth() {
 
     async function login(email, code) {
         if (!email || !code) {
-            ElMessage.warning("Please complete login fields");
+            notify.warning("Please complete login fields");
             return null;
         }
 
@@ -120,7 +120,7 @@ export function useAuth() {
 
     async function adminLogin(account, password) {
         if (!account || !password) {
-            ElMessage.warning("Please enter admin account and password");
+            notify.warning("Please enter admin account and password");
             return null;
         }
 
@@ -143,7 +143,7 @@ export function useAuth() {
 
     async function register(email, code, nickname) {
         if (!email || !code) {
-            ElMessage.warning("Please complete register fields");
+            notify.warning("Please complete register fields");
             return null;
         }
 
@@ -174,7 +174,7 @@ export function useAuth() {
     async function logout(showConfirm = true) {
         if (showConfirm) {
             try {
-                await ElMessageBox.confirm("Confirm logout?", "Notice", {
+                await notify.confirm("Confirm logout?", "Notice", {
                     confirmButtonText: "OK",
                     cancelButtonText: "Cancel",
                     type: "warning",
@@ -197,7 +197,7 @@ export function useAuth() {
 
     function requireLogin(redirectToLogin = true) {
         if (!isLoggedIn.value) {
-            ElMessage.warning("Please login first");
+            notify.warning("Please login first");
             if (redirectToLogin) {
                 userStore.setRedirectPath(router.currentRoute.value.fullPath);
                 router.push("/login");

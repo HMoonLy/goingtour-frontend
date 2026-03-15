@@ -1188,17 +1188,53 @@ export default {
       searchResults.value = allCities.value.slice(0, 20);
     };
 
+    const syncVisitedCity = (sourceCity, updatedCity = {}) => {
+      const cityIndex = footprint.visitedCities.value.findIndex((item) => {
+        if (updatedCity.id && String(item.id) === String(updatedCity.id)) {
+          return true;
+        }
+        if (sourceCity?.id && String(item.id) === String(sourceCity.id)) {
+          return true;
+        }
+        return !!sourceCity?.adcode && item.adcode === sourceCity.adcode;
+      });
+
+      if (cityIndex === -1) {
+        return;
+      }
+
+      const currentCity = footprint.visitedCities.value[cityIndex];
+      footprint.visitedCities.value.splice(cityIndex, 1, {
+        ...currentCity,
+        ...updatedCity,
+        cityName: updatedCity.cityName || currentCity.cityName || sourceCity?.cityName,
+        adcode: updatedCity.adcode || currentCity.adcode || sourceCity?.adcode,
+        citycode: updatedCity.citycode || currentCity.citycode || sourceCity?.citycode,
+      });
+    };
+
     // 照片事件处理
     const handlePhotoUploaded = async (city, photoData) => {
       console.log("🎉 父组件接收到照片上传成功事件:", city.cityName);
 
-      // 子组件已经显示了成功提示，父组件不需要重复显示
-      // ElMessage.success(`${city.cityName} 的照片上传成功！`);
+      if (photoData) {
+        syncVisitedCity(city, photoData);
+      }
+
       console.log("✅ 父组件照片上传处理完成");
     };
 
     const handlePhotoDeleted = async (city) => {
       console.log("🗑️ 父组件接收到照片删除成功事件:", city);
+
+      syncVisitedCity(city, {
+        photoUrl: null,
+        thumbnailUrl: null,
+        caption: null,
+        uploadTime: null,
+        isCover: false,
+        updatedAt: new Date().toISOString(),
+      });
 
       // 直接信任子组件的删除操作，无需重新加载数据
       ElMessage.success("照片删除成功");

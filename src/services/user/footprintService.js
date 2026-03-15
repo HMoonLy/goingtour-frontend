@@ -4,7 +4,8 @@
  */
 import { cityPhotosApi } from '@/api/cityPhotos.js'
 import { wishlistApi } from '@/api/wishlist.js'
-import { ElMessage } from 'element-plus'
+import { handleApiError } from '@/utils/api/errorHandler.js'
+import { notify } from '@/utils/ui/notify.js'
 
 class FootprintService {
     constructor() {
@@ -58,7 +59,8 @@ class FootprintService {
     /**
      * 添加访问过的城市
      */
-    async addVisitedCity(cityData) {
+    async addVisitedCity(cityData, options = {}) {
+        const { showMessage = true } = options
         try {
             // 增强城市数据
             const enhancedCityData = await this._enhanceCityData(cityData)
@@ -74,7 +76,9 @@ class FootprintService {
             })
 
             if (response.data) {
-                ElMessage.success(`已将 ${cityData.cityName} 添加到足迹`)
+                if (showMessage) {
+                    notify.success(`已将 ${cityData.cityName} 添加到足迹`)
+                }
 
                 // 创建新的城市记录
                 const newCityRecord = {
@@ -96,7 +100,10 @@ class FootprintService {
             throw new Error('添加失败')
         } catch (error) {
             console.error("❌ 添加去过的城市失败:", error)
-            ElMessage.error("添加失败，请重试")
+            handleApiError(error, "添加失败，请重试", {
+                showMessage,
+                logError: false
+            })
             throw error
         }
     }
@@ -110,7 +117,9 @@ class FootprintService {
             return true
         } catch (error) {
             console.error("❌ 删除访问城市记录失败:", error)
-            ElMessage.error("删除失败，请重试")
+            handleApiError(error, "删除失败，请重试", {
+                logError: false
+            })
             throw error
         }
     }
@@ -118,19 +127,25 @@ class FootprintService {
     /**
      * 更新城市信息
      */
-    async updateCityInfo(cityId, updateData) {
+    async updateCityInfo(cityId, updateData, options = {}) {
+        const { showMessage = false } = options
         try {
             const response = await cityPhotosApi.updateCityInfo(cityId, updateData)
 
             if (response.data) {
-                ElMessage.success("城市信息更新成功")
+                if (showMessage) {
+                    notify.success("城市信息更新成功")
+                }
                 return response.data
             } else {
                 throw new Error("更新失败")
             }
         } catch (error) {
             console.error("❌ 更新城市信息失败:", error)
-            ElMessage.error("更新城市信息失败，请重试")
+            handleApiError(error, "更新城市信息失败，请重试", {
+                showMessage,
+                logError: false
+            })
             throw error
         }
     }

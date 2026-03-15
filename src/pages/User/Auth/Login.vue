@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="login-page">
     <!-- 左侧品牌展示区 -->
     <div class="login-brand">
@@ -143,6 +143,9 @@
             <el-link type="primary" underline="never" class="register-link" @click="goToRegister">
               立即注册
             </el-link>
+            <el-link type="success" underline="never" class="register-link" @click="handleGuestLogin">
+              游客登录
+            </el-link>
             <el-link type="info" underline="never" class="register-link" @click="goToAdminLogin">
               管理员登录
             </el-link>
@@ -166,6 +169,7 @@
 import { ref, reactive, computed, onMounted, onUnmounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useAuth } from "@/composables/user/useAuth.js";
+import { useUserStore } from "@/store/user.js";
 import { ElMessage } from "element-plus";
 import {
   MapLocation,
@@ -194,6 +198,7 @@ export default {
   setup() {
     const router = useRouter();
     const route = useRoute();
+    const userStore = useUserStore();
 
     // 使用新的用户管理组合函数
     const {
@@ -276,6 +281,13 @@ export default {
       router.push("/admin-login");
     };
 
+    const handleGuestLogin = async () => {
+      userStore.logout();
+      userStore.setRedirectPath(null);
+      ElMessage.success("已进入游客模式");
+      await router.push("/community");
+    };
+
     // 组件挂载
     onMounted(() => {
       if (isLoggedIn.value) {
@@ -305,6 +317,7 @@ export default {
       handleQQLogin,
       goToRegister,
       goToAdminLogin,
+      handleGuestLogin,
     };
   },
 };
@@ -934,3 +947,5 @@ export default {
   }
 }
 </style>
+
+

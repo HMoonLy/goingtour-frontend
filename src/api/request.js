@@ -1,5 +1,6 @@
 import axios from "axios";
 import { handleApiError, handleBusinessError } from "../utils/api/errorHandler.js";
+import { createHandledError } from "../utils/ui/notify.js";
 
 // 创建独立的axios实例用于刷新令牌，避免循环依赖
 const refreshTokenRequest = axios.create({
@@ -144,7 +145,13 @@ request.interceptors.response.use(
                     handleBusinessError(errorMsg, { type: "error" });
                 }
 
-                return Promise.reject(new Error(errorMsg));
+                return Promise.reject(
+                    createHandledError(errorMsg, {
+                        code: data.code,
+                        status: response.status,
+                        response,
+                    }),
+                );
             }
         }
 
@@ -179,12 +186,24 @@ request.interceptors.response.use(
                 window.location.href = "/login";
             }, 1000);
 
-            return Promise.reject(new Error(errorInfo.message));
+            return Promise.reject(
+                createHandledError(errorInfo.message, {
+                    status: error.response?.status,
+                    response: error.response,
+                    code: errorInfo.code,
+                }),
+            );
         }
 
         // 使用统一的错误处理工具
         const errorInfo = handleApiError(error, "请求失败", { logError: false });
-        return Promise.reject(new Error(errorInfo.message));
+        return Promise.reject(
+            createHandledError(errorInfo.message, {
+                status: error.response?.status,
+                response: error.response,
+                code: errorInfo.code,
+            }),
+        );
     },
 );
 

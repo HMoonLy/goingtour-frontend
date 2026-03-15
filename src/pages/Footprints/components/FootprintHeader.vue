@@ -13,9 +13,9 @@
           <VisitedCitiesGallery
             :max-display-count="6"
             :visited-cities-data="visitedCities"
-            @photo-uploaded="$emit('photo-uploaded', $event)"
-            @photo-deleted="$emit('photo-deleted', $event)"
-            @city-deleted="$emit('city-deleted', $event)"
+            @photo-uploaded="(...args) => $emit('photo-uploaded', ...args)"
+            @photo-deleted="(...args) => $emit('photo-deleted', ...args)"
+            @city-deleted="(...args) => $emit('city-deleted', ...args)"
             @add-visited-city="$emit('add-visited-city')"
           />
 
