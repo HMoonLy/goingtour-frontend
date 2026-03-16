@@ -2,7 +2,7 @@
   <div class="post-card" @click="$emit('click')">
     <div class="card-cover">
       <el-image 
-        :src="post.coverImage" 
+        :src="coverImageUrl" 
         fit="cover" 
         loading="lazy"
         class="cover-image"
@@ -49,8 +49,10 @@
 </template>
 
 <script>
+import { computed } from 'vue';
 import { Picture, Location, View, Star } from '@element-plus/icons-vue';
 import { useRouter } from 'vue-router';
+import { normalizeImageUrl } from '@/utils/media/imageUrl';
 
 export default {
   name: 'PostCard',
@@ -69,6 +71,7 @@ export default {
   emits: ['click'],
   setup(props) {
     const router = useRouter();
+    const coverImageUrl = computed(() => normalizeImageUrl(props.post.coverImage));
 
     const formatCount = (count) => {
       if (!count) return '0';
@@ -85,6 +88,7 @@ export default {
     };
 
     return {
+      coverImageUrl,
       formatCount,
       navigateToUser
     };

@@ -5,6 +5,12 @@
       <div class="hero-content">
         <h1>探索精彩行程</h1>
         <p>发现旅行灵感，复制达人路线，开启你的完美旅程</p>
+        <div class="hero-actions">
+          <el-button type="primary" size="large" class="publish-button" @click="goToPublish">
+            <el-icon><EditPen /></el-icon>
+            <span>{{ publishButtonText }}</span>
+          </el-button>
+        </div>
       </div>
     </div>
 
@@ -63,19 +69,23 @@
 </template>
 
 <script>
-import { ref, onMounted, watch } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { communityApi } from '@/api/community';
 import PostCard from '@/components/Community/PostCard.vue';
+import { useUserStore } from '@/store/user';
+import { EditPen } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 
 export default {
   name: 'CommunityPlaza',
   components: {
-    PostCard
+    PostCard,
+    EditPen
   },
   setup() {
     const router = useRouter();
+    const userStore = useUserStore();
     const loading = ref(false);
     const posts = ref([]);
     const total = ref(0);
@@ -86,6 +96,9 @@ export default {
     
     // 预设热门标签，后续可以从后端获取
     const hotTags = ['亲子', '美食', '摄影', '情侣', '毕业游', '自驾', '深度游', '穷游'];
+    const publishButtonText = computed(() =>
+      userStore.isLoggedIn ? '发布游记' : '登录后发布'
+    );
 
     const fetchPosts = async () => {
       loading.value = true;
@@ -142,6 +155,10 @@ export default {
       router.push(`/community/post/${id}`);
     };
 
+    const goToPublish = () => {
+      router.push('/community/publish');
+    };
+
     onMounted(() => {
       fetchPosts();
     });
@@ -155,11 +172,13 @@ export default {
       currentSort,
       currentTag,
       hotTags,
+      publishButtonText,
       handleSortChange,
       handleTagClick,
       handleSizeChange,
       handleCurrentChange,
-      goToDetail
+      goToDetail,
+      goToPublish
     };
   }
 };
@@ -192,6 +211,28 @@ export default {
   font-size: 18px;
   color: #606266;
   opacity: 0.9;
+}
+
+.hero-actions {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.publish-button {
+  min-width: 148px;
+  height: 46px;
+  border-radius: 999px;
+  padding: 0 22px;
+  background: #91a8d0;
+  border-color: #91a8d0;
+  box-shadow: 0 10px 24px rgba(145, 168, 208, 0.24);
+}
+
+.publish-button:hover,
+.publish-button:focus {
+  background: #8099c4;
+  border-color: #8099c4;
 }
 
 .plaza-container {
@@ -275,6 +316,18 @@ export default {
 }
 
 @media (max-width: 768px) {
+  .plaza-hero {
+    padding: 48px 16px;
+  }
+
+  .hero-content h1 {
+    font-size: 28px;
+  }
+
+  .hero-content p {
+    font-size: 16px;
+  }
+
   .posts-grid {
     grid-template-columns: repeat(2, 1fr);
   }

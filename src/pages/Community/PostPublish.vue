@@ -107,26 +107,37 @@
             </el-select>
           </el-form-item>
 
-          <!-- 6. 封面图 (可选) -->
-          <el-form-item label="封面图片" prop="coverImage">
-            <div class="cover-image-upload">
-              <el-input v-model="form.coverImage" placeholder="输入图片URL (可选，默认使用城市图片)">
-                <template #prefix>
-                  <el-icon><Picture /></el-icon>
-                </template>
-              </el-input>
-              <div class="image-preview" v-if="form.coverImage">
-                <el-image :src="form.coverImage" fit="cover" class="preview-img">
-                  <template #error>
-                    <div class="image-slot">
-                      <el-icon><icon-picture /></el-icon>
-                      <span>加载失败</span>
-                    </div>
-                  </template>
-                </el-image>
+          <el-form-item label="帖子图片">
+            <div class="post-image-uploader">
+              <el-upload
+                v-model:file-list="imageFileList"
+                list-type="picture-card"
+                :auto-upload="false"
+                :limit="MAX_POST_IMAGES"
+                accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                :before-upload="beforeImageSelect"
+                :on-change="handleImageChange"
+                :on-remove="handleImageRemove"
+                :on-preview="handleImagePreview"
+                :on-exceed="handleImageExceed"
+              >
+                <el-icon><Plus /></el-icon>
+              </el-upload>
+
+              <div class="form-tip">
+                最多上传 {{ MAX_POST_IMAGES }} 张，单张不超过 10MB。第一张图片会自动作为封面图。
+              </div>
+
+              <div class="cover-preview-block" v-if="coverPreviewUrl">
+                <span class="cover-preview-label">封面预览</span>
+                <el-image
+                  :src="coverPreviewUrl"
+                  fit="cover"
+                  class="cover-preview-image"
+                  :preview-src-list="[coverPreviewUrl]"
+                />
               </div>
             </div>
-            <div class="form-tip">留空则自动使用目的地精美图片作为封面</div>
           </el-form-item>
 
           <el-form-item label="行程摘要" prop="tripSummary">
@@ -148,24 +159,31 @@
         </el-form>
       </el-card>
     </div>
+
+    <el-dialog v-model="previewVisible" width="720px" append-to-body>
+      <img :src="previewImageUrl" alt="帖子图片预览" class="dialog-preview-image" />
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed, onBeforeUnmount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/store/user';
 import { tripService } from '@/services/trip/tripService';
 import { communityApi } from '@/api/community';
-import { Picture } from '@element-plus/icons-vue';
+import { normalizeImageUrl } from '@/utils/media/imageUrl';
+import { Plus } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 
 export default {
   name: 'PostPublish',
   components: {
-    Picture
+    Plus
   },
   setup() {
+    const MAX_POST_IMAGES = 20;
+    const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
     const route = useRoute();
     const router = useRouter();
     const userStore = useUserStore();
@@ -175,6 +193,9 @@ export default {
     const submitting = ref(false);
     const trips = ref([]);
     const selectedTrip = ref(null);
+    const imageFileList = ref([]);
+    const previewVisible = ref(false);
+    const previewImageUrl = ref('');
 
     const suggestedTags = ['亲子', '情侣', '美食', '摄影', '自驾', '穷游', '奢华', '深度游', '周末游', '古镇', '海岛'];
 
@@ -184,8 +205,12 @@ export default {
       content: '',
       rating: 5.0,
       tags: [],
-      coverImage: '',
       tripSummary: null // 新增
+    });
+
+    const coverPreviewUrl = computed(() => {
+      const firstImage = imageFileList.value[0];
+      return firstImage?.url || '';
     });
 
     const rules = {
@@ -217,6 +242,70 @@ export default {
         console.warn('提取JSON失败:', e);
         return null;
       }
+    };
+
+    const revokeObjectUrl = (file) => {
+      if (file?.url && typeof file.url === 'string' && file.url.startsWith('blob:')) {
+        URL.revokeObjectURL(file.url);
+      }
+    };
+
+    const beforeImageSelect = (rawFile) => {
+      if (!rawFile.type.startsWith('image/')) {
+        ElMessage.error('只能上传图片文件');
+        return false;
+      }
+      if (rawFile.size > MAX_IMAGE_SIZE) {
+        ElMessage.error('单张图片不能超过 10MB');
+        return false;
+      }
+      if (imageFileList.value.length >= MAX_POST_IMAGES) {
+        ElMessage.warning(`最多只能上传 ${MAX_POST_IMAGES} 张图片`);
+        return false;
+      }
+      return true;
+    };
+
+    const handleImageChange = (uploadFile, uploadFiles) => {
+      if (uploadFile.raw && !uploadFile.url) {
+        uploadFile.url = URL.createObjectURL(uploadFile.raw);
+      }
+      imageFileList.value = uploadFiles.slice(0, MAX_POST_IMAGES);
+    };
+
+    const handleImageRemove = (uploadFile) => {
+      revokeObjectUrl(uploadFile);
+    };
+
+    const handleImagePreview = (uploadFile) => {
+      previewImageUrl.value = uploadFile.url || normalizeImageUrl(uploadFile.rawUrl || '');
+      previewVisible.value = Boolean(previewImageUrl.value);
+    };
+
+    const handleImageExceed = () => {
+      ElMessage.warning(`最多只能上传 ${MAX_POST_IMAGES} 张图片`);
+    };
+
+    const uploadSelectedImages = async () => {
+      const uploadedUrls = [];
+      for (let index = 0; index < imageFileList.value.length; index += 1) {
+        const uploadFile = imageFileList.value[index];
+        if (uploadFile.rawUrl) {
+          uploadedUrls.push(uploadFile.rawUrl);
+          continue;
+        }
+
+        ElMessage.info(`正在上传图片 ${index + 1}/${imageFileList.value.length}`);
+        const uploadRes = await communityApi.uploadPostImage(uploadFile.raw);
+        const storedUrl = uploadRes?.data?.url;
+        if (!storedUrl) {
+          throw new Error('图片上传失败');
+        }
+        uploadFile.rawUrl = storedUrl;
+        uploadFile.url = normalizeImageUrl(storedUrl);
+        uploadedUrls.push(storedUrl);
+      }
+      return uploadedUrls;
     };
 
     // 格式化行程摘要为文本
@@ -314,6 +403,8 @@ export default {
         if (valid) {
           submitting.value = true;
           try {
+            const uploadedImageUrls = await uploadSelectedImages();
+
             // 处理 tripSummary，确保符合后端 JSON 字符串要求
             let summaryToSubmit = null;
             if (form.tripSummary && form.tripSummary.trim() !== '') {
@@ -344,7 +435,8 @@ export default {
               content: form.content,
               rating: form.rating,
               tags: form.tags,
-              coverImage: form.coverImage || undefined, // 如果为空则不传
+              coverImage: uploadedImageUrls[0] || undefined,
+              images: uploadedImageUrls,
               tripSummary: summaryToSubmit
             };
             
@@ -376,7 +468,12 @@ export default {
       fetchUserTrips();
     });
 
+    onBeforeUnmount(() => {
+      imageFileList.value.forEach(revokeObjectUrl);
+    });
+
     return {
+      MAX_POST_IMAGES,
       formRef,
       form,
       rules,
@@ -385,6 +482,15 @@ export default {
       trips,
       selectedTrip,
       suggestedTags,
+      imageFileList,
+      previewVisible,
+      previewImageUrl,
+      coverPreviewUrl,
+      beforeImageSelect,
+      handleImageChange,
+      handleImageRemove,
+      handleImagePreview,
+      handleImageExceed,
       handleTripChange,
       submitForm
     };
@@ -467,33 +573,30 @@ export default {
   color: #909399;
 }
 
-.cover-image-upload {
+.post-image-uploader {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.image-preview {
-  width: 100%;
-  height: 200px;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #dcdfe6;
-  background: #f5f7fa;
-}
-
-.preview-img {
-  width: 100%;
-  height: 100%;
-}
-
-.image-slot {
+.cover-preview-block {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  color: #909399;
+  gap: 8px;
+}
+
+.cover-preview-label {
+  font-size: 13px;
+  color: #606266;
+  font-weight: 500;
+}
+
+.cover-preview-image {
+  width: 220px;
+  height: 140px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #dcdfe6;
 }
 
 .form-tip {
@@ -509,6 +612,18 @@ export default {
   margin-top: 40px;
   padding-top: 20px;
   border-top: 1px solid #ebeef5;
+}
+
+.dialog-preview-image {
+  width: 100%;
+  display: block;
+  border-radius: 12px;
+}
+
+:deep(.el-upload--picture-card),
+:deep(.el-upload-list--picture-card .el-upload-list__item) {
+  width: 132px;
+  height: 132px;
 }
 </style>
 

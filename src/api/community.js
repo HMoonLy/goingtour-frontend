@@ -24,6 +24,16 @@ export const communityApi = {
   },
 
   /**
+   * 上传帖子图片
+   * @param {File} file 图片文件
+   */
+  uploadPostImage(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return http.upload('/community/posts/images/upload', formData);
+  },
+
+  /**
    * 获取广场帖子列表
    * @param {Object} params
    * {

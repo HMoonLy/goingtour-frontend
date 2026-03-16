@@ -35,7 +35,8 @@ export function normalizeImageUrl(path) {
   if (
     normalizedPath.startsWith("/avatars/") ||
     normalizedPath.startsWith("/city-photos/") ||
-    normalizedPath.startsWith("/city-photos/thumbnails/")
+    normalizedPath.startsWith("/city-photos/thumbnails/") ||
+    normalizedPath.startsWith("/community-posts/")
   ) {
     const ossDomain = import.meta.env.VITE_OSS_PUBLIC_DOMAIN;
     if (ossDomain) {
@@ -95,8 +96,10 @@ export function isOSSImage(imagePath) {
   return (
     imagePath.startsWith("/avatars/") ||
     imagePath.startsWith("/city-photos/") ||
+    imagePath.startsWith("/community-posts/") ||
     imagePath.startsWith("avatars/") ||
-    imagePath.startsWith("city-photos/")
+    imagePath.startsWith("city-photos/") ||
+    imagePath.startsWith("community-posts/")
   );
 }
 

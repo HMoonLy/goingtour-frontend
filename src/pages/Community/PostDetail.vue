@@ -12,7 +12,7 @@
     <div v-else class="post-container">
       <!-- 帖子头部 -->
       <div class="post-header">
-        <el-page-header @back="$router.back()">
+        <el-page-header @back="$router.push('/community')">
           <template #content>
             <span class="header-title">帖子详情</span>
           </template>
@@ -28,7 +28,19 @@
               :src="post.coverImage" 
               fit="cover" 
               class="cover-image"
-              :preview-src-list="[post.coverImage]"
+              :preview-src-list="previewImageList"
+            />
+          </div>
+
+          <div class="post-gallery" v-if="galleryImages.length">
+            <el-image
+              v-for="(image, index) in galleryImages"
+              :key="`${image}-${index}`"
+              :src="image"
+              fit="cover"
+              class="gallery-image"
+              :preview-src-list="previewImageList"
+              :initial-index="index + (post.coverImage ? 1 : 0)"
             />
           </div>
 
@@ -151,6 +163,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/store/user';
 import { communityApi } from '@/api/community';
+import { normalizeImageUrl } from '@/utils/media/imageUrl';
 import { convertBackendTripToFrontend } from '@/utils/data/tripDataConverter';
 import TripSummaryCard from '@/components/Trip/Details/TripSummaryCard.vue';
 import TripMarkdownRenderer from '@/components/Trip/Steps/TripMarkdownRenderer.vue';
@@ -185,6 +198,48 @@ export default {
     const isAuthor = computed(() => {
       return post.value && userStore.currentUser && post.value.author.id === userStore.currentUser.id;
     });
+
+    const galleryImages = computed(() => {
+      if (!post.value?.images || !Array.isArray(post.value.images)) {
+        return [];
+      }
+      const seen = new Set();
+      const images = [];
+      post.value.images.forEach((image) => {
+        const normalized = normalizeImageUrl(image);
+        if (!normalized || normalized === post.value.coverImage || seen.has(normalized)) {
+          return;
+        }
+        seen.add(normalized);
+        images.push(normalized);
+      });
+      return images;
+    });
+
+    const previewImageList = computed(() => {
+      const images = [];
+      if (post.value?.coverImage) {
+        images.push(post.value.coverImage);
+      }
+      galleryImages.value.forEach((image) => {
+        if (!images.includes(image)) {
+          images.push(image);
+        }
+      });
+      return images;
+    });
+
+    const normalizePostImages = (rawPost) => {
+      const normalizedImages = Array.isArray(rawPost.images)
+        ? rawPost.images.map((image) => normalizeImageUrl(image)).filter(Boolean)
+        : [];
+      const coverImage = normalizeImageUrl(rawPost.coverImage) || normalizedImages[0] || '';
+      return {
+        ...rawPost,
+        coverImage,
+        images: normalizedImages
+      };
+    };
 
 
     const extractJsonFromMarkdown = (content) => {
@@ -225,7 +280,7 @@ export default {
         
         const res = await communityApi.getPostDetail(id);
         if (res.code === 200) {
-          post.value = res.data;
+          post.value = normalizePostImages(res.data);
           
           // 解析 tripSummary JSON 字符串
           if (post.value.tripSummary && typeof post.value.tripSummary === 'string') {
@@ -428,6 +483,8 @@ export default {
       post,
       formattedTrip,
       extractedTripSummary,
+      galleryImages,
+      previewImageList,
       triggerLikeAnimation,
       triggerCollectAnimation,
       isAuthor,
@@ -491,6 +548,20 @@ export default {
 .cover-image {
   width: 100%;
   height: 100%;
+}
+
+.post-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.gallery-image {
+  width: 100%;
+  height: 180px;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .post-title {
@@ -595,6 +666,14 @@ export default {
   
   .cover-image-container {
     height: 200px;
+  }
+
+  .post-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .gallery-image {
+    height: 140px;
   }
   
   .post-title {
