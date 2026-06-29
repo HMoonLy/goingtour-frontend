@@ -7,7 +7,7 @@
     <!-- 发表评论框 -->
     <div class="comment-input-area">
       <el-avatar :size="40" :src="currentUserAvatar" class="user-avatar">
-        <img src="@/assets/images/default-avatar.jpg" />
+        <img src="/vite.svg" />
       </el-avatar>
       <div class="input-wrapper">
         <el-input
@@ -46,7 +46,7 @@
             class="comment-avatar clickable-avatar"
             @click="navigateToUser(comment.userId)"
           >
-            <img src="@/assets/images/default-avatar.jpg" />
+            <img src="/vite.svg" />
           </el-avatar>
           
           <div class="comment-content-wrapper">
@@ -110,7 +110,7 @@
                   class="reply-avatar clickable-avatar"
                   @click="navigateToUser(reply.userId)"
                 >
-                  <img src="@/assets/images/default-avatar.jpg" />
+                  <img src="/vite.svg" />
                 </el-avatar>
                 
                 <div class="reply-content-box">
@@ -647,4 +647,3 @@ export default {
   to { opacity: 1; transform: translateY(0); }
 }
 </style>
-

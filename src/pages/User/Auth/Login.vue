@@ -116,6 +116,12 @@
             </el-button>
           </el-form-item>
 
+          <el-form-item v-if="isDemoModeEnabled" class="form-item">
+            <el-button class="demo-login-btn" size="large" @click="handleDemoLogin">
+              演示登录
+            </el-button>
+          </el-form-item>
+
           <!-- 其他登录方式 -->
           <div class="other-login">
             <el-divider>
@@ -170,6 +176,7 @@ import { ref, reactive, computed, onMounted, onUnmounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useAuth } from "@/composables/user/useAuth.js";
 import { useUserStore } from "@/store/user.js";
+import { isDemoMode } from "@/mock/demoAiData.js";
 import { ElMessage } from "element-plus";
 import {
   MapLocation,
@@ -217,8 +224,8 @@ export default {
 
     // 登录表单数据
     const loginForm = reactive({
-      email: "",
-      code: "",
+      email: isDemoMode() ? "demo@goingtour.local" : "",
+      code: isDemoMode() ? "123456" : "",
     });
 
     // 表单验证规则 - 使用统一的验证工具
@@ -231,6 +238,8 @@ export default {
     const canSendCode = computed(() => {
       return validateEmail(loginForm.email);
     });
+
+    const isDemoModeEnabled = computed(() => isDemoMode());
 
     // 输入处理
     const handleEmailInput = (value) => {
@@ -259,6 +268,12 @@ export default {
         // 验证失败，不需要额外处理，login方法内部已处理错误
         console.error("表单验证失败:", error);
       }
+    };
+
+    const handleDemoLogin = async () => {
+      loginForm.email = "demo@goingtour.local";
+      loginForm.code = "123456";
+      await login(loginForm.email, loginForm.code);
     };
 
     // 微信登录
@@ -309,10 +324,12 @@ export default {
       loggingIn: loading,
       countdown,
       canSendCode,
+      isDemoModeEnabled,
       handleEmailInput,
       handleCodeInput,
       sendVerificationCode: handleSendCode,
       handleLogin,
+      handleDemoLogin,
       handleWechatLogin,
       handleQQLogin,
       goToRegister,
@@ -667,6 +684,21 @@ export default {
   transition: all 0.1s;
 }
 
+.demo-login-btn {
+  width: 100%;
+  height: 48px;
+  border-radius: 12px;
+  color: #409eff;
+  border-color: #91a8d0;
+  background: rgba(145, 168, 208, 0.08);
+}
+
+.demo-login-btn:hover {
+  color: #337ecc;
+  border-color: #7a91c7;
+  background: rgba(145, 168, 208, 0.16);
+}
+
 .other-login {
   margin: 32px 0;
 }
@@ -947,5 +979,4 @@ export default {
   }
 }
 </style>
-
 

@@ -50,7 +50,7 @@
           <div class="post-meta-row">
             <div class="author-info" @click="goToUser(post.author.id)">
               <el-avatar :size="40" :src="post.author.avatar">
-                <img src="@/assets/images/default-avatar.jpg" />
+                <img src="/vite.svg" />
               </el-avatar>
               <div class="author-text">
                 <span class="author-name">{{ post.author.nickname }}</span>
@@ -708,4 +708,3 @@ export default {
 
 
 </style>
-

@@ -17,7 +17,7 @@ export const useUserStore = defineStore("user", {
         email: (state) => state.currentUser?.email,
         avatar: (state) => {
             const rawAvatar = state.currentUser?.avatar;
-            return rawAvatar ? getAvatarUrl(rawAvatar) : "/images/default-avatar.jpg";
+            return rawAvatar ? getAvatarUrl(rawAvatar) : "/vite.svg";
         },
         userPreferences: (state) => {
             const prefs = state.currentUser?.preferences;

@@ -2,6 +2,23 @@
 
 GoingTour 是一个面向国内旅行者的智能旅游规划 Web 应用，支持 AI 行程推荐、社区分享、足迹地图等功能。
 
+## 在线演示
+
+本项目支持演示模式，适合部署到 Vercel/Netlify 作为求职作品展示。
+
+- 演示模式开关：`VITE_DEMO_MODE=true`
+- 演示范围：AI 景点/餐厅/酒店推荐、推荐选择、AI 行程生成、Markdown 行程预览
+- 说明：演示模式使用前端内置示例数据，真实环境关闭该开关后会继续调用后端 AI 接口
+
+Vercel 推荐配置：
+
+| 配置项 | 值 |
+|------|------|
+| Framework Preset | Vite |
+| Build Command | `npm run build` |
+| Output Directory | `dist` |
+| Environment Variable | `VITE_DEMO_MODE=true` |
+
 ## 技术栈
 
 | 类别 | 技术 |

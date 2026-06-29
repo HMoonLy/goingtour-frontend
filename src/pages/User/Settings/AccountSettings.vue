@@ -207,7 +207,7 @@ const hasChanges = computed(() => {
 });
 
 const avatarPreview = computed(() => {
-  return getAvatarUrl(formData.avatar) || "/images/default-avatar.jpg";
+  return getAvatarUrl(formData.avatar) || "/vite.svg";
 });
 
 // 头像上传
@@ -390,4 +390,3 @@ const formatDate = (dateStr) => {
   }
 }
 </style>
-

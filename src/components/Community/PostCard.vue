@@ -27,7 +27,7 @@
       
       <div class="author-info" @click.stop="navigateToUser">
         <el-avatar :size="24" :src="post.author.avatar">
-          <img src="@/assets/images/default-avatar.jpg" />
+          <img src="/vite.svg" />
         </el-avatar>
         <span class="nickname">{{ post.author.nickname }}</span>
       </div>
@@ -220,4 +220,3 @@ export default {
   color: #ff9900;
 }
 </style>
-

@@ -164,8 +164,7 @@ const emit = defineEmits(['select', 'unselect', 'show-details'])
 
 // 获取图片URL - 直接使用默认酒店图片
 const getImageUrl = () => {
-  // 直接使用默认酒店图片
-  return '/images/defaults/hotel.png'
+  return props.hotel.image || '/vite.svg'
 }
 
 // 获取位置信息

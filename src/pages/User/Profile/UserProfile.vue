@@ -238,7 +238,7 @@ const formatCount = (count) => {
 
 const getTripCover = (trip) => {
   // 简单逻辑：如果有 destinationInfo 图片则使用，否则用默认
-  return trip.destinationInfo?.coverImage || '/images/defaults/destination.jpg';
+  return trip.destinationInfo?.coverImage || '/vite.svg';
 };
 
 const loadProfile = async () => {

@@ -51,7 +51,7 @@
           <el-dropdown @command="handleUserCommand" trigger="click">
             <div class="user-info">
               <el-avatar :src="avatar" :size="32">
-                <img src="@/assets/images/default-avatar.jpg" alt="avatar" />
+                <img src="/vite.svg" alt="avatar" />
               </el-avatar>
               <span class="username">{{ nickname }}</span>
               <el-icon class="dropdown-icon">

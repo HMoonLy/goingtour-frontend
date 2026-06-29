@@ -161,8 +161,7 @@ const emit = defineEmits(['select', 'unselect', 'show-details'])
 
 // 获取图片URL - 直接使用默认餐厅图片
 const getImageUrl = () => {
-  // 直接使用默认餐厅图片
-  return '/images/defaults/restaurant.png'
+  return props.restaurant.image || '/vite.svg'
 }
 
 // 获取位置信息

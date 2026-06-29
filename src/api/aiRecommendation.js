@@ -3,6 +3,7 @@
  */
 
 import { http } from "./request.js";
+import { createDemoRecommendations, isDemoMode } from "@/mock/demoAiData.js";
 
 export const aiRecommendationApi = {
     /**
@@ -14,6 +15,14 @@ export const aiRecommendationApi = {
      */
     getPersonalizedRecommendations(params) {
         console.log("🚀 AI推荐API - 发送请求参数:", params);
+
+        if (isDemoMode()) {
+            return Promise.resolve({
+                success: true,
+                data: createDemoRecommendations(params),
+                message: "演示模式 AI 推荐",
+            });
+        }
 
         return http.post('/ai/recommendations/personalized', params, {
             timeout: 300000 // AI推荐需要更长的超时时间：5分钟

@@ -147,8 +147,7 @@ const emit = defineEmits(['select', 'unselect', 'show-details'])
 
 // 获取图片URL - 直接使用默认景点图片
 const getImageUrl = () => {
-  // 直接使用默认景点图片
-  return '/images/defaults/attraction.png'
+  return props.attraction.image || '/vite.svg'
 }
 
 // 获取位置信息

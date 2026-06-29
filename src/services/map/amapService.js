@@ -125,10 +125,10 @@ export const PRESET_LANDMARKS = {
  * 默认图片映射
  */
 const DEFAULT_IMAGES = {
-    ATTRACTION: '/images/defaults/attraction.svg',
-    RESTAURANT: '/images/defaults/restaurant.svg',
-    HOTEL: '/images/defaults/hotel.svg',
-    DEFAULT: '/images/defaults/attraction.svg'
+    ATTRACTION: '/vite.svg',
+    RESTAURANT: '/vite.svg',
+    HOTEL: '/vite.svg',
+    DEFAULT: '/vite.svg'
 };
 
 /**

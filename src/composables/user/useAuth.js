@@ -4,6 +4,7 @@ import { useUserStore } from "@/store/user.js";
 import { handleApiError, handleSuccess } from "@/utils/api/errorHandler.js";
 import { userApi } from "@/api/user.js";
 import { notify } from "@/utils/ui/notify.js";
+import { createDemoAuthData, isDemoMode } from "@/mock/demoAiData.js";
 
 function hasAdminRole(role) {
     const normalized = (role || "").toUpperCase();
@@ -35,6 +36,13 @@ export function useAuth() {
 
         try {
             verifyCodeLoading.value = true;
+
+            if (isDemoMode()) {
+                notify.success("演示模式：验证码已自动通过，可输入 123456");
+                startCountdown(5);
+                return true;
+            }
+
             await userApi.sendCode({ email, type });
             notify.success("Verification code has been sent");
             startCountdown(60);
@@ -94,6 +102,19 @@ export function useAuth() {
 
         try {
             loading.value = true;
+
+            if (isDemoMode()) {
+                const user = userStore.setLoginState(createDemoAuthData(email));
+                const redirectPath = userStore.getAndClearRedirectPath();
+
+                handleSuccess(`演示登录成功，欢迎 ${user.nickname}`, {
+                    showNotification: true,
+                });
+
+                await router.push(redirectPath || "/home");
+                return userStore.currentUser;
+            }
+
             const response = await userApi.login({ email, code });
             const authData = response.data;
             const user = userStore.setLoginState(authData);

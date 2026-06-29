@@ -2,6 +2,7 @@ import { ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import { transformToBackendDTO } from '@/utils/data/travelDataSystem.js';
 import { tripApi } from '@/api/trip.js';
+import { createDemoTrip, isDemoMode } from '@/mock/demoAiData.js';
 
 export function useTripGenerationLogic(props, emit) {
   // Cancel controller
@@ -94,6 +95,28 @@ export function useTripGenerationLogic(props, emit) {
 
       emit("update:generationProgress", "发送请求...");
       emit("update:progressPercent", 55);
+
+      if (isDemoMode()) {
+        emit("update:generationProgress", "演示模式生成行程...");
+        emit("update:progressPercent", 75);
+
+        await new Promise((resolve) => setTimeout(resolve, 800));
+
+        const tripData = createDemoTrip(tripState);
+
+        emit("update:generationProgress", "行程生成完成");
+        emit("update:progressPercent", 100);
+        emit("update:generatedTrip", tripData);
+        emit("generation-complete", tripData);
+
+        ElMessage.success({
+          message: `演示行程生成成功！质量评分：${tripData.qualityScore}`,
+          duration: 4000,
+          showClose: true,
+        });
+
+        return;
+      }
 
       abortController = new AbortController();
 

@@ -6,7 +6,7 @@ export const aiScenarios = [
     title: "长沙美食 · 3天",
     desc: "苍蝇馆+地方小吃为主，避开排队",
     city: { adcode: "430100", name: "长沙市" },
-    cover: "/images/scenarios/changsha_food.jpg",
+    cover: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=900&q=80",
     preset: {
       baseForm: { days: 3 },
       preferenceForm: {
@@ -25,7 +25,7 @@ export const aiScenarios = [
     title: "川西小环线 · 5天",
     desc: "自然风光+轻徒步，避开高强度线路",
     city: { adcode: "510100", name: "成都市" },
-    cover: "/images/scenarios/sichuan_ring.jpg",
+    cover: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80",
     preset: {
       baseForm: { days: 5 },
       preferenceForm: {
@@ -43,7 +43,7 @@ export const aiScenarios = [
     title: "周末 Citywalk · 2天",
     desc: "小众街区+咖啡馆+步行优先",
     // 该场景为泛城市，可不带默认城市
-    cover: "/images/scenarios/weekend_citywalk.jpg",
+    cover: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=900&q=80",
     preset: {
       baseForm: { days: 2 },
       preferenceForm: {
@@ -62,7 +62,7 @@ export const aiScenarios = [
     desc: "本帮菜+市集/咖啡，夜宵/夜生活",
     city: { adcode: "310000", name: "上海市" },
     // 首页卡片可选配封面图（尺寸建议 600x300 或 3:2）
-    cover: "/images/scenarios/shanghai_food.jpg",
+    cover: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=900&q=80",
     preset: {
       baseForm: { days: 2 },
       preferenceForm: {

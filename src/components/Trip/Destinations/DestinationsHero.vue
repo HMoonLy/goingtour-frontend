@@ -50,7 +50,7 @@ defineEmits(["update:modelValue", "search", "clear"]);
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
-    url("/images/scenarios/weekend_citywalk.jpg");
+    url("https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1600&q=80");
   background-size: cover;
   background-position: center;
   filter: saturate(1.05);
@@ -94,4 +94,3 @@ defineEmits(["update:modelValue", "search", "clear"]);
   border-radius: 10px;
 }
 </style>
-
